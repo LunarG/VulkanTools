@@ -1,15 +1,17 @@
 # Build Instructions
 This project fully supports Linux today.
-Support for Windows is for the loader, layers, and the VkTrace trace/replay tools.
+Support for Windows is for the layers, tests and the VkTrace trace/replay tools.
 Support for Android is TBD.
 
 ## Git the Bits
 
-Make sure you have access to the Khronos GitLab repository at gitlab.khronos.org.  Once you do, the
-preferred work flow is to clone the repo, create a branch, push branch to gitlab and then
+Make sure you have access to the Khronos Github repository.  Once you do, the
+preferred work flow is to clone the repo, create a branch, push branch to github and then
 issue a merge request to integrate that work back into the repo.
 
-Note: If you are doing ICD (driver) development, please make sure to look at documentation in the [ICD Loader](loader/README.md) and the [Sample Driver](icd).
+## Dependencies
+  - You must have a LoaderAndTools (LoaderAndValidationLayers) repository from Khronos,
+    and a glslang, LunarGlass repository that are file system peers to VulkanTools,.
 
 ## Linux System Requirements
 Ubuntu 14.04.3 LTS, 14.10, 15.04 and 15.10 have been used with the sample driver.
@@ -238,39 +240,39 @@ xdpyinfo | grep DRI
 ```
 
 
-## Clone the repository
+## Clone the repository(ies)
 
-To create your local git repository:
+To create your local git repository of VulkanTools:
 ```
-mkdir YOUR_DEV_DIRECTORY  # it's called GL-Next on Github, but the name doesn't matter
-cd YOUR_DEV_DIRECTORY
+mkdir YOUR_DEV_PARENT_DIRECTORY  # this will hold several repositories
+cd YOUR_DEV_PARENT_DIRECTORY
+mkdir YOUR_DEV_DIRECTORY     # it is called VulkanTools  on Github but name can be anything
+git clone -o LunarG git@github.com:LunarG/VulkanTools.git <YOUR_DEV_DIRECTORY>
+# Or substitute the URL from your forked repo for git@github.com:LunarG/VulkanTools.git above.
+# if you need the LoaderAndValidationLayers repo as a sibling
+cd YOUR_DEV_PARENT_DIRECTORY
 git clone -o khronos git@gitlab.khronos.org:vulkan/LoaderAndTools.git .
 # Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/LoaderAndTools.git above.
+cd LoaderAndTools
+# this will fetch glslang, llvm, SPIR-V and LunarGlass as sibling repositories
+export KHRONOS_ACCOUNT_NAME= <subversion login name for svn checkout of SPIR-V>
+./update_external_sources.sh   # linux
+./update_external_sources.bat  # windows
 ```
 
 ## Linux Build
 
 The sample driver uses cmake and should work with the usual cmake options and utilities.
-The standard build process builds the icd, the icd loader and all the tests.
+The standard build process builds the icd, vktrace and all the tests.
 
 Example debug build:
+NOTE: The loader repository must be a sibling directory of VulkanTools.
 ```
-cd YOUR_DEV_DIRECTORY  # cd to the root of the vk git repository
-export KHRONOS_ACCOUNT_NAME= <subversion login name for svn checkout of BIL>
-./update_external_sources.sh  # fetches and builds glslang, llvm, LunarGLASS, and BIL
+cd YOUR_DEV_DIRECTORY  # cd to the root of the VulkanTools git repository
 cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
 cd dbuild
 make
 ```
-
-To run VK programs you must tell the icd loader where to find the libraries.
-This is described in a specification in the Khronos documentation Git
-repository.  See the file:
-https://gitlab.khronos.org/vulkan/vulkan/blob/master/ecosystem/LinuxICDs.txt
-
-This specification describes both how ICDs and layers should be properly
-packaged, and how developers can point to ICDs and layers within their builds.
-
 
 ## Linux Test
 
@@ -281,18 +283,9 @@ gtest infrastructure. Tests available so far:
 - vk_image_tests: Test VK image related calls needed by render_test
 - vk_render_tests: Render a single triangle with VK. Triangle will be in a .ppm in
 the current directory at the end of the test.
-- vk_layer_validation_tests: Test Vulkan layers.
 
 There are also a few shell and Python scripts that run test collections (eg,
 `run_all_tests.sh`).
-
-## Linux Demos
-
-The demos executables can be found in the dbuild/demos directory. The demos use DRI 3
-to render directly onto window surfaces.
-- vulkaninfo: report GPU properties
-- tri: a textured triangle
-- cube: a textured spinning cube
 
 ## Linux Render Nodes
 
@@ -338,7 +331,7 @@ Windows 7+ with additional required software packages:
       - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x64-dll.exe
       - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x86-dll.exe
   - For each of the installs, be sure to check box to "Install development headers and libraries"
-- glslang is required for demos and tests.
+- glslang is required for tests.
   - You can download and configure it (in a peer directory) here: https://github.com/KhronosGroup/glslang/blob/master/README.md
   - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2013 like so:
     - update_external_sources.bat --build-glslang
@@ -357,8 +350,7 @@ Cygwin is used in order to obtain a local copy of the Git repository, and to run
 
 Example debug x64 build (e.g. in a "Developer Command Prompt for VS2013" window):
 ```
-cd LoaderAndTools  # cd to the root of the Vulkan git repository
-update_external_sources.bat --all
+cd VulkanTools  # cd to the root of the VulkanTools git repository
 mkdir build
 cd build
 cmake -G "Visual Studio 12 Win64" ..
@@ -368,21 +360,12 @@ At this point, you can use Windows Explorer to launch Visual Studio by double-cl
 
 VK programs must be able to find and use the VK.dll libary. Make sure it is either installed in the C:\Windows\System32 folder, or the PATH enviroment variable includes the folder that it is located in.
 
-To run VK programs you must tell the icd loader where to find the libraries.
-This is described in a specification in the Khronos documentation Git
-repository.  See the file:
-https://gitlab.khronos.org/vulkan/vulkan/blob/master/ecosystem/WindowsICDs.txt
-
-This specification describes both how ICDs and layers should be properly
-packaged, and how developers can point to ICDs and layers within their builds.
-
 ### Windows 64-bit Installation Notes
 If you plan on creating a Windows Install file (done in the windowsRuntimeInstaller sub-directory) you will need to build for both 32-bit and 64-bit Windows since both versions of EXEs and DLLs exist simultaneously on Windows 64.
 
 To do this, simply create and build the release versions of each target:
 ```
-cd LoaderAndTools  # cd to the root of the Vulkan git repository
-update_external_sources.bat --all
+cd VulkanTools  # cd to the root of the Vulkan git repository
 mkdir build
 cd build
 cmake -G "Visual Studio 12 Win64" ..

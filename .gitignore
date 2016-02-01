@@ -11,11 +11,6 @@ icd/intel/intel_gpa.c
 _out64
 out32/*
 out64/*
-demos/Debug/*
-demos/tri.dir/Debug/*
-demos/tri/Debug/*
-demos/Win32/Debug/*
-demos/xcb_nvidia.dir/*
 libs/Win32/Debug/*
 *.pyc
 *.vcproj
