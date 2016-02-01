@@ -17,18 +17,9 @@ endmacro()
 set(LAYER_JSON_FILES
     VkLayer_api_dump
     VkLayer_basic
-    VkLayer_draw_state
     VkLayer_generic
-    VkLayer_image
-    VkLayer_mem_tracker
     VkLayer_multi
-    VkLayer_object_tracker
-    VkLayer_unique_objects
-    VkLayer_param_checker
     VkLayer_screenshot
-    VkLayer_swapchain
-    VkLayer_threading
-    VkLayer_device_limits
     )
 
 set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
@@ -88,21 +79,8 @@ include_directories(
 )
 
 if (WIN32)
-    set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_CRT_SECURE_NO_WARNINGS")
-    set (CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE} -D_CRT_SECURE_NO_WARNINGS")
-    
-    # For VS 2015, which uses compiler version 1900, draw_state.cpp fails with too many objects
-    # without either optimizations enabled, or setting the /bigobj compilation option.  Since
-    # optimizations are enabled in a release build, this only affects the debug build.  For now,
-    # enable /bigobj mode for all debug layer files. An alternative for the future is to split
-    # draw_state.cpp into multiple files, which will also alleviate the compilation error.
-    if (MSVC AND NOT (MSVC_VERSION LESS 1900))
-        set (CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS /bigobj")
-        set (CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS /bigobj")
-    else()
-        set (CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS")
-        set (CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS")
-    endif()
+    set (CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS")
+    set (CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS")
 endif()
 if (NOT WIN32)
     set (CMAKE_CXX_FLAGS "-std=c++11")
@@ -141,9 +119,6 @@ add_custom_target(generate_vk_layer_helpers DEPENDS
 
 run_vk_layer_generate(generic generic_layer.cpp)
 run_vk_layer_generate(api_dump api_dump.cpp)
-run_vk_layer_generate(object_tracker object_tracker.cpp)
-run_vk_layer_generate(threading threading.cpp)
-run_vk_layer_generate(unique_objects unique_objects.cpp)
 
 add_library(layer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
 if (WIN32)
@@ -156,16 +131,7 @@ endif()
 
 add_vk_layer(basic basic.cpp vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp vk_layer_table.cpp)
-add_vk_layer(draw_state draw_state.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp)
-add_vk_layer(device_limits device_limits.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp vk_layer_utils.cpp)
-add_vk_layer(mem_tracker mem_tracker.cpp vk_layer_table.cpp)
-add_vk_layer(image image.cpp vk_layer_table.cpp)
-add_vk_layer(param_checker param_checker.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp vk_layer_table.cpp)
-add_vk_layer(swapchain swapchain.cpp vk_layer_table.cpp)
 # generated
 add_vk_layer(generic generic_layer.cpp vk_layer_table.cpp)
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
-add_vk_layer(object_tracker object_tracker.cpp vk_layer_table.cpp)
-add_vk_layer(threading threading.cpp vk_layer_table.cpp)
-add_vk_layer(unique_objects unique_objects.cpp vk_layer_table.cpp)
