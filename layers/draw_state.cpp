@@ -46,7 +46,7 @@
 #include <spirv.hpp>
 #include <set>
 
-#include "vk_loader_platform.h"
+#include "vk_layer_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vk_struct_string_helper_cpp.h"
 #if defined(__GNUC__)
@@ -210,12 +210,12 @@ struct shader_module {
 // TODO : Do we need to guard access to layer_data_map w/ lock?
 static unordered_map<void*, layer_data*> layer_data_map;
 
-static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(g_initOnce);
+static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(g_initOnce);
 // TODO : This can be much smarter, using separate locks for separate global data
 static int globalLockInitialized = 0;
-static loader_platform_thread_mutex globalLock;
+static layer_platform_thread_mutex globalLock;
 #define MAX_TID 513
-static loader_platform_thread_id g_tidMapping[MAX_TID] = {0};
+static layer_platform_thread_id g_tidMapping[MAX_TID] = {0};
 static uint32_t g_maxTID = 0;
 
 template layer_data *get_my_data_ptr<layer_data>(
@@ -225,7 +225,7 @@ template layer_data *get_my_data_ptr<layer_data>(
 // Map actual TID to an index value and return that index
 //  This keeps TIDs in range from 0-MAX_TID and simplifies compares between runs
 static uint32_t getTIDIndex() {
-    loader_platform_thread_id tid = loader_platform_get_thread_id();
+    layer_platform_thread_id tid = layer_platform_get_thread_id();
     for (uint32_t i = 0; i < g_maxTID; i++) {
         if (tid == g_tidMapping[i])
             return i;
@@ -1177,12 +1177,12 @@ static VkBool32 validate_status(layer_data* my_data, GLOBAL_CB_NODE* pNode, CBSt
 // Retrieve pipeline node ptr for given pipeline object
 static PIPELINE_NODE* getPipeline(layer_data* my_data, const VkPipeline pipeline)
 {
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     if (my_data->pipelineMap.find(pipeline) == my_data->pipelineMap.end()) {
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
         return NULL;
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return my_data->pipelineMap[pipeline];
 }
 
@@ -1454,12 +1454,12 @@ validate_pipeline_shaders(layer_data *my_data, VkDevice dev, PIPELINE_NODE* pPip
 // Return Set node ptr for specified set or else NULL
 static SET_NODE* getSetNode(layer_data* my_data, const VkDescriptorSet set)
 {
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     if (my_data->setMap.find(set) == my_data->setMap.end()) {
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
         return NULL;
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return my_data->setMap[set];
 }
 
@@ -1864,22 +1864,22 @@ static VkBool32 validatePipelineState(layer_data* my_data, const GLOBAL_CB_NODE*
 // Return Pool node ptr for specified pool or else NULL
 static DESCRIPTOR_POOL_NODE* getPoolNode(layer_data* my_data, const VkDescriptorPool pool)
 {
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     if (my_data->descriptorPoolMap.find(pool) == my_data->descriptorPoolMap.end()) {
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
         return NULL;
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return my_data->descriptorPoolMap[pool];
 }
 
 static LAYOUT_NODE* getLayoutNode(layer_data* my_data, const VkDescriptorSetLayout layout) {
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     if (my_data->descriptorSetLayoutMap.find(layout) == my_data->descriptorSetLayoutMap.end()) {
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
         return NULL;
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return my_data->descriptorSetLayoutMap[layout];
 }
 
@@ -2269,7 +2269,7 @@ static VkBool32 dsUpdate(layer_data* my_data, VkDevice device, uint32_t descript
 {
     VkBool32 skipCall = VK_FALSE;
 
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     LAYOUT_NODE* pLayout = NULL;
     VkDescriptorSetLayoutCreateInfo* pLayoutCI = NULL;
     // Validate Write updates
@@ -2387,7 +2387,7 @@ static VkBool32 dsUpdate(layer_data* my_data, VkDevice device, uint32_t descript
             }
         }
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return skipCall;
 }
 
@@ -2529,9 +2529,9 @@ static void clearDescriptorSet(layer_data* my_data, VkDescriptorSet set)
     if (!pSet) {
         // TODO : Return error
     } else {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         freeShadowUpdateTree(pSet);
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
 }
 
@@ -2559,15 +2559,15 @@ static void clearDescriptorPool(layer_data* my_data, const VkDevice device, cons
 // For given CB object, fetch associated CB Node from map
 static GLOBAL_CB_NODE* getCBNode(layer_data* my_data, const VkCommandBuffer cb)
 {
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     if (my_data->commandBufferMap.count(cb) == 0) {
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
         // TODO : How to pass cb as srcObj here?
         log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0, __LINE__, DRAWSTATE_INVALID_COMMAND_BUFFER, "DS",
                 "Attempt to use CommandBuffer %#" PRIxLEAST64 " that doesn't exist!", (uint64_t)(cb));
         return NULL;
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return my_data->commandBufferMap[cb];
 }
 
@@ -2897,7 +2897,7 @@ static void init_draw_state(layer_data *my_data, const VkAllocationCallbacks *pA
 
     if (!globalLockInitialized)
     {
-        loader_platform_thread_create_mutex(&globalLock);
+        layer_platform_thread_create_mutex(&globalLock);
         globalLockInitialized = 1;
     }
 }
@@ -2957,7 +2957,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance
     // TODO : Potential race here with separate threads creating/destroying instance
     if (layer_data_map.empty()) {
         // Release mutex when destroying last instance.
-        loader_platform_thread_delete_mutex(&globalLock);
+        layer_platform_thread_delete_mutex(&globalLock);
         globalLockInitialized = 0;
     }
 }
@@ -3034,7 +3034,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, cons
     dispatch_key key = get_dispatch_key(device);
     layer_data* dev_data = get_my_data_ptr(key, layer_data_map);
     // Free all the memory
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     deletePipelines(dev_data);
     deleteRenderPasses(dev_data);
     deleteCommandBuffers(dev_data);
@@ -3044,7 +3044,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, cons
     dev_data->imageMap.clear();
     dev_data->bufferViewMap.clear();
     dev_data->bufferMap.clear();
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
 
     dev_data->device_dispatch_table->DestroyDevice(device, pAllocator);
     tableDebugMarkerMap.erase(key);
@@ -3306,7 +3306,7 @@ static VkBool32 validateCommandBufferState(layer_data* dev_data, GLOBAL_CB_NODE*
         } else { // Flag error for using CB w/o vkEndCommandBuffer() called
             skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)(pCB->commandBuffer), __LINE__, DRAWSTATE_NO_END_COMMAND_BUFFER, "DS",
                 "You must call vkEndCommandBuffer() on CB %#" PRIxLEAST64 " before this call to vkQueueSubmit()!", (uint64_t)(pCB->commandBuffer));
-            loader_platform_thread_unlock_mutex(&globalLock);
+            layer_platform_thread_unlock_mutex(&globalLock);
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
     }
@@ -3345,10 +3345,10 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit(VkQueue queue, uint
 #endif // DISABLE_IMAGE_LAYOUT_VALIDATION
 
             pCB = getCBNode(dev_data, submit->pCommandBuffers[i]);
-            loader_platform_thread_lock_mutex(&globalLock);
+            layer_platform_thread_lock_mutex(&globalLock);
             pCB->submitCount++; // increment submit count
             skipCall |= validateCommandBufferState(dev_data, pCB);
-            loader_platform_thread_unlock_mutex(&globalLock);
+            layer_platform_thread_unlock_mutex(&globalLock);
         }
         trackCommandBuffers(dev_data, queue, submit->commandBufferCount, submit->pCommandBuffers, fence);
     }
@@ -3657,7 +3657,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkFreeCommandBuffers(VkDevice device,
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
 
     for (uint32_t i = 0; i < count; i++) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         // Delete CB information structure, and remove from commandBufferMap
         auto cb = dev_data->commandBufferMap.find(pCommandBuffers[i]);
         if (cb != dev_data->commandBufferMap.end()) {
@@ -3669,7 +3669,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkFreeCommandBuffers(VkDevice device,
 
         // Remove commandBuffer reference from commandPoolMap
         dev_data->commandPoolMap[commandPool].commandBuffers.remove(pCommandBuffers[i]);
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
 
     dev_data->device_dispatch_table->FreeCommandBuffers(device, commandPool, count, pCommandBuffers);
@@ -3682,16 +3682,16 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateCommandPool(VkDevice devi
     VkResult result = dev_data->device_dispatch_table->CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
 
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->commandPoolMap[*pCommandPool].createFlags = pCreateInfo->flags;
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
 
 VkBool32 validateCommandBuffersNotInUse(const layer_data* dev_data, VkCommandPool commandPool) {
     VkBool32 skipCall = VK_FALSE;
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     auto pool_data = dev_data->commandPoolMap.find(commandPool);
     if (pool_data != dev_data->commandPoolMap.end()) {
         for (auto cmdBuffer : pool_data->second.commandBuffers) {
@@ -3702,7 +3702,7 @@ VkBool32 validateCommandBuffersNotInUse(const layer_data* dev_data, VkCommandPoo
             }
         }
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return skipCall;
 }
 
@@ -3710,7 +3710,7 @@ VkBool32 validateCommandBuffersNotInUse(const layer_data* dev_data, VkCommandPoo
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks* pAllocator)
 {
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
 
     // Must remove cmdpool from cmdpoolmap, after removing all cmdbuffers in its list from the commandPoolMap
     if (dev_data->commandPoolMap.find(commandPool) != dev_data->commandPoolMap.end()) {
@@ -3723,7 +3723,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyCommandPool(VkDevice device,
     }
     dev_data->commandPoolMap.erase(commandPool);
 
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
 
     if (VK_TRUE == validateCommandBuffersNotInUse(dev_data, commandPool))
         return;
@@ -3745,13 +3745,13 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandPool(
     result = dev_data->device_dispatch_table->ResetCommandPool(device, commandPool, flags);
     // Reset all of the CBs allocated from this pool
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         auto it = dev_data->commandPoolMap[commandPool].commandBuffers.begin();
         while (it != dev_data->commandPoolMap[commandPool].commandBuffers.end()) {
             resetCB(dev_data, (*it));
             ++it;
         }
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -3773,11 +3773,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateBuffer(VkDevice device, c
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->device_dispatch_table->CreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         // TODO : This doesn't create deep copy of pQueueFamilyIndices so need to fix that if/when we want that data to be valid
         dev_data->bufferMap[*pBuffer].create_info = unique_ptr<VkBufferCreateInfo>(new VkBufferCreateInfo(*pCreateInfo));
         dev_data->bufferMap[*pBuffer].in_use.store(0);
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -3787,9 +3787,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferView(VkDevice devic
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->device_dispatch_table->CreateBufferView(device, pCreateInfo, pAllocator, pView);
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->bufferViewMap[*pView] = unique_ptr<VkBufferViewCreateInfo>(new VkBufferViewCreateInfo(*pCreateInfo));
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -3802,10 +3802,10 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(VkDevice device, co
         IMAGE_NODE* image_node = new IMAGE_NODE;
         image_node->layout = pCreateInfo->initialLayout;
         image_node->format = pCreateInfo->format;
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->imageMap[*pImage] = unique_ptr<VkImageCreateInfo>(new VkImageCreateInfo(*pCreateInfo));
         dev_data->imageLayoutMap[*pImage] = image_node;
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -3815,9 +3815,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateImageView(VkDevice device
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->device_dispatch_table->CreateImageView(device, pCreateInfo, pAllocator, pView);
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->imageViewMap[*pView] = unique_ptr<VkImageViewCreateInfo>(new VkImageViewCreateInfo(*pCreateInfo));
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -3885,24 +3885,24 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateGraphicsPipelines(
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
 
     uint32_t i=0;
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
 
     for (i=0; i<count; i++) {
         pPipeNode[i] = initGraphicsPipeline(dev_data, &pCreateInfos[i], NULL);
         skipCall |= verifyPipelineCreateState(dev_data, device, pPipeNode[i]);
     }
 
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
 
     if (VK_FALSE == skipCall) {
         result = dev_data->device_dispatch_table->CreateGraphicsPipelines(device,
             pipelineCache, count, pCreateInfos, pAllocator, pPipelines);
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         for (i=0; i<count; i++) {
             pPipeNode[i]->pipeline = pPipelines[i];
             dev_data->pipelineMap[pPipeNode[i]->pipeline] = pPipeNode[i];
         }
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     } else {
         for (i=0; i<count; i++) {
             if (pPipeNode[i]) {
@@ -3934,7 +3934,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateComputePipelines(
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
 
     uint32_t i=0;
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     for (i=0; i<count; i++) {
         // TODO: Verify compute stage bits
 
@@ -3945,16 +3945,16 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateComputePipelines(
         // TODO: Add Compute Pipeline Verification
         // skipCall |= verifyPipelineCreateState(dev_data, device, pPipeNode[i]);
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
 
     if (VK_FALSE == skipCall) {
         result = dev_data->device_dispatch_table->CreateComputePipelines(device, pipelineCache, count, pCreateInfos, pAllocator, pPipelines);
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         for (i=0; i<count; i++) {
             pPipeNode[i]->pipeline = pPipelines[i];
             dev_data->pipelineMap[pPipeNode[i]->pipeline] = pPipeNode[i];
         }
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     } else {
         for (i=0; i<count; i++) {
             if (pPipeNode[i]) {
@@ -3972,9 +3972,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateSampler(VkDevice device, 
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->device_dispatch_table->CreateSampler(device, pCreateInfo, pAllocator, pSampler);
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->sampleMap[*pSampler] = unique_ptr<SAMPLER_NODE>(new SAMPLER_NODE(pSampler, pCreateInfo));
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -4037,9 +4037,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorSetLayout(VkDev
             pNewNode->endIndex = 0;
         }
         // Put new node at Head of global Layer list
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->descriptorSetLayoutMap[*pSetLayout] = pNewNode;
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -4073,7 +4073,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorPool(VkDevice d
         if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_INFO_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT, (uint64_t) *pDescriptorPool, __LINE__, DRAWSTATE_OUT_OF_MEMORY, "DS",
                 "Created Descriptor Pool %#" PRIxLEAST64, (uint64_t) *pDescriptorPool))
             return VK_ERROR_VALIDATION_FAILED_EXT;
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         DESCRIPTOR_POOL_NODE* pNewNode = new DESCRIPTOR_POOL_NODE(*pDescriptorPool, pCreateInfo);
         if (NULL == pNewNode) {
             if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT, (uint64_t) *pDescriptorPool, __LINE__, DRAWSTATE_OUT_OF_MEMORY, "DS",
@@ -4082,7 +4082,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorPool(VkDevice d
         } else {
             dev_data->descriptorPoolMap[*pDescriptorPool] = pNewNode;
         }
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     } else {
         // Need to do anything if pool create fails?
     }
@@ -4212,7 +4212,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(VkDevice
         for (uint32_t i = 0; i < pCreateInfo->commandBufferCount; i++) {
             // Validate command pool
             if (dev_data->commandPoolMap.find(pCreateInfo->commandPool) != dev_data->commandPoolMap.end()) {
-                loader_platform_thread_lock_mutex(&globalLock);
+                layer_platform_thread_lock_mutex(&globalLock);
                 // Add command buffer to its commandPool map
                 dev_data->commandPoolMap[pCreateInfo->commandPool].commandBuffers.push_back(pCommandBuffer[i]);
                 GLOBAL_CB_NODE* pCB = new GLOBAL_CB_NODE;
@@ -4222,7 +4222,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(VkDevice
                 pCB->commandBuffer = pCommandBuffer[i];
                 pCB->createInfo    = *pCreateInfo;
                 pCB->device        = device;
-                loader_platform_thread_unlock_mutex(&globalLock);
+                layer_platform_thread_unlock_mutex(&globalLock);
             }
         }
     }
@@ -4273,19 +4273,19 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(VkCommandBuf
                     "Call to vkBeginCommandBuffer() on command buffer (%#" PRIxLEAST64 ") attempts to implicitly reset cmdBuffer created from command pool (%#" PRIxLEAST64 ") that does NOT have the VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT bit set.",
                     (uint64_t) commandBuffer, (uint64_t) cmdPool);
             }
-            loader_platform_thread_lock_mutex(&globalLock);
+            layer_platform_thread_lock_mutex(&globalLock);
             resetCB(dev_data, commandBuffer);
-            loader_platform_thread_unlock_mutex(&globalLock);
+            layer_platform_thread_unlock_mutex(&globalLock);
         }
         // Set updated state here in case implicit reset occurs above
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         pCB->state = CB_RECORDING;
         pCB->beginInfo = *pBeginInfo;
         if (pCB->beginInfo.pInheritanceInfo) {
             pCB->inheritanceInfo = *(pCB->beginInfo.pInheritanceInfo);
             pCB->beginInfo.pInheritanceInfo = &pCB->inheritanceInfo;
         }
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     } else {
         skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__, DRAWSTATE_INVALID_COMMAND_BUFFER, "DS",
                 "In vkBeginCommandBuffer() and unable to find CommandBuffer Node for CB %p!", (void*)commandBuffer);
@@ -4338,9 +4338,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandBuffer(VkCommandBuf
         return VK_ERROR_VALIDATION_FAILED_EXT;
     VkResult result = dev_data->device_dispatch_table->ResetCommandBuffer(commandBuffer, flags);
     if (VK_SUCCESS == result) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         resetCB(dev_data, commandBuffer);
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -4364,9 +4364,9 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdBindPipeline(VkCommandBuffer com
         PIPELINE_NODE* pPN = getPipeline(dev_data, pipeline);
         if (pPN) {
             pCB->lastBoundPipeline = pipeline;
-            loader_platform_thread_lock_mutex(&globalLock);
+            layer_platform_thread_lock_mutex(&globalLock);
             set_cb_pso_status(pCB, pPN);
-            loader_platform_thread_unlock_mutex(&globalLock);
+            layer_platform_thread_unlock_mutex(&globalLock);
             skipCall |= validatePipelineState(dev_data, pCB, pipelineBindPoint, pipeline);
         } else {
             skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
@@ -4389,11 +4389,11 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdSetViewport(
     GLOBAL_CB_NODE* pCB = getCBNode(dev_data, commandBuffer);
     if (pCB) {
         skipCall |= addCmd(dev_data, pCB, CMD_SETVIEWPORTSTATE, "vkCmdSetViewport()");
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         pCB->status |= CBSTATUS_VIEWPORT_SET;
         pCB->viewports.resize(viewportCount);
         memcpy(pCB->viewports.data(), pViewports, viewportCount * sizeof(VkViewport));
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     if (VK_FALSE == skipCall)
         dev_data->device_dispatch_table->CmdSetViewport(commandBuffer, firstViewport, viewportCount, pViewports);
@@ -4410,11 +4410,11 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdSetScissor(
     GLOBAL_CB_NODE* pCB = getCBNode(dev_data, commandBuffer);
     if (pCB) {
         skipCall |= addCmd(dev_data, pCB, CMD_SETSCISSORSTATE, "vkCmdSetScissor()");
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         pCB->status |= CBSTATUS_SCISSOR_SET;
         pCB->scissors.resize(scissorCount);
         memcpy(pCB->scissors.data(), pScissors, scissorCount * sizeof(VkRect2D));
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     if (VK_FALSE == skipCall)
         dev_data->device_dispatch_table->CmdSetScissor(commandBuffer, firstScissor, scissorCount, pScissors);
@@ -4428,10 +4428,10 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdSetLineWidth(VkCommandBuffer com
     if (pCB) {
         skipCall |= addCmd(dev_data, pCB, CMD_SETLINEWIDTHSTATE, "vkCmdSetLineWidth()");
         /* TODO: Do we still need this lock? */
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         pCB->status |= CBSTATUS_LINE_WIDTH_SET;
         pCB->lineWidth = lineWidth;
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     if (VK_FALSE == skipCall)
         dev_data->device_dispatch_table->CmdSetLineWidth(commandBuffer, lineWidth);
@@ -4581,13 +4581,13 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets(VkCommandBuff
                 for (uint32_t i=0; i<setCount; i++) {
                     SET_NODE* pSet = getSetNode(dev_data, pDescriptorSets[i]);
                     if (pSet) {
-                        loader_platform_thread_lock_mutex(&globalLock);
+                        layer_platform_thread_lock_mutex(&globalLock);
                         pCB->uniqueBoundSets.insert(pDescriptorSets[i]);
                         pSet->boundCmdBuffers.insert(commandBuffer);
                         pCB->lastBoundDescriptorSet = pDescriptorSets[i];
                         pCB->lastBoundPipelineLayout = layout;
                         pCB->boundDescriptorSets[i+firstSet] = pDescriptorSets[i];
-                        loader_platform_thread_unlock_mutex(&globalLock);
+                        layer_platform_thread_unlock_mutex(&globalLock);
                         skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_INFO_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, (uint64_t) pDescriptorSets[i], __LINE__, DRAWSTATE_NONE, "DS",
                                 "DS %#" PRIxLEAST64 " bound on pipeline %s", (uint64_t) pDescriptorSets[i], string_VkPipelineBindPoint(pipelineBindPoint));
                         if (!pSet->pUpdateStructs && (pSet->descriptorCount != 0)) {
@@ -5730,9 +5730,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateShaderModule(
     VkResult res = my_data->device_dispatch_table->CreateShaderModule(device, pCreateInfo, pAllocator, pShaderModule);
 
     if (res == VK_SUCCESS) {
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         my_data->shaderModuleMap[*pShaderModule] = new shader_module(pCreateInfo);
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return res;
 }
@@ -5804,10 +5804,10 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice devic
             localRPCI->pDependencies = new VkSubpassDependency[localRPCI->dependencyCount];
             memcpy((void*)localRPCI->pDependencies, pCreateInfo->pDependencies, localRPCI->dependencyCount*sizeof(VkSubpassDependency));
         }
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->renderPassMap[*pRenderPass] = new RENDER_PASS_NODE(localRPCI);
         dev_data->renderPassMap[*pRenderPass]->hasSelfDependency = has_self_dependency;
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
 }
@@ -6126,9 +6126,9 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(
 {
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->device_dispatch_table->BindImageMemory(device, image, mem, memOffset);
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     dev_data->memImageMap[mem] = image;
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return result;
 }
 
@@ -6196,9 +6196,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(
 
     if (VK_SUCCESS == result) {
         SWAPCHAIN_NODE *swapchain_data = new SWAPCHAIN_NODE(pCreateInfo);
-        loader_platform_thread_lock_mutex(&globalLock);
+        layer_platform_thread_lock_mutex(&globalLock);
         dev_data->device_extensions.swapchainMap[*pSwapchain] = swapchain_data;
-        loader_platform_thread_unlock_mutex(&globalLock);
+        layer_platform_thread_unlock_mutex(&globalLock);
     }
 
     return result;
@@ -6211,7 +6211,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroySwapchainKHR(
 {
     layer_data* dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
 
-    loader_platform_thread_lock_mutex(&globalLock);
+    layer_platform_thread_lock_mutex(&globalLock);
     auto swapchain_data = dev_data->device_extensions.swapchainMap.find(swapchain);
     if (swapchain_data != dev_data->device_extensions.swapchainMap.end()) {
         if (swapchain_data->second->images.size() > 0) {
@@ -6224,7 +6224,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroySwapchainKHR(
         delete swapchain_data->second;
         dev_data->device_extensions.swapchainMap.erase(swapchain);
     }
-    loader_platform_thread_unlock_mutex(&globalLock);
+    layer_platform_thread_unlock_mutex(&globalLock);
     return dev_data->device_dispatch_table->DestroySwapchainKHR(device, swapchain, pAllocator);
 }
 
@@ -6243,12 +6243,12 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainImagesKHR(
         for (uint32_t i = 0; i < *pCount; ++i) {
             IMAGE_NODE* image_node = new IMAGE_NODE;
             image_node->layout = VK_IMAGE_LAYOUT_UNDEFINED;
-            loader_platform_thread_lock_mutex(&globalLock);
+            layer_platform_thread_lock_mutex(&globalLock);
             auto swapchain_node = dev_data->device_extensions.swapchainMap[swapchain];
             image_node->format = swapchain_node->createInfo.imageFormat;
             swapchain_node->images.push_back(pSwapchainImages[i]);
             dev_data->imageLayoutMap[pSwapchainImages[i]] = image_node;
-            loader_platform_thread_unlock_mutex(&globalLock);
+            layer_platform_thread_unlock_mutex(&globalLock);
         }
     }
     return result;

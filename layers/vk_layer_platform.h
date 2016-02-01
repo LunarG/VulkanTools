@@ -1,8 +1,6 @@
 /*
  *
  * Copyright (C) 2015 Valve Corporation
- * Copyright 2014 Valve Software
- * Copyright (C) 2015 Google Inc.
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -23,8 +21,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *
- * Author: James Jones <jajones@nvidia.com>
- * Author: Tobin Ehlis <tobin@lunarg.com>
+ * Author: Jon Ashburn <jon@lunarg.com>
  *
  */
 #pragma once
@@ -53,53 +50,11 @@
 #include <stdlib.h>
 #include <libgen.h>
 
-// VK Library Filenames, Paths, etc.:
-#define PATH_SEPERATOR ':'
-#define DIRECTORY_SYMBOL '/'
-
-#define VULKAN_ICDCONF_DIR "/" "vulkan" "/" "icd.d"
-#define VULKAN_ICD_DIR "/" "vulkan" "/" "icd"
-#define VULKAN_ELAYERCONF_DIR "/" "vulkan" "/" "explicit_layer.d"
-#define VULKAN_ILAYERCONF_DIR "/" "vulkan" "/" "implicit_layer.d"
-#define VULKAN_LAYER_DIR "/" "vulkan" "/" "layer"
-
-#if defined(LOCALPREFIX)
-#define LOCAL_DRIVERS_INFO \
-    LOCALPREFIX "/" SYSCONFDIR VULKAN_ICDCONF_DIR ":" \
-    LOCALPREFIX "/" DATADIR VULKAN_ICDCONF_DIR ":"
-#define LOCAL_ELAYERS_INFO \
-    LOCALPREFIX "/" SYSCONFDIR VULKAN_ELAYERCONF_DIR ":" \
-    LOCALPREFIX "/" DATADIR VULKAN_ELAYERCONF_DIR ":"
-#define LOCAL_ILAYERS_INFO \
-    LOCALPREFIX "/" SYSCONFDIR VULKAN_ILAYERCONF_DIR ":" \
-    LOCALPREFIX "/" DATADIR VULKAN_ILAYERCONF_DIR ":"
-#else
-#define LOCAL_DRIVERS_INFO
-#define LOCAL_ELAYERS_INFO
-#define LOCAL_ILAYERS_INFO
-#endif
-
-#define DEFAULT_VK_DRIVERS_INFO \
-    LOCAL_DRIVERS_INFO \
-    "/" SYSCONFDIR VULKAN_ICDCONF_DIR ":" \
-    "/usr/" DATADIR VULKAN_ICDCONF_DIR
-#define DEFAULT_VK_DRIVERS_PATH ""
-#define DEFAULT_VK_ELAYERS_INFO \
-    LOCAL_ELAYERS_INFO \
-    "/" SYSCONFDIR VULKAN_ELAYERCONF_DIR ":" \
-    "/usr/" DATADIR VULKAN_ELAYERCONF_DIR ":"
-#define DEFAULT_VK_ILAYERS_INFO \
-    LOCAL_ILAYERS_INFO \
-    "/" SYSCONFDIR VULKAN_ILAYERCONF_DIR ":" \
-    "/usr/" DATADIR VULKAN_ILAYERCONF_DIR
-#define DEFAULT_VK_LAYERS_PATH ""
-#define LAYERS_PATH_ENV "VK_LAYER_PATH"
-
 // C99:
 #define PRINTF_SIZE_T_SPECIFIER    "%zu"
 
 // File IO
-static inline bool loader_platform_file_exists(const char *path)
+static inline bool layer_platform_file_exists(const char *path)
 {
     if (access(path, F_OK))
         return false;
@@ -107,7 +62,7 @@ static inline bool loader_platform_file_exists(const char *path)
         return true;
 }
 
-static inline bool loader_platform_is_path_absolute(const char *path)
+static inline bool layer_platform_is_path_absolute(const char *path)
 {
     if (path[0] == '/')
         return true;
@@ -115,56 +70,56 @@ static inline bool loader_platform_is_path_absolute(const char *path)
         return false;
 }
 
-static inline char *loader_platform_dirname(char *path)
+static inline char *layer_platform_dirname(char *path)
 {
     return dirname(path);
 }
 
 // Environment variables
 
-static inline char *loader_getenv(const char *name)
+static inline char *layer_platform_getenv(const char *name)
 {
     return getenv(name);
 }
 
-static inline void loader_free_getenv(const char *val)
+static inline void layer_platform_free_getenv(const char *val)
 {
 }
 
 // Dynamic Loading of libraries:
-typedef void * loader_platform_dl_handle;
-static inline loader_platform_dl_handle loader_platform_open_library(const char* libPath)
+typedef void * layer_platform_dl_handle;
+static inline layer_platform_dl_handle layer_platform_open_library(const char* libPath)
 {
     return dlopen(libPath, RTLD_LAZY | RTLD_LOCAL);
 }
-static inline const char * loader_platform_open_library_error(const char* libPath)
+static inline const char * layer_platform_open_library_error(const char* libPath)
 {
     return dlerror();
 }
-static inline void loader_platform_close_library(loader_platform_dl_handle library)
+static inline void layer_platform_close_library(layer_platform_dl_handle library)
 {
     dlclose(library);
 }
-static inline void * loader_platform_get_proc_address(loader_platform_dl_handle library,
+static inline void * layer_platform_get_proc_address(layer_platform_dl_handle library,
                                                       const char *name)
 {
     assert(library);
     assert(name);
     return dlsym(library, name);
 }
-static inline const char * loader_platform_get_proc_address_error(const char *name)
+static inline const char * layer_platform_get_proc_address_error(const char *name)
 {
     return dlerror();
 }
 
 // Threads:
-typedef pthread_t loader_platform_thread;
+typedef pthread_t layer_platform_thread;
 #define THREAD_LOCAL_DECL __thread
-#define LOADER_PLATFORM_THREAD_ONCE_DECLARATION(var) \
+#define LAYER_PLATFORM_THREAD_ONCE_DECLARATION(var) \
     pthread_once_t var = PTHREAD_ONCE_INIT;
-#define LOADER_PLATFORM_THREAD_ONCE_DEFINITION(var) \
+#define LAYER_PLATFORM_THREAD_ONCE_DEFINITION(var) \
     pthread_once_t var;
-static inline void loader_platform_thread_once(pthread_once_t *ctl, void (* func) (void))
+static inline void layer_platform_thread_once(pthread_once_t *ctl, void (* func) (void))
 {
     assert(func != NULL);
     assert(ctl != NULL);
@@ -172,45 +127,43 @@ static inline void loader_platform_thread_once(pthread_once_t *ctl, void (* func
 }
 
 // Thread IDs:
-typedef pthread_t loader_platform_thread_id;
-static inline loader_platform_thread_id loader_platform_get_thread_id()
+typedef pthread_t layer_platform_thread_id;
+static inline layer_platform_thread_id layer_platform_get_thread_id()
 {
     return pthread_self();
 }
 
 // Thread mutex:
-typedef pthread_mutex_t loader_platform_thread_mutex;
-static inline void loader_platform_thread_create_mutex(loader_platform_thread_mutex* pMutex)
+typedef pthread_mutex_t layer_platform_thread_mutex;
+static inline void layer_platform_thread_create_mutex(layer_platform_thread_mutex* pMutex)
 {
     pthread_mutex_init(pMutex, NULL);
 }
-static inline void loader_platform_thread_lock_mutex(loader_platform_thread_mutex* pMutex)
+static inline void layer_platform_thread_lock_mutex(layer_platform_thread_mutex* pMutex)
 {
     pthread_mutex_lock(pMutex);
 }
-static inline void loader_platform_thread_unlock_mutex(loader_platform_thread_mutex* pMutex)
+static inline void layer_platform_thread_unlock_mutex(layer_platform_thread_mutex* pMutex)
 {
     pthread_mutex_unlock(pMutex);
 }
-static inline void loader_platform_thread_delete_mutex(loader_platform_thread_mutex* pMutex)
+static inline void layer_platform_thread_delete_mutex(layer_platform_thread_mutex* pMutex)
 {
     pthread_mutex_destroy(pMutex);
 }
-typedef pthread_cond_t loader_platform_thread_cond;
-static inline void loader_platform_thread_init_cond(loader_platform_thread_cond* pCond)
+typedef pthread_cond_t layer_platform_thread_cond;
+static inline void layer_platform_thread_init_cond(layer_platform_thread_cond* pCond)
 {
     pthread_cond_init(pCond, NULL);
 }
-static inline void loader_platform_thread_cond_wait(loader_platform_thread_cond* pCond, loader_platform_thread_mutex* pMutex)
+static inline void layer_platform_thread_cond_wait(layer_platform_thread_cond* pCond, layer_platform_thread_mutex* pMutex)
 {
     pthread_cond_wait(pCond, pMutex);
 }
-static inline void loader_platform_thread_cond_broadcast(loader_platform_thread_cond* pCond)
+static inline void layer_platform_thread_cond_broadcast(layer_platform_thread_cond* pCond)
 {
     pthread_cond_broadcast(pCond);
 }
-
-#define loader_stack_alloc(size) alloca(size)
 
 #elif defined(_WIN32) // defined(__linux__)
 /* Windows-specific common code: */
@@ -249,7 +202,7 @@ using namespace std;
 #define PRINTF_SIZE_T_SPECIFIER    "%Iu"
 
 // File IO
-static bool loader_platform_file_exists(const char *path)
+static bool layer_platform_file_exists(const char *path)
 {
     if ((_access(path, 0)) == -1)
         return false;
@@ -257,13 +210,13 @@ static bool loader_platform_file_exists(const char *path)
         return true;
 }
 
-static bool loader_platform_is_path_absolute(const char *path)
+static bool layer_platform_is_path_absolute(const char *path)
 {
     return !PathIsRelative(path);
 }
 
 // WIN32 runtime doesn't have dirname().
-static inline char *loader_platform_dirname(char *path)
+static inline char *layer_platform_dirname(char *path)
 {
     char *current, *next;
 
@@ -289,7 +242,7 @@ static inline char *loader_platform_dirname(char *path)
 // can test some scenarios, and develop the correct solution for Windows.
   // TODO: Develop a better, permanent solution for Windows, to replace this
   // temporary code:
-static char *loader_platform_basename(char *pathname)
+static char *layer_platform_basename(char *pathname)
 {
     char *current, *next;
 
@@ -311,7 +264,7 @@ static char *loader_platform_basename(char *pathname)
 
 // Environment variables
 
-static inline char *loader_getenv(const char *name)
+static inline char *layer_platform_getenv(const char *name)
 {
     char *retVal;
     DWORD valSize;
@@ -331,35 +284,35 @@ static inline char *loader_getenv(const char *name)
     return retVal;
 }
 
-static inline void loader_free_getenv(const char *val)
+static inline void layer_platform_free_getenv(const char *val)
 {
     free((void *)val);
 }
 
 // Dynamic Loading:
-typedef HMODULE loader_platform_dl_handle;
-static loader_platform_dl_handle loader_platform_open_library(const char* libPath)
+typedef HMODULE layer_platform_dl_handle;
+static layer_platform_dl_handle layer_platform_open_library(const char* libPath)
 {
     return LoadLibrary(libPath);
 }
-static char * loader_platform_open_library_error(const char* libPath)
+static char * layer_platform_open_library_error(const char* libPath)
 {
     static char errorMsg[120];
     snprintf(errorMsg, 119, "Failed to open dynamic library \"%s\"", libPath);
     return errorMsg;
 }
-static void loader_platform_close_library(loader_platform_dl_handle library)
+static void layer_platform_close_library(layer_platform_dl_handle library)
 {
     FreeLibrary(library);
 }
-static void * loader_platform_get_proc_address(loader_platform_dl_handle library,
+static void * layer_platform_get_proc_address(layer_platform_dl_handle library,
                                                const char *name)
 {
     assert(library);
     assert(name);
     return GetProcAddress(library, name);
 }
-static char * loader_platform_get_proc_address_error(const char *name)
+static char * layer_platform_get_proc_address_error(const char *name)
 {
     static char errorMsg[120];
     snprintf(errorMsg, 119, "Failed to find function \"%s\" in dynamic library", name);
@@ -367,11 +320,11 @@ static char * loader_platform_get_proc_address_error(const char *name)
 }
 
 // Threads:
-typedef HANDLE loader_platform_thread;
+typedef HANDLE layer_platform_thread;
 #define THREAD_LOCAL_DECL __declspec(thread)
-#define LOADER_PLATFORM_THREAD_ONCE_DECLARATION(var) \
+#define LAYER_PLATFORM_THREAD_ONCE_DECLARATION(var) \
     INIT_ONCE var = INIT_ONCE_STATIC_INIT;
-#define LOADER_PLATFORM_THREAD_ONCE_DEFINITION(var) \
+#define LAYER_PLATFORM_THREAD_ONCE_DEFINITION(var) \
     INIT_ONCE var;
 static BOOL CALLBACK InitFuncWrapper(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *Context)
 {
@@ -380,7 +333,7 @@ static BOOL CALLBACK InitFuncWrapper(PINIT_ONCE InitOnce, PVOID Parameter, PVOID
     return TRUE;
 }
 
-static void loader_platform_thread_once(void *ctl, void (* func) (void))
+static void layer_platform_thread_once(void *ctl, void (* func) (void))
 {
     assert(func != NULL);
     assert(ctl != NULL);
@@ -388,66 +341,50 @@ static void loader_platform_thread_once(void *ctl, void (* func) (void))
 }
 
 // Thread IDs:
-typedef DWORD loader_platform_thread_id;
-static loader_platform_thread_id loader_platform_get_thread_id()
+typedef DWORD layer_platform_thread_id;
+static layer_platform_thread_id layer_platform_get_thread_id()
 {
     return GetCurrentThreadId();
 }
 
 // Thread mutex:
-typedef CRITICAL_SECTION loader_platform_thread_mutex;
-static void loader_platform_thread_create_mutex(loader_platform_thread_mutex* pMutex)
+typedef CRITICAL_SECTION layer_platform_thread_mutex;
+static void layer_platform_thread_create_mutex(layer_platform_thread_mutex* pMutex)
 {
     InitializeCriticalSection(pMutex);
 }
-static void loader_platform_thread_lock_mutex(loader_platform_thread_mutex* pMutex)
+static void layer_platform_thread_lock_mutex(layer_platform_thread_mutex* pMutex)
 {
     EnterCriticalSection(pMutex);
 }
-static void loader_platform_thread_unlock_mutex(loader_platform_thread_mutex* pMutex)
+static void layer_platform_thread_unlock_mutex(layer_platform_thread_mutex* pMutex)
 {
     LeaveCriticalSection(pMutex);
 }
-static void loader_platform_thread_delete_mutex(loader_platform_thread_mutex* pMutex)
+static void layer_platform_thread_delete_mutex(layer_platform_thread_mutex* pMutex)
 {
     DeleteCriticalSection(pMutex);
 }
-typedef CONDITION_VARIABLE loader_platform_thread_cond;
-static void loader_platform_thread_init_cond(loader_platform_thread_cond* pCond)
+typedef CONDITION_VARIABLE layer_platform_thread_cond;
+static void layer_platform_thread_init_cond(layer_platform_thread_cond* pCond)
 {
     InitializeConditionVariable(pCond);
 }
-static void loader_platform_thread_cond_wait(loader_platform_thread_cond* pCond, loader_platform_thread_mutex* pMutex)
+static void layer_platform_thread_cond_wait(layer_platform_thread_cond* pCond, layer_platform_thread_mutex* pMutex)
 {
     SleepConditionVariableCS(pCond, pMutex, INFINITE);
 }
-static void loader_platform_thread_cond_broadcast(loader_platform_thread_cond* pCond)
+static void layer_platform_thread_cond_broadcast(layer_platform_thread_cond* pCond)
 {
     WakeAllConditionVariable(pCond);
 }
 
-// Windows Registry:
-char *loader_get_registry_string(const HKEY hive,
-                                 const LPCTSTR sub_key,
-                                 const char *value);
 
-#define loader_stack_alloc(size) _alloca(size)
 #else // defined(_WIN32)
 
-#error The "loader_platform.h" file must be modified for this OS.
+#error The "vk_layer_platform.h" file must be modified for this OS.
 
-// NOTE: In order to support another OS, an #elif needs to be added (above the
-// "#else // defined(_WIN32)") for that OS, and OS-specific versions of the
-// contents of this file must be created.
-
-// NOTE: Other OS-specific changes are also needed for this OS.  Search for
-// files with "WIN32" in it, as a quick way to find files that must be changed.
 
 #endif // defined(_WIN32)
 
-// returns true if the given string appears to be a relative or absolute
-// path, as opposed to a bare filename.
-static inline bool loader_platform_is_path(const char *path)
-{
-    return strchr(path, DIRECTORY_SYMBOL) != NULL;
-}
+

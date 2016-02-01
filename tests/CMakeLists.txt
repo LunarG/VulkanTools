@@ -129,7 +129,17 @@ else()
 endif()
 
 set (LIBVK "vulkan-${MAJOR}")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(LIBVK
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
+    )
+endif()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(LIBVK
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/libvulkan-${MAJOR}.so
+    )
+endif()
 add_executable(vkbase init.cpp ${COMMON_CPP})
 set_target_properties(vkbase
    PROPERTIES

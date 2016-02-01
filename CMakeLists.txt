@@ -1,8 +1,8 @@
 # The name of our project is "VULKAN". CMakeLists files in this project can
-# refer to the root source directory of the project as ${VULKAN_SOURCE_DIR} and
-# to the root binary directory of the project as ${VULKAN_BINARY_DIR}.
+# refer to the root source directory of the project as ${VULKANTOOLS_SOURCE_DIR} and
+# to the root binary directory of the project as ${VULKANTOOLS_BINARY_DIR}.
 cmake_minimum_required(VERSION 2.8.11)
-project (VULKAN)
+project (VULKANTOOLS)
 # set (CMAKE_VERBOSE_MAKEFILE 1)
 
 
@@ -64,7 +64,6 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     endif()
 endif()
 
-option(BUILD_LOADER "Build loader" ON)
 if(WIN32)
     option(BUILD_ICD "Build LunarG intel icd" OFF)
 else()
@@ -72,9 +71,7 @@ else()
 endif()
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_LAYERS "Build layers" ON)
-option(BUILD_DEMOS "Build demos" ON)
 option(BUILD_VKTRACE "Build VkTrace" ON)
-option(BUILD_VKJSON "Build vkjson" ON)
 
 if (BUILD_ICD OR BUILD_TESTS)
     # Hard code our glslang path for now
@@ -110,12 +107,8 @@ else()
     set(PYTHON_CMD "py")
 endif()
 
-# loader: Generic VULKAN ICD loader
 # icd: Device dependent (DD) VULKAN components
 # tests: VULKAN tests
-if(BUILD_LOADER)
-    add_subdirectory(loader)
-endif()
 
 if(BUILD_ICD)
     add_subdirectory(icd)
@@ -129,14 +122,8 @@ if(BUILD_LAYERS)
     add_subdirectory(layers)
 endif()
 
-if(BUILD_DEMOS)
-    add_subdirectory(demos)
-endif()
 
 if(BUILD_VKTRACE)
     add_subdirectory(vktrace)
 endif()
 
-if(BUILD_VKJSON)
-    add_subdirectory(libs/vkjson)
-endif()

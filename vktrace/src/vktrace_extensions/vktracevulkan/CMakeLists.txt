@@ -12,7 +12,7 @@ endif()
 
 # if Vktrace is being built as part of a vulkan driver build, then use that target instead of the locally-commited binary.
 #if (TARGET vulkan)
-#    message(STATUS "Using external Vulkan header and library.")
+    message(STATUS "Using external Vulkan header and library.")
 #    set(VKTRACE_VULKAN_LIB vulkan)
     set(VKTRACE_VULKAN_DRIVER_DIR ${CMAKE_SOURCE_DIR})
     set(VKTRACE_VULKAN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/vulkan)
@@ -27,22 +27,17 @@ endif()
 #    set(VKTRACE_VULKAN_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
 #    set(VKTRACE_VULKAN_DEBUG_REPORT_LUNARG_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vk_debug_report_lunarg.h)
 
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        set(VKTRACE_VULKAN_LIB
-            ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-1.lib
-        )
-    endif()
-
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(VKTRACE_VULKAN_LIB
-        ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-0.lib
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
     )
 endif()
 
+ 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-set(VKTRACE_VULKAN_LIB
-    ${CMAKE_BINARY_DIR}/loader/libvulkan-${MAJOR}.so
-)
+    set(VKTRACE_VULKAN_LIB
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/libvulkan-${MAJOR}.so
+     )
 endif()
 
 message(STATUS "VKTRACE_VULKAN_LIB = " ${VKTRACE_VULKAN_LIB})

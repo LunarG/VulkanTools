@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <vk_loader_platform.h>
+#include <vk_layer_platform.h>
 #include <vk_icd.h>
 #include "swapchain.h"
 #include "vk_layer_extension_utils.h"

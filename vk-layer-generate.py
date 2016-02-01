@@ -603,7 +603,7 @@ class Subcommand(object):
                              "        return addr;")
             else:
                 func_body.append("\n"
-                             "    loader_platform_thread_once(&initOnce, init%s);\n\n"
+                             "    layer_platform_thread_once(&initOnce, init%s);\n\n"
                              "    if (!strcmp(\"vkGetDeviceProcAddr\", funcName)) {\n"
                              "        return (PFN_vkVoidFunction) vkGetDeviceProcAddr;\n"
                              "    }\n\n"
@@ -652,7 +652,7 @@ class Subcommand(object):
                              "        return addr;")
             else:
                 func_body.append(
-                             "    loader_platform_thread_once(&initOnce, init%s);\n\n"
+                             "    layer_platform_thread_once(&initOnce, init%s);\n\n"
                              "    addr = layer_intercept_instance_proc(funcName);\n"
                              "    if (addr)\n"
                              "        return addr;" % self.layer_name)
@@ -726,9 +726,9 @@ class Subcommand(object):
             func_body.append("    if (!%sLockInitialized)" % lockname)
             func_body.append("    {")
             func_body.append("        // TODO/TBD: Need to delete this mutex sometime.  How???")
-            func_body.append("        loader_platform_thread_create_mutex(&%sLock);" % lockname)
+            func_body.append("        layer_platform_thread_create_mutex(&%sLock);" % lockname)
             if condname is not None:
-                func_body.append("        loader_platform_thread_init_cond(&%sCond);" % condname)
+                func_body.append("        layer_platform_thread_init_cond(&%sCond);" % condname)
             func_body.append("        %sLockInitialized = 1;" % lockname)
             func_body.append("    }")
         func_body.append("}\n")
@@ -769,9 +769,9 @@ class Subcommand(object):
             func_body.append("    if (!%sLockInitialized)" % lockname)
             func_body.append("    {")
             func_body.append("        // TODO/TBD: Need to delete this mutex sometime.  How???")
-            func_body.append("        loader_platform_thread_create_mutex(&%sLock);" % lockname)
+            func_body.append("        layer_platform_thread_create_mutex(&%sLock);" % lockname)
             if condname is not None:
-                func_body.append("        loader_platform_thread_init_cond(&%sCond);" % condname)
+                func_body.append("        layer_platform_thread_init_cond(&%sCond);" % condname)
             func_body.append("        %sLockInitialized = 1;" % lockname)
             func_body.append("    }")
         func_body.append("}\n")
@@ -780,7 +780,7 @@ class Subcommand(object):
 
 class LayerFuncsSubcommand(Subcommand):
     def generate_header(self):
-        return '#include <vulkan/vk_layer.h>\n#include "loader.h"'
+        return '#include <vulkan/vk_layer.h>\n'
 
     def generate_body(self):
         return self._generate_dispatch_entrypoints("static")
@@ -793,7 +793,7 @@ class GenericLayerSubcommand(Subcommand):
         gen_header.append('#include <stdlib.h>')
         gen_header.append('#include <string.h>')
         gen_header.append('#include <unordered_map>')
-        gen_header.append('#include "vk_loader_platform.h"')
+        gen_header.append('#include "vk_layer_platform.h"')
         gen_header.append('#include "vulkan/vk_layer.h"')
         gen_header.append('#include "vk_layer_config.h"')
         gen_header.append('#include "vk_layer_logging.h"')
@@ -805,7 +805,7 @@ class GenericLayerSubcommand(Subcommand):
         gen_header.append('%s' % self.lineinfo.get())
         gen_header.append('#define LAYER_EXT_ARRAY_SIZE 1')
         gen_header.append('#define LAYER_DEV_EXT_ARRAY_SIZE 1')
-        gen_header.append('//static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
+        gen_header.append('//static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
         gen_header.append('static std::unordered_map<void *, layer_data *> layer_data_map;\n')
         gen_header.append('template layer_data *get_my_data_ptr<layer_data>(')
         gen_header.append('        void *data_key,')
@@ -966,7 +966,7 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('#include <string>')
         header_txt.append('#include <string.h>')
         header_txt.append('')
-        header_txt.append('#include "vk_loader_platform.h"')
+        header_txt.append('#include "vk_layer_platform.h"')
         header_txt.append('#include "vulkan/vk_layer.h"')
         header_txt.append('#include "vk_struct_string_helper_cpp.h"')
         header_txt.append('#include "vk_layer_table.h"')
@@ -1013,21 +1013,21 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('%s' % self.lineinfo.get())
         header_txt.append('static bool g_ApiDumpDetailed = true;')
         header_txt.append('')
-        header_txt.append('static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
+        header_txt.append('static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
         header_txt.append('')
         header_txt.append('static int printLockInitialized = 0;')
-        header_txt.append('static loader_platform_thread_mutex printLock;')
+        header_txt.append('static layer_platform_thread_mutex printLock;')
         header_txt.append('')
         header_txt.append('%s' % self.lineinfo.get())
         header_txt.append('#define LAYER_EXT_ARRAY_SIZE 1')
         header_txt.append('#define LAYER_DEV_EXT_ARRAY_SIZE 1')
         header_txt.append('#define MAX_TID 513')
-        header_txt.append('static loader_platform_thread_id tidMapping[MAX_TID] = {0};')
+        header_txt.append('static layer_platform_thread_id tidMapping[MAX_TID] = {0};')
         header_txt.append('static uint32_t maxTID = 0;')
         header_txt.append('// Map actual TID to an index value and return that index')
         header_txt.append('//  This keeps TIDs in range from 0-MAX_TID and simplifies compares between runs')
         header_txt.append('static uint32_t getTIDIndex() {')
-        header_txt.append('    loader_platform_thread_id tid = loader_platform_get_thread_id();')
+        header_txt.append('    layer_platform_thread_id tid = layer_platform_get_thread_id();')
         header_txt.append('    for (uint32_t i = 0; i < maxTID; i++) {')
         header_txt.append('        if (tid == tidMapping[i])')
         header_txt.append('            return i;')
@@ -1118,7 +1118,7 @@ class ApiDumpSubcommand(Subcommand):
         func_body.append('    if (!printLockInitialized)')
         func_body.append('    {')
         func_body.append('        // TODO/TBD: Need to delete this mutex sometime.  How???')
-        func_body.append('        loader_platform_thread_create_mutex(&printLock);')
+        func_body.append('        layer_platform_thread_create_mutex(&printLock);')
         func_body.append('        printLockInitialized = 1;')
         func_body.append('    }')
         func_body.append('}')
@@ -1141,12 +1141,12 @@ class ApiDumpSubcommand(Subcommand):
         if proto.ret != "void":
             ret_val = "%s result = " % proto.ret
             stmt = "    return result;\n"
-        f_open = 'loader_platform_thread_lock_mutex(&printLock);\n    '
+        f_open = 'layer_platform_thread_lock_mutex(&printLock);\n    '
         log_func = '%s\n' % self.lineinfo.get()
         log_func += '    if (StreamControl::writeAddress == true) {'
         log_func += '\n        (*outputStream) << "t{" << getTIDIndex() << "} vk%s(' % proto.name
         log_func_no_addr = '\n        (*outputStream) << "t{" << getTIDIndex() << "} vk%s(' % proto.name
-        f_close = '\n    loader_platform_thread_unlock_mutex(&printLock);'
+        f_close = '\n    layer_platform_thread_unlock_mutex(&printLock);'
         pindex = 0
         prev_count_name = ''
         for p in proto.params:
@@ -1264,7 +1264,7 @@ class ApiDumpSubcommand(Subcommand):
             funcs.append('%s%s\n'
                      '{\n'
                      '    using namespace StreamControl;\n'
-                     '    loader_platform_thread_once(&initOnce, initapi_dump);\n'
+                     '    layer_platform_thread_once(&initOnce, initapi_dump);\n'
                      '    VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);\n'
                      '    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;\n'
                      '    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");\n'
@@ -1374,7 +1374,7 @@ class ObjectTrackerSubcommand(Subcommand):
         header_txt.append('#include <inttypes.h>')
         header_txt.append('')
         header_txt.append('#include "vulkan/vulkan.h"')
-        header_txt.append('#include "vk_loader_platform.h"')
+        header_txt.append('#include "vk_layer_platform.h"')
         header_txt.append('')
         header_txt.append('#include <unordered_map>')
         header_txt.append('using namespace std;')
@@ -1388,7 +1388,7 @@ class ObjectTrackerSubcommand(Subcommand):
 #       NOTE:  The non-autoGenerated code is in the object_tracker.h header file
         header_txt.append('#include "object_tracker.h"')
         header_txt.append('')
-        header_txt.append('static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
+        header_txt.append('static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
         header_txt.append('')
         return "\n".join(header_txt)
 
@@ -1607,7 +1607,7 @@ class ObjectTrackerSubcommand(Subcommand):
         gedi_txt.append('VkInstance instance,')
         gedi_txt.append('const VkAllocationCallbacks* pAllocator)')
         gedi_txt.append('{')
-        gedi_txt.append('    loader_platform_thread_lock_mutex(&objLock);')
+        gedi_txt.append('    layer_platform_thread_lock_mutex(&objLock);')
         gedi_txt.append('    validate_instance(instance, instance, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, false);')
         gedi_txt.append('')
         gedi_txt.append('    destroy_instance(instance, instance);')
@@ -1637,12 +1637,12 @@ class ObjectTrackerSubcommand(Subcommand):
         gedi_txt.append('    layer_data_map.erase(pInstanceTable);')
         gedi_txt.append('')
         gedi_txt.append('    instanceExtMap.erase(pInstanceTable);')
-        gedi_txt.append('    loader_platform_thread_unlock_mutex(&objLock);')
+        gedi_txt.append('    layer_platform_thread_unlock_mutex(&objLock);')
         # The loader holds a mutex that protects this from other threads
         gedi_txt.append('    object_tracker_instance_table_map.erase(key);')
         gedi_txt.append('    if (object_tracker_instance_table_map.empty()) {')
         gedi_txt.append('        // Release mutex when destroying last instance.')
-        gedi_txt.append('        loader_platform_thread_delete_mutex(&objLock);')
+        gedi_txt.append('        layer_platform_thread_delete_mutex(&objLock);')
         gedi_txt.append('        objLockInitialized = 0;')
         gedi_txt.append('    }')
         gedi_txt.append('}')
@@ -1656,7 +1656,7 @@ class ObjectTrackerSubcommand(Subcommand):
         gedd_txt.append('VkDevice device,')
         gedd_txt.append('const VkAllocationCallbacks* pAllocator)')
         gedd_txt.append('{')
-        gedd_txt.append('    loader_platform_thread_lock_mutex(&objLock);')
+        gedd_txt.append('    layer_platform_thread_lock_mutex(&objLock);')
         gedd_txt.append('    validate_device(device, device, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, false);')
         gedd_txt.append('')
         gedd_txt.append('    destroy_device(device, device);')
@@ -1676,7 +1676,7 @@ class ObjectTrackerSubcommand(Subcommand):
         gedd_txt.append("    // Clean up Queue's MemRef Linked Lists")
         gedd_txt.append('    destroyQueueMemRefLists();')
         gedd_txt.append('')
-        gedd_txt.append('    loader_platform_thread_unlock_mutex(&objLock);')
+        gedd_txt.append('    layer_platform_thread_unlock_mutex(&objLock);')
         gedd_txt.append('')
         gedd_txt.append('    dispatch_key key = get_dispatch_key(device);')
         gedd_txt.append('    VkLayerDispatchTable *pDisp = get_dispatch_table(object_tracker_device_table_map, device);')
@@ -1910,39 +1910,39 @@ class ObjectTrackerSubcommand(Subcommand):
                 typ = proto.params[-1].ty.strip('*').replace('const ', '');
                 name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', typ)
                 name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()[3:]
-                create_line =  '    loader_platform_thread_lock_mutex(&objLock);\n'
+                create_line =  '    layer_platform_thread_lock_mutex(&objLock);\n'
                 create_line += '    if (result == VK_SUCCESS) {\n'
                 create_line += '        create_%s(%s, *%s, %s);\n' % (name, param0_name, proto.params[-1].name, obj_type_mapping[typ])
                 create_line += '    }\n'
-                create_line += '    loader_platform_thread_unlock_mutex(&objLock);\n'
+                create_line += '    layer_platform_thread_unlock_mutex(&objLock);\n'
             if 'FreeCommandBuffers' in proto.name:
                 typ = proto.params[-1].ty.strip('*').replace('const ', '');
                 name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', typ)
                 name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()[3:]
                 funcs.append('%s\n' % self.lineinfo.get())
-                destroy_line =  '    loader_platform_thread_lock_mutex(&objLock);\n'
+                destroy_line =  '    layer_platform_thread_lock_mutex(&objLock);\n'
                 destroy_line += '    for (uint32_t i = 0; i < commandBufferCount; i++) {\n'
                 destroy_line += '        destroy_%s(%s[i], %s[i]);\n' % (name, proto.params[-1].name, proto.params[-1].name)
                 destroy_line += '    }\n'
-                destroy_line += '    loader_platform_thread_unlock_mutex(&objLock);\n'
+                destroy_line += '    layer_platform_thread_unlock_mutex(&objLock);\n'
             if 'Destroy' in proto.name:
                 typ = proto.params[-2].ty.strip('*').replace('const ', '');
                 name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', typ)
                 name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()[3:]
                 funcs.append('%s\n' % self.lineinfo.get())
-                destroy_line =  '    loader_platform_thread_lock_mutex(&objLock);\n'
+                destroy_line =  '    layer_platform_thread_lock_mutex(&objLock);\n'
                 destroy_line += '    destroy_%s(%s, %s);\n' % (name, param0_name, proto.params[-2].name)
-                destroy_line += '    loader_platform_thread_unlock_mutex(&objLock);\n'
+                destroy_line += '    layer_platform_thread_unlock_mutex(&objLock);\n'
             indent = '    '
             if len(struct_uses) > 0:
                 using_line += '%sVkBool32 skipCall = VK_FALSE;\n' % (indent)
                 if not mutex_unlock:
-                    using_line += '%sloader_platform_thread_lock_mutex(&objLock);\n' % (indent)
+                    using_line += '%slayer_platform_thread_lock_mutex(&objLock);\n' % (indent)
                     mutex_unlock = True
                 using_line += '// objects to validate: %s\n' % str(struct_uses)
                 using_line += self._gen_obj_validate_code(struct_uses, obj_type_mapping, proto.name, valid_null_object_names, param0_name, '    ', '', 0)
             if mutex_unlock:
-                using_line += '%sloader_platform_thread_unlock_mutex(&objLock);\n' % (indent)
+                using_line += '%slayer_platform_thread_unlock_mutex(&objLock);\n' % (indent)
             if len(struct_uses) > 0:
                 using_line += '    if (skipCall)\n'
                 if proto.ret != "void":
@@ -2027,7 +2027,7 @@ class UniqueObjectsSubcommand(Subcommand):
         header_txt.append('%s' % self.lineinfo.get())
         header_txt.append('#include "unique_objects.h"')
         header_txt.append('')
-        header_txt.append('static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
+        header_txt.append('static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
         return "\n".join(header_txt)
 
     # Generate UniqueObjects code for given struct_uses dict of objects that need to be unwrapped
@@ -2329,8 +2329,8 @@ class ThreadingSubcommand(Subcommand):
         header_txt.append('%s' % self.lineinfo.get())
         header_txt.append('static void use%s(const void* dispatchable_object, %s object)' % (ty, ty))
         header_txt.append('{')
-        header_txt.append('    loader_platform_thread_id tid = loader_platform_get_thread_id();')
-        header_txt.append('    loader_platform_thread_lock_mutex(&threadingLock);')
+        header_txt.append('    layer_platform_thread_id tid = layer_platform_get_thread_id();')
+        header_txt.append('    layer_platform_thread_lock_mutex(&threadingLock);')
         header_txt.append('    if (%sObjectsInUse.find(%s) == %sObjectsInUse.end()) {' % (ty, key, ty))
         header_txt.append('        %sObjectsInUse[%s] = tid;' % (ty, key))
         header_txt.append('    } else {')
@@ -2341,7 +2341,7 @@ class ThreadingSubcommand(Subcommand):
         header_txt.append('                %sObjectsInUse[%s], tid);' % (ty, key))
         header_txt.append('            // Wait for thread-safe access to object')
         header_txt.append('            while (%sObjectsInUse.find(%s) != %sObjectsInUse.end()) {' % (ty, key, ty))
-        header_txt.append('                loader_platform_thread_cond_wait(&threadingCond, &threadingLock);')
+        header_txt.append('                layer_platform_thread_cond_wait(&threadingCond, &threadingLock);')
         header_txt.append('            }')
         header_txt.append('            %sObjectsInUse[%s] = tid;' % (ty, key))
         header_txt.append('        } else {')
@@ -2351,7 +2351,7 @@ class ThreadingSubcommand(Subcommand):
         header_txt.append('                tid);')
         header_txt.append('        }')
         header_txt.append('    }')
-        header_txt.append('    loader_platform_thread_unlock_mutex(&threadingLock);')
+        header_txt.append('    layer_platform_thread_unlock_mutex(&threadingLock);')
         header_txt.append('}')
         return "\n".join(header_txt)
     def generate_finishUsingObject(self, ty):
@@ -2361,10 +2361,10 @@ class ThreadingSubcommand(Subcommand):
         header_txt.append('static void finishUsing%s(%s object)' % (ty, ty))
         header_txt.append('{')
         header_txt.append('    // Object is no longer in use')
-        header_txt.append('    loader_platform_thread_lock_mutex(&threadingLock);')
+        header_txt.append('    layer_platform_thread_lock_mutex(&threadingLock);')
         header_txt.append('    %sObjectsInUse.erase(%s);' % (ty, key))
-        header_txt.append('    loader_platform_thread_cond_broadcast(&threadingCond);')
-        header_txt.append('    loader_platform_thread_unlock_mutex(&threadingLock);')
+        header_txt.append('    layer_platform_thread_cond_broadcast(&threadingCond);')
+        header_txt.append('    layer_platform_thread_unlock_mutex(&threadingLock);')
         header_txt.append('}')
         return "\n".join(header_txt)
     def generate_header(self):
@@ -2374,7 +2374,7 @@ class ThreadingSubcommand(Subcommand):
         header_txt.append('#include <stdlib.h>')
         header_txt.append('#include <string.h>')
         header_txt.append('#include <unordered_map>')
-        header_txt.append('#include "vk_loader_platform.h"')
+        header_txt.append('#include "vk_layer_platform.h"')
         header_txt.append('#include "vulkan/vk_layer.h"')
         header_txt.append('#include "threading.h"')
         header_txt.append('#include "vk_layer_config.h"')
@@ -2385,16 +2385,16 @@ class ThreadingSubcommand(Subcommand):
         header_txt.append('#include "vk_layer_logging.h"')
         header_txt.append('')
         header_txt.append('')
-        header_txt.append('static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
+        header_txt.append('static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
         header_txt.append('')
         header_txt.append('using namespace std;')
         for ty in self.thread_check_dispatchable_objects:
-            header_txt.append('static unordered_map<%s, loader_platform_thread_id> %sObjectsInUse;' % (ty, ty))
+            header_txt.append('static unordered_map<%s, layer_platform_thread_id> %sObjectsInUse;' % (ty, ty))
         for ty in self.thread_check_nondispatchable_objects:
-            header_txt.append('static unordered_map<%s, loader_platform_thread_id> %sObjectsInUse;' % (ty, ty))
+            header_txt.append('static unordered_map<%s, layer_platform_thread_id> %sObjectsInUse;' % (ty, ty))
         header_txt.append('static int threadingLockInitialized = 0;')
-        header_txt.append('static loader_platform_thread_mutex threadingLock;')
-        header_txt.append('static loader_platform_thread_cond threadingCond;')
+        header_txt.append('static layer_platform_thread_mutex threadingLock;')
+        header_txt.append('static layer_platform_thread_cond threadingCond;')
         header_txt.append('%s' % self.lineinfo.get())
         for ty in self.thread_check_dispatchable_objects + self.thread_check_nondispatchable_objects:
             header_txt.append(self.generate_useObject(ty))

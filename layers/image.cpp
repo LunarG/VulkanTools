@@ -37,7 +37,7 @@
 #include <memory>
 using namespace std;
 
-#include "vk_loader_platform.h"
+#include "vk_layer_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vk_struct_string_helper_cpp.h"
 #include "vk_enum_validate_helper.h"

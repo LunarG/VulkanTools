@@ -32,7 +32,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "vk_loader_platform.h"
+#include "vk_layer_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vk_struct_string_helper_cpp.h"
 #if defined(__GNUC__)
@@ -91,11 +91,11 @@ struct layer_data {
 
 static unordered_map<void *, layer_data *> layer_data_map;
 
-static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(g_initOnce);
+static LAYER_PLATFORM_THREAD_ONCE_DECLARATION(g_initOnce);
 
 // TODO : This can be much smarter, using separate locks for separate global data
 static int globalLockInitialized = 0;
-static loader_platform_thread_mutex globalLock;
+static layer_platform_thread_mutex globalLock;
 
 template layer_data *get_my_data_ptr<layer_data>(
         void *data_key,
@@ -144,7 +144,7 @@ static void init_device_limits(layer_data *my_data, const VkAllocationCallbacks 
         // can clean it up during vkDestroyInstance().  However, that requires
         // that the layer have per-instance locks.  We need to come back and
         // address this soon.
-        loader_platform_thread_create_mutex(&globalLock);
+        layer_platform_thread_create_mutex(&globalLock);
         globalLockInitialized = 1;
     }
 }
@@ -236,7 +236,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance
     layer_data_map.erase(key);
     if (layer_data_map.empty()) {
         // Release mutex when destroying last instance.
-        loader_platform_thread_delete_mutex(&globalLock);
+        layer_platform_thread_delete_mutex(&globalLock);
         globalLockInitialized = 0;
     }
 }

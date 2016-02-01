@@ -29,7 +29,7 @@
 #include <inttypes.h>
 
 #include "vulkan/vulkan.h"
-#include "vk_loader_platform.h"
+#include "vk_layer_platform.h"
 
 #include <vector>
 #include <unordered_map>

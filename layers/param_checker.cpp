@@ -36,7 +36,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "vk_loader_platform.h"
+#include "vk_layer_platform.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_config.h"
 #include "vk_enum_validate_helper.h"
