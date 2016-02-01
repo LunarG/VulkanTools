@@ -70,12 +70,16 @@ else()
     endmacro()
 endif()
 
+#hacky use layer include directory from loader repo
+set (LOADER_LAYER_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/layers)
+set (LOADER_LOADER_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/loader)
 include_directories(
+        ${LOADER_LAYER_DIR}
+        ${LOADER_LOADER_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/../loader
 	${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
 	${CMAKE_CURRENT_BINARY_DIR}
-	${PROJECT_SOURCE_DIR}/../glslang/SPIRV
 )
 
 if (WIN32)
@@ -94,44 +98,45 @@ add_custom_command(OUTPUT vk_dispatch_table_helper.h
 
 run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers
-	vk_struct_string_helper.h
+    vk_struct_string_helper.h
     vk_struct_string_helper_cpp.h
-	vk_struct_string_helper_no_addr.h
-	vk_struct_string_helper_no_addr_cpp.h
+    vk_struct_string_helper_no_addr.h
+    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-	vk_struct_wrappers.h
-	vk_struct_wrappers.cpp
+    vk_struct_wrappers.h
+    vk_struct_wrappers.cpp
 )
 
 add_custom_target(generate_vk_layer_helpers DEPENDS
-	vk_dispatch_table_helper.h
-	vk_enum_string_helper.h
-	vk_struct_string_helper.h
-	vk_struct_string_helper_no_addr.h
+    vk_dispatch_table_helper.h
+    vk_enum_string_helper.h
+    vk_struct_string_helper.h
+    vk_struct_string_helper_no_addr.h
     vk_struct_string_helper_cpp.h
-	vk_struct_string_helper_no_addr_cpp.h
+    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-	vk_struct_wrappers.h
-	vk_struct_wrappers.cpp
+    vk_struct_wrappers.h
+    vk_struct_wrappers.cpp
 )
 
 run_vk_layer_generate(generic generic_layer.cpp)
 run_vk_layer_generate(api_dump api_dump.cpp)
 
-add_library(layer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp)
+# hacky: find layer utils in Loader directory
+add_library(layer_utils SHARED ${LOADER_LAYER_DIR}/vk_layer_config.cpp ${LOADER_LAYER_DIR}/vk_layer_extension_utils.cpp)
 if (WIN32)
-    add_library(layer_utils_static STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp)
+    add_library(layer_utils_static STATIC ${LOADER_LAYER_DIR}/vk_layer_config.cpp ${LOADER_LAYER_DIR}/vk_layer_extension_utils.cpp)
     set_target_properties(layer_utils_static PROPERTIES OUTPUT_NAME layer_utils)
     target_link_libraries(layer_utils)
 else()
     install(TARGETS layer_utils DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
 endif()
 
-add_vk_layer(basic basic.cpp vk_layer_table.cpp)
-add_vk_layer(multi multi.cpp vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp vk_layer_table.cpp)
+add_vk_layer(basic basic.cpp ${LOADER_LAYER_DIR}/vk_layer_table.cpp)
+add_vk_layer(multi multi.cpp ${LOADER_LAYER_DIR}/vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp ${LOADER_LAYER_DIR}/vk_layer_table.cpp)
 # generated
-add_vk_layer(generic generic_layer.cpp vk_layer_table.cpp)
-add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
+add_vk_layer(generic generic_layer.cpp ${LOADER_LAYER_DIR}/vk_layer_table.cpp)
+add_vk_layer(api_dump api_dump.cpp ${LOADER_LAYER_DIR}/vk_layer_table.cpp)
