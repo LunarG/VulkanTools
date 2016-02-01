@@ -30,7 +30,7 @@
 #pragma once
 
 #include "vkreplay_vkreplay.h"
-#include "vk_icd.h"
+#include "vulkan/vk_icd.h"
 
 class vkDisplay: public vktrace_replay::DisplayImp {
 friend class vkReplay;

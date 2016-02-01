@@ -1878,7 +1878,7 @@ class VktraceExtTraceHeader(Subcommand):
         header_txt = []
         header_txt.append('#pragma once\n')
         header_txt.append('#include "vulkan/vulkan.h"')
-        header_txt.append('#include "%s.h"' % extensionName.lower())
+        header_txt.append('#include "vulkan/%s.h"' % extensionName.lower())
         return "\n".join(header_txt)
 
     def generate_body(self):
@@ -1896,8 +1896,6 @@ class VktraceExtTraceC(Subcommand):
         header_txt.append('#include "vktrace_vk_%s_packets.h"' % extensionName.lower())
         header_txt.append('#include "vk_struct_size_helper.h"')
         header_txt.append('#include "%s_struct_size_helper.h"' % extensionName.lower())
-        if extensionName == 'vk_lunarg_debug_marker':
-            header_txt.append('#include "vk_debug_marker_layer.h"\n')
 
         header_txt.append('#include "vktrace_lib_helpers.h"')
         return "\n".join(header_txt)
@@ -1911,7 +1909,7 @@ class VktraceExtTracePackets(Subcommand):
     def generate_header(self, extensionName):
         header_txt = []
         header_txt.append('#pragma once\n')
-        header_txt.append('#include "%s.h"' % extensionName.lower())
+        header_txt.append('#include "vulkan/%s.h"' % extensionName.lower())
         header_txt.append('#include "vktrace_trace_packet_utils.h"\n')
         return "\n".join(header_txt)
 

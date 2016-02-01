@@ -25,9 +25,9 @@ if (NOT PYTHONINTERP_FOUND)
     message(FATAL_ERROR "Missing PythonInterp. Install python interpreter 2.7 (on linux use cmd: sudo apt-get install python2.7)")
 endif()
 
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
-)
+#hacky get include files from loader repo
+set (VKTRACE_VULKAN_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/include)
+include_directories( ${VKTRACE_VULKAN_INCLUDE_DIR} )
 
 message("")
 message("cmake options:")

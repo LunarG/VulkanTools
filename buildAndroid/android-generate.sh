@@ -19,8 +19,8 @@ rm -rf generated
 mkdir -p generated
 python ../vk-generate.py dispatch-table-ops layer > generated/vk_dispatch_table_helper.h
 
-python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated
-python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated
+python ../vk_helper.py --gen_enum_string_helper ../../LoaderAndTools/include/vulkan/vulkan.h --abs_out_dir generated
+python ../vk_helper.py --gen_struct_wrappers ../../LoaderAndTools/include/vulkan/vulkan.h --abs_out_dir generated
 
 python ../vk-layer-generate.py generic ../include/vulkan/vulkan.h > generated/generic_layer.cpp
 python ../vk-layer-generate.py api_dump ../include/vulkan/vulkan.h > generated/api_dump.cpp

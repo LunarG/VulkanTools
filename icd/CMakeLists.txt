@@ -11,6 +11,10 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 else()
     message(FATAL_ERROR "Platform unset, build will fail--stopping at CMake time.")
 endif()
+  
+#hacky get include files from loader repo
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/include)
+include_directories( ${LOADER_INCLUDE_DIR} )
 
 add_subdirectory(common)
 add_subdirectory(nulldrv)

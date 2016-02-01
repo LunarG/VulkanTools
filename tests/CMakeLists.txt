@@ -87,7 +87,10 @@ else ()
                          IMPORTED_LOCATION       "${GLSLANG_PREFIX}/build/install/lib/libSPIRV.a")
 endif()
 
+#hacky get include files from loader repo
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/include)
 include_directories(
+     ${LOADER_INCLUDE_DIR}
     "${PROJECT_SOURCE_DIR}/tests/gtest-1.7.0/include"
     "${PROJECT_SOURCE_DIR}/icd/common"
     "${PROJECT_SOURCE_DIR}/layers"

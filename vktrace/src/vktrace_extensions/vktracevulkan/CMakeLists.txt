@@ -9,23 +9,11 @@ else()
     set(PYTHON_CMD "py")
 endif()
 
-
-# if Vktrace is being built as part of a vulkan driver build, then use that target instead of the locally-commited binary.
-#if (TARGET vulkan)
-    message(STATUS "Using external Vulkan header and library.")
-#    set(VKTRACE_VULKAN_LIB vulkan)
-    set(VKTRACE_VULKAN_DRIVER_DIR ${CMAKE_SOURCE_DIR})
-    set(VKTRACE_VULKAN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/vulkan)
-    set(VKTRACE_VULKAN_HEADER ${CMAKE_SOURCE_DIR}/include/vulkan/vulkan.h)
-    set(VKTRACE_VULKAN_LUNARG_DEBUG_REPORT_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vk_ext_debug_report.h)
-    set(VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vk_lunarg_debug_marker.h)
-#else()
-    # Use a locally committed vulkan header and binary
-#    message(STATUS "Using Vktrace-supplied Vulkan header and library.")
-#    set(VKTRACE_VULKAN_DRIVER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vulkan)
-#    set(VKTRACE_VULKAN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/include)
-#    set(VKTRACE_VULKAN_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
-#    set(VKTRACE_VULKAN_DEBUG_REPORT_LUNARG_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vk_debug_report_lunarg.h)
+message(STATUS "Using external Vulkan header and library.")
+set(VKTRACE_VULKAN_DRIVER_DIR ${CMAKE_SOURCE_DIR})
+set(VKTRACE_VULKAN_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
+set(VKTRACE_VULKAN_LUNARG_DEBUG_REPORT_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vk_ext_debug_report.h)
+set(VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vk_lunarg_debug_marker.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(VKTRACE_VULKAN_LIB

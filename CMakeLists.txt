@@ -45,7 +45,9 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # Header file for CMake settings
-include_directories("${PROJECT_SOURCE_DIR}/include")
+#hacky use layer include directory from loader repo
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/include)
+include_directories(${PROJECT_SOURCE_DIR}/include ${LOADER_UNCLUDE_DIR})
 
 if(NOT WIN32)
     include(FindPkgConfig)

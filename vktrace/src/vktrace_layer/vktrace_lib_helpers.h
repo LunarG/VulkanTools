@@ -32,7 +32,7 @@
 #include "vktrace_platform.h"
 
 #include "vk_struct_size_helper.h"
-#include "vk_debug_marker_layer.h"
+#include "vulkan/vk_debug_marker_layer.h"
 
 // Support for shadowing CPU mapped memory
 //TODO better handling of multiple range rather than fixed array
