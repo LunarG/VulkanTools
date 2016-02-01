@@ -19,10 +19,10 @@ cd vktracereplay_tmp
 cp ../../vktrace/vkreplay .
 cp ../../vktrace/vktrace .
 cp ../../vktrace/libVkLayer_vktrace_layer.so .
-cp ../../demos/cube .
-cp ../../demos/*ppm .
-cp ../../demos/*spv .
-export LD_LIBRARY_PATH=`pwd`/../loader:$LD_LIBRARY_PATH
+cp ../../../../LoaderAndTools/build/demos/cube .
+cp ../../../../LoaderAndTools/demos/*ppm .
+cp ../../../../LoaderAndTools/build/demos/*spv .
+export LD_LIBRARY_PATH=`pwd`/../../../../LoaderAndTools/build/loader:$LD_LIBRARY_PATH
 export VK_LAYER_PATH=`pwd`/../../layers
 
 (

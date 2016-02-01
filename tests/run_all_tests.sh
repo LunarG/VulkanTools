@@ -6,9 +6,6 @@ cd $(dirname "$0")
 # Halt on error
 set -e
 
-# Verify that validation checks in source match documentation
-./vkvalidatelayerdoc.sh
-
 # vkbase tests that basic VK calls are working (don't return an error).
 ./vkbase
 
@@ -23,10 +20,6 @@ set -e
 # a saved "golden" image and will report an error if there is any difference
 ./vk_render_tests --compare-images
 
-# vk_layer_validation_tests check to see that validation layers will
-# catch the errors that they are supposed to by intentionally doing things
-# that are wrong
-./vk_layer_validation_tests
 
 # vktracereplay.sh tests vktrace trace and replay
 ./vktracereplay.sh

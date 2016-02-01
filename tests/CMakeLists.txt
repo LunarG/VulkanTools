@@ -106,7 +106,6 @@ if (NOT WIN32)
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_all_tests_with_layers.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/layer_test_suite.py
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vkvalidatelayerdoc.sh
             VERBATIM
             )
     endif()
@@ -116,12 +115,10 @@ else()
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_run_all_tests.ps1 RUN_ALL)
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_run_all_tests_with_layers.ps1 RUN_ALL_WITH_LAYERS)
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_vktracereplay.ps1 VKTRACEREPLAY)
-        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_vkvalidatelayerdoc.ps1 VKVALIDATELAYERDOC)
         add_custom_target(binary-dir-symlinks ALL
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RUN_ALL} run_all_tests.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RUN_ALL_WITH_LAYERS} run_all_tests_with_layers.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKTRACEREPLAY} vktracereplay.ps1
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKVALIDATELAYERDOC} vkvalidatelayerdoc.ps1
             COMMAND IF NOT EXIST golden mklink /J golden ${GOLDEN}
             VERBATIM
             )
@@ -163,11 +160,5 @@ set_target_properties(vk_blit_tests
    PROPERTIES
    COMPILE_DEFINITIONS "GTEST_LINKED_AS_SHARED_LIBRARY=1")
 target_link_libraries(vk_blit_tests ${LIBVK} gtest gtest_main ${TEST_LIBRARIES})
-
-add_executable(vk_layer_validation_tests layer_validation_tests.cpp ${COMMON_CPP})
-set_target_properties(vk_layer_validation_tests
-   PROPERTIES
-   COMPILE_DEFINITIONS "GTEST_LINKED_AS_SHARED_LIBRARY=1")
-target_link_libraries(vk_layer_validation_tests ${LIBVK} gtest gtest_main layer_utils ${TEST_LIBRARIES})
 
 add_subdirectory(gtest-1.7.0)

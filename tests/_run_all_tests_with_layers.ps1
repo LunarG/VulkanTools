@@ -9,7 +9,7 @@ if ($Debug) {
 $ErrorActionPreference = "Stop"
 echo $dPath
 
-Set-Item -path env:Path -value ($env:Path + ";..\loader\$dPath")
+Set-Item -path env:Path -value ($env:Path + ";..\..\LoaderAndTools\build\loader\$dPath")
 Set-Item -path env:Path -value ($env:Path + ";gtest-1.7.0\$dPath")
 $env:VK_LAYER_PATH = "..\layers\$dPath"
 
@@ -33,9 +33,7 @@ If (Test-Path .\vk_layer_settings.txt) {
     del vk_layer_settings.txt
 }
 
-#unset the layer enviroment variables before running the layer validation tests
 $env:VK_INSTANCE_LAYERS = ""
 $env:VK_DEVICE_LAYERS = ""
 
-& $dPath\vk_layer_validation_tests
 
