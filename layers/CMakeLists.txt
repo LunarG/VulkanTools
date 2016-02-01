@@ -120,9 +120,9 @@ add_custom_target(generate_vk_layer_helpers DEPENDS
 run_vk_layer_generate(generic generic_layer.cpp)
 run_vk_layer_generate(api_dump api_dump.cpp)
 
-add_library(layer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
+add_library(layer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp)
 if (WIN32)
-    add_library(layer_utils_static STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
+    add_library(layer_utils_static STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp)
     set_target_properties(layer_utils_static PROPERTIES OUTPUT_NAME layer_utils)
     target_link_libraries(layer_utils)
 else()
