@@ -101,6 +101,32 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr
 
 static instance_table_map multi2_instance_table_map;
 /******************************** Layer multi2 functions **************************/
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi2CreateInstance(
+    const VkInstanceCreateInfo* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator,
+    VkInstance* pInstance)
+{
+    VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+
+    assert(chain_info->u.pLayerInfo);
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");
+    if (fpCreateInstance == NULL) {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Advance the link info for the next element on the chain
+    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+
+    VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
+    if (result != VK_SUCCESS)
+        return result;
+
+    initInstanceTable(*pInstance, fpGetInstanceProcAddr, multi2_instance_table_map);
+
+    return result;
+}
+	
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi2EnumeratePhysicalDevices(
                                             VkInstance instance,
                                             uint32_t* pPhysicalDeviceCount,
@@ -148,6 +174,8 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi2DestroyInstance(VkInstance inst
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAddr(VkInstance inst, const char* pName)
 {
+    if (!strcmp("vkCreateInstance", pName))
+        return (PFN_vkVoidFunction) multi2CreateInstance;
     if (!strcmp(pName, "multi2GetInstanceProcAddr") || !strcmp(pName, "vkGetInstanceProcAddr"))
         return (PFN_vkVoidFunction) multi2GetInstanceProcAddr;
     if (!strcmp("vkEnumeratePhysicalDevices", pName))
