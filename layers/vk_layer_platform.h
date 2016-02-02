@@ -326,7 +326,7 @@ typedef HANDLE layer_platform_thread;
     INIT_ONCE var = INIT_ONCE_STATIC_INIT;
 #define LAYER_PLATFORM_THREAD_ONCE_DEFINITION(var) \
     INIT_ONCE var;
-static BOOL CALLBACK InitFuncWrapper(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *Context)
+static BOOL CALLBACK InitFuncWrapperLayer(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *Context)
 {
     void (*func)(void) = (void (*)(void))Parameter;
     func();
@@ -337,7 +337,7 @@ static void layer_platform_thread_once(void *ctl, void (* func) (void))
 {
     assert(func != NULL);
     assert(ctl != NULL);
-    InitOnceExecuteOnce((PINIT_ONCE) ctl, InitFuncWrapper, func, NULL);
+    InitOnceExecuteOnce((PINIT_ONCE) ctl, InitFuncWrapperLayer, func, NULL);
 }
 
 // Thread IDs:
