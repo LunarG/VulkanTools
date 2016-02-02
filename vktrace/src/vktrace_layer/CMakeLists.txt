@@ -53,8 +53,8 @@ set (HDR_LIST
 )
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-	COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py dispatch-table-ops layer > vk_dispatch_table_helper.h
-	DEPENDS ${CMAKE_SOURCE_DIR}/vk-generate.py ${CMAKE_SOURCE_DIR}/vulkan.py)
+	COMMAND ${PYTHON_CMD} ${LOADER_PY_DIR}/vk-generate.py dispatch-table-ops layer > vk_dispatch_table_helper.h
+	DEPENDS ${LOADER_PY_DIR}/vk-generate.py ${LOADER_PY_DIR}/vulkan.py)
 add_custom_target(generate_vktrace_layer_helpers DEPENDS
 	vk_dispatch_table_helper.h)
 

@@ -3,15 +3,15 @@ cmake_minimum_required (VERSION 2.8.11)
 set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/include)
 macro(run_vk_helper subcmd)
 	add_custom_command(OUTPUT ${ARGN}
-		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper.py --${subcmd} ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
-		DEPENDS ${PROJECT_SOURCE_DIR}/vk_helper.py ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h
+		COMMAND ${PYTHON_CMD} ${LOADER_PY_DIR}/vk_helper.py --${subcmd} ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
+		DEPENDS ${LOADER_PY_DIR}/vk_helper.py ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h
 	)
 endmacro()
 
 macro(run_vk_layer_generate subcmd output)
 	add_custom_command(OUTPUT ${output}
 		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-layer-generate.py ${subcmd} ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h > ${output}
-		DEPENDS ${PROJECT_SOURCE_DIR}/vk-layer-generate.py ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h ${PROJECT_SOURCE_DIR}/vulkan.py
+		DEPENDS ${PROJECT_SOURCE_DIR}/vk-layer-generate.py ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h ${LOADER_PY_DIR}/vulkan.py
 	)
 endmacro()
 
@@ -52,8 +52,8 @@ endif()
 if (WIN32)
     macro(add_vk_layer target)
 	add_custom_command(OUTPUT VkLayer_${target}.def
-		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py win-def-file VkLayer_${target} layer > VkLayer_${target}.def
-		DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vk.py
+		COMMAND ${PYTHON_CMD} ${LOADER_PY_DIR}/vk-generate.py win-def-file VkLayer_${target} layer > VkLayer_${target}.def
+		DEPENDS ${LOADER_PY_DIR}/vk-generate.py ${LOADER_PY_DIR}/vk.py
 	)
 	add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     target_link_Libraries(VkLayer_${target} layer_utils)
@@ -93,8 +93,8 @@ if (NOT WIN32)
 endif()
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-	COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py dispatch-table-ops layer > vk_dispatch_table_helper.h
-	DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
+	COMMAND ${PYTHON_CMD} ${LOADER_PY_DIR}/vk-generate.py dispatch-table-ops layer > vk_dispatch_table_helper.h
+	DEPENDS ${LOADER_PY_DIR}/vk-generate.py ${LOADER_PY_DIR}/vulkan.py)
 
 run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers

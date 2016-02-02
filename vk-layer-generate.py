@@ -35,8 +35,9 @@ import sys
 import os
 import re
 
-import vulkan
-import vk_helper
+import imp
+vulkan = imp.load_source('vulkan', '../LoaderAndTools/vulkan.py')
+vk_helper = imp.load_source('vulkan', '../LoaderAndTools/vk_helper.py')
 from source_line_info import sourcelineinfo
 from collections import defaultdict
 

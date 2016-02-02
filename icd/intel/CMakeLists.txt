@@ -7,8 +7,8 @@ add_subdirectory(kmd)
 add_subdirectory(compiler)
 
 add_custom_command(OUTPUT gpa.c
-    COMMAND ${PROJECT_SOURCE_DIR}/vk-generate.py icd-get-proc-addr > gpa.c
-    DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
+    COMMAND ${LOADER_PY_DIR}/vk-generate.py icd-get-proc-addr > gpa.c
+    DEPENDS ${LOADER_PY_DIR}/vk-generate.py ${LOADER_PY_DIR}/vulkan.py)
 
 set(sources
     buf.c

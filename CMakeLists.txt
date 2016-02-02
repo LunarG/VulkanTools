@@ -109,6 +109,8 @@ else()
     set(PYTHON_CMD "py")
 endif()
 
+set(LOADER_PY_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools)
+
 # icd: Device dependent (DD) VULKAN components
 # tests: VULKAN tests
 
