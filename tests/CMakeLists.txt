@@ -131,7 +131,7 @@ endif()
 set (LIBVK "vulkan-${MAJOR}")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LIBVK
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/${BUILDTGT_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
     )
 endif()
 

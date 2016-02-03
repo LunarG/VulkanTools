@@ -9,6 +9,20 @@ else()
     set(PYTHON_CMD "py")
 endif()
 
+# On Windows, we must pair Debug and Release appropriately
+if (WIN32)
+   # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
+   # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
+   # appropriate data at build time.
+   if (CMAKE_CL_64)
+      set (BUILDTGT_DIR build)
+   else ()
+      set (BUILDTGT_DIR build32)
+   endif()
+else()
+  set (BUILDTGT_DIR build)
+endif()
+
 message(STATUS "Using external Vulkan header and library.")
 set(VKTRACE_VULKAN_DRIVER_DIR ${CMAKE_SOURCE_DIR})
 set(VKTRACE_VULKAN_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
@@ -17,7 +31,7 @@ set(VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulk
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(VKTRACE_VULKAN_LIB
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/${BUILDTGT_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
     )
 endif()
 
