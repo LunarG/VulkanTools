@@ -5,7 +5,7 @@ Support for Android is TBD.
 
 ## Git the Bits
 
-Make sure you have access to the Khronos Github repository.  Once you do, the
+Make sure you have access to the LunarG Github repository.  Once you do, the
 preferred work flow is to clone the repo, create a branch, push branch to github and then
 issue a merge request to integrate that work back into the repo.
 
@@ -266,7 +266,9 @@ The sample driver uses cmake and should work with the usual cmake options and ut
 The standard build process builds the icd, vktrace and all the tests.
 
 Example debug build:
-NOTE: The loader repository must be a sibling directory of VulkanTools.
+NOTE: The loader repository (LoaderAndTools) must be a sibling directory of VulkanTools.
+The loader repository should be built firast prior to this repository. Follow
+the directions in BUILD.md in the loader repository.
 ```
 cd YOUR_DEV_DIRECTORY  # cd to the root of the VulkanTools git repository
 cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
@@ -349,6 +351,9 @@ Optional software packages:
 Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.  Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
 Example debug x64 build (e.g. in a "Developer Command Prompt for VS2013" window):
+NOTE: The loader repository (LoaderAndTools) must be a sibling directory of VulkanTools.
+The loader repository should be built first prior to this repository. Follow
+the directions in BUILD.md in the loader repository.
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
 mkdir build
