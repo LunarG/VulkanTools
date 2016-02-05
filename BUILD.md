@@ -267,7 +267,7 @@ The standard build process builds the icd, vktrace and all the tests.
 
 Example debug build:
 NOTE: The loader repository (LoaderAndTools) must be a sibling directory of VulkanTools.
-The loader repository should be built firast prior to this repository. Follow
+The loader repository should be built first prior to this repository. Follow
 the directions in BUILD.md in the loader repository.
 ```
 cd YOUR_DEV_DIRECTORY  # cd to the root of the VulkanTools git repository
