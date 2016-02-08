@@ -38,7 +38,7 @@ endif()
  
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(VKTRACE_VULKAN_LIB
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/libvulkan-${MAJOR}.so
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/libvulkan.so
      )
 endif()
 

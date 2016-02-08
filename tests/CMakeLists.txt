@@ -137,7 +137,7 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LIBVK
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/libvulkan-${MAJOR}.so
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/libvulkan.so
     )
 endif()
 add_executable(vkbase init.cpp ${COMMON_CPP})
