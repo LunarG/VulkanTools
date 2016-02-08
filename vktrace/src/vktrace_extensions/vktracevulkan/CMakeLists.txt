@@ -40,9 +40,10 @@ endif()
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-set(VKTRACE_VULKAN_LIB
-    ${CMAKE_BINARY_DIR}/loader/libvulkan-${MAJOR}.so
-)
+    set(VKTRACE_VULKAN_LIB
+        ${CMAKE_BINARY_DIR}/loader/libvulkan.so
+    )
+
 endif()
 
 message(STATUS "VKTRACE_VULKAN_LIB = " ${VKTRACE_VULKAN_LIB})
