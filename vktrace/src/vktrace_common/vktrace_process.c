@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * Copyright 2014 Valve Software
+ * Copyright 2014-2016 Valve Corporation
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
