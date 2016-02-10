@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (C) 2016 Valve Corporation
+# Copyright (C) 2016 LunarG, Inc.
 # Copyright (C) 2016 Google Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
