@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Valve Software
+ * Copyright 2015-2016 Valve Corporation
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
