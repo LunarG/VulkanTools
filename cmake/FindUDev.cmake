@@ -1,6 +1,7 @@
 # - FindUDev
 #
-# Copyright (C) 2015 Valve Corporation
+# Copyright (C) 2015-2016 Valve Corporation
+# Copyright (C) 2015-2016 LunarG, Inc.
 
 find_package(PkgConfig)
 
