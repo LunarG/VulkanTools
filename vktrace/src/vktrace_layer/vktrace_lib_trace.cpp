@@ -36,7 +36,6 @@
 #include "vktrace_common.h"
 #include "vktrace_lib_helpers.h"
 
-#include "vktrace_vk_vk_ext_debug_report.h"
 #include "vktrace_vk_vk_lunarg_debug_marker.h"
 
 #include "vktrace_interconnect.h"

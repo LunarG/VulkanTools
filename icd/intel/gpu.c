@@ -42,7 +42,6 @@
 #include "gpu.h"
 #include "instance.h"
 #include "wsi.h"
-#include <vulkan/vk_ext_debug_report.h>
 #include "vulkan/vk_lunarg_debug_marker.h"
 
 static int gpu_open_primary_node(struct intel_gpu *gpu)
@@ -157,7 +156,7 @@ VkResult intel_gpu_create(const struct intel_instance *instance, int devid,
     struct intel_gpu *gpu;
 
     if (gen < 0) {
-        intel_log(instance, VK_DEBUG_REPORT_WARN_BIT_EXT, 0,
+        intel_log(instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
                 VK_NULL_HANDLE, 0, 0, "unsupported device id 0x%04x", devid);
         return VK_ERROR_INITIALIZATION_FAILED;
     }
