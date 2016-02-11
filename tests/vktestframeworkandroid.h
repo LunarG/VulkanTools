@@ -4,6 +4,9 @@
 //  Copyright (c) 2015-2016 Valve Corporation
 //  Copyright (c) 2015-2016 LunarG, Inc.
 //  Copyright (c) 2015-2016 Google, Inc.
+//  Copyright (C) 2015-2016 Valve Corporation
+//  Copyright (C) 2015-2016 LunarG, Inc.
+//  Copyright (C) 2015 Google, Inc.
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and/or associated documentation files (the "Materials"), to
