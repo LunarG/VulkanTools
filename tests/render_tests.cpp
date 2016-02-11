@@ -75,7 +75,6 @@ using namespace std;
 #include "../layers/object_track.h"
 #endif
 #ifdef DEBUG_CALLBACK
-#include <vulkan/vk_ext_debug_report.h>
 #endif
 #include "test_common.h"
 

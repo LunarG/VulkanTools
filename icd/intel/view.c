@@ -1272,7 +1272,7 @@ void intel_img_view_init(struct intel_dev *dev,
             view->shader_swizzles.g != VK_COMPONENT_SWIZZLE_G ||
             view->shader_swizzles.b != VK_COMPONENT_SWIZZLE_B ||
             view->shader_swizzles.a != VK_COMPONENT_SWIZZLE_A) {
-            intel_dev_log(dev, VK_DEBUG_REPORT_WARN_BIT_EXT,
+            intel_dev_log(dev, VK_DEBUG_REPORT_WARNING_BIT_EXT,
                           (struct intel_base*)view, 0, 0,
                           "image data swizzling is ignored");
         }

@@ -722,7 +722,7 @@ class GenericLayerSubcommand(Subcommand):
                      '    layer_data *my_instance_data = get_my_data_ptr(get_dispatch_key(physicalDevice), layer_data_map);\n'
                      '    char str[1024];\n'
                      '    sprintf(str, "At start of Generic layered %s\\n");\n'
-                     '    log_msg(my_instance_data->report_data, VK_DEBUG_REPORT_INFO_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT,'
+                     '    log_msg(my_instance_data->report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT,'
                      '            (uint64_t)physicalDevice, __LINE__, 0, (char *) "generic", "%%s", (char *) str);\n'
                      '    VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);\n'
                      '    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;\n'
@@ -742,7 +742,7 @@ class GenericLayerSubcommand(Subcommand):
                      '    my_device_data->report_data = layer_debug_report_create_device(my_instance_data->report_data, *pDevice);\n'
                      '    createDeviceRegisterExtensions(pCreateInfo, *pDevice);\n'
                      '    sprintf(str, "Completed generic layered %s\\n");\n'
-                     '    log_msg(my_device_data->report_data, VK_DEBUG_REPORT_INFO_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, (uint64_t)physicalDevice, __LINE__, 0, (char *) "generic", "%%s", (char *) str);\n'
+                     '    log_msg(my_device_data->report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, (uint64_t)physicalDevice, __LINE__, 0, (char *) "generic", "%%s", (char *) str);\n'
                      '    %s'
                      '}' % (qual, decl, proto.name, proto.name, stmt))
         elif proto.name == "DestroyDevice":
@@ -800,7 +800,7 @@ class GenericLayerSubcommand(Subcommand):
                          '            pCreateInfo->ppEnabledExtensionNames);\n'
                          '    init_generic(my_data, pAllocator);\n'
                          '    sprintf(str, "Completed generic layered %s\\n");\n'
-                         '    log_msg(my_data->report_data, VK_DEBUG_REPORT_INFO_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, (uint64_t)*pInstance, __LINE__, 0, (char *) "generic", "%%s", (char *) str);\n'
+                         '    log_msg(my_data->report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, (uint64_t)*pInstance, __LINE__, 0, (char *) "generic", "%%s", (char *) str);\n'
                          '    return result;\n'
                          '}\n' % (qual, decl, proto.name))
         else:

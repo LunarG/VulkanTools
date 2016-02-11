@@ -124,7 +124,7 @@ class Subcommand(object):
         func_protos.append('#endif')
         func_protos.append('// Hooked function prototypes\n')
         for proto in self.protos:
-            if 'Dbg' not in proto.name and 'DebugReport' not in proto.name:
+            if 'Dbg' not in proto.name:
                 func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
 
         func_protos.append('#ifdef __cplusplus')
@@ -405,9 +405,9 @@ class Subcommand(object):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
 
         # process each of the entrypoint prototypes
-        wsi_ext = ['vk_khr_surface', 'vk_khr_swapchain', 'vk_khr_win32_surface', 'vk_khr_xcb_surface']
+        approved_ext = ['vk_khr_surface', 'vk_khr_swapchain', 'vk_khr_win32_surface', 'vk_khr_xcb_surface', 'vk_ext_debug_report']
         for ext in vulkan.extensions_all:
-            if (ext.name.lower() == extensionName.lower()) or ((extensionName.lower() == 'vk_core') and (ext.name.lower() in wsi_ext)):
+            if (ext.name.lower() == extensionName.lower()) or ((extensionName.lower() == 'vk_core') and (ext.name.lower() in approved_ext)):
                 for proto in ext.protos:
                     if proto.name in manually_written_hooked_funcs:
                         func_body.append( '// __HOOKED_vk%s is manually written. Look in vktrace_lib_trace.cpp\n' % proto.name)
@@ -539,7 +539,7 @@ class Subcommand(object):
         for proto in self.protos:
             interp_func_body.append('        case VKTRACE_TPI_VK_vk%s:\n        {' % proto.name)
             header_prefix = 'h'
-            if 'Dbg' in proto.name or 'DebugReport' in proto.name:
+            if 'Dbg' in proto.name :
                 header_prefix = 'pH'
             interp_func_body.append('%s' % self.lineinfo.get())
             interp_func_body.append('            return interpret_body_as_vk%s(pHeader)->%seader;\n        }' % (proto.name, header_prefix))
@@ -942,7 +942,7 @@ class Subcommand(object):
         if_body.append('    return pPacket;')
         if_body.append('}\n')
         for proto in self.protos:
-            if 'Dbg' not in proto.name and 'DebugReport' not in proto.name:
+            if 'Dbg' not in proto.name:
                 if 'UnmapMemory' == proto.name:
                     proto.params.append(vulkan.Param("void*", "pData"))
                 elif 'FlushMappedMemoryRanges' == proto.name:
@@ -1462,7 +1462,7 @@ class Subcommand(object):
         cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
         cb_body.append('                    break;')
         cb_body.append('                }')
-        cb_body.append('                VkFlags reportFlags = VK_DEBUG_REPORT_INFO_BIT_EXT | VK_DEBUG_REPORT_WARN_BIT_EXT | VK_DEBUG_REPORT_PERF_WARN_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;')
+        cb_body.append('                VkFlags reportFlags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;')
         cb_body.append('                PFN_vkCreateDebugReportCallbackEXT callback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(remappedInstance, "vkCreateDebugReportCallbackEXT");')
         cb_body.append('                if (callback != NULL) {')
         cb_body.append('                    VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;')
@@ -1803,7 +1803,6 @@ class VktraceTraceC(Subcommand):
         header_txt.append('#include "vktrace_common.h"')
         header_txt.append('#include "vktrace_lib_helpers.h"')
         header_txt.append('#include "vktrace_vk_vk.h"')
-        header_txt.append('#include "vktrace_vk_vk_ext_debug_report.h"')
         header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
         header_txt.append('#include "vktrace_filelike.h"')
@@ -1835,7 +1834,6 @@ class VktracePacketID(Subcommand):
         header_txt.append('#include "vktrace_trace_packet_utils.h"')
         header_txt.append('#include "vktrace_trace_packet_identifiers.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
-        header_txt.append('#include "vktrace_vk_vk_ext_debug_report_packets.h"')
         header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
         #header_txt.append('#include "vk_enum_string_helper.h"')
         header_txt.append('#ifndef _WIN32')
@@ -1950,7 +1948,6 @@ class VktraceReplayObjMapperHeader(Subcommand):
         header_txt.append('#include <vector>')
         header_txt.append('#include <string>')
         header_txt.append('#include "vulkan/vulkan.h"')
-        header_txt.append('#include "vulkan/vk_ext_debug_report.h"')
         header_txt.append('#include "vulkan/vk_lunarg_debug_marker.h"')
         return "\n".join(header_txt)
 
@@ -1969,7 +1966,6 @@ class VktraceReplayC(Subcommand):
         header_txt.append('\n')
         header_txt.append('extern "C" {')
         header_txt.append('#include "vktrace_vk_vk_packets.h"')
-        header_txt.append('#include "vktrace_vk_vk_ext_debug_report_packets.h"')
         header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
         header_txt.append('#include "vktrace_vk_packet_id.h"')
         #header_txt.append('#include "vk_enum_string_helper.h"\n}\n')

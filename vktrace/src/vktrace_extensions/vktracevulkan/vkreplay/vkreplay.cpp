@@ -66,8 +66,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkErrorHandler(
          */
         bail = true;
     }
-    else if ((msgFlags & VK_DEBUG_REPORT_WARN_BIT_EXT) == VK_DEBUG_REPORT_WARN_BIT_EXT ||
-             (msgFlags & VK_DEBUG_REPORT_PERF_WARN_BIT_EXT) == VK_DEBUG_REPORT_PERF_WARN_BIT_EXT)
+    else if ((msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) == VK_DEBUG_REPORT_WARNING_BIT_EXT ||
+             (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) == VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
     {
         if (g_fpVktraceCallback != NULL)
         {
