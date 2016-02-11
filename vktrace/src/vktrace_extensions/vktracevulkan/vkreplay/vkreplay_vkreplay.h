@@ -45,12 +45,10 @@
 extern "C" {
 #include "vktrace_vk_vk_packets.h"
 
-#include "vktrace_vk_vk_ext_debug_report_packets.h"
 // TODO138 : Need to add packets files for new wsi headers
 }
 
 #include "vulkan/vulkan.h"
-#include "vulkan/vk_ext_debug_report.h"
 
 #include "vkreplay_vkdisplay.h"
 #include "vkreplay_vk_func_ptrs.h"

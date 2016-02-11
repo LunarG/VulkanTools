@@ -26,7 +26,6 @@
  */
 #include "vktrace_lib_helpers.h"
 #include "vulkan/vk_lunarg_debug_marker.h"
-#include "vulkan/vk_ext_debug_report.h"
 
 #include "vulkan/vk_layer.h"
 
