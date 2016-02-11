@@ -649,6 +649,9 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
         const VkSubmitInfo *submit = &pPacket->pSubmits[submit_idx];
         VkSubmitInfo *remappedSubmit = &remappedSubmits[submit_idx];
         memset(remappedSubmit, 0, sizeof(VkSubmitInfo));
+        remappedSubmit->sType = submit->sType;
+        remappedSubmit->pNext = submit->pNext;
+        remappedSubmit->pWaitDstStageMask = submit->pWaitDstStageMask;
         // Remap Semaphores & CommandBuffers for this submit
         uint32_t i = 0;
         if (submit->pCommandBuffers != NULL) {
@@ -1750,8 +1753,9 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pac
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(remappedphysicalDevice, m_display->get_surface(), pPacket->pSurfaceCapabilities);
+    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(remappedphysicalDevice, remappedSurfaceKHR, pPacket->pSurfaceCapabilities);
 
     return replayResult;
 }
@@ -1761,8 +1765,9 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_v
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceFormatsKHR(remappedphysicalDevice, m_display->get_surface(), pPacket->pSurfaceFormatCount, pPacket->pSurfaceFormats);
+    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceFormatsKHR(remappedphysicalDevice, remappedSurfaceKHR, pPacket->pSurfaceFormatCount, pPacket->pSurfaceFormats);
 
     return replayResult;
 }
@@ -1772,8 +1777,9 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(pac
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfacePresentModesKHR(remappedphysicalDevice, m_display->get_surface(), pPacket->pPresentModeCount, pPacket->pPresentModes);
+    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfacePresentModesKHR(remappedphysicalDevice, remappedSurfaceKHR, pPacket->pPresentModeCount, pPacket->pPresentModes);
 
     return replayResult;
 }

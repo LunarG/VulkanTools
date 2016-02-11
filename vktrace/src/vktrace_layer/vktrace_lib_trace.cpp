@@ -1962,7 +1962,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
                 return (PFN_vkVoidFunction) __HOOKED_vkGetPhysicalDeviceSurfaceSupportKHR;
             if (!strcmp("vkDestroySurfaceKHR", funcName))
                 return (PFN_vkVoidFunction) __HOOKED_vkDestroySurfaceKHR;
-            if (!strcmp("vkGetPhysicalDeviceSurfacePropertiesKHR", funcName))
+            if (!strcmp("vkGetPhysicalDeviceSurfaceCapabilitiesKHR", funcName))
                 return (PFN_vkVoidFunction) __HOOKED_vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
             if (!strcmp("vkGetPhysicalDeviceSurfaceFormatsKHR", funcName))
                 return (PFN_vkVoidFunction) __HOOKED_vkGetPhysicalDeviceSurfaceFormatsKHR;
