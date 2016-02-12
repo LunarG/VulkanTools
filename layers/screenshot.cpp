@@ -501,7 +501,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
 
 static const VkLayerProperties ss_device_layers[] = {
     {
-        "screenshot",
+        "VK_LAYER_LUNARG_screenshot",
         VK_API_VERSION,
         1,
         "Layer: screenshot",
