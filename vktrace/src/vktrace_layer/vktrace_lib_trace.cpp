@@ -565,7 +565,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
         char **ppName = (char **) &localCreateInfo.ppEnabledLayerNames[i];
         *ppName = (char *) pCreateInfo->ppEnabledLayerNames[i];
     }
-    localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
+    //localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
+    // The pNext pointer isn't getting marshalled into the trace buffer properly anyway, so
+    // set it to NULL so that replay does not trip over it.
+    localCreateInfo.pNext = NULL;
     CREATE_TRACE_PACKET(vkCreateInstance, sizeof(VkInstance) + get_struct_chain_size((void*)&localCreateInfo) + sizeof(VkAllocationCallbacks));
     pHeader->vktrace_begin_time = vktraceStartTime;
     pHeader->entrypoint_begin_time = startTime;
