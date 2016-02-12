@@ -503,7 +503,7 @@ static const VkLayerProperties ss_device_layers[] = {
     {
         "screenshot",
         VK_API_VERSION,
-        VK_MAKE_VERSION(0, 1, 0),
+        1,
         "Layer: screenshot",
     }
 };
