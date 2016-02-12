@@ -54,7 +54,7 @@ static const VkLayerProperties basic_physicaldevice_layers[] = {
     {
         "VK_LAYER_LUNARG_basic",
         VK_API_VERSION,
-        VK_MAKE_VERSION(0, 1, 0),
+        1,
         "Sample layer: basic, implements vkLayerExtension1",
     }
 };
@@ -73,7 +73,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
 static const VkExtensionProperties basic_physicaldevice_extensions[] = {
     {
         "vkLayerExtension1",
-        VK_MAKE_VERSION(0, 1, 0),
+        1,
     }
 };
 
