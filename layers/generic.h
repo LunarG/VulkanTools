@@ -50,7 +50,7 @@ static const VkLayerProperties globalLayerProps[] = {
     {
         "VK_LAYER_LUNARG_generic",
         VK_API_VERSION,                 // specVersion
-        VK_MAKE_VERSION(0, 1, 0),       // implementationVersion
+        1,
         "layer: generic",
     }
 };
@@ -59,7 +59,7 @@ static const VkLayerProperties deviceLayerProps[] = {
     {
         "VK_LAYER_LUNARG_generic",
         VK_API_VERSION,                 // specVersion
-        VK_MAKE_VERSION(0, 1, 0),       // implementationVersion
+        1,
         "layer: generic",
     }
 };
