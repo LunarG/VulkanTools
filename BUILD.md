@@ -10,7 +10,7 @@ preferred work flow is to clone the repo, create a branch, push branch to github
 issue a merge request to integrate that work back into the repo.
 
 ## Dependencies
-  - You must have a LoaderAndTools (LoaderAndValidationLayers) repository from Khronos,
+  - You must have a LoaderAndValidationLayers (LoaderAndValidationLayers) repository from Khronos,
     and a glslang, LunarGlass repository that are file system peers to VulkanTools,.
 
 ## Linux System Requirements
@@ -251,9 +251,9 @@ git clone -o LunarG git@github.com:LunarG/VulkanTools.git <YOUR_DEV_DIRECTORY>
 # Or substitute the URL from your forked repo for git@github.com:LunarG/VulkanTools.git above.
 # if you need the LoaderAndValidationLayers repo as a sibling
 cd YOUR_DEV_PARENT_DIRECTORY
-git clone -o khronos git@gitlab.khronos.org:vulkan/LoaderAndTools.git .
-# Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/LoaderAndTools.git above.
-cd LoaderAndTools
+git clone -o khronos git@gitlab.khronos.org:vulkan/LoaderAndValidationLayers.git .
+# Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/LoaderAndValidationLayers.git above.
+cd LoaderAndValidationLayers
 # this will fetch glslang, llvm, SPIR-V and LunarGlass as sibling repositories
 export KHRONOS_ACCOUNT_NAME= <subversion login name for svn checkout of SPIR-V>
 ./update_external_sources.sh   # linux
@@ -266,7 +266,7 @@ The sample driver uses cmake and should work with the usual cmake options and ut
 The standard build process builds the icd, vktrace and all the tests.
 
 Example debug build:
-NOTE: The loader repository (LoaderAndTools) must be a sibling directory of VulkanTools.
+NOTE: The loader repository (LoaderAndValidationLayers) must be a sibling directory of VulkanTools.
 The loader repository should be built first prior to this repository. Follow
 the directions in BUILD.md in the loader repository.
 ```
@@ -351,7 +351,7 @@ Optional software packages:
 Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.  Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
 Example debug x64 build (e.g. in a "Developer Command Prompt for VS2013" window):
-NOTE: The loader repository (LoaderAndTools) must be a sibling directory of VulkanTools.
+NOTE: The loader repository (LoaderAndValidationLayers) must be a sibling directory of VulkanTools.
 The loader repository should be built first prior to this repository. Follow
 the directions in BUILD.md in the loader repository.
 ```

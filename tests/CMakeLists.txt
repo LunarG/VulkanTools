@@ -88,7 +88,7 @@ else ()
 endif()
 
 #hacky get include files from loader repo
-set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/include)
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/include)
 include_directories(
      ${LOADER_INCLUDE_DIR}
     "${PROJECT_SOURCE_DIR}/tests/gtest-1.7.0/include"
@@ -131,13 +131,13 @@ endif()
 set (LIBVK "vulkan-${MAJOR}")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LIBVK
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/${BUILDTGT_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/${BUILDTGT_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
     )
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LIBVK
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndTools/build/loader/${CMAKE_CFG_INTDIR}/libvulkan.so
+        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/build/loader/${CMAKE_CFG_INTDIR}/libvulkan.so
     )
 endif()
 add_executable(vkbase init.cpp ${COMMON_CPP})
