@@ -46,7 +46,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 # Header file for CMake settings
 #hacky use layer include directory from loader repo
-set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/include)
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/include)
 include_directories(${PROJECT_SOURCE_DIR}/include ${LOADER_UNCLUDE_DIR})
 
 if(NOT WIN32)
@@ -109,7 +109,7 @@ else()
     set(PYTHON_CMD "py")
 endif()
 
-set(LOADER_PY_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers)
+set(LOADER_PY_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers)
 
 # icd: Device dependent (DD) VULKAN components
 # tests: VULKAN tests

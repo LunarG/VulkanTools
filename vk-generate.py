@@ -27,7 +27,7 @@
 
 import sys
 import imp
-vulkan = imp.load_source('vulkan', '../../../../LoaderAndValidationLayers/vulkan.py')
+vulkan = imp.load_source('vulkan', '../../../../Vulkan-LoaderAndValidationLayers/vulkan.py')
 
 
 def generate_get_proc_addr_check(name):

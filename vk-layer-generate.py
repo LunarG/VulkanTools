@@ -37,8 +37,8 @@ import os
 import re
 
 import imp
-vulkan = imp.load_source('vulkan', '../../../LoaderAndValidationLayers/vulkan.py')
-vk_helper = imp.load_source('vulkan', '../../../LoaderAndValidationLayers/vk_helper.py')
+vulkan = imp.load_source('vulkan', '../../../Vulkan-LoaderAndValidationLayers/vulkan.py')
+vk_helper = imp.load_source('vulkan', '../../../Vulkan-LoaderAndValidationLayers/vk_helper.py')
 from source_line_info import sourcelineinfo
 from collections import defaultdict
 

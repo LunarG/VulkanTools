@@ -37,7 +37,7 @@ main_path = os.path.abspath(vktrace_scripts_path + "/../")
 sys.path.append(main_path)
 from source_line_info import sourcelineinfo
 import imp
-vulkan = imp.load_source('vulkan', '%s/../LoaderAndValidationLayers/vulkan.py' % main_path)
+vulkan = imp.load_source('vulkan', '%s/../Vulkan-LoaderAndValidationLayers/vulkan.py' % main_path)
 
 # vulkan.py doesn't include all the extensions (debug_report missing)
 headers = []
