@@ -1,7 +1,7 @@
 # Powershell script for running the vktrace trace/replay auto test
 # To run this test:
 #    cd <this-dir>
-#    powershell C:\src\LoaderAndValidationLayers\vktracereplay.ps1 [-Debug]
+#    powershell C:\src\Vulkan-LoaderAndValidationLayers\vktracereplay.ps1 [-Debug]
 $exitstatus = 0
 
 if ($args[0] -eq "-Debug") {
@@ -22,10 +22,10 @@ new-item vktracereplay_tmp -itemtype directory > $null 2> $null
 cd vktracereplay_tmp
 cp ..\..\vktrace\$dPath\vkreplay.exe .
 cp ..\..\vktrace\$dPath\vktrace.exe .
-cp ..\..\..\..\LoaderAndValidationLayers\build\demos\$dPath\cube.exe .
-cp ..\..\..\..\LoaderAndValidationLayers\demos\*.ppm .
-cp ..\..\..\..\LoaderAndValidationLayers\build\demos\*.spv .
-cp ..\..\..\..\LoaderAndValidationLayers\build\loader\$dPath\vulkan-1.dll .
+cp ..\..\..\..\Vulkan-LoaderAndValidationLayers\build\demos\$dPath\cube.exe .
+cp ..\..\..\..\Vulkan-LoaderAndValidationLayers\demos\*.ppm .
+cp ..\..\..\..\Vulkan-LoaderAndValidationLayers\build\demos\*.spv .
+cp ..\..\..\..\Vulkan-LoaderAndValidationLayers\build\loader\$dPath\vulkan-1.dll .
 cp ..\..\layers\$dPath\VkLayer_screenshot.dll .
 cp ..\..\layers\$dPath\VkLayer_screenshot.json .
 cp ..\..\layers\$dPath\VkLayer_vktrace_layer.dll .

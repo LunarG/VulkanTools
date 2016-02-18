@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8.11)
 
-set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/include)
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/include)
 macro(run_vk_helper subcmd)
 	add_custom_command(OUTPUT ${ARGN}
 		COMMAND ${PYTHON_CMD} ${LOADER_PY_DIR}/vk_helper.py --${subcmd} ${LOADER_INCLUDE_DIR}/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
@@ -72,8 +72,8 @@ else()
 endif()
 
 #hacky use layer include directory from loader repo
-set (LOADER_LAYER_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/layers)
-set (LOADER_LOADER_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/loader)
+set (LOADER_LAYER_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/layers)
+set (LOADER_LOADER_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/loader)
 include_directories(
         ${LOADER_LAYER_DIR}
         ${LOADER_LOADER_DIR}

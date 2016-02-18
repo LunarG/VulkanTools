@@ -1,6 +1,6 @@
 # Build Instructions
-This project fully supports Linux today.
-Support for Windows is for the layers, tests and the VkTrace trace/replay tools.
+This project fully supports Linux today.<br/>
+Support for Windows is for the layers, tests and the VkTrace trace/replay tools.<br/>
 Support for Android is TBD.
 
 ## Git the Bits
@@ -10,8 +10,9 @@ preferred work flow is to clone the repo, create a branch, push branch to github
 issue a merge request to integrate that work back into the repo.
 
 ## Dependencies
-  - You must have a LoaderAndValidationLayers (LoaderAndValidationLayers) repository from Khronos,
-    and a glslang, LunarGlass repository that are file system peers to VulkanTools,.
+  - You must have a Vulkan-LoaderAndValidationLayers (Vulkan-LoaderAndValidationLayers) repository from Khronos,
+    and a glslang, LunarGlass repository that are file system peers to VulkanTools. You'll do this in 'Cloning
+	the Repository(ies)', after installing other build requirements below.
 
 ## Linux System Requirements
 Ubuntu 14.04.3 LTS, 14.10, 15.04 and 15.10 have been used with the sample driver.
@@ -243,21 +244,24 @@ xdpyinfo | grep DRI
 ## Clone the repository(ies)
 
 To create your local git repository of VulkanTools:
+(It is recommended to use an "MSBuild Command Prompt for VS2012" or for another version of Visual Studio)
 ```
 mkdir YOUR_DEV_PARENT_DIRECTORY  # this will hold several repositories
 cd YOUR_DEV_PARENT_DIRECTORY
-mkdir YOUR_DEV_DIRECTORY     # it is called VulkanTools  on Github but name can be anything
+
+mkdir YOUR_DEV_DIRECTORY     # it is called VulkanTools on Github but can be anything
 git clone -o LunarG git@github.com:LunarG/VulkanTools.git <YOUR_DEV_DIRECTORY>
 # Or substitute the URL from your forked repo for git@github.com:LunarG/VulkanTools.git above.
-# if you need the LoaderAndValidationLayers repo as a sibling
+
+# You need the Vulkan-LoaderAndValidationLayers repo as a sibling
 cd YOUR_DEV_PARENT_DIRECTORY
-git clone -o khronos git@gitlab.khronos.org:vulkan/LoaderAndValidationLayers.git .
-# Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/LoaderAndValidationLayers.git above.
-cd LoaderAndValidationLayers
-# this will fetch glslang, llvm, SPIR-V and LunarGlass as sibling repositories
-export KHRONOS_ACCOUNT_NAME= <subversion login name for svn checkout of SPIR-V>
+git clone -o khronos git@gitlab.khronos.org:vulkan/Vulkan-LoaderAndValidationLayers.git
+# Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/Vulkan-LoaderAndValidationLayers.git above.
+
+cd Vulkan-LoaderAndValidationLayers
+# this will fetch and build glslang, llvm, SPIR-V and LunarGlass as sibling repositories
 ./update_external_sources.sh   # linux
-./update_external_sources.bat  # windows
+./update_external_sources.bat --all # windows
 ```
 
 ## Linux Build
@@ -266,7 +270,7 @@ The sample driver uses cmake and should work with the usual cmake options and ut
 The standard build process builds the icd, vktrace and all the tests.
 
 Example debug build:
-NOTE: The loader repository (LoaderAndValidationLayers) must be a sibling directory of VulkanTools.
+NOTE: The loader repository (Vulkan-LoaderAndValidationLayers) must be a sibling directory of VulkanTools.
 The loader repository should be built first prior to this repository. Follow
 the directions in BUILD.md in the loader repository.
 ```
@@ -278,7 +282,7 @@ make
 
 ## Linux Test
 
-The test executibles can be found in the dbuild/tests directory. The tests use the Google
+The test executables can be found in the dbuild/tests directory. The tests use the Google
 gtest infrastructure. Tests available so far:
 - vkbase: Test basic entry points
 - vk_blit_tests: Test VK Blits (copy, clear, and resolve)
@@ -351,19 +355,17 @@ Optional software packages:
 Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.  Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
 Example debug x64 build (e.g. in a "Developer Command Prompt for VS2013" window):
-NOTE: The loader repository (LoaderAndValidationLayers) must be a sibling directory of VulkanTools.
+NOTE: The loader repository (Vulkan-LoaderAndValidationLayers) must be a sibling directory of VulkanTools.
 The loader repository should be built first prior to this repository. Follow
 the directions in BUILD.md in the loader repository.
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
-mkdir build
-cd build
-cmake -G "Visual Studio 12 Win64" ..
+cmake -H. -Bbuild -G "Visual Studio 12 Win64"
 ```
 
-At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.  Once Visual Studio comes up, you can select "Debug" or "Release" from a drop-down list.  You can start a build with either the menu (Build->Build Solution), or a keyboard shortcut (Ctrl+Shift+B).  As part of the build process, Python scripts will create additional Visual Studio files and projects, along with additional source files.  All of these auto-generated files are under the "build" folder.
+At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKANTOOLS.sln" file in the \build folder.  Once Visual Studio comes up, you can select "Debug" or "Release" from a drop-down list.  You can start a build with either the menu (Build->Build Solution), or a keyboard shortcut (Ctrl+Shift+B).  As part of the build process, Python scripts will create additional Visual Studio files and projects, along with additional source files.  All of these auto-generated files are under the "build" folder.
 
-VK programs must be able to find and use the VK.dll libary. Make sure it is either installed in the C:\Windows\System32 folder, or the PATH enviroment variable includes the folder that it is located in.
+Vulkan programs must be able to find and use the Vulkan-1.dll libary. Make sure it is either installed in the C:\Windows\System32 folder, or the PATH environment variable includes the folder that it is located in.
 
 ### Windows 64-bit Installation Notes
 If you plan on creating a Windows Install file (done in the windowsRuntimeInstaller sub-directory) you will need to build for both 32-bit and 64-bit Windows since both versions of EXEs and DLLs exist simultaneously on Windows 64.

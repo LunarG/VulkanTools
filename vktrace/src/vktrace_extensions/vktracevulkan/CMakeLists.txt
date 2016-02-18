@@ -30,14 +30,14 @@ set(VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulk
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(VKTRACE_VULKAN_LIB
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/${BUILDTGT_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
+        ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/${BUILDTGT_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-${MAJOR}.lib
     )
 endif()
 
  
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(VKTRACE_VULKAN_LIB
-        ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/build/loader/libvulkan.so
+        ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/build/loader/libvulkan.so
      )
 endif()
 
