@@ -16,8 +16,23 @@ Further instructions regarding the ICD are available there.
 
 To create your local git repository:
 ```
-git clone https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers 
-# Or substitute the URL from your forked repo for https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers above.
+mkdir YOUR_DEV_PARENT_DIRECTORY  # this will hold several repositories
+cd YOUR_DEV_PARENT_DIRECTORY
+mkdir YOUR_DEV_DIRECTORY     # it is called VulkanTools  on Github but name can be anything
+git clone -o LunarG git@github.com:LunarG/VulkanTools.git <YOUR_DEV_DIRECTORY>
+# Or substitute the URL from your forked repo for git@github.com:LunarG/VulkanTools.git above.
+# if you need the LoaderAndValidationLayers repo as a sibling
+cd YOUR_DEV_PARENT_DIRECTORY
+git clone -o khronos git@gitlab.khronos.org:vulkan/LoaderAndValidationLayers.git .
+# Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/LoaderAndValidationLayers.git above.
+cd LoaderAndValidationLayers
+# this will fetch glslang and spirv-tools as sibling repositories
+export KHRONOS_ACCOUNT_NAME= <subversion login name for svn checkout of SPIR-V>
+./update_external_sources.sh   # linux
+./update_external_sources.bat  # windows
+# this will fetch LunarGLASS as sibling repository
+cd YOUR_DEV_DIRECTORY 
+./update_external_sources.sh  # linux
 ```
 
 ## Linux Build
