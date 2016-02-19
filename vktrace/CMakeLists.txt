@@ -26,7 +26,7 @@ if (NOT PYTHONINTERP_FOUND)
 endif()
 
 #hacky get include files from loader repo
-set (VKTRACE_VULKAN_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/include)
+set (VKTRACE_VULKAN_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/include)
 include_directories( ${VKTRACE_VULKAN_INCLUDE_DIR} )
 
 message("")

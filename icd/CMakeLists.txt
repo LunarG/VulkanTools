@@ -13,7 +13,7 @@ else()
 endif()
   
 #hacky get include files from loader repo
-set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../LoaderAndValidationLayers/include)
+set (LOADER_INCLUDE_DIR ${VULKANTOOLS_SOURCE_DIR}/../Vulkan-LoaderAndValidationLayers/include)
 include_directories( ${LOADER_INCLUDE_DIR} )
 
 add_subdirectory(common)

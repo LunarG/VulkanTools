@@ -9,7 +9,7 @@ if ($Debug) {
 $ErrorActionPreference = "Stop"
 echo $dPath
 
-Set-Item -path env:Path -value ($env:Path + ";..\..\LoaderAndValidationLayers\build\loader\$dPath")
+Set-Item -path env:Path -value ($env:Path + ";..\..\Vulkan-LoaderAndValidationLayers\build\loader\$dPath")
 Set-Item -path env:Path -value ($env:Path + ";gtest-1.7.0\$dPath")
 $env:VK_LAYER_PATH = "..\layers\$dPath"
 
