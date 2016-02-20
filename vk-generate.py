@@ -152,6 +152,8 @@ class IcdGetProcAddrSubcommand(IcdDummyEntrypointsSubcommand):
 
         lookups = []
         for proto in self.protos:
+            if proto.name == "CreateAndroidSurfaceKHR":
+                continue
             lookups.append("if (!strcmp(%s, \"%s\"))" %
                     (gpa_pname, proto.name))
             if proto.name != "GetInstanceProcAddr":
