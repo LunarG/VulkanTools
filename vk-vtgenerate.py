@@ -120,6 +120,8 @@ class IcdDummyEntrypointsSubcommand(Subcommand):
     def _generate_stubs(self):
         stubs = []
         for proto in self.protos:
+            if proto.name == "CreateAndroidSurfaceKHR":
+                continue
             decl = self._generate_stub_decl(proto)
             if proto.ret != "void":
                 stmt = "    return VK_ERROR_UNKNOWN;\n"
