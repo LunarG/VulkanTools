@@ -255,8 +255,8 @@ git clone -o LunarG git@github.com:LunarG/VulkanTools.git <YOUR_DEV_DIRECTORY>
 
 # You need the Vulkan-LoaderAndValidationLayers repo as a sibling
 cd YOUR_DEV_PARENT_DIRECTORY
-git clone -o khronos git@gitlab.khronos.org:vulkan/Vulkan-LoaderAndValidationLayers.git
-# Or substitute the URL from your forked repo for git@gitlab.khronos.org:vulkan/Vulkan-LoaderAndValidationLayers.git above.
+git clone -o khronos https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers.git
+# Or substitute the URL from your forked repo for https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers.git above.
 
 cd Vulkan-LoaderAndValidationLayers
 # this will fetch and build glslang, llvm, SPIR-V and LunarGlass as sibling repositories
