@@ -22,12 +22,17 @@ macro(run_vk_layer_xml_generate subcmd output)
 endmacro()
 
 set(LAYER_JSON_FILES
+    VkLayer_api_dump
+    VkLayer_basic
     VkLayer_draw_state
+    VkLayer_generic
     VkLayer_image
     VkLayer_mem_tracker
+    VkLayer_multi
     VkLayer_object_tracker
     VkLayer_unique_objects
     VkLayer_param_checker
+    VkLayer_screenshot
     VkLayer_swapchain
     VkLayer_threading
     VkLayer_device_limits
@@ -145,6 +150,8 @@ add_custom_target(generate_vk_layer_helpers DEPENDS
     vk_safe_struct.cpp
 )
 
+run_vk_layer_generate(generic generic_layer.cpp)
+run_vk_layer_generate(api_dump api_dump.cpp)
 run_vk_layer_generate(object_tracker object_tracker.cpp)
 run_vk_layer_xml_generate(Threading thread_check.h)
 run_vk_layer_generate(unique_objects unique_objects.cpp)
@@ -159,12 +166,17 @@ else()
     install(TARGETS layer_utils DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
 endif()
 
+add_vk_layer(basic basic.cpp vk_layer_table.cpp)
+add_vk_layer(multi multi.cpp vk_layer_table.cpp)
 add_vk_layer(draw_state draw_state.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp)
 add_vk_layer(device_limits device_limits.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp vk_layer_utils.cpp)
 add_vk_layer(mem_tracker mem_tracker.cpp vk_layer_table.cpp)
 add_vk_layer(image image.cpp vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp vk_layer_table.cpp)
 add_vk_layer(swapchain swapchain.cpp vk_layer_table.cpp)
 # generated
+add_vk_layer(generic generic_layer.cpp vk_layer_table.cpp)
+add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
 add_vk_layer(object_tracker object_tracker.cpp vk_layer_table.cpp)
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
 add_vk_layer(unique_objects unique_objects.cpp vk_layer_table.cpp vk_safe_struct.cpp)
