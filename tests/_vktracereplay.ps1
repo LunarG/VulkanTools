@@ -14,7 +14,10 @@ write-host -background black -foreground green "[  RUN     ] " -nonewline
 write-host "vktracereplay.ps1: Vktrace trace/replay"
 
 # Create a temp directory to run the test in
-rm -recurse -force vktracereplay_tmp  > $null 2> $null
+
+if (Test-Path .\vktracereplay_tmp) {
+    rm -recurse -force .\vktracereplay_tmp  > $null 2> $null
+}
 new-item vktracereplay_tmp -itemtype directory > $null 2> $null
 
 # Copy everything we need into the temp directory, so we
