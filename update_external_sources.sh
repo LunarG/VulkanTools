@@ -121,16 +121,6 @@ if [ "$#" == 0 ]; then
   echo "Building glslang, spirv-tools"
   INCLUDE_GLSLANG=true
   INCLUDE_SPIRV_TOOLS=true
-# Verify glslang is built
-if [ ! -d "$BASEDIR/glslang" ]; then
-  echo "glslang missing"
-  if [ ! -d "$BASEDIR/LoaderAndValidationLayers" ]; then
-    echo "LoaderAndValidationLayers  missing"
-    echo "Install LoaderAndValidationLayers in $BASEDIR"
-  fi
-  echo "Run $BASEDIR/LoaderAndValidationLayers/update_external_sources.sh"
-  exit 1
-fi
 fi
 
 # If any options are provided, just compile those tools
