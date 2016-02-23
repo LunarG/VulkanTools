@@ -49,6 +49,7 @@ function update_spirv-tools () {
 function build_glslang () {
    echo "Building $BASEDIR/glslang"
    cd $BASEDIR/glslang
+}
 
 function create_LunarGLASS () {
    rm -rf $BASEDIR/LunarGLASS
@@ -130,6 +131,7 @@ if [ ! -d "$BASEDIR/glslang" ]; then
   echo "Run $BASEDIR/LoaderAndValidationLayers/update_external_sources.sh"
   exit 1
 fi
+fi
 
 # If any options are provided, just compile those tools
 # If no options are provided, build everything
@@ -154,6 +156,7 @@ else
         -s|--spirv-tools)
         INCLUDE_SPIRV_TOOLS=true
         echo "Building spirv-tools ($option)"
+	;;
         # options to specify build of LunarGLASS components
         -l|--LunarGLASS)
         INCLUDE_LUNARGLASS=true
