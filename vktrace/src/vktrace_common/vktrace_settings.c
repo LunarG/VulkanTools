@@ -688,7 +688,8 @@ int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, 
 
                     if (pSettingName != NULL && strcmp(curArg, pSettingName) == 0)
                     {
-                        if (vktrace_SettingInfo_parse_value(&pSettings[settingIndex], argv[i+1]))
+                        if (i+1 < argc &&
+                            vktrace_SettingInfo_parse_value(&pSettings[settingIndex], argv[i+1]))
                         {
                             consumed += 2;
                         }
@@ -749,7 +750,6 @@ int vktrace_SettingGroup_init(vktrace_SettingGroup* pSettingGroup, FILE* pSettin
     // Thirdly set options based on cmd line args
     if (vktrace_SettingGroup_init_from_cmdline(pSettingGroup, argc, argv, ppOut_remaining_args) == -1)
     {
-        vktrace_SettingGroup_print(pSettingGroup);
         return -1;
     }
 
