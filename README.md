@@ -1,27 +1,27 @@
 # Vulkan Ecosystem Components
 *Version 1.0, January 25, 2016*
 
-This project provides loader and validation layers for Vulkan developers on Windows and Linux.
+This project provides vktrace capture/replay tool, Intel Ilo sample driver and other layer tools and driver tests.
 
 ## Introduction
 
-Vulkan is an Explicit API, enabling direct control over how GPUs actually work. No (or very little) validation or error checking is done inside a VK driver. Applications have full control and responsibility. Any errors in how VK is used are likely to result in a crash. This project provides layered utility libraries to ease development and help guide developers to proven safe patterns.
+Branches within this repository include the Vulkan loader, validation layers, header files, and associated tests.  These pieces are mirrored from this Github repository:
+https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
+These pieces are required to enable this repository to be built standalone; that is without having to clone the Vulkan-LoaderAndValidationLayers repository.
 
-New with Vulkan is an extensible layered architecture that enables validation libraries to be implemented as layers. The loader is essential in supporting multiple drivers and GPUs along with layer library enablement.
-
-The following components are available in this repository:
-- Vulkan header files
-- [*ICD Loader*](loader) and [*Layer Manager*](layers/README.md, loader/README.md
-- Core [*Validation Layers*](layers/)
-- Demos and tests for the loader and validation layers
+The following components are available in this repository over and above what is mirrored from Vulkan-LoaderAndValidationLayers repository
+- Api_dump, screenshot and example layers (layers/)
+- Intel sample driver and null driver (icd/)
+- tests for the Intel Ilo sample driver (tests/)
+- vktrace and vkreplay, API capture and replay  (vktrace/)
 
 
 ## How to Build and Run
 
 [BUILD.md](BUILD.md)
-includes directions for building all the components, running the validation tests and running the demo applications.
+includes directions for building all the components, running the tests and running the demo applications.
 
-Information on how to enable the various Validation layers is in
+Information on how to enable the various layers is in
 [layers/README.md](layers/README.md).
 
 
