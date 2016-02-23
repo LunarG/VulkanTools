@@ -49,6 +49,11 @@ function update_spirv-tools () {
 function build_glslang () {
    echo "Building $BASEDIR/glslang"
    cd $BASEDIR/glslang
+   mkdir -p build
+   cd build
+   cmake -D CMAKE_BUILD_TYPE=Release ..
+   make
+   make install
 }
 
 function create_LunarGLASS () {
