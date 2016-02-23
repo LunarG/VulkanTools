@@ -343,7 +343,7 @@ If you plan on creating a Windows Install file (done in the windowsRuntimeInstal
 
 To do this, simply create and build the release versions of each target:
 ```
-cd LoaderAndTools  # cd to the root of the Vulkan git repository
+cd LoaderAndValidationLayers  # cd to the root of the Vulkan git repository
 update_external_sources.bat --all
 mkdir build
 cd build
