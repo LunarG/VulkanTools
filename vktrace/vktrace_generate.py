@@ -2001,6 +2001,16 @@ class VktraceReplayC(Subcommand):
         return "\n".join(body)
 
 def main():
+
+    wsi = {
+            "Win32",
+            "Android",
+            "Xcb",
+            "Xlib",
+            "Wayland",
+            "Mir"
+    }
+
     subcommands = {
             "vktrace-trace-h" : VktraceTraceHeader,
             "vktrace-trace-c" : VktraceTraceC,
@@ -2014,13 +2024,14 @@ def main():
             "vktrace-replay-c" : VktraceReplayC,
     }
 
-    if len(sys.argv) < 2 or sys.argv[1] not in subcommands:
-        print("Usage: %s <subcommand> [options]" % sys.argv[0])
+    if len(sys.argv) < 3 or sys.argv[1] not in wsi or sys.argv[2] not in subcommands:
+        print("Usage: %s <wsi> <subcommand> [options]" % sys.argv[0])
         print
+        print("Available wsi (displayservers) are: %s" % " ".join(wsi))
         print("Available subcommands are: %s" % " ".join(subcommands))
         exit(1)
 
-    subcmd = subcommands[sys.argv[1]](sys.argv[2])
+    subcmd = subcommands[sys.argv[2]](sys.argv[3])
     subcmd.run()
 
 if __name__ == "__main__":
