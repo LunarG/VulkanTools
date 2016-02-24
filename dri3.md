@@ -1,5 +1,32 @@
+# Additional Linux Configuration for the Sample Intel Vulkan Driver
+
 The sample intel Vulkan driver in this repo uses DRI3 for its window system interface.
 That requires extra configuration of Ubuntu systems.
+
+## Linux Render Nodes
+
+The render tests depend on access to DRM render nodes.
+To make that available, a couple of config files need to be created to set a module option
+and make accessible device files.
+The system will need to be rebooted with these files in place to complete initialization.
+These commands will create the config files.
+
+```
+sudo tee /etc/modprobe.d/drm.conf << EOF
+# Enable render nodes
+options drm rnodes=1
+EOF
+# this will add the rnodes=1 option into the boot environment
+sudo update-initramfs -k all -u
+```
+```
+sudo tee /etc/udev/rules.d/drm.rules << EOF
+# Add permissions to render nodes
+SUBSYSTEM=="drm", ACTION=="add", DEVPATH=="/devices/*/renderD*", MODE="020666"
+EOF
+```
+## DRI 3
+Find your Ubuntu release below:
 
 ### Ubuntu 14.04.3 LTS support of DRI 3
 
