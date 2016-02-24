@@ -31,7 +31,10 @@
 #    vk_layer_settings.txt file, or an absolute path. If no filename is
 #    specified or if filename has invalid path, then stdout is used by default.
 #
-# Example of actual settings for each layer
+#  <LayerIdentifier> is typically the official layer name, minus the VK_LAYER prefix
+#  and all lower-camel-case -- i.e., for VK_LAYER_LUNARG_draw_state, the layer
+#  identifier is 'lunarg_draw_state', and for VK_LAYER_GOOGLE_threading the layer
+#  identifier is 'google_threading'.
 #
 # VK_LUNARG_LAYER_device_limits Settings
 DeviceLimitsDebugAction = VK_DBG_LAYER_ACTION_LOG_MSG
@@ -73,17 +76,39 @@ ThreadingDebugAction = VK_DBG_LAYER_ACTION_LOG_MSG
 ThreadingReportFlags = error,warn,perf
 ThreadingLogFilename = stdout
 
-# VK_LUNARG_LAYER_api_dump Settings - NOTE that VK_LUNARG_LAYER_api_dump is
-# not a validation layer and the common settings for ReportFlags and
-# DebugAction do not apply
-# Detailed TRUE causes parameter details to be dumped in addition to API calls
-ApiDumpDetailed = TRUE
-# NoAddr TRUE causes "address" to be dumped in place of hex addresses
-ApiDumpNoAddr = FALSE
-# File = TRUE indicates that output should be written to file instead of STDOUT
-ApiDumpFile = FALSE
-# LogFilename is file to dump to when "File = TRUE" default is "vk_apidump.txt"
-ApiDumpLogFilename = stdout
-# Flush = TRUE causes IO to be flushed after each line that's written
-ApiDumpFlush = FALSE
+# Example of actual settings for each layer:
+# ==========================================
+#
+#
+#  VK_LUNARG_LAYER_api_dump Settings:
+#  ==================================
+#
+#    NOTE that VK_LUNARG_LAYER_api_dump is not a validation layer and the common
+#    settings for ReportFlags and DebugAction do not apply
+#
+#    DETAILED:
+#    =============
+#    <LayerIdentifer>.detailed : Setting this to TRUE causes parameter details
+#    to be dumped in addition to API calls
+lunarg_api_dump.detailed = TRUE
+#    NO_ADDR:
+#    =============
+#    <LayerIdentifier>.no_addr : Setting this to TRUE causes "address" to be
+#    dumped in place of hex addresses
+lunarg_api_dump.no_addr = FALSE
+#    FILE:
+#    =============
+#    <LayerIdentifer>.file : Setting this to TRUE indicates that output
+#    should be written to file instead of STDOUT
+lunarg_api_dump.file = FALSE
+#    LOG_FILENAME:
+#    =============
+#    <LayerIdentifer>.log_filename : Specifies the file to dump to when
+#    "file = TRUE".  The default is "vk_apidump.txt"
+lunarg_api_dump.log_filename = stdout
+#    FLUSH:
+#    =============
+#    <LayerIdentifier>.flush : Setting this to TRUE causes IO to be flushed after
+#    each line that's written
+lunarg_api_dump.flush = FALSE
 
