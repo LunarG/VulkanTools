@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+   if (BUILD_WSI_XCB_SUPPORT)
+       set(ENV{VULKAN_WSI} "Xcb")
+   elseif (BUILD_WSI_XLIB_SUPPORT)
+       set(ENV{VULKAN_WSI} "Xlib")
+   elseif (BUILD_WSI_WAYLAND_SUPPORT)
+       set(ENV{VULKAN_WSI} "Wayland")
+   else()
+       # Mir WSI Case
+       set(ENV{VULKAN_WSI} "Mir")
+   endif()
+endif()
+
 project(VkLayer_vktrace_layer)
 
 include("${SRC_DIR}/build_options.cmake")
@@ -46,7 +59,7 @@ set (HDR_LIST
 )
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-	COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py dispatch-table-ops layer > vk_dispatch_table_helper.h
+	COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
 	DEPENDS ${CMAKE_SOURCE_DIR}/vk-generate.py ${CMAKE_SOURCE_DIR}/vulkan.py)
 add_custom_target(generate_vktrace_layer_helpers DEPENDS
 	vk_dispatch_table_helper.h)

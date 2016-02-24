@@ -1,5 +1,18 @@
 cmake_minimum_required (VERSION 2.8.11)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+   if (BUILD_WSI_XCB_SUPPORT)
+       set(ENV{VULKAN_WSI} "Xcb")
+   elseif (BUILD_WSI_XLIB_SUPPORT)
+       set(ENV{VULKAN_WSI} "Xlib")
+   elseif (BUILD_WSI_WAYLAND_SUPPORT)
+       set(ENV{VULKAN_WSI} "Wayland")
+   else()
+       # Mir WSI Case
+       set(ENV{VULKAN_WSI} "Mir")
+   endif()
+endif()
+
 macro(run_vk_helper subcmd)
 	add_custom_command(OUTPUT ${ARGN}
 		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
@@ -21,10 +34,10 @@ macro(run_vk_layer_xml_generate subcmd output)
 	)
 endmacro()
 
-## VulkanTools has it's own layer generator script
+## VulkanTools has its own layer generator script
 macro(run_vk_vtlayer_generate subcmd output)
 	add_custom_command(OUTPUT ${output}
-		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
+		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
 		DEPENDS ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${PROJECT_SOURCE_DIR}/vulkan.py
 	)
 endmacro()

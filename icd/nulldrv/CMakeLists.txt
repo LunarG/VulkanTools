@@ -7,7 +7,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 endif()
 
 add_custom_command(OUTPUT nulldrv_gpa.c
-    COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtgenerate.py icd-get-proc-addr > nulldrv_gpa.c
+    COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtgenerate.py Xcb icd-get-proc-addr > nulldrv_gpa.c
     DEPENDS ${PROJECT_SOURCE_DIR}/vk-vtgenerate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
 
 set(sources
