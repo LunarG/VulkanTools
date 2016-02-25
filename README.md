@@ -18,7 +18,7 @@ The following components are available in this repository over and above what is
 
 ## How to Build and Run
 
-[BUILD.md](BUILD.md)
+[BUILDVT.md](BUILDVT.md)
 includes directions for building all the components, running the tests and running the demo applications.
 
 Information on how to enable the various layers is in
