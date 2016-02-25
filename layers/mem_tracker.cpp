@@ -62,7 +62,7 @@ struct layer_data {
     uint64_t                           currentFenceId;
     VkPhysicalDeviceProperties         properties;
     unordered_map<VkDeviceMemory, vector<MEMORY_RANGE>>          bufferRanges, imageRanges;
-    // Maps for tracking key structs related to MemTracker state
+    // Maps for tracking key structs related to mem_tracker state
     unordered_map<VkCommandBuffer,     MT_CB_INFO>               cbMap;
     unordered_map<VkCommandPool,       MT_CMD_POOL_INFO>         commandPoolMap;
     unordered_map<VkDeviceMemory,      MT_MEM_OBJ_INFO>          memObjMap;
@@ -258,7 +258,7 @@ add_object_create_info(
         }
         // Swap Chain is very unique, use my_data->imageMap, but copy in
         // SwapChainCreatInfo's usage flags and set the mem value to a unique key. These is used by
-        // vkCreateImageView and internal MemTracker routines to distinguish swap chain images
+        // vkCreateImageView and internal mem_tracker routines to distinguish swap chain images
         case VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT:
         {
             auto pCI = &my_data->imageMap[handle];
@@ -573,16 +573,18 @@ clear_cmd_buf_and_mem_references(
     VkBool32 skipCall = VK_FALSE;
     MT_CB_INFO* pCBInfo = get_cmd_buf_info(my_data, cb);
 
-    if (pCBInfo && (pCBInfo->pMemObjList.size() > 0)) {
-        list<VkDeviceMemory> mem_obj_list = pCBInfo->pMemObjList;
-        for (list<VkDeviceMemory>::iterator it=mem_obj_list.begin(); it!=mem_obj_list.end(); ++it) {
-            MT_MEM_OBJ_INFO* pInfo = get_mem_obj_info(my_data, *it);
-            if (pInfo) {
-                pInfo->pCommandBufferBindings.remove(cb);
-                pInfo->refCount--;
+    if (pCBInfo) {
+        if (pCBInfo->pMemObjList.size() > 0) {
+            list<VkDeviceMemory> mem_obj_list = pCBInfo->pMemObjList;
+            for (list<VkDeviceMemory>::iterator it=mem_obj_list.begin(); it!=mem_obj_list.end(); ++it) {
+                MT_MEM_OBJ_INFO* pInfo = get_mem_obj_info(my_data, *it);
+                if (pInfo) {
+                    pInfo->pCommandBufferBindings.remove(cb);
+                    pInfo->refCount--;
+                }
             }
+            pCBInfo->pMemObjList.clear();
         }
-        pCBInfo->pMemObjList.clear();
         pCBInfo->activeDescriptorSets.clear();
         pCBInfo->validate_functions.clear();
     }
@@ -1054,14 +1056,14 @@ init_mem_tracker(
     FILE *log_output = NULL;
     const char *option_str;
     VkDebugReportCallbackEXT callback;
-    // initialize MemTracker options
-    report_flags = getLayerOptionFlags("MemTrackerReportFlags", 0);
-    getLayerOptionEnum("MemTrackerDebugAction", (uint32_t *) &debug_action);
+    // initialize mem_tracker options
+    report_flags = getLayerOptionFlags("lunarg_mem_tracker.report_flags", 0);
+    getLayerOptionEnum("lunarg_mem_tracker.debug_action", (uint32_t *) &debug_action);
 
     if (debug_action & VK_DBG_LAYER_ACTION_LOG_MSG)
     {
-        option_str = getLayerOption("MemTrackerLogFilename");
-        log_output = getLayerLogOutput(option_str, "MemTracker");
+        option_str = getLayerOption("lunarg_mem_tracker.log_filename");
+        log_output = getLayerLogOutput(option_str, "lunarg_mem_tracker");
         VkDebugReportCallbackCreateInfoEXT dbgInfo;
         memset(&dbgInfo, 0, sizeof(dbgInfo));
         dbgInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
@@ -2495,7 +2497,7 @@ bool markStoreImagesAndBuffersAsWritten(
             if (iv_data == my_data->imageViewMap.end()) continue;
             VkImage image = iv_data->second.image;
             VkDeviceMemory mem;
-            skip_call |= get_mem_binding_from_object(my_data, commandBuffer, (uint64_t)image, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT, &mem);
+            skip_call |= get_mem_binding_from_object(my_data, commandBuffer, (uint64_t)image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, &mem);
             std::function<VkBool32()> function = [=]() { set_memory_valid(my_data, mem, true, image); return VK_FALSE; };
             cb_data->second.validate_functions.push_back(function);
         }
