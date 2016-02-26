@@ -22,8 +22,8 @@ python ../vk-generate.py Android dispatch-table-ops layer > generated/vk_dispatc
 python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated
 python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated
 
-python ../vk-layer-generate.py generic ../include/vulkan/vulkan.h > generated/generic_layer.cpp
-python ../vk-layer-generate.py api_dump ../include/vulkan/vulkan.h > generated/api_dump.cpp
+python ../vk-layer-generate.py Android generic ../include/vulkan/vulkan.h > generated/generic_layer.cpp
+python ../vk-layer-generate.py Android api_dump ../include/vulkan/vulkan.h > generated/api_dump.cpp
 python ../vk-layer-generate.py Android object_tracker ../include/vulkan/vulkan.h > generated/object_tracker.cpp
 python ../vk-layer-generate.py Android unique_objects ../include/vulkan/vulkan.h > generated/unique_objects.cpp
 ( cd generated; python ../../genvk.py threading -registry ../../vk.xml thread_check.h )

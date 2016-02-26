@@ -188,18 +188,28 @@ class IcdGetProcAddrSubcommand(IcdDummyEntrypointsSubcommand):
         return "\n".join(body)
 
 def main():
+
+    wsi = {
+            "Win32",
+            "Android",
+            "Xcb",
+            "Xlib",
+            "Wayland",
+            "Mir"
+    }
+
     subcommands = {
             "icd-dummy-entrypoints": IcdDummyEntrypointsSubcommand,
             "icd-get-proc-addr": IcdGetProcAddrSubcommand
     }
 
-    if len(sys.argv) < 2 or sys.argv[1] not in subcommands:
+    if len(sys.argv) < 3 or sys.argv[1] not in wsi or sys.argv[2] not in subcommands:
         print("Usage: %s <subcommand> [options]" % sys.argv[0])
         print
         print("Available sucommands are: %s" % " ".join(subcommands))
         exit(1)
 
-    subcmd = subcommands[sys.argv[1]](sys.argv[2:])
+    subcmd = subcommands[sys.argv[2]](sys.argv[3:])
     subcmd.run()
 
 if __name__ == "__main__":
