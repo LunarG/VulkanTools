@@ -347,6 +347,7 @@ void VkTestFramework::WritePPM( const char *basename, VkImageObj *image )
     VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
     displayImage.init(image->extent().width, image->extent().height, image->format(), VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, reqs);
+    displayImage.SetLayout(VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_GENERAL);
     displayImage.CopyImage(*image);
 
     filename.append(basename);
