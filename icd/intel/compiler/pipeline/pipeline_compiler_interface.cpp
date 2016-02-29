@@ -738,14 +738,16 @@ VkResult intel_pipeline_shader_compile(struct intel_pipeline_shader *pipe_shader
 
             assert(VARYING_SLOT_MAX - VARYING_SLOT_CLIP_DIST0 < 64);
             uint64_t varyings_written = 0;
+            unsigned max_slot = 0;
             for (int i=VARYING_SLOT_CLIP_DIST0; i < VARYING_SLOT_MAX; i++) {
                 if (data->base.vue_map.varying_to_slot[i] >= 0) {
                     varyings_written |= (1 << (i - VARYING_SLOT_CLIP_DIST0));
+                    max_slot = i + 1;
                 }
             }
             pipe_shader->outputs_written = varyings_written;
             pipe_shader->outputs_offset = BRW_SF_URB_ENTRY_READ_OFFSET * 2;
-            pipe_shader->out_count = data->base.vue_map.num_slots;
+            pipe_shader->out_count = max_slot; //data->base.vue_map.num_slots;
 
             // The following were all programmed in brw_gs_do_compile
             pipe_shader->output_size_hwords              = data->output_vertex_size_hwords;
@@ -764,6 +766,7 @@ VkResult intel_pipeline_shader_compile(struct intel_pipeline_shader *pipe_shader
 
             status = build_binding_table(gpu, brw, &bt, data->base.base, sh_prog, VK_SHADER_STAGE_GEOMETRY_BIT);
             if (status != VK_SUCCESS)
+                break;
 
             if (unlikely(INTEL_DEBUG & DEBUG_GS)) {
                 printf("out_count: %d\n", pipe_shader->out_count);

@@ -784,7 +784,7 @@ static void pipeline_build_fragment_SBE(struct intel_pipeline *pipeline,
     // LUNARG TODO: We currently are only handling 16 attrs;
     // ultimately, we need to handle 32
     assert(fs->in_count <= 16);
-    assert(attr_count <= 16);
+    assert(attr_count <= 32);
 
     vue_offset = attr_skip / 2;
     vue_len = (attr_count + 1) / 2;
