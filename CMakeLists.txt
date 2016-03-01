@@ -106,6 +106,8 @@ if (BUILD_ICD)
     endif()
 endif()
 
+set (PYTHON_CMD ${PYTHON_EXECUTABLE})
+
 if(NOT WIN32)
     include(GNUInstallDirs)
     add_definitions(-DSYSCONFDIR="${CMAKE_INSTALL_SYSCONFDIR}")
@@ -115,11 +117,6 @@ if(NOT WIN32)
     else()
         add_definitions(-DLOCALPREFIX="${CMAKE_INSTALL_PREFIX}")
     endif()
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        set(PYTHON_CMD "python3")
-    endif()
-else()
-    set(PYTHON_CMD "py")
 endif()
 
 # loader: Generic VULKAN ICD loader
