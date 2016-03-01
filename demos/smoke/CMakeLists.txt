@@ -52,7 +52,8 @@ set(includes
 set(libraries PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
 if(TARGET vulkan)
-    list(APPEND definitions PRIVATE -DUNINSTALLED_LOADER="$<TARGET_FILE:vulkan>")
+    get_property(vulkan_location TARGET vulkan PROPERTY LOCATION)
+    list(APPEND definitions PRIVATE -DUNINSTALLED_LOADER="${vulkan_location}")
 endif()
 
 if(WIN32)
