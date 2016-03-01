@@ -1,14 +1,27 @@
 cmake_minimum_required(VERSION 2.8)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+   if (BUILD_WSI_XCB_SUPPORT)
+       set(ENV{VULKAN_WSI} "Xcb")
+   elseif (BUILD_WSI_XLIB_SUPPORT)
+       set(ENV{VULKAN_WSI} "Xlib")
+   elseif (BUILD_WSI_WAYLAND_SUPPORT)
+       set(ENV{VULKAN_WSI} "Wayland")
+   else()
+       # Mir WSI Case
+       set(ENV{VULKAN_WSI} "Mir")
+   endif()
+endif()
+
 project(VkLayer_vktrace_layer)
 
 include("${SRC_DIR}/build_options.cmake")
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/codegen)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-trace-h     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-trace-c     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-ext-trace-h vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-ext-trace-c vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-trace-h     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-trace-c     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-ext-trace-h vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-ext-trace-c vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.cpp)
 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
@@ -46,7 +59,7 @@ set (HDR_LIST
 )
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-	COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py dispatch-table-ops layer > vk_dispatch_table_helper.h
+	COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
 	DEPENDS ${CMAKE_SOURCE_DIR}/vk-generate.py ${CMAKE_SOURCE_DIR}/vulkan.py)
 add_custom_target(generate_vktrace_layer_helpers DEPENDS
 	vk_dispatch_table_helper.h)

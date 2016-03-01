@@ -5,9 +5,9 @@ project(vulkan_replay)
 include("${SRC_DIR}/build_options.cmake")
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/codegen)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-replay-vk-funcs     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vkreplay_vk_func_ptrs.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-replay-c            vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vkreplay_vk_replay_gen.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py vktrace-replay-obj-mapper-h vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vkreplay_vk_objmapper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-replay-vk-funcs     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vkreplay_vk_func_ptrs.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-replay-c            vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vkreplay_vk_replay_gen.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-replay-obj-mapper-h vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vkreplay_vk_objmapper.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set(OS_REPLAYER_LIBS

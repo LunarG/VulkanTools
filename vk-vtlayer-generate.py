@@ -132,6 +132,7 @@ class Subcommand(object):
         self.no_addr = False
         self.layer_name = ""
         self.lineinfo = sourcelineinfo()
+        self.wsi = sys.argv[1]
 
     def run(self):
         print(self.generate())
@@ -1297,7 +1298,7 @@ class ApiDumpSubcommand(Subcommand):
 
     def generate_body(self):
         self.layer_name = "api_dump"
-        if sys.platform.startswith('win32'):
+        if self.wsi == 'Win32':
             instance_extensions=[('wsi_enabled',
                                   ['vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
@@ -1305,7 +1306,13 @@ class ApiDumpSubcommand(Subcommand):
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
                                    'vkCreateWin32SurfaceKHR',
                                    'vkGetPhysicalDeviceWin32PresentationSupportKHR'])]
-        elif sys.platform.startswith('linux'):
+        elif self.wsi == 'Android':
+            instance_extensions=[('wsi_enabled',
+                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
+                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR'])]
+        elif self.wsi == 'Xcb':
             instance_extensions=[('wsi_enabled',
                                   ['vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
@@ -1313,13 +1320,33 @@ class ApiDumpSubcommand(Subcommand):
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
                                    'vkCreateXcbSurfaceKHR',
                                    'vkGetPhysicalDeviceXcbPresentationSupportKHR'])]
-        # TODO: Add cases for Mir, Xlib, Wayland
-        else:
+        elif self.wsi == 'Xlib':
             instance_extensions=[('wsi_enabled',
                                   ['vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR'])]
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateXlibSurfaceKHR',
+                                   'vkGetPhysicalDeviceXlibPresentationSupportKHR'])]
+        elif self.wsi == 'Wayland':
+            instance_extensions=[('wsi_enabled',
+                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
+                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateWaylandSurfaceKHR',
+                                   'vkGetPhysicalDeviceWaylandPresentationSupportKHR'])]
+        elif self.wsi == 'Mir':
+            instance_extensions=[('wsi_enabled',
+                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
+                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateMirSurfaceKHR',
+                                   'vkGetPhysicalDeviceMirPresentationSupportKHR'])]
+        else:
+            message(FATAL_ERROR, "Invalid DisplayServer")
+
         extensions=[('wsi_enabled',
                      ['vkCreateSwapchainKHR',
                       'vkDestroySwapchainKHR', 'vkGetSwapchainImagesKHR',
@@ -1330,19 +1357,30 @@ class ApiDumpSubcommand(Subcommand):
         return "\n\n".join(body)
 
 def main():
+
+    wsi = {
+            "Win32",
+            "Android",
+            "Xcb",
+            "Xlib",
+            "Wayland",
+            "Mir",
+    }
+
     subcommands = {
             "layer-funcs" : LayerFuncsSubcommand,
             "generic" : GenericLayerSubcommand,
             "api_dump" : ApiDumpSubcommand,
     }
 
-    if len(sys.argv) < 3 or sys.argv[1] not in subcommands or not os.path.exists(sys.argv[2]):
-        print("Usage: %s <subcommand> <input_header> [options]" % sys.argv[0])
+    if len(sys.argv) < 4 or sys.argv[1] not in wsi or sys.argv[2] not in subcommands or not os.path.exists(sys.argv[3]):
+        print("Usage: %s <wsi> <subcommand> <input_header> [options]" % sys.argv[0])
         print
         print("Available subcommands are: %s" % " ".join(subcommands))
+        print("Available wsi (displayservers) are: %s" % " ".join(wsi))
         exit(1)
 
-    hfp = vk_helper.HeaderFileParser(sys.argv[2])
+    hfp = vk_helper.HeaderFileParser(sys.argv[3])
     hfp.parse()
     vk_helper.enum_val_dict = hfp.get_enum_val_dict()
     vk_helper.enum_type_dict = hfp.get_enum_type_dict()
@@ -1351,7 +1389,7 @@ def main():
     vk_helper.typedef_rev_dict = hfp.get_typedef_rev_dict()
     vk_helper.types_dict = hfp.get_types_dict()
 
-    subcmd = subcommands[sys.argv[1]](sys.argv[2:])
+    subcmd = subcommands[sys.argv[2]](sys.argv[3:])
     subcmd.run()
 
 if __name__ == "__main__":
