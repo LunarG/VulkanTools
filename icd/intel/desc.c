@@ -714,20 +714,22 @@ VkResult intel_pipeline_layout_create(struct intel_dev                   *dev,
     if (!pipeline_layout)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-    pipeline_layout->layouts = intel_alloc(pipeline_layout,
-                                           sizeof(pipeline_layout->layouts[0]) * count,
-                                           sizeof(int), VK_SYSTEM_ALLOCATION_SCOPE_OBJECT);
-    if (!pipeline_layout->layouts) {
-        intel_pipeline_layout_destroy(pipeline_layout);
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
-    }
+    if (count > 0) {
+        pipeline_layout->layouts = intel_alloc(pipeline_layout,
+                                               sizeof(pipeline_layout->layouts[0]) * count,
+                                               sizeof(int), VK_SYSTEM_ALLOCATION_SCOPE_OBJECT);
+        if (!pipeline_layout->layouts) {
+            intel_pipeline_layout_destroy(pipeline_layout);
+            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
 
-    pipeline_layout->dynamic_desc_indices = intel_alloc(pipeline_layout,
-            sizeof(pipeline_layout->dynamic_desc_indices[0]) * count,
-            sizeof(int), VK_SYSTEM_ALLOCATION_SCOPE_OBJECT);
-    if (!pipeline_layout->dynamic_desc_indices) {
-        intel_pipeline_layout_destroy(pipeline_layout);
-        return VK_ERROR_OUT_OF_HOST_MEMORY;
+        pipeline_layout->dynamic_desc_indices = intel_alloc(pipeline_layout,
+                sizeof(pipeline_layout->dynamic_desc_indices[0]) * count,
+                sizeof(int), VK_SYSTEM_ALLOCATION_SCOPE_OBJECT);
+        if (!pipeline_layout->dynamic_desc_indices) {
+            intel_pipeline_layout_destroy(pipeline_layout);
+            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
     }
 
     for (i = 0; i < count; i++) {
