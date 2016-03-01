@@ -821,7 +821,7 @@ TEST_F(VkCmdCopyBufferTest, RAWHazard)
     /* Use vkCmdSetEvent and vkCmdWaitEvents to test them.
      * This could be vkCmdPipelineBarrier.
      */
-    vkCmdSetEvent(cmd_.handle(), event, VK_PIPELINE_STAGE_TRANSFER_BIT);
+    vkCmdSetEvent(cmd_.handle(), event, VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
 
     // Additional commands could go into the buffer here before the wait.
 
