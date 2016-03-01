@@ -127,6 +127,8 @@ static void cmd_meta_set_src_for_img(struct intel_cmd *cmd,
     struct intel_img_view tmp_view;
     struct intel_img_view *view = &tmp_view;
 
+    memset(&tmp_view, 0, sizeof(tmp_view));
+
     memset(&info, 0, sizeof(info));
     info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     info.image = (VkImage) img;
