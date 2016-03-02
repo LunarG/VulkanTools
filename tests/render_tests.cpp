@@ -394,9 +394,7 @@ void VkRenderTest::GenericDrawPreparation(VkCommandBufferObj *commandBuffer, VkP
     VkResult err = pipelineobj.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderPass());
     ASSERT_VK_SUCCESS(err);
     commandBuffer->BindPipeline(pipelineobj);
-    if (descriptorSet.GetTypeCounts()) {
-        commandBuffer->BindDescriptorSet(descriptorSet);
-    }
+    commandBuffer->BindDescriptorSet(descriptorSet);
 }
 
 void VkRenderTest::RotateTriangleVSUniform(glm::mat4 Projection, glm::mat4 View, glm::mat4 Model,
