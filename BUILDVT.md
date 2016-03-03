@@ -19,10 +19,12 @@ and create a pull request on GitHub to integrate that work back into the repo.
 ## Linux System Requirements
 Ubuntu 14.04.3 LTS, 14.10, 15.04 and 15.10 have been tested with this repo.
 
-These packages are used for building the components in this repo.
+These additional packages are needed for building the components in this repo.
 ```
-sudo apt-get install git subversion cmake libgl1-mesa-dev freeglut3-dev libglm-dev libmagickwand-dev qt5-default libpciaccess-dev libpthread-stubs0-dev libudev-dev bison graphviz libpng-dev python3-lxml
-sudo apt-get build-dep mesa
+# Dependencies from the LoaderAndValidationLayers repo:
+sudo apt-get install git cmake build-essential bison libxcb1-dev
+# Additional dependencies for this repo:
+sudo apt-get install libudev-dev libpciaccess-dev libxcb-dri3-dev libxcb-present-dev libmagickwand-dev libgl1-mesa-dev
 ```
 
 If you are using the sample Intel Vulkan driver in this repo, you will have to ensure that
