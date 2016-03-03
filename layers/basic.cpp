@@ -42,11 +42,17 @@ static const VkLayerProperties globalLayerProps[] = {
     }
 };
 
+typedef VkResult (VKAPI_PTR *PFN_vkLayerBasicEXT)(VkDevice device);
+static PFN_vkLayerBasicEXT pfn_layer_extension;
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkLayerExtension1(VkDevice device)
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkLayerBasicEXT(VkDevice device)
 {
-    printf("In vkLayerExtension1() call w/ device: %p\n", (void*)device);
-    printf("vkLayerExtension1 returning SUCCESS\n");
+    printf("In vkLayerBasicEXT() call w/ device: %p\n", (void*)device);
+    if (pfn_layer_extension) {
+            printf("In vkLayerBasicEXT() call down chain\n");
+	    return pfn_layer_extension(device);
+    }
+    printf("vkLayerBasicEXT returning SUCCESS\n");
     return VK_SUCCESS;
 }
 
@@ -55,7 +61,7 @@ static const VkLayerProperties basic_physicaldevice_layers[] = {
         "VK_LAYER_LUNARG_basic",
         VK_API_VERSION,
         1,
-        "Sample layer: basic, implements vkLayerExtension1",
+        "Sample layer: basic, implements vkLayerBasicEXT",
     }
 };
 
@@ -72,7 +78,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
 
 static const VkExtensionProperties basic_physicaldevice_extensions[] = {
     {
-        "vkLayerExtension1",
+        "vkLayerBasicEXT",
         1,
     }
 };
@@ -157,6 +163,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL basic_CreateDevice(VkPhysicalDevi
 
     initDeviceTable(*pDevice, fpGetDeviceProcAddr);
 
+    pfn_layer_extension = (PFN_vkLayerBasicEXT) fpGetDeviceProcAddr(*pDevice,"vkLayerBasicEXT");
     printf("VK_LAYER_LUNARG_Basic: Completed vkCreateDevice() call w/ pDevice, Device %p: %p\n", (void*)pDevice, (void *) *pDevice);
     return result;
 }
@@ -190,8 +197,8 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         return (PFN_vkVoidFunction) vkGetDeviceProcAddr;
     if (!strcmp("vkDestroyDevice", pName))
         return (PFN_vkVoidFunction) basic_DestroyDevice;
-    if (!strcmp("vkLayerExtension1", pName))
-        return (PFN_vkVoidFunction) vkLayerExtension1;
+    if (!strcmp("vkLayerBasicEXT", pName))
+        return (PFN_vkVoidFunction) vkLayerBasicEXT;
 
     if (device == NULL)
         return NULL;
