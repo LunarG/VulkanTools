@@ -1,7 +1,13 @@
 # Additional Linux Configuration for the Sample Intel Vulkan Driver
 
 The sample intel Vulkan driver in this repo uses DRI3 for its window system interface.
-That requires extra configuration of Ubuntu systems.
+This requires extra configuration of Ubuntu systems.
+
+You may need to install the following packages:
+```
+sudo apt-get install git subversion cmake libgl1-mesa-dev freeglut3-dev libglm-dev libmagickwand-dev qt5-default libpciaccess-dev libpthread-stubs0-dev libudev-dev bison graphviz libpng-dev python3-lxml
+sudo apt-get build-dep mesa
+```
 
 ## Linux Render Nodes
 
