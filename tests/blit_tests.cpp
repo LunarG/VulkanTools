@@ -991,7 +991,7 @@ TEST_F(VkCmdCopyBufferToImageTest, Basic)
         img_info.tiling = it->tiling;
         img_info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                          VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        img_info.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        img_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         test_copy_memory_to_image(img_info);
     }
@@ -1063,7 +1063,7 @@ TEST_F(VkCmdCopyImageToBufferTest, Basic)
         img_info.tiling = it->tiling;
         img_info.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                          VK_IMAGE_USAGE_TRANSFER_DST_BIT; // Going to fill it before copy
-        img_info.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        img_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         test_copy_image_to_memory(img_info);
     }
@@ -1151,7 +1151,7 @@ TEST_F(VkCmdCopyImageTest, Basic)
         img_info.extent.height = 64;
         img_info.tiling = it->tiling;
         img_info.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        img_info.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        img_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         VkImageCopy copy = {};
         copy.srcSubresource = vk_testing::Image::subresource(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1);
@@ -1239,12 +1239,12 @@ protected:
         for (std::vector<VkImageSubresourceRange>::const_iterator it = ranges.begin();
              it != ranges.end(); it++) {
             to_clear.push_back(img.image_memory_barrier(all_cache_outputs, all_cache_inputs,
-                    VK_IMAGE_LAYOUT_GENERAL,
+                    VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_GENERAL,
                     *it));
             p_to_clear.push_back(&to_clear.back());
             to_xfer.push_back(img.image_memory_barrier(all_cache_outputs, all_cache_inputs,
-                    VK_IMAGE_LAYOUT_GENERAL,
+                    VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_GENERAL, *it));
             p_to_xfer.push_back(&to_xfer.back());
         }
@@ -1310,7 +1310,7 @@ TEST_F(VkCmdClearColorImageTest, Basic)
         img_info.extent.width = 64;
         img_info.extent.height = 64;
         img_info.tiling = it->tiling;
-        img_info.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        img_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         img_info.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                          VK_IMAGE_USAGE_TRANSFER_SRC_BIT; // Going to check contents
 
@@ -1420,12 +1420,12 @@ protected:
         for (std::vector<VkImageSubresourceRange>::const_iterator it = ranges.begin();
              it != ranges.end(); it++) {
             to_clear.push_back(img.image_memory_barrier(all_cache_outputs, all_cache_inputs,
-                    VK_IMAGE_LAYOUT_GENERAL,
+                    VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_GENERAL,
                     *it));
 
             to_xfer.push_back(img.image_memory_barrier(all_cache_outputs, all_cache_inputs,
-                    VK_IMAGE_LAYOUT_GENERAL,
+                    VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_GENERAL, *it));
         }
         for (std::vector<VkImageSubresourceRange>::const_iterator it = ranges.begin();
@@ -1495,7 +1495,7 @@ TEST_F(VkCmdClearDepthStencilTest, Basic)
         img_info.extent.height = 64;
         img_info.tiling = it->tiling;
         img_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-        img_info.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        img_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         VkImageAspectFlags aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
 
         if (it->format == VK_FORMAT_D32_SFLOAT_S8_UINT ||
