@@ -99,6 +99,7 @@ ImageChecker::ImageChecker(const VkImageCreateInfo &info)
         region.bufferOffset = offset;
         region.imageSubresource.mipLevel = lv;
         region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
         region.imageExtent = Image::extent(info_.extent, lv);
 
         if (info_.usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
