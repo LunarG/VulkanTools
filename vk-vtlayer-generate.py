@@ -1300,7 +1300,8 @@ class ApiDumpSubcommand(Subcommand):
         self.layer_name = "api_dump"
         if self.wsi == 'Win32':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
@@ -1308,13 +1309,16 @@ class ApiDumpSubcommand(Subcommand):
                                    'vkGetPhysicalDeviceWin32PresentationSupportKHR'])]
         elif self.wsi == 'Android':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR'])]
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateAndroidSurfaceKHR'])]
         elif self.wsi == 'Xcb':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
@@ -1322,7 +1326,8 @@ class ApiDumpSubcommand(Subcommand):
                                    'vkGetPhysicalDeviceXcbPresentationSupportKHR'])]
         elif self.wsi == 'Xlib':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
@@ -1330,7 +1335,8 @@ class ApiDumpSubcommand(Subcommand):
                                    'vkGetPhysicalDeviceXlibPresentationSupportKHR'])]
         elif self.wsi == 'Wayland':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
@@ -1338,7 +1344,8 @@ class ApiDumpSubcommand(Subcommand):
                                    'vkGetPhysicalDeviceWaylandPresentationSupportKHR'])]
         elif self.wsi == 'Mir':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
