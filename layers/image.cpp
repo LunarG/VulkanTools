@@ -417,6 +417,15 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(VkDevice device, co
                         string_VkSampleCountFlagBits(pCreateInfo->samples), ImageFormatProperties.sampleCounts);
     }
 
+    if (pCreateInfo->initialLayout != VK_IMAGE_LAYOUT_UNDEFINED &&
+        pCreateInfo->initialLayout != VK_IMAGE_LAYOUT_PREINITIALIZED)
+    {
+        skipCall |= log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
+                            (uint64_t)pImage, __LINE__, IMAGE_INVALID_LAYOUT, "Image",
+                            "vkCreateImage parameter, pCreateInfo->initialLayout, must be VK_IMAGE_LAYOUT_UNDEFINED or "
+                            "VK_IMAGE_LAYOUT_PREINITIALIZED");
+    }
+
     if (VK_FALSE == skipCall) {
         result = device_data->device_dispatch_table->CreateImage(device, pCreateInfo, pAllocator, pImage);
     }
@@ -655,6 +664,16 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdClearColorImage(
 {
     VkBool32 skipCall = VK_FALSE;
     layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
+
+    if (imageLayout != VK_IMAGE_LAYOUT_GENERAL &&
+        imageLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            (uint64_t)commandBuffer, __LINE__, IMAGE_INVALID_LAYOUT, "IMAGE",
+                            "vkCmdClearColorImage parameter, imageLayout, must be VK_IMAGE_LAYOUT_GENERAL or "
+                            "VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL");
+    }
+
     // For each range, image aspect must be color only
     for (uint32_t i = 0; i < rangeCount; i++) {
         if (pRanges[i].aspectMask != VK_IMAGE_ASPECT_COLOR_BIT) {

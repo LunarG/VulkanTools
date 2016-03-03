@@ -62,13 +62,16 @@ layers/param_checker.cpp (name=VK_LAYER_LUNARG_param_checker) - Check the input 
 layers/image.cpp (name=VK_LAYER_LUNARG_image) - The image layer is intended to validate image parameters, formats, and correct use. Images are a significant enough area that they were given a separate layer. If a Dbg callback function is registered, this layer will use callback function(s) for reporting, otherwise uses stdout.
 
 ### Check threading
-<build dir>/layers/threading.cpp (name=VK_LAYER_GOOGLE_threading) - Check multithreading of API calls for validity. Currently this checks that only one thread at a time uses an object in free-threaded API calls. If a Dbg callback function is registered, this layer will use callback function(s) for reporting, otherwise uses stdout.
+layers/threading.cpp (name=VK_LAYER_GOOGLE_threading) - Check multithreading of API calls for validity. Currently this checks that only one thread at a time uses an object in free-threaded API calls. If a Dbg callback function is registered, this layer will use callback function(s) for reporting, otherwise uses stdout.
 
 ### Swapchain
-<build dir>/layer/swapchain.cpp (name=VK_LAYER_LUNARG_swapchain) - Check that WSI extensions are being used correctly.
+layers/swapchain.cpp (name=VK_LAYER_LUNARG_swapchain) - Check that WSI extensions are being used correctly.
 
 ### Device Limitations
 layers/device_limits.cpp (name=VK_LAYER_LUNARG_device_limits) - This layer is intended to capture underlying device features and limitations and then flag errors if an app makes requests for unsupported features or exceeding limitations. This layer is a work in progress and currently only flags some high-level errors without flagging errors on specific feature and limitation. If a Dbg callback function is registered, this layer will use callback function(s) for reporting, otherwise uses stdout.
+
+### Unique Objects
+(build dir)/layers/unique_objects.cpp (name=VK_LAYER_GOOGLE_unique_objects) - The Vulkan specification allows objects that have non-unique handles. This makes tracking object lifetimes difficult in that it is unclear which object is being referenced on deletion. The unique_objects layer was created to address this problem. If loaded in the correct position (last, which is closest to the display driver) it will wrap all objects with a unique object representation, allowing proper object lifetime tracking. This layer does no validation on its own, and may not be required for the proper operation of all layers or all platforms. One sign that it is needed is the appearance of errors emitted from the object_tracker layer indicating the use of previously destroyed objects.
 
 ## Using Layers
 
