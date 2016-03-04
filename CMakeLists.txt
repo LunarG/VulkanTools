@@ -2,7 +2,7 @@
 # refer to the root source directory of the project as ${VULKAN_SOURCE_DIR} and
 # to the root binary directory of the project as ${VULKAN_BINARY_DIR}.
 cmake_minimum_required(VERSION 2.8.11)
-project (VULKAN)
+project (VULKAN_TOOLS)
 # set (CMAKE_VERBOSE_MAKEFILE 1)
 
 
