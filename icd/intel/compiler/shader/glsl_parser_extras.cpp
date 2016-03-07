@@ -57,12 +57,6 @@ extern "C" {
 #include "SPIRV/spirv.hpp"
 #include "Core/Exceptions.h"
 
-namespace spv {
-
-   void GLSLstd450GetDebugNames(const char** names);
-
-} // spv
-
 
 /**
  * Format a short human-readable description of the given GLSL version.
@@ -1577,8 +1571,6 @@ EShLanguage _mesa_shader_stage_to_glslang_stage(unsigned stage)
    }
 }
 
-static const char* GlslStd450DebugNames[GLSLstd450Count];
-
 void null_unsupported_functionality(const std::string& message, gla::EAbortType at) {
    if (at == gla::EATAbort) {
       std::cerr << std::endl << message << std::endl;
@@ -1677,9 +1669,7 @@ _mesa_glsl_compile_shader(struct gl_context *ctx, struct gl_shader *shader,
                }
 
                if (dump_SPV) {
-                   spv::Parameterize();
-                   spv::GLSLstd450GetDebugNames(GlslStd450DebugNames);
-                   spv::Disassemble(std::cout, spirv);
+                   // TODO: spirv-tools::Disassemble(std::cout, spirv);
                }
 
                gla::SpvToTop(spirv, *manager);
