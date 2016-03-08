@@ -194,6 +194,21 @@ class Subcommand(object):
             return ("%p {%p}", "(void*)%s, (%s == NULL) ? 0 : *(%s)" % (name, name, name), deref)
         return ("%p", "(void*)(%s)" % name, deref)
 
+    def _generate_trim_trace_bools(self):
+        trim_trace_bools = []
+        trim_trace_bools.append('// Trim support')
+        trim_trace_bools.append('// Indicates whether trim support will be utilized during this instance of vktrace.')
+        trim_trace_bools.append('// Only set once based on the VKTRACE_TRIM_FRAMES env var.')
+        trim_trace_bools.append('extern bool g_trimEnabled;')
+        trim_trace_bools.append('// Stores a boolean for each entrypoint to indicate whether or not to trace that function to a trace file.')
+        trim_trace_bools.append('// These maybe toggled on/off while vktrace is running to control whether or not API calls are recorded.')
+        trim_trace_bools.append('extern bool g_trimTraceFunc[%s + VKTRACE_TPI_BEGIN_API_HERE];' % len(self.protos))
+        trim_trace_bools.append('extern uint32_t g_trimTraceFuncCount;')
+        trim_trace_bools.append('extern uint64_t g_trimFrameCounter;')
+        trim_trace_bools.append('extern uint64_t g_trimStartFrame;')
+        trim_trace_bools.append('extern uint64_t g_trimEndFrame;')
+        return "\n".join(trim_trace_bools)
+
     def _generate_init_funcs(self):
         init_tracer = []
         init_tracer.append('void send_vk_api_version_packet()\n{')
@@ -206,6 +221,12 @@ class Subcommand(object):
         init_tracer.append('    FINISH_TRACE_PACKET();\n}\n')
 
         init_tracer.append('extern VKTRACE_CRITICAL_SECTION g_memInfoLock;')
+        init_tracer.append('bool g_trimTraceFunc[%s + VKTRACE_TPI_BEGIN_API_HERE];' % len(self.protos))
+        init_tracer.append('bool g_trimEnabled = false;')
+        init_tracer.append('uint32_t g_trimTraceFuncCount = sizeof(g_trimTraceFunc) / sizeof(g_trimTraceFunc[0]);')
+        init_tracer.append('uint64_t g_trimFrameCounter = 0;')
+        init_tracer.append('uint64_t g_trimStartFrame = 0;')
+        init_tracer.append('uint64_t g_trimEndFrame = UINT64_MAX;')
         init_tracer.append('void InitTracer(void)\n{')
         init_tracer.append('    const char *ipAddr = vktrace_get_global_var("VKTRACE_LIB_IPADDR");')
         init_tracer.append('    if (ipAddr == NULL)')
@@ -213,6 +234,20 @@ class Subcommand(object):
         init_tracer.append('    gMessageStream = vktrace_MessageStream_create(FALSE, ipAddr, VKTRACE_BASE_PORT + VKTRACE_TID_VULKAN);')
         init_tracer.append('    vktrace_trace_set_trace_file(vktrace_FileLike_create_msg(gMessageStream));')
         init_tracer.append('    vktrace_tracelog_set_tracer_id(VKTRACE_TID_VULKAN);')
+        init_tracer.append('    const char *trimFrames = vktrace_get_global_var("VKTRACE_TRIM_FRAMES");')
+        init_tracer.append('    bool bTraceFromBeginning = true;')
+        init_tracer.append('    if (trimFrames != NULL && sscanf(trimFrames, "%llu-%llu", &g_trimStartFrame, &g_trimEndFrame) == 2)')
+        init_tracer.append('    {')
+        init_tracer.append('        // make sure the start/end frames are in expected order.')
+        init_tracer.append('        if (g_trimStartFrame <= g_trimEndFrame)')
+        init_tracer.append('        {')
+        init_tracer.append('            bTraceFromBeginning = (g_trimStartFrame == 0);')
+        init_tracer.append('            g_trimEnabled = true;')
+        init_tracer.append('        }')
+        init_tracer.append('    }')
+        init_tracer.append('    for (int i = 0; i < (%s + VKTRACE_TPI_BEGIN_API_HERE); i++){' % len(self.protos))
+        init_tracer.append('        g_trimTraceFunc[i] = bTraceFromBeginning;')
+        init_tracer.append('    }')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
         init_tracer.append('    if (gMessageStream != NULL)')
         init_tracer.append('        send_vk_api_version_packet();\n}\n')
@@ -502,10 +537,12 @@ class Subcommand(object):
                         ptr_packet_update_list = self._get_packet_ptr_param_list(proto.params)
                         func_body[-1] = func_body[-1].replace(',', ')')
                         # End of function declaration portion, begin function body
-                        func_body.append('{\n    vktrace_trace_packet_header* pHeader;')
+                        func_body.append('{')
                         if 'void' not in proto.ret or '*' in proto.ret:
                             func_body.append('    %s result;' % proto.ret)
                             return_txt = 'result = '
+                        func_body.append('    if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s]){' % proto.name)
+                        func_body.append('    vktrace_trace_packet_header* pHeader;')
                         if in_data_size:
                             func_body.append('    size_t _dataSize;')
                         func_body.append('    packet_vk%s* pPacket = NULL;' % proto.name)
@@ -519,6 +556,7 @@ class Subcommand(object):
 
                         # call down the layer chain and get return value (if there is one)
                         # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
+                        # Note: this section is replicated below in the '    else' condition; should be put into shared method
                         if extensionName == 'vk_lunarg_debug_marker':
                             table_txt = 'mdd(%s)->debugMarkerTable' % proto.params[0].name
                         elif proto.params[0].ty in ['VkInstance', 'VkPhysicalDevice']:
@@ -546,6 +584,22 @@ class Subcommand(object):
                         elif proto.name == "DestroyDevice":
                             func_body.append('    g_deviceDataMap.erase(key);')
 
+                        # Else half of g_bTraceFunc conditional
+                        func_body.append('    }')
+                        func_body.append('    else')
+                        func_body.append('    {')
+
+                        # call down the layer chain and get return value (if there is one)
+                        # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
+                        # Note: this is copied from above, but should be put into a shared method
+                        if extensionName == 'vk_lunarg_debug_marker':
+                            table_txt = 'mdd(%s)->debugMarkerTable' % proto.params[0].name
+                        elif proto.params[0].ty in ['VkInstance', 'VkPhysicalDevice']:
+                           table_txt = 'mid(%s)->instTable' % proto.params[0].name
+                        else:
+                           table_txt = 'mdd(%s)->devTable' % proto.params[0].name
+                        func_body.append('    %s%s.%s;' % (return_txt, table_txt, proto.c_call()))
+                        func_body.append('    }')
                         # return result if needed
                         if 'void' not in proto.ret or '*' in proto.ret:
                             func_body.append('    return result;')
@@ -2026,7 +2080,8 @@ class VktraceTraceHeader(Subcommand):
         return "\n".join(header_txt)
 
     def generate_body(self):
-        body = [self._generate_trace_func_protos()]
+        body = [self._generate_trim_trace_bools(),
+                self._generate_trace_func_protos()]
 
         return "\n".join(body)
 
