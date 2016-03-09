@@ -40,29 +40,20 @@ struct layer_data {
     debug_report_data *report_data;
     VkDebugReportCallbackEXT logging_callback;
 
-    layer_data() :
-        report_data(nullptr),
-        logging_callback(VK_NULL_HANDLE)
-    {};
+    layer_data() : report_data(nullptr), logging_callback(VK_NULL_HANDLE){};
 };
 
-static const VkLayerProperties globalLayerProps[] = {
-    {
-        "VK_LAYER_LUNARG_generic",
-        VK_API_VERSION,                 // specVersion
-        1,
-        "layer: generic",
-    }
-};
+static const VkLayerProperties globalLayerProps[] = {{
+    "VK_LAYER_LUNARG_generic",
+    VK_API_VERSION, // specVersion
+    1, "layer: generic",
+}};
 
-static const VkLayerProperties deviceLayerProps[] = {
-    {
-        "VK_LAYER_LUNARG_generic",
-        VK_API_VERSION,                 // specVersion
-        1,
-        "layer: generic",
-    }
-};
+static const VkLayerProperties deviceLayerProps[] = {{
+    "VK_LAYER_LUNARG_generic",
+    VK_API_VERSION, // specVersion
+    1, "layer: generic",
+}};
 
 struct devExts {
     bool wsi_enabled;
@@ -70,45 +61,44 @@ struct devExts {
 struct instExts {
     bool wsi_enabled;
 };
-static std::unordered_map<void *, struct devExts>     deviceExtMap;
-static std::unordered_map<void *, struct instExts>    instanceExtMap;
+static std::unordered_map<void *, struct devExts> deviceExtMap;
+static std::unordered_map<void *, struct instExts> instanceExtMap;
 
-static void createDeviceRegisterExtensions(const VkDeviceCreateInfo* pCreateInfo, VkDevice device)
-{
+static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo, VkDevice device) {
     uint32_t i;
-    VkLayerDispatchTable *pDisp  = device_dispatch_table(device);
+    VkLayerDispatchTable *pDisp = device_dispatch_table(device);
     PFN_vkGetDeviceProcAddr gpa = pDisp->GetDeviceProcAddr;
-    pDisp->CreateSwapchainKHR = (PFN_vkCreateSwapchainKHR) gpa(device, "vkCreateSwapchainKHR");
-    pDisp->DestroySwapchainKHR = (PFN_vkDestroySwapchainKHR) gpa(device, "vkDestroySwapchainKHR");
-    pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR) gpa(device, "vkGetSwapchainImagesKHR");
-    pDisp->AcquireNextImageKHR = (PFN_vkAcquireNextImageKHR) gpa(device, "vkAcquireNextImageKHR");
-    pDisp->QueuePresentKHR = (PFN_vkQueuePresentKHR) gpa(device, "vkQueuePresentKHR");
+    pDisp->CreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)gpa(device, "vkCreateSwapchainKHR");
+    pDisp->DestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)gpa(device, "vkDestroySwapchainKHR");
+    pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
+    pDisp->AcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)gpa(device, "vkAcquireNextImageKHR");
+    pDisp->QueuePresentKHR = (PFN_vkQueuePresentKHR)gpa(device, "vkQueuePresentKHR");
 
     deviceExtMap[pDisp].wsi_enabled = false;
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0)
             deviceExtMap[pDisp].wsi_enabled = true;
-
     }
 }
 
-static void createInstanceRegisterExtensions(const VkInstanceCreateInfo* pCreateInfo, VkInstance instance)
-{
+static void createInstanceRegisterExtensions(const VkInstanceCreateInfo *pCreateInfo, VkInstance instance) {
     uint32_t i;
-    VkLayerInstanceDispatchTable *pDisp  = instance_dispatch_table(instance);
+    VkLayerInstanceDispatchTable *pDisp = instance_dispatch_table(instance);
     PFN_vkGetInstanceProcAddr gpa = pDisp->GetInstanceProcAddr;
 
     pDisp->DestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)gpa(instance, "vkDestroySurfaceKHR");
-    pDisp->GetPhysicalDeviceSurfaceSupportKHR = (PFN_vkGetPhysicalDeviceSurfaceSupportKHR) gpa(instance, "vkGetPhysicalDeviceSurfaceSupportKHR");
-    pDisp->GetPhysicalDeviceSurfaceCapabilitiesKHR = (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR) gpa(instance, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
-    pDisp->GetPhysicalDeviceSurfaceFormatsKHR = (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR) gpa(instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
-    pDisp->GetPhysicalDeviceSurfacePresentModesKHR = (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR) gpa(instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
+    pDisp->GetPhysicalDeviceSurfaceSupportKHR =
+        (PFN_vkGetPhysicalDeviceSurfaceSupportKHR)gpa(instance, "vkGetPhysicalDeviceSurfaceSupportKHR");
+    pDisp->GetPhysicalDeviceSurfaceCapabilitiesKHR =
+        (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)gpa(instance, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+    pDisp->GetPhysicalDeviceSurfaceFormatsKHR =
+        (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)gpa(instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
+    pDisp->GetPhysicalDeviceSurfacePresentModesKHR =
+        (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)gpa(instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
     instanceExtMap[pDisp].wsi_enabled = false;
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SURFACE_EXTENSION_NAME) == 0)
             instanceExtMap[pDisp].wsi_enabled = true;
-
     }
 }
 #endif // GENERIC_H
-
