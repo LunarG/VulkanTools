@@ -42,7 +42,6 @@
 #include "gpu.h"
 #include "instance.h"
 #include "wsi.h"
-#include "vulkan/vk_lunarg_debug_marker.h"
 
 static int gpu_open_primary_node(struct intel_gpu *gpu)
 {

@@ -183,10 +183,8 @@ add_vk_layer(multi multi.cpp vk_layer_table.cpp)
 # generated
 add_vk_layer(generic generic_layer.cpp vk_layer_table.cpp)
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
-
-
-add_vk_layer(draw_state draw_state.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp)
-add_vk_layer(device_limits device_limits.cpp vk_layer_debug_marker_table.cpp vk_layer_table.cpp vk_layer_utils.cpp)
+add_vk_layer(draw_state draw_state.cpp vk_layer_table.cpp)
+add_vk_layer(device_limits device_limits.cpp vk_layer_table.cpp vk_layer_utils.cpp)
 add_vk_layer(mem_tracker mem_tracker.cpp vk_layer_table.cpp)
 add_vk_layer(image image.cpp vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp vk_layer_table.cpp)
@@ -195,4 +193,4 @@ add_vk_layer(swapchain swapchain.cpp vk_layer_table.cpp)
 add_vk_layer(object_tracker object_tracker.cpp vk_layer_table.cpp)
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
 add_vk_layer(unique_objects unique_objects.cpp vk_layer_table.cpp vk_safe_struct.cpp)
-add_vk_layer(param_checker param_checker.cpp param_check.h vk_layer_debug_marker_table.cpp vk_layer_table.cpp)
+add_vk_layer(param_checker param_checker.cpp param_check.h vk_layer_table.cpp)

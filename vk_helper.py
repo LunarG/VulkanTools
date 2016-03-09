@@ -981,10 +981,10 @@ class StructWrapperGen:
                         else:
                             sh_funcs.append('%s' % lineinfo.get())
                             addr_char = ''
+                            sh_funcs.append('%sss[%u] << %spStruct->%s[i];' % (indent, index, addr_char, stp_list[index]['name']))
                             if stp_list[index]['type'] in vulkan.core.objects:
                                 sh_funcs.append('%sstp_strs[%u] += " " + prefix + "%s[" + index_ss.str() + "].handle = " + ss[%u].str() + "\\n";' % (indent, index, stp_list[index]['name'], index))
                             else:
-                                sh_funcs.append('%sss[%u] << %spStruct->%s[i];' % (indent, index, addr_char, stp_list[index]['name']))
                                 sh_funcs.append('%sstp_strs[%u] += " " + prefix + "%s[" + index_ss.str() + "] = " + ss[%u].str() + "\\n";' % (indent, index, stp_list[index]['name'], index))
                         sh_funcs.append('%s' % lineinfo.get())
                         sh_funcs.append('%sss[%u].str("");' % (indent, index))
@@ -2122,8 +2122,6 @@ def main(argv=None):
     input_header = os.path.basename(opts.input_file)
     if 'vulkan.h' == input_header:
         input_header = "vulkan/vulkan.h"
-    if 'vk_lunarg_debug_marker.h' == input_header:
-        input_header = "vulkan/vk_lunarg_debug_marker.h"
 
     prefix = os.path.basename(opts.input_file).strip(".h")
     if prefix == "vulkan":

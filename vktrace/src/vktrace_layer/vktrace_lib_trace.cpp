@@ -36,8 +36,6 @@
 #include "vktrace_common.h"
 #include "vktrace_lib_helpers.h"
 
-#include "vktrace_vk_vk_lunarg_debug_marker.h"
-
 #include "vktrace_interconnect.h"
 #include "vktrace_filelike.h"
 #include "vktrace_trace_packet_utils.h"
@@ -1884,17 +1882,6 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDevicePro
                 return (PFN_vkVoidFunction) __HOOKED_vkAcquireNextImageKHR;
             if (!strcmp("vkQueuePresentKHR", funcName))
                 return (PFN_vkVoidFunction) __HOOKED_vkQueuePresentKHR;
-        }
-        if (devData->LunargDebugMarkerEnabled)
-        {
-            if (!strcmp("vkCmdDbgMarkerBegin", funcName))
-                return (PFN_vkVoidFunction) __HOOKED_vkCmdDbgMarkerBegin;
-            if (!strcmp("vkCmdDbgMarkerEnd", funcName))
-                return (PFN_vkVoidFunction) __HOOKED_vkCmdDbgMarkerEnd;
-            if (!strcmp("vkDbgSetObjectTag", funcName))
-                return (PFN_vkVoidFunction) __HOOKED_vkDbgSetObjectTag;
-            if (!strcmp("vkDbgSetObjectName", funcName))
-                return (PFN_vkVoidFunction) __HOOKED_vkDbgSetObjectName;
         }
     }
     VkLayerDispatchTable *pDisp =  &devData->devTable;

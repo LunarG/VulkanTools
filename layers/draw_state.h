@@ -162,7 +162,6 @@ typedef enum _DRAW_STATE_ERROR {
                                     // operation
     DRAWSTATE_MISSING_ATTACHMENT_REFERENCE, // Attachment reference must be
                                             // present in active subpass
-    DRAWSTATE_INVALID_EXTENSION,
     DRAWSTATE_SAMPLER_DESCRIPTOR_ERROR, // A Descriptor of *_SAMPLER type is
                                         // being updated with an invalid or bad
                                         // Sampler
@@ -179,9 +178,9 @@ typedef enum _DRAW_STATE_ERROR {
                                            // type is being updated with an
                                            // invalid or bad BufferView
     DRAWSTATE_BUFFERINFO_DESCRIPTOR_ERROR, // A Descriptor of
-                                           // *_[UNIFORM|STORAGE]_BUFFER_[DYNAMIC]
-                                           // type is being updated with an
-                                           // invalid or bad BufferView
+    // *_[UNIFORM|STORAGE]_BUFFER_[DYNAMIC]
+    // type is being updated with an
+    // invalid or bad BufferView
     DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, // At draw time the dynamic offset
                                        // combined with buffer offset and range
                                        // oversteps size of buffer
@@ -201,11 +200,12 @@ typedef enum _DRAW_STATE_ERROR {
                                  // must be a valid VkLogicOp value
     DRAWSTATE_INVALID_QUEUE_INDEX,           // Specified queue index exceeds number
                                              // of queried queue families
+    DRAWSTATE_PUSH_CONSTANTS_ERROR, // Push constants exceed maxPushConstantSize
 } DRAW_STATE_ERROR;
 
 typedef enum _SHADER_CHECKER_ERROR {
     SHADER_CHECKER_NONE,
-    SHADER_CHECKER_FS_MIXED_BROADCAST,      /* FS writes broadcast output AND custom outputs */
+    SHADER_CHECKER_FS_MIXED_BROADCAST,      /* FS writes broadcast output AND custom outputs -- DEFUNCT */
     SHADER_CHECKER_INTERFACE_TYPE_MISMATCH, /* Type mismatch between shader stages or shader and pipeline */
     SHADER_CHECKER_OUTPUT_NOT_CONSUMED,     /* Entry appears in output interface, but missing in input */
     SHADER_CHECKER_INPUT_NOT_PRODUCED,      /* Entry appears in input interface, but missing in output */
@@ -216,6 +216,8 @@ typedef enum _SHADER_CHECKER_ERROR {
     SHADER_CHECKER_MISSING_DESCRIPTOR,      /* Shader attempts to use a descriptor binding not declared in the layout */
     SHADER_CHECKER_BAD_SPECIALIZATION,      /* Specialization map entry points outside specialization data block */
     SHADER_CHECKER_MISSING_ENTRYPOINT,      /* Shader module does not contain the requested entrypoint */
+    SHADER_CHECKER_PUSH_CONSTANT_OUT_OF_RANGE,  /* Push constant variable is not in a push constant range */
+    SHADER_CHECKER_PUSH_CONSTANT_NOT_ACCESSIBLE_FROM_STAGE, /* Push constant range exists, but not accessible from stage */
 } SHADER_CHECKER_ERROR;
 
 typedef enum _DRAW_TYPE
@@ -312,6 +314,8 @@ typedef struct _SAMPLER_NODE {
 typedef struct _IMAGE_NODE {
     VkImageLayout layout;
     VkFormat      format;
+    uint32_t      mipLevels;
+    uint32_t      arrayLayers;
 } IMAGE_NODE;
 
 typedef struct _IMAGE_CMD_BUF_NODE {
@@ -367,6 +371,11 @@ class FENCE_NODE : public BASE_NODE {
     vector<VkCommandBuffer> cmdBuffers;
     bool needsSignaled;
     VkFence priorFence;
+
+    // Default constructor
+    FENCE_NODE() : queue(NULL), needsSignaled(VK_FALSE),
+                   priorFence(static_cast<VkFence>(NULL)) {};
+
 };
 
 class SEMAPHORE_NODE : public BASE_NODE {
@@ -393,6 +402,12 @@ class QUEUE_NODE {
 class QUERY_POOL_NODE : public BASE_NODE {
   public:
     VkQueryPoolCreateInfo createInfo;
+};
+
+class FRAMEBUFFER_NODE {
+  public:
+    VkFramebufferCreateInfo createInfo;
+    unordered_set<VkCommandBuffer> referencingCmdBuffers;
 };
 
 // Descriptor Data structures
@@ -483,8 +498,7 @@ typedef struct _DESCRIPTOR_POOL_NODE {
 } DESCRIPTOR_POOL_NODE;
 
 // Cmd Buffer Tracking
-typedef enum _CMD_TYPE
-{
+typedef enum _CMD_TYPE {
     CMD_BINDPIPELINE,
     CMD_BINDPIPELINEDELTA,
     CMD_SETVIEWPORTSTATE,
@@ -526,6 +540,7 @@ typedef enum _CMD_TYPE
     CMD_RESETQUERYPOOL,
     CMD_COPYQUERYPOOLRESULTS,
     CMD_WRITETIMESTAMP,
+    CMD_PUSHCONSTANTS,
     CMD_INITATOMICCOUNTERS,
     CMD_LOADATOMICCOUNTERS,
     CMD_SAVEATOMICCOUNTERS,
@@ -533,8 +548,6 @@ typedef enum _CMD_TYPE
     CMD_NEXTSUBPASS,
     CMD_ENDRENDERPASS,
     CMD_EXECUTECOMMANDS,
-    CMD_DBGMARKERBEGIN,
-    CMD_DBGMARKEREND,
 } CMD_TYPE;
 // Data structure for holding sequence of cmds in cmd buffer
 typedef struct _CMD_NODE {
@@ -667,10 +680,15 @@ typedef struct _GLOBAL_CB_NODE {
     VkFramebuffer                framebuffer;
     // Capture unique std::set of descriptorSets that are bound to this CB.
     std::set<VkDescriptorSet>    uniqueBoundSets;
-    // Keep running track of which sets are bound to which set# at any given time
     // Track descriptor sets that are destroyed or updated while bound to CB
+    // TODO : These data structures relate to tracking resources that invalidate
+    //  a cmd buffer that references them. Need to unify how we handle these
+    //  cases so we don't have different tracking data for each type.
     std::set<VkDescriptorSet>    destroyedSets;
     std::set<VkDescriptorSet>    updatedSets;
+    unordered_set<VkFramebuffer> destroyedFramebuffers;
+    // Keep running track of which sets are bound to which set# at any given
+    // time
     vector<VkDescriptorSet>      boundDescriptorSets; // Index is set# that given set is bound to
     vector<VkEvent>              waitedEvents;
     vector<VkSemaphore> semaphores;
@@ -699,7 +717,8 @@ typedef struct _SWAPCHAIN_NODE {
         createInfo(*pCreateInfo),
         pQueueFamilyIndices(NULL)
     {
-        if (pCreateInfo->queueFamilyIndexCount) {
+        if (pCreateInfo->queueFamilyIndexCount &&
+            pCreateInfo->imageSharingMode == VK_SHARING_MODE_CONCURRENT) {
             pQueueFamilyIndices = new uint32_t[pCreateInfo->queueFamilyIndexCount];
             memcpy(pQueueFamilyIndices, pCreateInfo->pQueueFamilyIndices, pCreateInfo->queueFamilyIndexCount*sizeof(uint32_t));
             createInfo.pQueueFamilyIndices = pQueueFamilyIndices;

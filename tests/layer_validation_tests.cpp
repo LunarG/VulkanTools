@@ -1382,118 +1382,6 @@ TEST_F(VkLayerTest, CommandBufferTwoSubmits) {
     }
 }
 
-TEST_F(VkLayerTest, BindPipelineNoRenderPass) {
-    // Initiate Draw w/o a PSO bound
-    VkResult err;
-
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "vkCmdBindPipeline: This call must be "
-                                         "issued inside an active render pass");
-
-    ASSERT_NO_FATAL_FAILURE(InitState());
-    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
-
-    VkDescriptorPoolSize ds_type_count = {};
-    ds_type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    ds_type_count.descriptorCount = 1;
-
-    VkDescriptorPoolCreateInfo ds_pool_ci = {};
-    ds_pool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    ds_pool_ci.pNext = NULL;
-    ds_pool_ci.maxSets = 1;
-    ds_pool_ci.poolSizeCount = 1;
-    ds_pool_ci.pPoolSizes = &ds_type_count;
-
-    VkDescriptorPool ds_pool;
-    err =
-        vkCreateDescriptorPool(m_device->device(), &ds_pool_ci, NULL, &ds_pool);
-    ASSERT_VK_SUCCESS(err);
-
-    VkDescriptorSetLayoutBinding dsl_binding = {};
-    dsl_binding.binding = 0;
-    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    dsl_binding.descriptorCount = 1;
-    dsl_binding.stageFlags = VK_SHADER_STAGE_ALL;
-    dsl_binding.pImmutableSamplers = NULL;
-
-    VkDescriptorSetLayoutCreateInfo ds_layout_ci = {};
-    ds_layout_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    ds_layout_ci.pNext = NULL;
-    ds_layout_ci.bindingCount = 1;
-    ds_layout_ci.pBindings = &dsl_binding;
-
-    VkDescriptorSetLayout ds_layout;
-    err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL,
-                                      &ds_layout);
-    ASSERT_VK_SUCCESS(err);
-
-    VkDescriptorSet descriptorSet;
-    VkDescriptorSetAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    alloc_info.descriptorSetCount = 1;
-    alloc_info.descriptorPool = ds_pool;
-    alloc_info.pSetLayouts = &ds_layout;
-    err = vkAllocateDescriptorSets(m_device->device(), &alloc_info,
-                                   &descriptorSet);
-    ASSERT_VK_SUCCESS(err);
-    VkPipelineMultisampleStateCreateInfo pipe_ms_state_ci = {};
-    pipe_ms_state_ci.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    pipe_ms_state_ci.pNext = NULL;
-    pipe_ms_state_ci.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    pipe_ms_state_ci.sampleShadingEnable = 0;
-    pipe_ms_state_ci.minSampleShading = 1.0;
-    pipe_ms_state_ci.pSampleMask = NULL;
-
-    VkPipelineLayoutCreateInfo pipeline_layout_ci = {};
-    pipeline_layout_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layout_ci.pNext = NULL;
-    pipeline_layout_ci.setLayoutCount = 1;
-    pipeline_layout_ci.pSetLayouts = &ds_layout;
-    VkPipelineLayout pipeline_layout;
-
-    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL,
-                                 &pipeline_layout);
-    ASSERT_VK_SUCCESS(err);
-
-    VkShaderObj vs(m_device, bindStateVertShaderText,
-                   VK_SHADER_STAGE_VERTEX_BIT, this);
-    VkShaderObj fs(m_device, bindStateFragShaderText,
-                   VK_SHADER_STAGE_FRAGMENT_BIT,
-                   this); //  TODO - We shouldn't need a fragment shader
-                          // but add it to be able to run on more devices
-    VkPipelineObj pipe(m_device);
-    pipe.AddShader(&vs);
-    pipe.AddShader(&fs);
-    pipe.SetMSAA(&pipe_ms_state_ci);
-    pipe.CreateVKPipeline(pipeline_layout, renderPass());
-
-    // Calls AllocateCommandBuffers
-    VkCommandBufferObj commandBuffer(m_device, m_commandPool);
-    VkCommandBufferBeginInfo cmd_buf_info = {};
-    memset(&cmd_buf_info, 0, sizeof(VkCommandBufferBeginInfo));
-    VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-    memset(&cmd_buf_hinfo, 0, sizeof(VkCommandBufferInheritanceInfo));
-    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    cmd_buf_info.pNext = NULL;
-    cmd_buf_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
-
-    vkBeginCommandBuffer(commandBuffer.GetBufferHandle(), &cmd_buf_info);
-    vkCmdBindPipeline(commandBuffer.GetBufferHandle(),
-                      VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
-
-    if (!m_errorMonitor->DesiredMsgFound()) {
-        FAIL() << "Did not receive Error 'vkCmdBindPipeline: This call must be "
-                  "issued inside an active render pass'";
-        m_errorMonitor->DumpFailureMsgs();
-    }
-
-    vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
-    vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
-    vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
-}
-
 TEST_F(VkLayerTest, AllocDescriptorFromEmptyPool) {
     // Initiate Draw w/o a PSO bound
     VkResult err;
@@ -2037,6 +1925,81 @@ TEST_F(VkLayerTest, InvalidDynamicOffsetCases) {
 
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+}
+
+TEST_F(VkLayerTest, InvalidPushConstants) {
+    // Hit push constant error cases:
+    // 1. Create PipelineLayout where push constant overstep maxPushConstantSize
+    // 2. Incorrectly set push constant size to 0
+    // 3. Incorrectly set push constant size to non-multiple of 4
+    // 4. Attempt push constant update that exceeds maxPushConstantSize
+    VkResult err;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCreatePipelineLayout() call has push constants with offset ");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitViewport());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    VkPushConstantRange pc_range = {};
+    pc_range.size = 0xFFFFFFFFu;
+    pc_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    VkPipelineLayoutCreateInfo pipeline_layout_ci = {};
+    pipeline_layout_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layout_ci.pushConstantRangeCount = 1;
+    pipeline_layout_ci.pPushConstantRanges = &pc_range;
+
+    VkPipelineLayout pipeline_layout;
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL,
+                                 &pipeline_layout);
+
+    if (!m_errorMonitor->DesiredMsgFound()) {
+        FAIL() << "Error received was not 'vkCreatePipelineLayout() call has "
+                  "push constants with offset 0...'";
+        m_errorMonitor->DumpFailureMsgs();
+    }
+    // Now cause errors due to size 0 and non-4 byte aligned size
+    pc_range.size = 0;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCreatePipelineLayout() call has push constant index 0 with size 0");
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL,
+                                 &pipeline_layout);
+    if (!m_errorMonitor->DesiredMsgFound()) {
+        FAIL() << "Error received was not 'vkCreatePipelineLayout() call has "
+                  "push constant index 0 with size 0...'";
+        m_errorMonitor->DumpFailureMsgs();
+    }
+    pc_range.size = 1;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCreatePipelineLayout() call has push constant index 0 with size 1");
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL,
+                                 &pipeline_layout);
+    if (!m_errorMonitor->DesiredMsgFound()) {
+        FAIL() << "Error received was not 'vkCreatePipelineLayout() call has "
+                  "push constant index 0 with size 0...'";
+        m_errorMonitor->DumpFailureMsgs();
+    }
+    // Cause error due to bad size in vkCmdPushConstants() call
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCmdPushConstants() call has push constants with offset ");
+    pipeline_layout_ci.pushConstantRangeCount = 0;
+    pipeline_layout_ci.pPushConstantRanges = NULL;
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL,
+                                 &pipeline_layout);
+    ASSERT_VK_SUCCESS(err);
+    BeginCommandBuffer();
+    vkCmdPushConstants(m_commandBuffer->GetBufferHandle(), pipeline_layout,
+                       VK_SHADER_STAGE_VERTEX_BIT, 0, 0xFFFFFFFFu, NULL);
+    if (!m_errorMonitor->DesiredMsgFound()) {
+        FAIL() << "Error received was not 'vkCmdPushConstants() call has push "
+                  "constants with offset 0...'";
+        m_errorMonitor->DumpFailureMsgs();
+    }
+    vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
 }
 
 TEST_F(VkLayerTest, DescriptorSetCompatibility) {
@@ -2682,9 +2645,19 @@ TEST_F(VkLayerTest, InvalidPipelineCreateState) {
     vp_state_ci.viewportCount = 1;
     vp_state_ci.pViewports = &vp;
 
+    VkPipelineRasterizationStateCreateInfo rs_state_ci = {};
+    rs_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rs_state_ci.polygonMode = VK_POLYGON_MODE_FILL;
+    rs_state_ci.cullMode = VK_CULL_MODE_BACK_BIT;
+    rs_state_ci.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rs_state_ci.depthClampEnable = VK_FALSE;
+    rs_state_ci.rasterizerDiscardEnable = VK_FALSE;
+    rs_state_ci.depthBiasEnable = VK_FALSE;
+
     VkGraphicsPipelineCreateInfo gp_ci = {};
     gp_ci.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     gp_ci.pViewportState = &vp_state_ci;
+    gp_ci.pRasterizationState = &rs_state_ci;
     gp_ci.flags = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT;
     gp_ci.layout = pipeline_layout;
     gp_ci.renderPass = renderPass();
@@ -2929,6 +2902,15 @@ TEST_F(VkLayerTest, PSOViewportScissorCountMismatch) {
     vp_state_ci.viewportCount = 1; // Count mismatch should cause error
     vp_state_ci.pViewports = &vp;
 
+    VkPipelineRasterizationStateCreateInfo rs_state_ci = {};
+    rs_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rs_state_ci.polygonMode = VK_POLYGON_MODE_FILL;
+    rs_state_ci.cullMode = VK_CULL_MODE_BACK_BIT;
+    rs_state_ci.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rs_state_ci.depthClampEnable = VK_FALSE;
+    rs_state_ci.rasterizerDiscardEnable = VK_FALSE;
+    rs_state_ci.depthBiasEnable = VK_FALSE;
+
     VkPipelineShaderStageCreateInfo shaderStages[2];
     memset(&shaderStages, 0, 2 * sizeof(VkPipelineShaderStageCreateInfo));
 
@@ -2946,6 +2928,7 @@ TEST_F(VkLayerTest, PSOViewportScissorCountMismatch) {
     gp_ci.stageCount = 2;
     gp_ci.pStages = shaderStages;
     gp_ci.pViewportState = &vp_state_ci;
+    gp_ci.pRasterizationState = &rs_state_ci;
     gp_ci.flags = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT;
     gp_ci.layout = pipeline_layout;
     gp_ci.renderPass = renderPass();
@@ -3057,10 +3040,21 @@ TEST_F(VkLayerTest, PSOViewportStateNotSet) {
     shaderStages[0] = vs.GetStageCreateInfo();
     shaderStages[1] = fs.GetStageCreateInfo();
 
+
+    VkPipelineRasterizationStateCreateInfo rs_state_ci = {};
+    rs_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rs_state_ci.polygonMode = VK_POLYGON_MODE_FILL;
+    rs_state_ci.cullMode = VK_CULL_MODE_BACK_BIT;
+    rs_state_ci.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rs_state_ci.depthClampEnable = VK_FALSE;
+    rs_state_ci.rasterizerDiscardEnable = VK_FALSE;
+    rs_state_ci.depthBiasEnable = VK_FALSE;
+
     VkGraphicsPipelineCreateInfo gp_ci = {};
     gp_ci.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     gp_ci.stageCount = 2;
     gp_ci.pStages = shaderStages;
+    gp_ci.pRasterizationState = &rs_state_ci;
     gp_ci.pViewportState = NULL; // Not setting VP state w/o dynamic vp state
                                  // should cause validation error
     gp_ci.pDynamicState = &dyn_state_ci;
@@ -4638,7 +4632,7 @@ TEST_F(VkLayerTest, ClearCmdNoDraw) {
 
     // TODO: verify that this matches layer
     m_errorMonitor->SetDesiredFailureMsg(
-        VK_DEBUG_REPORT_WARNING_BIT_EXT,
+        VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
         "vkCmdClearAttachments() issued on CB object ");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
@@ -5723,10 +5717,6 @@ TEST_F(VkLayerTest, CreatePipelineAttribMatrixType) {
     }
 }
 
-/*
- * Would work, but not supported by glslang! This is similar to the matrix case
-above.
- *
 TEST_F(VkLayerTest, CreatePipelineAttribArrayType)
 {
     m_errorMonitor->SetDesiredFailureMsg(~0u, "");
@@ -5790,7 +5780,6 @@ m_errorMonitor->GetFailureMsg();
         m_errorMonitor->DumpFailureMsgs();
     }
 }
-*/
 
 TEST_F(VkLayerTest, CreatePipelineAttribBindingConflict) {
     m_errorMonitor->SetDesiredFailureMsg(
@@ -6055,6 +6044,57 @@ TEST_F(VkLayerTest, CreatePipelineUniformBlockNotProvided) {
     /* should have generated an error -- pipeline layout does not
      * provide a uniform buffer in 0.0
      */
+    if (!m_errorMonitor->DesiredMsgFound()) {
+        FAIL() << "Did not receive Error 'not declared in pipeline layout'";
+        m_errorMonitor->DumpFailureMsgs();
+    }
+}
+
+TEST_F(VkLayerTest, CreatePipelinePushConstantsNotInLayout) {
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         "not declared in layout");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    char const *vsSource =
+        "#version 450\n"
+        "#extension GL_ARB_separate_shader_objects: require\n"
+        "#extension GL_ARB_shading_language_420pack: require\n"
+        "\n"
+        "layout(push_constant, std430) uniform foo { float x; } consts;\n"
+        "out gl_PerVertex {\n"
+        "    vec4 gl_Position;\n"
+        "};\n"
+        "void main(){\n"
+        "   gl_Position = vec4(consts.x);\n"
+        "}\n";
+    char const *fsSource =
+        "#version 450\n"
+        "#extension GL_ARB_separate_shader_objects: require\n"
+        "#extension GL_ARB_shading_language_420pack: require\n"
+        "\n"
+        "layout(location=0) out vec4 x;\n"
+        "void main(){\n"
+        "   x = vec4(1);\n"
+        "}\n";
+
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this);
+
+    VkPipelineObj pipe(m_device);
+    pipe.AddShader(&vs);
+    pipe.AddShader(&fs);
+
+    /* set up CB 0; type is UNORM by default */
+    pipe.AddColorAttachment();
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    VkDescriptorSetObj descriptorSet(m_device);
+    descriptorSet.CreateVKDescriptorSet(m_commandBuffer);
+
+    pipe.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderPass());
+
+    /* should have generated an error -- no push constant ranges provided! */
     if (!m_errorMonitor->DesiredMsgFound()) {
         FAIL() << "Did not receive Error 'not declared in pipeline layout'";
         m_errorMonitor->DumpFailureMsgs();

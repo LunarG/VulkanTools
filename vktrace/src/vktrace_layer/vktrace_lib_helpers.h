@@ -33,7 +33,6 @@
 #include "vktrace_platform.h"
 
 #include "vk_struct_size_helper.h"
-#include "vk_debug_marker_layer.h"
 
 // Support for shadowing CPU mapped memory
 //TODO better handling of multiple range rather than fixed array
@@ -56,8 +55,6 @@ typedef struct _VKMemInfo {
 
 typedef struct _layer_device_data {
     VkLayerDispatchTable devTable;
-    bool LunargDebugMarkerEnabled;
-    VkLayerDebugMarkerDispatchTable debugMarkerTable;
     bool KHRDeviceSwapchainEnabled;
 } layer_device_data;
 typedef struct _layer_instance_data {

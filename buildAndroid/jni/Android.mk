@@ -40,7 +40,6 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_draw_state
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/draw_state.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_debug_marker_table.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/buildAndroid/generated \
@@ -66,7 +65,6 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_device_limits
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/device_limits.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_debug_marker_table.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/buildAndroid/generated \
@@ -91,7 +89,6 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_param_checker
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/param_checker.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_debug_marker_table.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/buildAndroid/generated \

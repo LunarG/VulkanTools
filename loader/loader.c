@@ -152,6 +152,20 @@ const VkLayerInstanceDispatchTable instance_disp = {
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
     .CreateAndroidSurfaceKHR = terminator_CreateAndroidSurfaceKHR,
 #endif
+    .GetPhysicalDeviceDisplayPropertiesKHR =
+        terminator_GetPhysicalDeviceDisplayPropertiesKHR,
+    .GetPhysicalDeviceDisplayPlanePropertiesKHR =
+        terminator_GetPhysicalDeviceDisplayPlanePropertiesKHR,
+    .GetDisplayPlaneSupportedDisplaysKHR =
+        terminator_GetDisplayPlaneSupportedDisplaysKHR,
+    .GetDisplayModePropertiesKHR =
+        terminator_GetDisplayModePropertiesKHR,
+    .CreateDisplayModeKHR =
+        terminator_CreateDisplayModeKHR,
+    .GetDisplayPlaneCapabilitiesKHR =
+        terminator_GetDisplayPlaneCapabilitiesKHR,
+    .CreateDisplayPlaneSurfaceKHR =
+        terminator_CreateDisplayPlaneSurfaceKHR,
 };
 
 LOADER_PLATFORM_THREAD_ONCE_DECLARATION(once_init);
@@ -1366,6 +1380,9 @@ static bool loader_icd_init_entrys(struct loader_icd *icd, VkInstance inst,
 #endif
 #ifdef VK_USE_PLATFORM_XCB_KHR
     LOOKUP_GIPA(GetPhysicalDeviceXcbPresentationSupportKHR, false);
+#endif
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+    LOOKUP_GIPA(GetPhysicalDeviceXlibPresentationSupportKHR, false);
 #endif
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
     LOOKUP_GIPA(GetPhysicalDeviceWaylandPresentationSupportKHR, false);
@@ -2599,15 +2616,16 @@ loader_gpa_instance_internal(VkInstance inst, const char *pName) {
     if (disp_table == NULL)
         return NULL;
 
-    addr = loader_lookup_instance_dispatch_table(disp_table, pName);
-    if (addr) {
+    bool found_name;
+    addr = loader_lookup_instance_dispatch_table(disp_table, pName, &found_name);
+    if (found_name) {
         return addr;
     }
 
-    if (disp_table->GetInstanceProcAddr == NULL) {
-        return NULL;
-    }
-    return disp_table->GetInstanceProcAddr(inst, pName);
+    // Don't call down the chain, this would be an infinite loop
+    loader_log(NULL, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                "loader_gpa_instance_internal() unrecognized name %s", pName);
+    return NULL;
 }
 
 /**
@@ -2672,6 +2690,43 @@ static bool loader_check_icds_for_address(struct loader_instance *inst,
             // this icd supports funcName
             return true;
         icd = icd->next;
+    }
+
+    return false;
+}
+
+static bool loader_check_layer_list_for_address(const struct loader_layer_list *const layers,
+                                                const char *funcName){
+    // Iterate over the layers.
+    for (uint32_t layer = 0; layer < layers->count; ++layer)
+    {
+        // Iterate over the extensions.
+        const struct loader_device_extension_list *const extensions = &(layers->list[layer].device_extension_list);
+        for(uint32_t extension = 0; extension < extensions->count; ++extension)
+        {
+            // Iterate over the entry points.
+            const struct loader_dev_ext_props *const property = &(extensions->list[extension]);
+            for(uint32_t entry = 0; entry < property->entrypoint_count; ++entry)
+            {
+                if(strcmp(property->entrypoints[entry], funcName) == 0)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+static bool loader_check_layers_for_address(const struct loader_instance *const inst,
+                                            const char *funcName){
+    if(loader_check_layer_list_for_address(&inst->instance_layer_list, funcName)) {
+        return true;
+    }
+
+    if(loader_check_layer_list_for_address(&inst->device_layer_list, funcName)) {
+        return true;
     }
 
     return false;
@@ -2808,8 +2863,8 @@ void *loader_dev_ext_gpa(struct loader_instance *inst, const char *funcName) {
         return loader_get_dev_ext_trampoline(idx);
 
     // Check if funcName is supported in either ICDs or a layer library
-    if (!loader_check_icds_for_address(inst, funcName)) {
-        // TODO Add check in layer libraries for support of address
+    if (!loader_check_icds_for_address(inst, funcName) &&
+        !loader_check_layers_for_address(inst, funcName)) {
         // if support found in layers continue on
         return NULL;
     }
@@ -3232,6 +3287,7 @@ VkResult loader_create_instance_chain(const VkInstanceCreateInfo *pCreateInfo,
     } else {
         loader_init_instance_core_dispatch_table(inst->disp, nextGIPA,
                                                  *created_instance);
+        inst->instance = *created_instance;
     }
 
     return res;
@@ -3399,7 +3455,7 @@ VkResult loader_create_device_chain(const struct loader_physical_device *pd,
     }
 
     PFN_vkCreateDevice fpCreateDevice =
-        (PFN_vkCreateDevice)nextGIPA((VkInstance)inst, "vkCreateDevice");
+        (PFN_vkCreateDevice)nextGIPA(inst->instance, "vkCreateDevice");
     if (fpCreateDevice) {
         res = fpCreateDevice(pd->phys_dev, &loader_create_info, pAllocator,
                              &dev->device);

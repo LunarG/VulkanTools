@@ -25,7 +25,6 @@
  * Author: Jon Ashburn <jon@lunarg.com>
  */
 #include "vktrace_lib_helpers.h"
-#include "vulkan/vk_lunarg_debug_marker.h"
 
 #include "vulkan/vk_layer.h"
 
@@ -120,17 +119,8 @@ void ext_init_create_device(
     devData->devTable.AcquireNextImageKHR = (PFN_vkAcquireNextImageKHR) gpa(dev, "vkAcquireNextImageKHR");
     devData->devTable.QueuePresentKHR = (PFN_vkQueuePresentKHR) gpa(dev, "vkQueuePresentKHR");
     
-    devData->debugMarkerTable.CmdDbgMarkerBegin = (PFN_vkCmdDbgMarkerBegin) gpa(dev, "vkCmdDbgMarkerBegin");
-    devData->debugMarkerTable.CmdDbgMarkerEnd = (PFN_vkCmdDbgMarkerEnd) gpa(dev, "vkCmdDbgMarkerEnd");
-    devData->debugMarkerTable.DbgSetObjectName = (PFN_vkDbgSetObjectName) gpa(dev, "vkDbgSetObjectName");
-    devData->debugMarkerTable.DbgSetObjectTag = (PFN_vkDbgSetObjectTag) gpa(dev, "vkDbgSetObjectTag");
-
-    devData->LunargDebugMarkerEnabled = false;
     devData->KHRDeviceSwapchainEnabled = false;
     for (uint32_t i = 0; i < extension_count; i++) {
-        if (strcmp(ppEnabledExtensions[i], DEBUG_MARKER_EXTENSION_NAME) == 0) {
-            devData->LunargDebugMarkerEnabled = true;
-        }
         if (strcmp(ppEnabledExtensions[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
             devData->KHRDeviceSwapchainEnabled = true;
         }

@@ -1402,7 +1402,8 @@ class ObjectTrackerSubcommand(Subcommand):
         if self.wsi == 'Win32':
             instance_extensions=[('msg_callback_get_proc_addr', []),
                                   ('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
@@ -1411,45 +1412,26 @@ class ObjectTrackerSubcommand(Subcommand):
         elif self.wsi == 'Android':
             instance_extensions=[('msg_callback_get_proc_addr', []),
                                   ('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR'])]
-        elif self.wsi == 'Xcb':
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateAndroidSurfaceKHR'])]
+        elif self.wsi == 'Xcb' or self.wsi == 'Xlib' or self.wsi == 'Wayland' or self.wsi == 'Mir':
             instance_extensions=[('msg_callback_get_proc_addr', []),
                                   ('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
                                    'vkCreateXcbSurfaceKHR',
-                                   'vkCreateAndroidSurfaceKHR',
-                                   'vkGetPhysicalDeviceXcbPresentationSupportKHR'])]
-        elif self.wsi == 'Xlib':
-            instance_extensions=[('msg_callback_get_proc_addr', []),
-                                  ('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
-                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
-                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkGetPhysicalDeviceXcbPresentationSupportKHR',
                                    'vkCreateXlibSurfaceKHR',
-                                   'vkGetPhysicalDeviceXlibPresentationSupportKHR'])]
-        elif self.wsi == 'Wayland':
-            instance_extensions=[('msg_callback_get_proc_addr', []),
-                                  ('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
-                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
-                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkGetPhysicalDeviceXlibPresentationSupportKHR',
                                    'vkCreateWaylandSurfaceKHR',
-                                   'vkGetPhysicalDeviceWaylandPresentationSupportKHR'])]
-        elif self.wsi == 'Mir':
-            instance_extensions=[('msg_callback_get_proc_addr', []),
-                                  ('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
-                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
-                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkGetPhysicalDeviceWaylandPresentationSupportKHR',
                                    'vkCreateMirSurfaceKHR',
                                    'vkGetPhysicalDeviceMirPresentationSupportKHR'])]
         else:
@@ -1720,7 +1702,8 @@ class UniqueObjectsSubcommand(Subcommand):
                       'vkAcquireNextImageKHR', 'vkQueuePresentKHR'])]
         if self.wsi == 'Win32':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
@@ -1728,43 +1711,28 @@ class UniqueObjectsSubcommand(Subcommand):
                                    ])]
         elif self.wsi == 'Android':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR'])]
-        elif self.wsi == 'Xcb':
+                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateAndroidSurfaceKHR'])]
+        elif self.wsi == 'Xcb' or self.wsi == 'Xlib' or self.wsi == 'Wayland' or self.wsi == 'Mir':
             instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
+                                  ['vkDestroySurfaceKHR',
+                                   'vkGetPhysicalDeviceSurfaceSupportKHR',
                                    'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                    'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                    'vkGetPhysicalDeviceSurfacePresentModesKHR',
                                    'vkCreateXcbSurfaceKHR',
-                                   'vkCreateAndroidSurfaceKHR'
-                                   ])]
-        elif self.wsi == 'Xlib':
-            instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
-                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
-                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
-                                   'vkCreateXlibSurfaceKHR'
-                                   ])]
-        elif self.wsi == 'Wayland':
-            instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
-                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
-                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
-                                   'vkCreateWaylandSurfaceKHR'
-                                   ])]
-        else: #Mir
-            instance_extensions=[('wsi_enabled',
-                                  ['vkGetPhysicalDeviceSurfaceSupportKHR',
-                                   'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
-                                   'vkGetPhysicalDeviceSurfaceFormatsKHR',
-                                   'vkGetPhysicalDeviceSurfacePresentModesKHR',
+                                   'vkCreateXlibSurfaceKHR',
+                                   'vkCreateWaylandSurfaceKHR',
                                    'vkCreateMirSurfaceKHR'
                                    ])]
+        else:
+            print('Error: Undefined DisplayServer')
+            instance_extensions=[]
+
         body = [self._generate_dispatch_entrypoints("VK_LAYER_EXPORT"),
                 self._generate_layer_gpa_function(extensions,
                                                   instance_extensions)]
