@@ -1,5 +1,5 @@
 # Build Instructions
-These instructions are for Linux and Windows.
+This document contains the instructions for building this repository on Linux and Windows.
 
 This repository contains addtional layers, tests, and the VkTrace trace/replay tools, supplementing the
 loader and validation layer core components found at https://github.com/KhronosGroup.
@@ -120,7 +120,7 @@ Optional software packages:
 
 Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.  Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
-Example debug x64 build (e.g. in a "Developer Command Prompt for VS2013" window):
+To build all Windows targets (e.g. in a "Developer Command Prompt for VS2013" window):
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
 mkdir build

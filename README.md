@@ -1,5 +1,4 @@
 # Vulkan Ecosystem Components
-*Version 1.0, January 25, 2016*
 
 This project provides vktrace capture/replay tool, Intel Ilo sample driver and other layer tools and driver tests.
 
@@ -15,7 +14,6 @@ The following components are available in this repository over and above what is
 - tests for the Intel Ilo sample driver (tests/)
 - vktrace and vkreplay, API capture and replay  (vktrace/)
 
-
 ## How to Build and Run
 
 [BUILDVT.md](BUILDVT.md)
@@ -24,18 +22,17 @@ includes directions for building all the components, running the tests and runni
 Information on how to enable the various layers is in
 [layers/README.md](layers/README.md).
 
+Architecture and interface information for the loader is in
+[loader/LoaderAndLayerInterface.md](loader/LoaderAndLayerInterface.md).
 
 ## License
-This work is intended to be released as open source under a MIT-style
-license once the Vulkan specification is public. Until that time, this work
-is covered by the Khronos NDA governing the details of the VK API.
+This work is released as open source under a MIT-style license from Khronos including a Khronos copyright.
+
+See LICENSE.txt for a full list of licenses used in this repository.
 
 ## Acknowledgements
-While this project is being developed by LunarG, Inc; there are many other
-companies and individuals making this possible: Valve Software, funding
-project development; Intel Corporation, providing full hardware specifications
-and valuable technical feedback; AMD, providing VK spec editor contributions;
-ARM, contributing a Chairman for this working group within Khronos; Nvidia,
-providing an initial co-editor for the spec; Qualcomm for picking up the
-co-editor's chair; and Khronos, for providing hosting within GitHub.
+While this project has been developed primarily by LunarG, Inc; there are many other
+companies and individuals making this possible: Valve Corporation, funding
+project development; Google providing significant contributions to the validation layers;
+Khronos providing oversight and hosting of the project.
 
