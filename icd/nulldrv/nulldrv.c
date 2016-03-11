@@ -730,6 +730,20 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
 {
     NULLDRV_LOG_FUNC;
 
+    pSurfaceCapabilities->minImageCount = 1;
+    pSurfaceCapabilities->maxImageCount = 0;  /* any number of images! */
+    pSurfaceCapabilities->currentExtent.width = -1;
+    pSurfaceCapabilities->currentExtent.height = -1;
+    pSurfaceCapabilities->minImageExtent.width = 1;
+    pSurfaceCapabilities->minImageExtent.height = 1;
+    pSurfaceCapabilities->maxImageExtent.width = 1024;
+    pSurfaceCapabilities->maxImageExtent.height = 1024;
+    pSurfaceCapabilities->maxImageArrayLayers = 1;
+    pSurfaceCapabilities->supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    pSurfaceCapabilities->currentTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    pSurfaceCapabilities->supportedCompositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    pSurfaceCapabilities->supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
     return VK_SUCCESS;
 }
 
