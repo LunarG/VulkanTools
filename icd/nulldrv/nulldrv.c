@@ -1379,8 +1379,8 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures(
 {
     NULLDRV_LOG_FUNC;
 
-    /* TODO: fill out features */
-    memset(pFeatures, 0, sizeof(*pFeatures));
+    /* nulldrv "implements" all vulkan features -- by doing nothing */
+    memset(pFeatures, VK_TRUE, sizeof(*pFeatures));
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties(
