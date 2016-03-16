@@ -38,7 +38,7 @@
 // The following is for logging error messages:
 struct layer_data {
     debug_report_data *report_data;
-    VkDebugReportCallbackEXT logging_callback;
+    std::vector<VkDebugReportCallbackEXT> logging_callback;
 
     layer_data() : report_data(nullptr), logging_callback(VK_NULL_HANDLE){};
 };
