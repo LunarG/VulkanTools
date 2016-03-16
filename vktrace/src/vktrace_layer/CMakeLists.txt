@@ -36,6 +36,7 @@ set(SRC_LIST
     ${SRC_LIST}
     vktrace_lib.c
     vktrace_lib_trace.cpp
+    vktrace_lib_trim.cpp
     vktrace_vk_exts.cpp
     codegen/vktrace_vk_vk.cpp
     ${CODEGEN_UTILS_DIR}/vk_struct_size_helper.c
@@ -47,6 +48,7 @@ set_source_files_properties( ${SRC_LIST} PROPERTIES LANGUAGE CXX)
 
 set (HDR_LIST
     vktrace_lib_helpers.h
+    vktrace_lib_trim.h
     vktrace_vk_exts.h
     vk_dispatch_table_helper.h
     codegen/vktrace_vk_vk.h
