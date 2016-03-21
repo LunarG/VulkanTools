@@ -496,6 +496,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures(
 {
     /* TODO: fill out features */
     memset(pFeatures, 0, sizeof(*pFeatures));
+    pFeatures->shaderClipDistance = 1;
     pFeatures->occlusionQueryPrecise = 1;
 }
 
