@@ -98,6 +98,7 @@ else()
 endif()
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_LAYERS "Build layers" ON)
+option(BUILD_LAYERSVT "Build layersvt" ON)
 option(BUILD_DEMOS "Build demos" ON)
 option(BUILD_VKTRACE "Build VkTrace" ON)
 option(BUILD_VKJSON "Build vkjson" ON)
@@ -229,6 +230,10 @@ endif()
 
 if(BUILD_LAYERS)
     add_subdirectory(layers)
+endif()
+
+if(BUILD_LAYERSVT)
+    add_subdirectory(layersvt)
 endif()
 
 if(BUILD_DEMOS)

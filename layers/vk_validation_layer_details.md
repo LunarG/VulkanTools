@@ -407,15 +407,13 @@ Additional checks to be added to VK_LAYER_LUNARG_swapchain
  2. One issue that has already come up is correct UsageFlags for WSI SwapChains and SurfaceProperties.
  3. Tons of other stuff including semaphore and synchronization validation.
 
-# Non-validation Layer Details
+ See the Khronos github repository for Vulkan-LoaderAndValidationLayers for additional pending issues, or to submit new validation requests
 
-## VK_LAYER_LUNARG_api_dump
+## VK_LAYER_GOOGLE_unique_objects
 
-VK_LAYER_LUNARG_api_dump layer is used for dumping a stream of all the Vulkan API calls that are made, along with details of the parameters to those calls.
+### VK_LAYER_GOOGLE_unique_objects Overview
 
-### VK_LAYER_LUNARG_api_dump Pending Work
-
- 1. vkAllocateDescriptorSets does not correctly print out all of the created DescriptorSets (no array printing following main API txt)
+The unique_objects is not a validation layer but a helper layer that assists with validation. The Vulkan specification allows objects that have non-unique handles. This makes tracking object lifetimes difficult in that it is unclear which object is being referenced upon deletion. The unique_objects layer addresses this by wrapping all objects with a unique object representation allowing proper object lifetime tracking. This layer does no validation on its own and may not be required for the proper operation of all layers or all platforms. One sign that it is needed is the appearance of many errors from the object_tracker layer indicating the use of previously destroyed objects. For optimal effectiveness this layer should be loaded last (to reside in the layer chain closest to the display driver and farthest from the application).
 
 
 ## General Pending Work

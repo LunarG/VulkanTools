@@ -1,0 +1,39 @@
+# This is an example vk_layer_settings.txt file.
+#  This file allows for per-layer settings which can dynamically affect layer
+#  behavior. Comments in this file are denoted with the "#" char.
+#  Settings lines are of the form "<LayerIdentifier>.<SettingName> = <SettingValue>"
+#
+#  <LayerIdentifier> is typically the official layer name, minus the VK_LAYER prefix
+#  and all lower-camel-case -- i.e., for VK_LAYER_LUNARG_api_dump, the layer
+#  identifier is 'lunarg_api_dump'.
+#
+#
+#  VK_LUNARG_LAYER_api_dump Settings:
+#  ==================================
+#
+#    DETAILED:
+#    =============
+#    <LayerIdentifer>.detailed : Setting this to TRUE causes parameter details
+#    to be dumped in addition to API calls
+lunarg_api_dump.detailed = TRUE
+#    NO_ADDR:
+#    =============
+#    <LayerIdentifier>.no_addr : Setting this to TRUE causes "address" to be
+#    dumped in place of hex addresses
+lunarg_api_dump.no_addr = FALSE
+#    FILE:
+#    =============
+#    <LayerIdentifer>.file : Setting this to TRUE indicates that output
+#    should be written to file instead of STDOUT
+lunarg_api_dump.file = FALSE
+#    LOG_FILENAME:
+#    =============
+#    <LayerIdentifer>.log_filename : Specifies the file to dump to when
+#    "file = TRUE".  The default is "vk_apidump.txt"
+lunarg_api_dump.log_filename = stdout
+#    FLUSH:
+#    =============
+#    <LayerIdentifier>.flush : Setting this to TRUE causes IO to be flushed after
+#    each line that's written
+lunarg_api_dump.flush = FALSE
+
