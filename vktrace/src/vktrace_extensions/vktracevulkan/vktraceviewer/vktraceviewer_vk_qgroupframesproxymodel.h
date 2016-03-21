@@ -22,14 +22,14 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
-#ifndef GLVDEBUG_VK_QGROUPFRAMESPROXYMODEL_H
-#define GLVDEBUG_VK_QGROUPFRAMESPROXYMODEL_H
+#ifndef VKTRACEVIEWER_VK_QGROUPFRAMESPROXYMODEL_H
+#define VKTRACEVIEWER_VK_QGROUPFRAMESPROXYMODEL_H
 
 extern "C" {
-#include "glv_vk_packet_id.h"
+#include "vktrace_vk_packet_id.h"
 }
 
-#include "glvdebug_QTraceFileModel.h"
+#include "vktraceviewer_QTraceFileModel.h"
 #include <QAbstractProxyModel>
 #include <QStandardItem>
 
@@ -42,25 +42,25 @@ struct FrameInfo
     QList<int> mapChildRowToSourceRow;
 };
 
-class glvdebug_vk_QGroupFramesProxyModel : public QAbstractProxyModel
+class vktraceviewer_vk_QGroupFramesProxyModel : public QAbstractProxyModel
 {
     Q_OBJECT
 public:
-    glvdebug_vk_QGroupFramesProxyModel(QObject *parent = 0)
+    vktraceviewer_vk_QGroupFramesProxyModel(QObject *parent = 0)
         : QAbstractProxyModel(parent),
           m_curFrameCount(0)
     {
         buildGroups();
     }
 
-    virtual ~glvdebug_vk_QGroupFramesProxyModel()
+    virtual ~vktraceviewer_vk_QGroupFramesProxyModel()
     {
     }
 
     //---------------------------------------------------------------------------------------------
     virtual void setSourceModel(QAbstractItemModel *sourceModel)
     {
-        if (sourceModel != NULL && !sourceModel->inherits("glvdebug_QTraceFileModel"))
+        if (sourceModel != NULL && !sourceModel->inherits("vktraceviewer_QTraceFileModel"))
         {
             assert(!"Setting QGroupFramesProxyModel to have a sourceModel that doesn't inherit from QTraceFileModel.");
             sourceModel = NULL;
@@ -351,8 +351,8 @@ private:
                 // If source data is a frame boundary make a new frame
                 QModelIndex tmpIndex = sourceModel()->index(srcRow, 0);
                 assert(tmpIndex.isValid());
-                glv_trace_packet_header* pHeader = (glv_trace_packet_header*)tmpIndex.internalPointer();
-                if (pHeader != NULL && pHeader->tracer_id == GLV_TID_VULKAN && pHeader->packet_id == GLV_TPI_VK_vkQueuePresentWSI)
+                vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)tmpIndex.internalPointer();
+                if (pHeader != NULL && pHeader->tracer_id == VKTRACE_TID_VULKAN && pHeader->packet_id == VKTRACE_TPI_VK_vkQueuePresentKHR)
                 {
                     pCurFrame = addNewFrame();
                 }
@@ -361,4 +361,4 @@ private:
     }
 };
 
-#endif // GLVDEBUG_VK_QGROUPFRAMESPROXYMODEL_H
+#endif // VKTRACEVIEWER_VK_QGROUPFRAMESPROXYMODEL_H

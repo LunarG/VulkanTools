@@ -22,25 +22,25 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
-#ifndef GLVDEBUG_VK_QFILE_MODEL_H_
-#define GLVDEBUG_VK_QFILE_MODEL_H_
+#ifndef VKTRACEVIEWER_VK_QFILE_MODEL_H_
+#define VKTRACEVIEWER_VK_QFILE_MODEL_H_
 
-#include "glv_trace_packet_identifiers.h"
-#include "glvdebug_QTraceFileModel.h"
+#include "vktrace_trace_packet_identifiers.h"
+#include "vktraceviewer_QTraceFileModel.h"
 #include <QObject>
 
-class glvdebug_vk_QFileModel : public glvdebug_QTraceFileModel
+class vktraceviewer_vk_QFileModel : public vktraceviewer_QTraceFileModel
 {
     Q_OBJECT
 public:
-    glvdebug_vk_QFileModel(QObject * parent, glvdebug_trace_file_info *);
-    virtual ~glvdebug_vk_QFileModel();
+    vktraceviewer_vk_QFileModel(QObject * parent, vktraceviewer_trace_file_info *);
+    virtual ~vktraceviewer_vk_QFileModel();
 
-    virtual QString get_packet_string(const glv_trace_packet_header* pHeader) const;
-    virtual QString get_packet_string_multiline(const glv_trace_packet_header* pHeader) const;
+    virtual QString get_packet_string(const vktrace_trace_packet_header* pHeader) const;
+    virtual QString get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const;
 
-    virtual bool isDrawCall(const GLV_TRACE_PACKET_ID packetId) const;
+    virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const;
 
 };
 
-#endif //GLVDEBUG_VK_QFILE_MODEL_H_
+#endif //VKTRACEVIEWER_VK_QFILE_MODEL_H_

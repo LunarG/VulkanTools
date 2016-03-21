@@ -22,30 +22,30 @@
  *
  *************************************************************************/
 
-#include "glvdebug_vk_settings.h"
+#include "vktraceviewer_vk_settings.h"
 
 // declared as extern in header
-glvdebug_vk_settings g_vkDebugSettings;
-static glvdebug_vk_settings s_defaultVkSettings;
+vktraceviewer_vk_settings g_vkTraceViewerSettings;
+static vktraceviewer_vk_settings s_defaultVkSettings;
 
-glv_SettingInfo g_settings_info[] =
+vktrace_SettingInfo g_settings_info[] =
 {
-    { "ri", "PrintReplayInfoMsgs", GLV_SETTING_BOOL, &g_vkDebugSettings.printReplayInfoMsgs, &s_defaultVkSettings.printReplayInfoMsgs, TRUE, "Print info messages reported when replaying trace file."},
-    { "rw", "PrintReplayWarningMsgs", GLV_SETTING_BOOL, &g_vkDebugSettings.printReplayWarningMsgs, &s_defaultVkSettings.printReplayWarningMsgs, TRUE, "Print warning messages reported when replaying trace file."},
-    { "re", "PrintReplayErrorMsgs", GLV_SETTING_BOOL, &g_vkDebugSettings.printReplayErrorMsgs, &s_defaultVkSettings.printReplayErrorMsgs, TRUE, "Print error messages reported when replaying trace file."},
-    { "pi", "PauseOnReplayInfo", GLV_SETTING_BOOL, &g_vkDebugSettings.pauseOnReplayInfo, &s_defaultVkSettings.pauseOnReplayInfo, TRUE, "Pause replay if an info message is reported."},
-    { "pw", "PauseOnReplayWarning", GLV_SETTING_BOOL, &g_vkDebugSettings.pauseOnReplayWarning, &s_defaultVkSettings.pauseOnReplayWarning, TRUE, "Pause replay if a warning message is reported."},
-    { "pe", "PauseOnReplayError", GLV_SETTING_BOOL, &g_vkDebugSettings.pauseOnReplayError, &s_defaultVkSettings.pauseOnReplayError, TRUE, "Pause replay if an error message is reported."},
-    { "gf", "GroupByFrame", GLV_SETTING_BOOL, &g_vkDebugSettings.groupByFrame, &s_defaultVkSettings.groupByFrame, TRUE, "Group API calls by frame."},
-    { "gt", "GroupByThread", GLV_SETTING_BOOL, &g_vkDebugSettings.groupByThread, &s_defaultVkSettings.groupByThread, TRUE, "Group API calls by the CPU thread Id on which they executed."},
-    { "rw", "ReplayWindowWidth", GLV_SETTING_INT, &g_vkDebugSettings.replay_window_width, &s_defaultVkSettings.replay_window_width, TRUE, "Width of replay window on startup."},
-    { "rh", "ReplayWindowHeight", GLV_SETTING_INT, &g_vkDebugSettings.replay_window_height, &s_defaultVkSettings.replay_window_height, TRUE, "Height of replay window on startup."},
-    { "sr", "SeparateReplayWindow", GLV_SETTING_BOOL, &g_vkDebugSettings.separate_replay_window, &s_defaultVkSettings.separate_replay_window, TRUE, "Use a separate replay window."},
+    { "ri", "PrintReplayInfoMsgs", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.printReplayInfoMsgs, &s_defaultVkSettings.printReplayInfoMsgs, TRUE, "Print info messages reported when replaying trace file."},
+    { "rw", "PrintReplayWarningMsgs", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.printReplayWarningMsgs, &s_defaultVkSettings.printReplayWarningMsgs, TRUE, "Print warning messages reported when replaying trace file."},
+    { "re", "PrintReplayErrorMsgs", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.printReplayErrorMsgs, &s_defaultVkSettings.printReplayErrorMsgs, TRUE, "Print error messages reported when replaying trace file."},
+    { "pi", "PauseOnReplayInfo", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.pauseOnReplayInfo, &s_defaultVkSettings.pauseOnReplayInfo, TRUE, "Pause replay if an info message is reported."},
+    { "pw", "PauseOnReplayWarning", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.pauseOnReplayWarning, &s_defaultVkSettings.pauseOnReplayWarning, TRUE, "Pause replay if a warning message is reported."},
+    { "pe", "PauseOnReplayError", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.pauseOnReplayError, &s_defaultVkSettings.pauseOnReplayError, TRUE, "Pause replay if an error message is reported."},
+    { "gf", "GroupByFrame", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.groupByFrame, &s_defaultVkSettings.groupByFrame, TRUE, "Group API calls by frame."},
+    { "gt", "GroupByThread", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.groupByThread, &s_defaultVkSettings.groupByThread, TRUE, "Group API calls by the CPU thread Id on which they executed."},
+    { "rw", "ReplayWindowWidth", VKTRACE_SETTING_INT, &g_vkTraceViewerSettings.replay_window_width, &s_defaultVkSettings.replay_window_width, TRUE, "Width of replay window on startup."},
+    { "rh", "ReplayWindowHeight", VKTRACE_SETTING_INT, &g_vkTraceViewerSettings.replay_window_height, &s_defaultVkSettings.replay_window_height, TRUE, "Height of replay window on startup."},
+    { "sr", "SeparateReplayWindow", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.separate_replay_window, &s_defaultVkSettings.separate_replay_window, TRUE, "Use a separate replay window."},
 };
 
-glv_SettingGroup g_vkDebugSettingGroup =
+vktrace_SettingGroup g_vkTraceViewerSettingGroup =
 {
-    "glvdebug_vk",
+    "vktraceviewer_vk",
     sizeof(g_settings_info) / sizeof(g_settings_info[0]),
     &g_settings_info[0]
 };

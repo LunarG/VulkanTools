@@ -283,14 +283,14 @@ void vktraceviewer::set_calltree_model(vktraceviewer_QTraceFileModel* pTraceFile
         ui->treeView->setColumnWidth(vktraceviewer_QTraceFileModel::Column_PacketIndex, width * 0.05);
         ui->treeView->setColumnWidth(vktraceviewer_QTraceFileModel::Column_CpuDuration, width * 0.08);
         firstEqualWidthColumnIndex = m_pTraceFileModel->columnCount();
-        fSharedEqualWidthPct = 1.0 - 0.05 - 0.08;
+        fSharedEqualWidthPct = 1.0f - 0.05f - 0.08f;
     }
     else
     {
         // entrypoint names get the most space
         ui->treeView->setColumnWidth(vktraceviewer_QTraceFileModel::Column_EntrypointName, width * 0.55);
         firstEqualWidthColumnIndex = 1;
-        fSharedEqualWidthPct = 1.0 - 0.55;
+        fSharedEqualWidthPct = 1.0f - 0.55f;
     }
 
     // the remaining space is divided among visible columns

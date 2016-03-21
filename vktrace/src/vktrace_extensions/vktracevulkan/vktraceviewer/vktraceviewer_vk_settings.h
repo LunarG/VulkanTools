@@ -21,14 +21,14 @@
  * THE SOFTWARE.
  *
  *************************************************************************/
-#ifndef GLVDEBUG_VK_SETTINGS_H
-#define GLVDEBUG_VK_SETTINGS_H
+#ifndef VKTRACEVIEWER_VK_SETTINGS_H
+#define VKTRACEVIEWER_VK_SETTINGS_H
 
 extern "C" {
-#include "glv_settings.h"
+#include "vktrace_settings.h"
 }
 
-typedef struct glvdebug_vk_settings
+typedef struct vktraceviewer_vk_settings
 {
     BOOL printReplayInfoMsgs;
     BOOL printReplayWarningMsgs;
@@ -41,12 +41,12 @@ typedef struct glvdebug_vk_settings
     int replay_window_width;
     int replay_window_height;
     BOOL separate_replay_window;
-} glvdebug_vk_settings;
+} vktraceviewer_vk_settings;
 
-extern glvdebug_vk_settings g_vkDebugSettings;
-extern glv_SettingGroup g_vkDebugSettingGroup;
+extern vktraceviewer_vk_settings g_vkTraceViewerSettings;
+extern vktrace_SettingGroup g_vkTraceViewerSettingGroup;
 
 void initialize_default_settings();
 
-#endif // GLVDEBUG_VK_SETTINGS_H
+#endif // VKTRACEVIEWER_VK_SETTINGS_H
 

@@ -23,70 +23,71 @@
  *
  **************************************************************************/
 extern "C" {
-#include "glv_trace_packet_utils.h"
-#include "glv_vk_packet_id.h"
+#include "vktrace_trace_packet_utils.h"
+#include "vktrace_vk_packet_id.h"
 }
 
-#include "glvdebug_vk_qfile_model.h"
+#include "vktraceviewer_vk_qfile_model.h"
 
-glvdebug_vk_QFileModel::glvdebug_vk_QFileModel(QObject* parent, glvdebug_trace_file_info* pTraceFileInfo)
-        : glvdebug_QTraceFileModel(parent, pTraceFileInfo)
+vktraceviewer_vk_QFileModel::vktraceviewer_vk_QFileModel(QObject* parent, vktraceviewer_trace_file_info* pTraceFileInfo)
+        : vktraceviewer_QTraceFileModel(parent, pTraceFileInfo)
 {
 }
 
-glvdebug_vk_QFileModel::~glvdebug_vk_QFileModel()
+vktraceviewer_vk_QFileModel::~vktraceviewer_vk_QFileModel()
 {
 }
 
-QString glvdebug_vk_QFileModel::get_packet_string(const glv_trace_packet_header* pHeader) const
+QString vktraceviewer_vk_QFileModel::get_packet_string(const vktrace_trace_packet_header* pHeader) const
 {
-    if (pHeader->packet_id < GLV_TPI_BEGIN_API_HERE)
+    if (pHeader->packet_id < VKTRACE_TPI_BEGIN_API_HERE)
     {
-        return glvdebug_QTraceFileModel::get_packet_string(pHeader);
+        return vktraceviewer_QTraceFileModel::get_packet_string(pHeader);
     }
     else
     {
-        QString packetString = glv_stringify_vk_packet_id((const enum GLV_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader, FALSE);
+        QString packetString = vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id);
+//        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader, FALSE);
         return packetString;
     }
 }
 
-QString glvdebug_vk_QFileModel::get_packet_string_multiline(const glv_trace_packet_header* pHeader) const
+QString vktraceviewer_vk_QFileModel::get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const
 {
-    if (pHeader->packet_id < GLV_TPI_BEGIN_API_HERE)
+    if (pHeader->packet_id < VKTRACE_TPI_BEGIN_API_HERE)
     {
-        return glvdebug_QTraceFileModel::get_packet_string_multiline(pHeader);
+        return vktraceviewer_QTraceFileModel::get_packet_string_multiline(pHeader);
     }
     else
     {
-        QString packetString = glv_stringify_vk_packet_id((const enum GLV_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader, TRUE);
+        QString packetString = vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id);
+//        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader, TRUE);
         return packetString;
     }
 }
 
-bool glvdebug_vk_QFileModel::isDrawCall(const GLV_TRACE_PACKET_ID packetId) const
+bool vktraceviewer_vk_QFileModel::isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const
 {
     // TODO : Update this based on latest API updates
     bool isDraw = false;
-    switch((GLV_TRACE_PACKET_ID_VK)packetId)
+    switch((VKTRACE_TRACE_PACKET_ID_VK)packetId)
     {
-        case GLV_TPI_VK_vkCmdDraw:
-        case GLV_TPI_VK_vkCmdDrawIndexed:
-        case GLV_TPI_VK_vkCmdDrawIndirect:
-        case GLV_TPI_VK_vkCmdDrawIndexedIndirect:
-        case GLV_TPI_VK_vkCmdDispatch:
-        case GLV_TPI_VK_vkCmdDispatchIndirect:
-        case GLV_TPI_VK_vkCmdCopyBuffer:
-        case GLV_TPI_VK_vkCmdCopyImage:
-        case GLV_TPI_VK_vkCmdCopyBufferToImage:
-        case GLV_TPI_VK_vkCmdCopyImageToBuffer:
-        case GLV_TPI_VK_vkCmdUpdateBuffer:
-        case GLV_TPI_VK_vkCmdFillBuffer:
-        case GLV_TPI_VK_vkCmdClearColorImage:
-        case GLV_TPI_VK_vkCmdClearDepthStencilImage:
-        case GLV_TPI_VK_vkCmdClearColorAttachment:
-        case GLV_TPI_VK_vkCmdClearDepthStencilAttachment:
-        case GLV_TPI_VK_vkCmdResolveImage:
+        case VKTRACE_TPI_VK_vkCmdDraw:
+        case VKTRACE_TPI_VK_vkCmdDrawIndexed:
+        case VKTRACE_TPI_VK_vkCmdDrawIndirect:
+        case VKTRACE_TPI_VK_vkCmdDrawIndexedIndirect:
+        case VKTRACE_TPI_VK_vkCmdDispatch:
+        case VKTRACE_TPI_VK_vkCmdDispatchIndirect:
+        case VKTRACE_TPI_VK_vkCmdCopyBuffer:
+        case VKTRACE_TPI_VK_vkCmdCopyImage:
+        case VKTRACE_TPI_VK_vkCmdCopyBufferToImage:
+        case VKTRACE_TPI_VK_vkCmdCopyImageToBuffer:
+        case VKTRACE_TPI_VK_vkCmdUpdateBuffer:
+        case VKTRACE_TPI_VK_vkCmdFillBuffer:
+        case VKTRACE_TPI_VK_vkCmdClearColorImage:
+        case VKTRACE_TPI_VK_vkCmdClearDepthStencilImage:
+        case VKTRACE_TPI_VK_vkCmdClearAttachments:
+        case VKTRACE_TPI_VK_vkCmdResolveImage:
         {
             isDraw = true;
             break;

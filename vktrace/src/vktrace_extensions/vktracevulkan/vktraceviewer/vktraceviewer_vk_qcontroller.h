@@ -21,50 +21,50 @@
  * THE SOFTWARE.
  *
  *************************************************************************/
-#ifndef GLVDEBUG_VK_QCONTROLLER_H
-#define GLVDEBUG_VK_QCONTROLLER_H
+#ifndef VKTRACEVIEWER_VK_QCONTROLLER_H
+#define VKTRACEVIEWER_VK_QCONTROLLER_H
 
-#include "glv_trace_packet_identifiers.h"
-#include "glvdebug_vk_qgroupframesproxymodel.h"
-#include "glvdebug_qgroupthreadsproxymodel.h"
-#include "glvdebug_qsvgviewer.h"
-#include "glvdebug_QReplayWidget.h"
-#include "glvdebug_QReplayWorker.h"
-#include "glvdebug_vk_qfile_model.h"
-#include "glvdebug_controller.h"
+#include "vktrace_trace_packet_identifiers.h"
+#include "vktraceviewer_vk_qgroupframesproxymodel.h"
+#include "vktraceviewer_qgroupthreadsproxymodel.h"
+#include "vktraceviewer_qsvgviewer.h"
+#include "vktraceviewer_QReplayWidget.h"
+#include "vktraceviewer_QReplayWorker.h"
+#include "vktraceviewer_vk_qfile_model.h"
+#include "vktraceviewer_controller.h"
 #include <QLabel>
 #include <QScrollArea>
 
 
-class glvdebug_vk_QController : public glvdebug_QController
+class vktraceviewer_vk_QController : public vktraceviewer_QController
 {
     Q_OBJECT
 public:
-    glvdebug_vk_QController();
-    virtual ~glvdebug_vk_QController();
+    vktraceviewer_vk_QController();
+    virtual ~vktraceviewer_vk_QController();
 
-    virtual glv_trace_packet_header* InterpretTracePacket(glv_trace_packet_header* pHeader);
-    virtual bool LoadTraceFile(glvdebug_trace_file_info* pTraceFileInfo, glvdebug_view* pView);
+    virtual vktrace_trace_packet_header* InterpretTracePacket(vktrace_trace_packet_header* pHeader);
+    virtual bool LoadTraceFile(vktraceviewer_trace_file_info* pTraceFileInfo, vktraceviewer_view* pView);
     virtual void UnloadTraceFile(void);
 
-    void setView(glvdebug_view* pView)
+    void setView(vktraceviewer_view* pView)
     {
         m_pView = pView;
         m_replayWorker.setView(pView);
     }
 
-    virtual glv_SettingGroup* GetSettings();
-    virtual void UpdateFromSettings(glv_SettingGroup *pGroups, unsigned int numGroups);
+    virtual vktrace_SettingGroup* GetSettings();
+    virtual void UpdateFromSettings(vktrace_SettingGroup *pGroups, unsigned int numGroups);
 
     virtual const char* GetPacketIdString(uint16_t packetId);
 
 public slots:
-    void OnOutputMessage(GlvLogLevel level, const QString& msg);
+    void OnOutputMessage(VktraceLogLevel level, const QString& msg);
 
 signals:
     // Inherited from glvdebug_QController
-    void OutputMessage(GlvLogLevel level, const QString& message);
-    void OutputMessage(GlvLogLevel level, uint64_t packetIndex, const QString& message);
+    void OutputMessage(VktraceLogLevel level, const QString& message);
+    void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message);
 
 protected slots:
     void onReplayStarted();
@@ -75,19 +75,19 @@ protected slots:
     void onReplayProgressUpdate(uint64_t packetArrayIndex);
 
 private:
-    glvdebug_view* m_pView;
-    glvdebug_trace_file_info* m_pTraceFileInfo;
-    glvdebug_QReplayWorker m_replayWorker;
-    glvdebug_qsvgviewer* m_pDrawStateDiagram;
-    glvdebug_qsvgviewer* m_pCommandBuffersDiagram;
-    glvdebug_QReplayWidget* m_pReplayWidget;
-    glvdebug_vk_QFileModel* m_pTraceFileModel;
-    glvdebug_vk_QGroupFramesProxyModel m_groupByFramesProxy;
-    glvdebug_QGroupThreadsProxyModel m_groupByThreadsProxy;
+    vktraceviewer_view* m_pView;
+    vktraceviewer_trace_file_info* m_pTraceFileInfo;
+    vktraceviewer_QReplayWorker m_replayWorker;
+    vktraceviewer_qsvgviewer* m_pDrawStateDiagram;
+    vktraceviewer_qsvgviewer* m_pCommandBuffersDiagram;
+    vktraceviewer_QReplayWidget* m_pReplayWidget;
+    vktraceviewer_vk_QFileModel* m_pTraceFileModel;
+    vktraceviewer_vk_QGroupFramesProxyModel m_groupByFramesProxy;
+    vktraceviewer_QGroupThreadsProxyModel m_groupByThreadsProxy;
 
     void setStateWidgetsEnabled(bool bEnabled);
     void updateCallTreeBasedOnSettings();
     void deleteStateDumps() const;
 };
 
-#endif // GLVDEBUG_VK_QCONTROLLER_H
+#endif // VKTRACEVIEWER_VK_QCONTROLLER_H

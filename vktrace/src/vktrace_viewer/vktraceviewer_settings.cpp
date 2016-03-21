@@ -31,7 +31,7 @@ vktrace_SettingInfo g_settings_info[] =
     { "", "GenTraceApplication", VKTRACE_SETTING_STRING, &g_settings.gentrace_application, &s_default_settings.gentrace_application, FALSE, "The most recent application path in the 'Generate Trace' dialog."},
     { "", "GenTraceArguments", VKTRACE_SETTING_STRING, &g_settings.gentrace_arguments, &s_default_settings.gentrace_arguments, FALSE, "The most recent application arguments in the 'Generate Trace' dialog."},
     { "", "GenTraceWorkingDir", VKTRACE_SETTING_STRING, &g_settings.gentrace_working_dir, &s_default_settings.gentrace_working_dir, FALSE, "The most recent working directory in the 'Generate Trace' dialog."},
-    { "", "GenTraceTracerLib", VKTRACE_SETTING_STRING, &g_settings.gentrace_tracer_lib, &s_default_settings.gentrace_tracer_lib, FALSE, "The most recent tracer library in the 'Generate Trace' dialog."},
+    { "", "GenTraceVkLayerPath", VKTRACE_SETTING_STRING, &g_settings.gentrace_vk_layer_path, &s_default_settings.gentrace_vk_layer_path, FALSE, "The most recent VK_LAYER_PATH used in the 'Generate Trace' dialog."},
     { "", "GenTraceOutputFile", VKTRACE_SETTING_STRING, &g_settings.gentrace_output_file, &s_default_settings.gentrace_output_file, FALSE, "The most recent output trace file in the 'Generate Trace' dialog."},
 
     { "", "SettingsDialogWidth", VKTRACE_SETTING_INT, &g_settings.settings_dialog_width, &s_default_settings.settings_dialog_width, TRUE, "Width of VkTraceViewer settings dialog when opened."},
@@ -88,7 +88,7 @@ bool vktraceviewer_initialize_settings(int argc, char* argv[])
     s_default_settings.gentrace_application = NULL;
     s_default_settings.gentrace_arguments = NULL;
     s_default_settings.gentrace_working_dir = NULL;
-    s_default_settings.gentrace_tracer_lib = NULL;
+    s_default_settings.gentrace_vk_layer_path = NULL;
     s_default_settings.gentrace_output_file = NULL;
 
     // This seems to be a reasonable default size for the dialog.

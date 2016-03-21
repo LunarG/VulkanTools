@@ -44,7 +44,7 @@ typedef struct vktraceviewer_settings
     char * gentrace_application;
     char * gentrace_arguments;
     char * gentrace_working_dir;
-    char * gentrace_tracer_lib;
+    char * gentrace_vk_layer_path;
     char * gentrace_output_file;
     int settings_dialog_width;
     int settings_dialog_height;

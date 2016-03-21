@@ -21,12 +21,12 @@
  * THE SOFTWARE.
  *
  *************************************************************************/
-#include "glvdebug_vk_settings.h"
-#include "glvdebug_vk_qcontroller.h"
+#include "vktraceviewer_vk_settings.h"
+#include "vktraceviewer_vk_qcontroller.h"
 
 extern "C" {
-#include "glv_trace_packet_utils.h"
-#include "glv_vk_packet_id.h"
+#include "vktrace_trace_packet_utils.h"
+#include "vktrace_vk_packet_id.h"
 }
 
 #include <assert.h>
@@ -36,12 +36,12 @@ extern "C" {
 #include <QCoreApplication>
 #include <QProcess>
 
-#include "glvdebug_view.h"
-#include "glvreplay_seq.h"
+#include "vktraceviewer_view.h"
+#include "vkreplay_seq.h"
 
-static glvdebug_vk_QController* s_pController;
+static vktraceviewer_vk_QController* s_pController;
 
-void controllerLoggingCallback(GlvLogLevel level, const char* pMessage)
+void controllerLoggingCallback(VktraceLogLevel level, const char* pMessage)
 {
     if (s_pController != NULL)
     {
@@ -49,7 +49,7 @@ void controllerLoggingCallback(GlvLogLevel level, const char* pMessage)
     }
 }
 
-glvdebug_vk_QController::glvdebug_vk_QController()
+vktraceviewer_vk_QController::vktraceviewer_vk_QController()
     : m_pView(NULL),
       m_pTraceFileInfo(NULL),
       m_pDrawStateDiagram(NULL),
@@ -58,30 +58,30 @@ glvdebug_vk_QController::glvdebug_vk_QController()
       m_pTraceFileModel(NULL)
 {
     s_pController = this;
-    glv_LogSetCallback(controllerLoggingCallback);
-    glv_LogSetLevel(GLV_LOG_LEVEL_MAXIMUM);
+    vktrace_LogSetCallback(controllerLoggingCallback);
+    vktrace_LogSetLevel(VKTRACE_LOG_LEVEL_MAXIMUM);
     initialize_default_settings();
-    glv_SettingGroup_reset_defaults(&g_vkDebugSettingGroup);
+    vktrace_SettingGroup_reset_defaults(&g_vkTraceViewerSettingGroup);
 }
 
-glvdebug_vk_QController::~glvdebug_vk_QController()
+vktraceviewer_vk_QController::~vktraceviewer_vk_QController()
 {
 }
 
-glv_trace_packet_header* glvdebug_vk_QController::InterpretTracePacket(glv_trace_packet_header* pHeader)
+vktrace_trace_packet_header* vktraceviewer_vk_QController::InterpretTracePacket(vktrace_trace_packet_header* pHeader)
 {
     // Attempt to interpret the packet as a Vulkan packet
-    glv_trace_packet_header* pInterpretedHeader = interpret_trace_packet_vk(pHeader);
+    vktrace_trace_packet_header* pInterpretedHeader = interpret_trace_packet_vk(pHeader);
     if (pInterpretedHeader == NULL)
     {
-        glv_LogError("Unrecognized Vulkan packet id: %u.", pHeader->packet_id);
+        vktrace_LogError("Unrecognized Vulkan packet id: %u.", pHeader->packet_id);
     }
-    else if (pInterpretedHeader->packet_id == GLV_TPI_VK_vkApiVersion)
+    else if (pInterpretedHeader->packet_id == VKTRACE_TPI_VK_vkApiVersion)
     {
         packet_vkApiVersion* pPacket = (packet_vkApiVersion*)pInterpretedHeader->pBody;
         if (pPacket->version != VK_API_VERSION)
         {
-            glv_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the glave plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_API_VERSION, (VK_API_VERSION & 0xFFC00000) >> 22, (VK_API_VERSION & 0x003FF000) >> 12, (VK_API_VERSION & 0x00000FFF));
+            vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the VkTraceViewer plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_API_VERSION, (VK_API_VERSION & 0xFFC00000) >> 22, (VK_API_VERSION & 0x003FF000) >> 12, (VK_API_VERSION & 0x00000FFF));
             pInterpretedHeader = NULL;
         }
     }
@@ -89,7 +89,7 @@ glv_trace_packet_header* glvdebug_vk_QController::InterpretTracePacket(glv_trace
     return pInterpretedHeader;
 }
 
-bool glvdebug_vk_QController::LoadTraceFile(glvdebug_trace_file_info* pTraceFileInfo, glvdebug_view* pView)
+bool vktraceviewer_vk_QController::LoadTraceFile(vktraceviewer_trace_file_info* pTraceFileInfo, vktraceviewer_view* pView)
 {
     assert(pTraceFileInfo != NULL);
     assert(pView != NULL);
@@ -97,16 +97,16 @@ bool glvdebug_vk_QController::LoadTraceFile(glvdebug_trace_file_info* pTraceFile
     m_pTraceFileInfo = pTraceFileInfo;
 
     assert(m_pReplayWidget == NULL);
-    m_pReplayWidget = new glvdebug_QReplayWidget(&m_replayWorker);
+    m_pReplayWidget = new vktraceviewer_QReplayWidget(&m_replayWorker);
     if (m_pReplayWidget != NULL)
     {
         // load available replayers
         if (!m_replayWorker.load_replayers(pTraceFileInfo, m_pReplayWidget->GetReplayWindow(),
-            g_vkDebugSettings.replay_window_width,
-            g_vkDebugSettings.replay_window_height,
-            g_vkDebugSettings.separate_replay_window))
+            g_vkTraceViewerSettings.replay_window_width,
+            g_vkTraceViewerSettings.replay_window_height,
+            g_vkTraceViewerSettings.separate_replay_window))
         {
-            emit OutputMessage(GLV_LOG_ERROR, "Failed to load necessary replayers.");
+            emit OutputMessage(VKTRACE_LOG_ERROR, "Failed to load necessary replayers.");
             delete m_pReplayWidget;
             m_pReplayWidget = NULL;
         }
@@ -121,13 +121,13 @@ bool glvdebug_vk_QController::LoadTraceFile(glvdebug_trace_file_info* pTraceFile
             connect(m_pReplayWidget, SIGNAL(ReplayFinished(uint64_t)), this, SLOT(onReplayFinished(uint64_t)));
             connect(m_pReplayWidget, SIGNAL(ReplayProgressUpdate(uint64_t)), this, SLOT(onReplayProgressUpdate(uint64_t)));
 
-            connect(m_pReplayWidget, SIGNAL(OutputMessage(GlvLogLevel, const QString&)), this, SIGNAL(OutputMessage(GlvLogLevel, const QString&)));
-            connect(m_pReplayWidget, SIGNAL(OutputMessage(GlvLogLevel, uint64_t, const QString&)), this, SIGNAL(OutputMessage(GlvLogLevel, uint64_t, const QString&)));
+            connect(m_pReplayWidget, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)), this, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)));
+            connect(m_pReplayWidget, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)), this, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)));
         }
     }
 
     assert(m_pTraceFileModel == NULL);
-    m_pTraceFileModel = new glvdebug_vk_QFileModel(NULL, pTraceFileInfo);
+    m_pTraceFileModel = new vktraceviewer_vk_QFileModel(NULL, pTraceFileInfo);
     updateCallTreeBasedOnSettings();
 
     deleteStateDumps();
@@ -135,19 +135,19 @@ bool glvdebug_vk_QController::LoadTraceFile(glvdebug_trace_file_info* pTraceFile
     return true;
 }
 
-const char* glvdebug_vk_QController::GetPacketIdString(uint16_t packetId)
+const char* vktraceviewer_vk_QController::GetPacketIdString(uint16_t packetId)
 {
-    return glv_vk_packet_id_name((GLV_TRACE_PACKET_ID_VK)packetId);
+    return vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)packetId);
 }
 
-void glvdebug_vk_QController::updateCallTreeBasedOnSettings()
+void vktraceviewer_vk_QController::updateCallTreeBasedOnSettings()
 {
     if (m_pTraceFileModel == NULL)
     {
         return;
     }
 
-    if (g_vkDebugSettings.groupByFrame)
+    if (g_vkTraceViewerSettings.groupByFrame)
     {
         if (m_groupByFramesProxy.sourceModel() != m_pTraceFileModel)
         {
@@ -155,7 +155,7 @@ void glvdebug_vk_QController::updateCallTreeBasedOnSettings()
         }
         m_pView->set_calltree_model(m_pTraceFileModel, &m_groupByFramesProxy);
     }
-    else if (g_vkDebugSettings.groupByThread)
+    else if (g_vkTraceViewerSettings.groupByThread)
     {
         if (m_groupByThreadsProxy.sourceModel() != m_pTraceFileModel)
         {
@@ -169,7 +169,7 @@ void glvdebug_vk_QController::updateCallTreeBasedOnSettings()
     }
 }
 
-void glvdebug_vk_QController::deleteStateDumps() const
+void vktraceviewer_vk_QController::deleteStateDumps() const
 {
     QFile::remove("pipeline_dump.dot");
     QFile::remove("pipeline_dump.svg");
@@ -177,7 +177,7 @@ void glvdebug_vk_QController::deleteStateDumps() const
     QFile::remove("cb_dump.svg");
 }
 
-void glvdebug_vk_QController::setStateWidgetsEnabled(bool bEnabled)
+void vktraceviewer_vk_QController::setStateWidgetsEnabled(bool bEnabled)
 {
     if(m_pDrawStateDiagram != NULL)
     {
@@ -190,17 +190,17 @@ void glvdebug_vk_QController::setStateWidgetsEnabled(bool bEnabled)
     }
 }
 
-void glvdebug_vk_QController::onReplayStarted()
+void vktraceviewer_vk_QController::onReplayStarted()
 {
-    emit OutputMessage(GLV_LOG_ALWAYS, "Replay Started");
+    emit OutputMessage(VKTRACE_LOG_ALWAYS, "Replay Started");
     deleteStateDumps();
     setStateWidgetsEnabled(false);
     m_pView->on_replay_state_changed(true);
 }
 
-void glvdebug_vk_QController::onReplayPaused(uint64_t packetIndex)
+void vktraceviewer_vk_QController::onReplayPaused(uint64_t packetIndex)
 {
-    emit OutputMessage(GLV_LOG_ALWAYS, packetIndex, "Replay Paused");
+    emit OutputMessage(VKTRACE_LOG_ALWAYS, packetIndex, "Replay Paused");
     m_pView->on_replay_state_changed(false);
 
     // When paused, the replay will 'continue' from the last packet,
@@ -208,14 +208,14 @@ void glvdebug_vk_QController::onReplayPaused(uint64_t packetIndex)
     m_pView->select_call_at_packet_index(packetIndex);
 
     // Dump state data from the replayer
-    glv_replay::glv_trace_packet_replay_library* pVkReplayer = m_replayWorker.getReplayer(GLV_TID_VULKAN);
+    vktrace_replay::vktrace_trace_packet_replay_library* pVkReplayer = m_replayWorker.getReplayer(VKTRACE_TID_VULKAN);
     if (pVkReplayer != NULL)
     {
         int err;
         err = pVkReplayer->Dump();
         if (err)
         {
-            emit OutputMessage(GLV_LOG_WARNING, packetIndex, "Replayer couldn't output state data.");
+            emit OutputMessage(VKTRACE_LOG_WARNING, packetIndex, "Replayer couldn't output state data.");
         }
     }
 
@@ -233,17 +233,17 @@ void glvdebug_vk_QController::onReplayPaused(uint64_t packetIndex)
     }
     else
     {
-        emit OutputMessage(GLV_LOG_ERROR, packetIndex, "DOT not found, unable to generate state diagrams.");
+        emit OutputMessage(VKTRACE_LOG_ERROR, packetIndex, "DOT not found, unable to generate state diagrams.");
     }
 #else
-    m_pView->output_error(packetIndex, "DOT not found, unable to generate state diagrams.");
+    emit OutputMessage(VKTRACE_LOG_ERROR, packetIndex, "DOT not found, unable to generate state diagrams.");
 #endif
 
     if (QFile::exists("pipeline_dump.svg"))
     {
         if (m_pDrawStateDiagram == NULL)
         {
-            m_pDrawStateDiagram = new glvdebug_qsvgviewer();
+            m_pDrawStateDiagram = new vktraceviewer_qsvgviewer();
             m_pView->add_custom_state_viewer(m_pDrawStateDiagram, tr("Draw State"), false);
             m_pView->enable_custom_state_viewer(m_pDrawStateDiagram, false);
         }
@@ -259,7 +259,7 @@ void glvdebug_vk_QController::onReplayPaused(uint64_t packetIndex)
     {
         if (m_pCommandBuffersDiagram == NULL)
         {
-            m_pCommandBuffersDiagram = new glvdebug_qsvgviewer();
+            m_pCommandBuffersDiagram = new vktraceviewer_qsvgviewer();
             m_pView->add_custom_state_viewer(m_pCommandBuffersDiagram, tr("Command Buffers"), false);
             m_pView->enable_custom_state_viewer(m_pCommandBuffersDiagram, false);
         }
@@ -271,17 +271,17 @@ void glvdebug_vk_QController::onReplayPaused(uint64_t packetIndex)
     }
 }
 
-void glvdebug_vk_QController::onReplayContinued()
+void vktraceviewer_vk_QController::onReplayContinued()
 {
-    emit OutputMessage(GLV_LOG_ALWAYS, "Replay Continued");
+    emit OutputMessage(VKTRACE_LOG_ALWAYS, "Replay Continued");
     deleteStateDumps();
     setStateWidgetsEnabled(false);
     m_pView->on_replay_state_changed(true);
 }
 
-void glvdebug_vk_QController::onReplayStopped(uint64_t packetIndex)
+void vktraceviewer_vk_QController::onReplayStopped(uint64_t packetIndex)
 {
-    emit OutputMessage(GLV_LOG_ALWAYS, packetIndex, "Replay Stopped");
+    emit OutputMessage(VKTRACE_LOG_ALWAYS, packetIndex, "Replay Stopped");
     m_pView->on_replay_state_changed(false);
     setStateWidgetsEnabled(false);
 
@@ -290,14 +290,14 @@ void glvdebug_vk_QController::onReplayStopped(uint64_t packetIndex)
     m_pView->select_call_at_packet_index(0);
 }
 
-void glvdebug_vk_QController::onReplayProgressUpdate(uint64_t packetArrayIndex)
+void vktraceviewer_vk_QController::onReplayProgressUpdate(uint64_t packetArrayIndex)
 {
     m_pView->highlight_timeline_item(packetArrayIndex, true, true);
 }
 
-void glvdebug_vk_QController::onReplayFinished(uint64_t packetIndex)
+void vktraceviewer_vk_QController::onReplayFinished(uint64_t packetIndex)
 {
-    emit OutputMessage(GLV_LOG_ALWAYS, packetIndex, "Replay Finished");
+    emit OutputMessage(VKTRACE_LOG_ALWAYS, packetIndex, "Replay Finished");
     m_pView->on_replay_state_changed(false);
     setStateWidgetsEnabled(false);
 
@@ -305,34 +305,34 @@ void glvdebug_vk_QController::onReplayFinished(uint64_t packetIndex)
     m_pView->select_call_at_packet_index(packetIndex);
 }
 
-void glvdebug_vk_QController::OnOutputMessage(GlvLogLevel level, const QString& msg)
+void vktraceviewer_vk_QController::OnOutputMessage(VktraceLogLevel level, const QString& msg)
 {
     emit OutputMessage(level, msg);
 }
 
-glv_SettingGroup* glvdebug_vk_QController::GetSettings()
+vktrace_SettingGroup* vktraceviewer_vk_QController::GetSettings()
 {
-    return &g_vkDebugSettingGroup;
+    return &g_vkTraceViewerSettingGroup;
 }
 
-void glvdebug_vk_QController::UpdateFromSettings(glv_SettingGroup *pGroups, unsigned int numGroups)
+void vktraceviewer_vk_QController::UpdateFromSettings(vktrace_SettingGroup *pGroups, unsigned int numGroups)
 {
-    glv_SettingGroup_Apply_Overrides(&g_vkDebugSettingGroup, pGroups, numGroups);
+    vktrace_SettingGroup_Apply_Overrides(&g_vkTraceViewerSettingGroup, pGroups, numGroups);
 
-    m_replayWorker.setPrintReplayMessages(g_vkDebugSettings.printReplayInfoMsgs,
-                                          g_vkDebugSettings.printReplayWarningMsgs,
-                                          g_vkDebugSettings.printReplayErrorMsgs);
+    m_replayWorker.setPrintReplayMessages(g_vkTraceViewerSettings.printReplayInfoMsgs,
+        g_vkTraceViewerSettings.printReplayWarningMsgs,
+        g_vkTraceViewerSettings.printReplayErrorMsgs);
 
-    m_replayWorker.setPauseOnReplayMessages(g_vkDebugSettings.pauseOnReplayInfo,
-                                            g_vkDebugSettings.pauseOnReplayWarning,
-                                            g_vkDebugSettings.pauseOnReplayError);
+    m_replayWorker.setPauseOnReplayMessages(g_vkTraceViewerSettings.pauseOnReplayInfo,
+        g_vkTraceViewerSettings.pauseOnReplayWarning,
+        g_vkTraceViewerSettings.pauseOnReplayError);
 
     m_replayWorker.onSettingsUpdated(pGroups, numGroups);
 
     updateCallTreeBasedOnSettings();
 }
 
-void glvdebug_vk_QController::UnloadTraceFile(void)
+void vktraceviewer_vk_QController::UnloadTraceFile(void)
 {
     if (m_pView != NULL)
     {

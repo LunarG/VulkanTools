@@ -22,10 +22,10 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
-#ifndef GLVDEBUG_QGROUPTHREADSPROXYMODEL_H
-#define GLVDEBUG_QGROUPTHREADSPROXYMODEL_H
+#ifndef VKTRACEVIEWER_QGROUPTHREADSPROXYMODEL_H
+#define VKTRACEVIEWER_QGROUPTHREADSPROXYMODEL_H
 
-#include "glvdebug_QTraceFileModel.h"
+#include "vktraceviewer_QTraceFileModel.h"
 #include <QAbstractProxyModel>
 #include <QStandardItem>
 #include <QList>
@@ -39,17 +39,17 @@ struct GroupInfo
     QList<QPersistentModelIndex> children;
 };
 
-class glvdebug_QGroupThreadsProxyModel : public QAbstractProxyModel
+class vktraceviewer_QGroupThreadsProxyModel : public QAbstractProxyModel
 {
     Q_OBJECT
 public:
-    glvdebug_QGroupThreadsProxyModel(QObject *parent = 0)
+    vktraceviewer_QGroupThreadsProxyModel(QObject *parent = 0)
         : QAbstractProxyModel(parent)
     {
         buildGroups(NULL);
     }
 
-    virtual ~glvdebug_QGroupThreadsProxyModel()
+    virtual ~vktraceviewer_QGroupThreadsProxyModel()
     {
     }
 
@@ -58,9 +58,9 @@ public:
     {
         QAbstractProxyModel::setSourceModel(sourceModel);
 
-        if (sourceModel->inherits("glvdebug_QTraceFileModel"))
+        if (sourceModel->inherits("vktraceviewer_QTraceFileModel"))
         {
-            glvdebug_QTraceFileModel* pTFM = static_cast<glvdebug_QTraceFileModel*>(sourceModel);
+            vktraceviewer_QTraceFileModel* pTFM = static_cast<vktraceviewer_QTraceFileModel*>(sourceModel);
             buildGroups(pTFM);
         }
     }
@@ -160,7 +160,7 @@ public:
             int threadIndex = getThreadColumnIndex(proxyIndex.column());
             if (m_packetIndexToColumn[proxyIndex.row()] == threadIndex)
             {
-                return sourceModel()->index(proxyIndex.row(), glvdebug_QTraceFileModel::Column_EntrypointName);
+                return sourceModel()->index(proxyIndex.row(), vktraceviewer_QTraceFileModel::Column_EntrypointName);
             }
         }
 
@@ -210,7 +210,7 @@ private:
     }
 
     //---------------------------------------------------------------------------------------------
-    void buildGroups(glvdebug_QTraceFileModel* pTFM)
+    void buildGroups(vktraceviewer_QTraceFileModel* pTFM)
     {
         m_uniqueThreadIdMapToColumn.clear();
         m_packetIndexToColumn.clear();
@@ -220,7 +220,7 @@ private:
             // Determine how many additional columns are needed by counting the number if different thread Ids being used.
             for (int i = 0; i < pTFM->rowCount(); i++)
             {
-                glv_trace_packet_header* pHeader = (glv_trace_packet_header*)pTFM->index(i, 0).internalPointer();
+                vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)pTFM->index(i, 0).internalPointer();
                 if (pHeader != NULL)
                 {
                     if (!m_uniqueThreadIdMapToColumn.contains(pHeader->thread_id))
@@ -236,4 +236,4 @@ private:
     }
 };
 
-#endif // GLVDEBUG_QGROUPTHREADSPROXYMODEL_H
+#endif // VKTRACEVIEWER_QGROUPTHREADSPROXYMODEL_H

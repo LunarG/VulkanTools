@@ -21,19 +21,19 @@
  * THE SOFTWARE.
  *
  *************************************************************************/
-#include "glvdebug_vk_qcontroller.h"
-#include "glvdebug_controller.h"
+#include "vktraceviewer_vk_qcontroller.h"
+#include "vktraceviewer_controller.h"
 
 extern "C"
 {
-GLVTRACER_EXPORT glvdebug_QController* GLVTRACER_CDECL CreateGlvdebugQController()
+VKTRACER_EXPORT vktraceviewer_QController* VKTRACER_CDECL vtvCreateQController()
 {
-    glvdebug_vk_QController* pController = new glvdebug_vk_QController();
+    vktraceviewer_vk_QController* pController = new vktraceviewer_vk_QController();
 
-    return pController;
+    return (vktraceviewer_QController*) pController;
 }
 
-GLVTRACER_EXPORT void GLVTRACER_CDECL DeleteGlvdebugQController(glvdebug_QController* pController)
+VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController* pController)
 {
     if (pController != NULL)
     {

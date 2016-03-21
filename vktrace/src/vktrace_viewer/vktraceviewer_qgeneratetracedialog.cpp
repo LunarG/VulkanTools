@@ -109,28 +109,29 @@ vktraceviewer_QGenerateTraceDialog::vktraceviewer_QGenerateTraceDialog(QWidget *
 
     m_pGridLayout->addWidget(m_pWorkingDirLineEdit, 2, 1, 1, 2);
 
-    m_pTracerLibLabel = new QLabel(this);
-    m_pTracerLibLabel->setObjectName(QStringLiteral("m_pTracerLibLabel"));
-    m_pTracerLibLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-    m_pTracerLibLabel->setText(QApplication::translate("vktraceviewer_QGenerateTraceDialog", "<span style=\"color: red;\">*</span>Tracer Library:", 0));
+    m_pVkLayerPathLabel = new QLabel(this);
+    m_pVkLayerPathLabel->setObjectName(QStringLiteral("m_pVkLayerPathLabel"));
+    m_pVkLayerPathLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    m_pVkLayerPathLabel->setText(QApplication::translate("vktraceviewer_QGenerateTraceDialog", "<span style=\"color: red;\">*</span>VK_LAYER_PATH:", 0));
+    m_pVkLayerPathLabel->setDisabled(true);
 
-    m_pGridLayout->addWidget(m_pTracerLibLabel, 3, 0, 1, 1);
+    m_pGridLayout->addWidget(m_pVkLayerPathLabel, 3, 0, 1, 1);
 
-    m_pTracerLibLineEdit = new QLineEdit(this);
-    m_pTracerLibLineEdit->setObjectName(QStringLiteral("m_pTracerLibLineEdit"));
-    m_pTracerLibLineEdit->setText(QString());
+    m_pVkLayerPathLineEdit = new QLineEdit(this);
+    m_pVkLayerPathLineEdit->setObjectName(QStringLiteral("m_pVkLayerPathLineEdit"));
+    m_pVkLayerPathLineEdit->setText(QString());
 
-    m_pGridLayout->addWidget(m_pTracerLibLineEdit, 3, 1, 1, 1);
+    m_pGridLayout->addWidget(m_pVkLayerPathLineEdit, 3, 1, 1, 1);
 
-    m_pTracerLibButton = new QPushButton(this);
-    m_pTracerLibButton->setObjectName(QStringLiteral("m_pTracerLibButton"));
-    sizePolicy.setHeightForWidth(m_pTracerLibButton->sizePolicy().hasHeightForWidth());
-    m_pTracerLibButton->setSizePolicy(sizePolicy);
-    m_pTracerLibButton->setMinimumSize(QSize(0, 0));
-    m_pTracerLibButton->setMaximumSize(QSize(20, 16777215));
-    m_pTracerLibButton->setText(QApplication::translate("vktraceviewer_QGenerateTraceDialog", "...", 0));
+    m_pVkLayerPathButton = new QPushButton(this);
+    m_pVkLayerPathButton->setObjectName(QStringLiteral("m_pVkLayerPathButton"));
+    sizePolicy.setHeightForWidth(m_pVkLayerPathButton->sizePolicy().hasHeightForWidth());
+    m_pVkLayerPathButton->setSizePolicy(sizePolicy);
+    m_pVkLayerPathButton->setMinimumSize(QSize(0, 0));
+    m_pVkLayerPathButton->setMaximumSize(QSize(20, 16777215));
+    m_pVkLayerPathButton->setText(QApplication::translate("vktraceviewer_QGenerateTraceDialog", "...", 0));
 
-    m_pGridLayout->addWidget(m_pTracerLibButton, 3, 2, 1, 1);
+    m_pGridLayout->addWidget(m_pVkLayerPathButton, 3, 2, 1, 1);
 
     m_pTracefileLabel = new QLabel(this);
     m_pTracefileLabel->setObjectName(QStringLiteral("m_pTracefileLabel"));
@@ -198,10 +199,10 @@ vktraceviewer_QGenerateTraceDialog::vktraceviewer_QGenerateTraceDialog(QWidget *
     connect(m_pCancelButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(m_pOkButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_pFindApplicationButton, SIGNAL(clicked()), this, SLOT(on_findApplicationButton_clicked()));
-    connect(m_pTracerLibButton, SIGNAL(clicked()), this, SLOT(on_tracerLibButton_clicked()));
+    connect(m_pVkLayerPathButton, SIGNAL(clicked()), this, SLOT(on_vkLayerPathButton_clicked()));
     connect(m_pFindTraceFileButton, SIGNAL(clicked()), this, SLOT(on_findTraceFileButton_clicked()));
     connect(m_pApplicationLineEdit, SIGNAL(textChanged(QString)), SLOT(on_applicationLineEdit_textChanged(QString)));
-    connect(m_pTracerLibLineEdit, SIGNAL(textChanged(QString)), SLOT(on_tracerLibLineEdit_textChanged(QString)));
+    connect(m_pVkLayerPathLineEdit, SIGNAL(textChanged(QString)), SLOT(on_vkLayerPathLineEdit_textChanged(QString)));
     connect(m_pTraceFileLineEdit, SIGNAL(textChanged(QString)), SLOT(on_traceFileLineEdit_textChanged(QString)));
 }
 
@@ -223,9 +224,18 @@ int vktraceviewer_QGenerateTraceDialog::exec()
     {
         m_pWorkingDirLineEdit->setText(QString(g_settings.gentrace_working_dir));
     }
-    if (g_settings.gentrace_tracer_lib != NULL)
+
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    if (environment.contains("VK_LAYER_PATH"))
     {
-        m_pTracerLibLineEdit->setText(QString(g_settings.gentrace_tracer_lib));
+        m_pVkLayerPathLineEdit->setText(QString(environment.value("VK_LAYER_PATH")));
+    }
+    else
+    {
+        if (g_settings.gentrace_vk_layer_path != NULL)
+        {
+            m_pVkLayerPathLineEdit->setText(QString(g_settings.gentrace_vk_layer_path));
+        }
     }
     if (g_settings.gentrace_output_file != NULL)
     {
@@ -262,7 +272,7 @@ void vktraceviewer_QGenerateTraceDialog::on_applicationLineEdit_textChanged(cons
     check_inputs();
 }
 
-void vktraceviewer_QGenerateTraceDialog::on_tracerLibLineEdit_textChanged(const QString &text)
+void vktraceviewer_QGenerateTraceDialog::on_vkLayerPathLineEdit_textChanged(const QString &text)
 {
     check_inputs();
 }
@@ -276,23 +286,23 @@ void vktraceviewer_QGenerateTraceDialog::check_inputs()
 {
     bool applicationFileEntered = m_pApplicationLineEdit->text().size() != 0;
     bool traceFileEntered = m_pTraceFileLineEdit->text().size() != 0;
-    bool tracerLibEntered = m_pTracerLibLineEdit->text().size() != 0;
-    m_pOkButton->setEnabled(applicationFileEntered && traceFileEntered && tracerLibEntered);
+    bool vkLayerPathEntered = m_pVkLayerPathLineEdit->text().size() != 0;
+    m_pOkButton->setEnabled(applicationFileEntered && traceFileEntered && vkLayerPathEntered);
 }
 
-void vktraceviewer_QGenerateTraceDialog::on_tracerLibButton_clicked()
+void vktraceviewer_QGenerateTraceDialog::on_vkLayerPathButton_clicked()
 {
     // open file dialog
-    QString suggestedName = m_pTracerLibLineEdit->text();
+    QString suggestedName = m_pVkLayerPathLineEdit->text();
     if (suggestedName.isEmpty())
     {
         suggestedName = QCoreApplication::applicationDirPath();
     }
 
-    QString selectedName = QFileDialog::getOpenFileName(this, tr("Pick Tracer to Use"), suggestedName, "Libraries (*.so *.dll)");
+    QString selectedName = QFileDialog::getExistingDirectory(this, tr("Find VK_LAYER_PATH Directory"), suggestedName, 0);
     if (!selectedName.isEmpty())
     {
-        m_pTracerLibLineEdit->setText(selectedName);
+        m_pVkLayerPathLineEdit->setText(selectedName);
     }
 }
 
@@ -323,7 +333,7 @@ bool vktraceviewer_QGenerateTraceDialog::launch_application_to_generate_trace()
     QString application = m_pApplicationLineEdit->text();
     QString arguments = m_pArgumentsLineEdit->text();
     QString workingDirectory = m_pWorkingDirLineEdit->text();
-    QString tracerLibrary = m_pTracerLibLineEdit->text();
+    QString vkLayerPath = m_pVkLayerPathLineEdit->text();
     QString outputTraceFile = get_trace_file_path();
 
     // update settings
@@ -345,11 +355,11 @@ bool vktraceviewer_QGenerateTraceDialog::launch_application_to_generate_trace()
     }
     g_settings.gentrace_working_dir = vktrace_allocate_and_copy(workingDirectory.toStdString().c_str());
 
-    if (g_settings.gentrace_tracer_lib != NULL)
+    if (g_settings.gentrace_vk_layer_path != NULL)
     {
-        vktrace_free(g_settings.gentrace_tracer_lib);
+        vktrace_free(g_settings.gentrace_vk_layer_path);
     }
-    g_settings.gentrace_tracer_lib = vktrace_allocate_and_copy(tracerLibrary.toStdString().c_str());
+    g_settings.gentrace_vk_layer_path = vktrace_allocate_and_copy(vkLayerPath.toStdString().c_str());
 
     if (g_settings.gentrace_output_file != NULL)
     {
@@ -359,6 +369,7 @@ bool vktraceviewer_QGenerateTraceDialog::launch_application_to_generate_trace()
     vktraceviewer_settings_updated();
 
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert("VK_LAYER_PATH", vkLayerPath);
 
     m_pGenerateTraceProcess = new QProcess();
     connect(m_pGenerateTraceProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(on_readStandardOutput()));

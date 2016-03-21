@@ -69,9 +69,9 @@ private
 slots:
     void on_applicationLineEdit_textChanged(const QString &text);
     void on_traceFileLineEdit_textChanged(const QString &text);
-    void on_tracerLibLineEdit_textChanged(const QString &text);
+    void on_vkLayerPathLineEdit_textChanged(const QString &text);
     void on_findApplicationButton_clicked();
-    void on_tracerLibButton_clicked();
+    void on_vkLayerPathButton_clicked();
     void on_findTraceFileButton_clicked();
 
     void on_readStandardOutput();
@@ -90,9 +90,9 @@ private:
     QLineEdit *m_pArgumentsLineEdit;
     QLabel *m_pWorkingDirLabel;
     QLineEdit *m_pWorkingDirLineEdit;
-    QLabel *m_pTracerLibLabel;
-    QLineEdit *m_pTracerLibLineEdit;
-    QPushButton *m_pTracerLibButton;
+    QLabel *m_pVkLayerPathLabel;
+    QLineEdit *m_pVkLayerPathLineEdit;
+    QPushButton *m_pVkLayerPathButton;
     QLabel *m_pTracefileLabel;
     QLineEdit *m_pTraceFileLineEdit;
     QPushButton *m_pFindTraceFileButton;
