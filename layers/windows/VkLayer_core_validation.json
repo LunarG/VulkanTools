@@ -1,9 +1,9 @@
 {
     "file_format_version" : "1.0.0",
     "layer" : {
-        "name": "VK_LAYER_LUNARG_draw_state",
+        "name": "VK_LAYER_LUNARG_core_validation",
         "type": "GLOBAL",
-        "library_path": "./libVkLayer_draw_state.so",
+        "library_path": ".\\VkLayer_core_validation.dll",
         "api_version": "1.0.5",
         "implementation_version": "1",
         "description": "LunarG Validation Layer",

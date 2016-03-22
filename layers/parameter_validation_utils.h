@@ -29,16 +29,30 @@
  * Author: Dustin Graves <dustin@lunarg.com>
  */
 
-#ifndef PARAM_CHECKER_UTILS_H
-#define PARAM_CHECKER_UTILS_H
+#ifndef PARAMETER_VALIDATION_UTILS_H
+#define PARAMETER_VALIDATION_UTILS_H
+
+#include <algorithm>
+#include <string>
 
 #include "vulkan/vulkan.h"
+#include "vk_enum_string_helper.h"
 #include "vk_layer_logging.h"
+
+namespace {
+struct GenericHeader {
+    VkStructureType sType;
+    const void *pNext;
+};
+}
+
+// String returned by string_VkStructureType for an unrecognized type
+const std::string UnsupportedStructureTypeString = "Unhandled VkStructureType";
 
 /**
  * Validate a required pointer.
  *
- * Verify that a required pointer is not NULL;
+ * Verify that a required pointer is not NULL.
  *
  * @param report_data debug_report_data object for routing validation messages.
  * @param apiName Name of API call being validated.
@@ -305,4 +319,59 @@ static VkBool32 validate_string_array(debug_report_data *report_data, const char
     return skipCall;
 }
 
-#endif // PARAM_CHECKER_UTILS_H
+/**
+ * Validate a structure's pNext member.
+ *
+ * Verify that the specified pNext value points to the head of a list of
+ * allowed extension structures.  If no extension structures are allowed,
+ * verify that pNext is null.
+ *
+ * @param report_data debug_report_data object for routing validation messages.
+ * @param apiName Name of API call being validated.
+ * @param parameterName Name of parameter being validated.
+ * @param allowedStructNames Names of allowed structs.
+ * @param next Pointer to validate.
+ * @param allowedTypeCount total number of allowed structure types.
+ * @param allowedTypes array of strcuture types allowed for pNext.
+ * @return Boolean value indicating that the call should be skipped.
+ */
+static VkBool32 validate_struct_pnext(debug_report_data *report_data, const char *apiName, const char *parameterName,
+                                      const char *allowedStructNames, const void *next, size_t allowedTypeCount,
+                                      const VkStructureType *allowedTypes) {
+    VkBool32 skipCall = VK_FALSE;
+
+    if (next != NULL) {
+        if (allowedTypeCount == 0) {
+            skipCall |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__, 1,
+                                "PARAMCHECK", "%s: value of %s must be NULL", apiName, parameterName);
+        } else {
+            const VkStructureType *start = allowedTypes;
+            const VkStructureType *end = allowedTypes + allowedTypeCount;
+            const GenericHeader *current = reinterpret_cast<const GenericHeader *>(next);
+
+            while (current != NULL) {
+                if (std::find(start, end, current->sType) == end) {
+                    std::string typeName = string_VkStructureType(current->sType);
+
+                    if (typeName == UnsupportedStructureTypeString) {
+                        skipCall |= log_msg(
+                            report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__, 1, "PARAMCHECK",
+                            "%s: %s chain includes a structure with unexpected VkStructureType (%d); Allowed structures are [%s]",
+                            apiName, parameterName, current->sType, allowedStructNames);
+                    } else {
+                        skipCall |= log_msg(
+                            report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__, 1, "PARAMCHECK",
+                            "%s: %s chain includes a structure with unexpected VkStructureType %s; Allowed structures are [%s]",
+                            apiName, parameterName, typeName.c_str(), allowedStructNames);
+                    }
+                }
+
+                current = reinterpret_cast<const GenericHeader *>(current->pNext);
+            }
+        }
+    }
+
+    return skipCall;
+}
+
+#endif // PARAMETER_VALIDATION_UTILS_H

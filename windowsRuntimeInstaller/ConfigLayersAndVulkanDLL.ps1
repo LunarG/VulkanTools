@@ -49,6 +49,16 @@ Param(
 $vulkandll = "vulkan-"+$majorabi+".dll"
 $windrive  = $env:SYSTEMDRIVE
 $winfolder = $env:SYSTEMROOT
+$script:VulkanDllList=@()
+
+function notNumeric ($x) {
+    try {
+        0 + $x | Out-Null
+        return $false
+    } catch {
+        return $true
+    }
+}
 
 # The name of the versioned vulkan dll file is one of the following:
 #
@@ -80,17 +90,30 @@ $winfolder = $env:SYSTEMROOT
 # from the file name. They are used later to find the path to the SDK
 # install directory for the given filename.
 
+
 function UpdateVulkanSysFolder([string]$dir, [int]$writeSdkName)
 {
    # Push the current path on the stack and go to $dir
    Push-Location -Path $dir
 
-   # Create a list for all the DLLs in the folder
-   $VulkanDllList=@()
+   # Create a list for all the DLLs in the folder.
+   # First Initialize the list to empty
+   $script:VulkanDllList = @()
 
    # Find all DLL objects in this directory
    dir -name vulkan-$majorabi-*.dll |
    ForEach-Object {
+       if ($_ -match "=" -or
+           $_ -match "@" -or
+           $_ -match " " -or
+           ($_.Split('-').count -lt 6)  -or
+           ($_.Split('-').count -gt 8))
+       {
+           # If a file name contains "=", "@", or " ", or it contains less then 5 dashes or more than
+           # 7 dashes, it wasn't installed by the Vulkan Run Time.
+           # Note that we need to use return inside of ForEach-Object is to continue with iteration.
+           return
+       }
        $major=$_.Split('-')[2]
        $majorOrig=$major
        $minor=$_.Split('-')[3]
@@ -100,17 +123,16 @@ function UpdateVulkanSysFolder([string]$dir, [int]$writeSdkName)
        $buildno=$_.Split('-')[5]
 
        if ($buildno -match ".dll") {
-           # <prerelease> and <prebuildno> are not in the name
-           $buildno=$buildno -replace ".dll",""
-           $buildnoOrig=$buildno
-           $prerelease="z"*10
-           $prereleaseOrig=""
-           $prebuildno="z"*10
-           $prebuildnoOrig=""
+          # prerelease and prebuildno are not in the name
+          # Extract buildno, and set prerelease and prebuildno to "z"s
+          $buildno=$buildno -replace ".dll",""
+          $buildnoOrig=$buildno
+          $prerelease="z"*10
+          $prereleaseOrig=""
+          $prebuildno="z"*10
+          $prebuildnoOrig=""
        } else {
-
-          # We assume we don't have more than 5 dashes
-
+          # Extract buildno, prerelease, and prebuildno
           $f=$_ -replace ".dll",""
           $buildno=$f.Split('-')[5]
           $buildnoOrig=$buildno
@@ -134,6 +156,15 @@ function UpdateVulkanSysFolder([string]$dir, [int]$writeSdkName)
           }
        }
 
+       # Make sure fields that are supposed to be numbers are numbers
+       if (notNumeric($major)) {return}
+       if (notNumeric($minor)) {return}
+       if (notNumeric($patch)) {return}
+       if (notNumeric($buildno)) {return}
+       if (notNumeric($prebuildno)) {
+           if ($prebuildno -ne "z"*10) {return}
+       }
+
        $major = $major.padleft(10,'0')
        $minor = $minor.padleft(10,'0')
        $patch = $patch.padleft(10,'0')
@@ -142,21 +173,21 @@ function UpdateVulkanSysFolder([string]$dir, [int]$writeSdkName)
        $prebuildno = $prebuildno.padleft(10,'0')
 
        # Add a new element to the $VulkanDllList array
-       $VulkanDllList+="$major=$minor=$patch=$buildno=$prerelease=$prebuildno= $_ @$majorOrig@$minorOrig@$patchOrig@$buildnoOrig@$prereleaseOrig@$prebuildnoOrig@"
+       $script:VulkanDllList+="$major=$minor=$patch=$buildno=$prerelease=$prebuildno= $_ @$majorOrig@$minorOrig@$patchOrig@$buildnoOrig@$prereleaseOrig@$prebuildnoOrig@"
    }
 
     # If $VulkanDllList contains at least one element, there's at least one vulkan*.dll file.
     # Copy the most recent vulkan*.dll (named in the last element of $VulkanDllList) to vulkan-$majorabi.dll.
 
-    if ($VulkanDllList.Length -gt 0) {
+    if ($script:VulkanDllList.Length -gt 0) {
 
         # Sort the list. The most recent vulkan-*.dll will be in the last element of the list.
-        [array]::sort($VulkanDllList)
+        [array]::sort($script:VulkanDllList)
 
         # Put the name of the most recent vulkan-*.dll in $mrVulkanDLL.
         # The most recent vulkanDLL is the second word in the last element of the
         # sorted $VulkanDllList. Copy it to $vulkandll.
-        $mrVulkanDll=$VulkanDllList[-1].Split(' ')[1]
+        $mrVulkanDll=$script:VulkanDllList[-1].Split(' ')[1]
         copy $mrVulkanDll $vulkandll
 
         # Copy the most recent version of vulkaninfo-<abimajor>-*.exe to vulkaninfo.exe.
@@ -166,12 +197,12 @@ function UpdateVulkanSysFolder([string]$dir, [int]$writeSdkName)
         copy $mrVulkaninfo vulkaninfo.exe
 
         # Create the name used in the registry for the SDK associated with $mrVulkanDll.
-        $major=$VulkanDLLList[-1].Split('@')[1]
-        $minor=$VulkanDLLList[-1].Split('@')[2]
-        $patch=$VulkanDLLList[-1].Split('@')[3]
-        $buildno=$VulkanDLLList[-1].Split('@')[4]
-        $prerelease=$VulkanDLLList[-1].Split('@')[5]
-        $prebuildno=$VulkanDLLList[-1].Split('@')[6]
+        $major=$script:VulkanDllList[-1].Split('@')[1]
+        $minor=$script:VulkanDllList[-1].Split('@')[2]
+        $patch=$script:VulkanDllList[-1].Split('@')[3]
+        $buildno=$script:VulkanDllList[-1].Split('@')[4]
+        $prerelease=$script:VulkanDllList[-1].Split('@')[5]
+        $prebuildno=$script:VulkanDllList[-1].Split('@')[6]
 
         $sdktempname="VulkanSDK"+$major + "." + $minor + "." + $patch + "." + $buildno
         if ($prerelease -ne "") {
@@ -221,6 +252,42 @@ Get-ChildItem -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Curr
            }
        }
    }
+
+
+# Search list of sdk install dirs for an sdk compatible with $script:sdkname.
+# We go backwards through VulkanDllList to generate SDK names, because we want the most recent SDK.
+if ($mrVulkanDllInstallDir -eq "") {
+    ForEach ($idx in ($script:VulkanDllList.Length-1)..0) {
+        $vulkanDllMajor=$script:VulkanDllList[$idx].Split('@')[1]
+        $vulkanDllMinor=$script:VulkanDllList[$idx].Split('@')[2]
+        $vulkanDllPatch=$script:VulkanDllList[$idx].Split('@')[3]
+        $vulkanDllBuildno=$script:VulkanDllList[$idx].Split('@')[4]
+        $vulkanDllPrerelease=$script:VulkanDllList[$idx].Split('@')[5]
+        $vulkanDllPrebuildno=$script:VulkanDllList[$idx].Split('@')[6]
+        $regEntry="VulkanSDK"+$vulkanDllMajor+"."+$vulkanDllMinor+"."+$vulkanDllPatch+"."+$vulkanDllBuildno
+        if ($vulkanDllPrerelease) {
+            $regEntry=$regEntry+"."+$vulkanDllPrerelease
+        }
+        if ($vulkanDllPrebuildno) {
+            $regEntry=$regEntry+"."+$vulkanDllPrebuildno
+        }
+        $rval=Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$regEntry -ErrorAction SilentlyContinue
+        $instDir=$rval
+        $instDir=$instDir -replace "\\Uninstall.exe.*",""
+        $instDir=$instDir -replace ".*=.",""
+        if ($rval) {
+            $rval=$rval -replace ".* DisplayVersion=",""
+            $rval=$rval -replace ";.*",""
+            $reMajor=$rval.Split('.')[0]
+            $reMinor=$rval.Split('.')[1]
+            $rePatch=$rval.Split('.')[2]
+            if ($reMajor+$reMinor+$rePatch -eq $vulkanDllMajor+$vulkanDllMinor+$vulkanDllPatch) {
+                $mrVulkanDllInstallDir=$instDir
+                break
+            }
+        }
+    }
+}
 
 # Add C:\Vulkan\SDK\0.9.3 to list of SDK install dirs.
 # We do this because there is in a bug in SDK 0.9.3 in which layer

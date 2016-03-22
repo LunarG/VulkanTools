@@ -1727,11 +1727,10 @@ static void demo_init_vk(struct demo *demo) {
     };
 
     char *instance_validation_layers_alt2[] = {
-        "VK_LAYER_GOOGLE_threading",     "VK_LAYER_LUNARG_param_checker",
+        "VK_LAYER_GOOGLE_threading",     "VK_LAYER_LUNARG_parameter_validation",
         "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_object_tracker",
-        "VK_LAYER_LUNARG_image",         "VK_LAYER_LUNARG_mem_tracker",
-        "VK_LAYER_LUNARG_draw_state",    "VK_LAYER_LUNARG_swapchain",
-        "VK_LAYER_GOOGLE_unique_objects"
+        "VK_LAYER_LUNARG_image",         "VK_LAYER_LUNARG_core_validation",
+        "VK_LAYER_LUNARG_swapchain",     "VK_LAYER_GOOGLE_unique_objects"
     };
 
     /* Look for validation layers */
@@ -2069,6 +2068,14 @@ static void demo_init_vk(struct demo *demo) {
                                              demo->queue_props);
     assert(demo->queue_count >= 1);
 
+    VkPhysicalDeviceFeatures features;
+    vkGetPhysicalDeviceFeatures(demo->gpu, &features);
+
+    if (!features.shaderClipDistance) {
+        ERR_EXIT("Required device feature `shaderClipDistance` not supported\n",
+                 "GetPhysicalDeviceFeatures failure");
+    }
+
     // Graphics queue and MemMgr queue can be separate.
     // TODO: Add support for separate queues, including synchronization,
     //       and appropriate tracking for QueueSubmit
@@ -2085,6 +2092,10 @@ static void demo_init_device(struct demo *demo) {
         .queueCount = 1,
         .pQueuePriorities = queue_priorities};
 
+    VkPhysicalDeviceFeatures features = {
+        .shaderClipDistance = VK_TRUE,
+    };
+
     VkDeviceCreateInfo device = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .pNext = NULL,
@@ -2097,6 +2108,7 @@ static void demo_init_device(struct demo *demo) {
                                       : NULL),
         .enabledExtensionCount = demo->enabled_extension_count,
         .ppEnabledExtensionNames = (const char *const *)demo->extension_names,
+        .pEnabledFeatures = &features,
     };
 
     err = vkCreateDevice(demo->gpu, &device, NULL, &demo->device);
@@ -2256,7 +2268,7 @@ static void demo_init(struct demo *demo, const int argc, const char *argv[])
     if (strncmp(pCmdLine, "--use_staging", strlen("--use_staging")) == 0)
         demo->use_staging_buffer = true;
     else if (strncmp(pCmdLine, "--validate", strlen("--validate")) == 0)
-        demo->use_staging_buffer = true;
+        demo->validate = true;
     else if (strlen(pCmdLine) != 0) {
         fprintf(stderr, "Do not recognize argument \"%s\".\n", pCmdLine);
         argv_error = true;

@@ -27,5 +27,5 @@ python ../vk-layer-generate.py Android api_dump ../include/vulkan/vulkan.h > gen
 python ../vk-layer-generate.py Android object_tracker ../include/vulkan/vulkan.h > generated/object_tracker.cpp
 python ../vk-layer-generate.py Android unique_objects ../include/vulkan/vulkan.h > generated/unique_objects.cpp
 ( cd generated; python ../../genvk.py threading -registry ../../vk.xml thread_check.h )
-( cd generated; python ../../genvk.py paramchecker -registry ../../vk.xml param_check.h )
+( cd generated; python ../../genvk.py paramchecker -registry ../../vk.xml parameter_validation.h )
 
