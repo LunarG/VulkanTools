@@ -31,6 +31,7 @@ void trim_add_##type##_call(Vk##type var, vktrace_trace_packet_header* pHeader);
 void trim_mark_##type##_reference(Vk##type var);
 
 TRIM_DECLARE_OBJECT_TRACKERS(Instance);
+TRIM_DECLARE_OBJECT_TRACKERS(PhysicalDevice);
 TRIM_DECLARE_OBJECT_TRACKERS(Device);
 TRIM_DECLARE_OBJECT_TRACKERS(CommandPool);
 TRIM_DECLARE_OBJECT_TRACKERS(DescriptorPool);
