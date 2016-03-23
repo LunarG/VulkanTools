@@ -48,7 +48,7 @@
 #include "icd-instance.h"
 #include "icd-utils.h"
 
-#define INTEL_API_VERSION VK_API_VERSION
+#define INTEL_API_VERSION VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)
 #define INTEL_DRIVER_VERSION 0
 
 #define INTEL_GEN(gen) ((int) ((gen) * 100))

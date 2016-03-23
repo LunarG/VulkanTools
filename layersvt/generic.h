@@ -45,13 +45,13 @@ struct layer_data {
 
 static const VkLayerProperties globalLayerProps[] = {{
     "VK_LAYER_LUNARG_generic",
-    VK_API_VERSION, // specVersion
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
     1, "layer: generic",
 }};
 
 static const VkLayerProperties deviceLayerProps[] = {{
     "VK_LAYER_LUNARG_generic",
-    VK_API_VERSION, // specVersion
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
     1, "layer: generic",
 }};
 

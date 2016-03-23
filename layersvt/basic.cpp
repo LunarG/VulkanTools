@@ -35,7 +35,7 @@
 
 static const VkLayerProperties globalLayerProps[] = {{
     "VK_LAYER_LUNARG_basic",
-    VK_API_VERSION, // specVersion
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
     1,              // implementationVersion
     "LunarG Sample Layer",
 }};
@@ -54,7 +54,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkLayerBasicEXT(VkDevice device) 
 }
 
 static const VkLayerProperties basic_physicaldevice_layers[] = {{
-    "VK_LAYER_LUNARG_basic", VK_API_VERSION, 1, "Sample layer: basic, implements vkLayerBasicEXT",
+    "VK_LAYER_LUNARG_basic", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Sample layer: basic, implements vkLayerBasicEXT",
 }};
 
 /* Must use Vulkan name so that loader finds it */

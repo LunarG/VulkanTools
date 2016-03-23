@@ -442,7 +442,7 @@ vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, 
 /* TODO: Probably need a DestroyDevice as well */
 
 static const VkLayerProperties ss_device_layers[] = {{
-    "VK_LAYER_LUNARG_screenshot", VK_API_VERSION, 1, "Layer: screenshot",
+    "VK_LAYER_LUNARG_screenshot", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Layer: screenshot",
 }};
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
