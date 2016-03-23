@@ -136,7 +136,7 @@ vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
 }
 
 static const VkLayerProperties pc_global_layers[] = {{
-    "VK_LAYER_LUNARG_parameter_validation", VK_API_VERSION, 1, "LunarG Validation Layer",
+    "VK_LAYER_LUNARG_parameter_validation", VK_LAYER_API_VERSION, 1, "LunarG Validation Layer",
 }};
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
@@ -1405,6 +1405,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance
         layer_data_map.erase(pTable);
 
         pc_instance_table_map.erase(key);
+        layer_data_map.erase(key);
     }
 }
 
