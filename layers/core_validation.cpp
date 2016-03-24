@@ -110,8 +110,6 @@ struct layer_data {
 // MTMERGESOURCE - stuff pulled directly from MT
     uint64_t currentFenceId;
     // Maps for tracking key structs related to mem_tracker state
-    unordered_map<VkFramebuffer, MT_FB_INFO> fbMap;
-    unordered_map<VkRenderPass, MT_PASS_INFO> passMap;
     unordered_map<VkDescriptorSet, MT_DESCRIPTOR_SET_INFO> descriptorSetMap;
     // Images and Buffers are 2 objects that can have memory bound to them so they get special treatment
     unordered_map<uint64_t, MT_OBJ_BINDING_INFO> imageBindingMap;
@@ -3035,7 +3033,7 @@ static VkBool32 verifyPipelineCreateState(layer_data *my_data, const VkDevice de
     if (pPipeline->graphicsPipelineCI.pColorBlendState != NULL) {
         if (!my_data->physDevProperties.features.independentBlend) {
             if (pPipeline->attachments.size() > 0) {
-                VkPipelineColorBlendAttachmentState *pAttachments = pAttachments = &pPipeline->attachments[0];
+                VkPipelineColorBlendAttachmentState *pAttachments = &pPipeline->attachments[0];
                 for (size_t i = 1; i < pPipeline->attachments.size(); i++) {
                     if ((pAttachments[0].blendEnable != pAttachments[i].blendEnable) ||
                         (pAttachments[0].srcColorBlendFactor != pAttachments[i].srcColorBlendFactor) ||
@@ -4109,11 +4107,25 @@ static VkBool32 dsUpdate(layer_data *my_data, VkDevice device, uint32_t descript
     return skipCall;
 }
 
-// Verify that given pool has descriptors that are being requested for allocation
+// Verify that given pool has descriptors that are being requested for allocation.
+// NOTE : Calls to this function should be wrapped in mutex
 static VkBool32 validate_descriptor_availability_in_pool(layer_data *dev_data, DESCRIPTOR_POOL_NODE *pPoolNode, uint32_t count,
                                                          const VkDescriptorSetLayout *pSetLayouts) {
     VkBool32 skipCall = VK_FALSE;
-    uint32_t i = 0, j = 0;
+    uint32_t i = 0;
+    uint32_t j = 0;
+
+    // Track number of descriptorSets allowable in this pool
+    if (pPoolNode->availableSets < count) {
+        skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT,
+                            reinterpret_cast<uint64_t &>(pPoolNode->pool), __LINE__, DRAWSTATE_DESCRIPTOR_POOL_EMPTY, "DS",
+                            "Unable to allocate %u descriptorSets from pool %#" PRIxLEAST64
+                            ". This pool only has %d descriptorSets remaining.",
+                            count, reinterpret_cast<uint64_t &>(pPoolNode->pool), pPoolNode->availableSets);
+    } else {
+        pPoolNode->availableSets -= count;
+    }
+
     for (i = 0; i < count; ++i) {
         LAYOUT_NODE *pLayout = getLayoutNode(dev_data, pSetLayouts[i]);
         if (NULL == pLayout) {
@@ -4132,7 +4144,7 @@ static VkBool32 validate_descriptor_availability_in_pool(layer_data *dev_data, D
                                         VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT, (uint64_t)pLayout->layout, __LINE__,
                                         DRAWSTATE_DESCRIPTOR_POOL_EMPTY, "DS",
                                         "Unable to allocate %u descriptors of type %s from pool %#" PRIxLEAST64
-                                        ". This pool only has %u descriptors of this type remaining.",
+                                        ". This pool only has %d descriptors of this type remaining.",
                                         poolSizeCount, string_VkDescriptorType(pLayout->createInfo.pBindings[j].descriptorType),
                                         (uint64_t)pPoolNode->pool, pPoolNode->availableDescriptorTypeCount[typeIndex]);
                 } else { // Decrement available descriptors of this type
@@ -6253,15 +6265,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkResetFences(VkDevice device, ui
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
 vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-#if MTMERGESOURCE
-    // MTMTODO : Merge with code below
-    loader_platform_thread_lock_mutex(&globalLock);
-    auto item = dev_data->fbMap.find(framebuffer);
-    if (item != dev_data->fbMap.end()) {
-        dev_data->fbMap.erase(framebuffer);
-    }
-    loader_platform_thread_unlock_mutex(&globalLock);
-#endif
     auto fbNode = dev_data->frameBufferMap.find(framebuffer);
     if (fbNode != dev_data->frameBufferMap.end()) {
         for (auto cb : fbNode->second.referencingCmdBuffers) {
@@ -6287,36 +6290,14 @@ vkDestroyRenderPass(VkDevice device, VkRenderPass renderPass, const VkAllocation
     dev_data->device_dispatch_table->DestroyRenderPass(device, renderPass, pAllocator);
     loader_platform_thread_lock_mutex(&globalLock);
     dev_data->renderPassMap.erase(renderPass);
-#if MTMERGESOURCE
-    dev_data->passMap.erase(renderPass);
-#endif
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 
-VkBool32 validate_queue_family_indices(layer_data *dev_data, const char *function_name, const uint32_t count,
-                                       const uint32_t *indices) {
-    VkBool32 skipCall = VK_FALSE;
-    for (auto i = 0; i < count; i++) {
-        if (indices[i] >= dev_data->physDevProperties.queue_family_properties.size()) {
-            skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                DRAWSTATE_INVALID_QUEUE_INDEX, "DS",
-                                "%s has QueueFamilyIndex greater than the number of QueueFamilies (" PRINTF_SIZE_T_SPECIFIER
-                                ") for this device.",
-                                function_name, dev_data->physDevProperties.queue_family_properties.size());
-        }
-    }
-    return skipCall;
-}
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateBuffer(VkDevice device, const VkBufferCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkBuffer *pBuffer) {
-    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateBuffer(VkDevice device, const VkBufferCreateInfo *pCreateInfo,
+                                                              const VkAllocationCallbacks *pAllocator, VkBuffer *pBuffer) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skipCall = validate_queue_family_indices(dev_data, "vkCreateBuffer", pCreateInfo->queueFamilyIndexCount,
-                                                  pCreateInfo->pQueueFamilyIndices);
-    if (!skipCall) {
-        result = dev_data->device_dispatch_table->CreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
-    }
+
+    VkResult result = dev_data->device_dispatch_table->CreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
 
     if (VK_SUCCESS == result) {
         loader_platform_thread_lock_mutex(&globalLock);
@@ -6350,15 +6331,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferView(VkDevice devic
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkImage *pImage) {
-    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo,
+                                                             const VkAllocationCallbacks *pAllocator, VkImage *pImage) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skipCall = validate_queue_family_indices(dev_data, "vkCreateImage", pCreateInfo->queueFamilyIndexCount,
-                                                  pCreateInfo->pQueueFamilyIndices);
-    if (!skipCall) {
-        result = dev_data->device_dispatch_table->CreateImage(device, pCreateInfo, pAllocator, pImage);
-    }
+
+    VkResult result = dev_data->device_dispatch_table->CreateImage(device, pCreateInfo, pAllocator, pImage);
 
     if (VK_SUCCESS == result) {
         loader_platform_thread_lock_mutex(&globalLock);
@@ -6842,8 +6819,12 @@ vkFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, uint32_t 
         return VK_ERROR_VALIDATION_FAILED_EXT;
     VkResult result = dev_data->device_dispatch_table->FreeDescriptorSets(device, descriptorPool, count, pDescriptorSets);
     if (VK_SUCCESS == result) {
-        // For each freed descriptor add it back into the pool as available
         loader_platform_thread_lock_mutex(&globalLock);
+
+        // Update available descriptor sets in pool
+        pPoolNode->availableSets += count;
+
+        // For each freed descriptor add it back into the pool as available
         for (uint32_t i = 0; i < count; ++i) {
             SET_NODE *pSet = dev_data->setMap[pDescriptorSets[i]]; // getSetNode() without locking
             invalidateBoundCmdBuffers(dev_data, pSet);
@@ -8990,7 +8971,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(VkDevice devi
         fbNode.createInfo = *localFBCI;
         std::pair<VkFramebuffer, FRAMEBUFFER_NODE> fbPair(*pFramebuffer, fbNode);
         loader_platform_thread_lock_mutex(&globalLock);
-#if MTMERGESOURCE
         for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
             VkImageView view = pCreateInfo->pAttachments[i];
             auto view_data = dev_data->imageViewMap.find(view);
@@ -9001,9 +8981,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(VkDevice devi
             get_mem_binding_from_object(dev_data, device, (uint64_t)(view_data->second.image), VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                                         &fb_info.mem);
             fb_info.image = view_data->second.image;
-            dev_data->fbMap[*pFramebuffer].attachments.push_back(fb_info);
+            fbPair.second.attachments.push_back(fb_info);
         }
-#endif
         dev_data->frameBufferMap.insert(fbPair);
         loader_platform_thread_unlock_mutex(&globalLock);
     }
@@ -9356,44 +9335,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice devic
     VkResult result = dev_data->device_dispatch_table->CreateRenderPass(device, pCreateInfo, pAllocator, pRenderPass);
     if (VK_SUCCESS == result) {
         loader_platform_thread_lock_mutex(&globalLock);
-#if MTMERGESOURCE
-        // MTMTODO : Merge with code from below to eliminate duplication
-        for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
-            VkAttachmentDescription desc = pCreateInfo->pAttachments[i];
-            MT_PASS_ATTACHMENT_INFO pass_info;
-            pass_info.load_op = desc.loadOp;
-            pass_info.store_op = desc.storeOp;
-            pass_info.attachment = i;
-            dev_data->passMap[*pRenderPass].attachments.push_back(pass_info);
-        }
-        // TODO: Maybe fill list and then copy instead of locking
-        std::unordered_map<uint32_t, bool> &attachment_first_read = dev_data->passMap[*pRenderPass].attachment_first_read;
-        std::unordered_map<uint32_t, VkImageLayout> &attachment_first_layout = dev_data->passMap[*pRenderPass].attachment_first_layout;
-        for (uint32_t i = 0; i < pCreateInfo->subpassCount; ++i) {
-            const VkSubpassDescription &subpass = pCreateInfo->pSubpasses[i];
-            for (uint32_t j = 0; j < subpass.inputAttachmentCount; ++j) {
-                uint32_t attachment = subpass.pInputAttachments[j].attachment;
-                if (attachment_first_read.count(attachment))
-                    continue;
-                attachment_first_read.insert(std::make_pair(attachment, true));
-                attachment_first_layout.insert(std::make_pair(attachment, subpass.pInputAttachments[j].layout));
-            }
-            for (uint32_t j = 0; j < subpass.colorAttachmentCount; ++j) {
-                uint32_t attachment = subpass.pColorAttachments[j].attachment;
-                if (attachment_first_read.count(attachment))
-                    continue;
-                attachment_first_read.insert(std::make_pair(attachment, false));
-                attachment_first_layout.insert(std::make_pair(attachment, subpass.pColorAttachments[j].layout));
-            }
-            if (subpass.pDepthStencilAttachment && subpass.pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED) {
-                uint32_t attachment = subpass.pDepthStencilAttachment->attachment;
-                if (attachment_first_read.count(attachment))
-                    continue;
-                attachment_first_read.insert(std::make_pair(attachment, false));
-                attachment_first_layout.insert(std::make_pair(attachment, subpass.pDepthStencilAttachment->layout));
-            }
-        }
-#endif
         // TODOSC : Merge in tracking of renderpass from shader_checker
         // Shadow create info and store in map
         VkRenderPassCreateInfo *localRPCI = new VkRenderPassCreateInfo(*pCreateInfo);
@@ -9445,6 +9386,45 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice devic
         dev_data->renderPassMap[*pRenderPass] = new RENDER_PASS_NODE(localRPCI);
         dev_data->renderPassMap[*pRenderPass]->hasSelfDependency = has_self_dependency;
         dev_data->renderPassMap[*pRenderPass]->subpassToNode = subpass_to_node;
+#if MTMERGESOURCE
+        // MTMTODO : Merge with code from above to eliminate duplication
+        for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
+            VkAttachmentDescription desc = pCreateInfo->pAttachments[i];
+            MT_PASS_ATTACHMENT_INFO pass_info;
+            pass_info.load_op = desc.loadOp;
+            pass_info.store_op = desc.storeOp;
+            pass_info.attachment = i;
+            dev_data->renderPassMap[*pRenderPass]->attachments.push_back(pass_info);
+        }
+        // TODO: Maybe fill list and then copy instead of locking
+        std::unordered_map<uint32_t, bool> &attachment_first_read = dev_data->renderPassMap[*pRenderPass]->attachment_first_read;
+        std::unordered_map<uint32_t, VkImageLayout> &attachment_first_layout =
+            dev_data->renderPassMap[*pRenderPass]->attachment_first_layout;
+        for (uint32_t i = 0; i < pCreateInfo->subpassCount; ++i) {
+            const VkSubpassDescription &subpass = pCreateInfo->pSubpasses[i];
+            for (uint32_t j = 0; j < subpass.inputAttachmentCount; ++j) {
+                uint32_t attachment = subpass.pInputAttachments[j].attachment;
+                if (attachment_first_read.count(attachment))
+                    continue;
+                attachment_first_read.insert(std::make_pair(attachment, true));
+                attachment_first_layout.insert(std::make_pair(attachment, subpass.pInputAttachments[j].layout));
+            }
+            for (uint32_t j = 0; j < subpass.colorAttachmentCount; ++j) {
+                uint32_t attachment = subpass.pColorAttachments[j].attachment;
+                if (attachment_first_read.count(attachment))
+                    continue;
+                attachment_first_read.insert(std::make_pair(attachment, false));
+                attachment_first_layout.insert(std::make_pair(attachment, subpass.pColorAttachments[j].layout));
+            }
+            if (subpass.pDepthStencilAttachment && subpass.pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED) {
+                uint32_t attachment = subpass.pDepthStencilAttachment->attachment;
+                if (attachment_first_read.count(attachment))
+                    continue;
+                attachment_first_read.insert(std::make_pair(attachment, false));
+                attachment_first_layout.insert(std::make_pair(attachment, subpass.pDepthStencilAttachment->layout));
+            }
+        }
+#endif
         loader_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
@@ -9588,15 +9568,15 @@ vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo 
     GLOBAL_CB_NODE *pCB = getCBNode(dev_data, commandBuffer);
     if (pCB) {
         if (pRenderPassBegin && pRenderPassBegin->renderPass) {
-#if MTMERGESOURCE
-            auto pass_data = dev_data->passMap.find(pRenderPassBegin->renderPass);
-            if (pass_data != dev_data->passMap.end()) {
-                MT_PASS_INFO &pass_info = pass_data->second;
-                pass_info.fb = pRenderPassBegin->framebuffer;
+#if MTMERGE
+            auto pass_data = dev_data->renderPassMap.find(pRenderPassBegin->renderPass);
+            if (pass_data != dev_data->renderPassMap.end()) {
+                RENDER_PASS_NODE* pRPNode = pass_data->second;
+                pRPNode->fb = pRenderPassBegin->framebuffer;
                 auto cb_data = dev_data->commandBufferMap.find(commandBuffer);
-                for (size_t i = 0; i < pass_info.attachments.size(); ++i) {
-                    MT_FB_ATTACHMENT_INFO &fb_info = dev_data->fbMap[pass_info.fb].attachments[i];
-                    if (pass_info.attachments[i].load_op == VK_ATTACHMENT_LOAD_OP_CLEAR) {
+                for (size_t i = 0; i < pRPNode->attachments.size(); ++i) {
+                    MT_FB_ATTACHMENT_INFO &fb_info = dev_data->frameBufferMap[pRPNode->fb].attachments[i];
+                    if (pRPNode->attachments[i].load_op == VK_ATTACHMENT_LOAD_OP_CLEAR) {
                         if (cb_data != dev_data->commandBufferMap.end()) {
                             std::function<VkBool32()> function = [=]() {
                                 set_memory_valid(dev_data, fb_info.mem, true, fb_info.image);
@@ -9604,16 +9584,16 @@ vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo 
                             };
                             cb_data->second->validate_functions.push_back(function);
                         }
-                        VkImageLayout &attachment_layout = pass_info.attachment_first_layout[pass_info.attachments[i].attachment];
+                        VkImageLayout &attachment_layout = pRPNode->attachment_first_layout[pRPNode->attachments[i].attachment];
                         if (attachment_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL ||
                             attachment_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
                             skipCall |=
                                 log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                         VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT, (uint64_t)(pRenderPassBegin->renderPass), __LINE__,
                                         MEMTRACK_INVALID_LAYOUT, "MEM", "Cannot clear attachment %d with invalid first layout %d.",
-                                        pass_info.attachments[i].attachment, attachment_layout);
+                                        pRPNode->attachments[i].attachment, attachment_layout);
                         }
-                    } else if (pass_info.attachments[i].load_op == VK_ATTACHMENT_LOAD_OP_DONT_CARE) {
+                    } else if (pRPNode->attachments[i].load_op == VK_ATTACHMENT_LOAD_OP_DONT_CARE) {
                         if (cb_data != dev_data->commandBufferMap.end()) {
                             std::function<VkBool32()> function = [=]() {
                                 set_memory_valid(dev_data, fb_info.mem, false, fb_info.image);
@@ -9621,7 +9601,7 @@ vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo 
                             };
                             cb_data->second->validate_functions.push_back(function);
                         }
-                    } else if (pass_info.attachments[i].load_op == VK_ATTACHMENT_LOAD_OP_LOAD) {
+                    } else if (pRPNode->attachments[i].load_op == VK_ATTACHMENT_LOAD_OP_LOAD) {
                         if (cb_data != dev_data->commandBufferMap.end()) {
                             std::function<VkBool32()> function = [=]() {
                                 return validate_memory_is_valid(dev_data, fb_info.mem, "vkCmdBeginRenderPass()", fb_info.image);
@@ -9629,7 +9609,7 @@ vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo 
                             cb_data->second->validate_functions.push_back(function);
                         }
                     }
-                    if (pass_info.attachment_first_read[pass_info.attachments[i].attachment]) {
+                    if (pRPNode->attachment_first_read[pRPNode->attachments[i].attachment]) {
                         if (cb_data != dev_data->commandBufferMap.end()) {
                             std::function<VkBool32()> function = [=]() {
                                 return validate_memory_is_valid(dev_data, fb_info.mem, "vkCmdBeginRenderPass()", fb_info.image);
@@ -9703,12 +9683,12 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(VkCommandBuffer co
 #if MTMERGESOURCE
     auto cb_data = dev_data->commandBufferMap.find(commandBuffer);
     if (cb_data != dev_data->commandBufferMap.end()) {
-        auto pass_data = dev_data->passMap.find(cb_data->second->activeRenderPass);
-        if (pass_data != dev_data->passMap.end()) {
-            MT_PASS_INFO &pass_info = pass_data->second;
-            for (size_t i = 0; i < pass_info.attachments.size(); ++i) {
-                MT_FB_ATTACHMENT_INFO &fb_info = dev_data->fbMap[pass_info.fb].attachments[i];
-                if (pass_info.attachments[i].store_op == VK_ATTACHMENT_STORE_OP_STORE) {
+        auto pass_data = dev_data->renderPassMap.find(cb_data->second->activeRenderPass);
+        if (pass_data != dev_data->renderPassMap.end()) {
+            RENDER_PASS_NODE* pRPNode = pass_data->second;
+            for (size_t i = 0; i < pRPNode->attachments.size(); ++i) {
+                MT_FB_ATTACHMENT_INFO &fb_info = dev_data->frameBufferMap[pRPNode->fb].attachments[i];
+                if (pRPNode->attachments[i].store_op == VK_ATTACHMENT_STORE_OP_STORE) {
                     if (cb_data != dev_data->commandBufferMap.end()) {
                         std::function<VkBool32()> function = [=]() {
                             set_memory_valid(dev_data, fb_info.mem, true, fb_info.image);
@@ -9716,7 +9696,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(VkCommandBuffer co
                         };
                         cb_data->second->validate_functions.push_back(function);
                     }
-                } else if (pass_info.attachments[i].store_op == VK_ATTACHMENT_STORE_OP_DONT_CARE) {
+                } else if (pRPNode->attachments[i].store_op == VK_ATTACHMENT_STORE_OP_DONT_CARE) {
                     if (cb_data != dev_data->commandBufferMap.end()) {
                         std::function<VkBool32()> function = [=]() {
                             set_memory_valid(dev_data, fb_info.mem, false, fb_info.image);

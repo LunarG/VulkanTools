@@ -155,21 +155,10 @@ struct MT_FB_ATTACHMENT_INFO {
     VkDeviceMemory mem;
 };
 
-struct MT_FB_INFO {
-    std::vector<MT_FB_ATTACHMENT_INFO> attachments;
-};
-
 struct MT_PASS_ATTACHMENT_INFO {
     uint32_t attachment;
     VkAttachmentLoadOp load_op;
     VkAttachmentStoreOp store_op;
-};
-
-struct MT_PASS_INFO {
-    VkFramebuffer fb;
-    std::vector<MT_PASS_ATTACHMENT_INFO> attachments;
-    std::unordered_map<uint32_t, bool> attachment_first_read;
-    std::unordered_map<uint32_t, VkImageLayout> attachment_first_layout;
 };
 
 // Associate fenceId with a fence object
@@ -490,11 +479,15 @@ struct DAGNode {
 
 struct RENDER_PASS_NODE {
     VkRenderPassCreateInfo const *pCreateInfo;
-    std::vector<bool> hasSelfDependency;
-    std::vector<DAGNode> subpassToNode;
-    vector<std::vector<VkFormat>> subpassColorFormats;
+    VkFramebuffer fb;
+    vector<bool> hasSelfDependency;
+    vector<DAGNode> subpassToNode;
+    vector<vector<VkFormat>> subpassColorFormats;
+    vector<MT_PASS_ATTACHMENT_INFO> attachments;
+    unordered_map<uint32_t, bool> attachment_first_read;
+    unordered_map<uint32_t, VkImageLayout> attachment_first_layout;
 
-    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo) : pCreateInfo(pCreateInfo) {
+    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo) : pCreateInfo(pCreateInfo), fb(VK_NULL_HANDLE) {
         uint32_t i;
 
         subpassColorFormats.reserve(pCreateInfo->subpassCount);
@@ -581,6 +574,7 @@ class FRAMEBUFFER_NODE {
   public:
     VkFramebufferCreateInfo createInfo;
     unordered_set<VkCommandBuffer> referencingCmdBuffers;
+    vector<MT_FB_ATTACHMENT_INFO> attachments;
 };
 
 // Descriptor Data structures
@@ -627,14 +621,16 @@ class SET_NODE : public BASE_NODE {
 
 typedef struct _DESCRIPTOR_POOL_NODE {
     VkDescriptorPool pool;
-    uint32_t maxSets;
+    uint32_t maxSets;                              // Max descriptor sets allowed in this pool
+    uint32_t availableSets;                        // Available descriptr sets in this pool
+
     VkDescriptorPoolCreateInfo createInfo;
     SET_NODE *pSets;                               // Head of LL of sets for this Pool
-    vector<uint32_t> maxDescriptorTypeCount;       // max # of descriptors of each type in this pool
-    vector<uint32_t> availableDescriptorTypeCount; // available # of descriptors of each type in this pool
+    vector<uint32_t> maxDescriptorTypeCount;       // Max # of descriptors of each type in this pool
+    vector<uint32_t> availableDescriptorTypeCount; // Available # of descriptors of each type in this pool
 
     _DESCRIPTOR_POOL_NODE(const VkDescriptorPool pool, const VkDescriptorPoolCreateInfo *pCreateInfo)
-        : pool(pool), maxSets(pCreateInfo->maxSets), createInfo(*pCreateInfo), pSets(NULL),
+        : pool(pool), maxSets(pCreateInfo->maxSets), availableSets(pCreateInfo->maxSets), createInfo(*pCreateInfo), pSets(NULL),
           maxDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE), availableDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE) {
         if (createInfo.poolSizeCount) { // Shadow type struct from ptr into local struct
             size_t poolSizeCountSize = createInfo.poolSizeCount * sizeof(VkDescriptorPoolSize);
@@ -644,13 +640,8 @@ typedef struct _DESCRIPTOR_POOL_NODE {
             uint32_t i = 0;
             for (i = 0; i < createInfo.poolSizeCount; ++i) {
                 uint32_t typeIndex = static_cast<uint32_t>(createInfo.pPoolSizes[i].type);
-                uint32_t poolSizeCount = createInfo.pPoolSizes[i].descriptorCount;
-                maxDescriptorTypeCount[typeIndex] += poolSizeCount;
-            }
-            for (i = 0; i < maxDescriptorTypeCount.size(); ++i) {
-                maxDescriptorTypeCount[i] *= createInfo.maxSets;
-                // Initially the available counts are equal to the max counts
-                availableDescriptorTypeCount[i] = maxDescriptorTypeCount[i];
+                maxDescriptorTypeCount[typeIndex] = createInfo.pPoolSizes[i].descriptorCount;
+                availableDescriptorTypeCount[typeIndex] = maxDescriptorTypeCount[typeIndex];
             }
         } else {
             createInfo.pPoolSizes = NULL; // Make sure this is NULL so we don't try to clean it up
