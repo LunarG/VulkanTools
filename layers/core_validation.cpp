@@ -2247,11 +2247,11 @@ static bool attachment_references_compatible(const uint32_t index, const VkAttac
                                              const VkAttachmentReference *pSecondary, const uint32_t secondaryCount,
                                              const VkAttachmentDescription *pSecondaryAttachments) {
     if (index >= primaryCount) { // Check secondary as if primary is VK_ATTACHMENT_UNUSED
-        if (VK_ATTACHMENT_UNUSED != pSecondary[index].attachment)
-            return false;
+        if (VK_ATTACHMENT_UNUSED == pSecondary[index].attachment)
+            return true;
     } else if (index >= secondaryCount) { // Check primary as if secondary is VK_ATTACHMENT_UNUSED
-        if (VK_ATTACHMENT_UNUSED != pPrimary[index].attachment)
-            return false;
+        if (VK_ATTACHMENT_UNUSED == pPrimary[index].attachment)
+            return true;
     } else { // format and sample count must match
         if ((pPrimaryAttachments[pPrimary[index].attachment].format ==
              pSecondaryAttachments[pSecondary[index].attachment].format) &&
@@ -2642,9 +2642,9 @@ static VkBool32 validate_shader_capabilities(layer_data *my_data, VkDevice dev, 
 }
 
 
-// Validate that the shaders used by the given pipeline
-//  As a side effect this function also records the sets that are actually used by the pipeline
-static VkBool32 validate_pipeline_shaders(layer_data *my_data, VkDevice dev, PIPELINE_NODE *pPipeline) {
+// Validate that the shaders used by the given pipeline and store the active_slots
+//  that are actually used by the pipeline into pPipeline->active_slots
+static VkBool32 validate_and_capture_pipeline_shader_state(layer_data *my_data, const VkDevice dev, PIPELINE_NODE *pPipeline) {
     VkGraphicsPipelineCreateInfo const *pCreateInfo = &pPipeline->graphicsPipelineCI;
     /* We seem to allow pipeline stages to be specified out of order, so collect and identify them
      * before trying to do anything more: */
@@ -2703,8 +2703,8 @@ static VkBool32 validate_pipeline_shaders(layer_data *my_data, VkDevice dev, PIP
                                    : nullptr;
 
                 for (auto use : descriptor_uses) {
-                    // As a side-effect of this function, capture which sets are used by the pipeline
-                    pPipeline->active_sets.insert(use.first.first);
+                    // While validating shaders capture which slots are used by the pipeline
+                    pPipeline->active_slots[use.first.first].insert(use.first.second);
 
                     /* find the matching binding */
                     auto binding = get_descriptor_binding(my_data, layouts, use.first);
@@ -2811,23 +2811,51 @@ static SET_NODE *getSetNode(layer_data *my_data, const VkDescriptorSet set) {
     }
     return my_data->setMap[set];
 }
-// For the given command buffer, verify that for each set set in activeSetNodes
+
+// For given Layout Node and binding, return index where that binding begins
+static uint32_t getBindingStartIndex(const LAYOUT_NODE *pLayout, const uint32_t binding) {
+    uint32_t offsetIndex = 0;
+    for (uint32_t i = 0; i < pLayout->createInfo.bindingCount; i++) {
+        if (pLayout->createInfo.pBindings[i].binding == binding)
+            break;
+        offsetIndex += pLayout->createInfo.pBindings[i].descriptorCount;
+    }
+    return offsetIndex;
+}
+
+// For given layout node and binding, return last index that is updated
+static uint32_t getBindingEndIndex(const LAYOUT_NODE *pLayout, const uint32_t binding) {
+    uint32_t offsetIndex = 0;
+    for (uint32_t i = 0; i < pLayout->createInfo.bindingCount; i++) {
+        offsetIndex += pLayout->createInfo.pBindings[i].descriptorCount;
+        if (pLayout->createInfo.pBindings[i].binding == binding)
+            break;
+    }
+    return offsetIndex - 1;
+}
+
+// For the given command buffer, verify that for each set in activeSetBindingsPairs
 //  that any dynamic descriptor in that set has a valid dynamic offset bound.
 //  To be valid, the dynamic offset combined with the offset and range from its
 //  descriptor update must not overflow the size of its buffer being updated
-static VkBool32 validate_dynamic_offsets(layer_data *my_data, const GLOBAL_CB_NODE *pCB, const vector<SET_NODE *> activeSetNodes) {
+static VkBool32 validate_dynamic_offsets(layer_data *my_data, const GLOBAL_CB_NODE *pCB,
+                                         const vector<std::pair<SET_NODE *, unordered_set<uint32_t>>> &activeSetBindingsPairs) {
     VkBool32 result = VK_FALSE;
 
     VkWriteDescriptorSet *pWDS = NULL;
     uint32_t dynOffsetIndex = 0;
     VkDeviceSize bufferSize = 0;
-    for (auto set_node : activeSetNodes) {
-        for (uint32_t i = 0; i < set_node->descriptorCount; ++i) {
-            // TODO: Add validation for descriptors dynamically skipped in shader
-            if (set_node->ppDescriptors[i] != NULL) {
-                switch (set_node->ppDescriptors[i]->sType) {
+    for (auto set_bindings_pair : activeSetBindingsPairs) {
+        SET_NODE *set_node = set_bindings_pair.first;
+        LAYOUT_NODE *layout_node = set_node->pLayout;
+        for (auto binding : set_bindings_pair.second) {
+            uint32_t startIdx = getBindingStartIndex(layout_node, binding);
+            uint32_t endIdx = getBindingEndIndex(layout_node, binding);
+            for (uint32_t i = startIdx; i <= endIdx; ++i) {
+                // TODO : Flag error here if set_node->pDescriptorUpdates[i] is NULL
+                switch (set_node->pDescriptorUpdates[i]->sType) {
                 case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
-                    pWDS = (VkWriteDescriptorSet *)set_node->ppDescriptors[i];
+                    pWDS = (VkWriteDescriptorSet *)set_node->pDescriptorUpdates[i];
                     if ((pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
                         (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)) {
                         for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
@@ -2904,8 +2932,9 @@ static VkBool32 validate_draw_state(layer_data *my_data, GLOBAL_CB_NODE *pCB, Vk
         if (state.pipelineLayout) {
             string errorString;
             // Need a vector (vs. std::set) of active Sets for dynamicOffset validation in case same set bound w/ different offsets
-            vector<SET_NODE *> activeSetNodes;
-            for (auto setIndex : pPipe->active_sets) {
+            vector<std::pair<SET_NODE *, unordered_set<uint32_t>>> activeSetBindingsPairs;
+            for (auto setBindingPair : pPipe->active_slots) {
+                uint32_t setIndex = setBindingPair.first;
                 // If valid set is not bound throw an error
                 if ((state.boundDescriptorSets.size() <= setIndex) || (!state.boundDescriptorSets[setIndex])) {
                     result |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
@@ -2926,7 +2955,8 @@ static VkBool32 validate_draw_state(layer_data *my_data, GLOBAL_CB_NODE *pCB, Vk
                     // Pull the set node
                     SET_NODE *pSet = my_data->setMap[state.boundDescriptorSets[setIndex]];
                     // Save vector of all active sets to verify dynamicOffsets below
-                    activeSetNodes.push_back(pSet);
+                    // activeSetNodes.push_back(pSet);
+                    activeSetBindingsPairs.push_back(std::make_pair(pSet, setBindingPair.second));
                     // Make sure set has been updated
                     if (!pSet->pUpdateStructs) {
                         result |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
@@ -2940,7 +2970,7 @@ static VkBool32 validate_draw_state(layer_data *my_data, GLOBAL_CB_NODE *pCB, Vk
             }
             // For each dynamic descriptor, make sure dynamic offset doesn't overstep buffer
             if (!state.dynamicOffsets.empty())
-                result |= validate_dynamic_offsets(my_data, pCB, activeSetNodes);
+                result |= validate_dynamic_offsets(my_data, pCB, activeSetBindingsPairs);
         }
         // Verify Vtx binding
         if (pPipe->vertexBindingDescriptions.size() > 0) {
@@ -3068,7 +3098,7 @@ static VkBool32 verifyPipelineCreateState(layer_data *my_data, const VkDevice de
         }
     }
 
-    // Ensure the subpass index is valid. If not, then validate_pipeline_shaders
+    // Ensure the subpass index is valid. If not, then validate_and_capture_pipeline_shader_state
     // produces nonsense errors that confuse users. Other layers should already
     // emit errors for renderpass being invalid.
     auto rp_data = my_data->renderPassMap.find(pPipeline->graphicsPipelineCI.renderPass);
@@ -3080,7 +3110,7 @@ static VkBool32 verifyPipelineCreateState(layer_data *my_data, const VkDevice de
                             pPipeline->graphicsPipelineCI.subpass, rp_data->second->pCreateInfo->subpassCount - 1);
     }
 
-    if (!validate_pipeline_shaders(my_data, device, pPipeline)) {
+    if (!validate_and_capture_pipeline_shader_state(my_data, device, pPipeline)) {
         skipCall = VK_TRUE;
     }
     // VS is required
@@ -3417,28 +3447,6 @@ static uint32_t getUpdateCount(layer_data *my_data, const VkDevice device, const
     return 0;
 }
 
-// For given Layout Node and binding, return index where that binding begins
-static uint32_t getBindingStartIndex(const LAYOUT_NODE *pLayout, const uint32_t binding) {
-    uint32_t offsetIndex = 0;
-    for (uint32_t i = 0; i < pLayout->createInfo.bindingCount; i++) {
-        if (pLayout->createInfo.pBindings[i].binding == binding)
-            break;
-        offsetIndex += pLayout->createInfo.pBindings[i].descriptorCount;
-    }
-    return offsetIndex;
-}
-
-// For given layout node and binding, return last index that is updated
-static uint32_t getBindingEndIndex(const LAYOUT_NODE *pLayout, const uint32_t binding) {
-    uint32_t offsetIndex = 0;
-    for (uint32_t i = 0; i < pLayout->createInfo.bindingCount; i++) {
-        offsetIndex += pLayout->createInfo.pBindings[i].descriptorCount;
-        if (pLayout->createInfo.pBindings[i].binding == binding)
-            break;
-    }
-    return offsetIndex - 1;
-}
-
 // For given layout and update, return the first overall index of the layout that is updated
 static uint32_t getUpdateStartIndex(layer_data *my_data, const VkDevice device, const LAYOUT_NODE *pLayout, const uint32_t binding,
                                     const uint32_t arrayIndex, const GENERIC_HEADER *pUpdateStruct) {
@@ -3645,58 +3653,51 @@ void SetLayout(layer_data *my_data, ImageSubresourcePair imgpair, const VkImageL
     }
 }
 
-void SetLayout(layer_data *my_data, VkImage image, const VkImageLayout &layout) {
-    ImageSubresourcePair imgpair = {image, false, VkImageSubresource()};
-    SetLayout(my_data, imgpair, layout);
-}
-
-void SetLayout(layer_data *my_data, VkImage image, VkImageSubresource range, const VkImageLayout &layout) {
-    ImageSubresourcePair imgpair = {image, true, range};
-    SetLayout(my_data, imgpair, layout);
-}
-
 // Set the layout on the cmdbuf level
-void SetLayout(GLOBAL_CB_NODE *pCB, VkImage image, ImageSubresourcePair imgpair, const IMAGE_CMD_BUF_LAYOUT_NODE &node) {
+void SetLayout(GLOBAL_CB_NODE *pCB, ImageSubresourcePair imgpair, const IMAGE_CMD_BUF_LAYOUT_NODE &node) {
     pCB->imageLayoutMap[imgpair] = node;
     // TODO (mlentine): Maybe make vector a set?
-    auto subresource = std::find(pCB->imageSubresourceMap[image].begin(), pCB->imageSubresourceMap[image].end(), imgpair);
-    if (subresource == pCB->imageSubresourceMap[image].end()) {
-        pCB->imageSubresourceMap[image].push_back(imgpair);
+    auto subresource =
+        std::find(pCB->imageSubresourceMap[imgpair.image].begin(), pCB->imageSubresourceMap[imgpair.image].end(), imgpair);
+    if (subresource == pCB->imageSubresourceMap[imgpair.image].end()) {
+        pCB->imageSubresourceMap[imgpair.image].push_back(imgpair);
     }
 }
 
-void SetLayout(GLOBAL_CB_NODE *pCB, VkImage image, ImageSubresourcePair imgpair, const VkImageLayout &layout) {
+void SetLayout(GLOBAL_CB_NODE *pCB, ImageSubresourcePair imgpair, const VkImageLayout &layout) {
     // TODO (mlentine): Maybe make vector a set?
-    if (std::find(pCB->imageSubresourceMap[image].begin(), pCB->imageSubresourceMap[image].end(), imgpair) !=
-        pCB->imageSubresourceMap[image].end()) {
+    if (std::find(pCB->imageSubresourceMap[imgpair.image].begin(), pCB->imageSubresourceMap[imgpair.image].end(), imgpair) !=
+        pCB->imageSubresourceMap[imgpair.image].end()) {
         pCB->imageLayoutMap[imgpair].layout = layout;
     } else {
         // TODO (mlentine): Could be expensive and might need to be removed.
         assert(imgpair.hasSubresource);
         IMAGE_CMD_BUF_LAYOUT_NODE node;
-        FindLayout(pCB, image, imgpair.subresource, node);
-        SetLayout(pCB, image, imgpair, {node.initialLayout, layout});
+        FindLayout(pCB, imgpair.image, imgpair.subresource, node);
+        SetLayout(pCB, imgpair, {node.initialLayout, layout});
     }
 }
 
-void SetLayout(GLOBAL_CB_NODE *pCB, VkImage image, const IMAGE_CMD_BUF_LAYOUT_NODE &node) {
-    ImageSubresourcePair imgpair = {image, false, VkImageSubresource()};
-    SetLayout(pCB, image, imgpair, node);
+template <class OBJECT, class LAYOUT>
+void SetLayout(OBJECT *pObject, ImageSubresourcePair imgpair, const LAYOUT &layout, VkImageAspectFlags aspectMask) {
+    if (imgpair.subresource.aspectMask & aspectMask) {
+        imgpair.subresource.aspectMask = aspectMask;
+        SetLayout(pObject, imgpair, layout);
+    }
 }
 
-void SetLayout(GLOBAL_CB_NODE *pCB, VkImage image, VkImageSubresource range, const IMAGE_CMD_BUF_LAYOUT_NODE &node) {
+template <class OBJECT, class LAYOUT>
+void SetLayout(OBJECT *pObject, VkImage image, VkImageSubresource range, const LAYOUT &layout) {
     ImageSubresourcePair imgpair = {image, true, range};
-    SetLayout(pCB, image, imgpair, node);
+    SetLayout(pObject, imgpair, layout, VK_IMAGE_ASPECT_COLOR_BIT);
+    SetLayout(pObject, imgpair, layout, VK_IMAGE_ASPECT_DEPTH_BIT);
+    SetLayout(pObject, imgpair, layout, VK_IMAGE_ASPECT_STENCIL_BIT);
+    SetLayout(pObject, imgpair, layout, VK_IMAGE_ASPECT_METADATA_BIT);
 }
 
-void SetLayout(GLOBAL_CB_NODE *pCB, VkImage image, const VkImageLayout &layout) {
+template <class OBJECT, class LAYOUT> void SetLayout(OBJECT *pObject, VkImage image, const LAYOUT &layout) {
     ImageSubresourcePair imgpair = {image, false, VkImageSubresource()};
-    SetLayout(pCB, image, imgpair, layout);
-}
-
-void SetLayout(GLOBAL_CB_NODE *pCB, VkImage image, VkImageSubresource range, const VkImageLayout &layout) {
-    ImageSubresourcePair imgpair = {image, true, range};
-    SetLayout(pCB, image, imgpair, layout);
+    SetLayout(pObject, image, imgpair, layout);
 }
 
 void SetLayout(const layer_data *dev_data, GLOBAL_CB_NODE *pCB, VkImageView imageView, const VkImageLayout &layout) {
@@ -4020,7 +4021,7 @@ static VkBool32 dsUpdate(layer_data *my_data, VkDevice device, uint32_t descript
                             // Now update appropriate descriptor(s) to point to new Update node
                             for (uint32_t j = startIndex; j <= endIndex; j++) {
                                 assert(j < pSet->descriptorCount);
-                                pSet->ppDescriptors[j] = pNewNode;
+                                pSet->pDescriptorUpdates[j] = pNewNode;
                             }
                         }
                     }
@@ -4097,7 +4098,7 @@ static VkBool32 dsUpdate(layer_data *my_data, VkDevice device, uint32_t descript
                         // point dst descriptor at corresponding src descriptor
                         // TODO : This may be a hole. I believe copy should be its own copy,
                         //  otherwise a subsequent write update to src will incorrectly affect the copy
-                        pDstSet->ppDescriptors[j + dstStartIndex] = pSrcSet->ppDescriptors[j + srcStartIndex];
+                        pDstSet->pDescriptorUpdates[j + dstStartIndex] = pSrcSet->pDescriptorUpdates[j + srcStartIndex];
                         pDstSet->pUpdateStructs = pSrcSet->pUpdateStructs;
                     }
                 }
@@ -4163,7 +4164,7 @@ static void freeShadowUpdateTree(SET_NODE *pSet) {
     pSet->pUpdateStructs = NULL;
     GENERIC_HEADER *pFreeUpdate = pShadowUpdate;
     // Clear the descriptor mappings as they will now be invalid
-    memset(pSet->ppDescriptors, 0, pSet->descriptorCount * sizeof(GENERIC_HEADER *));
+    pSet->pDescriptorUpdates.clear();
     while (pShadowUpdate) {
         pFreeUpdate = pShadowUpdate;
         pShadowUpdate = (GENERIC_HEADER *)pShadowUpdate->pNext;
@@ -4216,7 +4217,6 @@ static void deletePools(layer_data *my_data) {
             // Freeing layouts handled in deleteLayouts() function
             // Free Update shadow struct tree
             freeShadowUpdateTree(pFreeSet);
-            delete[] pFreeSet->ppDescriptors;
             delete pFreeSet;
         }
         delete (*ii).second;
@@ -6760,8 +6760,10 @@ vkAllocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo *pAl
                     if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                 VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, (uint64_t)pDescriptorSets[i], __LINE__,
                                 DRAWSTATE_OUT_OF_MEMORY, "DS",
-                                "Out of memory while attempting to allocate SET_NODE in vkAllocateDescriptorSets()"))
+                                "Out of memory while attempting to allocate SET_NODE in vkAllocateDescriptorSets()")) {
+                        loader_platform_thread_unlock_mutex(&globalLock);
                         return VK_ERROR_VALIDATION_FAILED_EXT;
+                    }
                 } else {
                     // TODO : Pool should store a total count of each type of Descriptor available
                     //  When descriptors are allocated, decrement the count and validate here
@@ -6777,17 +6779,17 @@ vkAllocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo *pAl
                                     __LINE__, DRAWSTATE_INVALID_LAYOUT, "DS",
                                     "Unable to find set layout node for layout %#" PRIxLEAST64
                                     " specified in vkAllocateDescriptorSets() call",
-                                    (uint64_t)pAllocateInfo->pSetLayouts[i]))
+                                    (uint64_t)pAllocateInfo->pSetLayouts[i])) {
+                            loader_platform_thread_unlock_mutex(&globalLock);
                             return VK_ERROR_VALIDATION_FAILED_EXT;
+                        }
                     }
                     pNewNode->pLayout = pLayout;
                     pNewNode->pool = pAllocateInfo->descriptorPool;
                     pNewNode->set = pDescriptorSets[i];
                     pNewNode->descriptorCount = (pLayout->createInfo.bindingCount != 0) ? pLayout->endIndex + 1 : 0;
                     if (pNewNode->descriptorCount) {
-                        size_t descriptorArraySize = sizeof(GENERIC_HEADER *) * pNewNode->descriptorCount;
-                        pNewNode->ppDescriptors = new GENERIC_HEADER *[descriptorArraySize];
-                        memset(pNewNode->ppDescriptors, 0, descriptorArraySize);
+                        pNewNode->pDescriptorUpdates.resize(pNewNode->descriptorCount);
                     }
                     dev_data->setMap[pDescriptorSets[i]] = pNewNode;
                 }
@@ -7735,9 +7737,7 @@ vkCmdDrawIndexedIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDevic
     if (pCB) {
         skipCall |= addCmd(dev_data, pCB, CMD_DRAWINDEXEDINDIRECT, "vkCmdDrawIndexedIndirect()");
         pCB->drawCount[DRAW_INDEXED_INDIRECT]++;
-        loader_platform_thread_unlock_mutex(&globalLock);
         skipCall |= validate_draw_state(dev_data, pCB, VK_TRUE);
-        loader_platform_thread_lock_mutex(&globalLock);
         // TODO : Need to pass commandBuffer as srcObj here
         skipCall |=
             log_msg(dev_data->report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
@@ -7801,7 +7801,6 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer(VkCommandBuffer comma
 #if MTMERGESOURCE
     VkDeviceMemory mem;
     auto cb_data = dev_data->commandBufferMap.find(commandBuffer);
-    loader_platform_thread_lock_mutex(&globalLock);
     skipCall =
         get_mem_binding_from_object(dev_data, commandBuffer, (uint64_t)srcBuffer, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT, &mem);
     if (cb_data != dev_data->commandBufferMap.end()) {
@@ -7846,7 +7845,7 @@ VkBool32 VerifySourceImageLayout(VkCommandBuffer cmdBuffer, VkImage srcImage, Vk
         VkImageSubresource sub = {subLayers.aspectMask, subLayers.mipLevel, layer};
         IMAGE_CMD_BUF_LAYOUT_NODE node;
         if (!FindLayout(pCB, srcImage, sub, node)) {
-            SetLayout(pCB, srcImage, sub, {srcImageLayout, srcImageLayout});
+            SetLayout(pCB, srcImage, sub, IMAGE_CMD_BUF_LAYOUT_NODE(srcImageLayout, srcImageLayout));
             continue;
         }
         if (node.layout != srcImageLayout) {
@@ -7885,7 +7884,7 @@ VkBool32 VerifyDestImageLayout(VkCommandBuffer cmdBuffer, VkImage destImage, VkI
         VkImageSubresource sub = {subLayers.aspectMask, subLayers.mipLevel, layer};
         IMAGE_CMD_BUF_LAYOUT_NODE node;
         if (!FindLayout(pCB, destImage, sub, node)) {
-            SetLayout(pCB, destImage, sub, {destImageLayout, destImageLayout});
+            SetLayout(pCB, destImage, sub, IMAGE_CMD_BUF_LAYOUT_NODE(destImageLayout, destImageLayout));
             continue;
         }
         if (node.layout != destImageLayout) {
@@ -8398,7 +8397,8 @@ VkBool32 TransitionImageLayouts(VkCommandBuffer cmdBuffer, uint32_t memBarrierCo
                 VkImageSubresource sub = {mem_barrier->subresourceRange.aspectMask, level, layer};
                 IMAGE_CMD_BUF_LAYOUT_NODE node;
                 if (!FindLayout(pCB, mem_barrier->image, sub, node)) {
-                    SetLayout(pCB, mem_barrier->image, sub, {mem_barrier->oldLayout, mem_barrier->newLayout});
+                    SetLayout(pCB, mem_barrier->image, sub,
+                              IMAGE_CMD_BUF_LAYOUT_NODE(mem_barrier->oldLayout, mem_barrier->newLayout));
                     continue;
                 }
                 if (mem_barrier->oldLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
@@ -9220,7 +9220,7 @@ VkBool32 ValidateLayouts(const layer_data *my_data, VkDevice device, const VkRen
                                     (VkDebugReportObjectTypeEXT)0, 0, __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
                                     "Layout for input attachment is GENERAL but should be READ_ONLY_OPTIMAL.");
                 } else {
-                    skip |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                    skip |= log_msg(my_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                     DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
                                     "Layout for input attachment is %s but can only be READ_ONLY_OPTIMAL or GENERAL.",
                                     string_VkImageLayout(subpass.pInputAttachments[j].layout));
@@ -9235,7 +9235,7 @@ VkBool32 ValidateLayouts(const layer_data *my_data, VkDevice device, const VkRen
                                     (VkDebugReportObjectTypeEXT)0, 0, __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
                                     "Layout for color attachment is GENERAL but should be COLOR_ATTACHMENT_OPTIMAL.");
                 } else {
-                    skip |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                    skip |= log_msg(my_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                     DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
                                     "Layout for color attachment is %s but can only be COLOR_ATTACHMENT_OPTIMAL or GENERAL.",
                                     string_VkImageLayout(subpass.pColorAttachments[j].layout));
@@ -9251,7 +9251,7 @@ VkBool32 ValidateLayouts(const layer_data *my_data, VkDevice device, const VkRen
                                     "Layout for depth attachment is GENERAL but should be DEPTH_STENCIL_ATTACHMENT_OPTIMAL.");
                 } else {
                     skip |=
-                        log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                        log_msg(my_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                 DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
                                 "Layout for depth attachment is %s but can only be DEPTH_STENCIL_ATTACHMENT_OPTIMAL or GENERAL.",
                                 string_VkImageLayout(subpass.pDepthStencilAttachment->layout));
@@ -9329,6 +9329,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice devic
     // Validate
     skip_call |= ValidateLayouts(dev_data, device, pCreateInfo);
     if (VK_FALSE != skip_call) {
+        loader_platform_thread_unlock_mutex(&globalLock);
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
     loader_platform_thread_unlock_mutex(&globalLock);
@@ -9494,8 +9495,9 @@ VkBool32 VerifyFramebufferAndRenderPassLayouts(VkCommandBuffer cmdBuffer, const 
                         log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                 DRAWSTATE_INVALID_RENDERPASS, "DS", "You cannot start a render pass using attachment %i "
                                                                     "where the "
-                                                                    "intial layout differs from the starting layout.",
-                                i);
+                                                                    "initial layout is %s and the layout of the attachment at the "
+                                                                    "start of the render pass is %s. The layouts must match.",
+                                i, string_VkImageLayout(newNode.layout), string_VkImageLayout(node.layout));
                 }
             }
         }
@@ -9560,6 +9562,25 @@ void TransitionFinalSubpassLayouts(VkCommandBuffer cmdBuffer, const VkRenderPass
     }
 }
 
+bool VerifyRenderAreaBounds(const layer_data *my_data, const VkRenderPassBeginInfo *pRenderPassBegin) {
+    bool skip_call = false;
+    const VkFramebufferCreateInfo *pFramebufferInfo = &my_data->frameBufferMap.at(pRenderPassBegin->framebuffer).createInfo;
+    if (pRenderPassBegin->renderArea.offset.x < 0 ||
+        (pRenderPassBegin->renderArea.offset.x + pRenderPassBegin->renderArea.extent.width) > pFramebufferInfo->width ||
+        pRenderPassBegin->renderArea.offset.y < 0 ||
+        (pRenderPassBegin->renderArea.offset.y + pRenderPassBegin->renderArea.extent.height) > pFramebufferInfo->height) {
+        skip_call |= static_cast<bool>(log_msg(
+            my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+            DRAWSTATE_INVALID_RENDER_AREA, "CORE",
+            "Cannot execute a render pass with renderArea not within the bound of the "
+            "framebuffer. RenderArea: x %d, y %d, width %d, height %d. Framebuffer: width %d, "
+            "height %d.",
+            pRenderPassBegin->renderArea.offset.x, pRenderPassBegin->renderArea.offset.y, pRenderPassBegin->renderArea.extent.width,
+            pRenderPassBegin->renderArea.extent.height, pFramebufferInfo->width, pFramebufferInfo->height));
+    }
+    return skip_call;
+}
+
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
 vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo *pRenderPassBegin, VkSubpassContents contents) {
     VkBool32 skipCall = VK_FALSE;
@@ -9620,6 +9641,7 @@ vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo 
                 }
             }
 #endif
+            skipCall |= static_cast<VkBool32>(VerifyRenderAreaBounds(dev_data, pRenderPassBegin));
             skipCall |= VerifyFramebufferAndRenderPassLayouts(commandBuffer, pRenderPassBegin);
             auto render_pass_data = dev_data->renderPassMap.find(pRenderPassBegin->renderPass);
             if (render_pass_data != dev_data->renderPassMap.end()) {
@@ -10098,7 +10120,9 @@ vkMapMemory(VkDevice device, VkDeviceMemory mem, VkDeviceSize offset, VkDeviceSi
     if (VK_FALSE == skip_call) {
         result = dev_data->device_dispatch_table->MapMemory(device, mem, offset, size, flags, ppData);
 #if MTMERGESOURCE
+        loader_platform_thread_lock_mutex(&globalLock);
         initializeAndTrackMemory(dev_data, mem, size, ppData);
+        loader_platform_thread_unlock_mutex(&globalLock);
 #endif
     }
     return result;

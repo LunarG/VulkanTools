@@ -41,10 +41,6 @@
 
 using std::vector;
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-
 #if MTMERGE
 // Mem Tracker ERROR codes
 typedef enum _MEM_TRACK_ERROR {
@@ -192,11 +188,14 @@ struct MT_SWAP_CHAIN_INFO {
 #endif
 // Draw State ERROR codes
 typedef enum _DRAW_STATE_ERROR {
+    // TODO: Remove the comments here or expand them. There isn't any additional information in the
+    // comments than in the name in almost all cases.
     DRAWSTATE_NONE,                          // Used for INFO & other non-error messages
     DRAWSTATE_INTERNAL_ERROR,                // Error with DrawState internal data structures
     DRAWSTATE_NO_PIPELINE_BOUND,             // Unable to identify a bound pipeline
     DRAWSTATE_INVALID_POOL,                  // Invalid DS pool
     DRAWSTATE_INVALID_SET,                   // Invalid DS
+    DRAWSTATE_INVALID_RENDER_AREA,           // Invalid renderArea
     DRAWSTATE_INVALID_LAYOUT,                // Invalid DS layout
     DRAWSTATE_INVALID_IMAGE_LAYOUT,          // Invalid Image layout
     DRAWSTATE_INVALID_PIPELINE,              // Invalid Pipeline handle referenced
@@ -419,8 +418,8 @@ typedef struct _PIPELINE_NODE {
     VkComputePipelineCreateInfo computePipelineCI;
     // Flag of which shader stages are active for this pipeline
     uint32_t active_shaders;
-    // Capture which sets are actually used by the shaders of this pipeline
-    std::set<unsigned> active_sets;
+    // Capture which slots (set#->bindings) are actually used by the shaders of this pipeline
+    unordered_map<uint32_t, unordered_set<uint32_t>> active_slots;
     // Vtx input info (if any)
     std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
@@ -429,9 +428,7 @@ typedef struct _PIPELINE_NODE {
     _PIPELINE_NODE()
         : pipeline{}, graphicsPipelineCI{}, vertexInputCI{}, iaStateCI{}, tessStateCI{}, vpStateCI{}, rsStateCI{}, msStateCI{},
           cbStateCI{}, dsStateCI{}, dynStateCI{}, vsCI{}, tcsCI{}, tesCI{}, gsCI{}, fsCI{}, computePipelineCI{}, active_shaders(0),
-          active_sets(),
-          vertexBindingDescriptions(), vertexAttributeDescriptions(), attachments()
-          {}
+          active_slots(), vertexBindingDescriptions(), vertexAttributeDescriptions(), attachments() {}
 } PIPELINE_NODE;
 
 class BASE_NODE {
@@ -459,10 +456,15 @@ typedef struct _IMAGE_LAYOUT_NODE {
     VkFormat format;
 } IMAGE_LAYOUT_NODE;
 
-typedef struct _IMAGE_CMD_BUF_LAYOUT_NODE {
+class IMAGE_CMD_BUF_LAYOUT_NODE {
+  public:
+    IMAGE_CMD_BUF_LAYOUT_NODE() {}
+    IMAGE_CMD_BUF_LAYOUT_NODE(VkImageLayout initialLayoutInput, VkImageLayout layoutInput)
+        : initialLayout(initialLayoutInput), layout(layoutInput) {}
+
     VkImageLayout initialLayout;
     VkImageLayout layout;
-} IMAGE_CMD_BUF_LAYOUT_NODE;
+};
 
 class BUFFER_NODE : public BASE_NODE {
   public:
@@ -592,7 +594,7 @@ typedef struct _LAYOUT_NODE {
     vector<VkShaderStageFlags> stageFlags;               // stageFlags per descriptor in this
                                                          // layout to verify correct updates
     unordered_map<uint32_t, uint32_t> bindingToIndexMap; // map set binding # to
-                                                         // pBindings index
+                                                         // createInfo.pBindings index
     // Default constructor
     _LAYOUT_NODE() : layout{}, createInfo{}, startIndex(0), endIndex(0), dynamicDescriptorCount(0){};
 } LAYOUT_NODE;
@@ -612,11 +614,11 @@ class SET_NODE : public BASE_NODE {
     GENERIC_HEADER *pUpdateStructs;
     // Total num of descriptors in this set (count of its layout plus all prior layouts)
     uint32_t descriptorCount;
-    GENERIC_HEADER **ppDescriptors; // Array where each index points to update node for its slot
+    vector<GENERIC_HEADER*> pDescriptorUpdates; // Vector where each index points to update node for its slot
     LAYOUT_NODE *pLayout;           // Layout for this set
     SET_NODE *pNext;
     unordered_set<VkCommandBuffer> boundCmdBuffers; // Cmd buffers that this set has been bound to
-    SET_NODE() : pUpdateStructs(NULL), ppDescriptors(NULL), pLayout(NULL), pNext(NULL){};
+    SET_NODE() : set(VK_NULL_HANDLE), pool(VK_NULL_HANDLE), pUpdateStructs(nullptr), pLayout(nullptr), pNext(nullptr){};
 };
 
 typedef struct _DESCRIPTOR_POOL_NODE {
@@ -890,7 +892,3 @@ class SWAPCHAIN_NODE {
     }
     ~SWAPCHAIN_NODE() { delete[] pQueueFamilyIndices; }
 };
-
-//#ifdef __cplusplus
-//}
-//#endif
