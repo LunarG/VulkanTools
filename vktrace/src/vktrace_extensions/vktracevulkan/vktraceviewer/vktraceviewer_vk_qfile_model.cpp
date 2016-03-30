@@ -46,8 +46,7 @@ QString vktraceviewer_vk_QFileModel::get_packet_string(const vktrace_trace_packe
     }
     else
     {
-        QString packetString = vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id);
-//        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader, FALSE);
+        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader);
         return packetString;
     }
 }
@@ -60,8 +59,7 @@ QString vktraceviewer_vk_QFileModel::get_packet_string_multiline(const vktrace_t
     }
     else
     {
-        QString packetString = vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id);
-//        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader, TRUE);
+        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader);
         return packetString;
     }
 }

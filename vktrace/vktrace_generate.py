@@ -143,6 +143,45 @@ class Subcommand(object):
 
         return "\n".join(func_protos)
 
+    # Return set of printf '%' qualifier, input to that qualifier, and any dereference
+    def _get_printf_params(self, vk_type, name, output_param):
+        deref = ""
+        # TODO : Need ENUM and STRUCT checks here
+        if "VkImageLayout" in vk_type:
+            return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
+        if "VkClearColor" in vk_type:
+            return ("%p", "(void*)&%s" % name, deref)
+        if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
+            return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
+        if "char*" == vk_type:
+            return ("%s", name, "*")
+        if "uint64_t" in vk_type:
+            if '*' in vk_type:
+                return ("%llu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%llu", name, deref)
+        if "VkBool32" in vk_type:
+            if '*' in vk_type:
+                return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
+            return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
+        if "size_t" in vk_type:
+            if '*' in vk_type:
+                return ("%zu", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%zu", name, deref)
+        if "float" in vk_type:
+            if '[' in vk_type: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
+                return ("[%f, %f, %f, %f]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
+            return ("%f", name, deref)
+        if "bool" in vk_type or 'xcb_randr_crtc_t' in vk_type:
+            return ("%u", name, deref)
+        if True in [t in vk_type.lower() for t in ["int", "flags", "mask", "xcb_window_t"]]:
+            if '[' in vk_type: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
+                return ("[%i, %i, %i, %i]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
+            if '*' in vk_type:
+                return ("%i", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%i", name, deref)
+        if output_param:
+            return ("%p", "(void*)%s" % name, deref)
+        return ("%p", "(void*)(%s)" % name, deref)
 
     def _generate_init_funcs(self):
         init_tracer = []
@@ -526,6 +565,50 @@ class Subcommand(object):
         func_body.append('}\n')
         return "\n".join(func_body)
 
+    def _generate_stringify_func(self):
+        func_body = []
+        func_body.append('static const char *vktrace_stringify_vk_packet_id(const enum VKTRACE_TRACE_PACKET_ID_VK id, const vktrace_trace_packet_header* pHeader)')
+        func_body.append('{')
+        func_body.append('    static char str[1024];')
+        func_body.append('    switch(id) {')
+        func_body.append('    case VKTRACE_TPI_VK_vkApiVersion:')
+        func_body.append('    {')
+        func_body.append('        packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(pHeader->pBody);')
+        func_body.append('        snprintf(str, 1024, "vkApiVersion = 0x%x", pPacket->version);')
+        func_body.append('        return str;')
+        func_body.append('    }')
+        for proto in self.protos:
+            func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
+            func_body.append('    {')
+            func_str = 'vk%s(' % proto.name
+            print_vals = ''
+            create_func = False
+            if 'Create' in proto.name or 'Alloc' in proto.name or 'MapMemory' in proto.name:
+                create_func = True
+            for p in proto.params:
+                last_param = False
+                if (p.name == proto.params[-1].name):
+                    last_param = True
+                if last_param and create_func: # last param of create func
+                    (pft, pfi, ptr) = self._get_printf_params(p.ty,'pPacket->%s' % p.name, True)
+                else:
+                    (pft, pfi, ptr) = self._get_printf_params(p.ty, 'pPacket->%s' % p.name, False)
+                if last_param == True:
+                    func_str += '%s%s = %s)' % (ptr, p.name, pft)
+                    print_vals += ', %s' % (pfi)
+                else:
+                    func_str += '%s%s = %s, ' % (ptr, p.name, pft)
+                    print_vals += ', %s' % (pfi)
+            func_body.append('        packet_vk%s* pPacket = (packet_vk%s*)(pHeader->pBody);' % (proto.name, proto.name))
+            func_body.append('        snprintf(str, 1024, "%s"%s);' % (func_str, print_vals))
+            func_body.append('        return str;')
+            func_body.append('    }')
+        func_body.append('    default:')
+        func_body.append('        return NULL;')
+        func_body.append('    }')
+        func_body.append('};\n')
+        return "\n".join(func_body)
+    
     def _generate_interp_func(self):
         interp_func_body = []
         interp_func_body.append('%s' % self.lineinfo.get())
@@ -1855,7 +1938,7 @@ class VktracePacketID(Subcommand):
         header_txt.append('#include "vktrace_trace_packet_identifiers.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
         #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
-        #header_txt.append('#include "vk_enum_string_helper.h"')
+        header_txt.append('#include "vk_enum_string_helper.h"')
         header_txt.append('#ifndef _WIN32')
         header_txt.append(' #pragma GCC diagnostic ignored "-Wwrite-strings"')
         header_txt.append('#endif')
@@ -1881,7 +1964,7 @@ class VktracePacketID(Subcommand):
     def generate_body(self):
         body = [self._generate_packet_id_enum(),
                 self._generate_packet_id_name_func(),
-#                self._generate_stringify_func(),
+                self._generate_stringify_func(),
                 self._generate_interp_func()]
 
         return "\n".join(body)

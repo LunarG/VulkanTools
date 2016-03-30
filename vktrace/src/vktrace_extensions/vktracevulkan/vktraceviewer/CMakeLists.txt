@@ -20,8 +20,6 @@ set(SRC_LIST
     vktraceviewer_vk_qfile_model.cpp
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_QReplayWorker.cpp
     ${SRC_DIR}/vktrace_replay/vkreplay_factory.cpp
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_struct_string_helper.c
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_lunarg_struct_string_helper.c
 )
 
 # This should only contain headers that define a QOBJECT
@@ -45,19 +43,8 @@ set(HDR_LIST
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_controller.h
     ${SRC_DIR}/vktrace_replay/vkreplay_factory.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_enum_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_struct_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_lunarg_enum_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_lunarg_struct_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_swapchain_enum_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_swapchain_struct_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_device_swapchain_enum_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_wsi_device_swapchain_struct_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_debug_report_lunarg_enum_string_helper.h
-#    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_debug_report_lunarg_struct_string_helper.h
     ${CODEGEN_VKTRACE_DIR}/vktrace_vk_packet_id.h
     ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_packets.h
-    # ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_wsi_lunarg_packets.h
-#    ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_debug_report_lunarg_packets.h
 )
 
 include_directories(
@@ -67,9 +54,9 @@ include_directories(
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}/../vkreplay
+    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils
     ${VKTRACE_VULKAN_DIR}/${CODEGEN_VKTRACE_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
-    ${VKTRACE_VULKAN_DIR}/vulkan/codegen_utils
     ${Qt5Widgets_INCLUDE_DIRS}
 )
 

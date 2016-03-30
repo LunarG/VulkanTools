@@ -32,22 +32,14 @@
 extern "C"
 {
 #include "vktrace_settings.h"
+#include "vkreplay_main.h"
 }
 
 #include <vulkan/vulkan.h>
 
-typedef struct vkreplay_settings
-{
-    const char* enableLayers;
-    const char* drawStateReportFlags;
-    const char* drawStateDebugAction;
-    const char* memTrackerReportFlags;
-    const char* memTrackerDebugAction;
-    const char* objectTrackerReportFlags;
-    const char* objectTrackerDebugAction;
-} vkreplay_settings;
+static vkreplayer_settings s_defaultVkReplaySettings = { NULL, 1, -1, -1, NULL };
 
-extern vkreplay_settings g_vkReplaySettings;
+extern vkreplayer_settings g_vkReplaySettings;
 extern vktrace_SettingGroup g_vkReplaySettingGroup;
 
 void apply_layerSettings_overrides();

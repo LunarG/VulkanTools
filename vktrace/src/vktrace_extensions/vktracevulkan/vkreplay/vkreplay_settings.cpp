@@ -30,21 +30,17 @@
 
 #include "vkreplay_settings.h"
 // declared as extern in header
-static vkreplay_settings s_defaultVkReplaySettings = { "",
-                                                       STRINGIFY(VK_DBG_LAYER_LEVEL_ERROR), STRINGIFY(VK_DBG_LAYER_ACTION_CALLBACK),
-                                                       STRINGIFY(VK_DBG_LAYER_LEVEL_ERROR), STRINGIFY(VK_DBG_LAYER_ACTION_CALLBACK),
-                                                       STRINGIFY(VK_DBG_LAYER_LEVEL_ERROR), STRINGIFY(VK_DBG_LAYER_ACTION_CALLBACK)};
-vkreplay_settings g_vkReplaySettings;
+vkreplayer_settings g_vkReplaySettings;
 
 vktrace_SettingInfo g_vk_settings_info[] =
 {
-    { "e", "EnableLayers", VKTRACE_SETTING_STRING, &g_vkReplaySettings.enableLayers, &s_defaultVkReplaySettings.enableLayers, TRUE, "Comma separated list of Vulkan layers to enable."},
-    { "dsrf", "DrawStateReportFlags", VKTRACE_SETTING_STRING, &g_vkReplaySettings.drawStateReportFlags, &s_defaultVkReplaySettings.drawStateReportFlags, TRUE, "DrawState Layer reporting level"},
-    { "dsda", "DrawStateDebugAction", VKTRACE_SETTING_STRING, &g_vkReplaySettings.drawStateDebugAction, &s_defaultVkReplaySettings.drawStateDebugAction, TRUE, "DrawState Layer debug action"},
-    { "mtrf", "MemTrackerReportFlags", VKTRACE_SETTING_STRING, &g_vkReplaySettings.memTrackerReportFlags, &s_defaultVkReplaySettings.memTrackerReportFlags, TRUE, "MemTracker Layer reporting level"},
-    { "mtda", "MemTrackerDebugAction", VKTRACE_SETTING_STRING, &g_vkReplaySettings.memTrackerDebugAction, &s_defaultVkReplaySettings.memTrackerDebugAction, TRUE, "MemTracker Layer debug action"},
-    { "dsrf", "ObjectTrackerReportFlags", VKTRACE_SETTING_STRING, &g_vkReplaySettings.objectTrackerReportFlags, &s_defaultVkReplaySettings.objectTrackerReportFlags, TRUE, "ObjectTracker Layer reporting level"},
-    { "dsda", "ObjectTrackerDebugAction", VKTRACE_SETTING_STRING, &g_vkReplaySettings.objectTrackerDebugAction, &s_defaultVkReplaySettings.objectTrackerDebugAction, TRUE, "ObjectTracker Layer debug action"},};
+    { "t", "TraceFile", VKTRACE_SETTING_STRING, &g_vkReplaySettings.pTraceFilePath, &s_defaultVkReplaySettings.pTraceFilePath, TRUE, "The trace file to replay." },
+    { "l", "NumLoops", VKTRACE_SETTING_UINT, &g_vkReplaySettings.numLoops, &s_defaultVkReplaySettings.numLoops, TRUE, "The number of times to replay the trace file or loop range." },
+    { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, &g_vkReplaySettings.loopStartFrame, &s_defaultVkReplaySettings.loopStartFrame, TRUE, "The start frame number of the loop range." },
+    { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, &g_vkReplaySettings.loopEndFrame, &s_defaultVkReplaySettings.loopEndFrame, TRUE, "The end frame number of the loop range." },
+    { "s", "Screenshot", VKTRACE_SETTING_STRING, &g_vkReplaySettings.screenshotList, &s_defaultVkReplaySettings.screenshotList, TRUE, "Comma separated list of frames to take a take snapshots of" },
+};
+
 vktrace_SettingGroup g_vkReplaySettingGroup =
 {
     "vkreplay_vk",
@@ -67,46 +63,46 @@ void apply_layerSettings_overrides()
 char** get_enableLayers_list(unsigned int *pNumLayers)
 {
     char** pList = NULL;
-    size_t len = strlen(g_vkReplaySettings.enableLayers);
-    assert(pNumLayers != NULL);
-    *pNumLayers = 0;
+    //size_t len = strlen(g_vkReplaySettings.enableLayers);
+    //assert(pNumLayers != NULL);
+    //*pNumLayers = 0;
 
-    if (g_vkReplaySettings.enableLayers != NULL && len > 0)
-    {
-        // The string contains 1 layer + another layer for each comma
-        *pNumLayers = 1;
-        size_t c;
-        int i;
+    //if (g_vkReplaySettings.enableLayers != NULL && len > 0)
+    //{
+    //    // The string contains 1 layer + another layer for each comma
+    //    *pNumLayers = 1;
+    //    size_t c;
+    //    int i;
 
-        // count number of commas to determine number of layers
-        for (c = 0; c < len; c++)
-        {
-            if (g_vkReplaySettings.enableLayers[c] == ',')
-            {
-                (*pNumLayers)++;
-            }
-        }
+    //    // count number of commas to determine number of layers
+    //    for (c = 0; c < len; c++)
+    //    {
+    //        if (g_vkReplaySettings.enableLayers[c] == ',')
+    //        {
+    //            (*pNumLayers)++;
+    //        }
+    //    }
 
-        // allocate an array to contain pointers to the layer names
-        pList = VKTRACE_NEW_ARRAY(char*, (*pNumLayers));
+    //    // allocate an array to contain pointers to the layer names
+    //    pList = VKTRACE_NEW_ARRAY(char*, (*pNumLayers));
 
-        // copy the entire string to the first element in the list to keep
-        // the layer names localized in memory.
-        pList[0] = (char*)vktrace_allocate_and_copy(g_vkReplaySettings.enableLayers);
+    //    // copy the entire string to the first element in the list to keep
+    //    // the layer names localized in memory.
+    //    pList[0] = (char*)vktrace_allocate_and_copy(g_vkReplaySettings.enableLayers);
 
-        // now walk the string and replace commas with NULL and record
-        // the pointers in the pList array.
-        i = 1;
-        for (c = 0; c < len; c++)
-        {
-            if (pList[0][c] == ',')
-            {
-                pList[0][c] = '\0';
-                pList[i] = &pList[0][c+1];
-                i++;
-            }
-        }
-    }
+    //    // now walk the string and replace commas with NULL and record
+    //    // the pointers in the pList array.
+    //    i = 1;
+    //    for (c = 0; c < len; c++)
+    //    {
+    //        if (pList[0][c] == ',')
+    //        {
+    //            pList[0][c] = '\0';
+    //            pList[i] = &pList[0][c+1];
+    //            i++;
+    //        }
+    //    }
+    //}
 
     return pList;
 }
