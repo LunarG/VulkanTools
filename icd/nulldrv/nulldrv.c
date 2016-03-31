@@ -43,14 +43,14 @@
     #define NULLDRV_LOG_FUNC do { } while (0)
 #endif
 
-static const VkExtensionProperties nulldrv_instance_extensions[NULLDRV_EXT_COUNT] = {
+static const VkExtensionProperties nulldrv_instance_extensions[NULLDRV_INST_EXT_COUNT] = {
     {
         .extensionName = VK_KHR_SURFACE_EXTENSION_NAME,
         .specVersion = VK_KHR_SURFACE_SPEC_VERSION,
     }
 };
 
-const VkExtensionProperties nulldrv_device_exts[1] = {
+const VkExtensionProperties nulldrv_device_exts[NULLDRV_DEV_EXT_COUNT] = {
     {
         .extensionName = VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         .specVersion = VK_KHR_SWAPCHAIN_SPEC_VERSION,
@@ -156,18 +156,18 @@ static VkResult dev_create_queues(struct nulldrv_dev *dev,
     return VK_SUCCESS;
 }
 
-static enum nulldrv_ext_type nulldrv_gpu_lookup_extension(
+static enum nulldrv_dev_ext_type nulldrv_gpu_lookup_extension(
         const struct nulldrv_gpu *gpu,
         const char* extensionName)
 {
-    enum nulldrv_ext_type type;
+    enum nulldrv_dev_ext_type type;
 
     for (type = 0; type < ARRAY_SIZE(nulldrv_device_exts); type++) {
         if (strcmp(nulldrv_device_exts[type].extensionName, extensionName) == 0)
             break;
     }
 
-    assert(type < NULLDRV_EXT_COUNT || type == NULLDRV_EXT_INVALID);
+    assert(type < NULLDRV_DEV_EXT_COUNT || type == NULLDRV_DEV_EXT_INVALID);
 
     return type;
 }
@@ -205,11 +205,10 @@ static VkResult nulldrv_dev_create(struct nulldrv_gpu *gpu,
         return VK_ERROR_OUT_OF_HOST_MEMORY;
 
     for (i = 0; i < info->enabledExtensionCount; i++) {
-        const enum nulldrv_ext_type ext = nulldrv_gpu_lookup_extension(
-                    gpu,
-                    info->ppEnabledExtensionNames[i]);
+        const enum nulldrv_dev_ext_type ext = nulldrv_gpu_lookup_extension(
+                    gpu, info->ppEnabledExtensionNames[i]);
 
-        if (ext == NULLDRV_EXT_INVALID)
+        if (ext == NULLDRV_DEV_EXT_INVALID)
             return VK_ERROR_EXTENSION_NOT_PRESENT;
 
         dev->exts[ext] = true;
@@ -1458,14 +1457,14 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(
     uint32_t copy_size;
 
     if (pProperties == NULL) {
-        *pPropertyCount = NULLDRV_EXT_COUNT;
+        *pPropertyCount = NULLDRV_INST_EXT_COUNT;
         return VK_SUCCESS;
     }
 
-    copy_size = *pPropertyCount < NULLDRV_EXT_COUNT ? *pPropertyCount : NULLDRV_EXT_COUNT;
+    copy_size = *pPropertyCount < NULLDRV_INST_EXT_COUNT ? *pPropertyCount : NULLDRV_INST_EXT_COUNT;
     memcpy(pProperties, nulldrv_instance_extensions, copy_size * sizeof(VkExtensionProperties));
     *pPropertyCount = copy_size;
-    if (copy_size < NULLDRV_EXT_COUNT) {
+    if (copy_size < NULLDRV_INST_EXT_COUNT) {
         return VK_INCOMPLETE;
     }
     return VK_SUCCESS;
