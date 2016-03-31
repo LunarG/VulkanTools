@@ -14,8 +14,8 @@ endif()
 find_package(Qt5 COMPONENTS Widgets Gui Core Svg QUIET)
 
 if(NOT Qt5_FOUND)
-# After Qt5.3 is installed, you may need to add the following to the cmake command line:
-# -DQt5_DIR=/home/<username>/Qt/5.3/gcc_64/lib/cmake/Qt5
+# After Qt5.6 is installed, you may need to add the following to the cmake command line:
+# -DCMAKE_PREFIX_PATH=C:\\Qt\\5.6\\msvc2015_64\\
 message(WARNING "WARNING: vktraceviewer will be excluded because Qt5 was not found.")
 else()
 
@@ -114,6 +114,8 @@ if (TARGET SDL)
     add_dependencies(${PROJECT_NAME} SDL)
 endif ()
 
+add_dependencies(${PROJECT_NAME} vktraceviewer_vk)
+
 target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Core
@@ -156,6 +158,7 @@ if (MSVC)
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindowsd.dll"  "${COPY_DEST}/platforms"
                     COMMENT "Copying vktraceviewer Qt5 dependencies to ${COPY_DEST}"
                     VERBATIM)
+
 endif()
 
 build_options_finalize()

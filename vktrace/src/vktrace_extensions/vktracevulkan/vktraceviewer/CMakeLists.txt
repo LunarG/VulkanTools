@@ -7,8 +7,8 @@ include("${SRC_DIR}/build_options.cmake")
 find_package(Qt5 COMPONENTS Widgets Gui Core Svg QUIET)
 
 if(NOT Qt5_FOUND)
-# After Qt5.3 is installed, you may need to add the following to the cmake command line:
-# -DQt5_DIR=/home/<username>/Qt/5.3/gcc_64/lib/cmake/Qt5
+# After Qt5.6 is installed, you may need to add the following to the cmake command line:
+# -DCMAKE_PREFIX_PATH=C:\\Qt\\5.6\\msvc2015_64\\
 message(WARNING "WARNING: vktraceviewer_vk will be excluded because Qt5 was not found.")
 else()
 
@@ -61,6 +61,8 @@ include_directories(
 )
 
 QT5_WRAP_CPP(QT_GEN_HEADER_MOC_LIST ${UI_HEADER_LIST})
+
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../../../../")
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${HDR_LIST}
     ${QT_GEN_HEADER_MOC_LIST}
