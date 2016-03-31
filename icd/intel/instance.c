@@ -266,6 +266,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(
     return VK_SUCCESS;
 }
 
+static VkPhysicalDevice physicalGPU = 0;
+
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
     VkInstance                                instance_,
     uint32_t*                                 pPhysicalDeviceCount,
@@ -278,6 +280,13 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
 
     if (pPhysicalDevices == NULL) {
         *pPhysicalDeviceCount = 1;
+        return VK_SUCCESS;
+    }
+
+    if (physicalGPU)
+    {
+        *pPhysicalDeviceCount = 1;
+        pPhysicalDevices[0] = physicalGPU;
         return VK_SUCCESS;
     }
 
@@ -305,6 +314,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
             intel_instance_add_gpu(instance, gpu);
 
             pPhysicalDevices[count++] = (VkPhysicalDevice) gpu;
+            physicalGPU = (VkPhysicalDevice) gpu;
             if (count >= *pPhysicalDeviceCount)
                 break;
         }

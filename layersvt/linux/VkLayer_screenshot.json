@@ -3,8 +3,8 @@
     "layer" : {
         "name": "VK_LAYER_LUNARG_screenshot",
         "type": "GLOBAL",
-        "library_path": ".\\VkLayer_screenshot.dll",
-        "api_version": "1.0.5",
+        "library_path": "./libVkLayer_screenshot.so",
+        "api_version": "1.0.7",
         "implementation_version": "1",
         "description": "LunarG image capture layer"
     }

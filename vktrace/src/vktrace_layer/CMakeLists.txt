@@ -26,7 +26,7 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_gener
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
     # so that vktrace.exe can find VkLayer_vktrace_layer.dll.
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../../../layers/)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../../../layersvt/)
 endif()
 
 set (CODEGEN_UTILS_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/../vktrace_extensions/vktracevulkan/vulkan/codegen_utils)
@@ -73,21 +73,21 @@ include_directories(
     ${CODEGEN_VKTRACE_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CODEGEN_UTILS_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../layers
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../layersvt
 )
-# copy/link layer json file into build/layers directory
+# copy/link layer json file into build/layersvt directory
 if (NOT WIN32)
     # extra setup for out-of-tree builds
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         add_custom_target(vktrace_layer-json ALL
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/VkLayer_vktrace_layer.json ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}../layers/
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/VkLayer_vktrace_layer.json ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}../layersvt/
             VERBATIM
             )
     endif()
 else()
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
-        FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layers/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
+        FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
         add_custom_target(vktrace_layer-json ALL
             COMMAND copy ${src_json} ${dst_json}
             VERBATIM

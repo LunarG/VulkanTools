@@ -96,7 +96,7 @@ protected:
         this->app_info.applicationVersion = 1;
         this->app_info.pEngineName = "unittest";
         this->app_info.engineVersion = 1;
-        this->app_info.apiVersion = VK_API_VERSION;
+        this->app_info.apiVersion = VK_API_VERSION_1_0;
         VkInstanceCreateInfo inst_info = {};
         inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         inst_info.pNext = NULL;

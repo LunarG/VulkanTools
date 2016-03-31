@@ -1,14 +1,24 @@
 This folder contains the files required for building the Windows Vulkan
 Runtime Installer Package.
 
-To build the Installer:
+To build the Vulkan Runtime Installer:
 
-    1. Install Nullsoft Install System version 3.0b1 or greater. (Available
-       from http://nsis.sourceforge.net/Download.)
+    1. Install Nullsoft Install System (NSIS) version 3.0b1 or greater. The
+       version of NSIS needed for building the Vulkan Runtime Installer
+       must support logging (i.e. must have been built with NSIS_CONFIG_LOG=yes
+       set), and must support long strings (i.e. NSIS_MAX_STRLEN=8192 must be
+       set).  Note that the NSIS binary version available at
+       http://nsis.sourceforge.net/Download does not have these enabled. You
+       may have to build NSIS yourself with these flags set - see
+       http://nsis//sourceforge.net/Docs/AppendixG.html for information on
+       building NSIS.
 
-    2. Build Vulkan LoaderAndValidationLayers as described in ../BUILD.md.
+    2. Install the NSIS AccessControl plug-in. (Available from
+       http://nsis.sourceforge.net/AccessControl_plug-in.)
 
-    3. Edit the InstallerRT.nsi file in this folder and modify the following
+    3. Build Vulkan-LoaderAndValidationLayers as described in ../BUILD.md.
+
+    4. Edit the InstallerRT.nsi file in this folder and modify the following
        lines to match the version of the Windows Vulkan Runtime you wish to
        build:
 
@@ -19,14 +29,14 @@ To build the Installer:
           !define VERSION_BUILDNO
           !define PUBLISHER
 
-    4. Edit the CreateInstaller.sh file and replace SIGNFILE with your
+    5. Edit the CreateInstaller.sh file and replace SIGNFILE with your
        command and necessary args for signing an executable. If you don't
        wish to sign the uninstaller, you can comment out that line.
 
-    5. Run the CreateInstaller.sh script from a Cygwin bash command prompt.
-       The Windows Vulkan Runtime Installer package file will be created in
-       this folder. The name of the installer file is
-       VulkanRT-<version>-Installer.exe.
+    6. Run the CreateInstaller.sh script from a Cygwin bash command prompt.
+       The Cygwin bash shell must be running as Administrator.  The Windows
+       Vulkan Runtime Installer package file will be created in this folder.
+       The name of the installer file is VulkanRT-<version>-Installer.exe.
 
 
 Some notes on the behavior of the Windows Vulkan Runtime Installer:
@@ -85,12 +95,6 @@ Some notes on the behavior of the Windows Vulkan Runtime Installer:
      C:\Windows\SYSWOW64 on 64-bit Windows systems to set up the
      32-bit loader.
 
-   o The Vulkan Runtime Installer returns an exit code of 0-9
-     to indicate success. All other exit codes indicate failure.
-     If the Installer returns a failure exit code, the Installer
-     will have attempted to uninstall whatever it installed before
-     it detected an error.
-
    o The Vulkan Runtime Uninstaller returns an exit code of 0-9
      to indicate success. An exit code of 3 indicates success, but
      a reboot is required to complete the uninstall.  All other
@@ -106,3 +110,10 @@ Some notes on the behavior of the Windows Vulkan Runtime Installer:
      This ProductVersion should always be identical to <version> in:
 
        HKLM\Software\Microsoft\Windows\CurrentVersion\Uininstall\VulkanRT<version>\UinstalString
+
+   o The Installer and Uninstaller create log files, which can be
+     found in the VulkanrRT folder in the current TEMP folder.
+     (The TEMP folder is generally identified by the TEMP environment
+     variable). In addition to installer/uninstaller logs files,
+     the folder also contains a log from the last run of the
+     ConfigLayersAndVulkanDLL.ps1 script.

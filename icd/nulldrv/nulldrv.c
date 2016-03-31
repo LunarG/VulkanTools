@@ -1361,7 +1361,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties(
 {
     NULLDRV_LOG_FUNC;
 
-    pProperties->apiVersion = VK_API_VERSION;
+    pProperties->apiVersion = VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION);
     pProperties->driverVersion = 0; // Appropriate that the nulldrv have 0's
     pProperties->vendorID = 0;
     pProperties->deviceID = 0;
@@ -1379,8 +1379,8 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures(
 {
     NULLDRV_LOG_FUNC;
 
-    /* TODO: fill out features */
-    memset(pFeatures, 0, sizeof(*pFeatures));
+    /* nulldrv "implements" all vulkan features -- by doing nothing */
+    memset(pFeatures, VK_TRUE, sizeof(*pFeatures));
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties(

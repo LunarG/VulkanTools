@@ -23,7 +23,7 @@ cp ../../demos/cube .
 cp ../../demos/*ppm .
 cp ../../demos/*spv .
 export LD_LIBRARY_PATH=`pwd`/../loader:$LD_LIBRARY_PATH
-export VK_LAYER_PATH=`pwd`/../../layers
+export VK_LAYER_PATH=`pwd`/../../layersvt
 
 (
     ./vktrace -s 1 -p cube  -o c01.vktrace &

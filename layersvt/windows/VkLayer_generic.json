@@ -3,9 +3,9 @@
     "layer" : {
         "name": "VK_LAYER_LUNARG_generic",
         "type": "GLOBAL",
-        "library_path": "./libVkLayer_generic.so",
-        "api_version": "1.0.5",
+        "library_path": ".\\VkLayer_generic.dll",
+        "api_version": "1.0.7",
         "implementation_version": "1",
-        "description": "LunarG Sample Layer"
+        "description": "LunarG sample layer"
     }
 }

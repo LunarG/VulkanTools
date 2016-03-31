@@ -32,7 +32,11 @@
  * Author: Tony Barbour <tony@LunarG.com>
  */
 
+#ifdef ANDROID
+#include "vulkan_wrapper.h"
+#else
 #include <vulkan/vulkan.h>
+#endif
 #include "test_common.h"
 #include "vkrenderframework.h"
 #include "vk_layer_config.h"
@@ -263,17 +267,17 @@ class VkLayerTest : public VkRenderFramework {
         // Use Threading layer first to protect others from
         // ThreadCommandBufferCollision test
         instance_layer_names.push_back("VK_LAYER_GOOGLE_threading");
+        instance_layer_names.push_back("VK_LAYER_LUNARG_parameter_validation");
         instance_layer_names.push_back("VK_LAYER_LUNARG_object_tracker");
-        instance_layer_names.push_back("VK_LAYER_LUNARG_mem_tracker");
-        instance_layer_names.push_back("VK_LAYER_LUNARG_draw_state");
+        instance_layer_names.push_back("VK_LAYER_LUNARG_core_validation");
         instance_layer_names.push_back("VK_LAYER_LUNARG_device_limits");
         instance_layer_names.push_back("VK_LAYER_LUNARG_image");
         instance_layer_names.push_back("VK_LAYER_GOOGLE_unique_objects");
 
         device_layer_names.push_back("VK_LAYER_GOOGLE_threading");
+        device_layer_names.push_back("VK_LAYER_LUNARG_parameter_validation");
         device_layer_names.push_back("VK_LAYER_LUNARG_object_tracker");
-        device_layer_names.push_back("VK_LAYER_LUNARG_mem_tracker");
-        device_layer_names.push_back("VK_LAYER_LUNARG_draw_state");
+        device_layer_names.push_back("VK_LAYER_LUNARG_core_validation");
         device_layer_names.push_back("VK_LAYER_LUNARG_device_limits");
         device_layer_names.push_back("VK_LAYER_LUNARG_image");
         device_layer_names.push_back("VK_LAYER_GOOGLE_unique_objects");
@@ -284,7 +288,7 @@ class VkLayerTest : public VkRenderFramework {
         this->app_info.applicationVersion = 1;
         this->app_info.pEngineName = "unittest";
         this->app_info.engineVersion = 1;
-        this->app_info.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+        this->app_info.apiVersion = VK_API_VERSION_1_0;
 
         m_errorMonitor = new ErrorMonitor;
         InitFramework(instance_layer_names, device_layer_names,
@@ -376,9 +380,19 @@ void VkLayerTest::VKTriangleTest(const char *vertShaderText,
     pipelineobj.AddShader(&ps);
     if (failMask & BsoFailLineWidth) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_LINE_WIDTH);
+        VkPipelineInputAssemblyStateCreateInfo ia_state = {};
+        ia_state.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        ia_state.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        pipelineobj.SetInputAssembly(&ia_state);
     }
     if (failMask & BsoFailDepthBias) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_DEPTH_BIAS);
+        VkPipelineRasterizationStateCreateInfo rs_state = {};
+        rs_state.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        rs_state.depthBiasEnable = VK_TRUE;
+        pipelineobj.SetRasterization(&rs_state);
     }
     // Viewport and scissors must stay in synch or other errors will occur than
     // the ones we want
@@ -394,6 +408,10 @@ void VkLayerTest::VKTriangleTest(const char *vertShaderText,
     }
     if (failMask & BsoFailBlend) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_BLEND_CONSTANTS);
+        VkPipelineColorBlendAttachmentState att_state = {};
+        att_state.dstAlphaBlendFactor = VK_BLEND_FACTOR_CONSTANT_COLOR;
+        att_state.blendEnable = VK_TRUE;
+        pipelineobj.AddColorAttachment(0, &att_state);
     }
     if (failMask & BsoFailDepthBounds) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
@@ -456,6 +474,9 @@ void VkLayerTest::GenericDrawPreparation(VkCommandBufferObj *commandBuffer,
     ds_ci.depthWriteEnable = VK_TRUE;
     ds_ci.depthCompareOp = VK_COMPARE_OP_NEVER;
     ds_ci.depthBoundsTestEnable = VK_FALSE;
+    if (failMask & BsoFailDepthBounds) {
+        ds_ci.depthBoundsTestEnable = VK_TRUE;
+    }
     ds_ci.stencilTestEnable = VK_TRUE;
     ds_ci.front = stencil;
     ds_ci.back = stencil;
@@ -1211,7 +1232,7 @@ TEST_F(VkLayerTest, ViewportStateNotBound) {
                    BsoFailViewport);
 
     if (!m_errorMonitor->DesiredMsgFound()) {
-        FAIL() << "Did not recieve Error 'Dynamic scissor state not set for "
+        FAIL() << "Did not receive Error 'Dynamic scissor state not set for "
                   "this command buffer'";
         m_errorMonitor->DumpFailureMsgs();
     }
@@ -1229,7 +1250,7 @@ TEST_F(VkLayerTest, ScissorStateNotBound) {
                    BsoFailScissor);
 
     if (!m_errorMonitor->DesiredMsgFound()) {
-        FAIL() << "Did not recieve Error ' Expected: 'Dynamic scissor state "
+        FAIL() << "Did not receive Error ' Expected: 'Dynamic scissor state "
                   "not set for this command buffer'";
         m_errorMonitor->DumpFailureMsgs();
     }
@@ -1238,7 +1259,7 @@ TEST_F(VkLayerTest, ScissorStateNotBound) {
 TEST_F(VkLayerTest, BlendStateNotBound) {
     m_errorMonitor->SetDesiredFailureMsg(
         VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        "Dynamic blend object state not set for this command buffer");
+        "Dynamic blend constants state not set for this command buffer");
 
     TEST_DESCRIPTION("Simple Draw Call that validates failure when a blend "
                      "state object is not bound beforehand");
@@ -1247,8 +1268,9 @@ TEST_F(VkLayerTest, BlendStateNotBound) {
                    BsoFailBlend);
 
     if (!m_errorMonitor->DesiredMsgFound()) {
-        FAIL() << "Did not recieve Error 'Dynamic blend object state not set "
-                  "for this command buffer'";
+        FAIL()
+            << "Did not receive Error 'Dynamic blend constants state not set "
+               "for this command buffer'";
         m_errorMonitor->DumpFailureMsgs();
     }
 }
@@ -3718,7 +3740,7 @@ TEST_F(VkLayerTest, InvalidQueueFamilyIndex) {
     // Create an out-of-range queueFamilyIndex
     m_errorMonitor->SetDesiredFailureMsg(
         VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        "vkCreateBuffer has QueueFamilyIndex greater than");
+        "queueFamilyIndex 777, must have been given when the device was created.");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
@@ -3730,13 +3752,14 @@ TEST_F(VkLayerTest, InvalidQueueFamilyIndex) {
     // Introduce failure by specifying invalid queue_family_index
     uint32_t qfi = 777;
     buffCI.pQueueFamilyIndices = &qfi;
+    buffCI.sharingMode = VK_SHARING_MODE_CONCURRENT; // qfi only matters in CONCURRENT mode
 
     VkBuffer ib;
     vkCreateBuffer(m_device->device(), &buffCI, NULL, &ib);
 
     if (!m_errorMonitor->DesiredMsgFound()) {
-        FAIL() << "Did not receive Error 'vkCreateBuffer() has "
-        "QueueFamilyIndex greater than...'";
+        FAIL() << "Did not receive Error 'queueFamilyIndex %d, must have "
+        "been given when the device was created.'";
         m_errorMonitor->DumpFailureMsgs();
     }
 }
@@ -7124,6 +7147,12 @@ TEST_F(VkLayerTest, DepthStencilImageViewWithColorAspectBitError) {
 
 int main(int argc, char **argv) {
     int result;
+
+#ifdef ANDROID
+    int vulkanSupport = InitVulkan();
+    if (vulkanSupport == 0)
+        return 1;
+#endif
 
     ::testing::InitGoogleTest(&argc, argv);
     VkTestFramework::InitArgs(&argc, argv);

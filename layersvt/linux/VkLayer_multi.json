@@ -3,8 +3,8 @@
     "layer" : {
         "name": "VK_LAYER_LUNARG_multi1",
         "type": "DEVICE",
-        "library_path": ".\\VkLayer_multi.dll",
-        "api_version": "1.0.5",
+        "library_path": "./libVkLayer_multi.so",
+        "api_version": "1.0.7",
         "implementation_version": "1",
         "description": "LunarG Sample multiple layer per library",
         "functions" : {
@@ -14,8 +14,8 @@
     "layer" : {
         "name": "VK_LAYER_LUNARG_multi2",
         "type": "INSTANCE",
-        "library_path": ".\\VkLayer_multi.dll",
-        "api_version": "1.0.5",
+        "library_path": "./libVkLayer_multi.so",
+        "api_version": "1.0.7",
         "implementation_version": "1",
         "description": "LunarG Sample multiple layer per library",
         "functions" : {

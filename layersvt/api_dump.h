@@ -26,41 +26,36 @@
  * Author: Jon Ashburn <jon@lunarg.com>
  *
  */
+#pragma once
 
-#ifndef GENERIC_H
-#define GENERIC_H
 #include "vulkan/vk_layer.h"
 
 /*
- * This file contains static functions for the generated layer generic
+ * This file contains static functions for the generated layer api_dump
  */
 
-// The following is for logging error messages:
-struct layer_data {
-    debug_report_data *report_data;
-    VkDebugReportCallbackEXT logging_callback;
-
-    layer_data() : report_data(nullptr), logging_callback(VK_NULL_HANDLE){};
-};
-
-static const VkLayerProperties globalLayerProps[] = {{
-    "VK_LAYER_LUNARG_generic",
-    VK_API_VERSION, // specVersion
-    1, "layer: generic",
+#define LAYER_PROPS_ARRAY_SIZE 1
+static const VkLayerProperties layerProps[LAYER_PROPS_ARRAY_SIZE] = {{
+    "VK_LAYER_LUNARG_api_dump",
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
+    1, "layer: api_dump",
 }};
 
-static const VkLayerProperties deviceLayerProps[] = {{
-    "VK_LAYER_LUNARG_generic",
-    VK_API_VERSION, // specVersion
-    1, "layer: generic",
+#define LAYER_DEV_PROPS_ARRAY_SIZE 1
+static const VkLayerProperties layerDevProps[LAYER_DEV_PROPS_ARRAY_SIZE] = {{
+    "VK_LAYER_LUNARG_api_dump",
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
+    1, "layer: api_dump",
 }};
 
 struct devExts {
     bool wsi_enabled;
 };
+
 struct instExts {
     bool wsi_enabled;
 };
+
 static std::unordered_map<void *, struct devExts> deviceExtMap;
 static std::unordered_map<void *, struct instExts> instanceExtMap;
 
@@ -95,10 +90,66 @@ static void createInstanceRegisterExtensions(const VkInstanceCreateInfo *pCreate
         (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)gpa(instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
     pDisp->GetPhysicalDeviceSurfacePresentModesKHR =
         (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)gpa(instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
+
+#if VK_USE_PLATFORM_WIN32_KHR
+    pDisp->CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)gpa(instance, "vkCreateWin32SurfaceKHR");
+    pDisp->GetPhysicalDeviceWin32PresentationSupportKHR =
+        (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)gpa(instance, "vkGetPhysicalDeviceWin32PresentationSupportKHR");
+#endif // VK_USE_PLATFORM_WIN32_KHR
+#ifdef VK_USE_PLATFORM_XCB_KHR
+    pDisp->CreateXcbSurfaceKHR = (PFN_vkCreateXcbSurfaceKHR)gpa(instance, "vkCreateXcbSurfaceKHR");
+    pDisp->GetPhysicalDeviceXcbPresentationSupportKHR =
+        (PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)gpa(instance, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
+#endif // VK_USE_PLATFORM_XCB_KHR
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+    pDisp->CreateXlibSurfaceKHR = (PFN_vkCreateXlibSurfaceKHR)gpa(instance, "vkCreateXlibSurfaceKHR");
+    pDisp->GetPhysicalDeviceXlibPresentationSupportKHR =
+        (PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)gpa(instance, "vkGetPhysicalDeviceXlibPresentationSupportKHR");
+#endif // VK_USE_PLATFORM_XLIB_KHR
+#ifdef VK_USE_PLATFORM_MIR_KHR
+    pDisp->CreateMirSurfaceKHR = (PFN_vkCreateMirSurfaceKHR)gpa(instance, "vkCreateMirSurfaceKHR");
+    pDisp->GetPhysicalDeviceMirPresentationSupportKHR =
+        (PFN_vkGetPhysicalDeviceMirPresentationSupportKHR)gpa(instance, "vkGetPhysicalDeviceMirPresentationSupportKHR");
+#endif // VK_USE_PLATFORM_MIR_KHR
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+    pDisp->CreateWaylandSurfaceKHR = (PFN_vkCreateWaylandSurfaceKHR)gpa(instance, "vkCreateWaylandSurfaceKHR");
+    pDisp->GetPhysicalDeviceWaylandPresentationSupportKHR =
+        (PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR)gpa(instance, "vkGetPhysicalDeviceWaylandPresentationSupportKHR");
+#endif //  VK_USE_PLATFORM_WAYLAND_KHR
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+    pDisp->CreateAndroidSurfaceKHR = (PFN_vkCreateAndroidSurfaceKHR)gpa(instance, "vkCreateAndroidSurfaceKHR");
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+
     instanceExtMap[pDisp].wsi_enabled = false;
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SURFACE_EXTENSION_NAME) == 0)
             instanceExtMap[pDisp].wsi_enabled = true;
     }
 }
-#endif // GENERIC_H
+
+VkResult explicit_CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
+                               VkDevice *pDevice) {
+    VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+
+    assert(chain_info->u.pLayerInfo);
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(NULL, "vkCreateDevice");
+    if (fpCreateDevice == NULL) {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Advance the link info for the next element on the chain
+    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+
+    VkResult result = fpCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
+    if (result != VK_SUCCESS) {
+        return result;
+    }
+
+    initDeviceTable(*pDevice, fpGetDeviceProcAddr);
+
+    createDeviceRegisterExtensions(pCreateInfo, *pDevice);
+
+    return result;
+}
