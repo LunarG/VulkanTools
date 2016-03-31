@@ -227,7 +227,7 @@ static void writePPM(const char *filename, VkImage image1) {
 
     VkImageMemoryBarrier image1_memory_barrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                                                   NULL,
-                                                  0,
+                                                  VK_ACCESS_TRANSFER_WRITE_BIT,
                                                   VK_ACCESS_TRANSFER_READ_BIT,
                                                   VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -239,9 +239,9 @@ static void writePPM(const char *filename, VkImage image1) {
     VkImageMemoryBarrier image2_memory_barrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                                                   NULL,
                                                   0,
-                                                  VK_ACCESS_TRANSFER_READ_BIT,
+                                                  VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                  VK_IMAGE_LAYOUT_UNDEFINED,
                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                  VK_IMAGE_LAYOUT_GENERAL,
                                                   0,
                                                   0,
                                                   image2,
@@ -250,12 +250,30 @@ static void writePPM(const char *filename, VkImage image1) {
     VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
     VkPipelineStageFlags dst_stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
+    // The source image needs to be transitioned from the potentially optimized swapchain format to optimum format for the copy.
     pTableCommandBuffer->CmdPipelineBarrier(commandBuffer, src_stages, dst_stages, 0, 0, NULL, 0, NULL, 1, &image1_memory_barrier);
+
+    // The destination image needs to be transitioned from unknown to the optimum format for the copy.
+    pTableCommandBuffer->CmdPipelineBarrier(commandBuffer, src_stages, dst_stages, 0, 0, NULL, 0, NULL, 1, &image2_memory_barrier);
 
     pTableCommandBuffer->CmdCopyImage(commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image2,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
 
+    // The destination needs to be transitioned from the optimum copy format to the format we can read with the CPU.
+    image2_memory_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    image2_memory_barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+    image2_memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    image2_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     pTableCommandBuffer->CmdPipelineBarrier(commandBuffer, src_stages, dst_stages, 0, 0, NULL, 0, NULL, 1, &image2_memory_barrier);
+
+    // Restore the swap chain image layout to what it was before.
+    // This may not be strictly needed, but it is generally good to restore things to original state.
+    image1_memory_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    image1_memory_barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    image1_memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    image1_memory_barrier.dstAccessMask = 0;
+
+    pTableCommandBuffer->CmdPipelineBarrier(commandBuffer, src_stages, dst_stages, 0, 0, NULL, 0, NULL, 1, &image1_memory_barrier);
 
     err = pTableCommandBuffer->EndCommandBuffer(commandBuffer);
     assert(!err);
@@ -283,7 +301,7 @@ static void writePPM(const char *filename, VkImage image1) {
 
     pTableDevice->GetImageSubresourceLayout(device, image2, &sr, &sr_layout);
 
-    err = pTableDevice->MapMemory(device, mem2, 0, 0, 0, (void **)&ptr);
+    err = pTableDevice->MapMemory(device, mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
     assert(!err);
 
     ptr += sr_layout.offset;
@@ -317,30 +335,10 @@ static void writePPM(const char *filename, VkImage image1) {
         ptr += sr_layout.rowPitch;
     }
     file.close();
-    pTableDevice->UnmapMemory(device, mem2);
-
-    // Restore the swap chain image layout to what it was before.
-    // This may not be strictly needed, but it is generally good to restore things to original state.
-    err = pTableCommandBuffer->BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-    assert(!err);
-    image1_memory_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    image1_memory_barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    pTableCommandBuffer->CmdPipelineBarrier(commandBuffer, src_stages, dst_stages, 0, 0, NULL, 0, NULL, 1, &image1_memory_barrier);
-    err = pTableCommandBuffer->EndCommandBuffer(commandBuffer);
-    assert(!err);
-
-    err = pTableQueue->QueueSubmit(queue, 1, &submit_info, nullFence);
-    assert(!err);
-
-    err = pTableQueue->QueueWaitIdle(queue);
-    assert(!err);
-
-    err = pTableDevice->DeviceWaitIdle(device);
-    assert(!err);
-
     // Clean up
+    pTableDevice->UnmapMemory(device, mem2);
     pTableDevice->FreeMemory(device, mem2, NULL);
+    pTableDevice->DestroyImage(device, image2, NULL);
     pTableDevice->FreeCommandBuffers(device, deviceMap[device]->commandPool, 1, &commandBuffer);
 }
 
@@ -525,8 +523,12 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(VkDevice dev
                                                                     const VkAllocationCallbacks *pAllocator,
                                                                     VkSwapchainKHR *pSwapchain) {
     VkLayerDispatchTable *pTable = screenshot_device_table_map[device];
+
+    // This layer does an image copy later on, and the copy command expects the transfer src bit to be on.
+    VkSwapchainCreateInfoKHR myCreateInfo = *pCreateInfo;
+    myCreateInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     VkResult result =
-        get_dispatch_table(screenshot_device_table_map, device)->CreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
+        get_dispatch_table(screenshot_device_table_map, device)->CreateSwapchainKHR(device, &myCreateInfo, pAllocator, pSwapchain);
 
     loader_platform_thread_lock_mutex(&globalLock);
     if (screenshotEnvQueried && screenshotFrames.empty()) {
