@@ -5148,8 +5148,8 @@ bool validateCommandBufferSimultaneousUse(layer_data *dev_data, GLOBAL_CB_NODE *
         !(pCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT)) {
         skip_call |=
             log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
-                    __LINE__, DRAWSTATE_INVALID_FENCE, "DS", "Command Buffer %#" PRIx64 " is already in use and is not marked "
-                                                             "for simultaneous use.",
+                    __LINE__, DRAWSTATE_INVALID_CB_SIMULTANEOUS_USE, "DS",
+                    "Command Buffer %#" PRIx64 " is already in use and is not marked for simultaneous use.",
                     reinterpret_cast<uint64_t>(pCB->commandBuffer));
     }
     return skip_call;
@@ -6315,6 +6315,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkResetFences(VkDevice device, ui
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
 vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    loader_platform_thread_lock_mutex(&globalLock);
     auto fbNode = dev_data->frameBufferMap.find(framebuffer);
     if (fbNode != dev_data->frameBufferMap.end()) {
         for (auto cb : fbNode->second.referencingCmdBuffers) {
@@ -6322,15 +6323,13 @@ vkDestroyFramebuffer(VkDevice device, VkFramebuffer framebuffer, const VkAllocat
             if (cbNode != dev_data->commandBufferMap.end()) {
                 // Set CB as invalid and record destroyed framebuffer
                 cbNode->second->state = CB_INVALID;
-                loader_platform_thread_lock_mutex(&globalLock);
                 cbNode->second->destroyedFramebuffers.insert(framebuffer);
-                loader_platform_thread_unlock_mutex(&globalLock);
             }
         }
-        loader_platform_thread_lock_mutex(&globalLock);
-        dev_data->frameBufferMap.erase(framebuffer);
-        loader_platform_thread_unlock_mutex(&globalLock);
+        delete [] fbNode->second.createInfo.pAttachments;
+        dev_data->frameBufferMap.erase(fbNode);
     }
+    loader_platform_thread_unlock_mutex(&globalLock);
     dev_data->device_dispatch_table->DestroyFramebuffer(device, framebuffer, pAllocator);
 }
 
@@ -8716,24 +8715,25 @@ VkBool32 ValidateBarriers(const char *funcName, VkCommandBuffer cmdBuffer, uint3
     return skip_call;
 }
 
-bool validateEventStageMask(VkQueue queue, uint32_t eventCount, const VkEvent *pEvents, VkPipelineStageFlags sourceStageMask) {
+bool validateEventStageMask(VkQueue queue, GLOBAL_CB_NODE *pCB, uint32_t eventCount, size_t firstEventIndex, VkPipelineStageFlags sourceStageMask) {
     bool skip_call = false;
     VkPipelineStageFlags stageMask = 0;
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
     for (uint32_t i = 0; i < eventCount; ++i) {
+        auto event = pCB->events[firstEventIndex + i];
         auto queue_data = dev_data->queueMap.find(queue);
         if (queue_data == dev_data->queueMap.end())
             return false;
-        auto event_data = queue_data->second.eventToStageMap.find(pEvents[i]);
+        auto event_data = queue_data->second.eventToStageMap.find(event);
         if (event_data != queue_data->second.eventToStageMap.end()) {
             stageMask |= event_data->second;
         } else {
-            auto global_event_data = dev_data->eventMap.find(pEvents[i]);
+            auto global_event_data = dev_data->eventMap.find(event);
             if (global_event_data == dev_data->eventMap.end()) {
                 skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT,
-                                     reinterpret_cast<const uint64_t &>(pEvents[i]), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
-                                     "Fence 0x%" PRIx64 " cannot be waited on if it has never been set.",
-                                     reinterpret_cast<const uint64_t &>(pEvents[i]));
+                                     reinterpret_cast<const uint64_t &>(event), __LINE__, DRAWSTATE_INVALID_EVENT, "DS",
+                                     "Event 0x%" PRIx64 " cannot be waited on if it has never been set.",
+                                     reinterpret_cast<const uint64_t &>(event));
             } else {
                 stageMask |= global_event_data->second.stageMask;
             }
@@ -8742,7 +8742,7 @@ bool validateEventStageMask(VkQueue queue, uint32_t eventCount, const VkEvent *p
     if (sourceStageMask != stageMask) {
         skip_call |=
             log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                    DRAWSTATE_INVALID_FENCE, "DS",
+                    DRAWSTATE_INVALID_EVENT, "DS",
                     "Submitting cmdbuffer with call to VkCmdWaitEvents using srcStageMask 0x%x which must be the bitwise OR of the "
                     "stageMask parameters used in calls to vkCmdSetEvent and VK_PIPELINE_STAGE_HOST_BIT if used with vkSetEvent.",
                     sourceStageMask);
@@ -8760,12 +8760,13 @@ vkCmdWaitEvents(VkCommandBuffer commandBuffer, uint32_t eventCount, const VkEven
     loader_platform_thread_lock_mutex(&globalLock);
     GLOBAL_CB_NODE *pCB = getCBNode(dev_data, commandBuffer);
     if (pCB) {
+        auto firstEventIndex = pCB->events.size();
         for (uint32_t i = 0; i < eventCount; ++i) {
             pCB->waitedEvents.push_back(pEvents[i]);
             pCB->events.push_back(pEvents[i]);
         }
         std::function<bool(VkQueue)> eventUpdate =
-            std::bind(validateEventStageMask, std::placeholders::_1, eventCount, pEvents, sourceStageMask);
+            std::bind(validateEventStageMask, std::placeholders::_1, pCB, eventCount, firstEventIndex, sourceStageMask);
         pCB->eventUpdates.push_back(eventUpdate);
         if (pCB->state == CB_RECORDING) {
             skipCall |= addCmd(dev_data, pCB, CMD_WAITEVENTS, "vkCmdWaitEvents()");
@@ -8974,15 +8975,17 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(VkDevice devi
     VkResult result = dev_data->device_dispatch_table->CreateFramebuffer(device, pCreateInfo, pAllocator, pFramebuffer);
     if (VK_SUCCESS == result) {
         // Shadow create info and store in map
-        VkFramebufferCreateInfo *localFBCI = new VkFramebufferCreateInfo(*pCreateInfo);
-        if (pCreateInfo->pAttachments) {
-            localFBCI->pAttachments = new VkImageView[localFBCI->attachmentCount];
-            memcpy((void *)localFBCI->pAttachments, pCreateInfo->pAttachments, localFBCI->attachmentCount * sizeof(VkImageView));
-        }
-        FRAMEBUFFER_NODE fbNode = {};
-        fbNode.createInfo = *localFBCI;
-        std::pair<VkFramebuffer, FRAMEBUFFER_NODE> fbPair(*pFramebuffer, fbNode);
         loader_platform_thread_lock_mutex(&globalLock);
+
+        auto & fbNode = dev_data->frameBufferMap[*pFramebuffer];
+        fbNode.createInfo = *pCreateInfo;
+        if (pCreateInfo->pAttachments) {
+            auto attachments = new VkImageView[pCreateInfo->attachmentCount];
+            memcpy(attachments,
+                   pCreateInfo->pAttachments,
+                   pCreateInfo->attachmentCount * sizeof(VkImageView));
+            fbNode.createInfo.pAttachments = attachments;
+        }
         for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
             VkImageView view = pCreateInfo->pAttachments[i];
             auto view_data = dev_data->imageViewMap.find(view);
@@ -8993,9 +8996,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(VkDevice devi
             get_mem_binding_from_object(dev_data, device, (uint64_t)(view_data->second.image), VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                                         &fb_info.mem);
             fb_info.image = view_data->second.image;
-            fbPair.second.attachments.push_back(fb_info);
+            fbNode.attachments.push_back(fb_info);
         }
-        dev_data->frameBufferMap.insert(fbPair);
+
         loader_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
@@ -9415,15 +9418,15 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice devic
             dev_data->renderPassMap[*pRenderPass]->attachment_first_layout;
         for (uint32_t i = 0; i < pCreateInfo->subpassCount; ++i) {
             const VkSubpassDescription &subpass = pCreateInfo->pSubpasses[i];
-            for (uint32_t j = 0; j < subpass.inputAttachmentCount; ++j) {
-                uint32_t attachment = subpass.pInputAttachments[j].attachment;
-                if (attachment_first_read.count(attachment))
-                    continue;
-                attachment_first_read.insert(std::make_pair(attachment, true));
-                attachment_first_layout.insert(std::make_pair(attachment, subpass.pInputAttachments[j].layout));
-            }
             for (uint32_t j = 0; j < subpass.colorAttachmentCount; ++j) {
                 uint32_t attachment = subpass.pColorAttachments[j].attachment;
+                if (attachment >= pCreateInfo->attachmentCount) {
+                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
+                                         __LINE__, DRAWSTATE_INVALID_RENDERPASS, "DS",
+                                         "Color attachment %d cannot be greater than the total number of attachments %d.",
+                                         attachment, pCreateInfo->attachmentCount);
+                    continue;
+                }
                 if (attachment_first_read.count(attachment))
                     continue;
                 attachment_first_read.insert(std::make_pair(attachment, false));
@@ -9431,10 +9434,31 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice devic
             }
             if (subpass.pDepthStencilAttachment && subpass.pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED) {
                 uint32_t attachment = subpass.pDepthStencilAttachment->attachment;
+                if (attachment >= pCreateInfo->attachmentCount) {
+                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
+                                         __LINE__, DRAWSTATE_INVALID_RENDERPASS, "DS",
+                                         "Depth stencil attachment %d cannot be greater than the total number of attachments %d.",
+                                         attachment, pCreateInfo->attachmentCount);
+                    continue;
+                }
                 if (attachment_first_read.count(attachment))
                     continue;
                 attachment_first_read.insert(std::make_pair(attachment, false));
                 attachment_first_layout.insert(std::make_pair(attachment, subpass.pDepthStencilAttachment->layout));
+            }
+            for (uint32_t j = 0; j < subpass.inputAttachmentCount; ++j) {
+                uint32_t attachment = subpass.pInputAttachments[j].attachment;
+                if (attachment >= pCreateInfo->attachmentCount) {
+                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
+                                         __LINE__, DRAWSTATE_INVALID_RENDERPASS, "DS",
+                                         "Input attachment %d cannot be greater than the total number of attachments %d.",
+                                         attachment, pCreateInfo->attachmentCount);
+                    continue;
+                }
+                if (attachment_first_read.count(attachment))
+                    continue;
+                attachment_first_read.insert(std::make_pair(attachment, true));
+                attachment_first_layout.insert(std::make_pair(attachment, subpass.pInputAttachments[j].layout));
             }
         }
 #endif
