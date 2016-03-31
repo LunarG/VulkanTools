@@ -1445,7 +1445,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
         uint32_t*                                   pPropertyCount,
         VkLayerProperties*                          pProperties)
 {
-    // TODO: Fill in with real data
+    *pPropertyCount = 0;
     return VK_SUCCESS;
 }
 
@@ -1473,7 +1473,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(
         uint32_t*                                   pPropertyCount,
         VkLayerProperties*                          pProperties)
 {
-    // TODO: Fill in with real data
+    *pPropertyCount = 0;
     return VK_SUCCESS;
 }
 
