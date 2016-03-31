@@ -60,6 +60,7 @@ enum nulldrv_dev_ext_type {
 
 enum nulldrv_inst_ext_type {
    NULLDRV_INST_EXT_KHR_SURFACE,
+   NULLDRV_INST_EXT_KHR_XCB_SURFACE,
    NULLDRV_INST_EXT_COUNT,
    NULLDRV_INST_EXT_INVALID = NULLDRV_INST_EXT_COUNT,
 };

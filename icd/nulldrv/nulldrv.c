@@ -47,7 +47,11 @@ static const VkExtensionProperties nulldrv_instance_extensions[NULLDRV_INST_EXT_
     {
         .extensionName = VK_KHR_SURFACE_EXTENSION_NAME,
         .specVersion = VK_KHR_SURFACE_SPEC_VERSION,
-    }
+    },
+    {
+        .extensionName = VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+        .specVersion = VK_KHR_XCB_SURFACE_SPEC_VERSION,
+    },
 };
 
 const VkExtensionProperties nulldrv_device_exts[NULLDRV_DEV_EXT_COUNT] = {
@@ -1469,6 +1473,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(
     }
     return VK_SUCCESS;
 }
+
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(
         uint32_t*                                   pPropertyCount,
         VkLayerProperties*                          pProperties)
