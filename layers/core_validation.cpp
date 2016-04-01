@@ -5757,51 +5757,52 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetQueryPoolResults(VkDevice device, VkQueryPoo
         auto queryElement = queriesInFlight.find(query);
         auto queryToStateElement = dev_data->queryToStateMap.find(query);
         if (queryToStateElement != dev_data->queryToStateMap.end()) {
-        }
-        // Available and in flight
-        if (queryElement != queriesInFlight.end() && queryToStateElement != dev_data->queryToStateMap.end() &&
-            queryToStateElement->second) {
-            for (auto cmdBuffer : queryElement->second) {
-                pCB = getCBNode(dev_data, cmdBuffer);
-                auto queryEventElement = pCB->waitedEventsBeforeQueryReset.find(query);
-                if (queryEventElement == pCB->waitedEventsBeforeQueryReset.end()) {
-                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                         "Cannot get query results on queryPool %" PRIu64 " with index %d which is in flight.",
-                                         (uint64_t)(queryPool), firstQuery + i);
-                } else {
-                    for (auto event : queryEventElement->second) {
-                        dev_data->eventMap[event].needsSignaled = true;
+            // Available and in flight
+            if (queryElement != queriesInFlight.end() && queryToStateElement != dev_data->queryToStateMap.end() &&
+                queryToStateElement->second) {
+                for (auto cmdBuffer : queryElement->second) {
+                    pCB = getCBNode(dev_data, cmdBuffer);
+                    auto queryEventElement = pCB->waitedEventsBeforeQueryReset.find(query);
+                    if (queryEventElement == pCB->waitedEventsBeforeQueryReset.end()) {
+                        skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                             "Cannot get query results on queryPool %" PRIu64 " with index %d which is in flight.",
+                                             (uint64_t)(queryPool), firstQuery + i);
+                    } else {
+                        for (auto event : queryEventElement->second) {
+                            dev_data->eventMap[event].needsSignaled = true;
+                        }
                     }
                 }
-            }
-            // Unavailable and in flight
-        } else if (queryElement != queriesInFlight.end() && queryToStateElement != dev_data->queryToStateMap.end() &&
-                   !queryToStateElement->second) {
-            // TODO : Can there be the same query in use by multiple command buffers in flight?
-            bool make_available = false;
-            for (auto cmdBuffer : queryElement->second) {
-                pCB = getCBNode(dev_data, cmdBuffer);
-                make_available |= pCB->queryToStateMap[query];
-            }
-            if (!(((flags & VK_QUERY_RESULT_PARTIAL_BIT) || (flags & VK_QUERY_RESULT_WAIT_BIT)) && make_available)) {
+                // Unavailable and in flight
+            } else if (queryElement != queriesInFlight.end() && queryToStateElement != dev_data->queryToStateMap.end() &&
+                       !queryToStateElement->second) {
+                // TODO : Can there be the same query in use by multiple command buffers in flight?
+                bool make_available = false;
+                for (auto cmdBuffer : queryElement->second) {
+                    pCB = getCBNode(dev_data, cmdBuffer);
+                    make_available |= pCB->queryToStateMap[query];
+                }
+                if (!(((flags & VK_QUERY_RESULT_PARTIAL_BIT) || (flags & VK_QUERY_RESULT_WAIT_BIT)) && make_available)) {
+                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                         "Cannot get query results on queryPool %" PRIu64 " with index %d which is unavailable.",
+                                         (uint64_t)(queryPool), firstQuery + i);
+                }
+                // Unavailable
+            } else if (queryToStateElement != dev_data->queryToStateMap.end() && !queryToStateElement->second) {
                 skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                      VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
                                      "Cannot get query results on queryPool %" PRIu64 " with index %d which is unavailable.",
                                      (uint64_t)(queryPool), firstQuery + i);
+                // Unitialized
+            } else if (queryToStateElement == dev_data->queryToStateMap.end()) {
+                skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                     VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                     "Cannot get query results on queryPool %" PRIu64
+                                     " with index %d as data has not been collected for this index.",
+                                     (uint64_t)(queryPool), firstQuery + i);
             }
-            // Unavailable
-        } else if (queryToStateElement != dev_data->queryToStateMap.end() && !queryToStateElement->second) {
-            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT,
-                                 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                 "Cannot get query results on queryPool %" PRIu64 " with index %d which is unavailable.",
-                                 (uint64_t)(queryPool), firstQuery + i);
-            // Unitialized
-        } else if (queryToStateElement == dev_data->queryToStateMap.end()) {
-            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT,
-                                 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                 "Cannot get query results on queryPool %" PRIu64 " with index %d as data has not been collected for this index.",
-                                 (uint64_t)(queryPool), firstQuery + i);
         }
     }
     loader_platform_thread_unlock_mutex(&globalLock);
@@ -5955,6 +5956,48 @@ vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory mem, VkDevic
         skipCall |= validate_buffer_image_aliasing(dev_data, buffer_handle, mem, memoryOffset, memRequirements,
                                                    dev_data->memObjMap[mem].bufferRanges, dev_data->memObjMap[mem].imageRanges,
                                                    VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT);
+        // Validate memory requirements alignment
+        if (vk_safe_modulo(memoryOffset, memRequirements.alignment) != 0) {
+            skipCall |=
+                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, 0,
+                        __LINE__, DRAWSTATE_INVALID_BUFFER_MEMORY_OFFSET, "DS",
+                        "vkBindBufferMemory(): memoryOffset is %#" PRIxLEAST64 " but must be an integer multiple of the "
+                        "VkMemoryRequirements::alignment value %#" PRIxLEAST64
+                        ", returned from a call to vkGetBufferMemoryRequirements with buffer",
+                        memoryOffset, memRequirements.alignment);
+        }
+        // Validate device limits alignments
+        VkBufferUsageFlags usage = dev_data->bufferMap[buffer].create_info->usage;
+        if (usage & (VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT)) {
+            if (vk_safe_modulo(memoryOffset, dev_data->physDevProperties.properties.limits.minTexelBufferOffsetAlignment) != 0) {
+                skipCall |=
+                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT,
+                            0, __LINE__, DRAWSTATE_INVALID_TEXEL_BUFFER_OFFSET, "DS",
+                            "vkBindBufferMemory(): memoryOffset is %#" PRIxLEAST64 " but must be a multiple of "
+                            "device limit minTexelBufferOffsetAlignment %#" PRIxLEAST64,
+                            memoryOffset, dev_data->physDevProperties.properties.limits.minTexelBufferOffsetAlignment);
+            }
+        }
+        if (usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) {
+            if (vk_safe_modulo(memoryOffset, dev_data->physDevProperties.properties.limits.minUniformBufferOffsetAlignment) != 0) {
+                skipCall |=
+                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT,
+                            0, __LINE__, DRAWSTATE_INVALID_UNIFORM_BUFFER_OFFSET, "DS",
+                            "vkBindBufferMemory(): memoryOffset is %#" PRIxLEAST64 " but must be a multiple of "
+                            "device limit minUniformBufferOffsetAlignment %#" PRIxLEAST64,
+                            memoryOffset, dev_data->physDevProperties.properties.limits.minUniformBufferOffsetAlignment);
+            }
+        }
+        if (usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) {
+            if (vk_safe_modulo(memoryOffset, dev_data->physDevProperties.properties.limits.minStorageBufferOffsetAlignment) != 0) {
+                skipCall |=
+                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT,
+                            0, __LINE__, DRAWSTATE_INVALID_STORAGE_BUFFER_OFFSET, "DS",
+                            "vkBindBufferMemory(): memoryOffset is %#" PRIxLEAST64 " but must be a multiple of "
+                            "device limit minStorageBufferOffsetAlignment %#" PRIxLEAST64,
+                            memoryOffset, dev_data->physDevProperties.properties.limits.minStorageBufferOffsetAlignment);
+            }
+        }
     }
     print_mem_list(dev_data, device);
     loader_platform_thread_unlock_mutex(&globalLock);
