@@ -331,8 +331,8 @@ void vktrace_platform_resume_thread(vktrace_thread* pThread)
 #if defined(PLATFORM_LINUX)
     assert(!"Add code to resume threads on Linux");
 #elif defined(WIN32)
-    assert(*pThread != NULL);
-    ResumeThread(*pThread);
+    if (*pThread != NULL)
+        ResumeThread(*pThread);
 #endif
 }
 

@@ -244,7 +244,6 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile)
 
     if (vktrace_FileLike_ReadRaw(pFile, &total_packet_size, sizeof(uint64_t)) == FALSE)
     {
-        //vktrace_LogError("Failed to read trace packet size.");
         return NULL;
     }
 

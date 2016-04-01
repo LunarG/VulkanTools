@@ -50,13 +50,15 @@ vktrace_SettingInfo g_settings_info[] =
     { "a", "Arguments", VKTRACE_SETTING_STRING, &g_settings.arguments, &g_default_settings.arguments, TRUE, "Cmd-line arguments to pass to trace program."},
     { "w", "WorkingDir", VKTRACE_SETTING_STRING, &g_settings.working_dir, &g_default_settings.working_dir, TRUE, "The program's working directory."},
     { "o", "OutputTrace", VKTRACE_SETTING_STRING, &g_settings.output_trace, &g_default_settings.output_trace, TRUE, "Path to the generated output trace file."},
-    { "s", "ScreenShot", VKTRACE_SETTING_STRING, &g_settings.screenshotList, &g_default_settings.screenshotList, TRUE, "Comma separated list of frame numbers on which to take a screen snapshot."},
+    { "s", "ScreenShot", VKTRACE_SETTING_STRING, &g_settings.screenshotList, &g_default_settings.screenshotList, TRUE, "Comma separated list of frames to take a snapshot of."},
     { "ptm", "PrintTraceMessages", VKTRACE_SETTING_BOOL, &g_settings.print_trace_messages, &g_default_settings.print_trace_messages, TRUE, "Print trace messages to vktrace console."},
+#if _DEBUG
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, &g_settings.verbosity, &g_default_settings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
+#else
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, &g_settings.verbosity, &g_default_settings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
+#endif
 
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause, &g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger can be attached)" },
-    //{ "q", "quiet", VKTRACE_SETTING_BOOL, &g_settings.quiet, &g_default_settings.quiet, TRUE, "Disable warning, verbose, and debug output" },
-    //{ "v", "verbose", VKTRACE_SETTING_BOOL, &g_settings.verbose, &g_default_settings.verbose, TRUE, "Enable verbose output" },
-    //{ "d", "debug", VKTRACE_SETTING_BOOL, &g_settings.debug, &g_default_settings.debug, TRUE, "Enable verbose debug information" },
 };
 
 vktrace_SettingGroup g_settingGroup =
@@ -125,16 +127,19 @@ bool InjectTracersIntoProcess(vktrace_process_info* pInfo)
 
 void loggingCallback(VktraceLogLevel level, const char* pMessage)
 {
+    if (level == VKTRACE_LOG_NONE)
+        return;
+
     switch(level)
     {
-    case VKTRACE_LOG_ALWAYS: printf("%s\n", pMessage); break;
-    case VKTRACE_LOG_DEBUG: printf("Debug: %s\n", pMessage); break;
-    case VKTRACE_LOG_ERROR: printf("Error: %s\n", pMessage); break;
-    case VKTRACE_LOG_WARNING: printf("Warning: %s\n", pMessage); break;
-    case VKTRACE_LOG_VERBOSE: printf("Verbose: %s\n", pMessage); break;
+    case VKTRACE_LOG_DEBUG: printf("vktrace debug: %s\n", pMessage); break;
+    case VKTRACE_LOG_ERROR: printf("vktrace error: %s\n", pMessage); break;
+    case VKTRACE_LOG_WARNING: printf("vktrace warning: %s\n", pMessage); break;
+    case VKTRACE_LOG_VERBOSE: printf("vktrace info: %s\n", pMessage); break;
     default:
         printf("%s\n", pMessage); break;
     }
+    fflush(stdout);
 
 #if defined(WIN32)
 #if _DEBUG
@@ -149,7 +154,7 @@ int main(int argc, char* argv[])
     memset(&g_settings, 0, sizeof(vktrace_settings));
 
     vktrace_LogSetCallback(loggingCallback);
-    vktrace_LogSetLevel(VKTRACE_LOG_LEVEL_MAXIMUM);
+    vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
 
     // get vktrace binary directory
     char* execDir = vktrace_platform_get_current_executable_directory();
@@ -157,7 +162,7 @@ int main(int argc, char* argv[])
     // setup defaults
     memset(&g_default_settings, 0, sizeof(vktrace_settings));
     g_default_settings.output_trace = vktrace_copy_and_append(execDir, VKTRACE_PATH_SEPARATOR, "vktrace_out.vktrace");
-    g_default_settings.print_trace_messages = FALSE;
+    g_default_settings.verbosity = "errors";
     g_default_settings.screenshotList = NULL;
 
     // free binary directory string
@@ -177,7 +182,6 @@ int main(int argc, char* argv[])
 
         if (g_settings.output_trace == NULL || strlen (g_settings.output_trace) == 0)
         {
-            vktrace_LogError("No output trace file (-o) parameter found: Please specify a valid trace file to generate.");
             validArgs = FALSE;
         }
         else
@@ -191,6 +195,25 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (strcmp(g_settings.verbosity, "quiet") == 0)
+            vktrace_LogSetLevel(VKTRACE_LOG_NONE);
+        else if (strcmp(g_settings.verbosity, "errors") == 0)
+            vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
+        else if (strcmp(g_settings.verbosity, "warnings") == 0)
+            vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
+        else if (strcmp(g_settings.verbosity, "full") == 0)
+            vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
+#if _DEBUG
+        else if (strcmp(g_settings.verbosity, "debug") == 0)
+            vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
+#endif
+        else
+        {
+            vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
+            validArgs = FALSE;
+        }
+		vktrace_set_global_var("_VK_TRACE_VERBOSITY", g_settings.verbosity);
+
         if (validArgs == FALSE)
         {
             vktrace_SettingGroup_print(&g_settingGroup);
@@ -199,7 +222,9 @@ int main(int argc, char* argv[])
 
         if (g_settings.program == NULL || strlen(g_settings.program) == 0)
         {
-            vktrace_LogAlways("No program (-p) parameter found: Running vktrace as server.");
+            vktrace_LogWarning("No program (-p) parameter found: Will run vktrace as server.");
+            printf("Running vktrace as server...\n");
+            fflush(stdout);
             g_settings.arguments = NULL;
         }
         else
@@ -207,26 +232,24 @@ int main(int argc, char* argv[])
             if (g_settings.working_dir == NULL || strlen(g_settings.working_dir) == 0)
             {
                 CHAR* buf = VKTRACE_NEW_ARRAY(CHAR, 4096);
-                vktrace_LogWarning("No working directory (-w) parameter found: Assuming executable's path as working directory.");
+                vktrace_LogVerbose("No working directory (-w) parameter found: Assuming executable's path as working directory.");
                 vktrace_platform_full_path(g_settings.program, 4096, buf);
                 g_settings.working_dir = vktrace_platform_extract_path(buf);
                 VKTRACE_DELETE(buf);
             }
 
-            vktrace_LogAlways("Running vktrace as parent process will spawn child process: %s", g_settings.program);
+            vktrace_LogVerbose("Running vktrace as parent process will spawn child process: %s", g_settings.program);
             if (g_settings.arguments != NULL && strlen(g_settings.arguments) > 0)
             {
-                vktrace_LogAlways("Args to be passed to child process: '%s'", g_settings.arguments);
+                vktrace_LogVerbose("Args to be passed to child process: '%s'", g_settings.arguments);
             }
         }
     }
 
     if (g_settings.screenshotList)
     {
-
         // Export list to screenshot layer
         vktrace_set_global_var("_VK_SCREENSHOT", g_settings.screenshotList);
-
     }
     else
     {

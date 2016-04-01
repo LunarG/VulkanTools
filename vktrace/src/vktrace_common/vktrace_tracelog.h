@@ -38,13 +38,11 @@
 typedef struct FileLike FileLike;
 
 typedef enum {
-    VKTRACE_LOG_ALWAYS = 0,
-    VKTRACE_LOG_DEBUG,
-    VKTRACE_LOG_LEVEL_MINIMUM,
+    VKTRACE_LOG_NONE = 0,
     VKTRACE_LOG_ERROR,
     VKTRACE_LOG_WARNING,
     VKTRACE_LOG_VERBOSE,
-    VKTRACE_LOG_LEVEL_MAXIMUM
+    VKTRACE_LOG_DEBUG
 } VktraceLogLevel;
 
 #ifdef __cplusplus

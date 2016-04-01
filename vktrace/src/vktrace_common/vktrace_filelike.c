@@ -140,7 +140,7 @@ BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len)
                 }
                 else if (feof(pFileLike->mFile) != 0)
                 {
-                    vktrace_LogWarning("Reached end of file.");
+                    vktrace_LogVerbose("Reached end of file.");
                 }
                 result = FALSE;
             } 

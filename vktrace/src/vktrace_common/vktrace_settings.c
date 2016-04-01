@@ -34,19 +34,27 @@ void vktrace_SettingInfo_print(const vktrace_SettingInfo* pSetting)
     if (pSetting->bPrintInHelp)
     {
         char * pStrParams;
+        char tmpStr[100];
         if (pSetting->type == VKTRACE_SETTING_STRING)
         {
             pStrParams = "<string>";
         } else if (pSetting->type == VKTRACE_SETTING_BOOL) {
-            pStrParams = "<BOOL>  ";
+            pStrParams = "<BOOL>";
         } else if (pSetting->type == VKTRACE_SETTING_UINT) {
-            pStrParams = "<uint>  ";
+            pStrParams = "<uint>";
         } else if (pSetting->type == VKTRACE_SETTING_INT) {
-            pStrParams = "<int>   ";
+            pStrParams = "<int>";
         } else {
-            pStrParams = "< ??? > ";
+            pStrParams = "< ??? >";
         }
-        printf("    -%s,--%s %s\t: %s\n", pSetting->pShortName, pSetting->pLongName, pStrParams, pSetting->pDesc);
+#if defined(WIN32)
+        _snprintf_s(tmpStr, sizeof(tmpStr), _TRUNCATE, "-%s,--%s %s",
+                    pSetting->pShortName, pSetting->pLongName, pStrParams);
+# else
+        snprintf(tmpStr, sizeof(tmpStr), "-%s, --%s %s",
+                 pSetting->pShortName, pSetting->pLongName, pStrParams);
+#endif
+        printf("    %-33s  %s\n", tmpStr, pSetting->pDesc);
     }
 }
 
@@ -700,7 +708,6 @@ int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, 
 
             if (consumed == 0)
             {
-                printf("Error: Invalid argument found '%s'\n", curArg);
                 vktrace_SettingGroup_print(pSettingGroup);
                 vktrace_SettingGroup_delete(pSettingGroup);
                 return -1;

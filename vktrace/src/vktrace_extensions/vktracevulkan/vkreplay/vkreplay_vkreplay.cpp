@@ -105,11 +105,9 @@ vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::handle_replay_errors(const char*
                 string_VkResult((VkResult)resCall), entrypointName, string_VkResult((VkResult)resTrace));
         res = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;
     }
-#if 0
     if (resCall != VK_SUCCESS) {
-        vktrace_LogWarning("API call (%s) returned failed result %s", entrypointName, string_VK_RESULT(resCall));
+        vktrace_LogWarning("API call (%s) returned failed result %d", entrypointName, resCall);
     }
-#endif
     return res;
 }
 void vkReplay::push_validation_msg(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObjectHandle, size_t location, int32_t msgCode, const char* pLayerPrefix, const char* pMsg, const void* pUserData)

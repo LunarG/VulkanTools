@@ -34,6 +34,38 @@
 extern "C" {
 #endif
 
+// Environment variables
+// These are needed because Windows may not have getenv available.
+// See the Windows man page for getenv to find out why.
+
+#if defined(_WIN32)
+static inline char *vktrace_layer_getenv(const char *name)
+{
+    char *retVal;
+    DWORD valSize;
+    valSize = GetEnvironmentVariableA(name, NULL, 0); 
+    // valSize DOES include the null terminator, so for any set variable
+    // will always be at least 1. If it's 0, the variable wasn't set.
+    if (valSize == 0)
+        return NULL;
+    retVal = (char *)malloc(valSize);
+    GetEnvironmentVariableA(name, retVal, valSize);
+    return retVal;
+}
+
+static inline void vktrace_layer_free_getenv(const char *val)
+{
+    free((void *)val);
+}
+#else
+static inline char *vktrace_layer_getenv(const char *name)
+{
+    return getenv(name);
+}
+
+static inline void vktrace_layer_free_getenv(const char *val) { }
+#endif
+
 VKTRACER_LEAVE _Unload(void);
 
 #ifdef PLATFORM_LINUX
@@ -54,14 +86,14 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
 {
     switch(level)
     {
-    case VKTRACE_LOG_ALWAYS: printf("%s\n", pMessage); break;
-    case VKTRACE_LOG_DEBUG: printf("Debug: %s\n", pMessage); break;
-    case VKTRACE_LOG_ERROR: printf("Error: %s\n", pMessage); break;
-    case VKTRACE_LOG_WARNING: printf("Warning: %s\n", pMessage); break;
-    case VKTRACE_LOG_VERBOSE: printf("Verbose: %s\n", pMessage); break;
+    case VKTRACE_LOG_DEBUG: printf("vktrace debug: %s\n", pMessage); break;
+    case VKTRACE_LOG_ERROR: printf("vktrace error: %s\n", pMessage); break;
+    case VKTRACE_LOG_WARNING: printf("vktrace warning: %s\n", pMessage); break;
+    case VKTRACE_LOG_VERBOSE: printf("vktrace info: %s\n", pMessage); break;
     default:
         printf("%s\n", pMessage); break;
     }
+    fflush(stdout);
 
     if (vktrace_trace_get_trace_file() != NULL)
     {
@@ -93,8 +125,24 @@ VKTRACER_ENTRY _Load(void)
     // only do the hooking and networking if the tracer is NOT loaded by vktrace
     if (vktrace_is_loaded_into_vktrace() == FALSE)
     {
+        char *verbosity;
         vktrace_LogSetCallback(loggingCallback);
-        vktrace_LogSetLevel(VKTRACE_LOG_LEVEL_MAXIMUM);
+        verbosity = vktrace_layer_getenv("_VK_TRACE_VERBOSITY");
+        if (verbosity && !strcmp(verbosity, "quiet"))
+            vktrace_LogSetLevel(VKTRACE_LOG_NONE);
+        else if (verbosity && !strcmp(verbosity, "warnings"))
+            vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
+        else if (verbosity && !strcmp(verbosity, "full"))
+            vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
+#ifdef _DEBUG
+        else if (verbosity && !strcmp(verbosity, "debug"))
+            vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
+#endif
+        else
+            // Either verbosity=="errors", or it wasn't specified
+            vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
+
+        vktrace_layer_free_getenv(verbosity);
 
         vktrace_LogVerbose("vktrace_lib library loaded into PID %d", vktrace_get_pid());
         atexit(TrapExit);
@@ -124,10 +172,6 @@ VKTRACER_LEAVE _Unload(void)
     if (vktrace_is_loaded_into_vktrace() == FALSE)
     {
         if (vktrace_trace_get_trace_file() != NULL) {
-            vktrace_trace_packet_header* pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_MARKER_TERMINATE_PROCESS, 0, 0);
-            vktrace_finalize_trace_packet(pHeader);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
             vktrace_free(vktrace_trace_get_trace_file());
             vktrace_trace_set_trace_file(NULL);
         }

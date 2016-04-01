@@ -88,12 +88,10 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkErrorHandler(
 
 void VkReplaySetLogCallback(VKTRACE_REPORT_CALLBACK_FUNCTION pCallback)
 {
-    vktrace_LogSetCallback(pCallback);
 }
 
 void VkReplaySetLogLevel(VktraceLogLevel level)
 {
-    vktrace_LogSetLevel(level);
 }
 
 void VkReplayRegisterDbgMsgCallback(vktrace_replay::VKTRACE_DBG_MSG_CALLBACK_FUNCTION pCallback)

@@ -46,6 +46,7 @@ typedef struct vktrace_settings
     char* output_trace;
     BOOL print_trace_messages;
     char* screenshotList;
+    char *verbosity;
 } vktrace_settings;
 
 extern vktrace_settings g_settings;

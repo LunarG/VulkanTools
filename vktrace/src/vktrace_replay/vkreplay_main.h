@@ -35,6 +35,7 @@ typedef struct vkreplayer_settings
     int loopStartFrame;
     int loopEndFrame;
     char* screenshotList;
+    char* verbosity;
 } vkreplayer_settings;
 
 #endif // VKREPLAY__MAIN_H

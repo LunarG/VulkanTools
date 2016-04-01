@@ -61,19 +61,17 @@ void vktrace_tracelog_set_tracer_id(uint8_t tracerId)
 }
 
 VKTRACE_REPORT_CALLBACK_FUNCTION s_reportFunc;
-VktraceLogLevel s_logLevel = VKTRACE_LOG_LEVEL_MAXIMUM;
+VktraceLogLevel s_logLevel = VKTRACE_LOG_ERROR;
 
 const char* vktrace_LogLevelToString(VktraceLogLevel level)
 {
     switch(level)
     {
-    case VKTRACE_LOG_ALWAYS: return "VKTRACE_LOG_ALWAYS";
-    case VKTRACE_LOG_DEBUG: return "VKTRACE_LOG_DEBUG";
-    case VKTRACE_LOG_LEVEL_MINIMUM: return "VKTRACE_LOG_LEVEL_MINIMUM";
-    case VKTRACE_LOG_ERROR: return "VKTRACE_LOG_ERROR";
-    case VKTRACE_LOG_WARNING: return "VKTRACE_LOG_WARNING";
-    case VKTRACE_LOG_VERBOSE: return "VKTRACE_LOG_VERBOSE";
-    case VKTRACE_LOG_LEVEL_MAXIMUM: return "VKTRACE_LOG_LEVEL_MAXIMUM";
+    case VKTRACE_LOG_NONE: return "Quiet";
+    case VKTRACE_LOG_DEBUG: return "Debug";
+    case VKTRACE_LOG_ERROR: return "Errors";
+    case VKTRACE_LOG_WARNING: return "Warnings";
+    case VKTRACE_LOG_VERBOSE: return "Info";
     default:
         return "Unknown";
     }
@@ -83,13 +81,11 @@ const char* vktrace_LogLevelToShortString(VktraceLogLevel level)
 {
     switch(level)
     {
-    case VKTRACE_LOG_ALWAYS: return "Always";
+    case VKTRACE_LOG_NONE: return "Quiet";
     case VKTRACE_LOG_DEBUG: return "Debug";
-    case VKTRACE_LOG_LEVEL_MINIMUM: return "Miniumm";
-    case VKTRACE_LOG_ERROR: return "Error";
-    case VKTRACE_LOG_WARNING: return "Warning";
-    case VKTRACE_LOG_VERBOSE: return "Verbose";
-    case VKTRACE_LOG_LEVEL_MAXIMUM: return "Maximum";
+    case VKTRACE_LOG_ERROR: return "Errors";
+    case VKTRACE_LOG_WARNING: return "Warnings";
+    case VKTRACE_LOG_VERBOSE: return "Info";
     default:
         return "Unknown";
     }
@@ -104,19 +100,12 @@ void vktrace_LogSetCallback(VKTRACE_REPORT_CALLBACK_FUNCTION pCallback)
 
 void vktrace_LogSetLevel(VktraceLogLevel level)
 {
-    s_logLevel = level;
     vktrace_LogDebug("Log Level = %u (%s)", level, vktrace_LogLevelToString(level));
+    s_logLevel = level;
 }
 
 BOOL vktrace_LogIsLogging(VktraceLogLevel level)
 {
-#if defined(_DEBUG)
-    if (level == VKTRACE_LOG_DEBUG)
-    {
-        return TRUE;
-    }
-#endif
-
     return (level <= s_logLevel) ? TRUE : FALSE;
 }
 
@@ -164,17 +153,20 @@ void vktrace_LogAlways(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
-    LogGuts(VKTRACE_LOG_ALWAYS, format, args);
+    LogGuts(VKTRACE_LOG_VERBOSE, format, args);
     va_end(args);
 }
 
 void vktrace_LogDebug(const char* format, ...)
 {
 #if defined(_DEBUG)
-    va_list args;
-    va_start(args, format);
-    LogGuts(VKTRACE_LOG_DEBUG, format, args);
-    va_end(args);
+	if (vktrace_LogIsLogging(VKTRACE_LOG_DEBUG))
+	{
+		va_list args;
+	    va_start(args, format);
+	    LogGuts(VKTRACE_LOG_DEBUG, format, args);
+	    va_end(args);
+    }
 #endif
 }
 
