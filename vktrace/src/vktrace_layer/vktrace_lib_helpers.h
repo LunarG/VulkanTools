@@ -147,7 +147,7 @@ static VKAllocInfo * get_mem_info_entry()
         g_memInfo.pEntrys = (VKAllocInfo *) VKTRACE_REALLOC(g_memInfo.pEntrys, g_memInfo.capacity * sizeof(VKAllocInfo));
         if (g_memInfo.pEntrys == NULL)
             vktrace_LogError("get_mem_info_entry() realloc failed.");
-        vktrace_LogDebug("realloc memInfo from %u to %", g_memInfo.capacity /2, g_memInfo.capacity);
+        vktrace_LogDebug("realloc memInfo from %u to %u", g_memInfo.capacity /2, g_memInfo.capacity);
         //init the newly added entrys
         init_mem_info_entrys(g_memInfo.pEntrys + g_memInfo.capacity / 2, g_memInfo.capacity / 2);
     }
