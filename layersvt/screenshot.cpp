@@ -77,6 +77,7 @@ typedef struct {
     VkQueue queue;
     VkCommandPool commandPool;
     VkPhysicalDevice physicalDevice;
+    PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DeviceMapStruct;
 static unordered_map<VkDevice, DeviceMapStruct *> deviceMap;
 
@@ -225,7 +226,12 @@ static void writePPM(const char *filename, VkImage image1) {
     // in the object yet.  When a "normal" application creates a command buffer, the dispatch
     // table is installed by the top-level api binding (trampoline.c).
     // But here, we have to do it ourselves.
-    *((const void **)commandBuffer) = *(void **)device;
+    if (!devMap->pfn_dev_init) {
+        *((const void **)commandBuffer) = *(void **)device;
+    } else {
+        err = devMap->pfn_dev_init(device, (void *) commandBuffer);
+        assert(!err);
+    }
 
     err = pTableCommandBuffer->BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
     assert(!err);
@@ -425,6 +431,13 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice g
     // Create a mapping from a device to a physicalDevice
     deviceMapElem->physicalDevice = gpu;
 
+    // store the loader callback for initializing created dispatchable objects
+    chain_info = get_chain_info(pCreateInfo, VK_LOADER_DATA_CALLBACK);
+    if (chain_info) {
+        deviceMapElem->pfn_dev_init = chain_info->u.pfnSetDeviceLoaderData;
+    } else {
+        deviceMapElem->pfn_dev_init = NULL;
+    }
     return result;
 }
 
