@@ -1,7 +1,7 @@
 # Build Instructions
 This document contains the instructions for building this repository on Linux and Windows.
 
-This repository contains addtional layers, tests, and the VkTrace trace/replay tools, supplementing the
+This repository contains additional layers, tests, and the VkTrace trace/replay tools, supplementing the
 loader and validation layer core components found at https://github.com/KhronosGroup.
 
 For Linux, this repository also contains a sample Intel Vulkan driver that is being deprecated.
@@ -135,7 +135,7 @@ As part of the build process, Python scripts will create additional Visual Studi
 along with additional source files.  
 All of these auto-generated files are under the "build" folder.
 
-Vulkan programs must be able to find and use the Vulkan-1.dll libary.
+Vulkan programs must be able to find and use the Vulkan-1.dll library.
 Make sure it is either installed in the C:\Windows\System32 folder,
 or the PATH environment variable includes the folder that it is located in.
 
