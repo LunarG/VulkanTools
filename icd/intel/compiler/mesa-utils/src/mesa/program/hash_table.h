@@ -101,7 +101,7 @@ extern void *hash_table_find(struct hash_table *ht, const void *key);
  * \warning
  * If \c key is already in the hash table, it will be added again.  Future
  * calls to \c hash_table_find and \c hash_table_remove will return or remove,
- * repsectively, the most recently added instance of \c key.
+ * respectively, the most recently added instance of \c key.
  *
  * \warning
  * The value passed by \c key is kept in the hash table and is used by later

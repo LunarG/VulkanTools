@@ -1919,7 +1919,7 @@ ir_function_signature::constant_expression_value(exec_list *actual_parameters, s
 
    /* If "origin" is non-NULL, then the function body is there.  So we
     * have to use the variable objects from the object with the body,
-    * but the parameter instanciation on the current object.
+    * but the parameter instantiation on the current object.
     */
    const exec_node *parameter_info = origin ? origin->parameters.head : parameters.head;
 

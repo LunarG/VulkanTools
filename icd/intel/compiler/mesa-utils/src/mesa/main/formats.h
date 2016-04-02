@@ -72,7 +72,7 @@ typedef enum
     *  There shall be 3 naming format base types: those for component array
     *  formats (type A); those for compressed formats (type C); and those for
     *  packed component formats (type P). With type A formats, color component
-    *  order does not change with endianess. Each format name shall begin with
+    *  order does not change with endianness. Each format name shall begin with
     *  MESA_FORMAT_, followed by a component label (from the Component Label
     *  list below) for each component in the order that the component(s) occur
     *  in the format, except for non-linear color formats where the first

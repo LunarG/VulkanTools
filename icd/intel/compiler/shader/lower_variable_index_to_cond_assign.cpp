@@ -34,7 +34,7 @@
  * found in an r-value is converted to a canonical form \c array[i].  Each
  * element of the array is conditionally assigned to a temporary by comparing
  * \c i to a constant index.  This is done by cloning the canonical form and
- * replacing all occurances of \c i with a constant.  Each remaining occurance
+ * replacing all occurrences of \c i with a constant.  Each remaining occurrence
  * of the canonical form in the IR is replaced with a dereference of the
  * temporary variable.
  *
@@ -208,7 +208,7 @@ struct assignment_generator
        */
       void *mem_ctx = ralloc_parent(base_ir);
 
-      /* Clone the old r-value in its entirety.  Then replace any occurances of
+      /* Clone the old r-value in its entirety.  Then replace any occurrences of
        * the old variable index with the new constant index.
        */
       ir_dereference *element = this->rvalue->clone(mem_ctx, NULL);
@@ -462,7 +462,7 @@ public:
       switch_generator sg(ag, index, 4, 4);
 
       /* If the original assignment has a condition, respect that original
-       * condition!  This is acomplished by wrapping the new conditional
+       * condition!  This is accomplished by wrapping the new conditional
        * assignments in an if-statement that uses the original condition.
        */
       if ((orig_assign != NULL) && (orig_assign->condition != NULL)) {

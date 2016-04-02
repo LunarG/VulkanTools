@@ -103,7 +103,7 @@ extern "C" {
  *
  * GS - Geometry Shader.  This corresponds to a new DX10 concept.  If
  * enabled, incoming strips etc are passed to GS threads in individual
- * line/triangle/point units.  The GS thread may perform arbitary
+ * line/triangle/point units.  The GS thread may perform arbitrary
  * computation and emit whatever primtives with whatever vertices it
  * chooses.  This makes GS an excellent place to implement GL's
  * unfilled polygon modes, though of course it is capable of much
@@ -112,7 +112,7 @@ extern "C" {
  *
  * CS - Clipper.  Mesa's clipping algorithms are imported to run on
  * this unit.  The fixed function part performs cliptesting against
- * the 6 fixed clipplanes and makes descisions on whether or not the
+ * the 6 fixed clipplanes and makes decisions on whether or not the
  * incoming primitive needs to be passed to a thread for clipping.
  * User clip planes are handled via cooperation with the VS thread.
  *
@@ -526,7 +526,7 @@ struct brw_sf_prog_data {
    GLuint urb_read_length;
    GLuint total_grf;
 
-   /* Each vertex may have upto 12 attributes, 4 components each,
+   /* Each vertex may have up to 12 attributes, 4 components each,
     * except WPOS which requires only 2.  (11*4 + 2) == 44 ==> 11
     * rows.
     *

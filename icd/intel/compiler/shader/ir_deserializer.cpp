@@ -192,7 +192,7 @@ ir_deserializer::read_ir_function(bool prototypes_only)
          f->add_signature(sig);
       }
 
-      /* Break out of the loop if read errors occured. */
+      /* Break out of the loop if read errors occurred. */
       if (map->errors())
          return NULL;
 
@@ -288,7 +288,7 @@ ir_deserializer::read_ir_constant()
          if (!con)
             return NULL;
 
-         /* Break out of the loop if read errors occured. */
+         /* Break out of the loop if read errors occurred. */
          if (map->errors())
             return NULL;
 
@@ -657,7 +657,7 @@ ir_deserializer::read_prototypes(unsigned list_len)
 
       prototypes->push_tail(func);
 
-      /* Break out of the loop if read errors occured. */
+      /* Break out of the loop if read errors occurred. */
       if (map->errors())
          return false;
    }

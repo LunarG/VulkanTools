@@ -712,7 +712,7 @@ builtin_variable_generator::generate_constants()
        *     local_size_x, local_size_y, and local_size_z.
        *
        * To prevent the shader from trying to refer to gl_WorkGroupSize before
-       * the layout declaration, we don't define it here.  Intead we define it
+       * the layout declaration, we don't define it here.  Instead we define it
        * in ast_cs_input_layout::hir().
        */
    }

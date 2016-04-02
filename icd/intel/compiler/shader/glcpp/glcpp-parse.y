@@ -1252,7 +1252,7 @@ typedef enum function_status
  * balanced set of parentheses.
  *
  * When called, 'node' should be the opening-parenthesis token, (or
- * perhaps preceeding SPACE tokens). Upon successful return *last will
+ * perhaps preceding SPACE tokens). Upon successful return *last will
  * be the last consumed node, (corresponding to the closing right
  * parenthesis).
  *
@@ -1315,7 +1315,7 @@ _arguments_parse (argument_list_t *arguments,
 		else {
 			if (argument->head == NULL) {
 				/* Don't treat initial whitespace as
-				 * part of the arguement. */
+				 * part of the argument. */
 				if (node->token->type == SPACE)
 					continue;
 			}

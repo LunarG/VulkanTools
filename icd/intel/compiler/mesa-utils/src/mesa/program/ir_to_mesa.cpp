@@ -208,7 +208,7 @@ public:
     * Index of the first instruction of the function body in actual
     * Mesa IR.
     *
-    * Set after convertion from ir_to_mesa_instruction to prog_instruction.
+    * Set after conversion from ir_to_mesa_instruction to prog_instruction.
     */
    int inst;
 

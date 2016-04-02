@@ -151,7 +151,7 @@ lower_vector_visitor::handle_rvalue(ir_rvalue **rvalue)
    unsigned write_mask;
 
 
-   /* Generate upto four assignments to that variable.  Try to group component
+   /* Generate up to four assignments to that variable.  Try to group component
     * assignments together:
     *
     * - All constant components can be assigned at once.

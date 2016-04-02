@@ -111,7 +111,7 @@ link_uniform_block_active_visitor::visit_enter(ir_dereference_array *ir)
 
    /* Determine whether or not this array index has already been added to the
     * list of active array indices.  At this point all constant folding must
-    * have occured, and the array index must be a constant.
+    * have occurred, and the array index must be a constant.
     */
    ir_constant *c = ir->array_index->as_constant();
    assert(c != NULL);
