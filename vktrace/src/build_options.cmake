@@ -445,7 +445,7 @@ else()
     message(FATAL_ERROR "Compiler unset, build will fail--stopping at CMake time.")
 endif()
 
-# Platform specific libary defines.
+# Platform specific library defines.
 if (WIN32)
     set( LIBRT "" )
     set( LIBDL "" )
