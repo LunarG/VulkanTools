@@ -1245,67 +1245,70 @@ static std::string describe_type(shader_module const *src, unsigned type) {
 }
 
 
-static bool types_match(shader_module const *a, shader_module const *b, unsigned a_type, unsigned b_type, bool b_arrayed) {
+static bool types_match(shader_module const *a, shader_module const *b, unsigned a_type, unsigned b_type, bool a_arrayed, bool b_arrayed) {
     /* walk two type trees together, and complain about differences */
     auto a_insn = a->get_def(a_type);
     auto b_insn = b->get_def(b_type);
     assert(a_insn != a->end());
     assert(b_insn != b->end());
 
+    if (a_arrayed && a_insn.opcode() == spv::OpTypeArray) {
+        return types_match(a, b, a_insn.word(2), b_type, false, b_arrayed);
+    }
+
     if (b_arrayed && b_insn.opcode() == spv::OpTypeArray) {
         /* we probably just found the extra level of arrayness in b_type: compare the type inside it to a_type */
-        return types_match(a, b, a_type, b_insn.word(2), false);
+        return types_match(a, b, a_type, b_insn.word(2), a_arrayed, false);
     }
 
     if (a_insn.opcode() != b_insn.opcode()) {
         return false;
     }
 
+    if (a_insn.opcode() == spv::OpTypePointer) {
+        /* match on pointee type. storage class is expected to differ */
+        return types_match(a, b, a_insn.word(3), b_insn.word(3), a_arrayed, b_arrayed);
+    }
+
+    if (a_arrayed || b_arrayed) {
+        /* if we havent resolved array-of-verts by here, we're not going to. */
+        return false;
+    }
+
     switch (a_insn.opcode()) {
-    /* if b_arrayed and we hit a leaf type, then we can't match -- there's nowhere for the extra OpTypeArray to be! */
     case spv::OpTypeBool:
-        return true && !b_arrayed;
+        return true;
     case spv::OpTypeInt:
         /* match on width, signedness */
-        return a_insn.word(2) == b_insn.word(2) && a_insn.word(3) == b_insn.word(3) && !b_arrayed;
+        return a_insn.word(2) == b_insn.word(2) && a_insn.word(3) == b_insn.word(3);
     case spv::OpTypeFloat:
         /* match on width */
-        return a_insn.word(2) == b_insn.word(2) && !b_arrayed;
+        return a_insn.word(2) == b_insn.word(2);
     case spv::OpTypeVector:
     case spv::OpTypeMatrix:
-        /* match on element type, count. these all have the same layout. we don't get here if
-         * b_arrayed -- that is handled above. */
-        return !b_arrayed && types_match(a, b, a_insn.word(2), b_insn.word(2), b_arrayed) && a_insn.word(3) == b_insn.word(3);
+        /* match on element type, count. these all have the same layout. */
+        return types_match(a, b, a_insn.word(2), b_insn.word(2), a_arrayed, b_arrayed) && a_insn.word(3) == b_insn.word(3);
     case spv::OpTypeArray:
         /* match on element type, count. these all have the same layout. we don't get here if
          * b_arrayed. This differs from vector & matrix types in that the array size is the id of a constant instruction,
          * not a literal within OpTypeArray */
-        return !b_arrayed && types_match(a, b, a_insn.word(2), b_insn.word(2), b_arrayed) &&
+        return types_match(a, b, a_insn.word(2), b_insn.word(2), a_arrayed, b_arrayed) &&
                get_constant_value(a, a_insn.word(3)) == get_constant_value(b, b_insn.word(3));
     case spv::OpTypeStruct:
         /* match on all element types */
         {
-            if (b_arrayed) {
-                /* for the purposes of matching different levels of arrayness, structs are leaves. */
-                return false;
-            }
-
             if (a_insn.len() != b_insn.len()) {
                 return false; /* structs cannot match if member counts differ */
             }
 
             for (unsigned i = 2; i < a_insn.len(); i++) {
-                if (!types_match(a, b, a_insn.word(i), b_insn.word(i), b_arrayed)) {
+                if (!types_match(a, b, a_insn.word(i), b_insn.word(i), a_arrayed, b_arrayed)) {
                     return false;
                 }
             }
 
             return true;
         }
-    case spv::OpTypePointer:
-        /* match on pointee type. storage class is expected to differ */
-        return types_match(a, b, a_insn.word(3), b_insn.word(3), b_arrayed);
-
     default:
         /* remaining types are CLisms, or may not appear in the interfaces we
          * are interested in. Just claim no match.
@@ -1356,7 +1359,22 @@ struct interface_var {
     uint32_t id;
     uint32_t type_id;
     uint32_t offset;
+    bool is_patch;
     /* TODO: collect the name, too? Isn't required to be present. */
+};
+
+struct shader_stage_attributes {
+    char const *const name;
+    bool arrayed_input;
+    bool arrayed_output;
+};
+
+static shader_stage_attributes shader_stage_attribs[] = {
+    {"vertex shader", false, false},
+    {"tessellation control shader", true, true},
+    {"tessellation evaluation shader", true, false},
+    {"geometry shader", true, false},
+    {"fragment shader", false, false},
 };
 
 static spirv_inst_iter get_struct_type(shader_module const *src, spirv_inst_iter def, bool is_array_of_verts) {
@@ -1378,9 +1396,9 @@ static spirv_inst_iter get_struct_type(shader_module const *src, spirv_inst_iter
 static void collect_interface_block_members(layer_data *my_data, shader_module const *src,
                                             std::map<location_t, interface_var> &out,
                                             std::unordered_map<unsigned, unsigned> const &blocks, bool is_array_of_verts,
-                                            uint32_t id, uint32_t type_id) {
+                                            uint32_t id, uint32_t type_id, bool is_patch) {
     /* Walk down the type_id presented, trying to determine whether it's actually an interface block. */
-    auto type = get_struct_type(src, src->get_def(type_id), is_array_of_verts);
+    auto type = get_struct_type(src, src->get_def(type_id), is_array_of_verts && !is_patch);
     if (type == src->end() || blocks.find(type.word(1)) == blocks.end()) {
         /* this isn't an interface block. */
         return;
@@ -1418,6 +1436,7 @@ static void collect_interface_block_members(layer_data *my_data, shader_module c
                     /* TODO: member index in interface_var too? */
                     v.type_id = member_type_id;
                     v.offset = offset;
+                    v.is_patch = is_patch;
                     out[std::make_pair(location + offset, component)] = v;
                 }
             }
@@ -1432,6 +1451,7 @@ static void collect_interface_by_location(layer_data *my_data, shader_module con
     std::unordered_map<unsigned, unsigned> var_builtins;
     std::unordered_map<unsigned, unsigned> var_components;
     std::unordered_map<unsigned, unsigned> blocks;
+    std::unordered_map<unsigned, unsigned> var_patch;
 
     for (auto insn : *src) {
 
@@ -1454,12 +1474,16 @@ static void collect_interface_by_location(layer_data *my_data, shader_module con
             if (insn.word(2) == spv::DecorationBlock) {
                 blocks[insn.word(1)] = 1;
             }
+
+            if (insn.word(2) == spv::DecorationPatch) {
+                var_patch[insn.word(1)] = 1;
+            }
         }
     }
 
     /* TODO: handle grouped decorations */
     /* TODO: handle index=1 dual source outputs from FS -- two vars will
-     * have the same location, and we DONT want to clobber. */
+     * have the same location, and we DON'T want to clobber. */
 
     /* find the end of the entrypoint's name string. additional zero bytes follow the actual null
        terminator, to fill out the rest of the word - so we only need to look at the last byte in
@@ -1482,6 +1506,7 @@ static void collect_interface_by_location(layer_data *my_data, shader_module con
             int location = value_or_default(var_locations, id, -1);
             int builtin = value_or_default(var_builtins, id, -1);
             unsigned component = value_or_default(var_components, id, 0); /* unspecified is OK, is 0 */
+            bool is_patch = var_patch.find(id) != var_patch.end();
 
             /* All variables and interface block members in the Input or Output storage classes
              * must be decorated with either a builtin or an explicit location.
@@ -1494,17 +1519,18 @@ static void collect_interface_by_location(layer_data *my_data, shader_module con
             if (location != -1) {
                 /* A user-defined interface variable, with a location. Where a variable
                  * occupied multiple locations, emit one result for each. */
-                unsigned num_locations = get_locations_consumed_by_type(src, type, is_array_of_verts);
+                unsigned num_locations = get_locations_consumed_by_type(src, type, is_array_of_verts && !is_patch);
                 for (unsigned int offset = 0; offset < num_locations; offset++) {
                     interface_var v;
                     v.id = id;
                     v.type_id = type;
                     v.offset = offset;
+                    v.is_patch = is_patch;
                     out[std::make_pair(location + offset, component)] = v;
                 }
             } else if (builtin == -1) {
                 /* An interface block instance */
-                collect_interface_block_members(my_data, src, out, blocks, is_array_of_verts, id, type);
+                collect_interface_block_members(my_data, src, out, blocks, is_array_of_verts, id, type, is_patch);
             }
         }
     }
@@ -1554,23 +1580,24 @@ static void collect_interface_by_descriptor_slot(layer_data *my_data, shader_mod
             interface_var v;
             v.id = insn.word(2);
             v.type_id = insn.word(1);
+            v.offset = 0;
+            v.is_patch = false;
             out[std::make_pair(set, binding)] = v;
         }
     }
 }
 
 static bool validate_interface_between_stages(layer_data *my_data, shader_module const *producer,
-                                              spirv_inst_iter producer_entrypoint, char const *producer_name,
+                                              spirv_inst_iter producer_entrypoint, shader_stage_attributes const *producer_stage,
                                               shader_module const *consumer, spirv_inst_iter consumer_entrypoint,
-                                              char const *consumer_name, bool consumer_arrayed_input) {
+                                              shader_stage_attributes const *consumer_stage) {
     std::map<location_t, interface_var> outputs;
     std::map<location_t, interface_var> inputs;
 
     bool pass = true;
 
-    collect_interface_by_location(my_data, producer, producer_entrypoint, spv::StorageClassOutput, outputs, false);
-    collect_interface_by_location(my_data, consumer, consumer_entrypoint, spv::StorageClassInput, inputs,
-                                  consumer_arrayed_input);
+    collect_interface_by_location(my_data, producer, producer_entrypoint, spv::StorageClassOutput, outputs, producer_stage->arrayed_output);
+    collect_interface_by_location(my_data, consumer, consumer_entrypoint, spv::StorageClassInput, inputs, consumer_stage->arrayed_input);
 
     auto a_it = outputs.begin();
     auto b_it = inputs.begin();
@@ -1585,28 +1612,38 @@ static bool validate_interface_between_stages(layer_data *my_data, shader_module
         if (b_at_end || ((!a_at_end) && (a_first < b_first))) {
             if (log_msg(my_data->report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0,
                         __LINE__, SHADER_CHECKER_OUTPUT_NOT_CONSUMED, "SC",
-                        "%s writes to output location %u.%u which is not consumed by %s", producer_name, a_first.first,
-                        a_first.second, consumer_name)) {
+                        "%s writes to output location %u.%u which is not consumed by %s", producer_stage->name, a_first.first,
+                        a_first.second, consumer_stage->name)) {
                 pass = false;
             }
             a_it++;
         } else if (a_at_end || a_first > b_first) {
             if (log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0,
                         __LINE__, SHADER_CHECKER_INPUT_NOT_PRODUCED, "SC",
-                        "%s consumes input location %u.%u which is not written by %s", consumer_name, b_first.first, b_first.second,
-                        producer_name)) {
+                        "%s consumes input location %u.%u which is not written by %s", consumer_stage->name, b_first.first, b_first.second,
+                        producer_stage->name)) {
                 pass = false;
             }
             b_it++;
         } else {
-            if (types_match(producer, consumer, a_it->second.type_id, b_it->second.type_id, consumer_arrayed_input)) {
-                /* OK! */
-            } else {
+            if (!types_match(producer, consumer, a_it->second.type_id, b_it->second.type_id,
+                             producer_stage->arrayed_output && !a_it->second.is_patch,
+                             consumer_stage->arrayed_input && !b_it->second.is_patch)) {
                 if (log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0,
                             __LINE__, SHADER_CHECKER_INTERFACE_TYPE_MISMATCH, "SC", "Type mismatch on location %u.%u: '%s' vs '%s'",
                             a_first.first, a_first.second,
                             describe_type(producer, a_it->second.type_id).c_str(),
                             describe_type(consumer, b_it->second.type_id).c_str())) {
+                    pass = false;
+                }
+            }
+            if (a_it->second.is_patch != b_it->second.is_patch) {
+                if (log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, /*dev*/ 0,
+                            __LINE__, SHADER_CHECKER_INTERFACE_TYPE_MISMATCH, "SC",
+                            "Decoration mismatch on location %u.%u: is per-%s in %s stage but "
+                            "per-%s in %s stage", a_first.first, a_first.second,
+                            a_it->second.is_patch ? "patch" : "vertex", producer_stage->name,
+                            b_it->second.is_patch ? "patch" : "vertex", consumer_stage->name)) {
                     pass = false;
                 }
             }
@@ -1856,7 +1893,7 @@ static void mark_accessible_ids(shader_module const *src, spirv_inst_iter entryp
 
         auto insn = src->get_def(id);
         if (insn == src->end()) {
-            /* id is something we didnt collect in build_def_index. that's OK -- we'll stumble
+            /* id is something we didn't collect in build_def_index. that's OK -- we'll stumble
              * across all kinds of things here that we may not care about. */
             continue;
         }
@@ -1952,19 +1989,6 @@ static void mark_accessible_ids(shader_module const *src, spirv_inst_iter entryp
         }
     }
 }
-
-struct shader_stage_attributes {
-    char const *const name;
-    bool arrayed_input;
-};
-
-static shader_stage_attributes shader_stage_attribs[] = {
-    {"vertex shader", false},
-    {"tessellation control shader", true},
-    {"tessellation evaluation shader", false},
-    {"geometry shader", true},
-    {"fragment shader", false},
-};
 
 static bool validate_push_constant_block_against_pipeline(layer_data *my_data,
                                                           std::vector<VkPushConstantRange> const *pushConstantRanges,
@@ -2696,10 +2720,9 @@ static VkBool32 validate_and_capture_pipeline_shader_state(layer_data *my_data, 
     for (; producer != fragment_stage && consumer <= fragment_stage; consumer++) {
         assert(shaders[producer]);
         if (shaders[consumer]) {
-            pass &= validate_interface_between_stages(my_data, shaders[producer], entrypoints[producer],
-                                                     shader_stage_attribs[producer].name, shaders[consumer], entrypoints[consumer],
-                                                     shader_stage_attribs[consumer].name,
-                                                     shader_stage_attribs[consumer].arrayed_input);
+            pass &= validate_interface_between_stages(my_data,
+                                                      shaders[producer], entrypoints[producer], &shader_stage_attribs[producer],
+                                                      shaders[consumer], entrypoints[consumer], &shader_stage_attribs[consumer]);
 
             producer = consumer;
         }
@@ -2779,79 +2802,76 @@ static VkBool32 validate_and_update_drawtime_descriptor_state(
             uint32_t startIdx = getBindingStartIndex(layout_node, binding);
             uint32_t endIdx = getBindingEndIndex(layout_node, binding);
             for (uint32_t i = startIdx; i <= endIdx; ++i) {
-                // TODO : Flag error here if set_node->pDescriptorUpdates[i] is NULL
-                switch (set_node->pDescriptorUpdates[i]->sType) {
-                case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
-                    pWDS = (VkWriteDescriptorSet *)set_node->pDescriptorUpdates[i];
-                    if ((pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
-                        (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)) {
-                        for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
-                            bufferSize = dev_data->bufferMap[pWDS->pBufferInfo[j].buffer].create_info->size;
-                            uint32_t dynOffset = pCB->lastBound[VK_PIPELINE_BIND_POINT_GRAPHICS].dynamicOffsets[dynOffsetIndex];
-                            if (pWDS->pBufferInfo[j].range == VK_WHOLE_SIZE) {
-                                if ((dynOffset + pWDS->pBufferInfo[j].offset) > bufferSize) {
+                // We did check earlier to verify that set was updated, but now make sure given slot was updated
+                // TODO : Would be better to store set# that set is bound to so we can report set.binding[index] not updated
+                if (!set_node->pDescriptorUpdates[i]) {
+                    result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                        VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
+                                        DRAWSTATE_DESCRIPTOR_SET_NOT_UPDATED, "DS",
+                                        "DS %#" PRIxLEAST64 " bound and active but it never had binding %u updated. It is now being used to draw so "
+                                                            "this will result in undefined behavior.",
+                                        reinterpret_cast<const uint64_t &>(set_node->set), binding);
+                } else {
+                    switch (set_node->pDescriptorUpdates[i]->sType) {
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
+                        pWDS = (VkWriteDescriptorSet *)set_node->pDescriptorUpdates[i];
+                        if ((pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                            (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)) {
+                            for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
+                                bufferSize = dev_data->bufferMap[pWDS->pBufferInfo[j].buffer].create_info->size;
+                                uint32_t dynOffset = pCB->lastBound[VK_PIPELINE_BIND_POINT_GRAPHICS].dynamicOffsets[dynOffsetIndex];
+                                if (pWDS->pBufferInfo[j].range == VK_WHOLE_SIZE) {
+                                    if ((dynOffset + pWDS->pBufferInfo[j].offset) > bufferSize) {
+                                        result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                                          VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
+                                                          reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
+                                                          DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, "DS",
+                                                          "VkDescriptorSet (%#" PRIxLEAST64 ") bound as set #%u has range of "
+                                                          "VK_WHOLE_SIZE but dynamic offset %#" PRIxLEAST32 ". "
+                                                          "combined with offset %#" PRIxLEAST64 " oversteps its buffer (%#" PRIxLEAST64
+                                                          ") which has a size of %#" PRIxLEAST64 ".",
+                                                          reinterpret_cast<const uint64_t &>(set_node->set), i, dynOffset,
+                                                          pWDS->pBufferInfo[j].offset,
+                                                          reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
+                                    }
+                                } else if ((dynOffset + pWDS->pBufferInfo[j].offset + pWDS->pBufferInfo[j].range) > bufferSize) {
                                     result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                                       VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
                                                       reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
                                                       DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, "DS",
-                                                      "VkDescriptorSet (%#" PRIxLEAST64 ") bound as set #%u has range of "
-                                                      "VK_WHOLE_SIZE but dynamic offset %#" PRIxLEAST32 ". "
-                                                      "combined with offset %#" PRIxLEAST64 " oversteps its buffer (%#" PRIxLEAST64
-                                                      ") which has a size of %#" PRIxLEAST64 ".",
-                                                      reinterpret_cast<const uint64_t &>(set_node->set), i,
-                                                      pCB->dynamicOffsets[dynOffsetIndex], pWDS->pBufferInfo[j].offset,
+                                                      "VkDescriptorSet (%#" PRIxLEAST64
+                                                      ") bound as set #%u has dynamic offset %#" PRIxLEAST32 ". "
+                                                      "Combined with offset %#" PRIxLEAST64 " and range %#" PRIxLEAST64
+                                                      " from its update, this oversteps its buffer "
+                                                      "(%#" PRIxLEAST64 ") which has a size of %#" PRIxLEAST64 ".",
+                                                      reinterpret_cast<const uint64_t &>(set_node->set), i, dynOffset,
+                                                      pWDS->pBufferInfo[j].offset, pWDS->pBufferInfo[j].range,
                                                       reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
                                 }
-                            } else if ((dynOffset + pWDS->pBufferInfo[j].offset + pWDS->pBufferInfo[j].range) > bufferSize) {
-                                result |= log_msg(
-                                    dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                                    reinterpret_cast<const uint64_t &>(set_node->set), __LINE__, DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW,
-                                    "DS",
-                                    "VkDescriptorSet (%#" PRIxLEAST64 ") bound as set #%u has dynamic offset %#" PRIxLEAST32 ". "
-                                    "Combined with offset %#" PRIxLEAST64 " and range %#" PRIxLEAST64
-                                    " from its update, this oversteps its buffer "
-                                    "(%#" PRIxLEAST64 ") which has a size of %#" PRIxLEAST64 ".",
-                                    reinterpret_cast<const uint64_t &>(set_node->set), i, pCB->dynamicOffsets[dynOffsetIndex],
-                                    pWDS->pBufferInfo[j].offset, pWDS->pBufferInfo[j].range,
-                                    reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
-                            } else if ((dynOffset + pWDS->pBufferInfo[j].offset + pWDS->pBufferInfo[j].range) > bufferSize) {
-                                result |= log_msg(
-                                    dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                                    reinterpret_cast<const uint64_t &>(set_node->set), __LINE__, DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW,
-                                    "DS",
-                                    "VkDescriptorSet (%#" PRIxLEAST64 ") bound as set #%u has dynamic offset %#" PRIxLEAST32 ". "
-                                    "Combined with offset %#" PRIxLEAST64 " and range %#" PRIxLEAST64
-                                    " from its update, this oversteps its buffer "
-                                    "(%#" PRIxLEAST64 ") which has a size of %#" PRIxLEAST64 ".",
-                                    reinterpret_cast<const uint64_t &>(set_node->set), i, pCB->dynamicOffsets[dynOffsetIndex],
-                                    pWDS->pBufferInfo[j].offset, pWDS->pBufferInfo[j].range,
-                                    reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
+                                dynOffsetIndex++;
                             }
-                            dynOffsetIndex++;
+                        } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
+                            for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
+                                pCB->updateImages.insert(pWDS->pImageInfo[j].imageView);
+                            }
+                        } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) {
+                            for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
+                                assert(dev_data->bufferViewMap.find(pWDS->pTexelBufferView[j]) != dev_data->bufferViewMap.end());
+                                pCB->updateBuffers.insert(dev_data->bufferViewMap[pWDS->pTexelBufferView[j]].buffer);
+                            }
+                        } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER ||
+                                   pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {
+                            for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
+                                pCB->updateBuffers.insert(pWDS->pBufferInfo[j].buffer);
+                            }
                         }
-                    } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
-                        for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
-                            pCB->updateImages.insert(pWDS->pImageInfo[j].imageView);
-                        }
-                    } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) {
-                        for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
-                            assert(dev_data->bufferViewMap.find(pWDS->pTexelBufferView[j]) != dev_data->bufferViewMap.end());
-                            pCB->updateBuffers.insert(dev_data->bufferViewMap[pWDS->pTexelBufferView[j]].buffer);
-                        }
-                    } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER ||
-                               pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {
-                        for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
-                            pCB->updateBuffers.insert(pWDS->pBufferInfo[j].buffer);
-                        }
+                        i += pWDS->descriptorCount; // Advance i to end of this set of descriptors (++i at end of for loop will move 1
+                                                    // index past last of these descriptors)
+                        break;
+                    default: // Currently only shadowing Write update nodes so shouldn't get here
+                        assert(0);
+                        continue;
                     }
-                    i += pWDS->descriptorCount; // Advance i to end of this set of descriptors (++i at end of for loop will move 1
-                                                // index past last of these descriptors)
-                    break;
-                default: // Currently only shadowing Write update nodes so shouldn't get here
-                    assert(0);
-                    continue;
                 }
             }
         }
@@ -3342,14 +3362,6 @@ static VkBool32 validatePipelineState(layer_data *my_data, const GLOBAL_CB_NODE 
                 VkSampleCountFlagBits subpassNumSamples = (VkSampleCountFlagBits)0;
                 uint32_t i;
 
-                if (pPipeline->cbStateCI.attachmentCount != pSD->colorAttachmentCount) {
-                    skipCall |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
-                                        reinterpret_cast<const uint64_t &>(pipeline), __LINE__, DRAWSTATE_INVALID_RENDERPASS, "DS",
-                                        "Mismatch between blend state attachment count %u and subpass %u color attachment "
-                                        "count %u!  These must be the same.",
-                                        pPipeline->cbStateCI.attachmentCount, pCB->activeSubpass, pSD->colorAttachmentCount);
-                }
-
                 for (i = 0; i < pSD->colorAttachmentCount; i++) {
                     VkSampleCountFlagBits samples;
 
@@ -3576,30 +3588,86 @@ static VkBool32 validateSampler(const layer_data *my_data, const VkSampler *pSam
     return skipCall;
 }
 
-// find layout(s) on the cmd buf level
-bool FindLayout(const GLOBAL_CB_NODE *pCB, VkImage image, VkImageSubresource range, IMAGE_CMD_BUF_LAYOUT_NODE &node) {
-    ImageSubresourcePair imgpair = {image, true, range};
+//TODO: Consolidate functions
+bool FindLayout(const GLOBAL_CB_NODE *pCB, ImageSubresourcePair imgpair, IMAGE_CMD_BUF_LAYOUT_NODE &node, const VkImageAspectFlags aspectMask) {
+    layer_data *my_data = get_my_data_ptr(get_dispatch_key(pCB->commandBuffer), layer_data_map);
+    if (!(imgpair.subresource.aspectMask & aspectMask)) {
+        return false;
+    }
+    VkImageAspectFlags oldAspectMask = imgpair.subresource.aspectMask;
+    imgpair.subresource.aspectMask = aspectMask;
     auto imgsubIt = pCB->imageLayoutMap.find(imgpair);
     if (imgsubIt == pCB->imageLayoutMap.end()) {
-        imgpair = {image, false, VkImageSubresource()};
-        imgsubIt = pCB->imageLayoutMap.find(imgpair);
-        if (imgsubIt == pCB->imageLayoutMap.end())
-            return false;
+        return false;
+    }
+    if (node.layout != VK_IMAGE_LAYOUT_MAX_ENUM && node.layout != imgsubIt->second.layout) {
+        log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
+                reinterpret_cast<uint64_t&>(imgpair.image), __LINE__, DRAWSTATE_INVALID_LAYOUT, "DS",
+                "Cannot query for VkImage 0x%" PRIx64 " layout when combined aspect mask %d has multiple layout types: %s and %s",
+                reinterpret_cast<uint64_t&>(imgpair.image), oldAspectMask, string_VkImageLayout(node.layout), string_VkImageLayout(imgsubIt->second.layout));
+    }
+    if (node.initialLayout != VK_IMAGE_LAYOUT_MAX_ENUM && node.initialLayout != imgsubIt->second.initialLayout) {
+        log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
+                reinterpret_cast<uint64_t&>(imgpair.image), __LINE__, DRAWSTATE_INVALID_LAYOUT, "DS",
+                "Cannot query for VkImage 0x%" PRIx64 " layout when combined aspect mask %d has multiple initial layout types: %s and %s",
+                reinterpret_cast<uint64_t&>(imgpair.image), oldAspectMask, string_VkImageLayout(node.initialLayout), string_VkImageLayout(imgsubIt->second.initialLayout));
     }
     node = imgsubIt->second;
     return true;
 }
 
-// find layout(s) on the global level
-bool FindLayout(const layer_data *my_data, ImageSubresourcePair imgpair, VkImageLayout &layout) {
+bool FindLayout(const layer_data *my_data, ImageSubresourcePair imgpair, VkImageLayout &layout, const VkImageAspectFlags aspectMask) {
+    if (!(imgpair.subresource.aspectMask & aspectMask)) {
+        return false;
+    }
+    VkImageAspectFlags oldAspectMask = imgpair.subresource.aspectMask;
+    imgpair.subresource.aspectMask = aspectMask;
     auto imgsubIt = my_data->imageLayoutMap.find(imgpair);
     if (imgsubIt == my_data->imageLayoutMap.end()) {
-        imgpair = {imgpair.image, false, VkImageSubresource()};
-        imgsubIt = my_data->imageLayoutMap.find(imgpair);
-        if (imgsubIt == my_data->imageLayoutMap.end())
-            return false;
+        return false;
+    }
+    if (layout != VK_IMAGE_LAYOUT_MAX_ENUM && layout != imgsubIt->second.layout) {
+        log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
+                reinterpret_cast<uint64_t&>(imgpair.image), __LINE__, DRAWSTATE_INVALID_LAYOUT, "DS",
+                "Cannot query for VkImage 0x%" PRIx64 " layout when combined aspect mask %d has multiple layout types: %s and %s",
+                reinterpret_cast<uint64_t&>(imgpair.image), oldAspectMask, string_VkImageLayout(layout), string_VkImageLayout(imgsubIt->second.layout));
     }
     layout = imgsubIt->second.layout;
+    return true;
+}
+
+// find layout(s) on the cmd buf level
+bool FindLayout(const GLOBAL_CB_NODE *pCB, VkImage image, VkImageSubresource range, IMAGE_CMD_BUF_LAYOUT_NODE &node) {
+    ImageSubresourcePair imgpair = {image, true, range};
+    node = IMAGE_CMD_BUF_LAYOUT_NODE(VK_IMAGE_LAYOUT_MAX_ENUM, VK_IMAGE_LAYOUT_MAX_ENUM);
+    FindLayout(pCB, imgpair, node, VK_IMAGE_ASPECT_COLOR_BIT);
+    FindLayout(pCB, imgpair, node, VK_IMAGE_ASPECT_DEPTH_BIT);
+    FindLayout(pCB, imgpair, node, VK_IMAGE_ASPECT_STENCIL_BIT);
+    FindLayout(pCB, imgpair, node, VK_IMAGE_ASPECT_METADATA_BIT);
+    if (node.layout == VK_IMAGE_LAYOUT_MAX_ENUM) {
+        imgpair = {image, false, VkImageSubresource()};
+        auto imgsubIt = pCB->imageLayoutMap.find(imgpair);
+        if (imgsubIt == pCB->imageLayoutMap.end())
+            return false;
+        node = imgsubIt->second;
+    }
+    return true;
+}
+
+// find layout(s) on the global level
+bool FindLayout(const layer_data *my_data, ImageSubresourcePair imgpair, VkImageLayout &layout) {
+    layout = VK_IMAGE_LAYOUT_MAX_ENUM;
+    FindLayout(my_data, imgpair, layout, VK_IMAGE_ASPECT_COLOR_BIT);
+    FindLayout(my_data, imgpair, layout, VK_IMAGE_ASPECT_DEPTH_BIT);
+    FindLayout(my_data, imgpair, layout, VK_IMAGE_ASPECT_STENCIL_BIT);
+    FindLayout(my_data, imgpair, layout, VK_IMAGE_ASPECT_METADATA_BIT);
+    if (layout == VK_IMAGE_LAYOUT_MAX_ENUM) {
+        imgpair = {imgpair.image, false, VkImageSubresource()};
+        auto imgsubIt = my_data->imageLayoutMap.find(imgpair);
+        if (imgsubIt == my_data->imageLayoutMap.end())
+            return false;
+        layout = imgsubIt->second.layout;
+    }
     return true;
 }
 
@@ -7477,10 +7545,6 @@ vkCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipel
                         pCB->lastBound[pipelineBindPoint].boundDescriptorSets.resize(lastSetIndex + 1);
                     }
                 }
-                // Save dynamicOffsets bound to this CB
-                for (uint32_t i = 0; i < dynamicOffsetCount; i++) {
-                    pCB->lastBound[pipelineBindPoint].dynamicOffsets.push_back(pDynamicOffsets[i]);
-                }
             }
             //  dynamicOffsetCount must equal the total number of dynamic descriptors in the sets being bound
             if (totalDynamicDescriptors != dynamicOffsetCount) {
@@ -7493,7 +7557,7 @@ vkCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipel
             }
             // Save dynamicOffsets bound to this CB
             for (uint32_t i = 0; i < dynamicOffsetCount; i++) {
-                pCB->dynamicOffsets.emplace_back(pDynamicOffsets[i]);
+                pCB->lastBound[pipelineBindPoint].dynamicOffsets.emplace_back(pDynamicOffsets[i]);
             }
         } else {
             skipCall |= report_error_no_cb_begin(dev_data, commandBuffer, "vkCmdBindDescriptorSets()");
@@ -9785,7 +9849,7 @@ bool logInvalidAttachmentMessage(layer_data *dev_data, VkCommandBuffer secondary
                    DRAWSTATE_INVALID_SECONDARY_COMMAND_BUFFER, "DS",
                    "vkCmdExecuteCommands() called w/ invalid Cmd Buffer %p which has a render pass %" PRIx64
                    " that is not compatible with the current render pass %" PRIx64 "."
-                   "Attachment %" PRIu32 " is not compatable with %" PRIu32 ". %s",
+                   "Attachment %" PRIu32 " is not compatible with %" PRIu32 ". %s",
                    (void *)secondaryBuffer, (uint64_t)(secondaryPass), (uint64_t)(primaryPass), primaryAttach, secondaryAttach,
                    msg);
 }
