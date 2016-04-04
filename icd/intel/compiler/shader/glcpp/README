@@ -2,7 +2,7 @@ glcpp -- GLSL "C" preprocessor
 
 This is a simple preprocessor designed to provide the preprocessing
 needs of the GLSL language. The requirements for this preprocessor are
-specified in the GLSL 1.30 specification availble from:
+specified in the GLSL 1.30 specification available from:
 
 http://www.opengl.org/registry/doc/GLSLangSpec.Full.1.30.10.pdf
 

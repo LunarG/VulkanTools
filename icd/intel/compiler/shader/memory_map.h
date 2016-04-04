@@ -218,7 +218,7 @@ private:
 
    void *mem_ctx;
 
-   /* if errors have occured during reading */
+   /* if errors have occurred during reading */
    bool error;
 
    /* specifies if we are reading mapped memory or user passed mem */

@@ -1606,7 +1606,7 @@ enum brw_message_target {
 # define GEN6_CLIP_XY_TEST				(1 << 28)
 # define GEN6_CLIP_Z_TEST				(1 << 27)
 # define GEN6_CLIP_GB_TEST				(1 << 26)
-/** 8-bit field of which user clip distances to clip aganist. */
+/** 8-bit field of which user clip distances to clip against. */
 # define GEN6_USER_CLIP_CLIP_DISTANCES_SHIFT		16
 # define GEN6_CLIP_MODE_NORMAL				(0 << 13)
 # define GEN6_CLIP_MODE_REJECT_ALL			(3 << 13)

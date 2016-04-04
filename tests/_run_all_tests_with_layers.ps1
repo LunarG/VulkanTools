@@ -33,7 +33,7 @@ If (Test-Path .\vk_layer_settings.txt) {
     del vk_layer_settings.txt
 }
 
-#unset the layer enviroment variables before running the layer validation tests
+#unset the layer environment variables before running the layer validation tests
 $env:VK_INSTANCE_LAYERS = ""
 $env:VK_DEVICE_LAYERS = ""
 

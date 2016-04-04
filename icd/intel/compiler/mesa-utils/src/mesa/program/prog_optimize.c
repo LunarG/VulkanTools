@@ -189,7 +189,7 @@ remove_instructions(struct gl_program *prog, const GLboolean *removeFlags)
          }
       }
       else {
-         /* don't remove this instruction, but check if the preceeding
+         /* don't remove this instruction, but check if the preceding
           * instructions are to be removed.
           */
          if (removeCount > 0) {
@@ -372,7 +372,7 @@ enum inst_use
 
 
 /**
- * Scan forward in program from 'start' for the next occurances of TEMP[index].
+ * Scan forward in program from 'start' for the next occurrences of TEMP[index].
  * We look if an instruction reads the component given by the masks and if they
  * are overwritten.
  * Return READ, WRITE, FLOW or END to indicate the next usage or an indicator

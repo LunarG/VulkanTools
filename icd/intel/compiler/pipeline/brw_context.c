@@ -503,7 +503,7 @@ brw_initialize_context_constants(struct brw_context *brw)
       ctx->Const.MaxViewports = GEN7_NUM_VIEWPORTS;
       ctx->Const.ViewportSubpixelBits = 0;
 
-      /* Cast to float before negating becuase MaxViewportWidth is unsigned.
+      /* Cast to float before negating because MaxViewportWidth is unsigned.
        */
       ctx->Const.ViewportBounds.Min = -(float)ctx->Const.MaxViewportWidth;
       ctx->Const.ViewportBounds.Max = ctx->Const.MaxViewportWidth;
@@ -903,7 +903,7 @@ intelUnbindContext(__DRIcontext * driContextPriv)
  * sRGB encode if the renderbuffer can handle it.  You can ask specifically
  * for a visual where you're guaranteed to be capable, but it turns out that
  * everyone just makes all their ARGB8888 visuals capable and doesn't offer
- * incapable ones, becuase there's no difference between the two in resources
+ * incapable ones, because there's no difference between the two in resources
  * used.  Applications thus get built that accidentally rely on the default
  * visual choice being sRGB, so we make ours sRGB capable.  Everything sounds
  * great...

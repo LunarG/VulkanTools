@@ -291,7 +291,7 @@ deserialize_glsl_type(memory_map *map, struct _mesa_glsl_parse_state *state,
          char *field_name = map->read_string();
          fields[k].name = _mesa_strdup(field_name);
          fields[k].type = deserialize_glsl_type(map, state, type_hash);
-         /* Break out of the loop if read errors occured. */
+         /* Break out of the loop if read errors occurred. */
          if (map->errors())
             goto type_serialization_error;
       }

@@ -30,7 +30,7 @@ VK_INSTANCE_LAYERS=Vktrace VK_DEVICE_LAYERS=Vktrace ./cube
 
 Trace file is written into "vktrace_cube<number>.vktrace".
 As the app is rerun, the Vktrace tracer server will increment the output file
-number for each succesive run of the app.
+number for each successive run of the app.
 
 One can also set VKTRACE_LIB_IPADDR to a remote system IP address. Then
 the tracer inserted into an app will send the trace packets to the remote

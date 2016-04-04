@@ -222,7 +222,7 @@ Initially, there really wasn't one.  We have since adopted one:
  - Files that implement code lowering passes should be named lower_*
    (e.g., lower_noise.cpp).
  - Files that implement optimization passes should be named opt_*.
- - Files that implement a class that is used throught the code should
+ - Files that implement a class that is used throughout the code should
    take the name of that class (e.g., ir_hierarchical_visitor.cpp).
  - Files that contain code not fitting in one of the previous
    categories should have a sensible name (e.g., glsl_parser.ypp).

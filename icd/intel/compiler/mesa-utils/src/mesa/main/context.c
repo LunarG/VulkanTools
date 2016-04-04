@@ -898,7 +898,7 @@ _mesa_alloc_dispatch_table()
 {
    /* Find the larger of Mesa's dispatch table and libGL's dispatch table.
     * In practice, this'll be the same for stand-alone Mesa.  But for DRI
-    * Mesa we do this to accomodate different versions of libGL and various
+    * Mesa we do this to accommodate different versions of libGL and various
     * DRI drivers.
     */
    GLint numEntries = MAX2(_glapi_get_dispatch_table_size(), _gloffset_COUNT);

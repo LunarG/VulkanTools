@@ -54,7 +54,7 @@ do_dead_code(exec_list *instructions, bool uniform_locations_assigned)
    hash_table_foreach(v.ht, e) {
       ir_variable_refcount_entry *entry = (ir_variable_refcount_entry *)e->data;
 
-      /* Since each assignment is a reference, the refereneced count must be
+      /* Since each assignment is a reference, the referenced count must be
        * greater than or equal to the assignment count.  If they are equal,
        * then all of the references are assignments, and the variable is
        * dead.
@@ -136,7 +136,7 @@ do_dead_code_unlinked(exec_list *instructions)
 	 foreach_list(signode, &f->signatures) {
 	    ir_function_signature *sig = (ir_function_signature *) signode;
 	    /* The setting of the uniform_locations_assigned flag here is
-	     * irrelevent.  If there is a uniform declaration encountered
+	     * irrelevant.  If there is a uniform declaration encountered
 	     * inside the body of the function, something has already gone
 	     * terribly, terribly wrong.
 	     */

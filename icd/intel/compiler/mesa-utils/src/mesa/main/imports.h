@@ -378,7 +378,7 @@ _mesa_is_pow_two(int x)
 }
 
 /**
- * Round given integer to next higer power of two
+ * Round given integer to next higher power of two
  * If X is zero result is undefined.
  *
  * Source for the fallback implementation is

@@ -1056,7 +1056,7 @@ fs_instruction_scheduler::calculate_deps(bool bu)
                     // LunarG TODO: Fix and re-enable component-level dependence analysis
                     // With the commented logic, dependencies are not recorded if the previous
                     // write did not include the current source components. This misses dependencies
-                    // if a write preceeding the last did include the current source components.
+                    // if a write preceding the last did include the current source components.
                     // if (conflict(&writer->dst,    writer->regs_written,
                     //             &reader->src[i], reader->regs_read(v, i)))
                         add_dep(bu, last_grf_write[inst->src[i].reg], n);

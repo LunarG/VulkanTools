@@ -1200,7 +1200,7 @@ get_inner_do_insn(struct brw_compile *p)
  *
  * When the matching 'else' instruction is reached (presumably by
  * countdown of the instruction count patched in by our ELSE/ENDIF
- * functions), the relevent flags are inverted.
+ * functions), the relevant flags are inverted.
  *
  * When the matching 'endif' instruction is reached, the flags are
  * popped off.  If the stack is now empty, normal execution resumes.
@@ -1467,7 +1467,7 @@ brw_ENDIF(struct brw_compile *p)
       emit_endif = false;
 
    /*
-    * A single next_insn() may change the base adress of instruction store
+    * A single next_insn() may change the base address of instruction store
     * memory(p->store), so call it first before referencing the instruction
     * store pointer from an index
     */

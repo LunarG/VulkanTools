@@ -3597,7 +3597,7 @@ decode_3d_965(struct drm_intel_decode *ctx)
 		instr_out(ctx, 0, "3DSTATE_DEPTH_BUFFER\n");
 		if (IS_GEN5(devid) || IS_GEN6(devid))
 			instr_out(ctx, 1,
-				  "%s, %s, pitch = %d bytes, %stiled, HiZ %d, Seperate Stencil %d\n",
+				  "%s, %s, pitch = %d bytes, %stiled, HiZ %d, Separate Stencil %d\n",
 				  get_965_surfacetype(data[1] >> 29),
 				  get_965_depthformat((data[1] >> 18) & 0x7),
 				  (data[1] & 0x0001ffff) + 1,

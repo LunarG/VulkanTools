@@ -1248,7 +1248,7 @@ static void cmd_wa_gen6_pre_multisample_depth_flush(struct intel_cmd *cmd)
     /*
      * From the Sandy Bridge PRM, volume 2 part 1, page 305:
      *
-     *     "Driver must guarentee that all the caches in the depth pipe are
+     *     "Driver must guarantee that all the caches in the depth pipe are
      *      flushed before this command (3DSTATE_MULTISAMPLE) is parsed. This
      *      requires driver to send a PIPE_CONTROL with a CS stall along with
      *      a Depth Flush prior to this command."

@@ -1268,7 +1268,7 @@ emit_inline_matrix_constructor(const glsl_type *type,
       /* Assign columns from the source matrix to the destination matrix.
        *
        * Since the parameter will be used in the RHS of multiple assignments,
-       * generate a temporary and copy the paramter there.
+       * generate a temporary and copy the parameter there.
        */
       ir_variable *const rhs_var =
 	 new(ctx) ir_variable(first_param->type, "mat_ctor_mat",
@@ -1330,7 +1330,7 @@ emit_inline_matrix_constructor(const glsl_type *type,
 	 unsigned rhs_base = 0;
 
 	 /* Since the parameter might be used in the RHS of two assignments,
-	  * generate a temporary and copy the paramter there.
+	  * generate a temporary and copy the parameter there.
 	  */
 	 ir_variable *rhs_var =
 	    new(ctx) ir_variable(rhs->type, "mat_ctor_vec", ir_var_temporary);
