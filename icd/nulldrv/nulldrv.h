@@ -51,10 +51,18 @@ struct nulldrv_obj {
     struct nulldrv_base base;
 };
 
-enum nulldrv_ext_type {
-   NULLDRV_EXT_KHR_SWAPCHAIN,
-   NULLDRV_EXT_COUNT,
-   NULLDRV_EXT_INVALID = NULLDRV_EXT_COUNT,
+enum nulldrv_dev_ext_type {
+   NULLDRV_DEV_EXT_KHR_SWAPCHAIN,
+   NULLDRV_DEV_EXT_COUNT,
+   NULLDRV_DEV_EXT_INVALID = NULLDRV_DEV_EXT_COUNT,
+};
+
+
+enum nulldrv_inst_ext_type {
+   NULLDRV_INST_EXT_KHR_SURFACE,
+   NULLDRV_INST_EXT_KHR_XCB_SURFACE,
+   NULLDRV_INST_EXT_COUNT,
+   NULLDRV_INST_EXT_INVALID = NULLDRV_INST_EXT_COUNT,
 };
 
 
@@ -68,7 +76,7 @@ struct nulldrv_gpu {
 
 struct nulldrv_dev {
      struct nulldrv_base base;
-     bool exts[NULLDRV_EXT_COUNT];
+     bool exts[NULLDRV_DEV_EXT_COUNT];
      struct nulldrv_desc_ooxx *desc_ooxx;
      struct nulldrv_queue *queues[1];
 };
