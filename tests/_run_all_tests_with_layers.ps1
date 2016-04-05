@@ -16,8 +16,8 @@ $env:VK_LAYER_PATH = "..\layers\$dPath"
 .\_vktracereplay.ps1 "-$dPath"
 .\_vkvalidatelayerdoc.ps1
 
-$env:VK_INSTANCE_LAYERS = "VK_LAYER_GOOGLE_threading;VK_LAYER_LUNARG_mem_tracker;VK_LAYER_LUNARG_object_tracker;VK_LAYER_LUNARG_draw_state;VK_LAYER_LUNARG_param_checker;VK_LAYER_LUNARG_swapchain;VK_LAYER_LUNARG_device_limits;VK_LAYER_LUNARG_image"
-$env:VK_DEVICE_LAYERS = "VK_LAYER_GOOGLE_threading;VK_LAYER_LUNARG_mem_tracker;VK_LAYER_LUNARG_object_tracker;VK_LAYER_LUNARG_draw_state;VK_LAYER_LUNARG_param_checker;VK_LAYER_LUNARG_swapchain;VK_LAYER_LUNARG_device_limits;VK_LAYER_LUNARG_image"
+$env:VK_INSTANCE_LAYERS = "VK_LAYER_GOOGLE_threading;VK_LAYER_LUNARG_object_tracker;VK_LAYER_LUNARG_core_validation;VK_LAYER_LUNARG_parameter_validation;VK_LAYER_LUNARG_swapchain;VK_LAYER_LUNARG_device_limits;VK_LAYER_LUNARG_image"
+$env:VK_DEVICE_LAYERS = "VK_LAYER_GOOGLE_threading;VK_LAYER_LUNARG_object_tracker;VK_LAYER_LUNARG_core_validation;VK_LAYER_LUNARG_parameter_validation;VK_LAYER_LUNARG_swapchain;VK_LAYER_LUNARG_device_limits;VK_LAYER_LUNARG_image"
 
 Copy-Item ..\..\tests\vk_layer_settings.txt .
 If (-Not (Test-Path .\vk_layer_settings.txt)) {

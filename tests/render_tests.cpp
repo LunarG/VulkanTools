@@ -69,7 +69,7 @@ using namespace std;
 
 #include <vulkan/vulkan.h>
 #ifdef DUMP_STATE_DOT
-#include "../layers/draw_state.h"
+#include "../layers/core_validation.h"
 #endif
 #ifdef PRINT_OBJECTS
 #include "../layers/object_track.h"
