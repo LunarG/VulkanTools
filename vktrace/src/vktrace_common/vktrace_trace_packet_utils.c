@@ -224,9 +224,13 @@ void vktrace_finalize_trace_packet(vktrace_trace_packet_header* pHeader)
 
 void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, FileLike* pFile)
 {
+    static int errorCount = 0;
     BOOL res = vktrace_FileLike_WriteRaw(pFile, pHeader, (size_t)pHeader->size);
-    if (!res)
+    if (!res && pHeader->packet_id != VKTRACE_TPI_MARKER_TERMINATE_PROCESS && errorCount < 10)
+    {
+        errorCount++;
         vktrace_LogError("Failed to send trace packet index %u packetId %u size %u.", pHeader->global_packet_index, pHeader->packet_id, pHeader->size);
+    }
 }
 
 //=============================================================================
