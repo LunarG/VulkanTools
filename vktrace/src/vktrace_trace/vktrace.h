@@ -40,13 +40,13 @@ extern "C" {
 //----------------------------------------------------------------------------------------------------------------------
 typedef struct vktrace_settings
 {
-    char* program;
-    char* arguments;
-    char* working_dir;
+    const char* program;
+    const char* arguments;
+    const char* working_dir;
     char* output_trace;
     BOOL print_trace_messages;
-    char* screenshotList;
-    char *verbosity;
+    const char* screenshotList;
+    const char *verbosity;
 } vktrace_settings;
 
 extern vktrace_settings g_settings;

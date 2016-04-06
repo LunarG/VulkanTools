@@ -238,7 +238,7 @@ int main(int argc, char **argv)
     }
 
     // open trace file and read in header
-    char* pTraceFile = replaySettings.pTraceFilePath;
+    const char* pTraceFile = replaySettings.pTraceFilePath;
     vktrace_trace_file_header fileHeader;
     FILE *tracefp;
 

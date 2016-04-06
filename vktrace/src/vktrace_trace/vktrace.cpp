@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
             procInfo.traceFilename = vktrace_allocate_and_copy(g_settings.output_trace);
         } else
         {
-            char *pExtension = strrchr(g_settings.output_trace, '.');
+            const char *pExtension = strrchr(g_settings.output_trace, '.');
             char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int) ((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
             char num[16];
 #ifdef PLATFORM_LINUX

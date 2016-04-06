@@ -70,7 +70,7 @@ typedef struct vktrace_SettingGroup
     vktrace_SettingInfo* pSettings;
 } vktrace_SettingGroup;
 
-int vktrace_SettingGroup_init(vktrace_SettingGroup* pSettingGroup, FILE *pSettingsFile, int argc, char* argv[], char** ppOut_remaining_args);
+int vktrace_SettingGroup_init(vktrace_SettingGroup* pSettingGroup, FILE *pSettingsFile, int argc, char* argv[], const char** ppOut_remaining_args);
 BOOL vktrace_SettingGroup_save(vktrace_SettingGroup* pSettingGroup, unsigned int numSettingGroups, FILE* pSettingsFile);
 void vktrace_SettingGroup_delete(vktrace_SettingGroup* pSettingGroup);
 void vktrace_SettingGroup_reset_defaults(vktrace_SettingGroup* pSettingGroup);
@@ -95,7 +95,7 @@ void vktrace_SettingGroup_Delete_Loaded(vktrace_SettingGroup** ppSettingGroups, 
 
 void vktrace_SettingGroup_Apply_Overrides(vktrace_SettingGroup* pSettingGroup, vktrace_SettingGroup* pOverrideGroups, unsigned int numOverrideGroups);
 
-int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, int argc, char* argv[], char** ppOut_remaining_args);
+int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, int argc, char* argv[], const char** ppOut_remaining_args);
 
 void vktrace_SettingGroup_print(const vktrace_SettingGroup* pSettingGroup);
 void vktrace_SettingInfo_print(const vktrace_SettingInfo* pSetting);

@@ -30,12 +30,12 @@
 
 typedef struct vkreplayer_settings
 {
-    char* pTraceFilePath;
+    const char* pTraceFilePath;
     unsigned int numLoops;
     int loopStartFrame;
     int loopEndFrame;
-    char* screenshotList;
-    char* verbosity;
+    const char* screenshotList;
+    const char* verbosity;
 } vkreplayer_settings;
 
 #endif // VKREPLAY__MAIN_H
