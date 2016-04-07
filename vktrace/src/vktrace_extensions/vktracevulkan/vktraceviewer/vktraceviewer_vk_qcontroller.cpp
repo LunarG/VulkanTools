@@ -82,9 +82,9 @@ vktrace_trace_packet_header* vktraceviewer_vk_QController::InterpretTracePacket(
     else if (pInterpretedHeader->packet_id == VKTRACE_TPI_VK_vkApiVersion)
     {
         packet_vkApiVersion* pPacket = (packet_vkApiVersion*)pInterpretedHeader->pBody;
-        if (pPacket->version != VK_API_VERSION)
+        if (pPacket->version != VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION))
         {
-            vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the VkTraceViewer plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_API_VERSION, (VK_API_VERSION & 0xFFC00000) >> 22, (VK_API_VERSION & 0x003FF000) >> 12, (VK_API_VERSION & 0x00000FFF));
+            vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the VkTraceViewer plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, VK_VERSION_MAJOR(pPacket->version), VK_VERSION_MINOR(pPacket->version), VK_VERSION_PATCH(pPacket->version), VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, 0, VK_HEADER_VERSION);
             pInterpretedHeader = NULL;
         }
     }
