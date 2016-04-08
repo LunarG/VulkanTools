@@ -26,23 +26,23 @@ set(LAYER_JSON_FILES
 set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
 set(CMAKE_INSTALL_RPATH ${VK_LAYER_RPATH})
 
-if (NOT WIN32)
-    # extra setup for out-of-tree builds
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        foreach (config_file ${LAYER_JSON_FILES})
-            add_custom_target(${config_file}-json ALL
-                COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-                VERBATIM
-                )
-        endforeach(config_file)
-    endif()
-else()
+if (WIN32)
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         foreach (config_file ${LAYER_JSON_FILES})
             FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
             FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${config_file}.json dst_json)
             add_custom_target(${config_file}-json ALL
                 COMMAND copy ${src_json} ${dst_json}
+                VERBATIM
+                )
+        endforeach(config_file)
+    endif()
+else()
+    # extra setup for out-of-tree builds
+    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
+        foreach (config_file ${LAYER_JSON_FILES})
+            add_custom_target(${config_file}-json ALL
+                COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
                 VERBATIM
                 )
         endforeach(config_file)
@@ -56,15 +56,14 @@ if (WIN32)
         DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    target_link_Libraries(VkLayer_${target} layer_utilsvt)
-    add_dependencies(VkLayer_${target} layer_utilsvt_static)
+    target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
     add_dependencies(VkLayer_${target} generate_vt_helpers)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_BINARY_DIR}/VkLayer_${target}.def")
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} layer_utilsvt)
+    target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
     add_dependencies(VkLayer_${target} generate_vt_helpers)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
@@ -96,8 +95,7 @@ if (WIN32)
         set (CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS")
         set (CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS")
     endif()
-endif()
-if (NOT WIN32)
+else()
     set (CMAKE_CXX_FLAGS "-std=c++11")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
@@ -140,17 +138,17 @@ add_custom_target(generate_vt_helpers DEPENDS
 run_vk_vtlayer_generate(generic generic_layer.cpp)
 run_vk_vtlayer_generate(api_dump api_dump.cpp)
 
-
-add_library(layer_utilsvt SHARED ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp)
+# Layer Utils Library
+# For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
+# path that can't be easily modified to point it to the same directory that contains the layers.
 if (WIN32)
-    add_library(layer_utilsvt_static STATIC ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp)
-    set_target_properties(layer_utilsvt_static PROPERTIES OUTPUT_NAME layer_utilsvt)
-    target_link_libraries(layer_utilsvt)
+    add_library(VkLayer_utilsvt STATIC ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp)
 else()
-    install(TARGETS layer_utilsvt DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
+    add_library(VkLayer_utilsvt SHARED ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp)
+    install(TARGETS VkLayer_utilsvt DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
 endif()
 
-#VulkanTools layers
+# VulkanTools layers
 add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
 # generated
