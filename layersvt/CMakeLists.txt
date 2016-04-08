@@ -1,18 +1,18 @@
 cmake_minimum_required (VERSION 2.8.11)
 
 macro(run_vk_helper subcmd)
-	add_custom_command(OUTPUT ${ARGN}
-		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
-		DEPENDS ${PROJECT_SOURCE_DIR}/vk_helper.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
-	)
+    add_custom_command(OUTPUT ${ARGN}
+        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${PROJECT_SOURCE_DIR}/vk_helper.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
+    )
 endmacro()
 
 ## VulkanTools has its own layer generator script
 macro(run_vk_vtlayer_generate subcmd output)
-	add_custom_command(OUTPUT ${output}
-		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
-		DEPENDS ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${PROJECT_SOURCE_DIR}/vulkan.py
-	)
+    add_custom_command(OUTPUT ${output}
+        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
+        DEPENDS ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${PROJECT_SOURCE_DIR}/vulkan.py
+    )
 endmacro()
 
 set(LAYER_JSON_FILES
@@ -51,33 +51,33 @@ endif()
 
 if (WIN32)
     macro(add_vk_layer target)
-	add_custom_command(OUTPUT VkLayer_${target}.def
-		COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} win-def-file VkLayer_${target} layer > VkLayer_${target}.def
-		DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py
-	)
-	add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
+    add_custom_command(OUTPUT VkLayer_${target}.def
+        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} win-def-file VkLayer_${target} layer > VkLayer_${target}.def
+        DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py
+    )
+    add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     target_link_Libraries(VkLayer_${target} layer_utilsvt)
-	add_dependencies(VkLayer_${target} layer_utilsvt_static)
-	add_dependencies(VkLayer_${target} generate_vt_helpers)
-	set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_BINARY_DIR}/VkLayer_${target}.def")
+    add_dependencies(VkLayer_${target} layer_utilsvt_static)
+    add_dependencies(VkLayer_${target} generate_vt_helpers)
+    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_BINARY_DIR}/VkLayer_${target}.def")
     endmacro()
 else()
     macro(add_vk_layer target)
-	add_library(VkLayer_${target} SHARED ${ARGN})
+    add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} layer_utilsvt)
-	add_dependencies(VkLayer_${target} generate_vt_helpers)
-	set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
-	install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
+    add_dependencies(VkLayer_${target} generate_vt_helpers)
+    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
+    install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
     endmacro()
 endif()
 
 include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/../loader
-	${CMAKE_CURRENT_SOURCE_DIR}/../layers
-	${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
-	${CMAKE_CURRENT_BINARY_DIR}
-	${PROJECT_SOURCE_DIR}/../glslang/SPIRV
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../loader
+    ${CMAKE_CURRENT_SOURCE_DIR}/../layers
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
 )
 
 if (WIN32)
@@ -104,34 +104,34 @@ if (NOT WIN32)
 endif()
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-	COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
-	DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
+    COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
+    DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
 
 run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers
-	vk_struct_string_helper.h
+    vk_struct_string_helper.h
     vk_struct_string_helper_cpp.h
-	vk_struct_string_helper_no_addr.h
-	vk_struct_string_helper_no_addr_cpp.h
+    vk_struct_string_helper_no_addr.h
+    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-	vk_struct_wrappers.h
-	vk_struct_wrappers.cpp
+    vk_struct_wrappers.h
+    vk_struct_wrappers.cpp
     vk_safe_struct.h
     vk_safe_struct.cpp
 )
 
 add_custom_target(generate_vt_helpers DEPENDS
-	vk_dispatch_table_helper.h
-	vk_enum_string_helper.h
-	vk_struct_string_helper.h
-	vk_struct_string_helper_no_addr.h
+    vk_dispatch_table_helper.h
+    vk_enum_string_helper.h
+    vk_struct_string_helper.h
+    vk_struct_string_helper_no_addr.h
     vk_struct_string_helper_cpp.h
-	vk_struct_string_helper_no_addr_cpp.h
+    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-	vk_struct_wrappers.h
-	vk_struct_wrappers.cpp
+    vk_struct_wrappers.h
+    vk_struct_wrappers.cpp
     vk_safe_struct.h
     vk_safe_struct.cpp
 )
