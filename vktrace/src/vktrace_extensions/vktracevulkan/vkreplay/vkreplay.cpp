@@ -120,7 +120,14 @@ int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::Display* pDisplay, vkrepla
 {
     try
     {
-        g_pReplayer = new vkReplay(pReplaySettings);
+        if (pReplaySettings == NULL)
+        {
+            g_pReplayer = new vkReplay(&s_defaultVkReplaySettings);
+        }
+        else
+        {
+            g_pReplayer = new vkReplay(pReplaySettings);
+        }
     }
     catch (int e)
     {

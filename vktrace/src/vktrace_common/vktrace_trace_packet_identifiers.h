@@ -56,7 +56,7 @@ typedef struct VKTRACE_TRACER_REPLAYER_INFO
 static const VKTRACE_TRACER_REPLAYER_INFO gs_tracerReplayerInfo[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE] = {
     {VKTRACE_TID_RESERVED, FALSE, "", ""},
     {VKTRACE_TID_GL_FPS, FALSE, "", ""},
-    {VKTRACE_TID_VULKAN, TRUE, VKTRACE_LIBRARY_NAME(vulkan_replay), VKTRACE_LIBRARY_NAME(vktracedebug_vk)},
+    {VKTRACE_TID_VULKAN, TRUE, VKTRACE_LIBRARY_NAME(vulkan_replay), VKTRACE_LIBRARY_NAME(vktraceviewer_vk)},
     {VKTRACE_TID_RESERVED, FALSE, "", ""}, // this can be updated as new tracers are added
     {VKTRACE_TID_RESERVED, FALSE, "", ""}, // this can be updated as new tracers are added
     {VKTRACE_TID_RESERVED, FALSE, "", ""}, // this can be updated as new tracers are added
