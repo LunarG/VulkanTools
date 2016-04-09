@@ -103,7 +103,7 @@ option(BUILD_DEMOS "Build demos" ON)
 option(BUILD_VKTRACE "Build VkTrace" ON)
 option(BUILD_VKJSON "Build vkjson" ON)
 
-if (BUILD_ICD OR BUILD_TESTS)
+if (BUILD_ICD OR BUILD_TESTS OR BUILD_DEMOS)
     find_program(GLSLANG_VALIDATOR NAMES glslangValidator
                  HINTS "${CMAKE_SOURCE_DIR}/../glslang/${BUILDTGT_DIR}/install/bin"
                        "${PROJECT_SOURCE_DIR}/../${BINDATA_DIR}" )
