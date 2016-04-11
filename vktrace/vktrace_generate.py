@@ -535,6 +535,7 @@ class Subcommand(object):
         interp_func_body.append('    {')
         interp_func_body.append('        return NULL;')
         interp_func_body.append('    }')
+        interp_func_body.append('    m_isEndOfFrame = false;')
         interp_func_body.append('    switch (pHeader->packet_id)')
         interp_func_body.append('    {')
         interp_func_body.append('        case VKTRACE_TPI_VK_vkApiVersion:')
