@@ -72,7 +72,7 @@ static void queue_submit_hang(struct intel_queue *queue,
     intel_cmd_decode(cmd, true);
 
     intel_dev_log(queue->dev, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                  VK_NULL_HANDLE, 0, 0,
+                  &cmd->obj.base, 0, 0,
                   "GPU hanged with %d/%d active/pending command buffers lost",
                   active_lost, pending_lost);
 }
