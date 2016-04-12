@@ -52,6 +52,7 @@ vkReplay::vkReplay(vkreplayer_settings *pReplaySettings)
     m_objMapper.m_adjustForGPU = false;
 
     m_frameNumber = 0;
+    m_isEndOfFrame = false;
 }
 
 vkReplay::~vkReplay()
@@ -1915,6 +1916,7 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
         replayResult = m_vkFuncs.real_vkQueuePresentKHR(remappedQueue, &present);
 
         m_frameNumber++;
+        m_isEndOfFrame = true;
 
         // Compare the results from the trace file with those just received from the replay.  Report any differences.
         if (present.pResults != NULL) {

@@ -38,7 +38,7 @@
 #include "vkreplay_window.h"
 #include "vkreplay.h"
 
-vkreplayer_settings replaySettings = { NULL, 1, -1, -1, NULL, NULL };
+vkreplayer_settings replaySettings = { NULL, 1, 0, -1, NULL, NULL };
 
 vktrace_SettingInfo g_settings_info[] =
 {
@@ -71,9 +71,8 @@ int main_loop(Sequencer &seq, vkreplayer_settings settings)
     struct seqBookmark startingPacket;
 
     bool trace_running = true;
-    int prevFrameNumber = -1;
 
-    // record the location of looping start packet
+    // record the location of default looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
     while (settings.numLoops > 0)
@@ -116,10 +115,8 @@ int main_loop(Sequencer &seq, vkreplayer_settings settings)
 
                         // frame control logic
                         int frameNumber = VkReplayGetFrameNumber();
-                        if (prevFrameNumber != frameNumber)
+                        if (VkIsEndOfFrame())
                         {
-                            prevFrameNumber = frameNumber;
-
                             if (frameNumber == settings.loopStartFrame)
                             {
                                 // record the location of looping start packet
@@ -143,7 +140,7 @@ int main_loop(Sequencer &seq, vkreplayer_settings settings)
         settings.numLoops--;
         seq.set_bookmark(startingPacket);
         trace_running = true;
-        VkReplayResetFrameNumber();
+        VkReplaySetFrameNumber(replaySettings.loopStartFrame);
     }
     return err;
 }

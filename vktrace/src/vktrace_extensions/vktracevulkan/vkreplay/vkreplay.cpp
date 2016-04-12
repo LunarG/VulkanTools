@@ -147,6 +147,7 @@ void VKTRACER_CDECL VkReplayDeinitialize()
 vktrace_trace_packet_header* VKTRACER_CDECL VkReplayInterpret(vktrace_trace_packet_header* pPacket)
 {
     // Attempt to interpret the packet as a Vulkan packet
+    g_pReplayer->set_is_end_of_frame(false);
     vktrace_trace_packet_header* pInterpretedHeader = interpret_trace_packet_vk(pPacket);
     if (pInterpretedHeader == NULL)
     {
@@ -188,10 +189,19 @@ int VKTRACER_CDECL VkReplayGetFrameNumber()
     return -1;
 }
 
-void VKTRACER_CDECL VkReplayResetFrameNumber()
+void VKTRACER_CDECL VkReplaySetFrameNumber(int frameNumber)
 {
     if (g_pReplayer != NULL)
     {
-        g_pReplayer->reset_frame_number();
+        g_pReplayer->set_frame_number(frameNumber);
     }
+}
+
+bool VKTRACER_CDECL VkIsEndOfFrame()
+{
+    if (g_pReplayer != NULL)
+    {
+        return g_pReplayer->is_end_of_frame();
+    }
+    return false;
 }

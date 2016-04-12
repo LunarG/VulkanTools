@@ -70,7 +70,9 @@ public:
     vktrace_replay::VKTRACE_REPLAY_RESULT pop_validation_msgs();
     int dump_validation_data();
     int get_frame_number() { return m_frameNumber; }
-    void reset_frame_number() { m_frameNumber = 0; }
+    void set_frame_number(int frameNumber) { m_frameNumber = frameNumber; }
+    bool is_end_of_frame() { return m_isEndOfFrame; }
+    void set_is_end_of_frame(bool is) { m_isEndOfFrame = is; }
 private:
     struct vkFuncs m_vkFuncs;
     vkReplayObjMapper m_objMapper;
@@ -80,6 +82,7 @@ private:
     vkDisplay *m_display;
 
     int m_frameNumber;
+    bool m_isEndOfFrame;
 
     struct ValidationMsg {
         VkFlags msgFlags;
