@@ -58,4 +58,47 @@ enum VKTRACE_DBG_MSG_TYPE
 // callback signature
 typedef void (*VKTRACE_DBG_MSG_CALLBACK_FUNCTION)(VKTRACE_DBG_MSG_TYPE msgType, const char* pMsg);
 
+// entrypoints that must be exposed by each replayer library
+extern "C"
+{
+// entrypoints
+
+typedef void (VKTRACER_CDECL *funcptr_vkreplayer_setloglevel)(VktraceLogLevel level);
+typedef void (VKTRACER_CDECL *funcptr_vkreplayer_setlogcallback)(VKTRACE_REPORT_CALLBACK_FUNCTION pCallback);
+
+typedef void (VKTRACER_CDECL *funcptr_vkreplayer_registerdbgmsgcallback)(VKTRACE_DBG_MSG_CALLBACK_FUNCTION pCallback);
+typedef vktrace_SettingGroup* (VKTRACER_CDECL *funcptr_vkreplayer_getSettings)();
+typedef void (VKTRACER_CDECL *funcptr_vkreplayer_updatefromsettings)(vktrace_SettingGroup* pSettingGroups, unsigned int numSettingGroups);
+typedef int (VKTRACER_CDECL *funcptr_vkreplayer_initialize)(vktrace_replay::Display* pDisplay, vkreplayer_settings* pReplaySettings);
+typedef void (VKTRACER_CDECL *funcptr_vkreplayer_deinitialize)();
+typedef vktrace_trace_packet_header* (VKTRACER_CDECL *funcptr_vkreplayer_interpret)(vktrace_trace_packet_header* pPacket);
+typedef vktrace_replay::VKTRACE_REPLAY_RESULT (VKTRACER_CDECL *funcptr_vkreplayer_replay)(vktrace_trace_packet_header* pPacket);
+typedef int (VKTRACER_CDECL *funcptr_vkreplayer_dump)();
+typedef int (VKTRACER_CDECL *funcptr_vkreplayer_getframenumber)();
+typedef void (VKTRACER_CDECL *funcptr_vkreplayer_resetframenumber)();
+}
+
+struct vktrace_trace_packet_replay_library
+{
+    void* pLibrary;
+    funcptr_vkreplayer_setloglevel SetLogLevel;
+    funcptr_vkreplayer_setlogcallback SetLogCallback;
+
+    funcptr_vkreplayer_registerdbgmsgcallback RegisterDbgMsgCallback;
+    funcptr_vkreplayer_getSettings GetSettings;
+    funcptr_vkreplayer_updatefromsettings UpdateFromSettings;
+    funcptr_vkreplayer_initialize Initialize;
+    funcptr_vkreplayer_deinitialize Deinitialize;
+    funcptr_vkreplayer_interpret Interpret;
+    funcptr_vkreplayer_replay Replay;
+    funcptr_vkreplayer_dump Dump;
+    funcptr_vkreplayer_getframenumber GetFrameNumber;
+    funcptr_vkreplayer_resetframenumber ResetFrameNumber;
+};
+
+class ReplayFactory {
+public:
+    vktrace_trace_packet_replay_library *Create(uint8_t tracerId);
+    void Destroy(vktrace_trace_packet_replay_library** ppReplayer);
+};
 } // namespace vktrace_replay

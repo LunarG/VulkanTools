@@ -1,7 +1,6 @@
 /**************************************************************************
  *
- * Copyright 2014-2016 Valve Corporation, Inc.
- * Copyright (C) 2014-2016 LunarG, Inc.
+ * Copyright 2014 Lunarg, Inc.
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,28 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * Author: Peter Lohrmann <peterl@valvesoftware.com>
- * Author: Jon Ashburn <jon@lunarg.com>
- * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  **************************************************************************/
-#ifndef VKREPLAY__VK_SETTINGS_H
-#define VKREPLAY__VK_SETTINGS_H
+#ifndef VKTRACEVIEWER_VK_QFILE_MODEL_H_
+#define VKTRACEVIEWER_VK_QFILE_MODEL_H_
 
-extern "C"
+#include "vktrace_trace_packet_identifiers.h"
+#include "vktraceviewer_QTraceFileModel.h"
+#include <QObject>
+
+class vktraceviewer_vk_QFileModel : public vktraceviewer_QTraceFileModel
 {
-#include "vktrace_settings.h"
-#include "vkreplay_main.h"
-}
+    Q_OBJECT
+public:
+    vktraceviewer_vk_QFileModel(QObject * parent, vktraceviewer_trace_file_info *);
+    virtual ~vktraceviewer_vk_QFileModel();
 
-#include <vulkan/vulkan.h>
+    virtual QString get_packet_string(const vktrace_trace_packet_header* pHeader) const;
+    virtual QString get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const;
 
-static vkreplayer_settings s_defaultVkReplaySettings = { NULL, 1, -1, -1, NULL };
+    virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const;
 
-extern vkreplayer_settings g_vkReplaySettings;
-extern vktrace_SettingGroup g_vkReplaySettingGroup;
+};
 
-void apply_layerSettings_overrides();
-char** get_enableLayers_list(unsigned int* pNumLayers);
-void release_enableLayer_list(char** pList);
-
-#endif // VKREPLAY__VK_SETTINGS_H
+#endif //VKTRACEVIEWER_VK_QFILE_MODEL_H_

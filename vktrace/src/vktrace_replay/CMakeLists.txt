@@ -10,6 +10,7 @@ set(SRC_LIST
     vkreplay_window.h
     vkreplay_main.cpp
     vkreplay_seq.cpp
+    vkreplay_factory.cpp
 )
 
 include_directories(

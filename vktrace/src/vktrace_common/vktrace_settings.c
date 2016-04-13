@@ -636,7 +636,7 @@ BOOL vktrace_SettingGroup_save(vktrace_SettingGroup* pSettingGroup, unsigned int
 }
 
 //-----------------------------------------------------------------------------
-int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, int argc, char* argv[], const char** ppOut_remaining_args)
+int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, int argc, char* argv[], char** ppOut_remaining_args)
 {
     int i = 0;
 

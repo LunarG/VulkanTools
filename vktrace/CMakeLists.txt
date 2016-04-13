@@ -25,6 +25,15 @@ if (NOT PYTHONINTERP_FOUND)
     message(FATAL_ERROR "Missing PythonInterp. Install python interpreter 2.7 (on linux use cmd: sudo apt-get install python2.7)")
 endif()
 
+find_package(Qt5 COMPONENTS Widgets Gui Core Svg)
+if (WIN32)
+    if (NOT Qt5_FOUND)
+        message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.")
+        message(WARNING "To enable build of vktraceviewer, set env var Qt5_Dir to")
+        message(WARNING "C:\Qt\5.3\msvc2013_64\lib\cmake\Qt5 or C:\Qt\5.3\msvc2013\lib\cmake\Qt5")
+    endif()
+endif()
+
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
 )
@@ -45,6 +54,13 @@ add_subdirectory(src/vktrace_common)
 add_subdirectory(src/vktrace_trace)
 add_subdirectory(src/vktrace_layer)
 add_subdirectory(src/vktrace_replay)
+if (WIN32)
+    # Only build vktraceviewer on Windows
+    # And Qt5 must be available
+    if (Qt5_FOUND)
+        add_subdirectory(src/vktrace_viewer)
+    endif()
+endif()
 
 # use macro from stackoverflow (link below) to get all the extensions that are on the current system
 # http://stackoverflow.com/questions/7787823/cmake-how-to-get-the-name-of-all-subdirectories-of-a-directory

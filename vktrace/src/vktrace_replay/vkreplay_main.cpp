@@ -34,9 +34,9 @@
 #include "vktrace_filelike.h"
 #include "vktrace_trace_packet_utils.h"
 #include "vkreplay_main.h"
+#include "vkreplay_factory.h"
 #include "vkreplay_seq.h"
 #include "vkreplay_window.h"
-#include "vkreplay.h"
 
 vkreplayer_settings replaySettings = { NULL, 1, -1, -1, NULL, NULL };
 
@@ -62,11 +62,12 @@ vktrace_SettingGroup g_replaySettingGroup =
 };
 
 namespace vktrace_replay {
-int main_loop(Sequencer &seq, vkreplayer_settings settings)
+int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray[], vkreplayer_settings settings)
 {
     int err = 0;
     vktrace_trace_packet_header *packet;
     unsigned int res;
+    vktrace_trace_packet_replay_library *replayer = NULL;
     vktrace_trace_packet_message* msgPacket;
     struct seqBookmark startingPacket;
 
@@ -102,12 +103,15 @@ int main_loop(Sequencer &seq, vkreplayer_settings settings)
                         vktrace_LogError("Tracer_id from packet num packet %d invalid.", packet->packet_id);
                         continue;
                     }
+                    replayer = replayerArray[packet->tracer_id];
+                    if (replayer == NULL) {
+                        vktrace_LogWarning("Tracer_id %d has no valid replayer.", packet->tracer_id);
+                        continue;
+                    }
                     if (packet->packet_id >= VKTRACE_TPI_BEGIN_API_HERE)
                     {
                         // replay the API packet
-                        vktrace_trace_packet_header* pPacket = VkReplayInterpret(packet);
-                        res = VkReplayReplay(pPacket);
-
+                        res = replayer->Replay(replayer->Interpret(packet));
                         if (res != VKTRACE_REPLAY_SUCCESS)
                         {
                            vktrace_LogError("Failed to replay packet_id %d.",packet->packet_id);
@@ -115,7 +119,7 @@ int main_loop(Sequencer &seq, vkreplayer_settings settings)
                         }
 
                         // frame control logic
-                        int frameNumber = VkReplayGetFrameNumber();
+                        int frameNumber = replayer->GetFrameNumber();
                         if (prevFrameNumber != frameNumber)
                         {
                             prevFrameNumber = frameNumber;
@@ -143,7 +147,10 @@ int main_loop(Sequencer &seq, vkreplayer_settings settings)
         settings.numLoops--;
         seq.set_bookmark(startingPacket);
         trace_running = true;
-        VkReplayResetFrameNumber();
+        if (replayer != NULL)
+        {
+            replayer->ResetFrameNumber();
+        }
     }
     return err;
 }
@@ -275,7 +282,14 @@ int main(int argc, char **argv)
 
     // load any API specific driver libraries and init replayer objects
     uint8_t tidApi = VKTRACE_TID_RESERVED;
+    vktrace_trace_packet_replay_library* replayer[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];
+    ReplayFactory makeReplayer;
     Display disp(1024, 768, 0, false);
+
+    for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)
+    {
+        replayer[i] = NULL;
+    }
 
     for (int i = 0; i < fileHeader.tracer_count; i++)
     {
@@ -291,14 +305,27 @@ int main(int argc, char **argv)
         }
         else if (pReplayerInfo->needsReplayer == TRUE)
         {
+            // Have our factory create the necessary replayer
+            replayer[tracerId] = makeReplayer.Create(tracerId);
+
+            if (replayer[tracerId] == NULL)
+            {
+                // replayer failed to be created
+                if (pAllSettings != NULL)
+                {
+                    vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+                }
+                return 1;
+            }
+
             // merge the replayer's settings into the list of all settings so that we can output a comprehensive settings file later on.
-            vktrace_SettingGroup_merge(VkReplayGetSettings(), &pAllSettings, &numAllSettings);
+            vktrace_SettingGroup_merge(replayer[tracerId]->GetSettings(), &pAllSettings, &numAllSettings);
 
             // update the replayer with the loaded settings
-            VkReplayUpdateFromSettings(pAllSettings, numAllSettings);
+            replayer[tracerId]->UpdateFromSettings(pAllSettings, numAllSettings);
 
             // Initialize the replayer
-            err = VkReplayInitialize(&disp, &replaySettings);
+            err = replayer[tracerId]->Initialize(&disp, &replaySettings);
             if (err) {
                 vktrace_LogError("Couldn't Initialize replayer for TracerId %d.", tracerId);
                 if (pAllSettings != NULL)
@@ -321,9 +348,16 @@ int main(int argc, char **argv)
  
     // main loop
     Sequencer sequencer(traceFile);
-    err = vktrace_replay::main_loop(sequencer, replaySettings);
+    err = vktrace_replay::main_loop(sequencer, replayer, replaySettings);
 
-    VkReplayDeinitialize();
+    for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)
+    {
+        if (replayer[i] != NULL)
+        {
+            replayer[i]->Deinitialize();
+            makeReplayer.Destroy(&replayer[i]);
+        }
+    }
 
     if (pAllSettings != NULL)
     {

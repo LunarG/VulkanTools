@@ -95,7 +95,7 @@ void vktrace_SettingGroup_Delete_Loaded(vktrace_SettingGroup** ppSettingGroups, 
 
 void vktrace_SettingGroup_Apply_Overrides(vktrace_SettingGroup* pSettingGroup, vktrace_SettingGroup* pOverrideGroups, unsigned int numOverrideGroups);
 
-int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, int argc, char* argv[], const char** ppOut_remaining_args);
+int vktrace_SettingGroup_init_from_cmdline(vktrace_SettingGroup* pSettingGroup, int argc, char* argv[], char** ppOut_remaining_args);
 
 void vktrace_SettingGroup_print(const vktrace_SettingGroup* pSettingGroup);
 void vktrace_SettingInfo_print(const vktrace_SettingInfo* pSetting);
