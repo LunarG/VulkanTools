@@ -136,9 +136,6 @@ struct layer_data {
     unordered_map<ImageSubresourcePair, IMAGE_LAYOUT_NODE> imageLayoutMap;
     unordered_map<VkRenderPass, RENDER_PASS_NODE *> renderPassMap;
     unordered_map<VkShaderModule, unique_ptr<shader_module>> shaderModuleMap;
-    // Current render pass
-    VkRenderPassBeginInfo renderPassBeginInfo;
-    uint32_t currentSubpass;
     VkDevice device;
 
     // Device specific data
@@ -147,7 +144,7 @@ struct layer_data {
 
     layer_data()
         : report_data(nullptr), device_dispatch_table(nullptr), instance_dispatch_table(nullptr), device_extensions(),
-          currentFenceId(1), renderPassBeginInfo{}, currentSubpass(0), device(VK_NULL_HANDLE), phys_dev_properties{},
+          currentFenceId(1), device(VK_NULL_HANDLE), phys_dev_properties{},
           phys_dev_mem_props{} {};
 };
 
@@ -273,11 +270,6 @@ template layer_data *get_my_data_ptr<layer_data>(void *data_key, std::unordered_
 static GLOBAL_CB_NODE *getCBNode(layer_data *, const VkCommandBuffer);
 
 #if MTMERGESOURCE
-static void delete_queue_info_list(layer_data *my_data) {
-    // Process queue list, cleaning up each entry before deleting
-    my_data->queueMap.clear();
-}
-
 // Add a fence, creating one if necessary to our list of fences/fenceIds
 static bool add_fence_info(layer_data *my_data, VkFence fence, VkQueue queue, uint64_t *fenceId) {
     bool skipCall = false;
@@ -302,9 +294,6 @@ static bool add_fence_info(layer_data *my_data, VkFence fence, VkQueue queue, ui
     my_data->queueMap[queue].lastSubmittedId = *fenceId;
     return skipCall;
 }
-
-// Remove a fenceInfo from our list of fences/fenceIds
-static void delete_fence_info(layer_data *my_data, VkFence fence) { my_data->fenceMap.erase(fence); }
 
 // Record information when a fence is known to be signalled
 static void update_fence_tracking(layer_data *my_data, VkFence fence) {
@@ -2124,12 +2113,13 @@ static bool attachment_references_compatible(const uint32_t index, const VkAttac
 // For give primary and secondary RenderPass objects, verify that they're compatible
 static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderPass primaryRP, const VkRenderPass secondaryRP,
                                             string &errorMsg) {
-    stringstream errorStr;
     if (my_data->renderPassMap.find(primaryRP) == my_data->renderPassMap.end()) {
+        stringstream errorStr;
         errorStr << "invalid VkRenderPass (" << primaryRP << ")";
         errorMsg = errorStr.str();
         return false;
     } else if (my_data->renderPassMap.find(secondaryRP) == my_data->renderPassMap.end()) {
+        stringstream errorStr;
         errorStr << "invalid VkRenderPass (" << secondaryRP << ")";
         errorMsg = errorStr.str();
         return false;
@@ -2141,6 +2131,7 @@ static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderP
     const VkRenderPassCreateInfo *primaryRPCI = my_data->renderPassMap[primaryRP]->pCreateInfo;
     const VkRenderPassCreateInfo *secondaryRPCI = my_data->renderPassMap[secondaryRP]->pCreateInfo;
     if (primaryRPCI->subpassCount != secondaryRPCI->subpassCount) {
+        stringstream errorStr;
         errorStr << "RenderPass for primary cmdBuffer has " << primaryRPCI->subpassCount
                  << " subpasses but renderPass for secondary cmdBuffer has " << secondaryRPCI->subpassCount << " subpasses.";
         errorMsg = errorStr.str();
@@ -2156,6 +2147,7 @@ static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderP
             if (!attachment_references_compatible(cIdx, primaryRPCI->pSubpasses[spIndex].pColorAttachments, primaryColorCount,
                                                   primaryRPCI->pAttachments, secondaryRPCI->pSubpasses[spIndex].pColorAttachments,
                                                   secondaryColorCount, secondaryRPCI->pAttachments)) {
+                stringstream errorStr;
                 errorStr << "color attachments at index " << cIdx << " of subpass index " << spIndex << " are not compatible.";
                 errorMsg = errorStr.str();
                 return false;
@@ -2163,6 +2155,7 @@ static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderP
                                                          primaryColorCount, primaryRPCI->pAttachments,
                                                          secondaryRPCI->pSubpasses[spIndex].pResolveAttachments,
                                                          secondaryColorCount, secondaryRPCI->pAttachments)) {
+                stringstream errorStr;
                 errorStr << "resolve attachments at index " << cIdx << " of subpass index " << spIndex << " are not compatible.";
                 errorMsg = errorStr.str();
                 return false;
@@ -2173,6 +2166,7 @@ static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderP
                                               1, primaryRPCI->pAttachments,
                                               secondaryRPCI->pSubpasses[spIndex].pDepthStencilAttachment,
                                               1, secondaryRPCI->pAttachments)) {
+            stringstream errorStr;
             errorStr << "depth/stencil attachments of subpass index " << spIndex << " are not compatible.";
             errorMsg = errorStr.str();
             return false;
@@ -2185,6 +2179,7 @@ static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderP
             if (!attachment_references_compatible(i, primaryRPCI->pSubpasses[spIndex].pInputAttachments, primaryColorCount,
                                                   primaryRPCI->pAttachments, secondaryRPCI->pSubpasses[spIndex].pInputAttachments,
                                                   secondaryColorCount, secondaryRPCI->pAttachments)) {
+                stringstream errorStr;
                 errorStr << "input attachments at index " << i << " of subpass index " << spIndex << " are not compatible.";
                 errorMsg = errorStr.str();
                 return false;
@@ -2197,14 +2192,15 @@ static bool verify_renderpass_compatibility(layer_data *my_data, const VkRenderP
 // For give SET_NODE, verify that its Set is compatible w/ the setLayout corresponding to pipelineLayout[layoutIndex]
 static bool verify_set_layout_compatibility(layer_data *my_data, const SET_NODE *pSet, const VkPipelineLayout layout,
                                             const uint32_t layoutIndex, string &errorMsg) {
-    stringstream errorStr;
     auto pipeline_layout_it = my_data->pipelineLayoutMap.find(layout);
     if (pipeline_layout_it == my_data->pipelineLayoutMap.end()) {
+        stringstream errorStr;
         errorStr << "invalid VkPipelineLayout (" << layout << ")";
         errorMsg = errorStr.str();
         return false;
     }
     if (layoutIndex >= pipeline_layout_it->second.descriptorSetLayouts.size()) {
+        stringstream errorStr;
         errorStr << "VkPipelineLayout (" << layout << ") only contains " << pipeline_layout_it->second.descriptorSetLayouts.size()
                  << " setLayouts corresponding to sets 0-" << pipeline_layout_it->second.descriptorSetLayouts.size() - 1
                  << ", but you're attempting to bind set to index " << layoutIndex;
@@ -2218,6 +2214,7 @@ static bool verify_set_layout_compatibility(layer_data *my_data, const SET_NODE 
     }
     size_t descriptorCount = pLayoutNode->descriptorTypes.size();
     if (descriptorCount != pSet->pLayout->descriptorTypes.size()) {
+        stringstream errorStr;
         errorStr << "setLayout " << layoutIndex << " from pipelineLayout " << layout << " has " << descriptorCount
                  << " descriptors, but corresponding set being bound has " << pSet->pLayout->descriptorTypes.size()
                  << " descriptors.";
@@ -2230,6 +2227,7 @@ static bool verify_set_layout_compatibility(layer_data *my_data, const SET_NODE 
         //  TODO : Is below sufficient? Making sure that types & stageFlags match per descriptor
         //    do we also need to check immutable samplers?
         if (pLayoutNode->descriptorTypes[i] != pSet->pLayout->descriptorTypes[i]) {
+            stringstream errorStr;
             errorStr << "descriptor " << i << " for descriptorSet being bound is type '"
                      << string_VkDescriptorType(pSet->pLayout->descriptorTypes[i])
                      << "' but corresponding descriptor from pipelineLayout is type '"
@@ -2238,6 +2236,7 @@ static bool verify_set_layout_compatibility(layer_data *my_data, const SET_NODE 
             return false;
         }
         if (pLayoutNode->stageFlags[i] != pSet->pLayout->stageFlags[i]) {
+            stringstream errorStr;
             errorStr << "stageFlags " << i << " for descriptorSet being bound is " << pSet->pLayout->stageFlags[i]
                      << "' but corresponding descriptor from pipelineLayout has stageFlags " << pLayoutNode->stageFlags[i];
             errorMsg = errorStr.str();
@@ -4647,6 +4646,8 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, cons
     dev_data->imageLayoutMap.clear();
     dev_data->bufferViewMap.clear();
     dev_data->bufferMap.clear();
+    // Queues persist until device is destroyed
+    dev_data->queueMap.clear();
     loader_platform_thread_unlock_mutex(&globalLock);
 #if MTMERGESOURCE
     bool skipCall = false;
@@ -4673,8 +4674,6 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, cons
             }
         }
     }
-    // Queues persist until device is destroyed
-    delete_queue_info_list(dev_data);
     layer_debug_report_destroy_device(device);
     loader_platform_thread_unlock_mutex(&globalLock);
 
@@ -5095,22 +5094,71 @@ vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits,
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     loader_platform_thread_lock_mutex(&globalLock);
-#if MTMERGESOURCE
-    // TODO : Need to track fence and clear mem references when fence clears
-    // MTMTODO : Merge this code with code below to avoid duplicating efforts
+    // First verify that fence is not in use
+    if ((fence != VK_NULL_HANDLE) && (submitCount != 0) && dev_data->fenceMap[fence].in_use.load()) {
+        skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
+                            (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
+                            "Fence %#" PRIx64 " is already in use by another submission.", (uint64_t)(fence));
+    }
     uint64_t fenceId = 0;
     skipCall = add_fence_info(dev_data, fence, queue, &fenceId);
-
+    // TODO : Review these old print functions and clean up as appropriate
     print_mem_list(dev_data);
     printCBList(dev_data);
+    // Now verify each individual submit
+    std::unordered_set<VkQueue> processed_other_queues;
     for (uint32_t submit_idx = 0; submit_idx < submitCount; submit_idx++) {
         const VkSubmitInfo *submit = &pSubmits[submit_idx];
+        vector<VkSemaphore> semaphoreList;
+        for (uint32_t i = 0; i < submit->waitSemaphoreCount; ++i) {
+            const VkSemaphore &semaphore = submit->pWaitSemaphores[i];
+            semaphoreList.push_back(semaphore);
+            if (dev_data->semaphoreMap.find(semaphore) != dev_data->semaphoreMap.end()) {
+                if (dev_data->semaphoreMap[semaphore].signaled) {
+                    dev_data->semaphoreMap[semaphore].signaled = false;
+                } else {
+                    skipCall |=
+                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
+                                reinterpret_cast<const uint64_t &>(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                "Queue %#" PRIx64 " is waiting on semaphore %#" PRIx64 " that has no way to be signaled.",
+                                reinterpret_cast<uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore));
+                }
+                const VkQueue &other_queue = dev_data->semaphoreMap[semaphore].queue;
+                if (other_queue != VK_NULL_HANDLE && !processed_other_queues.count(other_queue)) {
+                    updateTrackedCommandBuffers(dev_data, queue, other_queue, fence);
+                    processed_other_queues.insert(other_queue);
+                }
+            }
+        }
+        for (uint32_t i = 0; i < submit->signalSemaphoreCount; ++i) {
+            const VkSemaphore &semaphore = submit->pSignalSemaphores[i];
+            if (dev_data->semaphoreMap.find(semaphore) != dev_data->semaphoreMap.end()) {
+                semaphoreList.push_back(semaphore);
+                if (dev_data->semaphoreMap[semaphore].signaled) {
+                    skipCall |=
+                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
+                                reinterpret_cast<const uint64_t &>(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                "Queue %#" PRIx64 " is signaling semaphore %#" PRIx64
+                                " that has already been signaled but not waited on by queue %#" PRIx64 ".",
+                                reinterpret_cast<uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore),
+                                reinterpret_cast<uint64_t &>(dev_data->semaphoreMap[semaphore].queue));
+                } else {
+                    dev_data->semaphoreMap[semaphore].signaled = true;
+                    dev_data->semaphoreMap[semaphore].queue = queue;
+                }
+            }
+        }
         for (uint32_t i = 0; i < submit->commandBufferCount; i++) {
+            skipCall |= ValidateCmdBufImageLayouts(submit->pCommandBuffers[i]);
             pCBNode = getCBNode(dev_data, submit->pCommandBuffers[i]);
             if (pCBNode) {
+                pCBNode->semaphores = semaphoreList;
+                pCBNode->submitCount++; // increment submit count
                 pCBNode->fenceId = fenceId;
                 pCBNode->lastSubmittedFence = fence;
                 pCBNode->lastSubmittedQueue = queue;
+                skipCall |= validatePrimaryCommandBufferState(dev_data, pCBNode);
+                // Call submit-time functions to validate/update state
                 for (auto &function : pCBNode->validate_functions) {
                     skipCall |= function();
                 }
@@ -5119,104 +5167,13 @@ vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits,
                 }
             }
         }
-
-        for (uint32_t i = 0; i < submit->waitSemaphoreCount; i++) {
-            VkSemaphore sem = submit->pWaitSemaphores[i];
-
-            if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-                if (dev_data->semaphoreMap[sem].state != MEMTRACK_SEMAPHORE_STATE_SIGNALLED) {
-                    skipCall =
-                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
-                                (uint64_t)sem, __LINE__, MEMTRACK_NONE, "SEMAPHORE",
-                                "vkQueueSubmit: Semaphore must be in signaled state before passing to pWaitSemaphores");
-                }
-                dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_WAIT;
-            }
-        }
-        for (uint32_t i = 0; i < submit->signalSemaphoreCount; i++) {
-            VkSemaphore sem = submit->pSignalSemaphores[i];
-
-            if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-                if (dev_data->semaphoreMap[sem].state != MEMTRACK_SEMAPHORE_STATE_UNSET) {
-                    skipCall = log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                       VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT, (uint64_t)sem, __LINE__, MEMTRACK_NONE,
-                                       "SEMAPHORE", "vkQueueSubmit: Semaphore must not be currently signaled or in a wait state");
-                }
-                dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_SIGNALLED;
-            }
-        }
-    }
-#endif
-    // First verify that fence is not in use
-    if ((fence != VK_NULL_HANDLE) && (submitCount != 0) && dev_data->fenceMap[fence].in_use.load()) {
-        skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                            (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
-                            "Fence %#" PRIx64 " is already in use by another submission.", (uint64_t)(fence));
-    }
-    // Now verify each individual submit
-    std::unordered_set<VkQueue> processed_other_queues;
-    for (uint32_t submit_idx = 0; submit_idx < submitCount; submit_idx++) {
-        const VkSubmitInfo *submit = &pSubmits[submit_idx];
-        vector<VkSemaphore> semaphoreList;
-        for (uint32_t i = 0; i < submit->waitSemaphoreCount; ++i) {
-            const VkSemaphore &semaphore = submit->pWaitSemaphores[i];
-            if (dev_data->semaphoreMap[semaphore].signaled) {
-                dev_data->semaphoreMap[semaphore].signaled = 0;
-                dev_data->semaphoreMap[semaphore].in_use.fetch_sub(1);
-            } else {
-                skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0, __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS,
-                                    "DS", "Queue %#" PRIx64 " is waiting on semaphore %#" PRIx64 " that has no way to be signaled.",
-                                    reinterpret_cast<uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore));
-            }
-            const VkQueue &other_queue = dev_data->semaphoreMap[semaphore].queue;
-            if (other_queue != VK_NULL_HANDLE && !processed_other_queues.count(other_queue)) {
-                updateTrackedCommandBuffers(dev_data, queue, other_queue, fence);
-                processed_other_queues.insert(other_queue);
-            }
-        }
-        for (uint32_t i = 0; i < submit->signalSemaphoreCount; ++i) {
-            const VkSemaphore &semaphore = submit->pSignalSemaphores[i];
-            semaphoreList.push_back(semaphore);
-            if (dev_data->semaphoreMap[semaphore].signaled) {
-                skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0, __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS,
-                                    "DS", "Queue %#" PRIx64 " is signaling semaphore %#" PRIx64
-                                          " that has already been signaled but not waited on by queue %#" PRIx64 ".",
-                                    reinterpret_cast<uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore),
-                                    reinterpret_cast<uint64_t &>(dev_data->semaphoreMap[semaphore].queue));
-            } else {
-                dev_data->semaphoreMap[semaphore].signaled = 1;
-                dev_data->semaphoreMap[semaphore].queue = queue;
-            }
-        }
-        for (uint32_t i = 0; i < submit->commandBufferCount; i++) {
-            skipCall |= ValidateCmdBufImageLayouts(submit->pCommandBuffers[i]);
-            pCBNode = getCBNode(dev_data, submit->pCommandBuffers[i]);
-            pCBNode->semaphores = semaphoreList;
-            pCBNode->submitCount++; // increment submit count
-            skipCall |= validatePrimaryCommandBufferState(dev_data, pCBNode);
-        }
     }
     // Update cmdBuffer-related data structs and mark fence in-use
     trackCommandBuffers(dev_data, queue, submitCount, pSubmits, fence);
     loader_platform_thread_unlock_mutex(&globalLock);
     if (!skipCall)
         result = dev_data->device_dispatch_table->QueueSubmit(queue, submitCount, pSubmits, fence);
-#if MTMERGESOURCE
-    loader_platform_thread_lock_mutex(&globalLock);
-    for (uint32_t submit_idx = 0; submit_idx < submitCount; submit_idx++) {
-        const VkSubmitInfo *submit = &pSubmits[submit_idx];
-        for (uint32_t i = 0; i < submit->waitSemaphoreCount; i++) {
-            VkSemaphore sem = submit->pWaitSemaphores[i];
 
-            if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-                dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_UNSET;
-            }
-        }
-    }
-    loader_platform_thread_unlock_mutex(&globalLock);
-#endif
     return result;
 }
 
@@ -5560,19 +5517,17 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyFence(VkDevice device, VkFen
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     bool skipCall = false;
     loader_platform_thread_lock_mutex(&globalLock);
-    if (dev_data->fenceMap[fence].in_use.load()) {
-        skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                            (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
-                            "Fence %#" PRIx64 " is in use by a command buffer.", (uint64_t)(fence));
+    auto fence_pair = dev_data->fenceMap.find(fence);
+    if (fence_pair != dev_data->fenceMap.end()) {
+        if (fence_pair->second.in_use.load()) {
+            skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
+                                (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
+                                "Fence %#" PRIx64 " is in use by a command buffer.", (uint64_t)(fence));
+        }
+        dev_data->fenceMap.erase(fence_pair);
     }
-#if MTMERGESOURCE
-    delete_fence_info(dev_data, fence);
-    auto item = dev_data->fenceMap.find(fence);
-    if (item != dev_data->fenceMap.end()) {
-        dev_data->fenceMap.erase(item);
-    }
-#endif
     loader_platform_thread_unlock_mutex(&globalLock);
+
     if (!skipCall)
         dev_data->device_dispatch_table->DestroyFence(device, fence, pAllocator);
 }
@@ -6031,7 +5986,6 @@ static bool validateCommandBuffersNotInUse(const layer_data *dev_data, VkCommand
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
 vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool commandBufferComplete = false;
     bool skipCall = false;
     loader_platform_thread_lock_mutex(&globalLock);
     // Verify that command buffers in pool are complete (not in-flight)
@@ -6062,7 +6016,6 @@ vkDestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocat
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 vkResetCommandPool(VkDevice device, VkCommandPool commandPool, VkCommandPoolResetFlags flags) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool commandBufferComplete = false;
     bool skipCall = false;
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
 
@@ -6682,7 +6635,7 @@ vkFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool, uint32_t 
     // Make sure that no sets being destroyed are in-flight
     loader_platform_thread_lock_mutex(&globalLock);
     for (uint32_t i = 0; i < count; ++i)
-        skipCall |= validateIdleDescriptorSet(dev_data, pDescriptorSets[i], "vkFreeDesriptorSets");
+        skipCall |= validateIdleDescriptorSet(dev_data, pDescriptorSets[i], "vkFreeDescriptorSets");
     DESCRIPTOR_POOL_NODE *pPoolNode = getPoolNode(dev_data, descriptorPool);
     if (pPoolNode && !(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT & pPoolNode->createInfo.flags)) {
         // Can't Free from a NON_FREE pool
@@ -8241,7 +8194,7 @@ static bool ValidateMaskBits(const layer_data *my_data, VkCommandBuffer cmdBuffe
         }
     } else {
         if (!required_bit) {
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                  DRAWSTATE_INVALID_BARRIER, "DS", "%s AccessMask %d %s must contain at least one of access bits %d "
                                                                   "%s when layout is %s, unless the app has previously added a "
                                                                   "barrier for this transition.",
@@ -8254,7 +8207,7 @@ static bool ValidateMaskBits(const layer_data *my_data, VkCommandBuffer cmdBuffe
                 ss << optional_bits;
                 opt_bits = "and may have optional bits " + ss.str() + ' ' + string_VkAccessFlags(optional_bits);
             }
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                  DRAWSTATE_INVALID_BARRIER, "DS", "%s AccessMask %d %s must have required access bit %d %s %s when "
                                                                   "layout is %s, unless the app has previously added a barrier for "
                                                                   "this transition.",
@@ -9518,11 +9471,6 @@ vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo 
     loader_platform_thread_unlock_mutex(&globalLock);
     if (!skipCall) {
         dev_data->device_dispatch_table->CmdBeginRenderPass(commandBuffer, pRenderPassBegin, contents);
-        loader_platform_thread_lock_mutex(&globalLock);
-        // This is a shallow copy as that is all that is needed for now
-        dev_data->renderPassBeginInfo = *pRenderPassBegin;
-        dev_data->currentSubpass = 0;
-        loader_platform_thread_unlock_mutex(&globalLock);
     }
 }
 
@@ -9531,7 +9479,6 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass(VkCommandBuffer comm
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
     loader_platform_thread_lock_mutex(&globalLock);
     GLOBAL_CB_NODE *pCB = getCBNode(dev_data, commandBuffer);
-    TransitionSubpassLayouts(commandBuffer, &dev_data->renderPassBeginInfo, ++dev_data->currentSubpass);
     if (pCB) {
         skipCall |= validatePrimaryCommandBuffer(dev_data, pCB, "vkCmdNextSubpass");
         skipCall |= addCmd(dev_data, pCB, CMD_NEXTSUBPASS, "vkCmdNextSubpass()");
@@ -9583,7 +9530,6 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(VkCommandBuffer co
     }
 #endif
     GLOBAL_CB_NODE *pCB = getCBNode(dev_data, commandBuffer);
-    TransitionFinalSubpassLayouts(commandBuffer, &dev_data->renderPassBeginInfo);
     if (pCB) {
         skipCall |= outsideRenderPass(dev_data, pCB, "vkCmdEndRenderpass");
         skipCall |= validatePrimaryCommandBuffer(dev_data, pCB, "vkCmdEndRenderPass");
@@ -10128,10 +10074,21 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(VkDevice device, VkImage image,
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkSetEvent(VkDevice device, VkEvent event) {
+    bool skip_call = false;
+    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     loader_platform_thread_lock_mutex(&globalLock);
-    dev_data->eventMap[event].needsSignaled = false;
-    dev_data->eventMap[event].stageMask = VK_PIPELINE_STAGE_HOST_BIT;
+    auto event_node = dev_data->eventMap.find(event);
+    if (event_node != dev_data->eventMap.end()) {
+        event_node->second.needsSignaled = false;
+        event_node->second.stageMask = VK_PIPELINE_STAGE_HOST_BIT;
+        if (event_node->second.in_use.load()) {
+            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT,
+                                 reinterpret_cast<const uint64_t &>(event), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                 "Cannot call vkSetEvent() on event %" PRIxLEAST64 " that is already in use by a command buffer.",
+                                 reinterpret_cast<const uint64_t &>(event));
+        }
+    }
     loader_platform_thread_unlock_mutex(&globalLock);
     // Host setting event is visible to all queues immediately so update stageMask for any queue that's seen this event
     // TODO : For correctness this needs separate fix to verify that app doesn't make incorrect assumptions about the
@@ -10142,7 +10099,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetEvent(VkDevice device, VkEvent event) {
             event_entry->second |= VK_PIPELINE_STAGE_HOST_BIT;
         }
     }
-    VkResult result = dev_data->device_dispatch_table->SetEvent(device, event);
+    if (!skip_call)
+        result = dev_data->device_dispatch_table->SetEvent(device, event);
     return result;
 }
 
@@ -10151,106 +10109,77 @@ vkQueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo 
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     bool skip_call = false;
-#if MTMERGESOURCE
-    //MTMTODO : Merge this code with the checks below
     loader_platform_thread_lock_mutex(&globalLock);
-
-    for (uint32_t i = 0; i < bindInfoCount; i++) {
-        const VkBindSparseInfo *bindInfo = &pBindInfo[i];
-        // Track objects tied to memory
-        for (uint32_t j = 0; j < bindInfo->bufferBindCount; j++) {
-            for (uint32_t k = 0; k < bindInfo->pBufferBinds[j].bindCount; k++) {
-                if (set_sparse_mem_binding(dev_data, bindInfo->pBufferBinds[j].pBinds[k].memory,
-                                           (uint64_t)bindInfo->pBufferBinds[j].buffer, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
-                                           "vkQueueBindSparse"))
-                    skip_call = true;
-            }
-        }
-        for (uint32_t j = 0; j < bindInfo->imageOpaqueBindCount; j++) {
-            for (uint32_t k = 0; k < bindInfo->pImageOpaqueBinds[j].bindCount; k++) {
-                if (set_sparse_mem_binding(dev_data, bindInfo->pImageOpaqueBinds[j].pBinds[k].memory,
-                                           (uint64_t)bindInfo->pImageOpaqueBinds[j].image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                           "vkQueueBindSparse"))
-                    skip_call = true;
-            }
-        }
-        for (uint32_t j = 0; j < bindInfo->imageBindCount; j++) {
-            for (uint32_t k = 0; k < bindInfo->pImageBinds[j].bindCount; k++) {
-                if (set_sparse_mem_binding(dev_data, bindInfo->pImageBinds[j].pBinds[k].memory,
-                                           (uint64_t)bindInfo->pImageBinds[j].image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                           "vkQueueBindSparse"))
-                    skip_call = true;
-            }
-        }
-        // Validate semaphore state
-        for (uint32_t i = 0; i < bindInfo->waitSemaphoreCount; i++) {
-            VkSemaphore sem = bindInfo->pWaitSemaphores[i];
-
-            if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-                if (dev_data->semaphoreMap[sem].state != MEMTRACK_SEMAPHORE_STATE_SIGNALLED) {
-                    skip_call =
-                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
-                                (uint64_t)sem, __LINE__, MEMTRACK_NONE, "SEMAPHORE",
-                                "vkQueueBindSparse: Semaphore must be in signaled state before passing to pWaitSemaphores");
-                }
-                dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_WAIT;
-            }
-        }
-        for (uint32_t i = 0; i < bindInfo->signalSemaphoreCount; i++) {
-            VkSemaphore sem = bindInfo->pSignalSemaphores[i];
-
-            if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-                if (dev_data->semaphoreMap[sem].state != MEMTRACK_SEMAPHORE_STATE_UNSET) {
-                    skip_call =
-                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
-                                (uint64_t)sem, __LINE__, MEMTRACK_NONE, "SEMAPHORE",
-                                "vkQueueBindSparse: Semaphore must not be currently signaled or in a wait state");
-                }
-                dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_SIGNALLED;
-            }
-        }
+    // First verify that fence is not in use
+    if ((fence != VK_NULL_HANDLE) && (bindInfoCount != 0) && dev_data->fenceMap[fence].in_use.load()) {
+        skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
+                             reinterpret_cast<uint64_t &>(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
+                             "Fence %#" PRIx64 " is already in use by another submission.", reinterpret_cast<uint64_t &>(fence));
     }
-
-    print_mem_list(dev_data);
-    loader_platform_thread_unlock_mutex(&globalLock);
-#endif
-    loader_platform_thread_lock_mutex(&globalLock);
+    uint64_t fenceId = 0;
+    skip_call = add_fence_info(dev_data, fence, queue, &fenceId);
     for (uint32_t bindIdx = 0; bindIdx < bindInfoCount; ++bindIdx) {
         const VkBindSparseInfo &bindInfo = pBindInfo[bindIdx];
+        // Track objects tied to memory
+        for (uint32_t j = 0; j < bindInfo.bufferBindCount; j++) {
+            for (uint32_t k = 0; k < bindInfo.pBufferBinds[j].bindCount; k++) {
+                if (set_sparse_mem_binding(dev_data, bindInfo.pBufferBinds[j].pBinds[k].memory,
+                                           (uint64_t)bindInfo.pBufferBinds[j].buffer, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
+                                           "vkQueueBindSparse"))
+                    skip_call = true;
+            }
+        }
+        for (uint32_t j = 0; j < bindInfo.imageOpaqueBindCount; j++) {
+            for (uint32_t k = 0; k < bindInfo.pImageOpaqueBinds[j].bindCount; k++) {
+                if (set_sparse_mem_binding(dev_data, bindInfo.pImageOpaqueBinds[j].pBinds[k].memory,
+                                           (uint64_t)bindInfo.pImageOpaqueBinds[j].image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
+                                           "vkQueueBindSparse"))
+                    skip_call = true;
+            }
+        }
+        for (uint32_t j = 0; j < bindInfo.imageBindCount; j++) {
+            for (uint32_t k = 0; k < bindInfo.pImageBinds[j].bindCount; k++) {
+                if (set_sparse_mem_binding(dev_data, bindInfo.pImageBinds[j].pBinds[k].memory,
+                                           (uint64_t)bindInfo.pImageBinds[j].image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
+                                           "vkQueueBindSparse"))
+                    skip_call = true;
+            }
+        }
         for (uint32_t i = 0; i < bindInfo.waitSemaphoreCount; ++i) {
-            if (dev_data->semaphoreMap[bindInfo.pWaitSemaphores[i]].signaled) {
-                dev_data->semaphoreMap[bindInfo.pWaitSemaphores[i]].signaled = 0;
-            } else {
-                skip_call |=
-                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
-                            __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
-                            "Queue %#" PRIx64 " is waiting on semaphore %#" PRIx64 " that has no way to be signaled.",
-                            (uint64_t)(queue), (uint64_t)(bindInfo.pWaitSemaphores[i]));
+            const VkSemaphore &semaphore = bindInfo.pWaitSemaphores[i];
+            if (dev_data->semaphoreMap.find(semaphore) != dev_data->semaphoreMap.end()) {
+                if (dev_data->semaphoreMap[semaphore].signaled) {
+                    dev_data->semaphoreMap[semaphore].signaled = false;
+                } else {
+                    skip_call |=
+                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
+                                reinterpret_cast<const uint64_t &>(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                "vkQueueBindSparse: Queue %#" PRIx64 " is waiting on semaphore %#" PRIx64
+                                " that has no way to be signaled.",
+                                reinterpret_cast<const uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore));
+                }
             }
         }
         for (uint32_t i = 0; i < bindInfo.signalSemaphoreCount; ++i) {
-            dev_data->semaphoreMap[bindInfo.pSignalSemaphores[i]].signaled = 1;
+            const VkSemaphore &semaphore = bindInfo.pSignalSemaphores[i];
+            if (dev_data->semaphoreMap.find(semaphore) != dev_data->semaphoreMap.end()) {
+                if (dev_data->semaphoreMap[semaphore].signaled) {
+                    skip_call =
+                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
+                                reinterpret_cast<const uint64_t &>(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                "vkQueueBindSparse: Queue %#" PRIx64 " is signaling semaphore %#" PRIx64
+                                ", but that semaphore is already signaled.",
+                                reinterpret_cast<const uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore));
+                }
+                dev_data->semaphoreMap[semaphore].signaled = true;
+            }
         }
     }
+    print_mem_list(dev_data);
     loader_platform_thread_unlock_mutex(&globalLock);
 
     if (!skip_call)
         return dev_data->device_dispatch_table->QueueBindSparse(queue, bindInfoCount, pBindInfo, fence);
-#if MTMERGESOURCE
-    // Update semaphore state
-    loader_platform_thread_lock_mutex(&globalLock);
-    for (uint32_t bind_info_idx = 0; bind_info_idx < bindInfoCount; bind_info_idx++) {
-        const VkBindSparseInfo *bindInfo = &pBindInfo[bind_info_idx];
-        for (uint32_t i = 0; i < bindInfo->waitSemaphoreCount; i++) {
-            VkSemaphore sem = bindInfo->pWaitSemaphores[i];
-
-            if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-                dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_UNSET;
-            }
-        }
-    }
-    loader_platform_thread_unlock_mutex(&globalLock);
-#endif
 
     return result;
 }
@@ -10262,10 +10191,9 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSemaphore(VkDevice device, const VkSemaph
     if (result == VK_SUCCESS) {
         loader_platform_thread_lock_mutex(&globalLock);
         SEMAPHORE_NODE* sNode = &dev_data->semaphoreMap[*pSemaphore];
-        sNode->signaled = 0;
+        sNode->signaled = false;
         sNode->queue = VK_NULL_HANDLE;
         sNode->in_use.store(0);
-        sNode->state = MEMTRACK_SEMAPHORE_STATE_UNSET;
         loader_platform_thread_unlock_mutex(&globalLock);
     }
     return result;
@@ -10388,14 +10316,17 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
     if (pPresentInfo) {
         loader_platform_thread_lock_mutex(&globalLock);
         for (uint32_t i = 0; i < pPresentInfo->waitSemaphoreCount; ++i) {
-            if (dev_data->semaphoreMap[pPresentInfo->pWaitSemaphores[i]].signaled) {
-                dev_data->semaphoreMap[pPresentInfo->pWaitSemaphores[i]].signaled = 0;
-            } else {
-                skip_call |=
-                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
-                            __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
-                            "Queue %#" PRIx64 " is waiting on semaphore %#" PRIx64 " that has no way to be signaled.",
-                            (uint64_t)(queue), (uint64_t)(pPresentInfo->pWaitSemaphores[i]));
+            const VkSemaphore &semaphore = pPresentInfo->pWaitSemaphores[i];
+            if (dev_data->semaphoreMap.find(semaphore) != dev_data->semaphoreMap.end()) {
+                if (dev_data->semaphoreMap[semaphore].signaled) {
+                    dev_data->semaphoreMap[semaphore].signaled = false;
+                } else {
+                    skip_call |=
+                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0, __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                "Queue %#" PRIx64 " is waiting on semaphore %#" PRIx64 " that has no way to be signaled.",
+                                reinterpret_cast<uint64_t &>(queue), reinterpret_cast<const uint64_t &>(semaphore));
+                }
             }
         }
         VkDeviceMemory mem;
@@ -10429,16 +10360,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
 
     if (!skip_call)
         result = dev_data->device_dispatch_table->QueuePresentKHR(queue, pPresentInfo);
-#if MTMERGESOURCE
-    loader_platform_thread_lock_mutex(&globalLock);
-    for (uint32_t i = 0; i < pPresentInfo->waitSemaphoreCount; i++) {
-        VkSemaphore sem = pPresentInfo->pWaitSemaphores[i];
-        if (dev_data->semaphoreMap.find(sem) != dev_data->semaphoreMap.end()) {
-            dev_data->semaphoreMap[sem].state = MEMTRACK_SEMAPHORE_STATE_UNSET;
-        }
-    }
-    loader_platform_thread_unlock_mutex(&globalLock);
-#endif
+
     return result;
 }
 
@@ -10447,32 +10369,28 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImageKHR(VkDevice device, VkSwapchai
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     bool skipCall = false;
-#if MTMERGESOURCE
+
     loader_platform_thread_lock_mutex(&globalLock);
     if (semaphore != VK_NULL_HANDLE &&
         dev_data->semaphoreMap.find(semaphore) != dev_data->semaphoreMap.end()) {
-        if (dev_data->semaphoreMap[semaphore].state != MEMTRACK_SEMAPHORE_STATE_UNSET) {
+        if (dev_data->semaphoreMap[semaphore].signaled) {
             skipCall = log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
-                               (uint64_t)semaphore, __LINE__, MEMTRACK_NONE, "SEMAPHORE",
+                               reinterpret_cast<const uint64_t &>(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
                                "vkAcquireNextImageKHR: Semaphore must not be currently signaled or in a wait state");
         }
-        dev_data->semaphoreMap[semaphore].state = MEMTRACK_SEMAPHORE_STATE_SIGNALLED;
-        dev_data->semaphoreMap[semaphore].in_use.fetch_add(1);
+        dev_data->semaphoreMap[semaphore].signaled = true;
     }
     auto fence_data = dev_data->fenceMap.find(fence);
     if (fence_data != dev_data->fenceMap.end()) {
         fence_data->second.swapchain = swapchain;
     }
     loader_platform_thread_unlock_mutex(&globalLock);
-#endif
+
     if (!skipCall) {
         result =
             dev_data->device_dispatch_table->AcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, pImageIndex);
     }
-    loader_platform_thread_lock_mutex(&globalLock);
-    // FIXME/TODO: Need to add some thing code the "fence" parameter
-    dev_data->semaphoreMap[semaphore].signaled = 1;
-    loader_platform_thread_unlock_mutex(&globalLock);
+
     return result;
 }
 

@@ -88,13 +88,6 @@ typedef enum _MEM_TRACK_ERROR {
     MEMTRACK_INVALID_MAP,                  // Size flag specified at alloc is too small for mapping range
 } MEM_TRACK_ERROR;
 
-// MemTracker Semaphore states
-typedef enum SemaphoreState {
-    MEMTRACK_SEMAPHORE_STATE_UNSET,     // Semaphore is in an undefined state
-    MEMTRACK_SEMAPHORE_STATE_SIGNALLED, // Semaphore has is in signalled state
-    MEMTRACK_SEMAPHORE_STATE_WAIT,      // Semaphore is in wait state
-} SemaphoreState;
-
 struct MemRange {
     VkDeviceSize offset;
     VkDeviceSize size;
@@ -604,8 +597,7 @@ class FENCE_NODE : public BASE_NODE {
 class SEMAPHORE_NODE : public BASE_NODE {
   public:
     using BASE_NODE::in_use;
-    uint32_t signaled;
-    SemaphoreState state;
+    bool signaled;
     VkQueue queue;
 };
 
@@ -698,7 +690,7 @@ typedef struct _DESCRIPTOR_POOL_NODE {
 
     _DESCRIPTOR_POOL_NODE(const VkDescriptorPool pool, const VkDescriptorPoolCreateInfo *pCreateInfo)
         : pool(pool), maxSets(pCreateInfo->maxSets), availableSets(pCreateInfo->maxSets), createInfo(*pCreateInfo), pSets(NULL),
-          maxDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE), availableDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE) {
+          maxDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE, 0), availableDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE, 0) {
         if (createInfo.poolSizeCount) { // Shadow type struct from ptr into local struct
             size_t poolSizeCountSize = createInfo.poolSizeCount * sizeof(VkDescriptorPoolSize);
             createInfo.pPoolSizes = new VkDescriptorPoolSize[poolSizeCountSize];
@@ -707,7 +699,8 @@ typedef struct _DESCRIPTOR_POOL_NODE {
             uint32_t i = 0;
             for (i = 0; i < createInfo.poolSizeCount; ++i) {
                 uint32_t typeIndex = static_cast<uint32_t>(createInfo.pPoolSizes[i].type);
-                maxDescriptorTypeCount[typeIndex] = createInfo.pPoolSizes[i].descriptorCount;
+                // Same descriptor types can appear several times
+                maxDescriptorTypeCount[typeIndex] += createInfo.pPoolSizes[i].descriptorCount;
                 availableDescriptorTypeCount[typeIndex] = maxDescriptorTypeCount[typeIndex];
             }
         } else {
@@ -915,8 +908,8 @@ struct GLOBAL_CB_NODE {
     // TODO : These data structures relate to tracking resources that invalidate
     //  a cmd buffer that references them. Need to unify how we handle these
     //  cases so we don't have different tracking data for each type.
-    std::set<VkDescriptorSet> destroyedSets;
-    std::set<VkDescriptorSet> updatedSets;
+    unordered_set<VkDescriptorSet> destroyedSets;
+    unordered_set<VkDescriptorSet> updatedSets;
     unordered_set<VkFramebuffer> destroyedFramebuffers;
     vector<VkEvent> waitedEvents;
     vector<VkSemaphore> semaphores;
