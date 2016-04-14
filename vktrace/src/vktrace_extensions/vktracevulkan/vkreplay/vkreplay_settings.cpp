@@ -32,6 +32,8 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
+static vkreplayer_settings s_defaultVkReplaySettings = { NULL, 1, -1, -1, NULL, NULL };
+
 vktrace_SettingInfo g_vk_settings_info[] =
 {
     { "t", "TraceFile", VKTRACE_SETTING_STRING, &g_vkReplaySettings.pTraceFilePath, &s_defaultVkReplaySettings.pTraceFilePath, TRUE, "The trace file to replay." },

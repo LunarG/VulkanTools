@@ -37,8 +37,6 @@ extern "C"
 
 #include <vulkan/vulkan.h>
 
-static vkreplayer_settings s_defaultVkReplaySettings = { NULL, 1, -1, -1, NULL };
-
 extern vkreplayer_settings g_vkReplaySettings;
 extern vktrace_SettingGroup g_vkReplaySettingGroup;
 

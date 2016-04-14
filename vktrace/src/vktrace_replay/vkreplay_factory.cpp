@@ -35,7 +35,7 @@ namespace vktrace_replay {
 vktrace_trace_packet_replay_library* ReplayFactory::Create(uint8_t tracerId)
 {
     vktrace_trace_packet_replay_library* pReplayer = NULL;
-    void* pLibrary = NULL;
+    //void* pLibrary = NULL;
 
     const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);
 

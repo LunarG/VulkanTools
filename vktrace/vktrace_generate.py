@@ -159,16 +159,24 @@ class Subcommand(object):
             return ("%s", name, "*")
         if "uint64_t" in vk_type:
             if '*' in vk_type:
-                return ("%llu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
-            return ("%llu", name, deref)
+                return ("%lu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%lu", name, deref)
+        if "uint32_t" in vk_type:
+            if '*' in vk_type:
+                return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%u", name, deref)
+        if "xcb_visualid_t" in vk_type:
+            if '*' in vk_type:
+                return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%u", name, deref)
         if "VkBool32" in vk_type:
             if '*' in vk_type:
                 return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
             return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
         if "size_t" in vk_type:
             if '*' in vk_type:
-                return ("%zu", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
-            return ("%zu", name, deref)
+                return ("%u", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%u", name, deref)
         if "float" in vk_type:
             if '[' in vk_type: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
                 return ("[%f, %f, %f, %f]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)

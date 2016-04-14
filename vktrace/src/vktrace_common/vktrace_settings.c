@@ -755,7 +755,7 @@ int vktrace_SettingGroup_init(vktrace_SettingGroup* pSettingGroup, FILE* pSettin
     }
 
     // Thirdly set options based on cmd line args
-    if (vktrace_SettingGroup_init_from_cmdline(pSettingGroup, argc, argv, ppOut_remaining_args) == -1)
+    if (vktrace_SettingGroup_init_from_cmdline(pSettingGroup, argc, argv, (char **)ppOut_remaining_args) == -1)
     {
         return -1;
     }
