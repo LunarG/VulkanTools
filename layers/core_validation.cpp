@@ -2736,42 +2736,80 @@ static bool validate_and_update_drawtime_descriptor_state(
                     switch (set_node->pDescriptorUpdates[i]->sType) {
                     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
                         pWDS = (VkWriteDescriptorSet *)set_node->pDescriptorUpdates[i];
-                        if ((pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+
+                        // Verify uniform and storage buffers actually are bound to valid memory at draw time.
+                        if ((pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) ||
+                            (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                            (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
                             (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)) {
                             for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
-                                bufferSize = dev_data->bufferMap[pWDS->pBufferInfo[j].buffer].createInfo.size;
-                                uint32_t dynOffset = pCB->lastBound[VK_PIPELINE_BIND_POINT_GRAPHICS].dynamicOffsets[dynOffsetIndex];
-                                if (pWDS->pBufferInfo[j].range == VK_WHOLE_SIZE) {
-                                    if ((dynOffset + pWDS->pBufferInfo[j].offset) > bufferSize) {
-                                        result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                                          VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                                                          reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
-                                                          DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, "DS",
-                                                          "VkDescriptorSet (%#" PRIxLEAST64 ") bound as set #%u has range of "
-                                                          "VK_WHOLE_SIZE but dynamic offset %#" PRIxLEAST32 ". "
-                                                          "combined with offset %#" PRIxLEAST64 " oversteps its buffer (%#" PRIxLEAST64
-                                                          ") which has a size of %#" PRIxLEAST64 ".",
-                                                          reinterpret_cast<const uint64_t &>(set_node->set), i, dynOffset,
-                                                          pWDS->pBufferInfo[j].offset,
-                                                          reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
-                                    }
-                                } else if ((dynOffset + pWDS->pBufferInfo[j].offset + pWDS->pBufferInfo[j].range) > bufferSize) {
+                                auto buffer_node = dev_data->bufferMap.find(pWDS->pBufferInfo[j].buffer);
+                                if (buffer_node == dev_data->bufferMap.end()) {
                                     result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                                       VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
                                                       reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
-                                                      DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, "DS",
-                                                      "VkDescriptorSet (%#" PRIxLEAST64
-                                                      ") bound as set #%u has dynamic offset %#" PRIxLEAST32 ". "
-                                                      "Combined with offset %#" PRIxLEAST64 " and range %#" PRIxLEAST64
-                                                      " from its update, this oversteps its buffer "
-                                                      "(%#" PRIxLEAST64 ") which has a size of %#" PRIxLEAST64 ".",
-                                                      reinterpret_cast<const uint64_t &>(set_node->set), i, dynOffset,
-                                                      pWDS->pBufferInfo[j].offset, pWDS->pBufferInfo[j].range,
-                                                      reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
+                                                      DRAWSTATE_INVALID_BUFFER, "DS",
+                                                      "VkDescriptorSet (%#" PRIxLEAST64 ") %s (%#" PRIxLEAST64 ") at index #%u"
+                                                      " is not defined!  Has vkCreateBuffer been called?",
+                                                      reinterpret_cast<const uint64_t &>(set_node->set),
+                                                      string_VkDescriptorType(pWDS->descriptorType),
+                                                      reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), i);
+                                } else {
+                                    auto mem_entry = dev_data->memObjMap.find(buffer_node->second.mem);
+                                    if (mem_entry == dev_data->memObjMap.end()) {
+                                        result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                                          VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
+                                                          reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
+                                                          DRAWSTATE_INVALID_BUFFER, "DS",
+                                                          "VkDescriptorSet (%#" PRIxLEAST64 ") %s (%#" PRIxLEAST64 ") at index"
+                                                          " #%u, has no memory bound to it!",
+                                                          reinterpret_cast<const uint64_t &>(set_node->set),
+                                                          string_VkDescriptorType(pWDS->descriptorType),
+                                                          reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), i);
+                                    }
                                 }
-                                dynOffsetIndex++;
+                                // If it's a dynamic buffer, make sure the offsets are within the buffer.
+                                if ((pWDS->descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                                    (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)) {
+                                    bufferSize = dev_data->bufferMap[pWDS->pBufferInfo[j].buffer].createInfo.size;
+                                    uint32_t dynOffset =
+                                        pCB->lastBound[VK_PIPELINE_BIND_POINT_GRAPHICS].dynamicOffsets[dynOffsetIndex];
+                                    if (pWDS->pBufferInfo[j].range == VK_WHOLE_SIZE) {
+                                        if ((dynOffset + pWDS->pBufferInfo[j].offset) > bufferSize) {
+                                            result |= log_msg(
+                                                dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                                VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
+                                                reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
+                                                DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, "DS",
+                                                "VkDescriptorSet (%#" PRIxLEAST64 ") bound as set #%u has range of "
+                                                "VK_WHOLE_SIZE but dynamic offset %#" PRIxLEAST32 ". "
+                                                "combined with offset %#" PRIxLEAST64 " oversteps its buffer (%#" PRIxLEAST64
+                                                ") which has a size of %#" PRIxLEAST64 ".",
+                                                reinterpret_cast<const uint64_t &>(set_node->set), i, dynOffset,
+                                                pWDS->pBufferInfo[j].offset,
+                                                reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
+                                        }
+                                    } else if ((dynOffset + pWDS->pBufferInfo[j].offset + pWDS->pBufferInfo[j].range) >
+                                               bufferSize) {
+                                        result |=
+                                            log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                                    VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
+                                                    reinterpret_cast<const uint64_t &>(set_node->set), __LINE__,
+                                                    DRAWSTATE_DYNAMIC_OFFSET_OVERFLOW, "DS",
+                                                    "VkDescriptorSet (%#" PRIxLEAST64
+                                                    ") bound as set #%u has dynamic offset %#" PRIxLEAST32 ". "
+                                                    "Combined with offset %#" PRIxLEAST64 " and range %#" PRIxLEAST64
+                                                    " from its update, this oversteps its buffer "
+                                                    "(%#" PRIxLEAST64 ") which has a size of %#" PRIxLEAST64 ".",
+                                                    reinterpret_cast<const uint64_t &>(set_node->set), i, dynOffset,
+                                                    pWDS->pBufferInfo[j].offset, pWDS->pBufferInfo[j].range,
+                                                    reinterpret_cast<const uint64_t &>(pWDS->pBufferInfo[j].buffer), bufferSize);
+                                    }
+                                    dynOffsetIndex++;
+                                }
                             }
-                        } else if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
+                        }
+                        if (pWDS->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
                             for (uint32_t j = 0; j < pWDS->descriptorCount; ++j) {
                                 pCB->updateImages.insert(pWDS->pImageInfo[j].imageView);
                             }
@@ -3186,6 +3224,16 @@ static bool validatePipelineState(layer_data *my_data, const GLOBAL_CB_NODE *pCB
                 const VkSubpassDescription *pSD = &pRPCI->pSubpasses[pCB->activeSubpass];
                 VkSampleCountFlagBits subpassNumSamples = (VkSampleCountFlagBits)0;
                 uint32_t i;
+
+                const VkPipelineColorBlendStateCreateInfo *pColorBlendState = pPipeline->graphicsPipelineCI.pColorBlendState;
+                if ((pColorBlendState != NULL) && (pCB->activeSubpass == pPipeline->graphicsPipelineCI.subpass) &&
+                    (pColorBlendState->attachmentCount != pSD->colorAttachmentCount)) {
+                    return log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
+                                   reinterpret_cast<const uint64_t &>(pipeline), __LINE__, DRAWSTATE_INVALID_RENDERPASS, "DS",
+                                   "Render pass subpass %u mismatch with blending state defined  and blend state attachment "
+                                   "count %u but subpass color attachment count %u!  These must be the same.",
+                                   pCB->activeSubpass, pColorBlendState->attachmentCount, pSD->colorAttachmentCount);
+                }
 
                 for (i = 0; i < pSD->colorAttachmentCount; i++) {
                     VkSampleCountFlagBits samples;
@@ -4744,13 +4792,24 @@ static bool ValidateCmdBufImageLayouts(VkCommandBuffer cmdBuffer) {
             if (cb_image_data.second.initialLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
                 // TODO: Set memory invalid which is in mem_tracker currently
             } else if (imageLayout != cb_image_data.second.initialLayout) {
-                skip_call |=
-                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(cmdBuffer), __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
-                            "Cannot submit cmd buffer using image (%" PRIx64 ") with layout %s when "
-                            "first use is %s.",
-                            reinterpret_cast<const uint64_t &>(cb_image_data.first.image), string_VkImageLayout(imageLayout),
-                            string_VkImageLayout(cb_image_data.second.initialLayout));
+                if (cb_image_data.first.hasSubresource) {
+                    skip_call |= log_msg(
+                        dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                        reinterpret_cast<uint64_t &>(cmdBuffer), __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
+                        "Cannot submit cmd buffer using image (%" PRIx64 ") [sub-resource: array layer %u, mip level %u], "
+                        "with layout %s when first use is %s.",
+                        reinterpret_cast<const uint64_t &>(cb_image_data.first.image), cb_image_data.first.subresource.arrayLayer,
+                        cb_image_data.first.subresource.mipLevel, string_VkImageLayout(imageLayout),
+                        string_VkImageLayout(cb_image_data.second.initialLayout));
+                } else {
+                    skip_call |= log_msg(
+                        dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                        reinterpret_cast<uint64_t &>(cmdBuffer), __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
+                        "Cannot submit cmd buffer using image (%" PRIx64 ") with layout %s when "
+                        "first use is %s.",
+                        reinterpret_cast<const uint64_t &>(cb_image_data.first.image), string_VkImageLayout(imageLayout),
+                        string_VkImageLayout(cb_image_data.second.initialLayout));
+                }
             }
             SetLayout(dev_data, cb_image_data.first, cb_image_data.second.layout);
         }
@@ -4984,6 +5043,14 @@ static bool validateCommandBufferSimultaneousUse(layer_data *dev_data, GLOBAL_CB
 
 static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB) {
     bool skipCall = false;
+    // Validate ONE_TIME_SUBMIT_BIT CB is not being submitted more than once
+    if ((pCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) && (pCB->submitCount > 1)) {
+        skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
+                            __LINE__, DRAWSTATE_COMMAND_BUFFER_SINGLE_SUBMIT_VIOLATION, "DS",
+                            "CB %#" PRIxLEAST64 " was begun w/ VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT "
+                            "set, but has been submitted %#" PRIxLEAST64 " times.",
+                            (uint64_t)(pCB->commandBuffer), pCB->submitCount);
+    }
     // Validate that cmd buffers have been updated
     if (CB_RECORDED != pCB->state) {
         if (CB_INVALID == pCB->state) {
@@ -5069,16 +5136,6 @@ static bool validatePrimaryCommandBufferState(layer_data *dev_data, GLOBAL_CB_NO
                         reinterpret_cast<uint64_t>(pSubCB->primaryCommandBuffer));
             }
         }
-    }
-    // TODO : Verify if this also needs to be checked for secondary command
-    //  buffers. If so, this block of code can move to
-    //   validateCommandBufferState() function. vulkan GL106 filed to clarify
-    if ((pCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) && (pCB->submitCount > 1)) {
-        skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
-                            __LINE__, DRAWSTATE_COMMAND_BUFFER_SINGLE_SUBMIT_VIOLATION, "DS",
-                            "CB %#" PRIxLEAST64 " was begun w/ VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT "
-                            "set, but has been submitted %#" PRIxLEAST64 " times.",
-                            (uint64_t)(pCB->commandBuffer), pCB->submitCount);
     }
     skipCall |= validateCommandBufferState(dev_data, pCB);
     // If USAGE_SIMULTANEOUS_USE_BIT not set then CB cannot already be executing
@@ -8770,8 +8827,7 @@ static bool CheckDependencyExists(const layer_data *my_data, const int subpass, 
             std::unordered_set<uint32_t> processed_nodes;
             if (FindDependency(subpass, dependent_subpasses[k], subpass_to_node, processed_nodes) ||
                 FindDependency(dependent_subpasses[k], subpass, subpass_to_node, processed_nodes)) {
-                // TODO: Verify against Valid Use section of spec
-                skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
+                skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
                                      __LINE__, DRAWSTATE_INVALID_RENDERPASS, "DS",
                                      "A dependency between subpasses %d and %d must exist but only an implicit one is specified.",
                                      subpass, dependent_subpasses[k]);
