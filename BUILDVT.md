@@ -17,12 +17,12 @@ create a branch in your forked repo, do the work,
 and create a pull request on GitHub to integrate that work back into the repo.
 
 ## Linux System Requirements
-Ubuntu 14.04.3 LTS, 14.10, 15.04 and 15.10 have been tested with this repo.
+Ubuntu 14.04.3 LTS, 14.10, 15.04,15.10, and 16.04 LTS have been tested with this repo.
 
 These additional packages are needed for building the components in this repo.
 ```
 # Dependencies from the LoaderAndValidationLayers repo:
-sudo apt-get install git cmake build-essential bison libxcb1-dev
+sudo apt-get install git cmake build-essential bison libx11-dev libxcb1-dev
 # Additional dependencies for this repo:
 sudo apt-get install libudev-dev libpciaccess-dev libxcb-dri3-dev libxcb-present-dev libmagickwand-dev libgl1-mesa-dev
 ```
