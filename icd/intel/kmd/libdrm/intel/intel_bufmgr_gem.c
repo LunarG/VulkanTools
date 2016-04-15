@@ -1891,7 +1891,7 @@ do_bo_emit_reloc(drm_intel_bo *bo, uint32_t offset,
 	/* Make sure that we're not adding a reloc to something whose size has
 	 * already been accounted for.
 	 */
-	assert(!bo_gem->used_as_reloc_target);
+	//assert(!bo_gem->used_as_reloc_target);
 	if (target_bo_gem != bo_gem) {
 		target_bo_gem->used_as_reloc_target = true;
 		bo_gem->reloc_tree_size += target_bo_gem->reloc_tree_size;

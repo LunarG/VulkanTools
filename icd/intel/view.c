@@ -1152,8 +1152,9 @@ void intel_buf_view_init(const struct intel_dev *dev,
 {
     struct intel_buf *buf = intel_buf(info->buffer);
     /* TODO: Is transfer destination the only shader write operation? */
-    const bool will_write = (buf->usage & (VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
-                             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT));
+    const bool will_write = buf ? (buf->usage &
+            (VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
+             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)) : 0;
     VkFormat format;
     VkDeviceSize stride;
     uint32_t *cmd;
