@@ -764,6 +764,7 @@ VkResult intel_pipeline_shader_compile(struct intel_pipeline_shader *pipe_shader
 
             status = build_binding_table(gpu, brw, &bt, data->base.base, sh_prog, VK_SHADER_STAGE_GEOMETRY_BIT);
             if (status != VK_SUCCESS)
+                break;
 
             if (unlikely(INTEL_DEBUG & DEBUG_GS)) {
                 printf("out_count: %d\n", pipe_shader->out_count);
