@@ -224,7 +224,7 @@ static void add_data_to_mem_info(const VkDeviceMemory handle, VkDeviceSize range
             entry->rangeSize = entry->totalSize - rangeOffset;
         else
             entry->rangeSize = rangeSize;
-        entry->rangeOffset = entry->rangeOffset;
+        entry->rangeOffset = rangeOffset;
         assert(entry->totalSize >= rangeSize + rangeOffset);
     }
     g_memInfo.pLastMapped = entry;
