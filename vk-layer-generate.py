@@ -7,24 +7,17 @@
 # Copyright (c) 2015-2016 LunarG, Inc.
 # Copyright (c) 2015-2016 Google Inc.
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and/or associated documentation files (the "Materials"), to
-# deal in the Materials without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-# sell copies of the Materials, and to permit persons to whom the Materials
-# are furnished to do so, subject to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice(s) and this permission notice shall be included
-# in all copies or substantial portions of the Materials.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
-# USE OR OTHER DEALINGS IN THE MATERIALS
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Author: Tobin Ehlis <tobine@google.com>
 # Author: Courtney Goeltzenleuchter <courtneygo@google.com>
@@ -210,24 +203,17 @@ class Subcommand(object):
  * Copyright (c) 2015-2016 LunarG, Inc.
  * Copyright (c) 2015-2016 Google, Inc.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and/or associated documentation files (the "Materials"), to
- * deal in the Materials without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Materials, and to permit persons to whom the Materials
- * are furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice(s) and this permission notice shall be included
- * in all copies or substantial portions of the Materials.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- *
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
- * USE OR OTHER DEALINGS IN THE MATERIALS
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Author: Tobin Ehlis <tobine@google.com>
  * Author: Courtney Goeltzenleuchter <courtneygo@google.com>
@@ -962,7 +948,7 @@ class ObjectTrackerSubcommand(Subcommand):
         gedi_txt.append('VkInstance instance,')
         gedi_txt.append('const VkAllocationCallbacks* pAllocator)')
         gedi_txt.append('{')
-        gedi_txt.append('    loader_platform_thread_lock_mutex(&objLock);')
+        gedi_txt.append('    std::unique_lock<std::mutex> lock(global_lock);')
         gedi_txt.append('    validate_instance(instance, instance, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, false);')
         gedi_txt.append('')
         gedi_txt.append('    destroy_instance(instance, instance);')
@@ -1007,17 +993,12 @@ class ObjectTrackerSubcommand(Subcommand):
         gedi_txt.append('    }')
         gedi_txt.append('')
         gedi_txt.append('    layer_debug_report_destroy_instance(mid(instance));')
-        gedi_txt.append('    layer_data_map.erase(pInstanceTable);')
+        gedi_txt.append('    layer_data_map.erase(key);')
         gedi_txt.append('')
         gedi_txt.append('    instanceExtMap.erase(pInstanceTable);')
-        gedi_txt.append('    loader_platform_thread_unlock_mutex(&objLock);')
+        gedi_txt.append('    lock.unlock();')
         # The loader holds a mutex that protects this from other threads
         gedi_txt.append('    object_tracker_instance_table_map.erase(key);')
-        gedi_txt.append('    if (object_tracker_instance_table_map.empty()) {')
-        gedi_txt.append('        // Release mutex when destroying last instance.')
-        gedi_txt.append('        loader_platform_thread_delete_mutex(&objLock);')
-        gedi_txt.append('        objLockInitialized = 0;')
-        gedi_txt.append('    }')
         gedi_txt.append('}')
         gedi_txt.append('')
         return "\n".join(gedi_txt)
@@ -1029,7 +1010,7 @@ class ObjectTrackerSubcommand(Subcommand):
         gedd_txt.append('VkDevice device,')
         gedd_txt.append('const VkAllocationCallbacks* pAllocator)')
         gedd_txt.append('{')
-        gedd_txt.append('    loader_platform_thread_lock_mutex(&objLock);')
+        gedd_txt.append('    std::unique_lock<std::mutex> lock(global_lock);')
         gedd_txt.append('    validate_device(device, device, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, false);')
         gedd_txt.append('')
         gedd_txt.append('    destroy_device(device, device);')
@@ -1053,7 +1034,7 @@ class ObjectTrackerSubcommand(Subcommand):
         gedd_txt.append("    // Clean up Queue's MemRef Linked Lists")
         gedd_txt.append('    destroyQueueMemRefLists();')
         gedd_txt.append('')
-        gedd_txt.append('    loader_platform_thread_unlock_mutex(&objLock);')
+        gedd_txt.append('    lock.unlock();')
         gedd_txt.append('')
         gedd_txt.append('    dispatch_key key = get_dispatch_key(device);')
         gedd_txt.append('    VkLayerDispatchTable *pDisp = get_dispatch_table(object_tracker_device_table_map, device);')
@@ -1287,11 +1268,12 @@ class ObjectTrackerSubcommand(Subcommand):
                 typ = proto.params[-1].ty.strip('*').replace('const ', '');
                 name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', typ)
                 name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()[3:]
-                create_line =  '    loader_platform_thread_lock_mutex(&objLock);\n'
-                create_line += '    if (result == VK_SUCCESS) {\n'
-                create_line += '        create_%s(%s, *%s, %s);\n' % (name, param0_name, proto.params[-1].name, obj_type_mapping[typ])
+                create_line =  '    {\n'
+                create_line += '        std::lock_guard<std::mutex> lock(global_lock);\n'
+                create_line += '        if (result == VK_SUCCESS) {\n'
+                create_line += '            create_%s(%s, *%s, %s);\n' % (name, param0_name, proto.params[-1].name, obj_type_mapping[typ])
+                create_line += '        }\n'
                 create_line += '    }\n'
-                create_line += '    loader_platform_thread_unlock_mutex(&objLock);\n'
             if 'FreeCommandBuffers' in proto.name:
                 typ = proto.params[-1].ty.strip('*').replace('const ', '');
                 name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', typ)
@@ -1307,19 +1289,23 @@ class ObjectTrackerSubcommand(Subcommand):
                 name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', typ)
                 name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()[3:]
                 funcs.append('%s\n' % self.lineinfo.get())
-                destroy_line =  '    loader_platform_thread_lock_mutex(&objLock);\n'
-                destroy_line += '    destroy_%s(%s, %s);\n' % (name, param0_name, proto.params[-2].name)
-                destroy_line += '    loader_platform_thread_unlock_mutex(&objLock);\n'
+                destroy_line =  '    {\n'
+                destroy_line += '        std::lock_guard<std::mutex> lock(global_lock);\n'
+                destroy_line += '        destroy_%s(%s, %s);\n' % (name, param0_name, proto.params[-2].name)
+                destroy_line += '    }\n'
             indent = '    '
             if len(struct_uses) > 0:
                 using_line += '%sVkBool32 skipCall = VK_FALSE;\n' % (indent)
                 if not mutex_unlock:
-                    using_line += '%sloader_platform_thread_lock_mutex(&objLock);\n' % (indent)
+                    using_line += '%s{\n' % (indent)
+                    indent += '    '
+                    using_line += '%sstd::lock_guard<std::mutex> lock(global_lock);\n' % (indent)
                     mutex_unlock = True
                 using_line += '// objects to validate: %s\n' % str(sorted(struct_uses))
-                using_line += self._gen_obj_validate_code(struct_uses, obj_type_mapping, proto.name, valid_null_object_names, param0_name, '    ', '', 0)
+                using_line += self._gen_obj_validate_code(struct_uses, obj_type_mapping, proto.name, valid_null_object_names, param0_name, indent, '', 0)
             if mutex_unlock:
-                using_line += '%sloader_platform_thread_unlock_mutex(&objLock);\n' % (indent)
+                indent = indent[4:]
+                using_line += '%s}\n' % (indent)
             if len(struct_uses) > 0:
                 using_line += '    if (skipCall)\n'
                 if proto.ret == "VkBool32":
