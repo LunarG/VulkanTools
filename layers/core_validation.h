@@ -170,23 +170,6 @@ struct MT_PASS_ATTACHMENT_INFO {
     VkAttachmentStoreOp store_op;
 };
 
-// Associate fenceId with a fence object
-struct MT_FENCE_INFO {
-    uint64_t fenceId;         // Sequence number for fence at last submit
-    VkQueue queue;            // Queue that this fence is submitted against or NULL
-    VkSwapchainKHR swapchain; // Swapchain that this fence is submitted against or NULL
-    bool firstTimeFlag;       // Fence was created in signaled state, avoid warnings for first use
-    VkFenceCreateInfo createInfo;
-};
-
-// Track Queue information
-struct MT_QUEUE_INFO {
-    uint64_t lastRetiredId;
-    uint64_t lastSubmittedId;
-    list<VkCommandBuffer> pQueueCommandBuffers;
-    list<VkDeviceMemory> pMemRefList;
-};
-
 struct MT_DESCRIPTOR_SET_INFO {
     std::vector<VkImageView> images;
     std::vector<VkBuffer> buffers;
@@ -572,19 +555,17 @@ class PHYS_DEV_PROPERTIES_NODE {
 class FENCE_NODE : public BASE_NODE {
   public:
     using BASE_NODE::in_use;
-#if MTMERGE
-    uint64_t fenceId;         // Sequence number for fence at last submit
+
     VkSwapchainKHR swapchain; // Swapchain that this fence is submitted against or NULL
     bool firstTimeFlag;       // Fence was created in signaled state, avoid warnings for first use
     VkFenceCreateInfo createInfo;
-#endif
     VkQueue queue;
     vector<VkCommandBuffer> cmdBuffers;
     bool needsSignaled;
     vector<VkFence> priorFences;
 
     // Default constructor
-    FENCE_NODE() : queue(NULL), needsSignaled(VK_FALSE){};
+    FENCE_NODE() : queue(VK_NULL_HANDLE), needsSignaled(false){};
 };
 
 class SEMAPHORE_NODE : public BASE_NODE {
@@ -606,14 +587,11 @@ class QUEUE_NODE {
     VkDevice device;
     vector<VkFence> lastFences;
 #if MTMERGE
-    uint64_t lastRetiredId;
-    uint64_t lastSubmittedId;
     // MTMTODO : merge cmd_buffer data structs here
     list<VkCommandBuffer> pQueueCommandBuffers;
     list<VkDeviceMemory> pMemRefList;
 #endif
     vector<VkCommandBuffer> untrackedCmdBuffers;
-    unordered_set<VkCommandBuffer> inFlightCmdBuffers;
     unordered_map<VkEvent, VkPipelineStageFlags> eventToStageMap;
 };
 
@@ -866,7 +844,7 @@ struct LAST_BOUND_STATE {
     }
 };
 // Cmd Buffer Wrapper Struct
-struct GLOBAL_CB_NODE {
+struct GLOBAL_CB_NODE : public BASE_NODE {
     VkCommandBuffer commandBuffer;
     VkCommandBufferAllocateInfo createInfo;
     VkCommandBufferBeginInfo beginInfo;
