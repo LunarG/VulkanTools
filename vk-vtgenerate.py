@@ -108,7 +108,7 @@ class IcdDummyEntrypointsSubcommand(Subcommand):
     def _generate_stubs(self):
         stubs = []
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
             decl = self._generate_stub_decl(proto)
@@ -141,7 +141,7 @@ class IcdGetProcAddrSubcommand(IcdDummyEntrypointsSubcommand):
 
         lookups = []
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
             lookups.append("if (!strcmp(%s, \"%s\"))" %

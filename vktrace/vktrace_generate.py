@@ -112,7 +112,7 @@ class Subcommand(object):
         func_protos.append('#endif')
         func_protos.append('// Hooked function prototypes\n')
         for proto in self.protos:
-            if 'Dbg' not in proto.name and proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if 'Dbg' not in proto.name and proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
 
@@ -127,7 +127,7 @@ class Subcommand(object):
         for ext in vulkan.extensions_all:
             if (extensionName.lower() == ext.name.lower()):
                 for proto in ext.protos:
-                    if proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+                    if proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                            'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                         func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
 
@@ -449,7 +449,7 @@ class Subcommand(object):
                 for proto in ext.protos:
                     if proto.name in manually_written_hooked_funcs:
                         func_body.append( '// __HOOKED_vk%s is manually written. Look in vktrace_lib_trace.cpp\n' % proto.name)
-                    elif proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+                    elif proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                              'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                         raw_packet_update_list = [] # non-ptr elements placed directly into packet
                         ptr_packet_update_list = [] # ptr elements to be updated into packet
@@ -531,7 +531,7 @@ class Subcommand(object):
         pid_enum.append('{')
         first_func = True
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
             if first_func:
@@ -553,7 +553,7 @@ class Subcommand(object):
         func_body.append('        return "vkApiVersion";')
         func_body.append('    }')
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                    'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
             func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
@@ -579,7 +579,7 @@ class Subcommand(object):
         func_body.append('        return str;')
         func_body.append('    }')
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                    'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
             func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
@@ -629,7 +629,7 @@ class Subcommand(object):
         interp_func_body.append('            return interpret_body_as_vkApiVersion(pHeader)->header;')
         interp_func_body.append('        }')
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
 
@@ -1041,7 +1041,7 @@ class Subcommand(object):
         if_body.append('    return pPacket;')
         if_body.append('}\n')
         for proto in self.protos:
-            if 'Dbg' not in proto.name and proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if 'Dbg' not in proto.name and proto.name not in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 if 'UnmapMemory' == proto.name:
                     proto.params.append(vulkan.Param("void*", "pData"))
@@ -1115,7 +1115,7 @@ class Subcommand(object):
         xf_body.append('    void init_funcs(void * libHandle);')
         xf_body.append('    void *m_libHandle;\n')
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                    'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
 
@@ -1453,7 +1453,7 @@ class Subcommand(object):
         rif_body = []
         rif_body.append('void vkFuncs::init_funcs(void * handle)\n{\n    m_libHandle = handle;')
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                    'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
             if 'Dbg' not in proto.name and 'DebugReport' not in proto.name:
@@ -1676,7 +1676,7 @@ class Subcommand(object):
         rbody.append('            break;')
         rbody.append('        }')
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                 continue
 
@@ -1757,7 +1757,7 @@ class Subcommand(object):
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif proto.name == 'GetInstanceProcAddr':
                     for iProto in self.protos:
-                        if iProto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+                        if iProto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                            'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                             continue
                         if 'Dbg' in iProto.name or 'DebugReport' in iProto.name:
@@ -1770,7 +1770,7 @@ class Subcommand(object):
                             rbody.append('            }')
                 elif proto.name == 'GetDeviceProcAddr':
                     for dProto in self.protos:
-                       if dProto.name in [ 'CreateAndroidSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+                       if dProto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                                                'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
                             continue
                        if 'KHR' in dProto.name and dProto.params[0].ty != 'VkInstance' and dProto.params[0].ty != 'VkPhysicalDevice':
