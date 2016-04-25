@@ -114,6 +114,7 @@ gla::EMdBuiltIn GetMdBuiltIn(spv::BuiltIn builtIn)
     case spv::BuiltInVertexId:             return gla::EmbVertexId;
     case spv::BuiltInVertexIndex:          return gla::EmbVertexIndex;
     case spv::BuiltInInstanceId:           return gla::EmbInstanceId;
+    case spv::BuiltInInstanceIndex:        return gla::EmbInstanceIndex;
     case spv::BuiltInPosition:             return gla::EmbPosition;
     case spv::BuiltInPointSize:            return gla::EmbPointSize;
     case spv::BuiltInClipDistance:         return gla::EmbClipDistance;
@@ -949,7 +950,7 @@ gla::EMdSamplerDim SpvToTopTranslator::getMdSamplerDim(spv::Id typeId) const
 {
     switch (getImageDim(typeId)) {
     case spv::Dim1D:     return gla::EMsd1D;
-    case spv::Dim2D:     return gla::EMsd2D;
+    case spv::Dim2D:     return isImageMS(typeId) ? gla::EMsd2DMS : gla::EMsd2D;
     case spv::Dim3D:     return gla::EMsd3D;
     case spv::DimCube:   return gla::EMsdCube;
     case spv::DimRect:   return gla::EMsdRect;

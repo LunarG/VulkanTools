@@ -231,7 +231,7 @@ namespace {
    // Sampler types grew to include include image types with formats.  We don't have image support yet.
    static const int NumSamplerTypes     = 40;
    static const int NumSamplerBaseTypes = 3;
-   static const int NumSamplerDims      = 6;
+   static const int NumSamplerDims      = 7;
    static const glsl_type* SamplerTypes[NumSamplerTypes][NumSamplerBaseTypes][NumSamplerDims][true+1][true+1];
 
    // C++ before 11 doesn't have a static_assert.  This is a hack to provide
