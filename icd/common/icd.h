@@ -40,4 +40,6 @@
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_icdGetInstanceProcAddr(
     VkInstance                                  instance,
     const char*                                 pName);
+VKAPI_ATTR VkResult VKAPI_CALL vk_icdNegotiateLoaderICDInterfaceVersion(
+    uint32_t                                    *pVersion);
 #endif /* ICD_H */

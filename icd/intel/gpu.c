@@ -36,6 +36,7 @@
 #include "gpu.h"
 #include "instance.h"
 #include "wsi.h"
+#include "icd.h"
 
 static int gpu_open_primary_node(struct intel_gpu *gpu)
 {
@@ -545,3 +546,10 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties(
     *pPropertyCount = 0;
 }
 
+ICD_EXPORT VKAPI_ATTR VkResult ICD_EXPORT VKAPI_CALL vk_icdNegotiateLoaderICDInterfaceVersion(uint32_t *pVersion)
+{
+    if (*pVersion > 2) {
+      *pVersion = 2;
+    }
+    return VK_SUCCESS;
+}
