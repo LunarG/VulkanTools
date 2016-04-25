@@ -85,6 +85,7 @@ SET(COMPILER_LIBS
    LLVMipo
    glslang
    SPIRV
+   HLSL
    OGLCompiler
    ${LLVM_LIBS_ALL}
 )
@@ -107,6 +108,7 @@ add_library(core            STATIC IMPORTED)
 add_library(LLVMipo         STATIC IMPORTED)
 add_library(glslang         STATIC IMPORTED)
 add_library(SPIRV           STATIC IMPORTED)
+add_library(HLSL            STATIC IMPORTED)
 add_library(OGLCompiler     STATIC IMPORTED)
 
 set_target_properties(glslangFrontend PROPERTIES IMPORTED_LOCATION ${LUNARGLASS_PREFIX}/${BUILDTGT_DIR}/Frontends/glslang/libglslangFrontend.a)
@@ -115,6 +117,7 @@ set_target_properties(core            PROPERTIES IMPORTED_LOCATION ${LUNARGLASS_
 set_target_properties(LLVMipo         PROPERTIES IMPORTED_LOCATION ${LUNARGLASS_PREFIX}/Core/LLVM/llvm-3.4/${BUILDTGT_DIR}/install/usr/local/lib/libLLVMipo.a)
 set_target_properties(glslang         PROPERTIES IMPORTED_LOCATION ${GLSLANG_LIB})
 set_target_properties(SPIRV           PROPERTIES IMPORTED_LOCATION ${SPIRV_LIB})
+set_target_properties(HLSL            PROPERTIES IMPORTED_LOCATION ${HLSL_LIB})
 set_target_properties(OGLCompiler     PROPERTIES IMPORTED_LOCATION ${OGLCompiler_LIB})
 
 SET(COMPILER_INCLUDE_DIRS
