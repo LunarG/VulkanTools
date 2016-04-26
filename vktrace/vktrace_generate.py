@@ -660,22 +660,29 @@ class Subcommand(object):
                         for pp_dict in ptr_packet_update_list:
                             if ('DeviceCreateInfo' not in proto.params[pp_dict['index']].ty):
                                 func_body.append('    %s;' % (pp_dict['finalize_txt']))
-                        func_body.append('    if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s])' % proto.name)
+                        func_body.append('    if (!g_trimEnabled)')
                         func_body.append('    {')
                         # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
                         func_body.append('        FINISH_TRACE_PACKET();')
 
-                        # Else half of g_bTraceFunc conditional
+                        # Else half of g_trimEnabled conditional
                         # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
                         func_body.append('    }')
                         func_body.append('    else')
                         func_body.append('    {')
-                        func_body.append('        vktrace_finalize_trace_packet(pHeader);')
+                        func_body.append('        if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s])' % proto.name)
+                        func_body.append('        {')
+                        func_body.append('            vktrace_finalize_trace_packet(pHeader);')
+                        func_body.append('            trim_add_recorded_packet(pHeader);')
+                        func_body.append('        }')
+                        func_body.append('        else')
+                        func_body.append('        {')
                         trim_instructions = self._generate_trim_instructions(proto);
                         if trim_instructions is None:
                             func_body.append('        vktrace_delete_trace_packet(&pHeader);')
                         else:
                             func_body.append(trim_instructions)
+                        func_body.append('        }')
                         func_body.append('    }')
 
                         # Clean up instance or device data if needed

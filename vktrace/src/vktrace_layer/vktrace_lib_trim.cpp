@@ -7,6 +7,9 @@
 #include "vktrace_trace_packet_utils.h"
 #include "vulkan.h"
 
+// List of all the packets that have been recorded for the frames of interest.
+static std::list<vktrace_trace_packet_header*> trim_recorded_packets;
+
 #define TRIM_DEFINE_OBJECT_TRACKERS(type) \
 ObjectPacketMap g_trim_created##type##s; \
 ObjectPacketMap g_trim_referenced##type##s;
@@ -204,3 +207,21 @@ TRIM_MARK_OBJECT_REFERENCE(Sampler)
 
 TRIM_ADD_OBJECT_CALL(DescriptorSetLayout)
 TRIM_MARK_OBJECT_REFERENCE(DescriptorSetLayout)
+
+//===============================================
+// Packet Recording for frames of interest
+//===============================================
+void trim_add_recorded_packet(vktrace_trace_packet_header* pHeader)
+{
+    trim_recorded_packets.push_back(pHeader);
+}
+
+void trim_write_recorded_packets()
+{
+    for (std::list<vktrace_trace_packet_header*>::iterator call = trim_recorded_packets.begin(); call != trim_recorded_packets.end(); call++)
+    {
+        vktrace_write_trace_packet(*call, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(*call));
+    }
+    trim_recorded_packets.clear();
+}

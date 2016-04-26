@@ -12,6 +12,8 @@
 // Outputs object-related trace packets to the trace file.
 void trim_debug_send_all_calls();
 void trim_send_all_referenced_object_calls();
+void trim_add_recorded_packet(vktrace_trace_packet_header* pHeader);
+void trim_write_recorded_packets();
 
 // The intent is to store a list of trace packets that are necessary in order to re-create
 // the object that is the key of this map.

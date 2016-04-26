@@ -326,6 +326,7 @@ int main(int argc, char* argv[])
             // call CreateProcess to launch the application
             procStarted = vktrace_process_spawn(&procInfo);
         }
+
         if (procStarted == FALSE)
         {
             vktrace_LogError("Failed to setup remote process.");
