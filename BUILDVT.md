@@ -24,7 +24,7 @@ These additional packages are needed for building the components in this repo.
 # Dependencies from the LoaderAndValidationLayers repo:
 sudo apt-get install git cmake build-essential bison libx11-dev libxcb1-dev
 # Additional dependencies for this repo:
-sudo apt-get install libudev-dev libpciaccess-dev libxcb-dri3-dev libxcb-present-dev libmagickwand-dev libgl1-mesa-dev
+sudo apt-get install libudev-dev libpciaccess-dev libxcb-dri3-dev libxcb-present-dev libmagickwand-dev libgl1-mesa-dev wget autotools-dev
 ```
 
 If you are using the sample Intel Vulkan driver in this repo, you will have to ensure that
