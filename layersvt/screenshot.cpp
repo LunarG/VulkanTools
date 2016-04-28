@@ -706,31 +706,31 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionPropert
     }
 }
 
+static PFN_vkVoidFunction
+intercept_core_instance_command(const char *name);
+
+static PFN_vkVoidFunction
+intercept_core_device_command(const char *name);
+
+static PFN_vkVoidFunction
+intercept_khr_swapchain_command(const char *name, VkDevice dev);
+
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice dev, const char *funcName) {
-    if (!strcmp(funcName, "vkGetDeviceProcAddr"))
-        return (PFN_vkVoidFunction)vkGetDeviceProcAddr;
-    if (!strcmp(funcName, "vkGetDeviceQueue"))
-        return (PFN_vkVoidFunction)vkGetDeviceQueue;
-    if (!strcmp(funcName, "vkCreateCommandPool"))
-        return (PFN_vkVoidFunction)vkCreateCommandPool;
-    if (!strcmp(funcName, "vkDestroyDevice"))
-        return (PFN_vkVoidFunction)vkDestroyDevice;
+    PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
+    if (proc)
+        return proc;
 
     if (dev == NULL) {
         return NULL;
     }
 
+    proc = intercept_khr_swapchain_command(funcName, dev);
+    if (proc)
+        return proc;
+
     DeviceMapStruct *devMap = get_dev_info(dev);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    if (devMap->wsi_enabled) {
-        if (!strcmp(funcName, "vkCreateSwapchainKHR"))
-            return (PFN_vkVoidFunction)vkCreateSwapchainKHR;
-        if (!strcmp(funcName, "vkGetSwapchainImagesKHR"))
-            return (PFN_vkVoidFunction)vkGetSwapchainImagesKHR;
-        if (!strcmp(funcName, "vkQueuePresentKHR"))
-            return (PFN_vkVoidFunction)vkQueuePresentKHR;
-    }
 
     if (pDisp->GetDeviceProcAddr == NULL)
         return NULL;
@@ -738,17 +738,9 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *funcName) {
-
-    if (!strcmp("vkGetInstanceProcAddr", funcName))
-        return (PFN_vkVoidFunction)vkGetInstanceProcAddr;
-    if (!strcmp(funcName, "vkCreateInstance"))
-        return (PFN_vkVoidFunction)vkCreateInstance;
-    if (!strcmp(funcName, "vkCreateDevice"))
-        return (PFN_vkVoidFunction)vkCreateDevice;
-    if (!strcmp(funcName, "vkEnumeratePhysicalDevices"))
-        return (PFN_vkVoidFunction)vkEnumeratePhysicalDevices;
-    if (!strcmp(funcName, "vkEnumerateDeviceExtensionProperties"))
-        return (PFN_vkVoidFunction)vkEnumerateDeviceExtensionProperties;
+    PFN_vkVoidFunction proc = intercept_core_instance_command(funcName);
+    if (proc)
+        return proc;
 
     if (instance == VK_NULL_HANDLE) {
         return NULL;
@@ -757,4 +749,69 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (pTable->GetInstanceProcAddr == NULL)
         return NULL;
     return pTable->GetInstanceProcAddr(instance, funcName);
+}
+
+static PFN_vkVoidFunction
+intercept_core_instance_command(const char *name) {
+
+    static const struct {
+        const char *name;
+        PFN_vkVoidFunction proc;
+    } core_instance_commands[] = {
+        { "vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr) },
+        { "vkCreateInstance", reinterpret_cast<PFN_vkVoidFunction>(vkCreateInstance) },
+        { "vkCreateDevice", reinterpret_cast<PFN_vkVoidFunction>(vkCreateDevice) },
+        { "vkEnumeratePhysicalDevices", reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDevices) },
+        { "vkEnumerateDeviceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateDeviceExtensionProperties) }
+    };
+
+    for (size_t i = 0; i < ARRAY_SIZE(core_instance_commands); i++) {
+        if (!strcmp(core_instance_commands[i].name, name))
+            return core_instance_commands[i].proc;
+    }
+
+    return nullptr;
+}
+
+static PFN_vkVoidFunction
+intercept_core_device_command(const char *name) {
+    static const struct {
+        const char *name;
+        PFN_vkVoidFunction proc;
+    } core_device_commands[] = {
+        { "vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceProcAddr) },
+        { "vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceQueue) },
+        { "vkCreateCommandPool", reinterpret_cast<PFN_vkVoidFunction>(vkCreateCommandPool) },
+        { "vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDevice) },
+    };
+
+    for (size_t i = 0; i < ARRAY_SIZE(core_device_commands); i++) {
+        if (!strcmp(core_device_commands[i].name, name))
+            return core_device_commands[i].proc;
+    }
+
+    return nullptr;
+}
+
+static PFN_vkVoidFunction
+intercept_khr_swapchain_command(const char *name, VkDevice dev) {
+    static const struct {
+        const char *name;
+        PFN_vkVoidFunction proc;
+    } khr_swapchain_commands[] = {
+        { "vkCreateSwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(vkCreateSwapchainKHR) },
+        { "vkGetSwapchainImagesKHR", reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainImagesKHR) },
+        { "vkQueuePresentKHR", reinterpret_cast<PFN_vkVoidFunction>(vkQueuePresentKHR) },
+    };
+
+    DeviceMapStruct *devMap = get_dev_info(dev);
+    if (!devMap->wsi_enabled)
+        return nullptr;
+
+    for (size_t i = 0; i < ARRAY_SIZE(khr_swapchain_commands); i++) {
+        if (!strcmp(khr_swapchain_commands[i].name, name))
+            return khr_swapchain_commands[i].proc;
+    }
+
+    return nullptr;
 }
