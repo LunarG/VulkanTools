@@ -1954,6 +1954,7 @@ loader_add_layer_properties(const struct loader_instance *inst,
         strncpy(props->info.layerName, name, sizeof(props->info.layerName));
         props->info.layerName[sizeof(props->info.layerName) - 1] = '\0';
 
+        char *fullpath = props->lib_name;
         char *rel_base;
         if (loader_platform_is_path(library_path)) {
             // a relative or absolute path
@@ -1961,11 +1962,11 @@ loader_add_layer_properties(const struct loader_instance *inst,
             strcpy(name_copy, filename);
             rel_base = loader_platform_dirname(name_copy);
             loader_expand_path(library_path, rel_base, MAX_STRING_SIZE,
-                               props->lib_name);
+                               fullpath);
         } else {
-            // a filename which will be passed to the OSes library loader
-            strncpy(props->lib_name, library_path, sizeof(props->lib_name));
-            props->lib_name[sizeof(props->lib_name) - 1] = '\0';
+            // a filename which is assumed in a system directory
+            loader_get_fullpath(library_path, DEFAULT_VK_LAYERS_PATH,
+                                MAX_STRING_SIZE, fullpath);
         }
         props->info.specVersion = loader_make_version(api_version);
         props->info.implementationVersion = atoi(implementation_version);
@@ -2181,11 +2182,12 @@ loader_add_layer_properties(const struct loader_instance *inst,
  * Linux Layer| dirs     | dirs
  */
 static void loader_get_manifest_files(const struct loader_instance *inst,
-                                      const char *env_override, bool is_layer,
+                                      const char *env_override,
+                                      const char *source_override, bool is_layer,
                                       const char *location,
                                       const char *home_location,
                                       struct loader_manifest_files *out_files) {
-    char *override = NULL;
+    const char *override = NULL;
     char *loc;
     char *file, *next_file, *name;
     size_t alloced_count = 64;
@@ -2197,7 +2199,9 @@ static void loader_get_manifest_files(const struct loader_instance *inst,
     out_files->count = 0;
     out_files->filename_list = NULL;
 
-    if (env_override != NULL && (override = loader_getenv(env_override))) {
+    if (source_override != NULL) {
+        override = source_override;
+    } else if (env_override != NULL && (override = loader_getenv(env_override))) {
 #if !defined(_WIN32)
         if (geteuid() != getuid() || getegid() != getgid()) {
             /* Don't allow setuid apps to use the env var: */
@@ -2259,7 +2263,9 @@ static void loader_get_manifest_files(const struct loader_instance *inst,
             return;
         }
         strcpy(loc, override);
-        loader_free_getenv(override);
+        if (source_override == NULL) {
+            loader_free_getenv(override);
+        }
     }
 
     // Print out the paths being searched if debugging is enabled
@@ -2409,7 +2415,7 @@ void loader_icd_scan(const struct loader_instance *inst,
 
     loader_scanned_icd_init(inst, icds);
     // Get a list of manifest files for ICDs
-    loader_get_manifest_files(inst, "VK_ICD_FILENAMES", false,
+    loader_get_manifest_files(inst, "VK_ICD_FILENAMES", NULL, false,
                               DEFAULT_VK_DRIVERS_INFO, HOME_VK_DRIVERS_INFO,
                               &manifest_files);
     if (manifest_files.count == 0)
@@ -2467,12 +2473,12 @@ void loader_icd_scan(const struct loader_instance *inst,
                     cJSON_Delete(json);
                     continue;
                 }
-                char fullpath[MAX_STRING_SIZE], *fpath;
+                char fullpath[MAX_STRING_SIZE];
                 // Print out the paths being searched if debugging is enabled
                 loader_log(
                     inst, VK_DEBUG_REPORT_DEBUG_BIT_EXT, 0,
-                    "Searching for ICD drivers named %s\n",
-                    library_path);
+                    "Searching for ICD drivers named %s default dir %s\n",
+                    library_path, DEFAULT_VK_DRIVERS_PATH);
                 if (loader_platform_is_path(library_path)) {
                     // a relative or absolute path
                     char *name_copy = loader_stack_alloc(strlen(file_str) + 1);
@@ -2481,10 +2487,10 @@ void loader_icd_scan(const struct loader_instance *inst,
                     rel_base = loader_platform_dirname(name_copy);
                     loader_expand_path(library_path, rel_base, sizeof(fullpath),
                                        fullpath);
-                    fpath = fullpath;
                 } else {
-                    // a filename which will be passed to the OSes library loader
-                    fpath = library_path;
+                    // a filename which is assumed in a system directory
+                    loader_get_fullpath(library_path, DEFAULT_VK_DRIVERS_PATH,
+                                        sizeof(fullpath), fullpath);
                 }
 
                 uint32_t vers = 0;
@@ -2494,7 +2500,7 @@ void loader_icd_scan(const struct loader_instance *inst,
                     vers = loader_make_version(temp);
                     loader_tls_heap_free(temp);
                 }
-                loader_scanned_icd_add(inst, icds, fpath, vers);
+                loader_scanned_icd_add(inst, icds, fullpath, vers);
             } else
                 loader_log(inst, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
                            "Can't find \"library_path\" object in ICD JSON "
@@ -2524,12 +2530,12 @@ void loader_layer_scan(const struct loader_instance *inst,
     uint32_t implicit;
 
     // Get a list of manifest files for  explicit layers
-    loader_get_manifest_files(inst, LAYERS_PATH_ENV, true,
+    loader_get_manifest_files(inst, LAYERS_PATH_ENV, LAYERS_SOURCE_PATH, true,
                               DEFAULT_VK_ELAYERS_INFO, HOME_VK_ELAYERS_INFO,
                               &manifest_files[0]);
     // Pass NULL for environment variable override - implicit layers are not
     // overridden by LAYERS_PATH_ENV
-    loader_get_manifest_files(inst, NULL, true, DEFAULT_VK_ILAYERS_INFO,
+    loader_get_manifest_files(inst, NULL, NULL, true, DEFAULT_VK_ILAYERS_INFO,
                               HOME_VK_ILAYERS_INFO, &manifest_files[1]);
     if (manifest_files[0].count == 0 && manifest_files[1].count == 0)
         return;
@@ -2584,7 +2590,7 @@ void loader_implicit_layer_scan(const struct loader_instance *inst,
 
     // Pass NULL for environment variable override - implicit layers are not
     // overridden by LAYERS_PATH_ENV
-    loader_get_manifest_files(inst, NULL, true, DEFAULT_VK_ILAYERS_INFO,
+    loader_get_manifest_files(inst, NULL, NULL, true, DEFAULT_VK_ILAYERS_INFO,
                               HOME_VK_ILAYERS_INFO, &manifest_files);
     if (manifest_files.count == 0) {
         return;

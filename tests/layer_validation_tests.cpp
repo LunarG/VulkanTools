@@ -117,6 +117,8 @@ class ErrorMonitor {
         test_platform_thread_unlock_mutex(&m_mutex);
     }
 
+    ~ErrorMonitor() { test_platform_thread_delete_mutex(&m_mutex); }
+
     void SetDesiredFailureMsg(VkFlags msgFlags, const char *msgString) {
         // also discard all collected messages to this point
         test_platform_thread_lock_mutex(&m_mutex);
@@ -283,6 +285,7 @@ class VkLayerTest : public VkRenderFramework {
         instance_layer_names.push_back("VK_LAYER_LUNARG_core_validation");
         instance_layer_names.push_back("VK_LAYER_LUNARG_device_limits");
         instance_layer_names.push_back("VK_LAYER_LUNARG_image");
+        instance_layer_names.push_back("VK_LAYER_LUNARG_swapchain");
         instance_layer_names.push_back("VK_LAYER_GOOGLE_unique_objects");
 
         device_layer_names.push_back("VK_LAYER_GOOGLE_threading");
@@ -291,6 +294,7 @@ class VkLayerTest : public VkRenderFramework {
         device_layer_names.push_back("VK_LAYER_LUNARG_core_validation");
         device_layer_names.push_back("VK_LAYER_LUNARG_device_limits");
         device_layer_names.push_back("VK_LAYER_LUNARG_image");
+        device_layer_names.push_back("VK_LAYER_LUNARG_swapchain");
         device_layer_names.push_back("VK_LAYER_GOOGLE_unique_objects");
 
         this->app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -607,6 +611,313 @@ TEST_F(VkLayerTest, CallBeginCommandBufferBeforeCompletion)
     m_errorMonitor->VerifyFound();
 }
 #endif
+
+TEST_F(VkLayerTest, EnableWsiBeforeUse) {
+    VkResult err;
+    bool pass;
+
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+    VkSwapchainCreateInfoKHR swapchain_create_info = {};
+    uint32_t swapchain_image_count = 0;
+//    VkImage swapchain_images[1] = {VK_NULL_HANDLE};
+    uint32_t image_index = 0;
+//    VkPresentInfoKHR present_info = {};
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+#ifdef NEED_TO_TEST_THIS_ON_PLATFORM
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    // Use the functions from the VK_KHR_android_surface extension without
+    // enabling that extension:
+
+    // Create a surface:
+    VkAndroidSurfaceCreateInfoKHR android_create_info = {};
+#if 0
+#endif
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkCreateAndroidSurfaceKHR(instance(), &android_create_info, NULL,
+        &surface);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+
+
+#if defined(VK_USE_PLATFORM_MIR_KHR)
+    // Use the functions from the VK_KHR_mir_surface extension without enabling
+    // that extension:
+
+    // Create a surface:
+    VkMirSurfaceCreateInfoKHR mir_create_info = {};
+#if 0
+#endif
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkCreateMirSurfaceKHR(instance(), &mir_create_info, NULL, &surface);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Tell whether an mir_connection supports presentation:
+    MirConnection *mir_connection = NULL;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkGetPhysicalDeviceMirPresentationSupportKHR(gpu(), 0, mir_connection,
+        visual_id);
+    m_errorMonitor->VerifyFound();
+#endif // VK_USE_PLATFORM_MIR_KHR
+
+
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+    // Use the functions from the VK_KHR_wayland_surface extension without
+    // enabling that extension:
+
+    // Create a surface:
+    VkWaylandSurfaceCreateInfoKHR wayland_create_info = {};
+#if 0
+#endif
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkCreateWaylandSurfaceKHR(instance(), &wayland_create_info, NULL,
+                                    &surface);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Tell whether an wayland_display supports presentation:
+    struct wl_display wayland_display = {};
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkGetPhysicalDeviceWaylandPresentationSupportKHR(gpu(), 0,
+                                                     &wayland_display);
+    m_errorMonitor->VerifyFound();
+#endif // VK_USE_PLATFORM_WAYLAND_KHR
+
+
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+    // Use the functions from the VK_KHR_win32_surface extension without
+    // enabling that extension:
+
+    // Create a surface:
+    VkWin32SurfaceCreateInfoKHR win32_create_info = {};
+#if 0
+#endif
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkCreateWin32SurfaceKHR(instance(), &win32_create_info, NULL,
+                                  &surface);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Tell whether win32 supports presentation:
+    struct wl_display win32_display = {};
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkGetPhysicalDeviceWin32PresentationSupportKHR(gpu(), 0,
+                                                     &win32_display);
+    m_errorMonitor->VerifyFound();
+#endif // VK_USE_PLATFORM_WAYLAND_KHR
+#endif // NEED_TO_TEST_THIS_ON_PLATFORM
+
+
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    // Use the functions from the VK_KHR_xcb_surface extension without enabling
+    // that extension:
+
+    // Create a surface:
+    VkXcbSurfaceCreateInfoKHR xcb_create_info = {};
+#if 0
+#endif
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkCreateXcbSurfaceKHR(instance(), &xcb_create_info, NULL, &surface);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Tell whether an xcb_visualid_t supports presentation:
+    xcb_connection_t *xcb_connection = NULL;
+    xcb_visualid_t visual_id = 0;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkGetPhysicalDeviceXcbPresentationSupportKHR(gpu(), 0, xcb_connection,
+        visual_id);
+    m_errorMonitor->VerifyFound();
+#endif // VK_USE_PLATFORM_XCB_KHR
+
+
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+    // Use the functions from the VK_KHR_xlib_surface extension without enabling
+    // that extension:
+
+    // Create a surface:
+    VkXlibSurfaceCreateInfoKHR xlib_create_info = {};
+#if 0
+#endif
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkCreateXlibSurfaceKHR(instance(), &xlib_create_info, NULL, &surface);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Tell whether an Xlib VisualID supports presentation:
+    Display *dpy = NULL;
+    VisualID visual = 0;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkGetPhysicalDeviceXlibPresentationSupportKHR(gpu(), 0, dpy, visual);
+    m_errorMonitor->VerifyFound();
+#endif // VK_USE_PLATFORM_XLIB_KHR
+
+
+    // Use the functions from the VK_KHR_surface extension without enabling
+    // that extension:
+
+    // Destroy a surface:
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkDestroySurfaceKHR(instance(), surface, NULL);
+    m_errorMonitor->VerifyFound();
+
+    // Check if surface supports presentation:
+    VkBool32 supported = false;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkGetPhysicalDeviceSurfaceSupportKHR(gpu(), 0, surface, &supported);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Check surface capabilities:
+    VkSurfaceCapabilitiesKHR capabilities = {};
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu(), surface,
+        &capabilities);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Check surface formats:
+    uint32_t format_count = 0;
+    VkSurfaceFormatKHR *formats = NULL;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkGetPhysicalDeviceSurfaceFormatsKHR(gpu(), surface,
+        &format_count, formats);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Check surface present modes:
+    uint32_t present_mode_count = 0;
+    VkSurfaceFormatKHR *present_modes = NULL;
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkGetPhysicalDeviceSurfaceFormatsKHR(gpu(), surface,
+        &present_mode_count, present_modes);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+
+    // Use the functions from the VK_KHR_swapchain extension without enabling
+    // that extension:
+
+    // Create a swapchain:
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    swapchain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchain_create_info.pNext = NULL;
+#if 0
+    swapchain_create_info.flags = 0;
+    swapchain_create_info.surface = 0;
+    swapchain_create_info.minImageCount = 0;
+    swapchain_create_info.imageFormat = 0;
+    swapchain_create_info.imageColorSpace = 0;
+    swapchain_create_info.imageExtent.width = 0;
+    swapchain_create_info.imageExtent.height = 0;
+    swapchain_create_info.imageArrayLayers = 0;
+    swapchain_create_info.imageUsage = 0;
+    swapchain_create_info.imageSharingMode = 0;
+    swapchain_create_info.queueFamilyIndexCount = 0;
+    swapchain_create_info.preTransform = 0;
+    swapchain_create_info.compositeAlpha = 0;
+    swapchain_create_info.presentMode = 0;
+    swapchain_create_info.clipped = 0;
+    swapchain_create_info.oldSwapchain = NULL;
+#endif
+    err = vkCreateSwapchainKHR(m_device->device(), &swapchain_create_info,
+                               NULL, &swapchain);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Get the images from the swapchain:
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkGetSwapchainImagesKHR(m_device->device(), swapchain,
+                                  &swapchain_image_count, NULL);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Try to acquire an image:
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    err = vkAcquireNextImageKHR(m_device->device(), swapchain, 0,
+                                VK_NULL_HANDLE, VK_NULL_HANDLE, &image_index);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+
+    // Try to present an image:
+#if 0   // NOTE: Currently can't test this because a real swapchain is needed
+        // (as opposed to the fake one we created) in order for the layer to
+        // lookup the VkDevice used to enable the extension:
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present_info.pNext = NULL;
+#if 0
+#endif
+    err = vkQueuePresentKHR(m_device->m_queue, &present_info);
+    pass = (err != VK_SUCCESS);
+    ASSERT_TRUE(pass);
+    m_errorMonitor->VerifyFound();
+#endif
+
+    // Destroy the swapchain:
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "extension was not enabled for this");
+    vkDestroySwapchainKHR(m_device->device(), swapchain, NULL);
+    m_errorMonitor->VerifyFound();
+}
 
 TEST_F(VkLayerTest, MapMemWithoutHostVisibleBit) {
     VkResult err;
@@ -1090,7 +1401,8 @@ TEST_F(VkLayerTest, TwoQueueSubmitsSeparateQueuesWithSemaphoreAndOneFenceQWI) {
     TEST_DESCRIPTION("Two command buffers, each in a separate QueueSubmit call "
         "submitted on separate queues followed by a QueueWaitIdle.");
 
-    if (m_device->queue_props->queueCount < 2)
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
         return;
 
     m_errorMonitor->ExpectSuccess();
@@ -1196,7 +1508,8 @@ TEST_F(VkLayerTest, TwoQueueSubmitsSeparateQueuesWithSemaphoreAndOneFenceQWIFenc
                      "submitted on separate queues, the second having a fence"
                      "followed by a QueueWaitIdle.");
 
-    if (m_device->queue_props->queueCount < 2)
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
         return;
 
     m_errorMonitor->ExpectSuccess();
@@ -1310,7 +1623,8 @@ TEST_F(VkLayerTest,
         "submitted on separate queues, the second having a fence"
         "followed by two consecutive WaitForFences calls on the same fence.");
 
-    if (m_device->queue_props->queueCount < 2)
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
         return;
 
     m_errorMonitor->ExpectSuccess();
@@ -1423,7 +1737,8 @@ TEST_F(VkLayerTest, TwoQueueSubmitsSeparateQueuesWithSemaphoreAndOneFence) {
                      "submitted on separate queues, the second having a fence, "
                      "followed by a WaitForFences call.");
 
-    if (m_device->queue_props->queueCount < 2)
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
         return;
 
     m_errorMonitor->ExpectSuccess();

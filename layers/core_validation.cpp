@@ -4834,18 +4834,31 @@ static void decrementResources(layer_data *my_data, VkCommandBuffer cmdBuffer) {
 //  decrementResources for all priorFences and cmdBuffers associated with fence.
 static bool decrementResources(layer_data *my_data, uint32_t fenceCount, const VkFence *pFences) {
     bool skip_call = false;
+    std::vector<VkFence> fences;
     for (uint32_t i = 0; i < fenceCount; ++i) {
         auto fence_data = my_data->fenceMap.find(pFences[i]);
         if (fence_data == my_data->fenceMap.end() || !fence_data->second.needsSignaled)
             return skip_call;
         fence_data->second.needsSignaled = false;
-        fence_data->second.in_use.fetch_sub(1);
+        if (fence_data->second.in_use.load()) {
+            fences.push_back(pFences[i]);
+            fence_data->second.in_use.fetch_sub(1);
+        }
         decrementResources(my_data, static_cast<uint32_t>(fence_data->second.priorFences.size()),
                            fence_data->second.priorFences.data());
         for (auto cmdBuffer : fence_data->second.cmdBuffers) {
             decrementResources(my_data, cmdBuffer);
             skip_call |= cleanInFlightCmdBuffer(my_data, cmdBuffer);
             removeInFlightCmdBuffer(my_data, cmdBuffer);
+        }
+    }
+    for (auto fence : fences) {
+        for (auto queue_data : my_data->queueMap) {
+            auto last_fence_data = std::find(queue_data.second.lastFences.begin(), queue_data.second.lastFences.end(), fence);
+            if (last_fence_data != queue_data.second.lastFences.end()) {
+                queue_data.second.lastFences.erase(last_fence_data);
+                break;
+            }
         }
     }
     return skip_call;
@@ -6971,11 +6984,11 @@ vkCmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipel
                     // Verify that set being bound is compatible with overlapping setLayout of pipelineLayout
                     if (!verify_set_layout_compatibility(dev_data, pSet, layout, i + firstSet, errorString)) {
                         skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                            VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, (uint64_t)pDescriptorSets[i],
-                                            __LINE__, DRAWSTATE_PIPELINE_LAYOUTS_INCOMPATIBLE, "DS",
-                                            "descriptorSet #%u being bound is not compatible with overlapping layout in "
-                                            "pipelineLayout due to: %s",
-                                            i, errorString.c_str());
+                                            VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, (uint64_t)pDescriptorSets[i], __LINE__,
+                                            DRAWSTATE_PIPELINE_LAYOUTS_INCOMPATIBLE, "DS",
+                                            "descriptorSet #%u being bound is not compatible with overlapping descriptorSetLayout "
+                                            "at index %u of pipelineLayout %#" PRIxLEAST64 " due to: %s",
+                                            i, i + firstSet, reinterpret_cast<uint64_t &>(layout), errorString.c_str());
                     }
                     if (pSet->p_layout->GetDynamicDescriptorCount()) {
                         // First make sure we won't overstep bounds of pDynamicOffsets array
@@ -9966,14 +9979,15 @@ vkQueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo 
     std::unique_lock<std::mutex> lock(global_lock);
     // First verify that fence is not in use
     if (fence != VK_NULL_HANDLE) {
-        dev_data->fenceMap[fence].queue = queue;
-        if ((bindInfoCount != 0) && dev_data->fenceMap[fence].in_use.load()) {
+        trackCommandBuffers(dev_data, queue, 0, nullptr, fence);
+        auto fence_data = dev_data->fenceMap.find(fence);
+        if ((bindInfoCount != 0) && fence_data->second.in_use.load()) {
             skip_call |=
                 log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
                         reinterpret_cast<uint64_t &>(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
                         "Fence %#" PRIx64 " is already in use by another submission.", reinterpret_cast<uint64_t &>(fence));
         }
-        if (!dev_data->fenceMap[fence].needsSignaled) {
+        if (!fence_data->second.needsSignaled) {
             skip_call |=
                 log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
                         reinterpret_cast<uint64_t &>(fence), __LINE__, MEMTRACK_INVALID_FENCE_STATE, "MEM",
