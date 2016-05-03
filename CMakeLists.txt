@@ -204,7 +204,7 @@ endif()
 
 if (BUILD_ICD)
     # Hard code our LunarGLASS path for now
-    get_filename_component(LUNARGLASS_PREFIX ../LunarGLASS ABSOLUTE)
+    get_filename_component(LUNARGLASS_PREFIX external/LunarGLASS ABSOLUTE)
 
     if(NOT EXISTS ${LUNARGLASS_PREFIX})
         message(FATAL_ERROR "Necessary LunarGLASS components do not exist: " ${LUNARGLASS_PREFIX})
