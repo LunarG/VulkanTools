@@ -12,7 +12,7 @@ LUNARGLASS_REVISION=$(cat $PWD/LunarGLASS_revision)
 echo "LUNARGLASS_REVISION=$LUNARGLASS_REVISION"
 
 BUILDDIR=$PWD
-BASEDIR=$BUILDDIR/..
+BASEDIR=$BUILDDIR/external
 
 function create_glslang () {
    rm -rf $BASEDIR/glslang

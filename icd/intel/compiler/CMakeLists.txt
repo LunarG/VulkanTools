@@ -67,7 +67,7 @@ set_target_properties(icd
       COMPILE_FLAGS "${LLVM_CXX_CONFIG}")
 
 SET(COMPILER_LINK_DIRS
-    -L${PROJECT_SOURCE_DIR}/../glslang/build/install/lib
+    -L${PROJECT_SOURCE_DIR}/external/glslang/build/install/lib
     -L${LUNARGLASS_PREFIX}/Core/LLVM/llvm-3.4/${BUILDTGT_DIR}/install/usr/local/lib
     -L${LUNARGLASS_PREFIX}/${BUILDTGT_DIR}/Core
     -L${LUNARGLASS_PREFIX}/${BUILDTGT_DIR}/Frontends/glslang
