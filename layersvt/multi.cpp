@@ -34,6 +34,35 @@ extern "C" {
 static device_table_map multi1_device_table_map;
 /******************************** Layer multi1 functions **************************/
 
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi1CreateDevice(VkPhysicalDevice physicalDevice,
+                                                                  const VkDeviceCreateInfo *pCreateInfo,
+                                                                  const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
+    printf("At start of multi1 layer vkCreateDevice()\n");
+
+    VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+
+    assert(chain_info->u.pLayerInfo);
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(NULL, "vkCreateDevice");
+    if (fpCreateDevice == NULL) {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Advance the link info for the next element on the chain
+    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+
+    VkResult result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    if (result != VK_SUCCESS) {
+        return result;
+    }
+
+    initDeviceTable(*pDevice, fpGetDeviceProcAddr, multi1_device_table_map);
+
+    printf("Completed multi1 layer vkCreateDevice() call");
+    return result;
+}
+
 /* hook DestroyDevice to remove tableMap entry */
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi1DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     VkLayerDispatchTable *pDisp = get_dispatch_table(multi1_device_table_map, device);
@@ -84,6 +113,25 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr
     if (pTable->GetDeviceProcAddr == NULL)
         return NULL;
     return pTable->GetDeviceProcAddr(device, pName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAddr(VkInstance instance, const char *pName) {
+    if (!strcmp(pName, "multi1GetInstanceProcAddr") || !strcmp(pName, "vkGetInsatnceProcAddr"))
+        return (PFN_vkVoidFunction)multi1GetInstanceProcAddr;
+    if (!strcmp(pName, "multi1GetDeviceProcAddr") || !strcmp(pName, "vkGetDeviceProcAddr"))
+        return (PFN_vkVoidFunction)multi1GetDeviceProcAddr;
+    if (!strcmp("vkCreateDevice", pName))
+        return (PFN_vkVoidFunction)multi1CreateDevice;
+    if (!strcmp("vkDestroyDevice", pName))
+        return (PFN_vkVoidFunction)multi1DestroyDevice;
+    if (!strcmp("vkCreateSampler", pName))
+        return (PFN_vkVoidFunction)multi1CreateSampler;
+    if (!strcmp("vkCreateGraphicsPipelines", pName))
+        return (PFN_vkVoidFunction)multi1CreateGraphicsPipelines;
+
+    // can't call down the chain no valid instance
+    return NULL;
+
 }
 
 static instance_table_map multi2_instance_table_map;

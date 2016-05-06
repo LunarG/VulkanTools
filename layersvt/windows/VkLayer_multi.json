@@ -8,6 +8,7 @@
         "implementation_version": "1",
         "description": "LunarG Sample multiple layer per library",
         "functions" : {
+          "vkGetInstanceProcAddr" : "multi1GetInstanceProcAddr",
           "vkGetDeviceProcAddr" : "multi1GetDeviceProcAddr"
         }
     },
