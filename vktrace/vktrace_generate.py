@@ -1656,7 +1656,7 @@ class Subcommand(object):
         # Functions to treat as "Create' that don't have 'Create' in the name
         special_create_list = ['LoadPipeline', 'LoadPipelineDerivative', 'AllocateMemory', 'GetDeviceQueue', 'PinSystemMemory', 'AllocateDescriptorSets']
         # A couple funcs use do while loops
-        do_while_dict = {'GetFenceStatus': 'replayResult != pPacket->result  && pPacket->result == VK_SUCCESS', 'GetEventStatus': '(pPacket->result == VK_EVENT_SET || pPacket->result == VK_EVENT_RESET) && replayResult != pPacket->result'}
+        do_while_dict = {'GetFenceStatus': 'replayResult != pPacket->result  && pPacket->result == VK_SUCCESS', 'GetEventStatus': '(pPacket->result == VK_EVENT_SET || pPacket->result == VK_EVENT_RESET) && replayResult != pPacket->result', 'GetQueryPoolResults': 'pPacket->result == VK_SUCCESS && replayResult != pPacket->result'}
         rbody = []
         rbody.append('%s' % self.lineinfo.get())
         rbody.append('vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet)')
