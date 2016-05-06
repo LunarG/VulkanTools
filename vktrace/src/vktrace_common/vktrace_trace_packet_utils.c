@@ -77,10 +77,7 @@ BOOL vktrace_init_time()
 
 uint64_t vktrace_get_time()
 {
-#if defined(VKTRACE_USE_LINUX_API)
-    extern int g_reliable_rdtsc;
-    if (g_reliable_rdtsc == -1)
-        init_rdtsc();
+#if defined(PLATFORM_LINUX)
     if (g_reliable_rdtsc == 0)
     {
         //$ TODO: Should just use SDL_GetPerformanceCounter?
