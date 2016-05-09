@@ -14,6 +14,12 @@ The following components are available in this repository over and above what is
 - tests for the Intel Ilo sample driver (tests/)
 - vktrace and vkreplay, API capture and replay  (vktrace/)
 
+## Contributing
+
+If you intend to contribute, the preferred work flow is for you to develop your contribution
+in a fork of this repo in your GitHub account and then submit a pull request.
+Please see the [CONTRIBUTING](CONTRIBUTING.md) file in this respository for more details.
+
 ## How to Build and Run
 
 [BUILDVT.md](BUILDVT.md)
