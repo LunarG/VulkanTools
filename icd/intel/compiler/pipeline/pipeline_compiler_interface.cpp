@@ -27,6 +27,8 @@
  *
  */
 
+#include <cinttypes>
+
 extern "C" {
 #include "desc.h"
 #include "gpu.h"
