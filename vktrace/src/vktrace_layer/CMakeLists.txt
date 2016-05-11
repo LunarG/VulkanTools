@@ -66,10 +66,10 @@ endif()
 #    ${CODEGEN_UTILS_DIR}/vk_lunarg_debug_marker_struct_size_helper.h
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-	COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
-	DEPENDS ${CMAKE_SOURCE_DIR}/vk-generate.py ${CMAKE_SOURCE_DIR}/vulkan.py)
+    COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
+    DEPENDS ${CMAKE_SOURCE_DIR}/vk-generate.py ${CMAKE_SOURCE_DIR}/vulkan.py)
 add_custom_target(generate_vktrace_layer_helpers DEPENDS
-	vk_dispatch_table_helper.h)
+    vk_dispatch_table_helper.h)
 
 include_directories(
     codegen
@@ -93,7 +93,12 @@ if (NOT WIN32)
 else()
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
-        FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
+        if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
+            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
+        else()
+            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layersvt/VkLayer_vktrace_layer.json dst_json)
+        endif()
+
         add_custom_target(vktrace_layer-json ALL
             COMMAND copy ${src_json} ${dst_json}
             VERBATIM
