@@ -1115,6 +1115,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
         else
         {
             vktrace_finalize_trace_packet(pHeader);
+            trim_add_Instance_call(instance, pHeader);
         }
     }
     return result;
@@ -1391,7 +1392,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
         else
         {
             // when we're not trimming, we just need to track the queue
-            result = mdd(queue)->devTable.QueueSubmit(queue, submitCount, pSubmits, fence);
             vktrace_finalize_trace_packet(pHeader);
             vktrace_delete_trace_packet(&pHeader);
         }
