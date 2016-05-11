@@ -26,11 +26,17 @@ endif()
 #    set(VKTRACE_VULKAN_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vulkan/vulkan.h)
 #    set(VKTRACE_VULKAN_DEBUG_REPORT_LUNARG_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vk_debug_report_lunarg.h)
 
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        set(VKTRACE_VULKAN_LIB
-            ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-1.lib
-        )
-    endif()
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+   if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
+      set(VKTRACE_VULKAN_LIB
+         ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-1.lib
+         )
+   else()
+      set(VKTRACE_VULKAN_LIB
+         ${CMAKE_BINARY_DIR}/loader/vulkan-1.lib
+         )
+   endif()
+endif()
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
