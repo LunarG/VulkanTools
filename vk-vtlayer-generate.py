@@ -878,12 +878,12 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('        if (fileName == "stdout")')
         header_txt.append('        {')
         header_txt.append('            outputStream = &std::cout;')
-        header_txt.append('            (*outputStream) << endl << "api_dump output filename \'stdout\' specified. Writing to STDOUT instead of a file." << endl << endl;')
+        header_txt.append('            (*outputStream) << std::endl << "api_dump output filename \'stdout\' specified. Writing to STDOUT instead of a file." << std::endl << std::endl;')
         header_txt.append('        } else {')
         header_txt.append('            fileStream.open(fileName);')
         header_txt.append('            if ((fileStream.rdstate() & fileStream.failbit) != 0) {')
         header_txt.append('                outputStream = &std::cout;')
-        header_txt.append('                (*outputStream) << endl << "api_dump ERROR: Bad output filename specified: " << fileName << ". Writing to STDOUT instead" << endl << endl;')
+        header_txt.append('                (*outputStream) << std::endl << "api_dump ERROR: Bad output filename specified: " << fileName << ". Writing to STDOUT instead" << std::endl << std::endl;')
         header_txt.append('            }')
         header_txt.append('            else')
         header_txt.append('                outputStream = &fileStream;')
@@ -1077,11 +1077,11 @@ class ApiDumpSubcommand(Subcommand):
         log_func = log_func.strip(', ')
         log_func_no_addr = log_func_no_addr.strip(', ')
         if proto.ret == "VkResult":
-            log_func += ') = " << string_VkResult((VkResult)result) << endl'
-            log_func_no_addr += ') = " << string_VkResult((VkResult)result) << endl'
+            log_func += ') = " << string_VkResult((VkResult)result) << std::endl'
+            log_func_no_addr += ') = " << string_VkResult((VkResult)result) << std::endl'
         elif proto.ret == "void*":
-            log_func += ') = " << result << endl'
-            log_func_no_addr += ') = " << result << endl'
+            log_func += ') = " << result << std::endl'
+            log_func_no_addr += ') = " << result << std::endl'
         else:
             log_func += ')\\n"'
             log_func_no_addr += ')\\n"'
@@ -1096,7 +1096,7 @@ class ApiDumpSubcommand(Subcommand):
             indent += '    '
             i_decl = False
             log_func += '\n%s' % self.lineinfo.get()
-            log_func += '\n%sstring tmp_str;' % indent
+            log_func += '\n%sstd::string tmp_str;' % indent
             for sp_index in sp_param_dict:
                 # log_func += '\n// sp_index: %s' % str(sp_index)
                 if 'index' == sp_param_dict[sp_index]:
@@ -1108,7 +1108,7 @@ class ApiDumpSubcommand(Subcommand):
                     log_func += '\n%sif (%s) {' % (indent, local_name)
                     indent += '    '
                     log_func += '\n%stmp_str = %s(%s, "    ");' % (indent, cis_print_func, local_name)
-                    log_func += '\n%s(*outputStream) << "   %s (" << %s << ")" << endl << tmp_str << endl;' % (indent, local_name, local_name)
+                    log_func += '\n%s(*outputStream) << "   %s (" << %s << ")" << std::endl << tmp_str << std::endl;' % (indent, local_name, local_name)
                     indent = indent[4:]
                     log_func += '\n%s}' % (indent)
                 else: # We have a count value stored to iterate over an array
@@ -1133,11 +1133,11 @@ class ApiDumpSubcommand(Subcommand):
                     log_func += '\n%s%s' % (indent, cis_print_func)
                     log_func += '\n%sif (StreamControl::writeAddress == true) {' % (indent)
                     indent += '    '
-                    log_func += '\n%s(*outputStream) << "   %s[" << i << "] (" << %s%s[i] << ")" << endl << tmp_str << endl;' % (indent, proto.params[sp_index].name, '&', proto.params[sp_index].name)
+                    log_func += '\n%s(*outputStream) << "   %s[" << i << "] (" << %s%s[i] << ")" << std::endl << tmp_str << std::endl;' % (indent, proto.params[sp_index].name, '&', proto.params[sp_index].name)
                     indent = indent[4:]
                     log_func += '\n%s} else {' % (indent)
                     indent += '    '
-                    log_func += '\n%s(*outputStream) << "   %s[" << i << "] (address)" << endl << "    address" << endl;' % (indent, proto.params[sp_index].name)
+                    log_func += '\n%s(*outputStream) << "   %s[" << i << "] (address)" << std::endl << "    address" << std::endl;' % (indent, proto.params[sp_index].name)
                     indent = indent[4:]
                     log_func += '\n%s}' % (indent)
                     indent = indent[4:]
