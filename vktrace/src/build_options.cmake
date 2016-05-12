@@ -177,7 +177,6 @@ endfunction()
 ### TODO: see if sse is generated with these instructions and clang:
 ## -march=corei7 -msse -mfpmath=sse
 
-set(MARCH_STR "-march=corei7")
 if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
    if ( NOT BUILD_X64 )
       # Fix startup crash in dlopen_notify_callback (called indirectly from our dlopen() function) when tracing glxspheres on my AMD dev box (x86 release only)
