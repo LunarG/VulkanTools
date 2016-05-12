@@ -606,6 +606,279 @@ TEST_F(VkLayerTest, RequiredParameter) {
     vkQueueSubmit(m_device->m_queue, 1, &submitInfo, VK_NULL_HANDLE);
     m_errorMonitor->VerifyFound();
 }
+
+TEST_F(VkLayerTest, ReservedParameter) {
+    TEST_DESCRIPTION("Specify a non-zero value for a reserved parameter");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         " must be 0");
+    // Specify 0 for a reserved VkFlags parameter
+    // Expected to trigger an error with
+    // parameter_validation::validate_reserved_flags
+    VkEvent event_handle = VK_NULL_HANDLE;
+    VkEventCreateInfo event_info = {};
+    event_info.sType = VK_STRUCTURE_TYPE_EVENT_CREATE_INFO;
+    event_info.flags = 1;
+    vkCreateEvent(device(), &event_info, NULL, &event_handle);
+    m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkLayerTest, InvalidStructSType) {
+    TEST_DESCRIPTION("Specify an invalid VkStructureType for a Vulkan "
+                     "structure's sType field");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "parameter pAllocateInfo->sType must be");
+    // Zero struct memory, effectively setting sType to
+    // VK_STRUCTURE_TYPE_APPLICATION_INFO
+    // Expected to trigger an error with
+    // parameter_validation::validate_struct_type
+    VkMemoryAllocateInfo alloc_info = {};
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    vkAllocateMemory(device(), &alloc_info, NULL, &memory);
+    m_errorMonitor->VerifyFound();
+
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         "parameter pSubmits[0].sType must be");
+    // Zero struct memory, effectively setting sType to
+    // VK_STRUCTURE_TYPE_APPLICATION_INFO
+    // Expected to trigger an error with
+    // parameter_validation::validate_struct_type_array
+    VkSubmitInfo submit_info = {};
+    vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
+    m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkLayerTest, InvalidStructPNext) {
+    TEST_DESCRIPTION(
+        "Specify an invalid value for a Vulkan structure's pNext field");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "value of pAllocateInfo->pNext must be NULL");
+    // Set VkMemoryAllocateInfo::pNext to a non-NULL value, when pNext must be
+    // NULL
+    // Expected to trigger an error with
+    // parameter_validation::validate_struct_pnext
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    // Zero-initialization will provide the correct sType
+    VkApplicationInfo app_info = {};
+    VkMemoryAllocateInfo memory_alloc_info = {};
+    memory_alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memory_alloc_info.pNext = &app_info;
+    vkAllocateMemory(device(), &memory_alloc_info, NULL, &memory);
+    m_errorMonitor->VerifyFound();
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        " chain includes a structure with unexpected VkStructureType ");
+    // Set VkGraphicsPipelineCreateInfo::VkPipelineRasterizationStateCreateInfo::pNext to an invalid structure, when pNext is allowed to be a non-NULL value
+    // Expected to trigger an error with
+    // parameter_validation::validate_struct_pnext
+    VkDescriptorPoolSize ds_type_count = {};
+    ds_type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    ds_type_count.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo ds_pool_ci = {};
+    ds_pool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    ds_pool_ci.pNext = NULL;
+    ds_pool_ci.maxSets = 1;
+    ds_pool_ci.poolSizeCount = 1;
+    ds_pool_ci.pPoolSizes = &ds_type_count;
+
+    VkDescriptorPool ds_pool;
+    VkResult err =
+        vkCreateDescriptorPool(m_device->device(), &ds_pool_ci, NULL, &ds_pool);
+    ASSERT_VK_SUCCESS(err);
+
+    VkDescriptorSetLayoutBinding dsl_binding = {};
+    dsl_binding.binding = 0;
+    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    dsl_binding.descriptorCount = 1;
+    dsl_binding.stageFlags = VK_SHADER_STAGE_ALL;
+    dsl_binding.pImmutableSamplers = NULL;
+
+    VkDescriptorSetLayoutCreateInfo ds_layout_ci = {};
+    ds_layout_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    ds_layout_ci.pNext = NULL;
+    ds_layout_ci.bindingCount = 1;
+    ds_layout_ci.pBindings = &dsl_binding;
+
+    VkDescriptorSetLayout ds_layout;
+    err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL,
+        &ds_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    VkDescriptorSet descriptorSet;
+    VkDescriptorSetAllocateInfo ds_alloc_info = {};
+    ds_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    ds_alloc_info.descriptorSetCount = 1;
+    ds_alloc_info.descriptorPool = ds_pool;
+    ds_alloc_info.pSetLayouts = &ds_layout;
+    err = vkAllocateDescriptorSets(m_device->device(), &ds_alloc_info,
+        &descriptorSet);
+    ASSERT_VK_SUCCESS(err);
+
+    VkPipelineLayoutCreateInfo pipeline_layout_ci = {};
+    pipeline_layout_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layout_ci.setLayoutCount = 1;
+    pipeline_layout_ci.pSetLayouts = &ds_layout;
+
+    VkPipelineLayout pipeline_layout;
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL,
+        &pipeline_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    VkViewport vp = {}; // Just need dummy vp to point to
+    VkRect2D sc = {};   // dummy scissor to point to
+
+    VkPipelineViewportStateCreateInfo vp_state_ci = {};
+    vp_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    vp_state_ci.scissorCount = 1;
+    vp_state_ci.pScissors = &sc;
+    vp_state_ci.viewportCount = 1;
+    vp_state_ci.pViewports = &vp;
+
+    VkPipelineRasterizationStateCreateInfo rs_state_ci = {};
+    rs_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rs_state_ci.polygonMode = VK_POLYGON_MODE_FILL;
+    rs_state_ci.cullMode = VK_CULL_MODE_BACK_BIT;
+    rs_state_ci.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rs_state_ci.depthClampEnable = VK_FALSE;
+    rs_state_ci.rasterizerDiscardEnable = VK_FALSE;
+    rs_state_ci.depthBiasEnable = VK_FALSE;
+
+    VkGraphicsPipelineCreateInfo gp_ci = {};
+    gp_ci.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    gp_ci.pViewportState = &vp_state_ci;
+    gp_ci.pRasterizationState = &rs_state_ci;
+    gp_ci.flags = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT;
+    gp_ci.layout = pipeline_layout;
+    gp_ci.renderPass = renderPass();
+
+    VkPipelineCacheCreateInfo pc_ci = {};
+    pc_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pc_ci.initialDataSize = 0;
+    pc_ci.pInitialData = 0;
+
+    VkPipeline pipeline;
+    VkPipelineCache pipelineCache;
+
+    err =
+        vkCreatePipelineCache(m_device->device(), &pc_ci, NULL, &pipelineCache);
+    ASSERT_VK_SUCCESS(err);
+
+    // Set VkPipelineRasterizationStateCreateInfo::pNext to an invalid value
+    VkApplicationInfo invalid_pnext_struct = {};
+    rs_state_ci.pNext = &invalid_pnext_struct;
+
+    vkCreateGraphicsPipelines(m_device->device(), pipelineCache, 1,
+        &gp_ci, NULL, &pipeline);
+    m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkLayerTest, UnrecognizedValue) {
+    TEST_DESCRIPTION(
+        "Specify unrecognized Vulkan enumeration, flags, and VkBool32 values");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         "does not fall within the begin..end "
+                                         "range of the core VkFormat "
+                                         "enumeration tokens");
+    // Specify an invalid VkFormat value
+    // Expected to trigger an error with
+    // parameter_validation::validate_ranged_enum
+    VkFormatProperties format_properties;
+    vkGetPhysicalDeviceFormatProperties(gpu(), static_cast<VkFormat>(8000),
+        &format_properties);
+    m_errorMonitor->VerifyFound();
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "contains flag bits that are not recognized members of");
+    // Specify an invalid VkFlags bitmask value
+    // Expected to trigger an error with parameter_validation::validate_flags
+    VkImageFormatProperties image_format_properties;
+    vkGetPhysicalDeviceImageFormatProperties(
+        gpu(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TYPE_2D,
+        VK_IMAGE_TILING_OPTIMAL, static_cast<VkImageUsageFlags>(1 << 25), 0,
+        &image_format_properties);
+    m_errorMonitor->VerifyFound();
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "contains flag bits that are not recognized members of");
+    // Specify an invalid VkFlags array entry
+    // Expected to trigger an error with
+    // parameter_validation::validate_flags_array
+    VkSemaphore semaphore = VK_NULL_HANDLE;
+    VkPipelineStageFlags stage_flags =
+        static_cast<VkPipelineStageFlags>(1 << 25);
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.waitSemaphoreCount = 1;
+    submit_info.pWaitSemaphores = &semaphore;
+    submit_info.pWaitDstStageMask = &stage_flags;
+    vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
+    m_errorMonitor->VerifyFound();
+
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT,
+                                         "is neither VK_TRUE nor VK_FALSE");
+    // Specify an invalid VkBool32 value
+    // Expected to trigger a warning with
+    // parameter_validation::validate_bool32
+    VkSampler sampler = VK_NULL_HANDLE;
+    VkSamplerCreateInfo sampler_info = {};
+    sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    sampler_info.pNext = NULL;
+    sampler_info.magFilter = VK_FILTER_NEAREST;
+    sampler_info.minFilter = VK_FILTER_NEAREST;
+    sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler_info.mipLodBias = 1.0;
+    sampler_info.maxAnisotropy = 1;
+    sampler_info.compareEnable = VK_FALSE;
+    sampler_info.compareOp = VK_COMPARE_OP_NEVER;
+    sampler_info.minLod = 1.0;
+    sampler_info.maxLod = 1.0;
+    sampler_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    sampler_info.unnormalizedCoordinates = VK_FALSE;
+    // Not VK_TRUE or VK_FALSE
+    sampler_info.anisotropyEnable = 3;
+    vkCreateSampler(m_device->device(), &sampler_info, NULL, &sampler);
+    m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkLayerTest, FailedReturnValue) {
+    TEST_DESCRIPTION("Check for a message describing a VkResult failure code");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_WARNING_BIT_EXT,
+        "the requested format is not supported on this device");
+    // Specify invalid VkFormat value to generate a
+    // VK_ERROR_FORMAT_NOT_SUPPORTED return code
+    // Expected to trigger a warning from parameter_validation::validate_result
+    VkImageFormatProperties image_format_properties;
+    VkResult err = vkGetPhysicalDeviceImageFormatProperties(
+        gpu(), static_cast<VkFormat>(0x8000), VK_IMAGE_TYPE_2D,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0,
+        &image_format_properties);
+    ASSERT_TRUE(err == VK_ERROR_FORMAT_NOT_SUPPORTED);
+    m_errorMonitor->VerifyFound();
+}
 #endif // PARAMETER_VALIDATION_TESTS
 
 #if MEM_TRACKER_TESTS
@@ -2958,8 +3231,9 @@ TEST_F(VkLayerTest, InvalidDescriptorPool) {
     // ObjectTracker should catch this.
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "Invalid VkDescriptorPool Object 0xbaad6001");
-    VkDescriptorPool badPool = (VkDescriptorPool)0xbaad6001;
-    vkResetDescriptorPool(device(), badPool, 0);
+    uint64_t fake_pool_handle = 0xbaad6001;
+    VkDescriptorPool bad_pool = reinterpret_cast<VkDescriptorPool &>(fake_pool_handle);
+    vkResetDescriptorPool(device(), bad_pool, 0);
     m_errorMonitor->VerifyFound();
 }
 
@@ -2968,7 +3242,9 @@ TEST_F(VkLayerTest, InvalidDescriptorSet) {
     // ObjectTracker should catch this.
     // Create a valid cmd buffer
     // call vkCmdBindDescriptorSets w/ false Descriptor Set
-    VkDescriptorSet badSet = (VkDescriptorSet)0xbaad6001;
+
+    uint64_t fake_set_handle = 0xbaad6001;
+    VkDescriptorSet bad_set = reinterpret_cast<VkDescriptorSet &>(fake_set_handle);
     VkResult err;
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "Invalid VkDescriptorSet Object 0xbaad6001");
@@ -3002,7 +3278,7 @@ TEST_F(VkLayerTest, InvalidDescriptorSet) {
 
     BeginCommandBuffer();
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipeline_layout, 0, 1, &badSet, 0, NULL);
+                            pipeline_layout, 0, 1, &bad_set, 0, NULL);
     m_errorMonitor->VerifyFound();
     EndCommandBuffer();
     vkDestroyPipelineLayout(device(), pipeline_layout, NULL);
@@ -3012,7 +3288,8 @@ TEST_F(VkLayerTest, InvalidDescriptorSet) {
 TEST_F(VkLayerTest, InvalidDescriptorSetLayout) {
     // Attempt to create a Pipeline Layout with an invalid Descriptor Set Layout.
     // ObjectTracker should catch this.
-    VkDescriptorSetLayout bad_layout = (VkDescriptorSetLayout)0xbaad6001;
+    uint64_t fake_layout_handle = 0xbaad6001;
+    VkDescriptorSetLayout bad_layout = reinterpret_cast<VkDescriptorSetLayout &>(fake_layout_handle);
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "Invalid VkDescriptorSetLayout Object 0xbaad6001");
 
@@ -3032,7 +3309,8 @@ TEST_F(VkLayerTest, InvalidPipeline) {
     // ObjectTracker should catch this.
     // Create a valid cmd buffer
     // call vkCmdBindPipeline w/ false Pipeline
-    VkPipeline bad_pipeline = (VkPipeline)0xbaad6001;
+    uint64_t fake_pipeline_handle = 0xbaad6001;
+    VkPipeline bad_pipeline = reinterpret_cast<VkPipeline &>(fake_pipeline_handle);
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "Invalid VkPipeline Object 0xbaad6001");
     ASSERT_NO_FATAL_FAILURE(InitState());
@@ -6714,6 +6992,7 @@ TEST_F(VkLayerTest, InvalidImageLayout) {
     VkAttachmentDescription attach_desc = {};
     attach_desc.format = VK_FORMAT_UNDEFINED;
     rpci.pAttachments = &attach_desc;
+    rpci.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     VkRenderPass rp;
     m_errorMonitor->SetDesiredFailureMsg(
         VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
@@ -6759,6 +7038,24 @@ TEST_F(VkLayerTest, InvalidImageLayout) {
     m_errorMonitor->SetDesiredFailureMsg(
         VK_DEBUG_REPORT_ERROR_BIT_EXT,
         "Layout for depth attachment is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL but can only be DEPTH_STENCIL_ATTACHMENT_OPTIMAL or GENERAL.");
+    vkCreateRenderPass(m_device->device(), &rpci, NULL, &rp);
+    m_errorMonitor->VerifyFound();
+    // For this error we need a valid renderpass so create default one
+    attach.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+    attach.attachment = 0;
+    attach_desc.format = VK_FORMAT_D24_UNORM_S8_UINT;
+    attach_desc.samples = VK_SAMPLE_COUNT_1_BIT;
+    attach_desc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attach_desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attach_desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    // Can't do a CLEAR load on READ_ONLY initialLayout
+    attach_desc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attach_desc.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+    attach_desc.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         " with invalid first layout "
+                                         "VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_"
+                                         "ONLY_OPTIMAL");
     vkCreateRenderPass(m_device->device(), &rpci, NULL, &rp);
     m_errorMonitor->VerifyFound();
 
