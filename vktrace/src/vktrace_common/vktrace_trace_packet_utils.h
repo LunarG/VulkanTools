@@ -33,7 +33,6 @@ extern "C" {
 // pUuid is expected to be an array of 4 unsigned ints
 void vktrace_gen_uuid(uint32_t* pUuid);
 
-BOOL vktrace_init_time();
 uint64_t vktrace_get_time();
 
 //=============================================================================
