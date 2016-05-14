@@ -55,6 +55,12 @@ set (HDR_LIST
     ${CODEGEN_UTILS_DIR}/vk_struct_size_helper.h
 )
 
+# def file - needed for Windows 32-bit so that the function name for __HOOKED_vkGetInstanceProcAddr in the dll isn't mangled
+if (WIN32)
+    set (HDR_LIST ${HDR_LIST} VkLayer_vktrace_layer.def)
+endif()
+
+
 #    codegen/vktrace_vk_vk_lunarg_debug_marker.h
 #    ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_lunarg_debug_marker_packets.h
 #    ${CODEGEN_UTILS_DIR}/vk_lunarg_debug_marker_struct_size_helper.h
