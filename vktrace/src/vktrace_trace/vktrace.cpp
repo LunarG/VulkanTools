@@ -150,17 +150,11 @@ int main(int argc, char* argv[])
     vktrace_LogSetCallback(loggingCallback);
     vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
 
-    // get vktrace binary directory
-    char* execDir = vktrace_platform_get_current_executable_directory();
-
     // setup defaults
     memset(&g_default_settings, 0, sizeof(vktrace_settings));
-    g_default_settings.output_trace = vktrace_copy_and_append(execDir, VKTRACE_PATH_SEPARATOR, "vktrace_out.vktrace");
+    g_default_settings.output_trace = vktrace_allocate_and_copy("vktrace_out.vktrace");
     g_default_settings.verbosity = "errors";
     g_default_settings.screenshotList = NULL;
-
-    // free binary directory string
-    vktrace_free(execDir);
 
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0)
     {
