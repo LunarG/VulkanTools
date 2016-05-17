@@ -2,7 +2,7 @@
     "file_format_version" : "1.0.0",
     "layer" : {
         "name": "VK_LAYER_LUNARG_multi1",
-        "type": "DEVICE",
+        "type": "INSTANCE",
         "library_path": "./libVkLayer_multi.so",
         "api_version": "1.0.13",
         "implementation_version": "1",
