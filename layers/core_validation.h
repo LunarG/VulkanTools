@@ -135,6 +135,71 @@ typedef struct _GENERIC_HEADER {
     const void *pNext;
 } GENERIC_HEADER;
 
+typedef struct _IMAGE_LAYOUT_NODE {
+    VkImageLayout layout;
+    VkFormat format;
+} IMAGE_LAYOUT_NODE;
+
+class IMAGE_CMD_BUF_LAYOUT_NODE {
+  public:
+    IMAGE_CMD_BUF_LAYOUT_NODE() {}
+    IMAGE_CMD_BUF_LAYOUT_NODE(VkImageLayout initialLayoutInput, VkImageLayout layoutInput)
+        : initialLayout(initialLayoutInput), layout(layoutInput) {}
+
+    VkImageLayout initialLayout;
+    VkImageLayout layout;
+};
+
+// Store the DAG.
+struct DAGNode {
+    uint32_t pass;
+    std::vector<uint32_t> prev;
+    std::vector<uint32_t> next;
+};
+
+struct RENDER_PASS_NODE {
+    VkRenderPass renderPass;
+    VkRenderPassCreateInfo const *pCreateInfo;
+    std::vector<bool> hasSelfDependency;
+    std::vector<DAGNode> subpassToNode;
+    std::vector<std::vector<VkFormat>> subpassColorFormats;
+    std::vector<MT_PASS_ATTACHMENT_INFO> attachments;
+    std::unordered_map<uint32_t, bool> attachment_first_read;
+    std::unordered_map<uint32_t, VkImageLayout> attachment_first_layout;
+
+    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo) : pCreateInfo(pCreateInfo) {
+        uint32_t i;
+
+        subpassColorFormats.reserve(pCreateInfo->subpassCount);
+        for (i = 0; i < pCreateInfo->subpassCount; i++) {
+            const VkSubpassDescription *subpass = &pCreateInfo->pSubpasses[i];
+            std::vector<VkFormat> color_formats;
+            uint32_t j;
+
+            color_formats.reserve(subpass->colorAttachmentCount);
+            for (j = 0; j < subpass->colorAttachmentCount; j++) {
+                const uint32_t att = subpass->pColorAttachments[j].attachment;
+
+                if (att != VK_ATTACHMENT_UNUSED) {
+                    color_formats.push_back(pCreateInfo->pAttachments[att].format);
+                }
+                else {
+                    color_formats.push_back(VK_FORMAT_UNDEFINED);
+                }
+            }
+
+            subpassColorFormats.push_back(color_formats);
+        }
+    }
+};
+
+// Store layouts and pushconstants for PipelineLayout
+struct PIPELINE_LAYOUT_NODE {
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+    std::vector<cvdescriptorset::DescriptorSetLayout const *> setLayouts;
+    std::vector<VkPushConstantRange> pushConstantRanges;
+};
+
 class PIPELINE_NODE {
   public:
     VkPipeline pipeline;
@@ -150,10 +215,13 @@ class PIPELINE_NODE {
     std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
     std::vector<VkPipelineColorBlendAttachmentState> attachments;
     bool blendConstantsEnabled; // Blend constants enabled for any attachments
+    RENDER_PASS_NODE *renderPass;
+    PIPELINE_LAYOUT_NODE *pipelineLayout;
+
     // Default constructor
     PIPELINE_NODE()
         : pipeline{}, graphicsPipelineCI{}, computePipelineCI{}, active_shaders(0), duplicate_shaders(0), active_slots(), vertexBindingDescriptions(),
-          vertexAttributeDescriptions(), attachments(), blendConstantsEnabled(false) {}
+          vertexAttributeDescriptions(), attachments(), blendConstantsEnabled(false), renderPass(nullptr), pipelineLayout(nullptr) {}
 
     void initGraphicsPipeline(const VkGraphicsPipelineCreateInfo *pCreateInfo) {
         graphicsPipelineCI.initialize(pCreateInfo);
@@ -197,65 +265,6 @@ class PIPELINE_NODE {
         default:
             // TODO : Flag error
             break;
-        }
-    }
-};
-
-typedef struct _IMAGE_LAYOUT_NODE {
-    VkImageLayout layout;
-    VkFormat format;
-} IMAGE_LAYOUT_NODE;
-
-class IMAGE_CMD_BUF_LAYOUT_NODE {
-  public:
-    IMAGE_CMD_BUF_LAYOUT_NODE() {}
-    IMAGE_CMD_BUF_LAYOUT_NODE(VkImageLayout initialLayoutInput, VkImageLayout layoutInput)
-        : initialLayout(initialLayoutInput), layout(layoutInput) {}
-
-    VkImageLayout initialLayout;
-    VkImageLayout layout;
-};
-
-// Store the DAG.
-struct DAGNode {
-    uint32_t pass;
-    std::vector<uint32_t> prev;
-    std::vector<uint32_t> next;
-};
-
-struct RENDER_PASS_NODE {
-    VkRenderPass renderPass;
-    VkRenderPassCreateInfo const *pCreateInfo;
-    VkFramebuffer fb;
-    std::vector<bool> hasSelfDependency;
-    std::vector<DAGNode> subpassToNode;
-    std::vector<std::vector<VkFormat>> subpassColorFormats;
-    std::vector<MT_PASS_ATTACHMENT_INFO> attachments;
-    std::unordered_map<uint32_t, bool> attachment_first_read;
-    std::unordered_map<uint32_t, VkImageLayout> attachment_first_layout;
-
-    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo) : pCreateInfo(pCreateInfo), fb(VK_NULL_HANDLE) {
-        uint32_t i;
-
-        subpassColorFormats.reserve(pCreateInfo->subpassCount);
-        for (i = 0; i < pCreateInfo->subpassCount; i++) {
-            const VkSubpassDescription *subpass = &pCreateInfo->pSubpasses[i];
-            std::vector<VkFormat> color_formats;
-            uint32_t j;
-
-            color_formats.reserve(subpass->colorAttachmentCount);
-            for (j = 0; j < subpass->colorAttachmentCount; j++) {
-                const uint32_t att = subpass->pColorAttachments[j].attachment;
-
-                if (att != VK_ATTACHMENT_UNUSED) {
-                    color_formats.push_back(pCreateInfo->pAttachments[att].format);
-                }
-                else {
-                    color_formats.push_back(VK_FORMAT_UNDEFINED);
-                }
-            }
-
-            subpassColorFormats.push_back(color_formats);
         }
     }
 };
@@ -320,12 +329,6 @@ class FRAMEBUFFER_NODE {
     VkFramebufferCreateInfo createInfo;
     std::unordered_set<VkCommandBuffer> referencingCmdBuffers;
     std::vector<MT_FB_ATTACHMENT_INFO> attachments;
-};
-// Store layouts and pushconstants for PipelineLayout
-struct PIPELINE_LAYOUT_NODE {
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
-    std::vector<cvdescriptorset::DescriptorSetLayout const *> setLayouts;
-    std::vector<VkPushConstantRange> pushConstantRanges;
 };
 
 typedef struct _DESCRIPTOR_POOL_NODE {
@@ -510,7 +513,8 @@ struct LAST_BOUND_STATE {
     // Ordered bound set tracking where index is set# that given set is bound to
     std::vector<VkDescriptorSet> boundDescriptorSets;
     // one dynamic offset per dynamic descriptor bound to this CB
-    std::vector<uint32_t> dynamicOffsets;
+    std::vector<std::vector<uint32_t>> dynamicOffsets;
+
     void reset() {
         pipeline = VK_NULL_HANDLE;
         pipelineLayout = VK_NULL_HANDLE;
@@ -553,6 +557,7 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     RENDER_PASS_NODE *activeRenderPass;
     VkSubpassContents activeSubpassContents;
     uint32_t activeSubpass;
+    VkFramebuffer activeFramebuffer;
     std::unordered_set<VkFramebuffer> framebuffers;
     // Track descriptor sets that are destroyed or updated while bound to CB
     // TODO : These data structures relate to tracking resources that invalidate
