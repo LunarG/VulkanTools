@@ -1220,7 +1220,7 @@ class Subcommand(object):
         rof_body.append('        else')
         rof_body.append('        {')
         rof_body.append('            assert(offset >= mr.offset);')
-        rof_body.append('            assert(size <= mr.size && (size + offset) <= mr.size);')
+        rof_body.append('            assert(size <= mr.size && (size + offset) <= (size_t)m_allocInfo.allocationSize);')
         rof_body.append('        }')
         rof_body.append('        memcpy(mr.pData + offset, pSrcData, size);')
         rof_body.append('        if (!mr.pending && entire_map)')
