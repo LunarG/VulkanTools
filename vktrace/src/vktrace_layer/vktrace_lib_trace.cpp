@@ -1852,10 +1852,6 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDevicePro
         }
     }
 
-    if (device == VK_NULL_HANDLE) {
-        return NULL;
-    }
-
     layer_device_data  *devData = mdd(device);
     if (gMessageStream != NULL) {
 
@@ -1878,6 +1874,11 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDevicePro
                 return (PFN_vkVoidFunction) __HOOKED_vkQueuePresentKHR;
         }
     }
+
+    if (device == VK_NULL_HANDLE) {
+        return NULL;
+    }
+
     VkLayerDispatchTable *pDisp =  &devData->devTable;
     if (pDisp->GetDeviceProcAddr == NULL)
         return NULL;
@@ -1912,10 +1913,6 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
     PFN_vkVoidFunction addr;
     layer_instance_data  *instData;
 
-    if (instance == VK_NULL_HANDLE) {
-        return NULL;
-    }
-
     vktrace_platform_thread_once(&gInitOnce, InitTracer);
     if (!strcmp("vkGetInstanceProcAddr", funcName)) {
         if (gMessageStream != NULL) {
@@ -1929,6 +1926,10 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
         addr = layer_intercept_instance_proc(funcName);
         if (addr)
             return addr;
+
+        if (instance == VK_NULL_HANDLE) {
+            return NULL;
+        }
 
         instData = mid(instance);
         if (instData->LunargDebugReportEnabled)
@@ -1998,6 +1999,9 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
         }
 #endif
     } else {
+        if (instance == VK_NULL_HANDLE) {
+            return NULL;
+        }
         instData = mid(instance);
     }
     VkLayerInstanceDispatchTable* pTable = &instData->instTable;
