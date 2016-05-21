@@ -109,7 +109,11 @@ int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray
                         if (res != VKTRACE_REPLAY_SUCCESS)
                         {
                            vktrace_LogError("Failed to replay packet_id %d.",packet->packet_id);
-                           return -1;
+						   static BOOL QuitOnAnyError=FALSE;
+                           if(QuitOnAnyError)
+                           {
+                              return -1;
+                           }
                         }
 
                         // frame control logic

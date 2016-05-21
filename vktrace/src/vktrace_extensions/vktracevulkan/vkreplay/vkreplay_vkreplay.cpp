@@ -1566,8 +1566,22 @@ VkResult vkReplay::manually_replay_vkWaitForFences(packet_vkWaitForFences* pPack
     {
         (*(pFence + i)) = m_objMapper.remap_fences((*(pPacket->pFences + i)));
     }
-    replayResult = m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, pPacket->timeout);
-    VKTRACE_DELETE(pFence);
+	if (pPacket->result == VK_SUCCESS)
+	{
+		replayResult = m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, UINT64_MAX);// mean as long as possible
+	}
+	else
+	{
+		if (pPacket->result == VK_TIMEOUT)
+		{
+			replayResult = m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, 0);
+		}
+		else
+		{
+			replayResult = m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, pPacket->timeout);
+		}
+	}
+	VKTRACE_DELETE(pFence);
     return replayResult;
 }
 
