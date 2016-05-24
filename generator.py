@@ -2629,15 +2629,13 @@ class ThreadOutputGenerator(OutputGenerator):
         OutputGenerator.beginFile(self, genOpts)
         # C-specific
         #
-        # Multiple inclusion protection & C++ wrappers.
+        # Multiple inclusion protection & C++ namespace.
         if (genOpts.protectFile and self.genOpts.filename):
             headerSym = '__' + re.sub('\.h', '_h_', os.path.basename(self.genOpts.filename))
             write('#ifndef', headerSym, file=self.outFile)
             write('#define', headerSym, '1', file=self.outFile)
             self.newline()
-        write('#ifdef __cplusplus', file=self.outFile)
-        write('extern "C" {', file=self.outFile)
-        write('#endif', file=self.outFile)
+        write('namespace threading {', file=self.outFile)
         self.newline()
         #
         # User-supplied prefix text, if any (list of strings)
@@ -2646,7 +2644,7 @@ class ThreadOutputGenerator(OutputGenerator):
                 write(s, file=self.outFile)
     def endFile(self):
         # C-specific
-        # Finish C++ wrapper and multiple inclusion protection
+        # Finish C++ namespace and multiple inclusion protection
         self.newline()
         # record intercepted procedures
         write('// intercepts', file=self.outFile)
@@ -2654,9 +2652,7 @@ class ThreadOutputGenerator(OutputGenerator):
         write('\n'.join(self.intercepts), file=self.outFile)
         write('};\n', file=self.outFile)
         self.newline()
-        write('#ifdef __cplusplus', file=self.outFile)
-        write('}', file=self.outFile)
-        write('#endif', file=self.outFile)
+        write('} // namespace threading', file=self.outFile)
         if (self.genOpts.protectFile and self.genOpts.filename):
             self.newline()
             write('#endif', file=self.outFile)
@@ -2743,6 +2739,14 @@ class ThreadOutputGenerator(OutputGenerator):
     #
     # Command generation
     def genCmd(self, cmdinfo, name):
+        # Commands shadowed by interface functions and are not implemented
+        interface_functions = [
+            'vkEnumerateInstanceLayerProperties',
+            'vkEnumerateInstanceExtensionProperties',
+            'vkEnumerateDeviceLayerProperties',
+        ]
+        if name in interface_functions:
+            return
         special_functions = [
             'vkGetDeviceProcAddr',
             'vkGetInstanceProcAddr',
@@ -2750,15 +2754,17 @@ class ThreadOutputGenerator(OutputGenerator):
             'vkDestroyDevice',
             'vkCreateInstance',
             'vkDestroyInstance',
-            'vkEnumerateInstanceLayerProperties',
-            'vkEnumerateInstanceExtensionProperties',
             'vkAllocateCommandBuffers',
             'vkFreeCommandBuffers',
             'vkCreateDebugReportCallbackEXT',
             'vkDestroyDebugReportCallbackEXT',
         ]
         if name in special_functions:
-            self.intercepts += [ '    {"%s", reinterpret_cast<PFN_vkVoidFunction>(%s)},' % (name,name) ]
+            decls = self.makeCDecls(cmdinfo.elem)
+            self.appendSection('command', '')
+            self.appendSection('command', '// declare only')
+            self.appendSection('command', decls[0])
+            self.intercepts += [ '    {"%s", reinterpret_cast<PFN_vkVoidFunction>(%s)},' % (name,name[2:]) ]
             return
         if "KHR" in name:
             self.appendSection('command', '// TODO - not wrapping KHR function ' + name)
@@ -2774,7 +2780,7 @@ class ThreadOutputGenerator(OutputGenerator):
         # record that the function will be intercepted
         if (self.featureExtraProtect != None):
             self.intercepts += [ '#ifdef %s' % self.featureExtraProtect ]
-        self.intercepts += [ '    {"%s", reinterpret_cast<PFN_vkVoidFunction>(%s)},' % (name,name) ]
+        self.intercepts += [ '    {"%s", reinterpret_cast<PFN_vkVoidFunction>(%s)},' % (name,name[2:]) ]
         if (self.featureExtraProtect != None):
             self.intercepts += [ '#endif' ]
 
@@ -2814,6 +2820,10 @@ class ThreadOutputGenerator(OutputGenerator):
         if (resulttype != None):
             self.appendSection('command', '    return result;')
         self.appendSection('command', '}')
+    #
+    # override makeProtoName to drop the "vk" prefix
+    def makeProtoName(self, name, tail):
+        return self.genOpts.apientry + name[2:] + tail
 
 # ParamCheckerOutputGenerator - subclass of OutputGenerator.
 # Generates param checker layer code.
