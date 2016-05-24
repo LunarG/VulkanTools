@@ -2716,6 +2716,261 @@ TEST_F(VkLayerTest, BindMemoryToDestroyedObject) {
 #if DRAW_STATE_TESTS
 
 // This is a positive test.  No errors should be generated.
+TEST_F(VkLayerTest, WaitEventThenSet) {
+    TEST_DESCRIPTION(
+        "Wait on a event then set it after the wait has been submitted.");
+
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
+        return;
+
+    m_errorMonitor->ExpectSuccess();
+
+    VkEvent event;
+    VkEventCreateInfo event_create_info{};
+    event_create_info.sType = VK_STRUCTURE_TYPE_EVENT_CREATE_INFO;
+    vkCreateEvent(m_device->device(), &event_create_info, nullptr, &event);
+
+    VkCommandPool command_pool;
+    VkCommandPoolCreateInfo pool_create_info{};
+    pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_create_info.queueFamilyIndex = m_device->graphics_queue_node_index_;
+    pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    vkCreateCommandPool(m_device->device(), &pool_create_info, nullptr,
+                        &command_pool);
+
+    VkCommandBuffer command_buffer;
+    VkCommandBufferAllocateInfo command_buffer_allocate_info{};
+    command_buffer_allocate_info.sType =
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    command_buffer_allocate_info.commandPool = command_pool;
+    command_buffer_allocate_info.commandBufferCount = 1;
+    command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    vkAllocateCommandBuffers(m_device->device(), &command_buffer_allocate_info,
+                             &command_buffer);
+
+    VkQueue queue = VK_NULL_HANDLE;
+    vkGetDeviceQueue(m_device->device(), m_device->graphics_queue_node_index_,
+                     1, &queue);
+
+    {
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(command_buffer, &begin_info);
+
+        vkCmdWaitEvents(command_buffer, 1, &event, VK_PIPELINE_STAGE_HOST_BIT,
+                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, nullptr, 0,
+                        nullptr, 0, nullptr);
+        vkCmdResetEvent(command_buffer, event,
+                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        vkEndCommandBuffer(command_buffer);
+    }
+    {
+        VkSubmitInfo submit_info{};
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers = &command_buffer;
+        submit_info.signalSemaphoreCount = 0;
+        submit_info.pSignalSemaphores = nullptr;
+        vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+    }
+    { vkSetEvent(m_device->device(), event); }
+
+    vkQueueWaitIdle(queue);
+
+    vkDestroyEvent(m_device->device(), event, nullptr);
+    vkFreeCommandBuffers(m_device->device(), command_pool, 1, &command_buffer);
+    vkDestroyCommandPool(m_device->device(), command_pool, NULL);
+
+    m_errorMonitor->VerifyNotFound();
+}
+// This is a positive test.  No errors should be generated.
+TEST_F(VkLayerTest, QueryAndCopyMultipleCommandBuffers) {
+    TEST_DESCRIPTION(
+        "Issue a query and copy from it on a second command buffer.");
+
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
+        return;
+
+    m_errorMonitor->ExpectSuccess();
+
+    VkQueryPool query_pool;
+    VkQueryPoolCreateInfo query_pool_create_info{};
+    query_pool_create_info.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+    query_pool_create_info.queryType = VK_QUERY_TYPE_TIMESTAMP;
+    query_pool_create_info.queryCount = 1;
+    vkCreateQueryPool(m_device->device(), &query_pool_create_info, nullptr,
+                      &query_pool);
+
+    VkCommandPool command_pool;
+    VkCommandPoolCreateInfo pool_create_info{};
+    pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_create_info.queueFamilyIndex = m_device->graphics_queue_node_index_;
+    pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    vkCreateCommandPool(m_device->device(), &pool_create_info, nullptr,
+                        &command_pool);
+
+    VkCommandBuffer command_buffer[2];
+    VkCommandBufferAllocateInfo command_buffer_allocate_info{};
+    command_buffer_allocate_info.sType =
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    command_buffer_allocate_info.commandPool = command_pool;
+    command_buffer_allocate_info.commandBufferCount = 2;
+    command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    vkAllocateCommandBuffers(m_device->device(), &command_buffer_allocate_info,
+                             command_buffer);
+
+    VkQueue queue = VK_NULL_HANDLE;
+    vkGetDeviceQueue(m_device->device(), m_device->graphics_queue_node_index_,
+                     1, &queue);
+
+    uint32_t qfi = 0;
+    VkBufferCreateInfo buff_create_info = {};
+    buff_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buff_create_info.size = 1024;
+    buff_create_info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    buff_create_info.queueFamilyIndexCount = 1;
+    buff_create_info.pQueueFamilyIndices = &qfi;
+
+    VkResult err;
+    VkBuffer buffer;
+    err = vkCreateBuffer(m_device->device(), &buff_create_info, NULL, &buffer);
+    ASSERT_VK_SUCCESS(err);
+    VkMemoryAllocateInfo mem_alloc = {};
+    mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    mem_alloc.pNext = NULL;
+    mem_alloc.allocationSize = 1024;
+    mem_alloc.memoryTypeIndex = 0;
+
+    VkMemoryRequirements memReqs;
+    vkGetBufferMemoryRequirements(m_device->device(), buffer, &memReqs);
+    bool pass =
+        m_device->phy().set_memory_type(memReqs.memoryTypeBits, &mem_alloc, 0);
+    if (!pass) {
+        vkDestroyBuffer(m_device->device(), buffer, NULL);
+        return;
+    }
+
+    VkDeviceMemory mem;
+    err = vkAllocateMemory(m_device->device(), &mem_alloc, NULL, &mem);
+    ASSERT_VK_SUCCESS(err);
+    err = vkBindBufferMemory(m_device->device(), buffer, mem, 0);
+    ASSERT_VK_SUCCESS(err);
+
+    {
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(command_buffer[0], &begin_info);
+
+        vkCmdResetQueryPool(command_buffer[0], query_pool, 0, 1);
+        vkCmdWriteTimestamp(command_buffer[0],
+                            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, query_pool, 0);
+
+        vkEndCommandBuffer(command_buffer[0]);
+
+        vkBeginCommandBuffer(command_buffer[1], &begin_info);
+
+        vkCmdCopyQueryPoolResults(command_buffer[1], query_pool, 0, 1, buffer,
+                                  0, 0, 0);
+
+        vkEndCommandBuffer(command_buffer[1]);
+    }
+    {
+        VkSubmitInfo submit_info{};
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.commandBufferCount = 2;
+        submit_info.pCommandBuffers = command_buffer;
+        submit_info.signalSemaphoreCount = 0;
+        submit_info.pSignalSemaphores = nullptr;
+        vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+    }
+
+    vkQueueWaitIdle(queue);
+
+    vkDestroyQueryPool(m_device->device(), query_pool, nullptr);
+    vkFreeCommandBuffers(m_device->device(), command_pool, 2, command_buffer);
+    vkDestroyCommandPool(m_device->device(), command_pool, NULL);
+
+    m_errorMonitor->VerifyNotFound();
+}
+
+TEST_F(VkLayerTest, ResetEventThenSet) {
+    TEST_DESCRIPTION(
+        "Reset an event then set it after the reset has been submitted.");
+
+    if ((m_device->queue_props.empty()) ||
+        (m_device->queue_props[0].queueCount < 2))
+        return;
+
+    m_errorMonitor->ExpectSuccess();
+
+    VkEvent event;
+    VkEventCreateInfo event_create_info{};
+    event_create_info.sType = VK_STRUCTURE_TYPE_EVENT_CREATE_INFO;
+    vkCreateEvent(m_device->device(), &event_create_info, nullptr, &event);
+
+    VkCommandPool command_pool;
+    VkCommandPoolCreateInfo pool_create_info{};
+    pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_create_info.queueFamilyIndex = m_device->graphics_queue_node_index_;
+    pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    vkCreateCommandPool(m_device->device(), &pool_create_info, nullptr,
+                        &command_pool);
+
+    VkCommandBuffer command_buffer;
+    VkCommandBufferAllocateInfo command_buffer_allocate_info{};
+    command_buffer_allocate_info.sType =
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    command_buffer_allocate_info.commandPool = command_pool;
+    command_buffer_allocate_info.commandBufferCount = 1;
+    command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    vkAllocateCommandBuffers(m_device->device(), &command_buffer_allocate_info,
+                             &command_buffer);
+
+    VkQueue queue = VK_NULL_HANDLE;
+    vkGetDeviceQueue(m_device->device(), m_device->graphics_queue_node_index_,
+                     1, &queue);
+
+    {
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(command_buffer, &begin_info);
+
+        vkCmdResetEvent(command_buffer, event,
+                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        vkCmdWaitEvents(command_buffer, 1, &event,
+                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, nullptr, 0,
+                        nullptr, 0, nullptr);
+        vkEndCommandBuffer(command_buffer);
+    }
+    {
+        VkSubmitInfo submit_info{};
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers = &command_buffer;
+        submit_info.signalSemaphoreCount = 0;
+        submit_info.pSignalSemaphores = nullptr;
+        vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+    }
+    {
+        m_errorMonitor->SetDesiredFailureMsg(
+            VK_DEBUG_REPORT_ERROR_BIT_EXT, "Cannot call vkSetEvent() on event "
+                                           "0x1 that is already in use by a "
+                                           "command buffer.");
+        vkSetEvent(m_device->device(), event);
+        m_errorMonitor->VerifyFound();
+    }
+
+    vkQueueWaitIdle(queue);
+
+    vkDestroyEvent(m_device->device(), event, nullptr);
+    vkFreeCommandBuffers(m_device->device(), command_pool, 1, &command_buffer);
+    vkDestroyCommandPool(m_device->device(), command_pool, NULL);
+}
+
+// This is a positive test.  No errors should be generated.
 TEST_F(VkLayerTest, TwoQueueSubmitsSeparateQueuesWithSemaphoreAndOneFenceQWI) {
 
     TEST_DESCRIPTION("Two command buffers, each in a separate QueueSubmit call "
@@ -6925,7 +7180,7 @@ TEST_F(VkLayerTest, InvalidDSUpdateStruct) {
     VkResult err;
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "Unexpected UPDATE struct of type ");
+                                         ".sType must be VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
 
@@ -10894,6 +11149,88 @@ TEST_F(VkLayerTest, DepthStencilImageViewWithColorAspectBitError) {
     vkDestroyImage(m_device->device(), image_good, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+}
+
+TEST_F(VkLayerTest, ClearImageErrors) {
+    TEST_DESCRIPTION("Call ClearColorImage w/ a depth|stencil image and "
+                     "ClearDepthStencilImage with a color image.");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    // Renderpass is started here so end it as Clear cmds can't be in renderpass
+    BeginCommandBuffer();
+    m_commandBuffer->EndRenderPass();
+
+    // Color image
+    VkClearColorValue clear_color;
+    memset(clear_color.uint32, 0, sizeof(uint32_t) * 4);
+    VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    const VkFormat color_format = VK_FORMAT_B8G8R8A8_UNORM;
+    const int32_t img_width = 32;
+    const int32_t img_height = 32;
+    VkImageCreateInfo image_create_info = {};
+    image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image_create_info.pNext = NULL;
+    image_create_info.imageType = VK_IMAGE_TYPE_2D;
+    image_create_info.format = color_format;
+    image_create_info.extent.width = img_width;
+    image_create_info.extent.height = img_height;
+    image_create_info.extent.depth = 1;
+    image_create_info.mipLevels = 1;
+    image_create_info.arrayLayers = 1;
+    image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
+    image_create_info.tiling = VK_IMAGE_TILING_LINEAR;
+    image_create_info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+
+    vk_testing::Image color_image;
+    color_image.init(*m_device, (const VkImageCreateInfo &)image_create_info,
+                     reqs);
+
+    const VkImageSubresourceRange color_range =
+        vk_testing::Image::subresource_range(image_create_info,
+                                             VK_IMAGE_ASPECT_COLOR_BIT);
+
+    // Depth/Stencil image
+    VkClearDepthStencilValue clear_value = {0};
+    reqs = 0; // don't need HOST_VISIBLE DS image
+    VkImageCreateInfo ds_image_create_info = vk_testing::Image::create_info();
+    ds_image_create_info.imageType = VK_IMAGE_TYPE_2D;
+    ds_image_create_info.format = VK_FORMAT_D24_UNORM_S8_UINT;
+    ds_image_create_info.extent.width = 64;
+    ds_image_create_info.extent.height = 64;
+    ds_image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+    ds_image_create_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    vk_testing::Image ds_image;
+    ds_image.init(*m_device, (const VkImageCreateInfo &)ds_image_create_info,
+                  reqs);
+
+    const VkImageSubresourceRange ds_range =
+        vk_testing::Image::subresource_range(ds_image_create_info,
+                                             VK_IMAGE_ASPECT_DEPTH_BIT);
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCmdClearColorImage called with depth/stencil image.");
+
+    vkCmdClearColorImage(m_commandBuffer->GetBufferHandle(), ds_image.handle(),
+                         VK_IMAGE_LAYOUT_GENERAL, &clear_color, 1,
+                         &color_range);
+
+    m_errorMonitor->VerifyFound();
+
+    // Call CmdClearDepthStencilImage with color image
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCmdClearDepthStencilImage called without a depth/stencil image.");
+
+    vkCmdClearDepthStencilImage(
+        m_commandBuffer->GetBufferHandle(), color_image.handle(),
+        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, &clear_value, 1,
+        &ds_range);
+
+    m_errorMonitor->VerifyFound();
 }
 #endif // IMAGE_TESTS
 
