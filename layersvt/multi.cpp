@@ -33,6 +33,7 @@ extern "C" {
 
 static device_table_map multi1_device_table_map;
 static instance_table_map multi1_instance_table_map;
+static std::unordered_map<dispatch_key, VkInstance> multi1_instance_map;
 /******************************** Layer multi1 functions **************************/
 VKAPI_ATTR VkResult VKAPI_CALL
 multi1CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
@@ -52,6 +53,7 @@ multi1CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
     if (result != VK_SUCCESS)
         return result;
 
+    multi1_instance_map[get_dispatch_key(*pInstance)] = *pInstance;
     initInstanceTable(*pInstance, fpGetInstanceProcAddr, multi1_instance_table_map);
 
     return result;
@@ -65,6 +67,7 @@ VKAPI_ATTR void VKAPI_CALL multi1DestroyInstance(VkInstance instance, const VkAl
     printf("At start of wrapped multi1 vkDestroyInstance()\n");
     pDisp->DestroyInstance(instance, pAllocator);
     multi1_instance_table_map.erase(key);
+    multi1_instance_map.erase(key);
     printf("Completed multi1 layer vkDestroyInstance()\n");
 }
 
@@ -78,7 +81,8 @@ VKAPI_ATTR VkResult VKAPI_CALL multi1CreateDevice(VkPhysicalDevice physicalDevic
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
-    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(NULL, "vkCreateDevice");
+    VkInstance instance = multi1_instance_map[get_dispatch_key(physicalDevice)];
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(instance, "vkCreateDevice");
     if (fpCreateDevice == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
