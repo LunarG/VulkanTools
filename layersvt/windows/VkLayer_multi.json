@@ -8,8 +8,8 @@
         "implementation_version": "1",
         "description": "LunarG Sample multiple layer per library",
         "functions" : {
-          "vkGetInstanceProcAddr" : "multi1GetInstanceProcAddr",
-          "vkGetDeviceProcAddr" : "multi1GetDeviceProcAddr"
+          "vkGetInstanceProcAddr" : "VK_LAYER_LUNARG_multi1GetInstanceProcAddr",
+          "vkGetDeviceProcAddr" : "VK_LAYER_LUNARG_multi1GetDeviceProcAddr"
         }
     },
     "layer" : {
@@ -20,7 +20,7 @@
         "implementation_version": "1",
         "description": "LunarG Sample multiple layer per library",
         "functions" : {
-          "vkGetInstanceProcAddr" : "multi2GetInstanceProcAddr"
+          "vkGetInstanceProcAddr" : "VK_LAYER_LUNARG_multi2GetInstanceProcAddr"
         }
     }
 }
