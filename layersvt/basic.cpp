@@ -30,7 +30,7 @@
 typedef VkResult(VKAPI_PTR *PFN_vkLayerBasicEXT)(VkDevice device);
 static PFN_vkLayerBasicEXT pfn_layer_extension;
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkLayerBasicEXT(VkDevice device) {
+VKAPI_ATTR VkResult VKAPI_CALL basic_LayerBasicEXT(VkDevice device) {
     printf("In vkLayerBasicEXT() call w/ device: %p\n", (void *)device);
     if (pfn_layer_extension) {
         printf("In vkLayerBasicEXT() call down chain\n");
@@ -40,7 +40,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkLayerBasicEXT(VkDevice device) 
     return VK_SUCCESS;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+VKAPI_ATTR VkResult VKAPI_CALL
 basic_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
@@ -63,7 +63,7 @@ basic_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) {
     printf("At start of wrapped vkEnumeratePhysicalDevices() call w/ inst: %p\n", (void *)instance);
     VkResult result = instance_dispatch_table(instance)->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
@@ -71,9 +71,9 @@ basic_EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCou
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL basic_CreateDevice(VkPhysicalDevice physicalDevice,
-                                                                  const VkDeviceCreateInfo *pCreateInfo,
-                                                                  const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
+VKAPI_ATTR VkResult VKAPI_CALL basic_CreateDevice(VkPhysicalDevice physicalDevice,
+                                                  const VkDeviceCreateInfo *pCreateInfo,
+                                                  const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
     printf("VK_LAYER_LUNARG_Basic: At start of vkCreateDevice() call w/ gpu: %p\n", (void *)physicalDevice);
 
     VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
@@ -102,20 +102,20 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL basic_CreateDevice(VkPhysicalDevi
 }
 
 /* hook DestroyDevice to remove tableMap entry */
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL basic_DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL basic_DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(device);
     device_dispatch_table(device)->DestroyDevice(device, pAllocator);
     destroy_device_dispatch_table(key);
 }
 
 /* hook DestroyInstance to remove tableInstanceMap entry */
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL basic_DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL basic_DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(instance);
     instance_dispatch_table(instance)->DestroyInstance(instance, pAllocator);
     destroy_instance_dispatch_table(key);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
+VKAPI_ATTR void VKAPI_CALL
 basic_GetPhysicalDeviceFormatProperties(VkPhysicalDevice gpu, VkFormat format, VkFormatProperties *pFormatInfo) {
     printf("At start of wrapped vkGetPhysicalDeviceFormatProperties() call w/ gpu: %p\n", (void *)gpu);
     instance_dispatch_table(gpu)->GetPhysicalDeviceFormatProperties(gpu, format, pFormatInfo);
@@ -137,26 +137,24 @@ static const VkExtensionProperties basic_physicaldevice_extensions[] = {{
     "vkLayerBasicEXT", 1,
 }};
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL
+basic_EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
     return util_GetLayerProperties(ARRAY_SIZE(globalLayerProps), globalLayerProps, pCount, pProperties);
 }
 
-/* Must use Vulkan name so that loader finds it */
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
-    /* Mem tracker's physical device layers are the same as global */
+VKAPI_ATTR VkResult VKAPI_CALL
+basic_EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
     return util_GetLayerProperties(ARRAY_SIZE(basic_physicaldevice_layers), basic_physicaldevice_layers, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL
+basic_EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
     return util_GetExtensionProperties(0, NULL, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
-                                                                                    const char *pLayerName, uint32_t *pCount,
-                                                                                    VkExtensionProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL basic_EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                        const char *pLayerName, uint32_t *pCount,
+                                                                        VkExtensionProperties *pProperties) {
     if (pLayerName == NULL) {
         return instance_dispatch_table(physicalDevice)
             ->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
@@ -166,13 +164,13 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionPropert
     }
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char *pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL basic_GetDeviceProcAddr(VkDevice device, const char *pName) {
     if (!strcmp("vkGetDeviceProcAddr", pName))
-        return (PFN_vkVoidFunction)vkGetDeviceProcAddr;
+        return (PFN_vkVoidFunction)basic_GetDeviceProcAddr;
     if (!strcmp("vkDestroyDevice", pName))
         return (PFN_vkVoidFunction)basic_DestroyDevice;
     if (!strcmp("vkLayerBasicEXT", pName))
-        return (PFN_vkVoidFunction)vkLayerBasicEXT;
+        return (PFN_vkVoidFunction)basic_LayerBasicEXT;
 
     if (device == NULL)
         return NULL;
@@ -182,17 +180,17 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL basic_GetInstanceProcAddr(VkInstance instance, const char *pName) {
     if (!strcmp("vkEnumerateInstanceLayerProperties", pName))
-        return (PFN_vkVoidFunction)vkEnumerateInstanceLayerProperties;
+        return (PFN_vkVoidFunction)basic_EnumerateInstanceLayerProperties;
     if (!strcmp("vkEnumerateDeviceLayerProperties", pName))
-        return (PFN_vkVoidFunction)vkEnumerateDeviceLayerProperties;
+        return (PFN_vkVoidFunction)basic_EnumerateDeviceLayerProperties;
     if (!strcmp("vkEnumerateInstanceExtensionProperties", pName))
-        return (PFN_vkVoidFunction)vkEnumerateInstanceExtensionProperties;
+        return (PFN_vkVoidFunction)basic_EnumerateInstanceExtensionProperties;
     if (!strcmp("vkEnumerateDeviceExtensionProperties", pName))
-        return (PFN_vkVoidFunction)vkEnumerateDeviceExtensionProperties;
+        return (PFN_vkVoidFunction)basic_EnumerateDeviceExtensionProperties;
     if (!strcmp("vkGetInstanceProcAddr", pName))
-        return (PFN_vkVoidFunction)vkGetInstanceProcAddr;
+        return (PFN_vkVoidFunction)basic_GetInstanceProcAddr;
     if (!strcmp("vkGetPhysicalDeviceFormatProperties", pName))
         return (PFN_vkVoidFunction)basic_GetPhysicalDeviceFormatProperties;
     if (!strcmp("vkCreateInstance", pName))
@@ -210,4 +208,39 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
         return NULL;
     return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
+}
+
+// loader-layer interface v0, just wrappers since there is only a layer
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
+    return basic_EnumerateInstanceLayerProperties(pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
+    // the layer command handles VK_NULL_HANDLE just fine internally
+    assert(physicalDevice == VK_NULL_HANDLE);
+    return basic_EnumerateDeviceLayerProperties(VK_NULL_HANDLE, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
+    return basic_EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                                    const char *pLayerName, uint32_t *pCount,
+                                                                                    VkExtensionProperties *pProperties) {
+    // the layer command handles VK_NULL_HANDLE just fine internally
+    assert(physicalDevice == VK_NULL_HANDLE);
+    return basic_EnumerateDeviceExtensionProperties(VK_NULL_HANDLE, pLayerName, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice dev, const char *funcName) {
+    return basic_GetDeviceProcAddr(dev, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *funcName) {
+    return basic_GetInstanceProcAddr(instance, funcName);
 }
