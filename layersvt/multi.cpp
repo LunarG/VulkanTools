@@ -26,10 +26,40 @@
 #include "vk_loader_platform.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
+#include "vk_layer_extension_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+enum {
+    LAYER_MULTI1,
+    LAYER_MULTI2,
+    LAYER_COUNT,
+};
+
+static const VkLayerProperties all_layer_props[LAYER_COUNT] = {
+    {
+        "VK_LAYER_LUNARG_multi1",
+        VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
+        1,              // implementationVersion
+        "LunarG Sample multiple layer per library",
+    },
+    {
+        "VK_LAYER_LUNARG_multi2",
+        VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
+        1,              // implementationVersion
+        "LunarG Sample multiple layer per library",
+    },
+};
+
+static const struct {
+    uint32_t count;
+    const VkExtensionProperties* extensions;
+} all_extension_props[LAYER_COUNT] = {
+    { 0, NULL, },
+    { 0, NULL, },
+};
 
 static device_table_map multi1_device_table_map;
 static instance_table_map multi1_instance_table_map;
@@ -134,6 +164,43 @@ multi1CreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, ui
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+multi1EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
+{
+    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI1], pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+multi1EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties)
+{
+    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI1], pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+multi1EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties)
+{
+    if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI1].layerName)) {
+        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI1].count,
+                all_extension_props[LAYER_MULTI1].extensions, pCount, pProperties);
+    }
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+multi1EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                         const char *pLayerName, uint32_t *pCount,
+                                         VkExtensionProperties *pProperties)
+{
+    if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI1].layerName)) {
+        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI1].count,
+                all_extension_props[LAYER_MULTI1].extensions, pCount, pProperties);
+    }
+
+    VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi1_instance_table_map, physicalDevice);
+    return pDisp->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
+}
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr(VkDevice device, const char *pName) {
     if (!strcmp(pName, "multi1GetDeviceProcAddr") || !strcmp(pName, "vkGetDeviceProcAddr"))
         return (PFN_vkVoidFunction)multi1GetDeviceProcAddr;
@@ -154,6 +221,14 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr(VkDevice device
 }
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAddr(VkInstance instance, const char *pName) {
+    if (!strcmp("vkEnumerateInstanceLayerProperties", pName))
+        return (PFN_vkVoidFunction)multi1EnumerateInstanceLayerProperties;
+    if (!strcmp("vkEnumerateDeviceLayerProperties", pName))
+        return (PFN_vkVoidFunction)multi1EnumerateDeviceLayerProperties;
+    if (!strcmp("vkEnumerateInstanceExtensionProperties", pName))
+        return (PFN_vkVoidFunction)multi1EnumerateInstanceExtensionProperties;
+    if (!strcmp("vkEnumerateDeviceExtensionProperties", pName))
+        return (PFN_vkVoidFunction)multi1EnumerateDeviceExtensionProperties;
     if (!strcmp(pName, "multi1GetInstanceProcAddr") || !strcmp(pName, "vkGetInsatnceProcAddr"))
         return (PFN_vkVoidFunction)multi1GetInstanceProcAddr;
     if (!strcmp(pName, "multi1GetDeviceProcAddr") || !strcmp(pName, "vkGetDeviceProcAddr"))
@@ -247,7 +322,52 @@ VKAPI_ATTR void VKAPI_CALL multi2DestroyInstance(VkInstance instance, const VkAl
     printf("Completed multi2 layer vkDestroyInstance()\n");
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL
+multi2EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
+{
+    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI2], pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+multi2EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties)
+{
+    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI2], pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+multi2EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties)
+{
+    if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI2].layerName)) {
+        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI2].count,
+                all_extension_props[LAYER_MULTI2].extensions, pCount, pProperties);
+    }
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL
+multi2EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                         const char *pLayerName, uint32_t *pCount,
+                                         VkExtensionProperties *pProperties)
+{
+    if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI2].layerName)) {
+        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI2].count,
+                all_extension_props[LAYER_MULTI2].extensions, pCount, pProperties);
+    }
+
+    VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi2_instance_table_map, physicalDevice);
+    return pDisp->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
+}
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAddr(VkInstance inst, const char *pName) {
+    if (!strcmp("vkEnumerateInstanceLayerProperties", pName))
+        return (PFN_vkVoidFunction)multi2EnumerateInstanceLayerProperties;
+    if (!strcmp("vkEnumerateDeviceLayerProperties", pName))
+        return (PFN_vkVoidFunction)multi2EnumerateDeviceLayerProperties;
+    if (!strcmp("vkEnumerateInstanceExtensionProperties", pName))
+        return (PFN_vkVoidFunction)multi2EnumerateInstanceExtensionProperties;
+    if (!strcmp("vkEnumerateDeviceExtensionProperties", pName))
+        return (PFN_vkVoidFunction)multi2EnumerateDeviceExtensionProperties;
     if (!strcmp("vkCreateInstance", pName))
         return (PFN_vkVoidFunction)multi2CreateInstance;
     if (!strcmp(pName, "multi2GetInstanceProcAddr") || !strcmp(pName, "vkGetInstanceProcAddr"))
@@ -272,15 +392,82 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAddr(VkInstance in
 
 // loader-layer interface v0
 
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
+{
+    return util_GetLayerProperties(LAYER_COUNT, all_layer_props, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties)
+{
+    // multi2 does not intercept any device-level command
+    return multi1EnumerateDeviceLayerProperties(physicalDevice, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties)
+{
+    assert(pLayerName);
+
+    for (int i = 0; i < LAYER_COUNT; i++) {
+        if (!strcmp(pLayerName, all_layer_props[i].layerName)) {
+            return util_GetExtensionProperties(all_extension_props[i].count,
+                    all_extension_props[i].extensions, pCount, pProperties);
+        }
+    }
+
+    assert(!"unreachable");
+    *pCount = 0;
+    return VK_SUCCESS;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                     const char *pLayerName, uint32_t *pCount,
+                                     VkExtensionProperties *pProperties)
+{
+    assert(physicalDevice == VK_NULL_HANDLE && pLayerName);
+
+    for (int i = 0; i < LAYER_COUNT; i++) {
+        if (!strcmp(pLayerName, all_layer_props[i].layerName)) {
+            return util_GetExtensionProperties(all_extension_props[i].count,
+                    all_extension_props[i].extensions, pCount, pProperties);
+        }
+    }
+
+    assert(!"unreachable");
+    *pCount = 0;
+    return VK_SUCCESS;
+}
+
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_multi1GetDeviceProcAddr(VkDevice device, const char *pName) {
     return multi1GetDeviceProcAddr(device, pName);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_multi1GetInstanceProcAddr(VkInstance instance, const char *pName) {
+    if (!strcmp(pName, "vkEnumerateInstanceLayerProperties"))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceLayerProperties);
+    if (!strcmp(pName, "vkEnumerateDeviceLayerProperties"))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateDeviceLayerProperties);
+    if (!strcmp(pName, "vkEnumerateInstanceExtensionProperties"))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceExtensionProperties);
+    if (!strcmp(pName, "vkGetInstanceProcAddr"))
+        return reinterpret_cast<PFN_vkVoidFunction>(VK_LAYER_LUNARG_multi1GetInstanceProcAddr);
+
     return multi1GetInstanceProcAddr(instance, pName);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_multi2GetInstanceProcAddr(VkInstance instance, const char *pName) {
+    if (!strcmp(pName, "vkEnumerateInstanceLayerProperties"))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceLayerProperties);
+    if (!strcmp(pName, "vkEnumerateDeviceLayerProperties"))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateDeviceLayerProperties);
+    if (!strcmp(pName, "vkEnumerateInstanceExtensionProperties"))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceExtensionProperties);
+    if (!strcmp(pName, "vkGetInstanceProcAddr"))
+        return reinterpret_cast<PFN_vkVoidFunction>(VK_LAYER_LUNARG_multi2GetInstanceProcAddr);
+
     return multi2GetInstanceProcAddr(instance, pName);
 }
 
