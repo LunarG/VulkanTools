@@ -145,19 +145,22 @@ basic_EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *
 
 VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
-    return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+    if (pLayerName && !strcmp(pLayerName, basic_LayerProps.layerName))
+        return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL basic_EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
                                                                         const char *pLayerName, uint32_t *pCount,
                                                                         VkExtensionProperties *pProperties) {
-    if (pLayerName == NULL) {
-        return instance_dispatch_table(physicalDevice)
-            ->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
-    } else {
-        return util_GetExtensionProperties(ARRAY_SIZE(basic_physicaldevice_extensions), basic_physicaldevice_extensions, pCount,
-                                           pProperties);
+    if (pLayerName && !strcmp(pLayerName, basic_LayerProps.layerName)) {
+        return util_GetExtensionProperties(ARRAY_SIZE(basic_physicaldevice_extensions),
+                basic_physicaldevice_extensions, pCount, pProperties);
     }
+
+    return instance_dispatch_table(physicalDevice)
+        ->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
 }
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL basic_GetDeviceProcAddr(VkDevice device, const char *pName) {
