@@ -27,13 +27,6 @@
 #include "vk_layer_table.h"
 #include "vk_layer_extension_utils.h"
 
-static const VkLayerProperties globalLayerProps[] = {{
-    "VK_LAYER_LUNARG_basic",
-    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
-    1,              // implementationVersion
-    "LunarG Sample Layer",
-}};
-
 typedef VkResult(VKAPI_PTR *PFN_vkLayerBasicEXT)(VkDevice device);
 static PFN_vkLayerBasicEXT pfn_layer_extension;
 
@@ -45,33 +38,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkLayerBasicEXT(VkDevice device) 
     }
     printf("vkLayerBasicEXT returning SUCCESS\n");
     return VK_SUCCESS;
-}
-
-static const VkLayerProperties basic_physicaldevice_layers[] = {{
-    "VK_LAYER_LUNARG_basic", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Sample layer: basic, implements vkLayerBasicEXT",
-}};
-
-/* Must use Vulkan name so that loader finds it */
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
-    /* Mem tracker's physical device layers are the same as global */
-    return util_GetLayerProperties(ARRAY_SIZE(basic_physicaldevice_layers), basic_physicaldevice_layers, pCount, pProperties);
-}
-
-static const VkExtensionProperties basic_physicaldevice_extensions[] = {{
-    "vkLayerBasicEXT", 1,
-}};
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
-                                                                                    const char *pLayerName, uint32_t *pCount,
-                                                                                    VkExtensionProperties *pProperties) {
-    if (pLayerName == NULL) {
-        return instance_dispatch_table(physicalDevice)
-            ->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
-    } else {
-        return util_GetExtensionProperties(ARRAY_SIZE(basic_physicaldevice_extensions), basic_physicaldevice_extensions, pCount,
-                                           pProperties);
-    }
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
@@ -156,6 +122,50 @@ basic_GetPhysicalDeviceFormatProperties(VkPhysicalDevice gpu, VkFormat format, V
     printf("Completed wrapped vkGetPhysicalDeviceFormatProperties() call w/ gpu: %p\n", (void *)gpu);
 }
 
+static const VkLayerProperties globalLayerProps[] = {{
+    "VK_LAYER_LUNARG_basic",
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
+    1,              // implementationVersion
+    "LunarG Sample Layer",
+}};
+
+static const VkLayerProperties basic_physicaldevice_layers[] = {{
+    "VK_LAYER_LUNARG_basic", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Sample layer: basic, implements vkLayerBasicEXT",
+}};
+
+static const VkExtensionProperties basic_physicaldevice_extensions[] = {{
+    "vkLayerBasicEXT", 1,
+}};
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
+    return util_GetLayerProperties(ARRAY_SIZE(globalLayerProps), globalLayerProps, pCount, pProperties);
+}
+
+/* Must use Vulkan name so that loader finds it */
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
+    /* Mem tracker's physical device layers are the same as global */
+    return util_GetLayerProperties(ARRAY_SIZE(basic_physicaldevice_layers), basic_physicaldevice_layers, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
+    return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                                    const char *pLayerName, uint32_t *pCount,
+                                                                                    VkExtensionProperties *pProperties) {
+    if (pLayerName == NULL) {
+        return instance_dispatch_table(physicalDevice)
+            ->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
+    } else {
+        return util_GetExtensionProperties(ARRAY_SIZE(basic_physicaldevice_extensions), basic_physicaldevice_extensions, pCount,
+                                           pProperties);
+    }
+}
+
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char *pName) {
     if (!strcmp("vkGetDeviceProcAddr", pName))
         return (PFN_vkVoidFunction)vkGetDeviceProcAddr;
@@ -196,14 +206,4 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
         return NULL;
     return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
-}
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
-    return util_GetExtensionProperties(0, NULL, pCount, pProperties);
-}
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
-    return util_GetLayerProperties(ARRAY_SIZE(globalLayerProps), globalLayerProps, pCount, pProperties);
 }
