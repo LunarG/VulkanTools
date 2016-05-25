@@ -167,6 +167,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAddr(VkInstance in
     if (!strcmp("vkDestroyInstance", pName))
         return (PFN_vkVoidFunction)multi1DestroyInstance;
 
+    PFN_vkVoidFunction proc = multi1GetDeviceProcAddr(VK_NULL_HANDLE, pName);
+    if (proc)
+        return proc;
+
     if (instance == NULL)
         return NULL;
 
