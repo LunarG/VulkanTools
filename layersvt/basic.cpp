@@ -22,10 +22,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unordered_map>
 #include "vk_dispatch_table_helper.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
 #include "vk_layer_extension_utils.h"
+
+static std::unordered_map<dispatch_key, VkInstance> basic_instance_map;
 
 typedef VkResult(VKAPI_PTR *PFN_vkLayerBasicEXT)(VkDevice device);
 static PFN_vkLayerBasicEXT pfn_layer_extension;
@@ -58,6 +61,7 @@ basic_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
     if (result != VK_SUCCESS)
         return result;
 
+    basic_instance_map[get_dispatch_key(*pInstance)] = *pInstance;
     initInstanceTable(*pInstance, fpGetInstanceProcAddr);
 
     return result;
@@ -81,7 +85,8 @@ VKAPI_ATTR VkResult VKAPI_CALL basic_CreateDevice(VkPhysicalDevice physicalDevic
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
-    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(NULL, "vkCreateDevice");
+    VkInstance instance = basic_instance_map[get_dispatch_key(physicalDevice)];
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(instance, "vkCreateDevice");
     if (fpCreateDevice == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -113,6 +118,7 @@ VKAPI_ATTR void VKAPI_CALL basic_DestroyInstance(VkInstance instance, const VkAl
     dispatch_key key = get_dispatch_key(instance);
     instance_dispatch_table(instance)->DestroyInstance(instance, pAllocator);
     destroy_instance_dispatch_table(key);
+    basic_instance_map.erase(key);
 }
 
 VKAPI_ATTR void VKAPI_CALL
