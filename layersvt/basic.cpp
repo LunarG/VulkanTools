@@ -183,12 +183,16 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *pName) {
-    if (!strcmp("vkGetInstanceProcAddr", pName))
-        return (PFN_vkVoidFunction)vkGetInstanceProcAddr;
+    if (!strcmp("vkEnumerateInstanceLayerProperties", pName))
+        return (PFN_vkVoidFunction)vkEnumerateInstanceLayerProperties;
     if (!strcmp("vkEnumerateDeviceLayerProperties", pName))
         return (PFN_vkVoidFunction)vkEnumerateDeviceLayerProperties;
+    if (!strcmp("vkEnumerateInstanceExtensionProperties", pName))
+        return (PFN_vkVoidFunction)vkEnumerateInstanceExtensionProperties;
     if (!strcmp("vkEnumerateDeviceExtensionProperties", pName))
         return (PFN_vkVoidFunction)vkEnumerateDeviceExtensionProperties;
+    if (!strcmp("vkGetInstanceProcAddr", pName))
+        return (PFN_vkVoidFunction)vkGetInstanceProcAddr;
     if (!strcmp("vkGetPhysicalDeviceFormatProperties", pName))
         return (PFN_vkVoidFunction)basic_GetPhysicalDeviceFormatProperties;
     if (!strcmp("vkCreateInstance", pName))
