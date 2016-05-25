@@ -673,37 +673,38 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
     return result;
 }
 
-static const VkLayerProperties ss_device_layers[] = {{
+static const VkLayerProperties global_layer = {
     "VK_LAYER_LUNARG_screenshot", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Layer: screenshot",
-}};
+};
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
-    /* ScreenShot does not have any global layers */
-    return util_GetLayerProperties(0, NULL, pCount, pProperties);
+    return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
-    return util_GetLayerProperties(ARRAY_SIZE(ss_device_layers), ss_device_layers, pCount, pProperties);
+    return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
-    /* ScreenShot does not have any global extensions */
-    return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
+        return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
                                                                                     const char *pLayerName, uint32_t *pCount,
                                                                                     VkExtensionProperties *pProperties) {
-    /* ScreenShot does not have any physical device extensions */
-    if (pLayerName == NULL) {
-        VkLayerInstanceDispatchTable *pTable = instance_dispatch_table(physicalDevice);
-        return pTable->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
-    } else {
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
         return util_GetExtensionProperties(0, NULL, pCount, pProperties);
-    }
+
+    assert(physicalDevice);
+
+    VkLayerInstanceDispatchTable *pTable = instance_dispatch_table(physicalDevice);
+    return pTable->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
 }
 
 static PFN_vkVoidFunction
