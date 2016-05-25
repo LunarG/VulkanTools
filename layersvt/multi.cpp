@@ -34,7 +34,7 @@ extern "C" {
 static device_table_map multi1_device_table_map;
 static instance_table_map multi1_instance_table_map;
 /******************************** Layer multi1 functions **************************/
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+VKAPI_ATTR VkResult VKAPI_CALL
 multi1CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
@@ -58,7 +58,7 @@ multi1CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
 }
 
 /* hook DestroyInstance to remove tableInstanceMap entry */
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi1DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL multi1DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi1_instance_table_map, instance);
     dispatch_key key = get_dispatch_key(instance);
 
@@ -68,7 +68,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi1DestroyInstance(VkInstance inst
     printf("Completed multi1 layer vkDestroyInstance()\n");
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi1CreateDevice(VkPhysicalDevice physicalDevice,
+VKAPI_ATTR VkResult VKAPI_CALL multi1CreateDevice(VkPhysicalDevice physicalDevice,
                                                                   const VkDeviceCreateInfo *pCreateInfo,
                                                                   const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
     printf("At start of multi1 layer vkCreateDevice()\n");
@@ -98,7 +98,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi1CreateDevice(VkPhysicalDevi
 }
 
 /* hook DestroyDevice to remove tableMap entry */
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi1DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL multi1DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     VkLayerDispatchTable *pDisp = get_dispatch_table(multi1_device_table_map, device);
     dispatch_key key = get_dispatch_key(device);
 
@@ -108,7 +108,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi1DestroyDevice(VkDevice device, 
     printf("Completed multi1 layer vkDestroyDevice()\n");
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi1CreateSampler(VkDevice device, const VkSamplerCreateInfo *pCreateInfo,
+VKAPI_ATTR VkResult VKAPI_CALL multi1CreateSampler(VkDevice device, const VkSamplerCreateInfo *pCreateInfo,
                                                                    const VkAllocationCallbacks *pAllocator, VkSampler *pSampler) {
     VkLayerDispatchTable *pDisp = get_dispatch_table(multi1_device_table_map, device);
 
@@ -118,7 +118,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL multi1CreateSampler(VkDevice devi
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+VKAPI_ATTR VkResult VKAPI_CALL
 multi1CreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t count,
                               const VkGraphicsPipelineCreateInfo *pCreateInfos, const VkAllocationCallbacks *pAllocator,
                               VkPipeline *pPipelines) {
@@ -130,7 +130,7 @@ multi1CreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, ui
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr(VkDevice device, const char *pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr(VkDevice device, const char *pName) {
     if (!strcmp(pName, "multi1GetDeviceProcAddr") || !strcmp(pName, "vkGetDeviceProcAddr"))
         return (PFN_vkVoidFunction)multi1GetDeviceProcAddr;
     if (!strcmp("vkDestroyDevice", pName))
@@ -149,7 +149,7 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetDeviceProcAddr
     return pTable->GetDeviceProcAddr(device, pName);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAddr(VkInstance instance, const char *pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAddr(VkInstance instance, const char *pName) {
     if (!strcmp(pName, "multi1GetInstanceProcAddr") || !strcmp(pName, "vkGetInsatnceProcAddr"))
         return (PFN_vkVoidFunction)multi1GetInstanceProcAddr;
     if (!strcmp(pName, "multi1GetDeviceProcAddr") || !strcmp(pName, "vkGetDeviceProcAddr"))
@@ -179,7 +179,7 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAd
 
 static instance_table_map multi2_instance_table_map;
 /******************************** Layer multi2 functions **************************/
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+VKAPI_ATTR VkResult VKAPI_CALL
 multi2CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
@@ -202,7 +202,7 @@ multi2CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+VKAPI_ATTR VkResult VKAPI_CALL
 multi2EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount, VkPhysicalDevice *pPhysicalDevices) {
     VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi2_instance_table_map, instance);
 
@@ -212,7 +212,7 @@ multi2EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCou
     return result;
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
+VKAPI_ATTR void VKAPI_CALL
 multi2GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties *pProperties) {
     VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi2_instance_table_map, physicalDevice);
     printf("At start of wrapped multi2 vkGetPhysicalDeviceProperties()\n");
@@ -220,7 +220,7 @@ multi2GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDev
     printf("Completed multi2 layer vkGetPhysicalDeviceProperties()\n");
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
+VKAPI_ATTR void VKAPI_CALL
 multi2GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures *pFeatures) {
     VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi2_instance_table_map, physicalDevice);
     printf("At start of wrapped multi2 vkGetPhysicalDeviceFeatures()\n");
@@ -229,7 +229,7 @@ multi2GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDevic
 }
 
 /* hook DestroyInstance to remove tableInstanceMap entry */
-VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi2DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL multi2DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     VkLayerInstanceDispatchTable *pDisp = get_dispatch_table(multi2_instance_table_map, instance);
     dispatch_key key = get_dispatch_key(instance);
 
@@ -239,7 +239,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL multi2DestroyInstance(VkInstance inst
     printf("Completed multi2 layer vkDestroyInstance()\n");
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAddr(VkInstance inst, const char *pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAddr(VkInstance inst, const char *pName) {
     if (!strcmp("vkCreateInstance", pName))
         return (PFN_vkVoidFunction)multi2CreateInstance;
     if (!strcmp(pName, "multi2GetInstanceProcAddr") || !strcmp(pName, "vkGetInstanceProcAddr"))
@@ -260,6 +260,20 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAd
     if (pTable->GetInstanceProcAddr == NULL)
         return NULL;
     return pTable->GetInstanceProcAddr(inst, pName);
+}
+
+// loader-layer interface v0
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_multi1GetDeviceProcAddr(VkDevice device, const char *pName) {
+    return multi1GetDeviceProcAddr(device, pName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_multi1GetInstanceProcAddr(VkInstance instance, const char *pName) {
+    return multi1GetInstanceProcAddr(instance, pName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_multi2GetInstanceProcAddr(VkInstance instance, const char *pName) {
+    return multi2GetInstanceProcAddr(instance, pName);
 }
 
 #ifdef __cplusplus
