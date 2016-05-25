@@ -122,16 +122,12 @@ basic_GetPhysicalDeviceFormatProperties(VkPhysicalDevice gpu, VkFormat format, V
     printf("Completed wrapped vkGetPhysicalDeviceFormatProperties() call w/ gpu: %p\n", (void *)gpu);
 }
 
-static const VkLayerProperties globalLayerProps[] = {{
+static const VkLayerProperties basic_LayerProps = {
     "VK_LAYER_LUNARG_basic",
     VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
     1,              // implementationVersion
     "LunarG Sample Layer",
-}};
-
-static const VkLayerProperties basic_physicaldevice_layers[] = {{
-    "VK_LAYER_LUNARG_basic", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Sample layer: basic, implements vkLayerBasicEXT",
-}};
+};
 
 static const VkExtensionProperties basic_physicaldevice_extensions[] = {{
     "vkLayerBasicEXT", 1,
@@ -139,12 +135,12 @@ static const VkExtensionProperties basic_physicaldevice_extensions[] = {{
 
 VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
-    return util_GetLayerProperties(ARRAY_SIZE(globalLayerProps), globalLayerProps, pCount, pProperties);
+    return util_GetLayerProperties(1, &basic_LayerProps, pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
-    return util_GetLayerProperties(ARRAY_SIZE(basic_physicaldevice_layers), basic_physicaldevice_layers, pCount, pProperties);
+    return util_GetLayerProperties(1, &basic_LayerProps, pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
