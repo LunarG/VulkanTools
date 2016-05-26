@@ -76,32 +76,6 @@ TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PipelineLayout);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSetLayout);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSet);
 
-//===============================================
-// Write all stored trace packets to the trace file
-//===============================================
-#define TRIM_WRITE_OBJECT_PACKETS(type) \
-    for (TrimObjectInfoMap::iterator iter = g_trimGlobalStateTracker.created##type##s.begin(); iter != g_trimGlobalStateTracker.created##type##s.end(); iter++) { \
-        Trim_ObjectInfo info = iter->second; \
-        for (std::list<vktrace_trace_packet_header*>::iterator call = info.packets.begin(); call != info.packets.end(); call++) { \
-            vktrace_write_trace_packet(*call, vktrace_trace_get_trace_file()); \
-        } \
-    }
-
-//===============================================
-// Write trace packets only for referenced objects to the trace file
-//===============================================
-#define TRIM_WRITE_REFERENCED_OBJECT_PACKETS(type) \
-    for (TrimObjectInfoMap::iterator iter = g_trimGlobalStateTracker.created##type##s.begin(); iter != g_trimGlobalStateTracker.created##type##s.end(); iter++) { \
-        Trim_ObjectInfo info = iter->second; \
-        if (info.bReferencedInTrim) { \
-            for (std::list<vktrace_trace_packet_header*>::iterator call = info.packets.begin(); call != info.packets.end(); call++) { \
-                if (*call != NULL) { \
-                    vktrace_write_trace_packet(*call, vktrace_trace_get_trace_file()); \
-                } \
-            } \
-        } \
-    }
-
 //=============================================================================
 // Recreate all objects
 //=============================================================================
@@ -267,6 +241,13 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.Sampler.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Sampler.pCreatePacket));
     }
+
+    // DescriptorSetLayout
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdDescriptorSetLayouts.begin(); obj != g_trimGlobalStateTracker.createdDescriptorSetLayouts.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.DescriptorSetLayout.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DescriptorSetLayout.pCreatePacket));
+    }
 }
 
 #define TRIM_ADD_OBJECT_CALL(type) \
@@ -280,7 +261,6 @@ void trim_mark_##type##_reference(Vk##type var) { \
     Trim_ObjectInfo* info = &g_trimGlobalStateTracker.created##type##s[var]; \
     info->bReferencedInTrim = true; \
 }
-
 
 #define TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(type) \
 void trim_mark_##type##_reference(Vk##type var) { \
@@ -386,6 +366,21 @@ void trim_write_recorded_packets()
 //===============================================
 void trim_write_destroy_packets()
 {
+    // DescriptorSetLayout
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdSamplers.begin(); obj != g_trimGlobalStateTracker.createdSamplers.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyDescriptorSetLayout* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyDescriptorSetLayout, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyDescriptorSetLayout(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->descriptorSetLayout = (VkDescriptorSetLayout)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.DescriptorSetLayout.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
     // Sampler
     for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdSamplers.begin(); obj != g_trimGlobalStateTracker.createdSamplers.end(); obj++)
     {

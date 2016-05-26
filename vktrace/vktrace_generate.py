@@ -563,6 +563,15 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroySampler' is proto.name:
             trim_instructions.append("        trim_remove_Sampler_object(sampler);")
+        elif 'CreateDescriptorSetLayout' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_DescriptorSetLayout_object(*pSetLayout);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.DescriptorSetLayout.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroyDescriptorSetLayout' is proto.name:
+            trim_instructions.append("        trim_remove_DescriptorSetLayout_object(descriptorSetLayout);")
         elif 'CreateFramebuffer' is proto.name:
 #            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
@@ -578,9 +587,6 @@ class Subcommand(object):
         elif 'CreatePipelineLayout' is proto.name:
 #            trim_instructions.append("        trim_dependency_PipelineLayout_to_Device[*pPipelineLayout] = device;")
             trim_instructions.append("        trim_add_PipelineLayout_call(*pPipelineLayout, pHeader);")
-        elif 'CreateDescriptorSetLayout' is proto.name:
-#            trim_instructions.append("        trim_dependency_DescriptorSetLayout_to_Device[*pSetLayout] = device;")
-            trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")
         elif ('GetPhysicalDeviceSurfaceSupportKHR' is proto.name or
               'GetPhysicalDeviceMemoryProperties' is proto.name):
             trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
