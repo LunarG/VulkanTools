@@ -62,6 +62,8 @@ TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Image);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(BufferView);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Buffer);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Sampler);
+TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSetLayout);
+TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PipelineLayout);
 
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorPool);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(RenderPass);
@@ -72,8 +74,6 @@ TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Framebuffer);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Event);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(QueryPool);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(ShaderModule);
-TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PipelineLayout);
-TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSetLayout);
 TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSet);
 
 //=============================================================================
@@ -248,6 +248,13 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.DescriptorSetLayout.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DescriptorSetLayout.pCreatePacket));
     }
+
+    // PipelineLayout
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdPipelineLayouts.begin(); obj != g_trimGlobalStateTracker.createdPipelineLayouts.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.PipelineLayout.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.PipelineLayout.pCreatePacket));
+    }
 }
 
 #define TRIM_ADD_OBJECT_CALL(type) \
@@ -366,6 +373,21 @@ void trim_write_recorded_packets()
 //===============================================
 void trim_write_destroy_packets()
 {
+    // PipelineLayout
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdPipelineLayouts.begin(); obj != g_trimGlobalStateTracker.createdPipelineLayouts.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyPipelineLayout* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyPipelineLayout, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyPipelineLayout(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->pipelineLayout = (VkPipelineLayout)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.PipelineLayout.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
     // DescriptorSetLayout
     for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdSamplers.begin(); obj != g_trimGlobalStateTracker.createdSamplers.end(); obj++)
     {
