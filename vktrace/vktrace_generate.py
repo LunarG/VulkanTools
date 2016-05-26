@@ -581,6 +581,8 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyPipelineLayout' is proto.name:
             trim_instructions.append("        trim_remove_PipelineLayout_object(pipelineLayout);")
+        elif 'DestroyRenderPass' is proto.name:
+            trim_instructions.append("        trim_remove_RenderPass_object(renderPass);")
         elif 'CreateFramebuffer' is proto.name:
 #            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")

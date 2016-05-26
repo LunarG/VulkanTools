@@ -104,6 +104,10 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } PipelineLayout;
+        struct _RenderPass {     // VkRenderPass
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } RenderPass;
         struct _DescriptorPool {        // VkDescriptorPool
             VkDescriptorPoolCreateFlags createInfo_flags;
             uint32_t createInfo_maxSets;

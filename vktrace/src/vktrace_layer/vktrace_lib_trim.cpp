@@ -255,6 +255,13 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.PipelineLayout.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.PipelineLayout.pCreatePacket));
     }
+
+    // RenderPass
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdRenderPasss.begin(); obj != g_trimGlobalStateTracker.createdRenderPasss.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.RenderPass.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.RenderPass.pCreatePacket));
+    }
 }
 
 #define TRIM_ADD_OBJECT_CALL(type) \
@@ -373,6 +380,21 @@ void trim_write_recorded_packets()
 //===============================================
 void trim_write_destroy_packets()
 {
+    // RenderPass
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdRenderPasss.begin(); obj != g_trimGlobalStateTracker.createdRenderPasss.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyRenderPass* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyRenderPass, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyRenderPass(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->renderPass = (VkRenderPass)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.RenderPass.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
     // PipelineLayout
     for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdPipelineLayouts.begin(); obj != g_trimGlobalStateTracker.createdPipelineLayouts.end(); obj++)
     {
