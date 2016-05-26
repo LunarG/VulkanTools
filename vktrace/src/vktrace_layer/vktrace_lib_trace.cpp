@@ -162,7 +162,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_add_DeviceMemory_object(*pMemory);
         pInfo->belongsToDevice = device;
+        pInfo->ObjectInfo.DeviceMemory.pCreatePacket = pHeader;
         pInfo->ObjectInfo.DeviceMemory.size = pAllocateInfo->allocationSize;
+        if (pAllocator != NULL)
+        {
+            pInfo->ObjectInfo.DeviceMemory.allocator = *pAllocator;
+        }
         trim_add_DeviceMemory_call(*pMemory, pHeader);
         if (g_trimIsInTrim)
         {

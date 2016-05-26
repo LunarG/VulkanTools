@@ -506,23 +506,63 @@ class Subcommand(object):
               'CmdEndRenderPass' is proto.name or
               'CmdExecuteCommands' is proto.name):
             trim_instructions.append("        trim_add_CommandBuffer_call(commandBuffer, pHeader);")
-        elif 'CreateImage' is proto.name:
-#            trim_instructions.append("        trim_dependency_Image_to_Device[*pImage] = device;")
-            trim_instructions.append("        trim_add_Image_call(*pImage, pHeader);")
-        elif ('GetImageMemoryRequirements' is proto.name or
-              'BindImageMemory' is proto.name):
-            trim_instructions.append("        trim_add_Image_call(image, pHeader);")
         elif 'CreateImageView' is proto.name:
-#            trim_instructions.append("        trim_dependency_ImageView_to_Device[*pView] = device;")
-            trim_instructions.append("        trim_add_ImageView_call(*pView, pHeader);")
-        elif 'CreateBuffer' is proto.name:
-#            trim_instructions.append("        trim_dependency_Buffer_to_Device[*pBuffer] = device;")
-            trim_instructions.append("        trim_add_Buffer_call(*pBuffer, pHeader);")
-        elif 'BindBufferMemory' is proto.name:
-            trim_instructions.append("        trim_add_Buffer_call(buffer, pHeader);")
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_ImageView_object(*pView);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.ImageView.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.ImageView.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroyImageView' is proto.name:
+            trim_instructions.append("        trim_remove_ImageView_object(imageView);")
+        elif 'CreateImage' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Image_object(*pImage);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroyImage' is proto.name:
+            trim_instructions.append("        trim_remove_Image_object(image);")
+#        elif ('GetImageMemoryRequirements' is proto.name):
+        elif ('BindImageMemory' is proto.name):
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Image_objectInfo(image);")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.pBindImageMemoryPacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.memory = memory;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.memoryOffset = memoryOffset;")
         elif 'CreateBufferView' is proto.name:
-#            trim_instructions.append("        trim_dependency_BufferView_to_Device[*pView] = device;")
-            trim_instructions.append("        trim_add_BufferView_call(*pView, pHeader);")
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_BufferView_object(*pView);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.BufferView.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.BufferView.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroyBufferView' is proto.name:
+            trim_instructions.append("        trim_remove_BufferView_object(bufferView);")
+        elif 'CreateBuffer' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Buffer_object(*pBuffer);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.Buffer.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroyBuffer' is proto.name:
+            trim_instructions.append("        trim_remove_Buffer_object(buffer);")
+        elif ('BindBufferMemory' is proto.name):
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Buffer_objectInfo(buffer);")
+            trim_instructions.append("        pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Buffer.memory = memory;")
+            trim_instructions.append("        pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
+        elif 'CreateSampler' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Sampler_object(*pSampler);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.Sampler.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Sampler.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroySampler' is proto.name:
+            trim_instructions.append("        trim_remove_Sampler_object(sampler);")
         elif 'CreateFramebuffer' is proto.name:
 #            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
@@ -538,9 +578,6 @@ class Subcommand(object):
         elif 'CreatePipelineLayout' is proto.name:
 #            trim_instructions.append("        trim_dependency_PipelineLayout_to_Device[*pPipelineLayout] = device;")
             trim_instructions.append("        trim_add_PipelineLayout_call(*pPipelineLayout, pHeader);")
-        elif 'CreateSampler' is proto.name:
-#            trim_instructions.append("        trim_dependency_Sampler_to_Device[*pSampler] = device;")
-            trim_instructions.append("        trim_add_Sampler_call(*pSampler, pHeader);")
         elif 'CreateDescriptorSetLayout' is proto.name:
 #            trim_instructions.append("        trim_dependency_DescriptorSetLayout_to_Device[*pSetLayout] = device;")
             trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")

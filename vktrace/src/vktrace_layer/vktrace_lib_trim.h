@@ -61,16 +61,44 @@ typedef struct _Trim_ObjectInfo
             VkCommandPool commandPool;
             VkCommandBufferLevel level;
         } CommandBuffer;
-
-        struct _Image {                 // VkImage
-            bool bIsSwapchainImage;
-        } Image;
         struct _DeviceMemory {          // VkDeviceMemory
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
             VkDeviceSize size;
             void* mappedAddress;
             VkDeviceSize mappedOffset;
             VkDeviceSize mappedSize;
         } DeviceMemory;
+        struct _Image {                 // VkImage
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+            bool bIsSwapchainImage;
+            vktrace_trace_packet_header* pBindImageMemoryPacket;
+            VkDeviceMemory memory;
+            VkDeviceSize memoryOffset;
+        } Image;
+        struct _ImageView {                 // VkImageView
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } ImageView;
+        struct _Buffer {                 // VkBuffer
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+            vktrace_trace_packet_header* pBindBufferMemoryPacket;
+            VkDeviceMemory memory;
+            VkDeviceSize memoryOffset;
+        } Buffer;
+        struct _BufferView {                 // VkBufferView
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } BufferView;
+        struct _Sampler {                 // VkSampler
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } Sampler;
+
+
+
         struct _DescriptorPool {        // VkDescriptorPool
             VkDescriptorPoolCreateFlags createInfo_flags;
             uint32_t createInfo_maxSets;
