@@ -157,7 +157,7 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     pHeader->next_buffers_offset += byteCount;
     return pBufferStart;
 }
-
+#include "optimization_function.h"
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size, const void* pBuffer)
 {
     assert(ptr_address != NULL);
@@ -171,7 +171,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, size);
 
         // copy buffer to the location
-        memcpy(*ptr_address, pBuffer, (size_t)size);
+        opt_memcpy(*ptr_address, pBuffer, (size_t)size);
     }
 }
 
