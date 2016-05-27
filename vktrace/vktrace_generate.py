@@ -594,6 +594,8 @@ class Subcommand(object):
             trim_instructions.append("        trim_remove_ShaderModule_object(shaderModule);")
         elif 'DestroyPipeline' is proto.name:
             trim_instructions.append("        trim_remove_Pipeline_object(pipeline);")
+        elif 'DestroyDescriptorPool' is proto.name:
+            trim_instructions.append("        trim_remove_DescriptorPool_object(descriptorPool);")
         elif 'CreateFramebuffer' is proto.name:
 #            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")

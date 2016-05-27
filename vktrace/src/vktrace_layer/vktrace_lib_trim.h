@@ -123,13 +123,9 @@ typedef struct _Trim_ObjectInfo
             // TODO: Need to build out this structure based on VkGraphicsPipelineCreateInfo
             VkAllocationCallbacks allocator;
         } Pipeline;
-
-
         struct _DescriptorPool {        // VkDescriptorPool
-            VkDescriptorPoolCreateFlags createInfo_flags;
-            uint32_t createInfo_maxSets;
-            uint32_t createInfo_poolSizeCount;
-            VkDescriptorPoolSize* createInfo_pPoolSizes;
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
         } DescriptorPool;
     } ObjectInfo;
 } Trim_ObjectInfo;

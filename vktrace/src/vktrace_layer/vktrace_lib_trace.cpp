@@ -628,11 +628,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_add_DescriptorPool_object(*pDescriptorPool);
         pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.DescriptorPool.createInfo_flags = pCreateInfo->flags;
-        pInfo->ObjectInfo.DescriptorPool.createInfo_maxSets = pCreateInfo->maxSets;
-        pInfo->ObjectInfo.DescriptorPool.createInfo_poolSizeCount = pCreateInfo->poolSizeCount;
-        pInfo->ObjectInfo.DescriptorPool.createInfo_pPoolSizes = (VkDescriptorPoolSize*)malloc(pCreateInfo->poolSizeCount * sizeof(VkDescriptorPoolSize));
-        memcpy(pInfo->ObjectInfo.DescriptorPool.createInfo_pPoolSizes, pCreateInfo->pPoolSizes, pCreateInfo->poolSizeCount * sizeof(VkDescriptorPoolSize));
+        pInfo->ObjectInfo.DescriptorPool.pCreatePacket = pHeader;
+        if (pAllocator != NULL)
+        {
+            pInfo->ObjectInfo.DescriptorPool.allocator = *pAllocator;
+        }
 
         if (g_trimIsInTrim)
         {
