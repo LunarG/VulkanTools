@@ -583,6 +583,17 @@ class Subcommand(object):
             trim_instructions.append("        trim_remove_PipelineLayout_object(pipelineLayout);")
         elif 'DestroyRenderPass' is proto.name:
             trim_instructions.append("        trim_remove_RenderPass_object(renderPass);")
+        elif 'CreateShaderModule' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_ShaderModule_object(*pShaderModule);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.ShaderModule.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.ShaderModule.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'DestroyShaderModule' is proto.name:
+            trim_instructions.append("        trim_remove_ShaderModule_object(shaderModule);")
+        elif 'DestroyPipeline' is proto.name:
+            trim_instructions.append("        trim_remove_Pipeline_object(pipeline);")
         elif 'CreateFramebuffer' is proto.name:
 #            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
@@ -592,9 +603,6 @@ class Subcommand(object):
         elif 'CreateQueryPool' is proto.name:
 #            trim_instructions.append("        trim_dependency_QueryPool_to_Device[*pQueryPool] = device;")
             trim_instructions.append("        trim_add_QueryPool_call(*pQueryPool, pHeader);")
-        elif 'CreateShaderModule' is proto.name:
-#            trim_instructions.append("        trim_dependency_ShaderModule_to_Device[*pShaderModule] = device;")
-            trim_instructions.append("        trim_add_ShaderModule_call(*pShaderModule, pHeader);")
         elif ('GetPhysicalDeviceSurfaceSupportKHR' is proto.name or
               'GetPhysicalDeviceMemoryProperties' is proto.name):
             trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
