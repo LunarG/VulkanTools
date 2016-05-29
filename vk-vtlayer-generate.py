@@ -198,12 +198,12 @@ class Subcommand(object):
         if vk_type.strip('*').replace('const ', '') in vulkan.object_non_dispatch_list:
             #TODO : cast these types differently for 32 bit windows builds
             if '*' in vk_type:
-                return ("0x%p", "reinterpret_cast<uintptr_t>(*%s)" % name, '*')
-            return ("0x%p", "reinterpret_cast<uintptr_t>(%s)" % name, '')
+                return ("0x%p", "HandleCast(*%s)" % name, '*')
+            return ("0x%p", "HandleCast(%s)" % name, '')
         if vk_type.strip('*').replace('const ', '') in vulkan.object_dispatch_list:
             if '*' in vk_type:
-                return ("0x%p", "reinterpret_cast<uintptr_t>(*%s)" % name, '*')
-            return ("0x%p", "reinterpret_cast<uintptr_t>(%s)" % name, '')
+                return ("0x%p", "HandleCast(*%s)" % name, '*')
+            return ("0x%p", "HandleCast(%s)" % name, '')
         if "size" in vk_type.lower() or "mask" in vk_type.lower():
             if '*' in vk_type:
                 return ("0x%p", "*%s" % name, '*')
@@ -222,15 +222,15 @@ class Subcommand(object):
             return ("0x%p", name, '')
         # TODO : This is special-cased as there's only one "format" param currently and it's nice to expand it
         if "VkFormat" == vk_type:
-            return ("0x%p", "reinterpret_cast<uintptr_t>(&%s)" % name, '&')
+            return ("0x%p", "HandleCast(&%s)" % name, '&')
         if output_param:
             if 1 == vk_type.count('*'):
                 return ("0x%p", "*%s" % name, '*')
             else:
-                return ("0x%p", "reinterpret_cast<uintptr_t>(*%s)" % name, '*')
+                return ("0x%p", "HandleCast(*%s)" % name, '*')
 #        if vk_helper_api_dump.is_type(vk_type, 'struct') and '*' not in vk_type:
-#            return ("%p", "reinterpret_cast<uintptr_t>(&%s)" % name, '&')
-        return ("0x%p", "reinterpret_cast<uintptr_t>(%s)" % name, '')
+#            return ("%p", "HandleCast(&%s)" % name, '&')
+        return ("0x%p", "HandleCast(%s)" % name, '')
 
     def _gen_create_msg_callback(self):
         r_body = []
@@ -1053,9 +1053,9 @@ class ApiDumpSubcommand(Subcommand):
             (pft, pfi, cast) = self._get_printf_params(p.ty, p.name, cp, count=4)
 
             if p.name == "pSwapchain" or p.name == "pSwapchainImages":
-                log_func += '%s = 0x" << nouppercase <<  hex << reinterpret_cast<uintptr_t>(%s) << dec << ", ' % (p.name, p.name)
+                log_func += '%s = 0x" << nouppercase <<  hex << HandleCast(%s) << dec << ", ' % (p.name, p.name)
             elif p.name == "swapchain":
-                log_func += '%s%s = 0x" << nouppercase <<  hex << reinterpret_cast<uintptr_t>(%s) << dec << ", ' % (cast, p.name, p.name)
+                log_func += '%s%s = 0x" << nouppercase <<  hex << HandleCast(%s) << dec << ", ' % (cast, p.name, p.name)
             elif p.name == "visual_id":
                 log_func += '%s = 0x" << nouppercase <<  hex << %s << dec << ", ' % (p.name, p.name)
             elif '0x' in pft:
@@ -1088,8 +1088,8 @@ class ApiDumpSubcommand(Subcommand):
             log_func += ') = " << string_VkResult((VkResult)result) << endl'
             log_func_no_addr += ') = " << string_VkResult((VkResult)result) << endl'
         elif proto.ret == "void*":
-            log_func += ') = " << reinterpret_cast<uintptr_t>(result) << endl'
-            log_func_no_addr += ') = " << reinterpret_cast<uintptr_t>(result) << endl'
+            log_func += ') = " << HandleCast(result) << endl'
+            log_func_no_addr += ') = " << HandleCast(result) << endl'
         else:
             log_func += ')\\n"'
             log_func_no_addr += ')\\n"'
@@ -1129,7 +1129,7 @@ class ApiDumpSubcommand(Subcommand):
                     else:
                         print_cast = ''
                         print_func = 'string_convert_helper'
-                        #cis_print_func = 'tmp_str = string_convert_helper(reinterpret_cast<uintptr_t>(%s[i]), "    ");' % proto.params[sp_index].name
+                        #cis_print_func = 'tmp_str = string_convert_helper(HandleCast(%s[i]), "    ");' % proto.params[sp_index].name
                     if not i_decl:
                         log_func += '\n%suint32_t i;' % (indent)
                         i_decl = True
@@ -1147,7 +1147,7 @@ class ApiDumpSubcommand(Subcommand):
                     else:
                         log_func += '\n%sif (StreamControl::writeAddress == true) {' % (indent)
                         indent += '    '
-                        log_func += '\n%s(*outputStream) << "   %s[" << i << "] = 0x" << nouppercase << hex << reinterpret_cast<uintptr_t>(%s[i]) << dec << endl;' % (indent, proto.params[sp_index].name, proto.params[sp_index].name)
+                        log_func += '\n%s(*outputStream) << "   %s[" << i << "] = 0x" << nouppercase << hex << HandleCast(%s[i]) << dec << endl;' % (indent, proto.params[sp_index].name, proto.params[sp_index].name)
                     indent = indent[4:]
                     log_func += '\n%s}' % (indent)
                     indent = indent[4:]

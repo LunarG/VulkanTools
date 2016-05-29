@@ -1012,7 +1012,7 @@ class StructWrapperGen:
                                 sh_funcs.append('%sstp_strs[%u] += " " + prefix + "%s[" + index_ss.str() + "]:\\n" + tmp_str;' % (indent, index, stp_list[index]['name']))
                             else:
                                 sh_funcs.append('%s' % lineinfo.get())
-                                sh_funcs.append('%sss[%u] << "0x" << hex << nouppercase << reinterpret_cast<const uintptr_t>(pStruct->%s[i]) << dec;' % (indent, index, stp_list[index]['name']))
+                                sh_funcs.append('%sss[%u] << "0x" << hex << nouppercase << HandleCast(pStruct->%s[i]) << dec;' % (indent, index, stp_list[index]['name']))
                                 sh_funcs.append('%sstp_strs[%u] += " " + prefix + "%s[" + index_ss.str() + "] = " + ss[%u].str() + "\\n";' % (indent, index, stp_list[index]['name'], index))
                         else:
                             sh_funcs.append('%s' % lineinfo.get())
@@ -1083,10 +1083,10 @@ class StructWrapperGen:
                             sh_funcs.append('    ss[%u].str("addr");' % (index))
                         elif self.struct_dict[s][m]['type'] in self.opaque_types:
                             sh_funcs.append('%s' % lineinfo.get())
-                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << reinterpret_cast<uintptr_t>(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
+                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << HandleCast(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
                         else:
                             sh_funcs.append('%s' % lineinfo.get())
-                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << reinterpret_cast<uintptr_t>(&pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
+                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << HandleCast(&pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
                     elif self.struct_dict[s][m]['array']:
                         if 'char' == self.struct_dict[s][m]['full_type'] or \
                         (1 == self.struct_dict[s][m]['full_type'].count('*') and 'char' in self.struct_dict[s][m]['type']):
@@ -1094,7 +1094,7 @@ class StructWrapperGen:
                                 sh_funcs.append('    ss[%u] << pStruct->%s;' % (index, self.struct_dict[s][m]['name']))
                         else:
                             sh_funcs.append('%s' % lineinfo.get())
-                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << reinterpret_cast<uintptr_t>(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
+                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << HandleCast(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
                     elif 'bool' in self.struct_dict[s][m]['type'].lower():
                         sh_funcs.append('%s' % lineinfo.get())
                         sh_funcs.append('    ss[%u].str(pStruct->%s ? "TRUE" : "FALSE");' % (index, self.struct_dict[s][m]['name']))
@@ -1104,7 +1104,7 @@ class StructWrapperGen:
                     elif 'void' in self.struct_dict[s][m]['type'].lower() and self.struct_dict[s][m]['ptr']:
                         sh_funcs.append('%s' % lineinfo.get())
                         sh_funcs.append('    if (StreamControl::writeAddress)')
-                        sh_funcs.append('        ss[%u] << "0x" << hex << nouppercase << reinterpret_cast<const uintptr_t>(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
+                        sh_funcs.append('        ss[%u] << "0x" << hex << nouppercase << HandleCast(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
                         sh_funcs.append('    else')
                         sh_funcs.append('        ss[%u].str("address");' % (index))
                     elif 'char' in self.struct_dict[s][m]['type'].lower() and self.struct_dict[s][m]['ptr']:
@@ -1118,7 +1118,7 @@ class StructWrapperGen:
                         hex_label_list = ["flag", "bit", "offset", "count", "pfn", "size", "handle", "buffer", "object", "mask", "index"]
                         if self.struct_dict[s][m]['ptr'] or 'HWND' in self.struct_dict[s][m]['type'] or 'HINSTANCE' in self.struct_dict[s][m]['type']:
                             sh_funcs.append('%s' % lineinfo.get())
-                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << reinterpret_cast<const uintptr_t>(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
+                            sh_funcs.append('    ss[%u] << "0x" << hex << nouppercase << HandleCast(pStruct->%s) << dec;' % (index, self.struct_dict[s][m]['name']))
                         elif not 'float'  in self.struct_dict[s][m]['type'] and \
                              (any (x in self.struct_dict[s][m]['name'].lower() for x in hex_label_list) or \
                              any (x in self.struct_dict[s][m]['type'].lower() for x in hex_label_list) \
@@ -1336,6 +1336,14 @@ class StructWrapperGen:
         header.append('        std::operator<<(out, "address");\n')
         header.append('    }\n')
         header.append('    return out;\n')
+        header.append('}\n')
+        header.append('template <typename HandleType> uint64_t HandleCast(HandleType * handle)\n')
+        header.append('{\n')
+        header.append('    return reinterpret_cast<uint64_t>(handle);\n')
+        header.append('}\n')
+        header.append('uint64_t HandleCast(uint64_t handle)\n')
+        header.append('{\n')
+        header.append('    return handle;\n')
         header.append('}\n')
         header.append('std::ostream& operator<<(std::ostream &out, char const*const s)\n')
         header.append('{\n')
