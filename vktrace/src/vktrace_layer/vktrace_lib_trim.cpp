@@ -338,6 +338,13 @@ void trim_write_all_referenced_object_calls()
         delete[] pSetLayouts;
         delete[] pDescriptorSets;
     }
+
+    // Framebuffer
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdFramebuffers.begin(); obj != g_trimGlobalStateTracker.createdFramebuffers.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.Framebuffer.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Framebuffer.pCreatePacket));
+    }
 }
 
 #define TRIM_ADD_OBJECT_CALL(type) \
@@ -459,6 +466,21 @@ void trim_write_recorded_packets()
 //===============================================
 void trim_write_destroy_packets()
 {
+    // Framebuffer
+    for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdFramebuffers.begin(); obj != g_trimGlobalStateTracker.createdFramebuffers.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyFramebuffer* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyFramebuffer, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyFramebuffer(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->framebuffer = (VkFramebuffer)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Framebuffer.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
     // DescriptorPool
     for (TrimObjectInfoMap::iterator obj = g_trimGlobalStateTracker.createdDescriptorPools.begin(); obj != g_trimGlobalStateTracker.createdDescriptorPools.end(); obj++)
     {

@@ -596,9 +596,8 @@ class Subcommand(object):
             trim_instructions.append("        trim_remove_Pipeline_object(pipeline);")
         elif 'DestroyDescriptorPool' is proto.name:
             trim_instructions.append("        trim_remove_DescriptorPool_object(descriptorPool);")
-        elif 'CreateFramebuffer' is proto.name:
-#            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
-            trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
+        elif 'DestroyFramebuffer' is proto.name:
+            trim_instructions.append("        trim_remove_Framebuffer_object(framebuffer);")
         elif 'CreateEvent' is proto.name:
 #            trim_instructions.append("        trim_dependency_Event_to_Device[*pEvent] = device;")
             trim_instructions.append("        trim_add_Event_call(*pEvent, pHeader);")

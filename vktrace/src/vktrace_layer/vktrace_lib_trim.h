@@ -77,46 +77,46 @@ typedef struct _Trim_ObjectInfo
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
         } Image;
-        struct _ImageView {                 // VkImageView
+        struct _ImageView {             // VkImageView
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } ImageView;
-        struct _Buffer {                 // VkBuffer
+        struct _Buffer {                // VkBuffer
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
             vktrace_trace_packet_header* pBindBufferMemoryPacket;
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
         } Buffer;
-        struct _BufferView {                 // VkBufferView
+        struct _BufferView {            // VkBufferView
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } BufferView;
-        struct _Sampler {                 // VkSampler
+        struct _Sampler {               // VkSampler
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } Sampler;
-        struct _DescriptorSetLayout {     // VkDescriptorSetLayout
+        struct _DescriptorSetLayout {   // VkDescriptorSetLayout
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } DescriptorSetLayout;
-        struct _PipelineLayout {     // VkPipelineLayout
+        struct _PipelineLayout {        // VkPipelineLayout
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } PipelineLayout;
-        struct _RenderPass {     // VkRenderPass
+        struct _RenderPass {            // VkRenderPass
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } RenderPass;
-        struct _ShaderModule {     // VkShaderModule
+        struct _ShaderModule {          // VkShaderModule
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } ShaderModule;
-        struct _PipelineCache {     // VkPipelineCache
+        struct _PipelineCache {         // VkPipelineCache
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } PipelineCache;
-        struct _Pipeline {     // VkPipeline
+        struct _Pipeline {              // VkPipeline
             vktrace_trace_packet_header* pCreatePacket;
             VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
             VkComputePipelineCreateInfo computePipelineCreateInfo;
@@ -129,10 +129,14 @@ typedef struct _Trim_ObjectInfo
             uint32_t maxSets;
             uint32_t numSets;
         } DescriptorPool;
-        struct _DescriptorSet {        // VkDescriptorSet
+        struct _DescriptorSet {         // VkDescriptorSet
             VkDescriptorPool descriptorPool;
             VkDescriptorSetLayout layout;
         } DescriptorSet;
+        struct _Framebuffer {           // VkFramebuffer
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } Framebuffer;
     } ObjectInfo;
 } Trim_ObjectInfo;
 
