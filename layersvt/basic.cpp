@@ -221,12 +221,11 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL basic_GetInstanceProcAddr(VkInstance in
     if (!strcmp("vkEnumeratePhysicalDevices", pName))
         return (PFN_vkVoidFunction)basic_EnumeratePhysicalDevices;
 
+    assert(instance);
+
     PFN_vkVoidFunction proc = basic_GetDeviceProcAddr(VK_NULL_HANDLE, pName);
     if (proc)
         return proc;
-
-    if (instance == NULL)
-        return NULL;
 
     if (instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
         return NULL;
