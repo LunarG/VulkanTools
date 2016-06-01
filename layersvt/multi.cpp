@@ -244,27 +244,18 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi1GetInstanceProcAddr(VkInstance in
         return (PFN_vkVoidFunction)multi1EnumerateDeviceExtensionProperties;
     if (!strcmp(pName, "multi1GetInstanceProcAddr") || !strcmp(pName, "vkGetInsatnceProcAddr"))
         return (PFN_vkVoidFunction)multi1GetInstanceProcAddr;
-    if (!strcmp(pName, "multi1GetDeviceProcAddr") || !strcmp(pName, "vkGetDeviceProcAddr"))
-        return (PFN_vkVoidFunction)multi1GetDeviceProcAddr;
     if (!strcmp("vkCreateInstance", pName))
         return (PFN_vkVoidFunction)multi1CreateInstance;
     if (!strcmp("vkCreateDevice", pName))
         return (PFN_vkVoidFunction)multi1CreateDevice;
-    if (!strcmp("vkDestroyDevice", pName))
-        return (PFN_vkVoidFunction)multi1DestroyDevice;
-    if (!strcmp("vkCreateSampler", pName))
-        return (PFN_vkVoidFunction)multi1CreateSampler;
-    if (!strcmp("vkCreateGraphicsPipelines", pName))
-        return (PFN_vkVoidFunction)multi1CreateGraphicsPipelines;
     if (!strcmp("vkDestroyInstance", pName))
         return (PFN_vkVoidFunction)multi1DestroyInstance;
+
+    assert(instance);
 
     PFN_vkVoidFunction proc = multi1GetDeviceProcAddr(VK_NULL_HANDLE, pName);
     if (proc)
         return proc;
-
-    if (instance == NULL)
-        return NULL;
 
     VkLayerInstanceDispatchTable *pTable = get_dispatch_table(multi1_instance_table_map, instance);
     if (pTable->GetInstanceProcAddr == NULL)

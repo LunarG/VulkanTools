@@ -743,16 +743,17 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const c
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_instance_command(funcName);
-    if (!proc)
-        proc = intercept_core_device_command(funcName);
+    if (proc)
+        return proc;
+
+    assert(instance);
+
+    proc = intercept_core_device_command(funcName);
     if (!proc)
         proc = intercept_khr_swapchain_command(funcName, VK_NULL_HANDLE);
     if (proc)
         return proc;
 
-    if (instance == VK_NULL_HANDLE) {
-        return NULL;
-    }
     VkLayerInstanceDispatchTable *pTable = instance_dispatch_table(instance);
     if (pTable->GetInstanceProcAddr == NULL)
         return NULL;
