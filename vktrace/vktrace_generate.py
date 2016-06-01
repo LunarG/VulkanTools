@@ -1668,7 +1668,7 @@ class Subcommand(object):
         rbody.append('        case VKTRACE_TPI_VK_vkApiVersion:')
         rbody.append('        {')
         rbody.append('            packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(packet->pBody);')
-        rbody.append('            if (pPacket->version != VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION))')
+        rbody.append('            if (VK_VERSION_MAJOR(pPacket->version) != 1 || VK_VERSION_MINOR (pPacket->version) != 0)')
         rbody.append('            {')
         rbody.append('                vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the vktrace plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0xFFC00000) >> 22, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x003FF000) >> 12, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x00000FFF));')
         rbody.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
