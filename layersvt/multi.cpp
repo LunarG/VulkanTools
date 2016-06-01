@@ -26,7 +26,20 @@
 #include "vk_loader_platform.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
-#include "vk_layer_extension_utils.h"
+
+template<typename T>
+VkResult EnumerateProperties(uint32_t src_count, const T *src_props, uint32_t *dst_count, T *dst_props) {
+    if (!dst_props || !src_props) {
+        *dst_count = src_count;
+        return VK_SUCCESS;
+    }
+
+    uint32_t copy_count = (*dst_count < src_count) ? *dst_count : src_count;
+    memcpy(dst_props, src_props, sizeof(T) * copy_count);
+    *dst_count = copy_count;
+
+    return (copy_count == src_count) ? VK_SUCCESS : VK_INCOMPLETE;
+}
 
 #ifdef __cplusplus
 extern "C" {
@@ -167,20 +180,20 @@ multi1CreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, ui
 VKAPI_ATTR VkResult VKAPI_CALL
 multi1EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
 {
-    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI1], pCount, pProperties);
+    return EnumerateProperties(1, &all_layer_props[LAYER_MULTI1], pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 multi1EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties)
 {
-    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI1], pCount, pProperties);
+    return EnumerateProperties(1, &all_layer_props[LAYER_MULTI1], pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 multi1EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties)
 {
     if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI1].layerName)) {
-        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI1].count,
+        return EnumerateProperties(all_extension_props[LAYER_MULTI1].count,
                 all_extension_props[LAYER_MULTI1].extensions, pCount, pProperties);
     }
 
@@ -193,7 +206,7 @@ multi1EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
                                          VkExtensionProperties *pProperties)
 {
     if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI1].layerName)) {
-        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI1].count,
+        return EnumerateProperties(all_extension_props[LAYER_MULTI1].count,
                 all_extension_props[LAYER_MULTI1].extensions, pCount, pProperties);
     }
 
@@ -325,20 +338,20 @@ VKAPI_ATTR void VKAPI_CALL multi2DestroyInstance(VkInstance instance, const VkAl
 VKAPI_ATTR VkResult VKAPI_CALL
 multi2EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
 {
-    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI2], pCount, pProperties);
+    return EnumerateProperties(1, &all_layer_props[LAYER_MULTI2], pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 multi2EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties)
 {
-    return util_GetLayerProperties(1, &all_layer_props[LAYER_MULTI2], pCount, pProperties);
+    return EnumerateProperties(1, &all_layer_props[LAYER_MULTI2], pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 multi2EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties)
 {
     if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI2].layerName)) {
-        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI2].count,
+        return EnumerateProperties(all_extension_props[LAYER_MULTI2].count,
                 all_extension_props[LAYER_MULTI2].extensions, pCount, pProperties);
     }
 
@@ -351,7 +364,7 @@ multi2EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
                                          VkExtensionProperties *pProperties)
 {
     if (pLayerName && !strcmp(pLayerName, all_layer_props[LAYER_MULTI2].layerName)) {
-        return util_GetExtensionProperties(all_extension_props[LAYER_MULTI2].count,
+        return EnumerateProperties(all_extension_props[LAYER_MULTI2].count,
                 all_extension_props[LAYER_MULTI2].extensions, pCount, pProperties);
     }
 
@@ -395,7 +408,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL multi2GetInstanceProcAddr(VkInstance in
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
 {
-    return util_GetLayerProperties(LAYER_COUNT, all_layer_props, pCount, pProperties);
+    return EnumerateProperties(LAYER_COUNT, all_layer_props, pCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
@@ -412,7 +425,7 @@ vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
 
     for (int i = 0; i < LAYER_COUNT; i++) {
         if (!strcmp(pLayerName, all_layer_props[i].layerName)) {
-            return util_GetExtensionProperties(all_extension_props[i].count,
+            return EnumerateProperties(all_extension_props[i].count,
                     all_extension_props[i].extensions, pCount, pProperties);
         }
     }
@@ -431,7 +444,7 @@ vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
 
     for (int i = 0; i < LAYER_COUNT; i++) {
         if (!strcmp(pLayerName, all_layer_props[i].layerName)) {
-            return util_GetExtensionProperties(all_extension_props[i].count,
+            return EnumerateProperties(all_extension_props[i].count,
                     all_extension_props[i].extensions, pCount, pProperties);
         }
     }
