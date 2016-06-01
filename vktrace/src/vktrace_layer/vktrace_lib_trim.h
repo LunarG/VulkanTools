@@ -126,7 +126,13 @@ typedef struct _Trim_ObjectInfo
         struct _DescriptorPool {        // VkDescriptorPool
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
+            uint32_t maxSets;
+            uint32_t numSets;
         } DescriptorPool;
+        struct _DescriptorSet {        // VkDescriptorSet
+            VkDescriptorPool descriptorPool;
+            VkDescriptorSetLayout layout;
+        } DescriptorSet;
     } ObjectInfo;
 } Trim_ObjectInfo;
 

@@ -629,6 +629,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         Trim_ObjectInfo* pInfo = trim_add_DescriptorPool_object(*pDescriptorPool);
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.DescriptorPool.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.DescriptorPool.allocator = *pAllocator;
@@ -1278,16 +1279,22 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim_add_DescriptorPool_call(pAllocateInfo->descriptorPool, pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim_add_recorded_packet(pHeader);
+        Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(pAllocateInfo->descriptorPool);
+        for (uint32_t i = 0; i < pAllocateInfo->descriptorSetCount; i++)
+        {
+            Trim_ObjectInfo* pSetInfo = trim_add_DescriptorSet_object(pDescriptorSets[i]);
+            pSetInfo->belongsToDevice = device;
+            pSetInfo->ObjectInfo.DescriptorSet.descriptorPool = pAllocateInfo->descriptorPool;
+            pSetInfo->ObjectInfo.DescriptorSet.layout = pAllocateInfo->pSetLayouts[i];
+        }
+        pPoolInfo->ObjectInfo.DescriptorPool.numSets += pAllocateInfo->descriptorSetCount;
+        if (g_trimIsInTrim)
+        {
+            trim_add_recorded_packet(pHeader);
+        }
     }
     else // g_trimIsPostTrim
     {
@@ -2025,16 +2032,19 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim_add_DescriptorPool_call(descriptorPool, pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim_add_recorded_packet(pHeader);
+        Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(descriptorPool);
+        pPoolInfo->ObjectInfo.DescriptorPool.numSets -= descriptorSetCount;
+        for (uint32_t i = 0; i < descriptorSetCount; i++)
+        {
+            trim_remove_DescriptorSet_object(pDescriptorSets[i]);
+        }
+        if (g_trimIsInTrim)
+        {
+            trim_add_recorded_packet(pHeader);
+        }
     }
     else // g_trimIsPostTrim
     {
