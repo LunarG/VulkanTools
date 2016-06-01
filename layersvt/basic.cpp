@@ -26,7 +26,6 @@
 #include "vk_dispatch_table_helper.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
-#include "vk_layer_extension_utils.h"
 
 static std::unordered_map<dispatch_key, VkInstance> basic_instance_map;
 
@@ -139,20 +138,34 @@ static const VkExtensionProperties basic_physicaldevice_extensions[] = {{
     "vkLayerBasicEXT", 1,
 }};
 
+template<typename T>
+VkResult EnumerateProperties(uint32_t src_count, const T *src_props, uint32_t *dst_count, T *dst_props) {
+    if (!dst_props || !src_props) {
+        *dst_count = src_count;
+        return VK_SUCCESS;
+    }
+
+    uint32_t copy_count = (*dst_count < src_count) ? *dst_count : src_count;
+    memcpy(dst_props, src_props, sizeof(T) * copy_count);
+    *dst_count = copy_count;
+
+    return (copy_count == src_count) ? VK_SUCCESS : VK_INCOMPLETE;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
-    return util_GetLayerProperties(1, &basic_LayerProps, pCount, pProperties);
+    return EnumerateProperties(1, &basic_LayerProps, pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
-    return util_GetLayerProperties(1, &basic_LayerProps, pCount, pProperties);
+    return EnumerateProperties(1, &basic_LayerProps, pCount, pProperties);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 basic_EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
     if (pLayerName && !strcmp(pLayerName, basic_LayerProps.layerName))
-        return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+        return EnumerateProperties<VkExtensionProperties>(0, NULL, pCount, pProperties);
 
     return VK_ERROR_LAYER_NOT_PRESENT;
 }
@@ -161,8 +174,9 @@ VKAPI_ATTR VkResult VKAPI_CALL basic_EnumerateDeviceExtensionProperties(VkPhysic
                                                                         const char *pLayerName, uint32_t *pCount,
                                                                         VkExtensionProperties *pProperties) {
     if (pLayerName && !strcmp(pLayerName, basic_LayerProps.layerName)) {
-        return util_GetExtensionProperties(ARRAY_SIZE(basic_physicaldevice_extensions),
-                basic_physicaldevice_extensions, pCount, pProperties);
+        uint32_t count = sizeof(basic_physicaldevice_extensions) /
+            sizeof(basic_physicaldevice_extensions[0]);
+        return EnumerateProperties(count, basic_physicaldevice_extensions, pCount, pProperties);
     }
 
     return instance_dispatch_table(physicalDevice)
