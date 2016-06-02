@@ -155,6 +155,18 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             VkAllocationCallbacks allocator;
         } Semaphore;
+        struct _Fence {           // VkFence
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } Fence;
+        struct _Event {           // VkEvent
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } Event;
+        struct _QueryPool {           // VkQueryPool
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } QueryPool;
     } ObjectInfo;
 } Trim_ObjectInfo;
 

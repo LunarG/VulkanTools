@@ -370,6 +370,27 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.Semaphore.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Semaphore.pCreatePacket));
     }
+
+    // Fence
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdFences.begin(); obj != stateTracker.createdFences.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.Fence.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Fence.pCreatePacket));
+    }
+
+    // Event
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdEvents.begin(); obj != stateTracker.createdEvents.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.Event.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Event.pCreatePacket));
+    }
+
+    // QueryPool
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdQueryPools.begin(); obj != stateTracker.createdQueryPools.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.QueryPool.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.QueryPool.pCreatePacket));
+    }
 }
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \
@@ -442,6 +463,51 @@ void trim_write_recorded_packets()
 //===============================================
 void trim_write_destroy_packets()
 {
+    // QueryPool
+    for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdQueryPools.begin(); obj != s_trimGlobalStateTracker.createdQueryPools.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyQueryPool* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyQueryPool, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyQueryPool(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->queryPool = (VkQueryPool)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.QueryPool.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
+    // Event
+    for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdEvents.begin(); obj != s_trimGlobalStateTracker.createdEvents.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyEvent* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyEvent, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyEvent(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->event = (VkEvent)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Event.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
+    // Fence
+    for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdFences.begin(); obj != s_trimGlobalStateTracker.createdFences.end(); obj++)
+    {
+        vktrace_trace_packet_header* pHeader;
+        packet_vkDestroyFence* pPacket = NULL;
+        CREATE_TRACE_PACKET(vkDestroyFence, sizeof(VkAllocationCallbacks));
+        vktrace_set_packet_entrypoint_end_time(pHeader);
+        pPacket = interpret_body_as_vkDestroyFence(pHeader);
+        pPacket->device = obj->second.belongsToDevice;
+        pPacket->fence = (VkFence)obj->first;
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Fence.allocator));
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        FINISH_TRACE_PACKET();
+    }
+
     // Semaphore
     for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdSemaphores.begin(); obj != s_trimGlobalStateTracker.createdSemaphores.end(); obj++)
     {
