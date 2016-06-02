@@ -161,7 +161,8 @@ class Descriptor {
 // Shared helper functions - These are useful because the shared sampler image descriptor type
 //  performs common functions with both sampler and image descriptors so they can share their common functions
 bool ValidateSampler(const VkSampler, const std::unordered_map<VkSampler, std::unique_ptr<SAMPLER_NODE>> *);
-bool ValidateImageUpdate(const VkImageView, const VkImageLayout, const std::unordered_map<VkImageView, VkImageViewCreateInfo> *,
+bool ValidateImageUpdate(VkImageView, VkImageLayout, VkDescriptorType,
+                         const std::unordered_map<VkImageView, VkImageViewCreateInfo> *,
                          const std::unordered_map<VkImage, IMAGE_NODE> *, const std::unordered_map<VkImage, VkSwapchainKHR> *,
                          const std::unordered_map<VkSwapchainKHR, SWAPCHAIN_NODE *> *, std::string *);
 
@@ -186,6 +187,7 @@ class ImageSamplerDescriptor : public Descriptor {
     ImageSamplerDescriptor(const VkSampler *);
     void WriteUpdate(const VkWriteDescriptorSet *, const uint32_t) override;
     void CopyUpdate(const Descriptor *) override;
+    virtual bool IsImmutableSampler() const override { return immutable_; };
     VkSampler GetSampler() const { return sampler_; }
     VkImageView GetImageView() const { return image_view_; }
     VkImageLayout GetImageLayout() const { return image_layout_; }
@@ -243,14 +245,39 @@ class BufferDescriptor : public Descriptor {
     VkDeviceSize offset_;
     VkDeviceSize range_;
 };
-// Helper functions for Updating descriptor sets since it crosses multiple sets
-// Validate will make sure an update is ok without actually performing it
+// Structs to contain common elements that need to be shared between Validate* and Perform* calls below
+struct AllocateDescriptorSetsData {
+    uint32_t required_descriptors_by_type[VK_DESCRIPTOR_TYPE_RANGE_SIZE];
+    std::vector<cvdescriptorset::DescriptorSetLayout const *> layout_nodes;
+    AllocateDescriptorSetsData(uint32_t);
+};
+// Helper functions for descriptor set functions that cross multiple sets
+// "Validate" will make sure an update is ok without actually performing it
 bool ValidateUpdateDescriptorSets(const debug_report_data *,
                                   const std::unordered_map<VkDescriptorSet, cvdescriptorset::DescriptorSet *> &, uint32_t,
                                   const VkWriteDescriptorSet *, uint32_t, const VkCopyDescriptorSet *);
-// Perform does the update with the assumption that ValidateUpdateDescriptorSets() has passed for the given update
+// "Perform" does the update with the assumption that ValidateUpdateDescriptorSets() has passed for the given update
 void PerformUpdateDescriptorSets(const std::unordered_map<VkDescriptorSet, cvdescriptorset::DescriptorSet *> &, uint32_t,
                                  const VkWriteDescriptorSet *, uint32_t, const VkCopyDescriptorSet *);
+// Validate that Allocation state is ok
+bool ValidateAllocateDescriptorSets(const debug_report_data *, const VkDescriptorSetAllocateInfo *,
+                                    const std::unordered_map<VkDescriptorSetLayout, cvdescriptorset::DescriptorSetLayout *> &,
+                                    const std::unordered_map<VkDescriptorPool, DESCRIPTOR_POOL_NODE *> &,
+                                    AllocateDescriptorSetsData *);
+// Update state based on allocating new descriptorsets
+void PerformAllocateDescriptorSets(const VkDescriptorSetAllocateInfo *, const VkDescriptorSet *, const AllocateDescriptorSetsData *,
+                                   std::unordered_map<VkDescriptorPool, DESCRIPTOR_POOL_NODE *> *,
+                                   std::unordered_map<VkDescriptorSet, cvdescriptorset::DescriptorSet *> *,
+                                   const std::unordered_map<VkDescriptorSetLayout, cvdescriptorset::DescriptorSetLayout *> &,
+                                   const std::unordered_map<VkBuffer, BUFFER_NODE> &,
+                                   const std::unordered_map<VkDeviceMemory, DEVICE_MEM_INFO> &,
+                                   const std::unordered_map<VkBufferView, VkBufferViewCreateInfo> &,
+                                   const std::unordered_map<VkSampler, std::unique_ptr<SAMPLER_NODE>> &,
+                                   const std::unordered_map<VkImageView, VkImageViewCreateInfo> &,
+                                   const std::unordered_map<VkImage, IMAGE_NODE> &,
+                                   const std::unordered_map<VkImage, VkSwapchainKHR> &,
+                                   const std::unordered_map<VkSwapchainKHR, SWAPCHAIN_NODE *> &);
+
 /*
  * DescriptorSet class
  *
@@ -309,9 +336,6 @@ class DescriptorSet : public BASE_NODE {
     // of objects inserted
     uint32_t GetStorageUpdates(const std::unordered_set<uint32_t> &, std::unordered_set<VkBuffer> *,
                                std::unordered_set<VkImageView> *) const;
-    // For all descriptors in a set, add any buffers and images that may be updated to their respective unordered_sets & return
-    // number of objects inserted
-    uint32_t GetAllStorageUpdates(std::unordered_set<VkBuffer> *, std::unordered_set<VkImageView> *) const;
 
     // Descriptor Update functions. These functions validate state and perform update separately
     // Validate contents of a WriteUpdate
@@ -346,7 +370,9 @@ class DescriptorSet : public BASE_NODE {
 
   private:
     bool VerifyWriteUpdateContents(const VkWriteDescriptorSet *, const uint32_t, std::string *) const;
-    bool VerifyCopyUpdateContents(const VkCopyDescriptorSet *, const DescriptorSet *, const uint32_t, std::string *) const;
+    bool VerifyCopyUpdateContents(const VkCopyDescriptorSet *, const DescriptorSet *, VkDescriptorType, uint32_t,
+                                  std::string *) const;
+    bool ValidateBufferUpdate(VkBuffer, VkDescriptorType, std::string *) const;
     // Private helper to set all bound cmd buffers to INVALID state
     void InvalidateBoundCmdBuffers();
     bool some_update_; // has any part of the set ever been updated?
