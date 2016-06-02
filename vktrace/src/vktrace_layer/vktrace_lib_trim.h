@@ -30,6 +30,9 @@ void trim_write_recorded_packets();
 void trim_write_destroy_packets();
 void trim_delete_all_packets();
 
+void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
+void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
+
 // some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).
 typedef struct _Trim_ObjectInfo
 {
@@ -180,8 +183,6 @@ Trim_ObjectInfo* trim_add_##type##_object(Vk##type var); \
 void trim_remove_##type##_object(Vk##type var); \
 Trim_ObjectInfo* trim_get_##type##_objectInfo(Vk##type var);
 
-void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
-
 typedef struct _Trim_StateTracker
 {
     TRIM_DECLARE_OBJECT_TRACKERS(Instance);
@@ -212,7 +213,6 @@ typedef struct _Trim_StateTracker
     TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSetLayout);
     TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSet);
 } Trim_StateTracker;
-
 
 TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Instance);
 TRIM_DECLARE_OBJECT_TRACKER_FUNCS(PhysicalDevice);

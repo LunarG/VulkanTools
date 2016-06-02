@@ -32,6 +32,8 @@ void trim_snapshot_state_tracker()
 // List of all the packets that have been recorded for the frames of interest.
 static std::list<vktrace_trace_packet_header*> trim_recorded_packets;
 
+static std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header*>> s_cmdBufferPackets;
+
 #define TRIM_DEFINE_OBJECT_TRACKER_FUNCS(type) \
 Trim_ObjectInfo* trim_add_##type##_object(Vk##type var) { \
    Trim_ObjectInfo& info = s_trimGlobalStateTracker.created##type##s[var]; \
@@ -204,13 +206,6 @@ void trim_write_all_referenced_object_calls()
         // will need to map / unmap and set the memory contents
     }
 
-    // ImageView
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdImageViews.begin(); obj != stateTracker.createdImageViews.end(); obj++)
-    {
-        vktrace_write_trace_packet(obj->second.ObjectInfo.ImageView.pCreatePacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.ImageView.pCreatePacket));
-    }
-
     // Image
     for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
     {
@@ -229,11 +224,11 @@ void trim_write_all_referenced_object_calls()
         }
     }
 
-    // BufferView
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdBufferViews.begin(); obj != stateTracker.createdBufferViews.end(); obj++)
+    // ImageView
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdImageViews.begin(); obj != stateTracker.createdImageViews.end(); obj++)
     {
-        vktrace_write_trace_packet(obj->second.ObjectInfo.BufferView.pCreatePacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.BufferView.pCreatePacket));
+        vktrace_write_trace_packet(obj->second.ObjectInfo.ImageView.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.ImageView.pCreatePacket));
     }
 
     // Buffer
@@ -252,6 +247,13 @@ void trim_write_all_referenced_object_calls()
             vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket));
         }
+    }
+
+    // BufferView
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdBufferViews.begin(); obj != stateTracker.createdBufferViews.end(); obj++)
+    {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.BufferView.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.BufferView.pCreatePacket));
     }
 
     // Sampler
@@ -391,6 +393,18 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.QueryPool.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.QueryPool.pCreatePacket));
     }
+
+    // write out the packets to recreate the command buffers that were just allocated
+    for (TrimObjectInfoMap::iterator cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end(); cmdBuffer++)
+    {
+        std::list<vktrace_trace_packet_header*>& packets = s_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
+        for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); packet++)
+        {
+            vktrace_trace_packet_header* pHeader = *packet;
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
 }
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \
@@ -408,8 +422,13 @@ void trim_mark_##type##_reference(Vk##type var) { \
 
 void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader)
 {
-    // placeholder for upcoming code
-};
+    s_cmdBufferPackets[commandBuffer].push_back(pHeader);
+}
+
+void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer)
+{
+    s_cmdBufferPackets.erase(commandBuffer);
+}
 
 //===============================================
 // Object tracking
@@ -421,7 +440,7 @@ TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSet)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(RenderPass)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineCache)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Pipeline)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Queue);
+TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Queue)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Semaphore)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DeviceMemory)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Fence)
