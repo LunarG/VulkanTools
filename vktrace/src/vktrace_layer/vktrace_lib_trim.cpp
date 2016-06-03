@@ -4,6 +4,7 @@
 * Author: Peter Lohrmann <Peter.Lohrmann@amd.com>
 */
 #include "vktrace_lib_trim.h"
+#include "vktrace_lib_helpers.h"
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_vk_vk_packets.h"
 #include "vktrace_vk_packet_id.h"
@@ -24,9 +25,83 @@ uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
 
+// implemented in vktrace_lib_trace.cpp
+extern layer_device_data* mdd(void* object);
+
+//=============================================================================
+// Use this to snapshot the global state tracker at the start of the trim frames.
+//=============================================================================
 void trim_snapshot_state_tracker()
 {
     s_trimStateTrackerSnapshot = s_trimGlobalStateTracker;
+
+    // copy all buffer contents and update the snapshot with the memory contents
+    for (TrimObjectInfoMap::iterator iter = s_trimStateTrackerSnapshot.createdDeviceMemorys.begin(); iter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end(); iter++)
+    {
+        VkResult result = VK_SUCCESS;
+        VkDevice device = iter->second.belongsToDevice;
+        VkDeviceMemory memory = (VkDeviceMemory)iter->first;
+        VkDeviceSize offset = 0;
+        VkDeviceSize size = iter->second.ObjectInfo.DeviceMemory.size;
+        VkMemoryMapFlags flags = 0;
+        void* pData = NULL;
+
+        // make a packet to map the memory in the generated trace file.
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkMapMemory* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkMapMemory, sizeof(void*));
+
+            // actually map the memory. Assert that it is not already mapped.
+            assert(iter->second.ObjectInfo.DeviceMemory.mappedAddress == NULL);
+            if (iter->second.ObjectInfo.DeviceMemory.mappedAddress == NULL)
+            {
+                result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, &pData);
+            }
+
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+
+            pPacket = interpret_body_as_vkMapMemory(pHeader);
+            pPacket->device = device;
+            pPacket->memory = memory;
+            pPacket->offset = offset;
+            pPacket->size = size;
+            pPacket->flags = flags;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), pData);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
+            pPacket->result = result;
+            vktrace_finalize_trace_packet(pHeader);
+            iter->second.ObjectInfo.DeviceMemory.pMapMemoryPacket = pHeader;
+        }
+        
+        //// at this point, the memory should be mapped and available to copy
+        //iter->second.ObjectInfo.DeviceMemory.pLocalCopy = (BYTE*)malloc(size);
+        //memcpy(iter->second.ObjectInfo.DeviceMemory.pLocalCopy, pData, size);
+
+        // if we mapped the memory above, then unmap it here.
+
+        // By creating the packet for UnmapMemory, we'll be adding the pData buffer to it, which inherently copies it.
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkUnmapMemory* pPacket;
+            CREATE_TRACE_PACKET(vkUnmapMemory, size);
+            pPacket = interpret_body_as_vkUnmapMemory(pHeader);
+            if (size > 0)
+            {
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), size, pData);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
+            }
+
+            // actually unmap the memory
+            mdd(device)->devTable.UnmapMemory(device, memory);
+
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket->device = device;
+            pPacket->memory = memory;
+            vktrace_finalize_trace_packet(pHeader);
+            iter->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket = pHeader;
+        }
+    }
 }
 
 // List of all the packets that have been recorded for the frames of interest.
@@ -203,7 +278,12 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pCreatePacket));
 
-        // will need to map / unmap and set the memory contents
+        // write map / unmap packets so the memory contents gets set on replay
+        vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket));
+
+        vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket));
     }
 
     // Image

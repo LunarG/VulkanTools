@@ -85,6 +85,9 @@ typedef struct _Trim_ObjectInfo
             void* mappedAddress;
             VkDeviceSize mappedOffset;
             VkDeviceSize mappedSize;
+            uint8_t* pLocalCopy;
+            vktrace_trace_packet_header* pMapMemoryPacket;
+            vktrace_trace_packet_header* pUnmapMemoryPacket;
         } DeviceMemory;
         struct _Image {                 // VkImage
             vktrace_trace_packet_header* pCreatePacket;
