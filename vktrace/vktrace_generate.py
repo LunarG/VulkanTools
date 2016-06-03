@@ -578,7 +578,8 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->ObjectInfo.ShaderModule.allocator = *pAllocator;")
             trim_instructions.append("        }")
         elif 'DestroyShaderModule' is proto.name:
-            trim_instructions.append("        trim_remove_ShaderModule_object(shaderModule);")
+            trim_instructions.append("        //Don't want to remove shader modules because they can be deleted after the pipeline is created, and we don't track that properly yet")
+            trim_instructions.append("        //trim_remove_ShaderModule_object(shaderModule);")
         elif 'DestroyPipeline' is proto.name:
             trim_instructions.append("        trim_remove_Pipeline_object(pipeline);")
         elif 'DestroyDescriptorPool' is proto.name:
