@@ -762,7 +762,7 @@ void trim_write_destroy_packets()
     }
 
     // DescriptorSetLayout
-    for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdSamplers.begin(); obj != s_trimGlobalStateTracker.createdSamplers.end(); obj++)
+    for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdDescriptorSetLayouts.begin(); obj != s_trimGlobalStateTracker.createdDescriptorSetLayouts.end(); obj++)
     {
         vktrace_trace_packet_header* pHeader;
         packet_vkDestroyDescriptorSetLayout* pPacket = NULL;
