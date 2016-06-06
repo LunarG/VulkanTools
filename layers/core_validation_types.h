@@ -54,6 +54,7 @@
 
 // Fwd declarations
 namespace cvdescriptorset {
+class DescriptorSetLayout;
 class DescriptorSet;
 };
 
@@ -174,6 +175,9 @@ struct DEVICE_MEM_INFO {
     VkImage image; // If memory is bound to image, this will have VkImage handle, else VK_NULL_HANDLE
     MemRange memRange;
     void *pData, *pDriverData;
+    DEVICE_MEM_INFO(void *disp_object, const VkDeviceMemory in_mem, const VkMemoryAllocateInfo *p_alloc_info)
+        : object(disp_object), valid(false), mem(in_mem), allocInfo(*p_alloc_info), image(VK_NULL_HANDLE), memRange{}, pData(0),
+          pDriverData(0){};
 };
 
 class SWAPCHAIN_NODE {
@@ -479,5 +483,20 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
 
     ~GLOBAL_CB_NODE();
 };
+// Fwd declarations of layer_data and helpers to look-up state from layer_data maps
+namespace core_validation {
+struct layer_data;
+cvdescriptorset::DescriptorSet *getSetNode(const layer_data *, VkDescriptorSet);
+cvdescriptorset::DescriptorSetLayout const *getDescriptorSetLayout(layer_data const *, VkDescriptorSetLayout);
+DESCRIPTOR_POOL_NODE *getPoolNode(const layer_data *, const VkDescriptorPool);
+BUFFER_NODE *getBufferNode(const layer_data *, VkBuffer);
+IMAGE_NODE *getImageNode(const layer_data *, VkImage);
+DEVICE_MEM_INFO *getMemObjInfo(const layer_data *, VkDeviceMemory);
+VkBufferViewCreateInfo *getBufferViewInfo(const layer_data *, VkBufferView);
+SAMPLER_NODE *getSamplerNode(const layer_data *, VkSampler);
+VkImageViewCreateInfo *getImageViewData(const layer_data *, VkImageView);
+VkSwapchainKHR getSwapchainFromImage(const layer_data *, VkImage);
+SWAPCHAIN_NODE *getSwapchainNode(const layer_data *, VkSwapchainKHR);
+}
 
 #endif // CORE_VALIDATION_TYPES_H_
