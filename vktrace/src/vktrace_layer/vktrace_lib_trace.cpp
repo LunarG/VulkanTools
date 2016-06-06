@@ -166,7 +166,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
         pInfo->ObjectInfo.DeviceMemory.size = pAllocateInfo->allocationSize;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.DeviceMemory.allocator = *pAllocator;
+            pInfo->ObjectInfo.DeviceMemory.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
         {
@@ -633,7 +634,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         pInfo->ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.DescriptorPool.allocator = *pAllocator;
+            pInfo->ObjectInfo.DescriptorPool.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
 
         if (g_trimIsInTrim)
@@ -730,7 +732,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(
         pInfo->ObjectInfo.Device.pCreatePacket = pHeader;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.Device.allocator = *pAllocator;
+            pInfo->ObjectInfo.Device.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
 
         if (g_trimIsInTrim)
@@ -784,7 +787,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
         pInfo->ObjectInfo.Framebuffer.pCreatePacket = pHeader;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.Framebuffer.allocator = *pAllocator;
+            pInfo->ObjectInfo.Framebuffer.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
         {
@@ -878,23 +882,21 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_add_Instance_object(*pInstance);
         pInfo->ObjectInfo.Instance.pCreatePacket = pHeader;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.Instance.allocator = *pAllocator;
+            pInfo->ObjectInfo.Instance.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        Trim_ObjectInfo* pInfo = trim_add_Instance_object(*pInstance);
-        pInfo->ObjectInfo.Instance.pCreatePacket = pHeader;
-        trim_add_recorded_packet(pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim_add_recorded_packet(pHeader);
+        }
     }
     else // g_trimIsPostTrim
     {
@@ -962,7 +964,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.RenderPass.pCreatePacket = pHeader;
         if (pAllocator != NULL) {
-            pInfo->ObjectInfo.RenderPass.allocator = *pAllocator;
+            pInfo->ObjectInfo.RenderPass.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
             trim_add_recorded_packet(pHeader);
@@ -1801,7 +1804,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
             pInfo->ObjectInfo.Pipeline.pCreatePacket = pHeader;
             pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo = pCreateInfos[i];
             if (pAllocator != NULL) {
-                pInfo->ObjectInfo.Pipeline.allocator = *pAllocator;
+                pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
+                trim_add_Allocator(pAllocator);
             }
         }
         if (g_trimIsInTrim) {
@@ -1871,7 +1875,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             pInfo->ObjectInfo.Pipeline.pCreatePacket = pHeader;
             pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo = pCreateInfos[i];
             if (pAllocator != NULL) {
-                pInfo->ObjectInfo.Pipeline.allocator = *pAllocator;
+                pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
+                trim_add_Allocator(pAllocator);
             }
         }
         if (g_trimIsInTrim) {
@@ -1920,7 +1925,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.PipelineCache.pCreatePacket = pHeader;
         if (pAllocator != NULL) {
-            pInfo->ObjectInfo.PipelineCache.allocator = *pAllocator;
+            pInfo->ObjectInfo.PipelineCache.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
             trim_add_recorded_packet(pHeader);
@@ -2194,7 +2200,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(
         pInfo->ObjectInfo.SwapchainKHR.pCreatePacket = pHeader;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SwapchainKHR.allocator = *pAllocator;
+            pInfo->ObjectInfo.SwapchainKHR.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
         {
@@ -2394,7 +2401,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
         pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = pHeader;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SurfaceKHR.allocator = *pAllocator;
+            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
         {

@@ -425,7 +425,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.CommandPool.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.CommandPool.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.CommandPool.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'FreeCommandBuffers' is proto.name:
             trim_instructions.append("        VkCommandBufferLevel level = trim_get_CommandBuffer_objectInfo(pCommandBuffers[0])->ObjectInfo.CommandBuffer.level;")
@@ -440,7 +441,10 @@ class Subcommand(object):
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Semaphore_object(*pSemaphore);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.Semaphore.pCreatePacket = pHeader;")
-            trim_instructions.append("        if (pAllocator != NULL) { pInfo->ObjectInfo.Semaphore.allocator = *pAllocator; }")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Semaphore.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
         elif 'DestroySemaphore' is proto.name:
             trim_instructions.append("        trim_remove_Semaphore_object(semaphore);")
         elif 'CreateFence' is proto.name:
@@ -449,7 +453,10 @@ class Subcommand(object):
             trim_instructions.append("        if (pInfo != NULL) {" )
             trim_instructions.append("            pInfo->belongsToDevice = device;")
             trim_instructions.append("            pInfo->ObjectInfo.Fence.pCreatePacket = pHeader;")
-            trim_instructions.append("            if (pAllocator != NULL) { pInfo->ObjectInfo.Fence.allocator = *pAllocator; }")
+            trim_instructions.append("            if (pAllocator != NULL) {")
+            trim_instructions.append("                pInfo->ObjectInfo.Fence.pAllocator = pAllocator;")
+            trim_instructions.append("                trim_add_Allocator(pAllocator);")
+            trim_instructions.append("            }")
             trim_instructions.append("        }")
         elif 'DestroyFence' is proto.name:
             trim_instructions.append("        trim_remove_Fence_object(fence);")
@@ -496,7 +503,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.ImageView.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.ImageView.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.ImageView.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyImageView' is proto.name:
             trim_instructions.append("        trim_remove_ImageView_object(imageView);")
@@ -506,7 +514,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->ObjectInfo.Image.pCreatePacket = pHeader;")
             trim_instructions.append("        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyImage' is proto.name:
             trim_instructions.append("        trim_remove_Image_object(image);")
@@ -521,7 +530,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.BufferView.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.BufferView.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.BufferView.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyBufferView' is proto.name:
             trim_instructions.append("        trim_remove_BufferView_object(bufferView);")
@@ -530,7 +540,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.Buffer.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyBuffer' is proto.name:
             trim_instructions.append("        trim_remove_Buffer_object(buffer);")
@@ -544,7 +555,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.Sampler.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Sampler.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.Sampler.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroySampler' is proto.name:
             trim_instructions.append("        trim_remove_Sampler_object(sampler);")
@@ -553,7 +565,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.DescriptorSetLayout.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.DescriptorSetLayout.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyDescriptorSetLayout' is proto.name:
             trim_instructions.append("        trim_remove_DescriptorSetLayout_object(descriptorSetLayout);")
@@ -562,7 +575,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.PipelineLayout.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.PipelineLayout.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.PipelineLayout.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyPipelineLayout' is proto.name:
             trim_instructions.append("        trim_remove_PipelineLayout_object(pipelineLayout);")
@@ -573,7 +587,8 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.ShaderModule.pCreatePacket = pHeader;")
             trim_instructions.append("        if (pAllocator != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.ShaderModule.allocator = *pAllocator;")
+            trim_instructions.append("            pInfo->ObjectInfo.ShaderModule.pAllocator = pAllocator;")
+            trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyShaderModule' is proto.name:
             trim_instructions.append("        //Don't want to remove shader modules because they can be deleted after the pipeline is created, and we don't track that properly yet")
@@ -592,7 +607,8 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->belongsToDevice = device;")
             trim_instructions.append("            pInfo->ObjectInfo.Event.pCreatePacket = pHeader;")
             trim_instructions.append("            if (pAllocator != NULL) {")
-            trim_instructions.append("                pInfo->ObjectInfo.Event.allocator = *pAllocator;")
+            trim_instructions.append("                pInfo->ObjectInfo.Event.pAllocator = pAllocator;")
+            trim_instructions.append("                trim_add_Allocator(pAllocator);")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
         elif 'DestroyEvent' is proto.name:
@@ -603,7 +619,8 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->belongsToDevice = device;")
             trim_instructions.append("            pInfo->ObjectInfo.QueryPool.pCreatePacket = pHeader;")
             trim_instructions.append("            if (pAllocator != NULL) {")
-            trim_instructions.append("                pInfo->ObjectInfo.QueryPool.allocator = *pAllocator;")
+            trim_instructions.append("                pInfo->ObjectInfo.QueryPool.pAllocator = pAllocator;")
+            trim_instructions.append("                trim_add_Allocator(pAllocator);")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
         elif 'DestroyQueryPool' is proto.name:

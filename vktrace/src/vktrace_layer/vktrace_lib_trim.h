@@ -33,6 +33,12 @@ void trim_delete_all_packets();
 void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
 void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
+// Typically an application will have one VkAllocationCallbacks struct and 
+// will pass in that same address as needed, so we'll keep a map to correlate
+// the supplied address to the AllocationCallbacks object
+void trim_add_Allocator(const VkAllocationCallbacks* pAllocator);
+VkAllocationCallbacks* trim_get_Allocator(const VkAllocationCallbacks* pAllocator);
+
 // some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).
 typedef struct _Trim_ObjectInfo
 {
@@ -45,7 +51,7 @@ typedef struct _Trim_ObjectInfo
     union _ObjectInfo {                              // additional object-specific information
         struct _Instance {              // VkInstance
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             vktrace_trace_packet_header* pEnumeratePhysicalDevicesCountPacket;
             vktrace_trace_packet_header* pEnumeratePhysicalDevicesPacket;
         } Instance;
@@ -54,23 +60,23 @@ typedef struct _Trim_ObjectInfo
         } PhysicalDevice;
         struct _SurfaceKHR {            // VkSurfaceKHR
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } SurfaceKHR;
         struct _Device {                // VkDevice
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } Device;
         struct _Queue {                 // VkQueue
             vktrace_trace_packet_header* pCreatePacket;
         } Queue;
         struct _CommandPool {           // VkCommandPool
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             uint32_t numCommandBuffersAllocated[VK_COMMAND_BUFFER_LEVEL_RANGE_SIZE];
         } CommandPool;
         struct _SwapchainKHR {           // VkSwapchainKHR
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             vktrace_trace_packet_header* pGetSwapchainImageCountPacket;
             vktrace_trace_packet_header* pGetSwapchainImagesPacket;
         } SwapchainKHR;
@@ -80,7 +86,7 @@ typedef struct _Trim_ObjectInfo
         } CommandBuffer;
         struct _DeviceMemory {          // VkDeviceMemory
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             VkDeviceSize size;
             void* mappedAddress;
             VkDeviceSize mappedOffset;
@@ -91,7 +97,7 @@ typedef struct _Trim_ObjectInfo
         } DeviceMemory;
         struct _Image {                 // VkImage
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             bool bIsSwapchainImage;
             vktrace_trace_packet_header* pBindImageMemoryPacket;
             VkDeviceMemory memory;
@@ -99,53 +105,53 @@ typedef struct _Trim_ObjectInfo
         } Image;
         struct _ImageView {             // VkImageView
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } ImageView;
         struct _Buffer {                // VkBuffer
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             vktrace_trace_packet_header* pBindBufferMemoryPacket;
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
         } Buffer;
         struct _BufferView {            // VkBufferView
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } BufferView;
         struct _Sampler {               // VkSampler
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } Sampler;
         struct _DescriptorSetLayout {   // VkDescriptorSetLayout
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } DescriptorSetLayout;
         struct _PipelineLayout {        // VkPipelineLayout
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } PipelineLayout;
         struct _RenderPass {            // VkRenderPass
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } RenderPass;
         struct _ShaderModule {          // VkShaderModule
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } ShaderModule;
         struct _PipelineCache {         // VkPipelineCache
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } PipelineCache;
         struct _Pipeline {              // VkPipeline
             vktrace_trace_packet_header* pCreatePacket;
+            const VkAllocationCallbacks* pAllocator;
             VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
             VkComputePipelineCreateInfo computePipelineCreateInfo;
             // TODO: Need to build out this structure based on VkGraphicsPipelineCreateInfo
-            VkAllocationCallbacks allocator;
         } Pipeline;
         struct _DescriptorPool {        // VkDescriptorPool
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
             uint32_t maxSets;
             uint32_t numSets;
         } DescriptorPool;
@@ -155,23 +161,23 @@ typedef struct _Trim_ObjectInfo
         } DescriptorSet;
         struct _Framebuffer {           // VkFramebuffer
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } Framebuffer;
         struct _Semaphore {           // VkSemaphore
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } Semaphore;
         struct _Fence {           // VkFence
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } Fence;
         struct _Event {           // VkEvent
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } Event;
         struct _QueryPool {           // VkQueryPool
             vktrace_trace_packet_header* pCreatePacket;
-            VkAllocationCallbacks allocator;
+            const VkAllocationCallbacks* pAllocator;
         } QueryPool;
     } ObjectInfo;
 } Trim_ObjectInfo;

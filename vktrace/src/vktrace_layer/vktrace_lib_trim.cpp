@@ -28,6 +28,36 @@ uint64_t g_trimEndFrame = UINT64_MAX;
 // implemented in vktrace_lib_trace.cpp
 extern layer_device_data* mdd(void* object);
 
+// Typically an application will have one VkAllocationCallbacks struct and 
+// will pass in that same address as needed, so we'll keep a map to correlate
+// the supplied address to the AllocationCallbacks object.
+static std::unordered_map<const void*, VkAllocationCallbacks> s_trimAllocatorMap;
+
+void trim_add_Allocator(const VkAllocationCallbacks* pAllocator)
+{
+    if (pAllocator != NULL)
+    {
+        if (s_trimAllocatorMap.find(pAllocator) == s_trimAllocatorMap.end())
+        {
+            // need to add this allocator address
+            s_trimAllocatorMap[pAllocator] = *pAllocator;
+        }
+    }
+}
+
+VkAllocationCallbacks* trim_get_Allocator(const VkAllocationCallbacks* pAllocator)
+{
+    if (pAllocator == NULL)
+    {
+        return NULL;
+    }
+    const void* pAddress = pAllocator;
+    std::unordered_map<const void*, VkAllocationCallbacks>::iterator iter = s_trimAllocatorMap.find(pAddress);
+    assert(iter != s_trimAllocatorMap.end());
+    VkAllocationCallbacks* pStoredAllocator = &(iter->second);
+    return pStoredAllocator;
+}
+
 //=============================================================================
 // Use this to snapshot the global state tracker at the start of the trim frames.
 //=============================================================================
@@ -572,8 +602,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyQueryPool(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->queryPool = (VkQueryPool)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.QueryPool.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.QueryPool.pAllocator;
+        if (obj->second.ObjectInfo.QueryPool.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.QueryPool.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -587,8 +622,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyEvent(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->event = (VkEvent)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Event.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Event.pAllocator;
+        if (obj->second.ObjectInfo.Event.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Event.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -602,8 +642,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyFence(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->fence = (VkFence)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Fence.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Fence.pAllocator;
+        if (obj->second.ObjectInfo.Fence.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -617,8 +662,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroySemaphore(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->semaphore = (VkSemaphore)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Semaphore.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Semaphore.pAllocator;
+        if (obj->second.ObjectInfo.Semaphore.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Semaphore.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -632,8 +682,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyFramebuffer(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->framebuffer = (VkFramebuffer)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Framebuffer.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Framebuffer.pAllocator;
+        if (obj->second.ObjectInfo.Framebuffer.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Framebuffer.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -681,8 +736,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyDescriptorPool(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->descriptorPool = (VkDescriptorPool)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.DescriptorPool.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.DescriptorPool.pAllocator;
+        if (obj->second.ObjectInfo.DescriptorPool.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.DescriptorPool.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -696,8 +756,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyPipeline(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->pipeline = (VkPipeline)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Pipeline.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Pipeline.pAllocator;
+        if (obj->second.ObjectInfo.Pipeline.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Pipeline.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -711,8 +776,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyPipelineCache(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->pipelineCache = (VkPipelineCache)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.PipelineCache.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.PipelineCache.pAllocator;
+        if (obj->second.ObjectInfo.PipelineCache.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.PipelineCache.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -726,8 +796,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyShaderModule(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->shaderModule = (VkShaderModule)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.ShaderModule.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.ShaderModule.pAllocator;
+        if (obj->second.ObjectInfo.ShaderModule.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.ShaderModule.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -741,8 +816,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyRenderPass(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->renderPass = (VkRenderPass)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.RenderPass.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.RenderPass.pAllocator;
+        if (obj->second.ObjectInfo.RenderPass.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.RenderPass.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -756,8 +836,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyPipelineLayout(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->pipelineLayout = (VkPipelineLayout)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.PipelineLayout.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.PipelineLayout.pAllocator;
+        if (obj->second.ObjectInfo.PipelineLayout.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.PipelineLayout.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -771,8 +856,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyDescriptorSetLayout(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->descriptorSetLayout = (VkDescriptorSetLayout)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.DescriptorSetLayout.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.DescriptorSetLayout.pAllocator;
+        if (obj->second.ObjectInfo.DescriptorSetLayout.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.DescriptorSetLayout.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -786,8 +876,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroySampler(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->sampler = (VkSampler)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Sampler.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Sampler.pAllocator;
+        if (obj->second.ObjectInfo.Sampler.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Sampler.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -801,8 +896,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyBuffer(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->buffer = (VkBuffer)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Buffer.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Buffer.pAllocator;
+        if (obj->second.ObjectInfo.Buffer.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Buffer.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -816,8 +916,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyBufferView(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->bufferView = (VkBufferView)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.BufferView.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.BufferView.pAllocator;
+        if (obj->second.ObjectInfo.BufferView.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.BufferView.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -833,8 +938,13 @@ void trim_write_destroy_packets()
             pPacket = interpret_body_as_vkDestroyImage(pHeader);
             pPacket->device = obj->second.belongsToDevice;
             pPacket->image = (VkImage)obj->first;
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Image.allocator));
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            pPacket->pAllocator = obj->second.ObjectInfo.Image.pAllocator;
+            if (obj->second.ObjectInfo.Image.pAllocator != NULL)
+            {
+                VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Image.pAllocator);
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            }
             FINISH_TRACE_PACKET();
         }
     }
@@ -849,8 +959,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyImageView(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->imageView = (VkImageView)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.ImageView.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.ImageView.pAllocator;
+        if (obj->second.ObjectInfo.ImageView.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.ImageView.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -864,8 +979,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkFreeMemory(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->memory = (VkDeviceMemory)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.DeviceMemory.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.DeviceMemory.pAllocator;
+        if (obj->second.ObjectInfo.DeviceMemory.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.DeviceMemory.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -879,8 +999,13 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroySwapchainKHR(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->swapchain = (VkSwapchainKHR)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.SwapchainKHR.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.SwapchainKHR.pAllocator;
+        if (obj->second.ObjectInfo.SwapchainKHR.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.SwapchainKHR.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -922,7 +1047,7 @@ void trim_write_destroy_packets()
             }
         }
 
-        // Destroy the commandPool
+        // Destroy the CommandPool
         vktrace_trace_packet_header* pHeader;
         packet_vkDestroyCommandPool* pPacket = NULL;
         CREATE_TRACE_PACKET(vkDestroyCommandPool, sizeof(VkAllocationCallbacks));
@@ -930,12 +1055,17 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroyCommandPool(pHeader);
         pPacket->device = obj->second.belongsToDevice;
         pPacket->commandPool = (VkCommandPool) obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.CommandPool.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.CommandPool.pAllocator;
+        if (obj->second.ObjectInfo.CommandPool.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.CommandPool.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
-    // Devices
+    // Device
     for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdDevices.begin(); obj != s_trimGlobalStateTracker.createdDevices.end(); obj++)
     {
         vktrace_trace_packet_header* pHeader;
@@ -944,8 +1074,13 @@ void trim_write_destroy_packets()
         vktrace_set_packet_entrypoint_end_time(pHeader);
         pPacket = interpret_body_as_vkDestroyDevice(pHeader);
         pPacket->device = (VkDevice)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Device.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Device.pAllocator;
+        if (obj->second.ObjectInfo.Device.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Device.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
@@ -959,12 +1094,17 @@ void trim_write_destroy_packets()
         pPacket = interpret_body_as_vkDestroySurfaceKHR(pHeader);
         pPacket->surface = (VkSurfaceKHR)obj->first;
         pPacket->instance = obj->second.belongsToInstance;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.SurfaceKHR.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.SurfaceKHR.pAllocator;
+        if (obj->second.ObjectInfo.SurfaceKHR.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.SurfaceKHR.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 
-    // Instances
+    // Instance
     for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdInstances.begin(); obj != s_trimGlobalStateTracker.createdInstances.end(); obj++)
     {
         vktrace_trace_packet_header* pHeader;
@@ -973,8 +1113,13 @@ void trim_write_destroy_packets()
         vktrace_set_packet_entrypoint_end_time(pHeader);
         pPacket = interpret_body_as_vkDestroyInstance(pHeader);
         pPacket->instance = (VkInstance)obj->first;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &(obj->second.ObjectInfo.Instance.allocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        pPacket->pAllocator = obj->second.ObjectInfo.Instance.pAllocator;
+        if (obj->second.ObjectInfo.Instance.pAllocator != NULL)
+        {
+            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.Instance.pAllocator);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+        }
         FINISH_TRACE_PACKET();
     }
 }
