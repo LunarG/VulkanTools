@@ -400,6 +400,7 @@ class Subcommand(object):
                                          'CreateInstance',
                                          'CreatePipelineCache',
                                          'CreateRenderPass',
+                                         'GetPipelineCacheData',
                                          'CreateGraphicsPipelines',
                                          'CreateComputePipelines',
                                          'CmdPipelineBarrier',
