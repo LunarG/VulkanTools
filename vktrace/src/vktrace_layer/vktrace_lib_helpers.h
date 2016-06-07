@@ -213,13 +213,13 @@ static void add_data_to_mem_info(const VkDeviceMemory handle, VkDeviceSize range
     entry = find_mem_info_entry(handle);
     if (entry)
     {
-        entry->pData = (uint8_t *) pData;
-        if (rangeSize == 0)
+        entry->pData = (uint8_t *)pData;
+        if (rangeSize == VK_WHOLE_SIZE)
             entry->rangeSize = entry->totalSize - rangeOffset;
         else
             entry->rangeSize = rangeSize;
         entry->rangeOffset = rangeOffset;
-        assert(entry->totalSize >= rangeSize + rangeOffset);
+        assert(entry->totalSize >= entry->rangeSize + rangeOffset);
     }
     g_memInfo.pLastMapped = entry;
     vktrace_leave_critical_section(&g_memInfoLock);

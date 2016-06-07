@@ -175,9 +175,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     vktrace_set_packet_entrypoint_end_time(pHeader);
     entry = find_mem_info_entry(memory);
 
-    // For vktrace usage, clamp the memory size to the total size if VK_WHOLE_SIZE is specified.
+    // For vktrace usage, clamp the memory size to the total size less offset if VK_WHOLE_SIZE is specified.
     if (size == VK_WHOLE_SIZE) {
-        size = entry->totalSize;
+        size = entry->totalSize - offset;
     }
     pPacket = interpret_body_as_vkMapMemory(pHeader);
     pPacket->device = device;
