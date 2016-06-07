@@ -1058,6 +1058,39 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(
     FINISH_TRACE_PACKET();
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(
+    VkDevice device,
+    VkPipelineCache pipelineCache,
+    size_t* pDataSize,
+    void* pData)
+{
+    vktrace_trace_packet_header* pHeader;
+    VkResult result;
+    packet_vkGetPipelineCacheData* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    result = mdd(device)->devTable.GetPipelineCacheData(device, pipelineCache, pDataSize, pData);
+    endTime = vktrace_get_time();
+    assert(pDataSize);
+    CREATE_TRACE_PACKET(vkGetPipelineCacheData, sizeof(size_t)  + *pDataSize );
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetPipelineCacheData(pHeader);
+    pPacket->device = device;
+    pPacket->pipelineCache = pipelineCache;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDataSize), sizeof(size_t), pDataSize);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), *pDataSize, pData);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
+    FINISH_TRACE_PACKET();
+    return result;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipelines(
     VkDevice device,
     VkPipelineCache pipelineCache,
