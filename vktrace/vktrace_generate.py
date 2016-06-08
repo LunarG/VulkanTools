@@ -1216,7 +1216,7 @@ class Subcommand(object):
         rof_body.append('        if (entire_map)')
         rof_body.append('        {')
         rof_body.append('            size = mr.size;')
-        rof_body.append('            offset = mr.offset;')
+        rof_body.append('            offset = 0;   // pointer to mapped buffer is from offset 0')
         rof_body.append('        }')
         rof_body.append('        else')
         rof_body.append('        {')
