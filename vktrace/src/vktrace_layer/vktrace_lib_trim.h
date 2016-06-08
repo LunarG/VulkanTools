@@ -88,6 +88,7 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
             VkDeviceSize size;
+            bool bIsEverMapped;
             void* mappedAddress;
             VkDeviceSize mappedOffset;
             VkDeviceSize mappedSize;
@@ -158,6 +159,12 @@ typedef struct _Trim_ObjectInfo
         struct _DescriptorSet {         // VkDescriptorSet
             VkDescriptorPool descriptorPool;
             VkDescriptorSetLayout layout;
+            // TODO: These should probably be pre-allocated in the descriptorPool
+            // just as the driver would allocate them.
+            uint32_t writeDescriptorCount;
+            VkWriteDescriptorSet* pWriteDescriptorSets;
+            uint32_t copyDescriptorCount;
+            VkCopyDescriptorSet* pCopyDescriptorSets;
         } DescriptorSet;
         struct _Framebuffer {           // VkFramebuffer
             vktrace_trace_packet_header* pCreatePacket;

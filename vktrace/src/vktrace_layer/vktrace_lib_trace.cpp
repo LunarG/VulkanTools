@@ -231,6 +231,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
         pInfo->ObjectInfo.DeviceMemory.mappedOffset = offset;
         pInfo->ObjectInfo.DeviceMemory.mappedSize = size;
         pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
+        pInfo->ObjectInfo.DeviceMemory.bIsEverMapped = true;
         if (g_trimIsInTrim)
         {
             trim_add_recorded_packet(pHeader);
@@ -1401,6 +1402,110 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
     else if (g_trimIsPreTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
+        for (uint32_t i = 0; i < descriptorWriteCount; i++)
+        {
+            Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
+
+            // find existing writeDescriptorSet info to update, or allocate space for a new one.
+            VkWriteDescriptorSet* pWriteDescriptorSet = NULL;
+            for (uint32_t w = 0; w < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; w++)
+            {
+                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w].dstBinding == pDescriptorWrites[i].dstBinding &&
+                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w].descriptorType == pDescriptorWrites[i].descriptorType)
+                {
+                    pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w];
+                    break;
+                }
+            }
+            if (pWriteDescriptorSet == NULL)
+            {
+                // allocate more space for the new WriteDescriptorSet
+                pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets = (VkWriteDescriptorSet*)realloc(pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets, sizeof(VkWriteDescriptorSet) * (pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount + 1));
+                pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount];
+                memset(pWriteDescriptorSet, 0, sizeof(VkWriteDescriptorSet));
+                pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount++;
+            }
+            assert(pWriteDescriptorSet != NULL);
+
+            // Clean up previous data if needed (doesn't have enough space, or the wrong type of descriptor)
+            if (pWriteDescriptorSet->descriptorCount < pDescriptorWrites[i].descriptorCount ||
+                pWriteDescriptorSet->descriptorType != pDescriptorWrites[i].descriptorType)
+            {
+                if (pWriteDescriptorSet->pBufferInfo != NULL) {
+                    free((void*)pWriteDescriptorSet->pBufferInfo);
+                    pWriteDescriptorSet->pBufferInfo = NULL;
+                }
+                else if (pWriteDescriptorSet->pImageInfo != NULL) {
+                    free((void*)pWriteDescriptorSet->pImageInfo);
+                    pWriteDescriptorSet->pImageInfo = NULL;
+                }
+                else if (pWriteDescriptorSet->pTexelBufferView != NULL) {
+                    free((void*)pWriteDescriptorSet->pTexelBufferView);
+                    pWriteDescriptorSet->pTexelBufferView = NULL;
+                }
+            }
+
+            // Store the WriteDescriptorSet
+            *pWriteDescriptorSet = pDescriptorWrites[i];
+
+            // now allocate the necessary info
+            switch (pWriteDescriptorSet->descriptorType) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            {
+                pWriteDescriptorSet->pImageInfo = (VkDescriptorImageInfo*)malloc(sizeof(VkDescriptorImageInfo) * pWriteDescriptorSet->descriptorCount);
+                memcpy((void*)pWriteDescriptorSet->pImageInfo, pDescriptorWrites[i].pImageInfo, sizeof(VkDescriptorImageInfo) * pWriteDescriptorSet->descriptorCount);
+            }
+            break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            {
+                pWriteDescriptorSet->pTexelBufferView = (VkBufferView*)malloc(sizeof(VkBufferView) * pWriteDescriptorSet->descriptorCount);
+                memcpy((void*)pWriteDescriptorSet->pTexelBufferView, pDescriptorWrites[i].pTexelBufferView, sizeof(VkBufferView) * pWriteDescriptorSet->descriptorCount);
+            }
+            break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            {
+                pWriteDescriptorSet->pBufferInfo = (VkDescriptorBufferInfo*)malloc(sizeof(VkDescriptorBufferInfo) * pWriteDescriptorSet->descriptorCount);
+                memcpy((void*)pWriteDescriptorSet->pBufferInfo, pDescriptorWrites[i].pBufferInfo, sizeof(VkDescriptorBufferInfo) * pWriteDescriptorSet->descriptorCount);
+            }
+            break;
+            default:
+                break;
+            }
+        }
+        
+        for (uint32_t i = 0; i < descriptorCopyCount; i++)
+        {
+            Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
+
+            // find existing CopyDescriptorSet info to update, or allocate space for a new one.
+            VkCopyDescriptorSet* pCopyDescriptorSet = NULL;
+            for (uint32_t w = 0; w < pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount; w++)
+            {
+                if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[w].dstBinding == pDescriptorWrites[i].dstBinding)
+                {
+                    pCopyDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[w];
+                    break;
+                }
+            }
+            if (pCopyDescriptorSet == NULL)
+            {
+                // allocate more space for the new WriteDescriptorSet
+                pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets = (VkCopyDescriptorSet*)realloc(pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets, sizeof(VkCopyDescriptorSet) * (pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount + 1));
+                pCopyDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount];
+                pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount++;
+            }
+            assert(pCopyDescriptorSet != NULL);
+
+            // Store the CopyDescriptorSet
+            *pCopyDescriptorSet = pDescriptorCopies[i];
+        }
     }
     else if (g_trimIsInTrim)
     {

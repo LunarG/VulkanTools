@@ -68,6 +68,10 @@ void trim_snapshot_state_tracker()
     // copy all buffer contents and update the snapshot with the memory contents
     for (TrimObjectInfoMap::iterator iter = s_trimStateTrackerSnapshot.createdDeviceMemorys.begin(); iter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end(); iter++)
     {
+        if (iter->second.ObjectInfo.DeviceMemory.bIsEverMapped == false)
+        {
+            continue;
+        }
         VkResult result = VK_SUCCESS;
         VkDevice device = iter->second.belongsToDevice;
         VkDeviceMemory memory = (VkDeviceMemory)iter->first;
@@ -309,11 +313,17 @@ void trim_write_all_referenced_object_calls()
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pCreatePacket));
 
         // write map / unmap packets so the memory contents gets set on replay
-        vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket));
+        if (obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket != NULL)
+        {
+            vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket));
+        }
 
-        vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket));
+        if (obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket != NULL)
+        {
+            vktrace_write_trace_packet(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket));
+        }
     }
 
     // Image
@@ -436,16 +446,16 @@ void trim_write_all_referenced_object_calls()
         VkDescriptorSetLayout* pSetLayouts = new VkDescriptorSetLayout[allocateInfo.descriptorSetCount];
         allocateInfo.pSetLayouts = pSetLayouts;
         VkDescriptorSet* pDescriptorSets = new VkDescriptorSet[allocateInfo.descriptorSetCount];
-
-        uint32_t index = 0;
+        uint32_t setLayoutIndex = 0;
 
         for (TrimObjectInfoMap::iterator setObj = stateTracker.createdDescriptorSets.begin(); setObj != stateTracker.createdDescriptorSets.end(); setObj++)
         {
+            // get descriptorSetLayouts and DescriptorSets specific to this pool
             if (setObj->second.ObjectInfo.DescriptorSet.descriptorPool == allocateInfo.descriptorPool)
             {
-                pSetLayouts[index] = setObj->second.ObjectInfo.DescriptorSet.layout;
-                pDescriptorSets[index] = (VkDescriptorSet)setObj->first;
-                index++;
+                pSetLayouts[setLayoutIndex] = setObj->second.ObjectInfo.DescriptorSet.layout;
+                pDescriptorSets[setLayoutIndex] = (VkDescriptorSet)setObj->first;
+                setLayoutIndex++;
             }
         }
 
@@ -467,6 +477,106 @@ void trim_write_all_referenced_object_calls()
 
         delete[] pSetLayouts;
         delete[] pDescriptorSets;
+    }
+
+    // Update DescriptorSets
+    // needs to be done per-Device
+    for (TrimObjectInfoMap::iterator deviceObj = stateTracker.createdDevices.begin(); deviceObj != stateTracker.createdDevices.end(); deviceObj++)
+    {
+        for (TrimObjectInfoMap::iterator setObj = stateTracker.createdDescriptorSets.begin(); setObj != stateTracker.createdDescriptorSets.end(); setObj++)
+        {
+            if (setObj->second.belongsToDevice == (VkDevice)deviceObj->first)
+            {
+                uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
+                uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
+                VkWriteDescriptorSet* pDescriptorWrites = setObj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets;
+                VkCopyDescriptorSet* pDescriptorCopies = setObj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets;
+
+                vktrace_trace_packet_header* pHeader;
+                packet_vkUpdateDescriptorSets* pPacket = NULL;
+                // begin custom code
+                size_t arrayByteCount = 0;
+
+                for (uint32_t i = 0; i < descriptorWriteCount; i++)
+                {
+                    arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
+                }
+
+                for (uint32_t i = 0; i < descriptorCopyCount; i++)
+                {
+                    arrayByteCount += get_struct_chain_size(&pDescriptorCopies[i]);
+                }
+
+                CREATE_TRACE_PACKET(vkUpdateDescriptorSets, arrayByteCount);
+                // end custom code
+
+                vktrace_set_packet_entrypoint_end_time(pHeader);
+                pPacket = interpret_body_as_vkUpdateDescriptorSets(pHeader);
+                pPacket->device = (VkDevice)deviceObj->first;
+                pPacket->descriptorWriteCount = descriptorWriteCount;
+                // begin custom code
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites), descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
+                for (uint32_t i = 0; i < descriptorWriteCount; i++)
+                {
+                    switch (pPacket->pDescriptorWrites[i].descriptorType) {
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    {
+                        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
+                            pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),
+                            pDescriptorWrites[i].pImageInfo);
+                        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo));
+
+                        // special to trim code
+                        free((void*)pDescriptorWrites[i].pImageInfo);
+                    }
+                    break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView),
+                            pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView),
+                            pDescriptorWrites[i].pTexelBufferView);
+                        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView));
+
+                        // special to trim code
+                        free((void*)pDescriptorWrites[i].pTexelBufferView);
+                    }
+                    break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo),
+                            pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo),
+                            pDescriptorWrites[i].pBufferInfo);
+                        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo));
+
+                        // special to trim code
+                        free((void*)pDescriptorWrites[i].pBufferInfo);
+                    }
+                    break;
+                    default:
+                        break;
+                    }
+                }
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
+
+                pPacket->descriptorCopyCount = descriptorCopyCount;
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorCopies), descriptorCopyCount * sizeof(VkCopyDescriptorSet), pDescriptorCopies);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorCopies));
+                // end custom code
+
+                // special to trim code
+                free(pDescriptorWrites);
+                free(pDescriptorCopies);
+
+                FINISH_TRACE_PACKET();
+            }
+        }
     }
 
     // Framebuffer
