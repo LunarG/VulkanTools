@@ -222,7 +222,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     if (siz)
     {
         assert(entry->handle == memory);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->pData), siz, entry->pData + off);
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->pData), siz, entry->pData);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
         entry->pData = NULL;
     }
