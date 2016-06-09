@@ -99,8 +99,8 @@ vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::handle_replay_errors(const char*
                 string_VkResult((VkResult)resCall), entrypointName, string_VkResult((VkResult)resTrace));
         res = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;
     }
-    if (resCall != VK_SUCCESS) {
-        vktrace_LogWarning("API call (%s) returned failed result %d", entrypointName, resCall);
+    if (resCall != VK_SUCCESS  && resCall != VK_NOT_READY) {
+        vktrace_LogWarning("API call (%s) returned failed result %s", entrypointName, string_VkResult(resCall));
     }
     return res;
 }
