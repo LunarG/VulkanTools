@@ -131,6 +131,10 @@ private:
     VkResult manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* pPacket);
 #ifdef VK_USE_PLATFORM_XCB_KHR
     VkResult manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfaceKHR* pPacket);
+    VkBool32 manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket);
+#endif
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+    VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
 #endif
 #ifdef VK_USE_PLATFORM_WIN32_KHR
     VkResult manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32SurfaceKHR* pPacket);

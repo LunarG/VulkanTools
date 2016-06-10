@@ -2056,3 +2056,32 @@ VkResult vkReplay::manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCom
     delete local_pCommandBuffers;
     return replayResult;
 }
+
+#ifdef VK_USE_PLATFORM_XCB_KHR
+VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket)
+{
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE)
+    {
+        return VK_FALSE;
+    }
+    VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *) m_display->get_surface();
+    m_display->get_window_handle();
+    return (m_vkFuncs.real_vkGetPhysicalDeviceXcbPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->connection, m_display->get_screen_handle()->root_visual));
+}
+#endif
+
+// Stub for XLIB support
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket)
+{
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE)
+    {
+        return VK_FALSE;
+    }
+    VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *) m_display->get_surface();
+    m_display->get_window_handle();
+    return (m_vkFuncs.real_vkGetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->dpy, m_display->get_screen_handle()->root_visual));
+}
+#endif
