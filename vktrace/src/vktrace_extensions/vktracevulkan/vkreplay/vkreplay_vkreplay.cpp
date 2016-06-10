@@ -1178,6 +1178,34 @@ void vkReplay::manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuff
 //    return replayResult;
 //}
 
+VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCacheData* pPacket)
+{
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    size_t dataSize;
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    VkPipelineCache remappedpipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+    if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedpipelineCache == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    // Since the returned data size may not be equal to size of the buffer in the trace packet allocate a local buffer as needed
+    replayResult = m_vkFuncs.real_vkGetPipelineCacheData(remappeddevice, remappedpipelineCache, &dataSize, NULL);
+    if (replayResult != VK_SUCCESS)
+        return replayResult;
+    if (pPacket->pData) {
+        uint8_t *pData = VKTRACE_NEW_ARRAY(uint8_t, dataSize);
+        replayResult = m_vkFuncs.real_vkGetPipelineCacheData(remappeddevice, remappedpipelineCache, pPacket->pDataSize, pData);
+        VKTRACE_DELETE(pData);
+    }
+    return replayResult;
+}
+
 VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGraphicsPipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;

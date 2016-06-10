@@ -1619,6 +1619,7 @@ class Subcommand(object):
                                  'CreateDescriptorSetLayout',
                                  'CreateDevice',
                                  'CreateFramebuffer',
+                                 'GetPipelineCacheData',
                                  'CreateGraphicsPipelines',
                                  #'CreateInstance',
                                  'CreatePipelineLayout',
