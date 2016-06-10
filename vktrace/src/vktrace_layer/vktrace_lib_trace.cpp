@@ -1525,12 +1525,19 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     Display*                                    dpy,
     VisualID                                    visualID)
 {
+    vktrace_trace_packet_header* pHeader;
     VkBool32 result;
-
-    // TODO: Implement.
-
+    packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket = NULL;
+    // don't bother with copying the actual xlib visual_id and connection into the trace packet, vkreplay has to use it's own anyway
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceXlibPresentationSupportKHR, 0);
     result = mid(physicalDevice)->instTable.GetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice, queueFamilyIndex, dpy, visualID);
-
+    pPacket = interpret_body_as_vkGetPhysicalDeviceXlibPresentationSupportKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->dpy = dpy;
+    pPacket->queueFamilyIndex = queueFamilyIndex;
+    pPacket->visualID = visualID;
+    pPacket->result = result;
+    FINISH_TRACE_PACKET();
     return result;
 }
 #endif

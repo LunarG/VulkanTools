@@ -429,16 +429,17 @@ class Subcommand(object):
                                          'CreateSwapchainKHR',
                                          'GetSwapchainImagesKHR',
                                          'QueuePresentKHR',
-                                         #TODO add Xlib, Wayland, Mir
+                                         #TODO add Wayland, Mir
                                          'CreateXcbSurfaceKHR',
                                          'GetPhysicalDeviceXcbPresentationSupportKHR',
+                                         'GetPhysicalDeviceXlibPresentationSupportKHR',
                                          'CreateWin32SurfaceKHR',
                                          'GetPhysicalDeviceWin32PresentationSupportKHR',
                                          ]
 
         # validate the manually_written_hooked_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
+        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
@@ -1588,6 +1589,29 @@ class Subcommand(object):
         cb_body.append('            }')
         return "\n".join(cb_body)
 
+    # These are customized because they are the only entry points returning VkBool32
+    def _gen_replay_GetPhysicalDeviceXcbPresentationSupportKHR (self):
+        cb_body = []
+        cb_body.append('            VkBool32 rval = manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(pPacket);')
+        cb_body.append('            if (rval != pPacket->result)')
+        cb_body.append('            {')
+        cb_body.append('                vktrace_LogError("Return value %d from API call (vkGetPhysicalDeviceXcbPresentationSupportKHR) does not match return value from trace file %d.",')
+        cb_body.append('                                 rval, pPacket->result);')
+        cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+
+    def _gen_replay_GetPhysicalDeviceXlibPresentationSupportKHR (self):
+        cb_body = []
+        cb_body.append('            VkBool32 rval = manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(pPacket);')
+        cb_body.append('            if (rval != pPacket->result)')
+        cb_body.append('            {')
+        cb_body.append('                vktrace_LogError("Return value %d from API call (vkGetPhysicalDeviceXlibPresentationSupportKHR) does not match return value from trace file %d.",')
+        cb_body.append('                                 rval, pPacket->result);')
+        cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+
     # Generate main replay case statements where actual replay API call is dispatched based on input packet data
     def _generate_replay(self):
         manually_replay_funcs = ['AllocateMemory',
@@ -1646,7 +1670,9 @@ class Subcommand(object):
         # map protos to custom functions if body is fully custom
         custom_body_dict = {'CreateImage': self._gen_replay_create_image,
                             'CreateBuffer': self._gen_replay_create_buffer,
-                            'CreateInstance': self._gen_replay_create_instance }
+                            'CreateInstance': self._gen_replay_create_instance,
+                            'GetPhysicalDeviceXcbPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXcbPresentationSupportKHR,
+                            'GetPhysicalDeviceXlibPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXlibPresentationSupportKHR }
         # multi-gpu Open funcs w/ list of local params to create
         custom_open_params = {'OpenSharedMemory': (-1,),
                               'OpenSharedSemaphore': (-1,),
