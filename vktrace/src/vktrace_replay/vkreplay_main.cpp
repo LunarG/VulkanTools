@@ -278,7 +278,10 @@ int main(int argc, char **argv)
     uint8_t tidApi = VKTRACE_TID_RESERVED;
     vktrace_trace_packet_replay_library* replayer[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];
     ReplayFactory makeReplayer;
-    Display disp(1024, 768, 0, false);
+
+    // Initial replay window is 100x100. We'll resize it to the swapchain
+    // extent during vkQueuePresentKHR playback.
+    Display disp(100, 100, 0, false);
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)
     {

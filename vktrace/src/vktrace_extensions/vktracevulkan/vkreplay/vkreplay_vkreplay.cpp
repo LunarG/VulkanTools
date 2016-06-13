@@ -1828,6 +1828,9 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     if (replayResult == VK_SUCCESS)
     {
         m_objMapper.add_to_swapchainkhrs_map(*(pPacket->pSwapchain), local_pSwapchain);
+        VkExtent2D *extent = new VkExtent2D;
+        *extent = pPacket->pCreateInfo->imageExtent;
+        swapchainExtentsMap.insert(std::make_pair(local_pSwapchain, extent));
     }
 
     (*pSC) = save_oldSwapchain;
@@ -1926,6 +1929,13 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             }
         }
         present.pResults = NULL;
+    }
+
+    // Set window size to match size of first swapchain extent
+    if (swapchainExtentsMap.find(localSwapchains[0]) != swapchainExtentsMap.end())
+    {
+        m_display->resize_window(swapchainExtentsMap[localSwapchains[0]]->width,
+                                 swapchainExtentsMap[localSwapchains[0]]->height);
     }
 
     if (replayResult == VK_SUCCESS) {
