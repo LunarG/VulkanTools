@@ -1871,6 +1871,11 @@ class Subcommand(object):
                     rbody.append('            {')
                     rbody.append('                m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);')
                     rbody.append('            }')
+                    rbody.append('            if (swapchainExtentsMap.find(remappedswapchain) != swapchainExtentsMap.end())')
+                    rbody.append('            {')
+                    rbody.append('                delete swapchainExtentsMap.find(remappedswapchain)->second;')
+                    rbody.append('                swapchainExtentsMap.erase(remappedswapchain);')
+                    rbody.append('            }')
                 elif 'DestroyInstance' in proto.name:
                     rbody.append('            if (replayResult == VK_SUCCESS)')
                     rbody.append('            {')
