@@ -523,6 +523,7 @@ void trim_write_all_referenced_object_calls()
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
                         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
                             pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),

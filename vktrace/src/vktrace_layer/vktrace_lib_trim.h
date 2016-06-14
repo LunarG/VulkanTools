@@ -126,6 +126,11 @@ typedef struct _Trim_ObjectInfo
         struct _DescriptorSetLayout {   // VkDescriptorSetLayout
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
+            uint32_t numImages;
+            uint32_t numBuffers;
+            uint32_t numTexelBufferViews;
+            uint32_t bindingCount;
+            VkDescriptorSetLayoutBinding* pBindings;
         } DescriptorSetLayout;
         struct _PipelineLayout {        // VkPipelineLayout
             vktrace_trace_packet_header* pCreatePacket;
@@ -159,11 +164,10 @@ typedef struct _Trim_ObjectInfo
         struct _DescriptorSet {         // VkDescriptorSet
             VkDescriptorPool descriptorPool;
             VkDescriptorSetLayout layout;
-            // TODO: These should probably be pre-allocated in the descriptorPool
-            // just as the driver would allocate them.
-            uint32_t writeDescriptorCount;
+            uint32_t numBindings; // this is the number of elements allocated in each of the two arrays below.
+            uint32_t writeDescriptorCount; // this is the number of descriptor sets that will need a write update.
             VkWriteDescriptorSet* pWriteDescriptorSets;
-            uint32_t copyDescriptorCount;
+            uint32_t copyDescriptorCount;  // this is the number of descriptor sets that will need a copy update.
             VkCopyDescriptorSet* pCopyDescriptorSets;
         } DescriptorSet;
         struct _Framebuffer {           // VkFramebuffer
