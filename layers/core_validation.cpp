@@ -318,6 +318,22 @@ VkBufferViewCreateInfo *getBufferViewInfo(const layer_data *my_data, VkBufferVie
     return bv_it->second.get();
 }
 
+FENCE_NODE *getFenceNode(layer_data *dev_data, VkFence fence) {
+    auto it = dev_data->fenceMap.find(fence);
+    if (it == dev_data->fenceMap.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+QUEUE_NODE *getQueueNode(layer_data *dev_data, VkQueue queue) {
+    auto it = dev_data->queueMap.find(queue);
+    if (it == dev_data->queueMap.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
 static VkDeviceMemory *get_object_mem_binding(layer_data *my_data, uint64_t handle, VkDebugReportObjectTypeEXT type) {
     switch (type) {
     case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT: {
@@ -3675,14 +3691,12 @@ static void resetCB(layer_data *dev_data, const VkCommandBuffer cb) {
         pCB->activeRenderPass = nullptr;
         pCB->activeSubpassContents = VK_SUBPASS_CONTENTS_INLINE;
         pCB->activeSubpass = 0;
-        pCB->lastSubmittedFence = VK_NULL_HANDLE;
-        pCB->lastSubmittedQueue = VK_NULL_HANDLE;
         pCB->destroyedSets.clear();
         pCB->updatedSets.clear();
         pCB->destroyedFramebuffers.clear();
         pCB->waitedEvents.clear();
-        pCB->semaphores.clear();
         pCB->events.clear();
+        pCB->writeEventsBeforeWait.clear();
         pCB->waitedEventsBeforeQueryReset.clear();
         pCB->queryToStateMap.clear();
         pCB->activeQueries.clear();
@@ -4086,7 +4100,7 @@ static bool ValidateCmdBufImageLayouts(layer_data *dev_data, GLOBAL_CB_NODE *pCB
 }
 
 // Track which resources are in-flight by atomically incrementing their "in_use" count
-static bool validateAndIncrementResources(layer_data *my_data, GLOBAL_CB_NODE *pCB) {
+static bool validateAndIncrementResources(layer_data *my_data, GLOBAL_CB_NODE *pCB, std::vector<VkSemaphore> const &semaphores) {
     bool skip_call = false;
     for (auto drawDataElement : pCB->drawData) {
         for (auto buffer : drawDataElement.buffers) {
@@ -4112,7 +4126,7 @@ static bool validateAndIncrementResources(layer_data *my_data, GLOBAL_CB_NODE *p
             }
         }
     }
-    for (auto semaphore : pCB->semaphores) {
+    for (auto semaphore : semaphores) {
         auto semaphoreNode = my_data->semaphoreMap.find(semaphore);
         if (semaphoreNode == my_data->semaphoreMap.end()) {
             skip_call |=
@@ -4171,8 +4185,8 @@ static inline void removeInFlightCmdBuffer(layer_data *dev_data, VkCommandBuffer
     }
 }
 
-static void decrementResources(layer_data *my_data, VkCommandBuffer cmdBuffer) {
-    GLOBAL_CB_NODE *pCB = getCBNode(my_data, cmdBuffer);
+static void decrementResources(layer_data *my_data, CB_SUBMISSION *submission) {
+    GLOBAL_CB_NODE *pCB = getCBNode(my_data, submission->cb);
     for (auto drawDataElement : pCB->drawData) {
         for (auto buffer : drawDataElement.buffers) {
             auto buffer_node = getBufferNode(my_data, buffer);
@@ -4186,7 +4200,7 @@ static void decrementResources(layer_data *my_data, VkCommandBuffer cmdBuffer) {
             set->in_use.fetch_sub(1);
         }
     }
-    for (auto semaphore : pCB->semaphores) {
+    for (auto semaphore : submission->semaphores) {
         auto semaphoreNode = my_data->semaphoreMap.find(semaphore);
         if (semaphoreNode != my_data->semaphoreMap.end()) {
             semaphoreNode->second.in_use.fetch_sub(1);
@@ -4227,12 +4241,12 @@ static bool decrementResources(layer_data *my_data, uint32_t fenceCount, const V
         }
         decrementResources(my_data, static_cast<uint32_t>(fence_data->second.priorFences.size()),
                            fence_data->second.priorFences.data());
-        for (auto cmdBuffer : fence_data->second.cmdBuffers) {
-            decrementResources(my_data, cmdBuffer);
-            skip_call |= cleanInFlightCmdBuffer(my_data, cmdBuffer);
-            removeInFlightCmdBuffer(my_data, cmdBuffer);
+        for (auto & submission : fence_data->second.submissions) {
+            decrementResources(my_data, &submission);
+            skip_call |= cleanInFlightCmdBuffer(my_data, submission.cb);
+            removeInFlightCmdBuffer(my_data, submission.cb);
         }
-        fence_data->second.cmdBuffers.clear();
+        fence_data->second.submissions.clear();
         fence_data->second.priorFences.clear();
     }
     for (auto fence_pair : fence_pairs) {
@@ -4259,12 +4273,12 @@ static bool decrementResources(layer_data *my_data, VkQueue queue) {
     bool skip_call = false;
     auto queue_data = my_data->queueMap.find(queue);
     if (queue_data != my_data->queueMap.end()) {
-        for (auto cmdBuffer : queue_data->second.untrackedCmdBuffers) {
-            decrementResources(my_data, cmdBuffer);
-            skip_call |= cleanInFlightCmdBuffer(my_data, cmdBuffer);
-            removeInFlightCmdBuffer(my_data, cmdBuffer);
+        for (auto & submission : queue_data->second.untrackedSubmissions) {
+            decrementResources(my_data, &submission);
+            skip_call |= cleanInFlightCmdBuffer(my_data, submission.cb);
+            removeInFlightCmdBuffer(my_data, submission.cb);
         }
-        queue_data->second.untrackedCmdBuffers.clear();
+        queue_data->second.untrackedSubmissions.clear();
         skip_call |= decrementResources(my_data, static_cast<uint32_t>(queue_data->second.lastFences.size()),
                                         queue_data->second.lastFences.data());
     }
@@ -4291,20 +4305,26 @@ static void updateTrackedCommandBuffers(layer_data *dev_data, VkQueue queue, VkQ
             fence_node->second.queues.insert(other_queue_data->first);
         }
     }
+    // TODO: Stealing the untracked CBs out of the signaling queue isn't really
+    // correct. A subsequent submission + wait, or a QWI on that queue, or
+    // another semaphore dependency to a third queue may /all/ provide
+    // suitable proof that the work we're stealing here has completed on the
+    // device, but we've lost that information by moving the tracking between
+    // queues.
     if (fence != VK_NULL_HANDLE) {
         auto fence_data = dev_data->fenceMap.find(fence);
         if (fence_data == dev_data->fenceMap.end()) {
             return;
         }
-        for (auto cmdbuffer : other_queue_data->second.untrackedCmdBuffers) {
-            fence_data->second.cmdBuffers.push_back(cmdbuffer);
+        for (auto cmdbuffer : other_queue_data->second.untrackedSubmissions) {
+            fence_data->second.submissions.push_back(cmdbuffer);
         }
-        other_queue_data->second.untrackedCmdBuffers.clear();
+        other_queue_data->second.untrackedSubmissions.clear();
     } else {
-        for (auto cmdbuffer : other_queue_data->second.untrackedCmdBuffers) {
-            queue_data->second.untrackedCmdBuffers.push_back(cmdbuffer);
+        for (auto cmdbuffer : other_queue_data->second.untrackedSubmissions) {
+            queue_data->second.untrackedSubmissions.push_back(cmdbuffer);
         }
-        other_queue_data->second.untrackedCmdBuffers.clear();
+        other_queue_data->second.untrackedSubmissions.clear();
     }
     for (auto eventStagePair : other_queue_data->second.eventToStageMap) {
         queue_data->second.eventToStageMap[eventStagePair.first] = eventStagePair.second;
@@ -4322,51 +4342,24 @@ static void updateTrackedCommandBuffers(layer_data *dev_data, VkQueue queue, VkQ
 // waited on, prior fences on that queue are also considered to have been waited on. When a fence is
 // waited on (either via a queue, device or fence), we free the cmd buffers for that fence and
 // recursively call with the prior fences.
-static void trackCommandBuffers(layer_data *my_data, VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits,
-                                VkFence fence) {
-    auto queue_data = my_data->queueMap.find(queue);
-    if (fence != VK_NULL_HANDLE) {
-        vector<VkFence> prior_fences;
-        auto fence_data = my_data->fenceMap.find(fence);
-        if (fence_data == my_data->fenceMap.end()) {
-            return;
-        }
-        fence_data->second.cmdBuffers.clear();
-        if (queue_data != my_data->queueMap.end()) {
-            prior_fences = queue_data->second.lastFences;
-            queue_data->second.lastFences.clear();
-            queue_data->second.lastFences.push_back(fence);
-            for (auto cmdbuffer : queue_data->second.untrackedCmdBuffers) {
-                fence_data->second.cmdBuffers.push_back(cmdbuffer);
-            }
-            queue_data->second.untrackedCmdBuffers.clear();
-        }
-        fence_data->second.priorFences = prior_fences;
-        fence_data->second.needsSignaled = true;
-        fence_data->second.queues.insert(queue);
-        fence_data->second.in_use.fetch_add(1);
-        for (uint32_t submit_idx = 0; submit_idx < submitCount; submit_idx++) {
-            const VkSubmitInfo *submit = &pSubmits[submit_idx];
-            for (uint32_t i = 0; i < submit->commandBufferCount; ++i) {
-                for (auto secondaryCmdBuffer : my_data->commandBufferMap[submit->pCommandBuffers[i]]->secondaryCommandBuffers) {
-                    fence_data->second.cmdBuffers.push_back(secondaryCmdBuffer);
-                }
-                fence_data->second.cmdBuffers.push_back(submit->pCommandBuffers[i]);
-            }
-        }
-    } else {
-        if (queue_data != my_data->queueMap.end()) {
-            for (uint32_t submit_idx = 0; submit_idx < submitCount; submit_idx++) {
-                const VkSubmitInfo *submit = &pSubmits[submit_idx];
-                for (uint32_t i = 0; i < submit->commandBufferCount; ++i) {
-                    for (auto secondaryCmdBuffer : my_data->commandBufferMap[submit->pCommandBuffers[i]]->secondaryCommandBuffers) {
-                        queue_data->second.untrackedCmdBuffers.push_back(secondaryCmdBuffer);
-                    }
-                    queue_data->second.untrackedCmdBuffers.push_back(submit->pCommandBuffers[i]);
-                }
-            }
-        }
-    }
+
+
+// Submit a fence to a queue, delimiting previous fences and previous untracked
+// work by it.
+static void
+SubmitFence(QUEUE_NODE *pQueue, FENCE_NODE *pFence)
+{
+    assert(!pFence->priorFences.size());
+    assert(!pFence->submissions.size());
+
+    std::swap(pFence->priorFences, pQueue->lastFences);
+    std::swap(pFence->submissions, pQueue->untrackedSubmissions);
+
+    pFence->queues.insert(pQueue->queue);
+    pFence->needsSignaled = true;
+    pFence->in_use.fetch_add(1);
+
+    pQueue->lastFences.push_back(pFence->fence);
 }
 
 static void markCommandBuffersInFlight(layer_data *my_data, VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits,
@@ -4481,12 +4474,12 @@ static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB
     return skipCall;
 }
 
-static bool validatePrimaryCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB) {
+static bool validatePrimaryCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB, std::vector<VkSemaphore> const &semaphores) {
     // Track in-use for resources off of primary and any secondary CBs
-    bool skipCall = validateAndIncrementResources(dev_data, pCB);
+    bool skipCall = validateAndIncrementResources(dev_data, pCB, semaphores);
     if (!pCB->secondaryCommandBuffers.empty()) {
         for (auto secondaryCmdBuffer : pCB->secondaryCommandBuffers) {
-            skipCall |= validateAndIncrementResources(dev_data, dev_data->commandBufferMap[secondaryCmdBuffer]);
+            skipCall |= validateAndIncrementResources(dev_data, dev_data->commandBufferMap[secondaryCmdBuffer], semaphores);
             GLOBAL_CB_NODE *pSubCB = getCBNode(dev_data, secondaryCmdBuffer);
             if ((pSubCB->primaryCommandBuffer != pCB->commandBuffer) &&
                 !(pSubCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT)) {
@@ -4508,31 +4501,60 @@ static bool validatePrimaryCommandBufferState(layer_data *dev_data, GLOBAL_CB_NO
     return skipCall;
 }
 
+static bool
+ValidateFenceForSubmit(layer_data *dev_data, FENCE_NODE *pFence)
+{
+    bool skipCall = false;
+
+    if (pFence) {
+        if (pFence->in_use.load()) {
+            skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
+                                (uint64_t)(pFence->fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
+                                "Fence 0x%" PRIx64 " is already in use by another submission.", (uint64_t)(pFence->fence));
+        }
+
+        if (!pFence->needsSignaled) {
+            skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
+                                reinterpret_cast<uint64_t &>(pFence->fence), __LINE__, MEMTRACK_INVALID_FENCE_STATE, "MEM",
+                                "Fence 0x%" PRIxLEAST64 " submitted in SIGNALED state.  Fences must be reset before being submitted",
+                                reinterpret_cast<uint64_t &>(pFence->fence));
+        }
+    }
+
+    return skipCall;
+}
+
+
 VKAPI_ATTR VkResult VKAPI_CALL
 QueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits, VkFence fence) {
     bool skipCall = false;
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     std::unique_lock<std::mutex> lock(global_lock);
-    // First verify that fence is not in use
-    if (fence != VK_NULL_HANDLE) {
-        if ((submitCount != 0) && dev_data->fenceMap[fence].in_use.load()) {
-            skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                                (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
-                                "Fence 0x%" PRIx64 " is already in use by another submission.", (uint64_t)(fence));
-        }
-        if (!dev_data->fenceMap[fence].needsSignaled) {
-            skipCall |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                                reinterpret_cast<uint64_t &>(fence), __LINE__, MEMTRACK_INVALID_FENCE_STATE, "MEM",
-                                "Fence 0x%" PRIxLEAST64 " submitted in SIGNALED state.  Fences must be reset before being submitted",
-                                reinterpret_cast<uint64_t &>(fence));
-        }
+
+    auto pQueue = getQueueNode(dev_data, queue);
+    auto pFence = getFenceNode(dev_data, fence);
+    skipCall |= ValidateFenceForSubmit(dev_data, pFence);
+
+    if (skipCall) {
+        return VK_ERROR_VALIDATION_FAILED_EXT;
     }
+
     // TODO : Review these old print functions and clean up as appropriate
     print_mem_list(dev_data);
     printCBList(dev_data);
-    // Update cmdBuffer-related data structs and mark fence in-use
-    trackCommandBuffers(dev_data, queue, submitCount, pSubmits, fence);
+
+    // Mark the fence in-use.
+    if (pFence) {
+        SubmitFence(pQueue, pFence);
+    }
+
+    // If a fence is supplied, all the command buffers for this call will be
+    // delimited by that fence. Otherwise, they go in the untracked portion of
+    // the queue, and may end up being delimited by a fence supplied in a
+    // subsequent submission.
+    auto & submitTarget = pFence ? pFence->submissions : pQueue->untrackedSubmissions;
+
     // Now verify each individual submit
     std::unordered_set<VkQueue> processed_other_queues;
     for (uint32_t submit_idx = 0; submit_idx < submitCount; submit_idx++) {
@@ -4576,15 +4598,20 @@ QueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits, V
                 }
             }
         }
+
+        // TODO: just add one submission per VkSubmitInfo!
         for (uint32_t i = 0; i < submit->commandBufferCount; i++) {
             auto pCBNode = getCBNode(dev_data, submit->pCommandBuffers[i]);
             skipCall |= ValidateCmdBufImageLayouts(dev_data, pCBNode);
             if (pCBNode) {
-                pCBNode->semaphores = semaphoreList;
+
+                submitTarget.emplace_back(pCBNode->commandBuffer, semaphoreList);
+                for (auto secondaryCmdBuffer : pCBNode->secondaryCommandBuffers) {
+                    submitTarget.emplace_back(secondaryCmdBuffer, semaphoreList);
+                }
+
                 pCBNode->submitCount++; // increment submit count
-                pCBNode->lastSubmittedFence = fence;
-                pCBNode->lastSubmittedQueue = queue;
-                skipCall |= validatePrimaryCommandBufferState(dev_data, pCBNode);
+                skipCall |= validatePrimaryCommandBufferState(dev_data, pCBNode, semaphoreList);
                 // Call submit-time functions to validate/update state
                 for (auto &function : pCBNode->validate_functions) {
                     skipCall |= function();
@@ -4817,6 +4844,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
     auto result = dev_data->queues.emplace(*pQueue);
     if (result.second == true) {
         QUEUE_NODE *pQNode = &dev_data->queueMap[*pQueue];
+        pQNode->queue = *pQueue;
         pQNode->device = device;
     }
 }
@@ -5569,6 +5597,7 @@ CreateFence(VkDevice device, const VkFenceCreateInfo *pCreateInfo, const VkAlloc
     if (VK_SUCCESS == result) {
         std::lock_guard<std::mutex> lock(global_lock);
         auto &fence_node = dev_data->fenceMap[*pFence];
+        fence_node.fence = *pFence;
         fence_node.createInfo = *pCreateInfo;
         fence_node.needsSignaled = true;
         if (pCreateInfo->flags & VK_FENCE_CREATE_SIGNALED_BIT) {
@@ -9551,24 +9580,16 @@ QueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo *p
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     bool skip_call = false;
     std::unique_lock<std::mutex> lock(global_lock);
+    auto pFence = getFenceNode(dev_data, fence);
+    auto pQueue = getQueueNode(dev_data, queue);
+
     // First verify that fence is not in use
+    skip_call |= ValidateFenceForSubmit(dev_data, pFence);
+
     if (fence != VK_NULL_HANDLE) {
-        auto fence_data = dev_data->fenceMap.find(fence);
-        if ((bindInfoCount != 0) && fence_data->second.in_use.load()) {
-            skip_call |=
-                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                        reinterpret_cast<uint64_t &>(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS",
-                        "Fence 0x%" PRIx64 " is already in use by another submission.", reinterpret_cast<uint64_t &>(fence));
-        }
-        if (!fence_data->second.needsSignaled) {
-            skip_call |=
-                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                        reinterpret_cast<uint64_t &>(fence), __LINE__, MEMTRACK_INVALID_FENCE_STATE, "MEM",
-                        "Fence 0x%" PRIxLEAST64 " submitted in SIGNALED state.  Fences must be reset before being submitted",
-                        reinterpret_cast<uint64_t &>(fence));
-        }
-        trackCommandBuffers(dev_data, queue, 0, nullptr, fence);
+        SubmitFence(pQueue, pFence);
     }
+
     for (uint32_t bindIdx = 0; bindIdx < bindInfoCount; ++bindIdx) {
         const VkBindSparseInfo &bindInfo = pBindInfo[bindIdx];
         // Track objects tied to memory

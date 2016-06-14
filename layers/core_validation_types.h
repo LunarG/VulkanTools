@@ -423,7 +423,6 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     VkCommandBufferAllocateInfo createInfo;
     VkCommandBufferBeginInfo beginInfo;
     VkCommandBufferInheritanceInfo inheritanceInfo;
-    // VkFence fence;                      // fence tracking this cmd buffer
     VkDevice device;                    // device this CB belongs to
     uint64_t numCmds;                   // number of cmds in this CB
     uint64_t drawCount[NUM_DRAW_TYPES]; // Count of each type of draw in this CB
@@ -440,9 +439,6 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     std::vector<VkViewport> viewports;
     std::vector<VkRect2D> scissors;
     VkRenderPassBeginInfo activeRenderPassBeginInfo;
-    uint64_t fenceId;
-    VkFence lastSubmittedFence;
-    VkQueue lastSubmittedQueue;
     RENDER_PASS_NODE *activeRenderPass;
     VkSubpassContents activeSubpassContents;
     uint32_t activeSubpass;
@@ -457,7 +453,6 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     std::unordered_set<VkFramebuffer> destroyedFramebuffers;
     std::unordered_set<VkEvent> waitedEvents;
     std::vector<VkEvent> writeEventsBeforeWait;
-    std::vector<VkSemaphore> semaphores;
     std::vector<VkEvent> events;
     std::unordered_map<QueryObject, std::unordered_set<VkEvent>> waitedEventsBeforeQueryReset;
     std::unordered_map<QueryObject, bool> queryToStateMap; // 0 is unavailable, 1 is available
@@ -483,6 +478,15 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
 
     ~GLOBAL_CB_NODE();
 };
+
+struct CB_SUBMISSION {
+    CB_SUBMISSION(VkCommandBuffer cb, std::vector<VkSemaphore> const & semaphores)
+        : cb(cb), semaphores(semaphores) {}
+
+    VkCommandBuffer cb;
+    std::vector<VkSemaphore> semaphores;
+};
+
 // Fwd declarations of layer_data and helpers to look-up state from layer_data maps
 namespace core_validation {
 struct layer_data;

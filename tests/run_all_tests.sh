@@ -34,3 +34,5 @@ set -e
 # vktracereplay.sh tests vktrace trace and replay
 ./vktracereplay.sh
 
+# Test the wrap objects layer.
+./test_wrap_objects.sh
