@@ -66,6 +66,7 @@ if (NOT WIN32)
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_all_tests_with_layers.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/layer_test_suite.py
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/test_wrap_objects.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vkvalidatelayerdoc.sh
             VERBATIM
             )
@@ -134,3 +135,4 @@ set_target_properties(vk_loader_validation_tests
 target_link_libraries(vk_loader_validation_tests ${LIBVK} gtest gtest_main VkLayer_utils ${TEST_LIBRARIES})
 
 add_subdirectory(gtest-1.7.0)
+add_subdirectory(layers)

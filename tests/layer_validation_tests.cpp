@@ -937,6 +937,76 @@ TEST_F(VkLayerTest, FailedReturnValue) {
         m_errorMonitor->VerifyFound();
     }
 }
+
+TEST_F(VkLayerTest, UpdateBufferAlignment) {
+    TEST_DESCRIPTION("Check alignment parameters for vkCmdUpdateBuffer");
+    uint32_t updateData[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    vk_testing::Buffer buffer;
+    buffer.init_as_dst(*m_device, (VkDeviceSize)20, reqs);
+
+    BeginCommandBuffer();
+    // Introduce failure by using dstOffset that is not multiple of 4
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        " is not a multiple of 4");
+    m_commandBuffer->UpdateBuffer(buffer.handle(), 1, 4, updateData);
+    m_errorMonitor->VerifyFound();
+
+    // Introduce failure by using dataSize that is not multiple of 4
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        " is not a multiple of 4");
+    m_commandBuffer->UpdateBuffer(buffer.handle(), 0, 6, updateData);
+    m_errorMonitor->VerifyFound();
+
+    // Introduce failure by using dataSize that is < 0
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "must be greater than zero and less than or equal to 65536");
+    m_commandBuffer->UpdateBuffer(buffer.handle(), 0, -44, updateData);
+    m_errorMonitor->VerifyFound();
+
+    // Introduce failure by using dataSize that is > 65536
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "must be greater than zero and less than or equal to 65536");
+    m_commandBuffer->UpdateBuffer(buffer.handle(), 0, 80000, updateData);
+    m_errorMonitor->VerifyFound();
+
+    EndCommandBuffer();
+}
+
+TEST_F(VkLayerTest, FillBufferAlignment) {
+    TEST_DESCRIPTION("Check alignment parameters for vkCmdFillBuffer");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    vk_testing::Buffer buffer;
+    buffer.init_as_dst(*m_device, (VkDeviceSize)20, reqs);
+
+    BeginCommandBuffer();
+
+    // Introduce failure by using dstOffset that is not multiple of 4
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        " is not a multiple of 4");
+    m_commandBuffer->FillBuffer(buffer.handle(), 1, 4, 0x11111111);
+    m_errorMonitor->VerifyFound();
+
+    // Introduce failure by using size that is not multiple of 4
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        " is not a multiple of 4");
+    m_commandBuffer->FillBuffer(buffer.handle(), 0, 6, 0x11111111);
+    m_errorMonitor->VerifyFound();
+
+    // Introduce failure by using size that is zero
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "must be greater than zero");
+    m_commandBuffer->FillBuffer(buffer.handle(), 0, 0, 0x11111111);
+    m_errorMonitor->VerifyFound();
+
+    EndCommandBuffer();
+}
 #endif // PARAMETER_VALIDATION_TESTS
 
 #if MEM_TRACKER_TESTS
@@ -2235,6 +2305,61 @@ TEST_F(VkLayerTest, ResetUnsignaledFence) {
     ASSERT_VK_SUCCESS(result);
 
     m_errorMonitor->VerifyNotFound();
+}
+
+TEST_F(VkLayerTest, CommandBufferSimultaneousUseSync)
+{
+    m_errorMonitor->ExpectSuccess();
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    VkResult err;
+
+    // Record (empty!) command buffer that can be submitted multiple times
+    // simultaneously.
+    VkCommandBufferBeginInfo cbbi = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr,
+        VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT, nullptr
+    };
+    m_commandBuffer->BeginCommandBuffer(&cbbi);
+    m_commandBuffer->EndCommandBuffer();
+
+    VkFenceCreateInfo fci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
+    VkFence fence;
+    err = vkCreateFence(m_device->device(), &fci, nullptr, &fence);
+    ASSERT_VK_SUCCESS(err);
+
+    VkSemaphoreCreateInfo sci = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, nullptr, 0 };
+    VkSemaphore s1, s2;
+    err = vkCreateSemaphore(m_device->device(), &sci, nullptr, &s1);
+    ASSERT_VK_SUCCESS(err);
+    err = vkCreateSemaphore(m_device->device(), &sci, nullptr, &s2);
+    ASSERT_VK_SUCCESS(err);
+
+    // Submit CB once signaling s1, with fence so we can roll forward to its retirement.
+    VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr,
+        1, &m_commandBuffer->handle(), 1, &s1 };
+    err = vkQueueSubmit(m_device->m_queue, 1, &si, fence);
+    ASSERT_VK_SUCCESS(err);
+
+    // Submit CB again, signaling s2.
+    si.pSignalSemaphores = &s2;
+    err = vkQueueSubmit(m_device->m_queue, 1, &si, VK_NULL_HANDLE);
+    ASSERT_VK_SUCCESS(err);
+
+    // Wait for fence.
+    err = vkWaitForFences(m_device->device(), 1, &fence, VK_TRUE, UINT64_MAX);
+    ASSERT_VK_SUCCESS(err);
+
+    // CB is still in flight from second submission, but semaphore s1 is no
+    // longer in flight. delete it.
+    vkDestroySemaphore(m_device->device(), s1, nullptr);
+
+    m_errorMonitor->VerifyNotFound();
+
+    // Force device idle and clean up remaining objects
+    vkDeviceWaitIdle(m_device->device());
+    vkDestroySemaphore(m_device->device(), s2, nullptr);
+    vkDestroyFence(m_device->device(), fence, nullptr);
 }
 
 TEST_F(VkLayerTest, InvalidUsageBits)
@@ -4040,17 +4165,10 @@ TEST_F(VkLayerTest, DynamicStencilRefNotBound) {
 }
 
 TEST_F(VkLayerTest, CommandBufferTwoSubmits) {
-    vk_testing::Fence testFence;
-
     m_errorMonitor->SetDesiredFailureMsg(
         VK_DEBUG_REPORT_ERROR_BIT_EXT,
         "was begun w/ VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT set, but has "
         "been submitted");
-
-    VkFenceCreateInfo fenceInfo = {};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.pNext = NULL;
-    fenceInfo.flags = 0;
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     ASSERT_NO_FATAL_FAILURE(InitViewport());
@@ -4062,8 +4180,6 @@ TEST_F(VkLayerTest, CommandBufferTwoSubmits) {
     m_commandBuffer->ClearAllBuffers(m_clear_color, m_depth_clear_color,
                                      m_stencil_clear_color, NULL);
     EndCommandBuffer();
-
-    testFence.init(*m_device, fenceInfo);
 
     // Bypass framework since it does the waits automatically
     VkResult err = VK_SUCCESS;
@@ -4078,12 +4194,12 @@ TEST_F(VkLayerTest, CommandBufferTwoSubmits) {
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores = NULL;
 
-    err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, testFence.handle());
+    err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
     ASSERT_VK_SUCCESS(err);
 
     // Cause validation error by re-submitting cmd buffer that should only be
     // submitted once
-    err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, testFence.handle());
+    err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
 
     m_errorMonitor->VerifyFound();
 }
@@ -10255,59 +10371,6 @@ TEST_F(VkLayerTest, CreateImageLimitsViolationMinWidth) {
 
     m_errorMonitor->VerifyFound();
 }
-
-TEST_F(VkLayerTest, UpdateBufferAlignment) {
-    uint32_t updateData[] = {1, 2, 3, 4, 5, 6, 7, 8};
-
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "dstOffset, is not a multiple of 4");
-
-    ASSERT_NO_FATAL_FAILURE(InitState());
-
-    VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-    vk_testing::Buffer buffer;
-    buffer.init_as_dst(*m_device, (VkDeviceSize)20, reqs);
-
-    BeginCommandBuffer();
-    // Introduce failure by using offset that is not multiple of 4
-    m_commandBuffer->UpdateBuffer(buffer.handle(), 1, 4, updateData);
-    m_errorMonitor->VerifyFound();
-
-    // Introduce failure by using size that is not multiple of 4
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "dataSize, is not a multiple of 4");
-
-    m_commandBuffer->UpdateBuffer(buffer.handle(), 0, 6, updateData);
-    m_errorMonitor->VerifyFound();
-    EndCommandBuffer();
-}
-
-TEST_F(VkLayerTest, FillBufferAlignment) {
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "dstOffset, is not a multiple of 4");
-
-    ASSERT_NO_FATAL_FAILURE(InitState());
-
-    VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-    vk_testing::Buffer buffer;
-    buffer.init_as_dst(*m_device, (VkDeviceSize)20, reqs);
-
-    BeginCommandBuffer();
-    // Introduce failure by using offset that is not multiple of 4
-    m_commandBuffer->FillBuffer(buffer.handle(), 1, 4, 0x11111111);
-    m_errorMonitor->VerifyFound();
-
-    // Introduce failure by using size that is not multiple of 4
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "size, is not a multiple of 4");
-
-    m_commandBuffer->FillBuffer(buffer.handle(), 0, 6, 0x11111111);
-
-    m_errorMonitor->VerifyFound();
-
-    EndCommandBuffer();
-}
-
 #endif // DEVICE_LIMITS_TESTS
 
 #if IMAGE_TESTS
