@@ -203,7 +203,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     vktrace_trace_packet_header* pHeader;
     packet_vkUnmapMemory* pPacket;
     VKAllocInfo *entry;
-    size_t siz = 0, off = 0;
+    size_t siz = 0;
     // insert into packet the data that was written by CPU between the vkMapMemory call and here
     // Note must do this prior to the real vkUnMap() or else may get a FAULT
     vktrace_enter_critical_section(&g_memInfoLock);
@@ -214,7 +214,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
         {
             // no FlushMapped Memory
             siz = (size_t)entry->rangeSize;
-            off = (size_t)entry->rangeOffset;
         }
     }
     CREATE_TRACE_PACKET(vkUnmapMemory, siz);
