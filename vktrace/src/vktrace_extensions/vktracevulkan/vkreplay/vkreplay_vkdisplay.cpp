@@ -265,6 +265,7 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
         values[0] = width;
         values[1] = height;
         xcb_configure_window(m_pXcbConnection, m_XcbWindow, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        xcb_flush(m_pXcbConnection);
         m_windowWidth = width;
         m_windowHeight = height;
     }
