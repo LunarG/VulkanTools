@@ -35,7 +35,5 @@ extern vkreplayer_settings g_vkReplaySettings;
 extern vktrace_SettingGroup g_vkReplaySettingGroup;
 
 void apply_layerSettings_overrides();
-char** get_enableLayers_list(unsigned int* pNumLayers);
-void release_enableLayer_list(char** pList);
 
 #endif // VKREPLAY__VK_SETTINGS_H
