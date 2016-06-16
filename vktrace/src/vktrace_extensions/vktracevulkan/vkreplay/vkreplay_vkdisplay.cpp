@@ -236,8 +236,11 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
     }
 
     // create the window
-    m_windowHandle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, 0, 0,
-                          width, height, NULL, NULL, wcex.hInstance, NULL);
+    RECT wr = {0,0,width,height};
+    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+    m_windowHandle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPEDWINDOW,
+                                  0, 0, wr.right-wr.left, wr.bottom-wr.top,
+                                  NULL, NULL, wcex.hInstance, NULL);
 
     if (m_windowHandle)
     {
@@ -272,7 +275,9 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 #elif defined(WIN32)
     if (width != m_windowWidth || height != m_windowHeight)
     {
-        SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, width, height, SWP_NOMOVE);
+        RECT wr = {0, 0, width, height};
+        AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+        SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, wr.right-wr.left, wr.bottom-wr.top, SWP_NOMOVE);
         m_windowWidth = width;
         m_windowHeight = height;
     }

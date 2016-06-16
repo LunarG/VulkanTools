@@ -1775,6 +1775,8 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pac
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
     VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
 
+    m_display->resize_window(pPacket->pSurfaceCapabilities->currentExtent.width, pPacket->pSurfaceCapabilities->currentExtent.width);
+
     replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(remappedphysicalDevice, remappedSurfaceKHR, pPacket->pSurfaceCapabilities);
 
     return replayResult;
@@ -1823,14 +1825,13 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     VkSurfaceKHR *pSurf = (VkSurfaceKHR *) &(pPacket->pCreateInfo->surface);
     *pSurf = m_objMapper.remap_surfacekhrs(*pSurf);
 
+    m_display->resize_window(pPacket->pCreateInfo->imageExtent.width, pPacket->pCreateInfo->imageExtent.width);
+
     // No need to remap pCreateInfo
     replayResult = m_vkFuncs.real_vkCreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS)
     {
         m_objMapper.add_to_swapchainkhrs_map(*(pPacket->pSwapchain), local_pSwapchain);
-        VkExtent2D *extent = new VkExtent2D;
-        *extent = pPacket->pCreateInfo->imageExtent;
-        swapchainExtentsMap.insert(std::make_pair(local_pSwapchain, extent));
     }
 
     (*pSC) = save_oldSwapchain;
@@ -1929,13 +1930,6 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             }
         }
         present.pResults = NULL;
-    }
-
-    // Set window size to match size of first swapchain extent
-    if (swapchainExtentsMap.find(localSwapchains[0]) != swapchainExtentsMap.end())
-    {
-        m_display->resize_window(swapchainExtentsMap[localSwapchains[0]]->width,
-                                 swapchainExtentsMap[localSwapchains[0]]->height);
     }
 
     if (replayResult == VK_SUCCESS) {
