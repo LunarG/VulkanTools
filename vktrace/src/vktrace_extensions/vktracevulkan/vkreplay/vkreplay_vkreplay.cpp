@@ -191,7 +191,35 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance* pPa
             }
         }
 
+        char **saved_ppExtensions = (char **)pCreateInfo->ppEnabledExtensionNames;
+        int savedExtensionCount = pCreateInfo->enabledExtensionCount;
+        std::vector<const char *> extension_names;
+        std::vector<std::string> outlist;
+
+#if defined PLATFORM_LINUX
+        extension_names.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+        outlist.push_back("VK_KHR_win32_surface");
+#else
+        extension_names.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        outlist.push_back("VK_KHR_xlib_surface");
+        outlist.push_back("VK_KHR_xcb_surface");
+        outlist.push_back("VK_KHR_wayland_surface");
+        outlist.push_back("VK_KHR_mir_surface");
+#endif
+
+        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+            if ( std::find(outlist.begin(), outlist.end(), pCreateInfo->ppEnabledExtensionNames[i]) == outlist.end() ) {
+                extension_names.push_back(pCreateInfo->ppEnabledExtensionNames[i]);
+            }
+        }
+        pCreateInfo->ppEnabledExtensionNames = extension_names.data();
+        pCreateInfo->enabledExtensionCount = extension_names.size();
+
         replayResult = m_vkFuncs.real_vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
+
+        pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
+        pCreateInfo->enabledExtensionCount = savedExtensionCount;
+
         if (ppEnabledLayerNames) {
             // restore the packets CreateInfo struct
             vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
