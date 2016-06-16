@@ -279,8 +279,8 @@ int main(int argc, char **argv)
     vktrace_trace_packet_replay_library* replayer[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];
     ReplayFactory makeReplayer;
 
-    // Initial replay window is 100x100. We'll resize it to the swapchain
-    // extent during vkQueuePresentKHR playback.
+    // Create window. Initial size is 100x100. It will later get resized to the size
+    // used by the traced app. The resize will happen  during playback of swapchain functions.
     Display disp(100, 100, 0, false);
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)

@@ -75,8 +75,6 @@ private:
 
     int m_frameNumber;
 
-    std::map<VkSwapchainKHR, VkExtent2D *> swapchainExtentsMap;
-
     struct ValidationMsg {
         VkFlags msgFlags;
         VkDebugReportObjectTypeEXT objType;
