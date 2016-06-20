@@ -311,9 +311,9 @@ class VkImageObj : public vk_testing::Image {
         return m_targetView.handle();
     }
 
-    void SetLayout(VkCommandBufferObj *cmd_buf, VkImageAspectFlagBits aspect,
+    void SetLayout(VkCommandBufferObj *cmd_buf, VkImageAspectFlags aspect,
                    VkImageLayout image_layout);
-    void SetLayout(VkImageAspectFlagBits aspect, VkImageLayout image_layout);
+    void SetLayout(VkImageAspectFlags aspect, VkImageLayout image_layout);
 
     VkImageLayout layout() const { return m_descriptorImageInfo.imageLayout; }
     uint32_t width() const { return extent().width; }
@@ -343,7 +343,7 @@ class VkDepthStencilObj : public VkImageObj {
   public:
     VkDepthStencilObj(VkDeviceObj *device);
     void Init(VkDeviceObj *device, int32_t width, int32_t height,
-                       VkFormat format);
+                       VkFormat format, VkImageUsageFlags usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
     bool Initialized();
     VkImageView *BindInfo();
 
@@ -453,5 +453,4 @@ class VkPipelineObj : public vk_testing::Pipeline {
     vector<VkPipelineColorBlendAttachmentState> m_colorAttachments;
     int m_vertexBufferCount;
 };
-
 #endif // VKRENDERFRAMEWORK_H
