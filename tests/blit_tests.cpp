@@ -284,7 +284,7 @@ std::vector<uint8_t> ImageChecker::pattern_hash(const VkImageSubresourceLayers &
     };
     unsigned long hash = 5381;
 
-    for (int32_t i = 0; i < ARRAY_SIZE(input); i++)
+    for (size_t i = 0; i < ARRAY_SIZE(input); i++)
         hash = ((hash << 5) + hash) + input[i];
 
     const uint8_t output[4] = { HASH_BYTES(hash) };
@@ -633,7 +633,7 @@ TEST_F(VkCmdFillBufferTest, MultiAlignments)
     VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
     cmd_.begin();
-    for (int i = 0; i < ARRAY_SIZE(bufs); i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(bufs); i++) {
         bufs[i].init_as_dst(dev_, size, reqs);
         vkCmdFillBuffer(cmd_.handle(), bufs[i].handle(), 0, size, 0x11111111);
         size <<= 1;
@@ -643,7 +643,7 @@ TEST_F(VkCmdFillBufferTest, MultiAlignments)
     submit_and_done();
 
     size = 4;
-    for (int i = 0; i < ARRAY_SIZE(bufs); i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(bufs); i++) {
         const uint32_t *data = static_cast<const uint32_t *>(bufs[i].memory().map());
         VkDeviceSize offset;
         for (offset = 0; offset < size; offset += 4)
@@ -747,10 +747,10 @@ TEST_F(VkCmdCopyBufferTest, MultiAlignments)
     submit_and_done();
 
     data = static_cast<uint8_t *>(dst.memory().map());
-    for (int i = 0; i < ARRAY_SIZE(regions); i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(regions); i++) {
         const VkBufferCopy &r = regions[i];
 
-        for (int j = 0; j < r.size; j++) {
+        for (uint64_t j = 0; j < r.size; j++) {
             EXPECT_EQ(r.srcOffset + j, data[r.dstOffset + j]) <<
                 "Region is: " << i << "\n" <<
                 "Offset is: " << r.dstOffset + j;
@@ -782,7 +782,7 @@ TEST_F(VkCmdCopyBufferTest, RAWHazard)
     err = vkResetEvent(dev_.handle(), event);
     ASSERT_VK_SUCCESS(err);
 
-    for (int i = 0; i < ARRAY_SIZE(bufs); i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(bufs); i++) {
         bufs[i].init_as_src_and_dst(dev_, 4, reqs);
 
         uint32_t *data = static_cast<uint32_t *>(bufs[i].memory().map());
