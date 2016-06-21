@@ -429,9 +429,10 @@ class Subcommand(object):
             trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'FreeCommandBuffers' is proto.name:
-            trim_instructions.append("        VkCommandBufferLevel level = trim_get_CommandBuffer_objectInfo(pCommandBuffers[0])->ObjectInfo.CommandBuffer.level;")
+            trim_instructions.append("        Trim_ObjectInfo* pCBInfo = trim_get_CommandBuffer_objectInfo(pCommandBuffers[0]);")
+            trim_instructions.append("        VkCommandBufferLevel level = (pCBInfo == NULL) ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : pCBInfo->ObjectInfo.CommandBuffer.level;")
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_CommandPool_objectInfo(commandPool);")
-            trim_instructions.append("        pInfo->ObjectInfo.CommandPool.numCommandBuffersAllocated[level] -= commandBufferCount;")
+            trim_instructions.append("        if (pInfo != NULL ) { pInfo->ObjectInfo.CommandPool.numCommandBuffersAllocated[level] -= commandBufferCount; }")
             trim_instructions.append("        for (uint32_t i = 0; i < commandBufferCount; i++)")
             trim_instructions.append("        {")
             trim_instructions.append("            trim_remove_CommandBuffer_object(pCommandBuffers[i]);")
@@ -522,9 +523,11 @@ class Subcommand(object):
 #        elif ('GetImageMemoryRequirements' is proto.name):
         elif ('BindImageMemory' is proto.name):
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Image_objectInfo(image);")
-            trim_instructions.append("        pInfo->ObjectInfo.Image.pBindImageMemoryPacket = pHeader;")
-            trim_instructions.append("        pInfo->ObjectInfo.Image.memory = memory;")
-            trim_instructions.append("        pInfo->ObjectInfo.Image.memoryOffset = memoryOffset;")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pBindImageMemoryPacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.memory = memory;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.memoryOffset = memoryOffset;")
+            trim_instructions.append("        }")
         elif 'CreateBufferView' is proto.name:
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_BufferView_object(*pView);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -547,9 +550,11 @@ class Subcommand(object):
             trim_instructions.append("        trim_remove_Buffer_object(buffer);")
         elif ('BindBufferMemory' is proto.name):
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Buffer_objectInfo(buffer);")
-            trim_instructions.append("        pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = pHeader;")
-            trim_instructions.append("        pInfo->ObjectInfo.Buffer.memory = memory;")
-            trim_instructions.append("        pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memory = memory;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
+            trim_instructions.append("        }")
         elif 'CreateSampler' is proto.name:
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Sampler_object(*pSampler);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -592,7 +597,7 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyDescriptorSetLayout' is proto.name:
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_DescriptorSetLayout_objectInfo(descriptorSetLayout);")
-            trim_instructions.append("        delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings;")
+            trim_instructions.append("        if (pInfo != NULL) { delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings; }")
             trim_instructions.append("        trim_remove_DescriptorSetLayout_object(descriptorSetLayout);")
         elif 'CreatePipelineLayout' is proto.name:
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_PipelineLayout_object(*pPipelineLayout);")

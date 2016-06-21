@@ -157,6 +157,9 @@ void trim_remove_##type##_object(Vk##type var) { \
 } \
 Trim_ObjectInfo* trim_get_##type##_objectInfo(Vk##type var) { \
    TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
+   if (iter == s_trimGlobalStateTracker.created##type##s.end()) { \
+       return NULL; \
+   } \
    return &(iter->second); \
 }
 
@@ -217,11 +220,17 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.Instance.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Instance.pCreatePacket));
 
-        vktrace_write_trace_packet(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket));
+        if (obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket != NULL)
+        {
+            vktrace_write_trace_packet(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket));
+        }
 
-        vktrace_write_trace_packet(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket));
+        if (obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket != NULL)
+        {
+            vktrace_write_trace_packet(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket));
+        }
     }
 
     // SurfaceKHR

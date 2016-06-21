@@ -228,10 +228,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_get_DeviceMemory_objectInfo(memory);
-        pInfo->ObjectInfo.DeviceMemory.mappedOffset = offset;
-        pInfo->ObjectInfo.DeviceMemory.mappedSize = size;
-        pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
-        pInfo->ObjectInfo.DeviceMemory.bIsEverMapped = true;
+        if (pInfo != NULL)
+        {
+            pInfo->ObjectInfo.DeviceMemory.mappedOffset = offset;
+            pInfo->ObjectInfo.DeviceMemory.mappedSize = size;
+            pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
+            pInfo->ObjectInfo.DeviceMemory.bIsEverMapped = true;
+        }
         if (g_trimIsInTrim)
         {
             trim_add_recorded_packet(pHeader);
@@ -291,9 +294,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_get_DeviceMemory_objectInfo(memory);
-        pInfo->ObjectInfo.DeviceMemory.mappedOffset = 0;
-        pInfo->ObjectInfo.DeviceMemory.mappedSize = 0;
-        pInfo->ObjectInfo.DeviceMemory.mappedAddress = NULL;
+        if (pInfo != NULL)
+        {
+            pInfo->ObjectInfo.DeviceMemory.mappedOffset = 0;
+            pInfo->ObjectInfo.DeviceMemory.mappedSize = 0;
+            pInfo->ObjectInfo.DeviceMemory.mappedAddress = NULL;
+        }
         if (g_trimIsInTrim)
         {
             trim_add_recorded_packet(pHeader);
@@ -533,7 +539,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
         vktrace_finalize_trace_packet(pHeader);
 
         Trim_ObjectInfo* pPoolInfo = trim_get_CommandPool_objectInfo(pAllocateInfo->commandPool);
-        pPoolInfo->ObjectInfo.CommandPool.numCommandBuffersAllocated[pAllocateInfo->level] += pAllocateInfo->commandBufferCount;
+        if (pPoolInfo != NULL)
+        {
+            pPoolInfo->ObjectInfo.CommandPool.numCommandBuffersAllocated[pAllocateInfo->level] += pAllocateInfo->commandBufferCount;
+        }
  
         for (uint32_t i = 0; i < pAllocateInfo->commandBufferCount; i++)
         {
@@ -1166,20 +1175,23 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
         vktrace_finalize_trace_packet(pHeader);
         if (result == VK_SUCCESS )
         {
-            if (pPhysicalDevices == NULL)
-            {
-                Trim_ObjectInfo* pInfo = trim_get_Instance_objectInfo(instance);
-                pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket = pHeader;
+            Trim_ObjectInfo* pInfo = trim_get_Instance_objectInfo(instance);
+            if (pInfo != NULL && pPhysicalDeviceCount != NULL && pPhysicalDevices == NULL) 
+            { 
+                pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket = pHeader; 
             }
-            else
+
+            if (pPhysicalDevices != NULL && pPhysicalDeviceCount != NULL)
             {
-                Trim_ObjectInfo* pInfo = trim_get_Instance_objectInfo(instance);
-                pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket = pHeader;
+                if (pInfo != NULL)
+                {
+                    pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket = pHeader;
+                }
 
                 for (uint32_t iter = 0; iter < *pPhysicalDeviceCount; iter++)
                 {
-                    Trim_ObjectInfo* pInfo = trim_add_PhysicalDevice_object(pPhysicalDevices[iter]);
-                    pInfo->belongsToInstance = instance;
+                    Trim_ObjectInfo* pPDInfo = trim_add_PhysicalDevice_object(pPhysicalDevices[iter]);
+                    pPDInfo->belongsToInstance = instance;
                 }
             }
         }
@@ -1289,7 +1301,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(pAllocateInfo->descriptorPool);
-        pPoolInfo->ObjectInfo.DescriptorPool.numSets += pAllocateInfo->descriptorSetCount;
+        if (pPoolInfo != NULL) {
+            pPoolInfo->ObjectInfo.DescriptorPool.numSets += pAllocateInfo->descriptorSetCount;
+        }
+
         for (uint32_t i = 0; i < pAllocateInfo->descriptorSetCount; i++)
         {
             Trim_ObjectInfo* pSetInfo = trim_add_DescriptorSet_object(pDescriptorSets[i]);
@@ -1299,77 +1314,79 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
 
             // need to allocate for a potential write & copy to update the descriptor; one for each binding based on the layout
             Trim_ObjectInfo* pLayoutInfo = trim_get_DescriptorSetLayout_objectInfo(pAllocateInfo->pSetLayouts[i]);
-
-            uint32_t numImages = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numImages;
-            uint32_t numBuffers = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numBuffers;
-            uint32_t numTexelBufferViews = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numTexelBufferViews;
-            uint32_t numBindings = numImages + numBuffers + numTexelBufferViews;
-
-            pSetInfo->ObjectInfo.DescriptorSet.numBindings = numBindings;
-            pSetInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
-            pSetInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
-            pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets = new VkWriteDescriptorSet[numBindings];
-            pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets = new VkCopyDescriptorSet[numBindings];
-
-            // setup these WriteDescriptorSets to be specific to each binding of the associated layout
-            for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++)
+            if (pLayoutInfo != NULL)
             {
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pNext = NULL;
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstSet = pDescriptorSets[i];
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorType;
+                uint32_t numImages = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numImages;
+                uint32_t numBuffers = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numBuffers;
+                uint32_t numTexelBufferViews = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numTexelBufferViews;
+                uint32_t numBindings = numImages + numBuffers + numTexelBufferViews;
 
-                switch (pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType)
+                pSetInfo->ObjectInfo.DescriptorSet.numBindings = numBindings;
+                pSetInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
+                pSetInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
+                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets = new VkWriteDescriptorSet[numBindings];
+                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets = new VkCopyDescriptorSet[numBindings];
+
+                // setup these WriteDescriptorSets to be specific to each binding of the associated layout
+                for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++)
                 {
-                case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                {
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = new VkDescriptorImageInfo[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
-                }
-                break;
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                {
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = new VkDescriptorBufferInfo[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
-                }
-                break;
-                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                {
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = new VkBufferView[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                }
-                break;
-                default:
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pNext = NULL;
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstSet = pDescriptorSets[i];
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
+                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorType;
+
+                    switch (pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType)
+                    {
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = new VkDescriptorImageInfo[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
+                    }
                     break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = new VkDescriptorBufferInfo[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
+                    }
+                    break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
+                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = new VkBufferView[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                    }
+                    break;
+                    default:
+                        break;
+                    }
                 }
-            }
 
-            // setup the CopyDescriptorSets similar to above
-            for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++)
-            {
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].pNext = NULL;
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstSet = pDescriptorSets[i];
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcArrayElement = 0; // defaulting to 0, no way to know for sure at this time
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcSet = 0;          // defaulting to 0, no way to know for sure at this time
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcBinding = 0;      // defaulting to 0, no way to know for sure at this time
+                // setup the CopyDescriptorSets similar to above
+                for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++)
+                {
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].pNext = NULL;
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstSet = pDescriptorSets[i];
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcArrayElement = 0; // defaulting to 0, no way to know for sure at this time
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcSet = 0;          // defaulting to 0, no way to know for sure at this time
+                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcBinding = 0;      // defaulting to 0, no way to know for sure at this time
+                }
             }
         }
         if (g_trimIsInTrim)
@@ -1476,6 +1493,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
         for (uint32_t i = 0; i < descriptorWriteCount; i++)
         {
             Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
+            if (pInfo != NULL)
             {
                 // find existing writeDescriptorSet info to update.
                 VkWriteDescriptorSet* pWriteDescriptorSet = NULL;
@@ -1509,6 +1527,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
         for (uint32_t i = 0; i < descriptorCopyCount; i++)
         {
             Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
+            if (pInfo != NULL)
             {
                 // find existing CopyDescriptorSet info to update, or allocate space for a new one.
                 VkCopyDescriptorSet* pCopyDescriptorSet = NULL;
@@ -2137,34 +2156,41 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(descriptorPool);
-        pPoolInfo->ObjectInfo.DescriptorPool.numSets -= descriptorSetCount;
+        if (pPoolInfo != NULL)
+        {
+            pPoolInfo->ObjectInfo.DescriptorPool.numSets -= descriptorSetCount;
+        }
+
         for (uint32_t i = 0; i < descriptorSetCount; i++)
         {
             // Clean up memory
             Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorSets[i]);
-            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != NULL)
+            if (pInfo != NULL)
             {
-                for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
+                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != NULL)
                 {
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != NULL)
+                    for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
                     {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
+                        if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != NULL)
+                        {
+                            delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
+                        }
+                        if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != NULL)
+                        {
+                            delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
+                        }
+                        if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != NULL)
+                        {
+                            delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
+                        }
                     }
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != NULL)
-                    {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
-                    }
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != NULL)
-                    {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
-                    }
-                }
 
-                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets;
-            }
-            if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != NULL)
-            {
-                delete[] pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets;
+                    delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets;
+                }
+                if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != NULL)
+                {
+                    delete[] pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets;
+                }
             }
             trim_remove_DescriptorSet_object(pDescriptorSets[i]);
         }
@@ -2408,17 +2434,28 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_get_SwapchainKHR_objectInfo(swapchain);
-        if (pSwapchainImageCount != NULL && pSwapchainImages == NULL)
+        if (pInfo != NULL)
         {
-            pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket = pHeader;
-        }
-        else if (pSwapchainImageCount != NULL && pSwapchainImages != NULL)
-        {
-            pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket = pHeader;
-            for (uint32_t i = 0; i < *pSwapchainImageCount; i++)
+            if (pSwapchainImageCount != NULL && pSwapchainImages == NULL)
             {
-                Trim_ObjectInfo* pImageInfo = trim_add_Image_object(pSwapchainImages[i]);
-                pImageInfo->ObjectInfo.Image.bIsSwapchainImage = true;
+                if (g_trimIsPreTrim)
+                {
+                    // only want to replay this call if it was made PRE trim frames.
+                    pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket = pHeader;
+                }
+            }
+            else if (pSwapchainImageCount != NULL && pSwapchainImages != NULL)
+            {
+                if (g_trimIsPreTrim)
+                {
+                    // only want to replay this call if it was made PRE trim frames.
+                    pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket = pHeader;
+                }
+                for (uint32_t i = 0; i < *pSwapchainImageCount; i++)
+                {
+                    Trim_ObjectInfo* pImageInfo = trim_add_Image_object(pSwapchainImages[i]);
+                    pImageInfo->ObjectInfo.Image.bIsSwapchainImage = true;
+                }
             }
         }
 
