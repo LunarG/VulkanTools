@@ -1,6 +1,3 @@
-NOTE: Recent changes have been made regarding the loading of the shared layer utilities library on Windows.
-      Please see [BUILD.md](BUILD.md) for details.
-
 # Vulkan Ecosystem Components
 
 This project provides vktrace capture/replay tool, Intel Ilo sample driver and other layer tools and driver tests.
