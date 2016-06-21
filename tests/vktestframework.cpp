@@ -953,7 +953,7 @@ void TestFrameworkVkPresent::CreateSwapchain()
 
     VkExtent2D swapchainExtent;
     // width and height are either both -1, or both not -1.
-    if (surfCapabilities.currentExtent.width == -1)
+    if (surfCapabilities.currentExtent.width == -1u)
     {
         // If the surface size is undefined, the size is set to
         // the size of the images requested.
