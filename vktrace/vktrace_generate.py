@@ -1157,7 +1157,7 @@ class Subcommand(object):
         txt = '    %s remap_%s(const %s& value)\n    {\n' % (ty, name[2:], ty)
         txt += '        if (value == 0) { return 0; }\n'
         txt += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (ty, ty, name)
-        txt += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return value; }\n' % (name, ty)
+        txt += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (name, ty)
         txt += '        return q->second;\n    }\n'
         return txt
 
@@ -1399,7 +1399,7 @@ class Subcommand(object):
                 rc_body.append('        if (value == 0) { return 0; }')
                 rc_body.append('')
                 rc_body.append('        std::map<VkImage, imageObj>::const_iterator q = m_images.find(value);')
-                rc_body.append('        if (q == m_images.end()) { vktrace_LogError("Failed to remap VkImage."); return value; }\n')
+                rc_body.append('        if (q == m_images.end()) { vktrace_LogError("Failed to remap VkImage."); return VK_NULL_HANDLE; }\n')
                 rc_body.append('        return q->second.replayImage;')
                 rc_body.append('    }\n')
             elif obj_map_dict[var] == 'VkBuffer':
@@ -1411,7 +1411,7 @@ class Subcommand(object):
                 rc_body.append('        if (value == 0) { return 0; }')
                 rc_body.append('')
                 rc_body.append('        std::map<VkBuffer, bufferObj>::const_iterator q = m_buffers.find(value);')
-                rc_body.append('        if (q == m_buffers.end()) { vktrace_LogError("Failed to remap VkBuffer."); return value; }\n')
+                rc_body.append('        if (q == m_buffers.end()) { vktrace_LogError("Failed to remap VkBuffer."); return VK_NULL_HANDLE; }\n')
                 rc_body.append('        return q->second.replayBuffer;')
                 rc_body.append('    }\n')
             elif obj_map_dict[var] == 'VkDeviceMemory':
@@ -1423,7 +1423,7 @@ class Subcommand(object):
                 rc_body.append('        if (value == 0) { return 0; }')
                 rc_body.append('')
                 rc_body.append('        std::map<VkDeviceMemory, gpuMemObj>::const_iterator q = m_devicememorys.find(value);')
-                rc_body.append('        if (q == m_devicememorys.end()) { vktrace_LogError("Failed to remap VkDeviceMemory."); return value; }')
+                rc_body.append('        if (q == m_devicememorys.end()) { vktrace_LogError("Failed to remap VkDeviceMemory."); return VK_NULL_HANDLE; }')
                 rc_body.append('        return q->second.replayGpuMem;')
                 rc_body.append('    }\n')
             else:
@@ -1761,10 +1761,22 @@ class Subcommand(object):
                     rbody.append('            memcpy(&createInfo, pPacket->pCreateInfo, sizeof(%s));' % (proto.params[1].ty.strip('*').replace('const ', '')))
                     if 'CreateComputePipeline' == proto.name:
                         rbody.append('            createInfo.cs.shader = m_objMapper.remap_shaders(pPacket->pCreateInfo->cs.shader);')
+                        rbody.append('            if (createInfo.cs.shader == VK_NULL_HANDLE && pPacket->pCreateInfo->cs.shader != VK_NULL_HANDLE)')
+                        rbody.append('            {')
+                        rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
+                        rbody.append('            }')
                     elif 'CreateBufferView' == proto.name:
                         rbody.append('            createInfo.buffer = m_objMapper.remap_buffers(pPacket->pCreateInfo->buffer);')
+                        rbody.append('            if (createInfo.buffer == VK_NULL_HANDLE && pPacket->pCreateInfo->buffer != VK_NULL_HANDLE)')
+                        rbody.append('            {')
+                        rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
+                        rbody.append('            }')
                     else:
                         rbody.append('            createInfo.image = m_objMapper.remap_images(pPacket->pCreateInfo->image);')
+                        rbody.append('            if (createInfo.image == VK_NULL_HANDLE && pPacket->pCreateInfo->image != VK_NULL_HANDLE)')
+                        rbody.append('            {')
+                        rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
+                        rbody.append('            }')
                     rbody.append('            %s local_%s;' % (proto.params[-1].ty.strip('*').replace('const ', ''), proto.params[-1].name))
                 elif create_func: # Declare local var to store created handle into
                     if 'AllocateDescriptorSets' == proto.name:

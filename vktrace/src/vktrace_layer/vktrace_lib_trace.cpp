@@ -1965,7 +1965,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
     vktrace_trace_packet_header* pHeader;
     PFN_vkVoidFunction addr;
     packet_vkGetInstanceProcAddr* pPacket = NULL;
-    assert(strcmp("vkGetInstanceProcAddr", funcName));
+    //assert(strcmp("vkGetInstanceProcAddr", funcName));
     CREATE_TRACE_PACKET(vkGetInstanceProcAddr, ((funcName != NULL) ? strlen(funcName) + 1 : 0));
     addr = __HOOKED_vkGetInstanceProcAddr(instance, funcName);
     vktrace_set_packet_entrypoint_end_time(pHeader);
