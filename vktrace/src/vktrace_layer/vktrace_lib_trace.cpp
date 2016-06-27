@@ -1136,7 +1136,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateComputePipelines* pPacket = NULL;
-    CREATE_TRACE_PACKET(vkCreateComputePipelines, createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkPipeline));
+    uint32_t i;
+    size_t total_size;
+
+    total_size = createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline);
+    for (i=0; i < createInfoCount; i++)
+        total_size += strlen(pCreateInfos[i].stage.pName)+1;
+    CREATE_TRACE_PACKET(vkCreateComputePipelines, total_size);
     result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreateComputePipelines(pHeader);
