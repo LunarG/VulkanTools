@@ -977,6 +977,10 @@ VkResult vkReplay::manually_replay_vkFreeDescriptorSets(packet_vkFreeDescriptorS
     uint32_t i;
     for (i = 0; i < pPacket->descriptorSetCount; ++i) {
        localDSs[i] = m_objMapper.remap_descriptorsets(pPacket->pDescriptorSets[i]);
+       if (localDSs[i] == VK_NULL_HANDLE && pPacket->pDescriptorSets[i] != VK_NULL_HANDLE)
+       {
+           return VK_ERROR_VALIDATION_FAILED_EXT;
+       }
     }
 
     replayResult = m_vkFuncs.real_vkFreeDescriptorSets(remappedDevice, descriptorPool, pPacket->descriptorSetCount, localDSs);
@@ -1032,17 +1036,24 @@ void vkReplay::manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuff
     }
 
     VkBuffer *pSaveBuff = VKTRACE_NEW_ARRAY(VkBuffer, pPacket->bindingCount);
-    if (pSaveBuff == NULL)
+    if (pSaveBuff == NULL && pPacket->bindingCount > 0)
     {
         vktrace_LogError("Replay of CmdBindVertexBuffers out of memory.");
+        return;
     }
     uint32_t i = 0;
-    if (pPacket->pBuffers) {
+    if (pPacket->pBuffers != NULL) {
         for (i = 0; i < pPacket->bindingCount; i++)
         {
             VkBuffer *pBuff = (VkBuffer*) &(pPacket->pBuffers[i]);
             pSaveBuff[i] = pPacket->pBuffers[i];
             *pBuff = m_objMapper.remap_buffers(pPacket->pBuffers[i]);
+            if (*pBuff == VK_NULL_HANDLE && pPacket->pBuffers[i] != VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkCmdBindVertexBuffers() due to invalid remapped VkBuffer.");
+                VKTRACE_DELETE(pSaveBuff);
+                return;
+            }
         }
     }
     m_vkFuncs.real_vkCmdBindVertexBuffers(remappedCommandBuffer, pPacket->firstBinding, pPacket->bindingCount, pPacket->pBuffers, pPacket->pOffsets);
@@ -1371,12 +1382,26 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier*
         VkBufferMemoryBarrier *pNextBuf = (VkBufferMemoryBarrier *) &(pPacket->pBufferMemoryBarriers[idx]);
         saveBuf[numRemapBuf++] = pNextBuf->buffer;
         pNextBuf->buffer = m_objMapper.remap_buffers(pNextBuf->buffer);
+        if (pNextBuf->buffer == VK_NULL_HANDLE && saveBuf[numRemapBuf - 1] != VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCmdPipelineBarrier() due to invalid remapped VkBuffer.");
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
+            return;
+        }
     }
     for (idx = 0; idx < pPacket->imageMemoryBarrierCount; idx++)
     {
         VkImageMemoryBarrier *pNextImg = (VkImageMemoryBarrier *) &(pPacket->pImageMemoryBarriers[idx]);
         saveImg[numRemapImg++] = pNextImg->image;
         pNextImg->image = m_objMapper.remap_images(pNextImg->image);
+        if (pNextImg->image == VK_NULL_HANDLE && saveImg[numRemapImg - 1] != VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCmdPipelineBarrier() due to invalid remapped VkImage.");
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
+            return;
+        }
     }
     m_vkFuncs.real_vkCmdPipelineBarrier(remappedCommandBuffer, pPacket->srcStageMask, pPacket->dstStageMask, pPacket->dependencyFlags, pPacket->memoryBarrierCount, pPacket->pMemoryBarriers, pPacket->bufferMemoryBarrierCount, pPacket->pBufferMemoryBarriers, pPacket->imageMemoryBarrierCount, pPacket->pImageMemoryBarriers);
 
@@ -1399,7 +1424,10 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateFramebuffer() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkFramebufferCreateInfo *pInfo = (VkFramebufferCreateInfo *) pPacket->pCreateInfo;
     VkImageView *pAttachments, *pSavedAttachments = (VkImageView*)pInfo->pAttachments;
@@ -1412,11 +1440,26 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
         for (uint32_t i = 0; i < pInfo->attachmentCount; i++)
         {
             pAttachments[i] = m_objMapper.remap_imageviews(pInfo->pAttachments[i]);
+            if (pAttachments[i] == VK_NULL_HANDLE && pInfo->pAttachments[i] != VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkCreateFramebuffer() due to invalid remapped VkImageView.");
+                VKTRACE_DELETE(pAttachments);
+                return VK_ERROR_VALIDATION_FAILED_EXT;
+            }
         }
         pInfo->pAttachments = pAttachments;
     }
     VkRenderPass savedRP = pPacket->pCreateInfo->renderPass;
     pInfo->renderPass = m_objMapper.remap_renderpasss(pPacket->pCreateInfo->renderPass);
+    if (pInfo->renderPass == VK_NULL_HANDLE && pPacket->pCreateInfo->renderPass != VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateFramebuffer() due to invalid remapped VkRenderPass.");
+        if (allocatedAttachments)
+        {
+            VKTRACE_DELETE(pAttachments);
+        }
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkFramebuffer local_framebuffer;
     replayResult = m_vkFuncs.real_vkCreateFramebuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_framebuffer);
