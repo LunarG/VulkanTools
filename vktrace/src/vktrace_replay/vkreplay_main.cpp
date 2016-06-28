@@ -108,7 +108,7 @@ int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray
                         res = replayer->Replay(replayer->Interpret(packet));
                         if (res != VKTRACE_REPLAY_SUCCESS)
                         {
-                           vktrace_LogError("Failed to replay packet_id %d.",packet->packet_id);
+                           vktrace_LogError("Failed to replay packet_id %d, with global_packet_index %d.", packet->packet_id, packet->global_packet_index);
 						   static BOOL QuitOnAnyError=FALSE;
                            if(QuitOnAnyError)
                            {
