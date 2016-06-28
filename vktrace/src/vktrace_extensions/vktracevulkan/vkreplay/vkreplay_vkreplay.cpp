@@ -245,6 +245,7 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice* pPacket
         char **ppEnabledLayerNames = NULL, **saved_ppLayers;
         if (remappedPhysicalDevice == VK_NULL_HANDLE)
         {
+            vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
         const char strScreenShot[] = "VK_LAYER_LUNARG_screenshot";
@@ -315,7 +316,10 @@ VkResult vkReplay::manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumerate
 
         VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
         if (remappedInstance == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkEnumeratePhysicalDevices() due to invalid remapped VkInstance.");
             return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
         if (pPacket->pPhysicalDevices != NULL)
             pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
         replayResult = m_vkFuncs.real_vkEnumeratePhysicalDevices(remappedInstance, &deviceCount, pDevices);
@@ -515,7 +519,10 @@ VkResult vkReplay::manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumerate
 //    void* pData = vktrace_malloc(dataSize);
 //    VkSwapchainWSI remappedSwapchain = m_objMapper.remap_swapchainwsis(pPacket->swapchain);
 //    if (remappedSwapchain == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkGetSwapchainInfoWSI() due to invalid remapped VkSwapchainWSI.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //    replayResult = m_vkFuncs.real_vkGetSwapchainInfoWSI(remappedSwapchain, pPacket->infoType, &dataSize, pData);
 //    if (replayResult == VK_SUCCESS)
 //    {
@@ -551,11 +558,17 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
 
     VkQueue remappedQueue = m_objMapper.remap_queues(pPacket->queue);
     if (remappedQueue == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped VkQueue.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkFence remappedFence = m_objMapper.remap_fences(pPacket->fence);
     if (pPacket->fence != VK_NULL_HANDLE && remappedFence == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped VkPhysicalDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkSubmitInfo *remappedSubmits = NULL;
     remappedSubmits = VKTRACE_NEW_ARRAY( VkSubmitInfo, pPacket->submitCount);
@@ -577,6 +590,7 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
             for (i = 0; i < submit->commandBufferCount; i++) {
                 *(pRemappedBuffers + i) = m_objMapper.remap_commandbuffers(*(submit->pCommandBuffers + i));
                 if (*(pRemappedBuffers + i) == VK_NULL_HANDLE) {
+                    vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped VkCommandBuffer.");
                     VKTRACE_DELETE(remappedSubmits);
                     VKTRACE_DELETE(pRemappedBuffers);
                     return replayResult;
@@ -588,9 +602,9 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
             remappedSubmit->pWaitSemaphores = pRemappedWaitSems;
             remappedSubmit->waitSemaphoreCount = submit->waitSemaphoreCount;
             for (i = 0; i < submit->waitSemaphoreCount; i++) {
-                //*(pRemappedWaitSems + i)->handle = m_objMapper.remap_semaphores(*(submit->pWaitSemaphores + i));
                 (*(pRemappedWaitSems + i)) = m_objMapper.remap_semaphores((*(submit->pWaitSemaphores + i)));
                 if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE) {
+                    vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped wait VkSemaphore.");
                     VKTRACE_DELETE(remappedSubmits);
                     VKTRACE_DELETE(pRemappedWaitSems);
                     return replayResult;
@@ -604,6 +618,7 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
             for (i = 0; i < submit->signalSemaphoreCount; i++) {
                 (*(pRemappedSignalSems + i)) = m_objMapper.remap_semaphores((*(submit->pSignalSemaphores + i)));
                 if (*(pRemappedSignalSems + i) == VK_NULL_HANDLE) {
+                    vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped signal VkSemaphore.");
                     VKTRACE_DELETE(remappedSubmits);
                     VKTRACE_DELETE(pRemappedSignalSems);
                     return replayResult;
@@ -628,11 +643,17 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
 //
 //    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
 //    if (remappedDevice == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkGetObjectInfo() due to invalid remapped VkDevice.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    VkObject remappedObject = m_objMapper.remap(pPacket->object, pPacket->objType);
 //    if (remappedObject == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkGetObjectInfo() due to invalid remapped VkObject.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    size_t size = 0;
 //    void* pData = NULL;
@@ -694,11 +715,17 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
 //
 //    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
 //    if (remappedDevice == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkGetImageSubresourceInfo() due to invalid remapped VkDevice.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    VkImage remappedImage = m_objMapper.remap(pPacket->image);
 //    if (remappedImage == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkGetImageSubresourceInfo() due to invalid remapped VkImage.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    size_t size = 0;
 //    void* pData = NULL;
@@ -895,7 +922,10 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateDescriptorSetLayout() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkDescriptorSetLayoutCreateInfo *pInfo = (VkDescriptorSetLayoutCreateInfo*) pPacket->pCreateInfo;
     if (pInfo != NULL)
@@ -911,6 +941,11 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
                     {
                         VkSampler* pSampler = (VkSampler*)&pBindings->pImmutableSamplers[j];
                         *pSampler = m_objMapper.remap_samplers(pBindings->pImmutableSamplers[j]);
+                        if (*pSampler == VK_NULL_HANDLE)
+                        {
+                            vktrace_LogError("Skipping vkCreateDescriptorSetLayout() due to invalid remapped VkSampler.");
+                            return VK_ERROR_VALIDATION_FAILED_EXT;
+                        }
                     }
                 }
             }
@@ -943,10 +978,37 @@ VkResult vkReplay::manually_replay_vkAllocateDescriptorSets(packet_vkAllocateDes
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkAllocateDescriptorSets() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
-    // VkDescriptorPool descriptorPool;
-    // descriptorPool.handle = remap_descriptorpools(pPacket->descriptorPool.handle);
+    VkDescriptorPool remappedPool = m_objMapper.remap_descriptorpools(pPacket->pAllocateInfo->descriptorPool);
+    if (remappedPool == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkAllocateDescriptorSets() due to invalid remapped VkDescriptorPool.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    VkDescriptorSetLayout* pRemappedSetLayouts = VKTRACE_NEW_ARRAY(VkDescriptorSetLayout, pPacket->pAllocateInfo->descriptorSetCount);
+
+    VkDescriptorSetAllocateInfo allocateInfo;
+    allocateInfo.pNext = NULL;
+    allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocateInfo.descriptorPool = remappedPool;
+    allocateInfo.descriptorSetCount = pPacket->pAllocateInfo->descriptorSetCount;
+    allocateInfo.pSetLayouts = pRemappedSetLayouts;
+
+    for (uint32_t i = 0; i < allocateInfo.descriptorSetCount; i++)
+    {
+        pRemappedSetLayouts[i] = m_objMapper.remap_descriptorsetlayouts(pPacket->pAllocateInfo->pSetLayouts[i]);
+        if (pRemappedSetLayouts[i] == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkAllocateDescriptorSets() due to invalid remapped VkDescriptorSetLayout.");
+            VKTRACE_DELETE(pRemappedSetLayouts);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+    }
 
     VkDescriptorSet* pDescriptorSets = NULL;
     replayResult = m_vkFuncs.real_vkAllocateDescriptorSets(
@@ -960,6 +1022,9 @@ VkResult vkReplay::manually_replay_vkAllocateDescriptorSets(packet_vkAllocateDes
            m_objMapper.add_to_descriptorsets_map(pPacket->pDescriptorSets[i], pDescriptorSets[i]);
         }
     }
+
+    VKTRACE_DELETE(pRemappedSetLayouts);
+
     return replayResult;
 }
 
@@ -969,21 +1034,31 @@ VkResult vkReplay::manually_replay_vkFreeDescriptorSets(packet_vkFreeDescriptorS
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkFreeDescriptorSets() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
-    VkDescriptorPool descriptorPool;
-    descriptorPool = m_objMapper.remap_descriptorpools(pPacket->descriptorPool);
+    VkDescriptorPool remappedDescriptorPool;
+    remappedDescriptorPool = m_objMapper.remap_descriptorpools(pPacket->descriptorPool);
+    if (remappedDescriptorPool == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkFreeDescriptorSets() due to invalid remapped VkDescriptorPool.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     VkDescriptorSet* localDSs = VKTRACE_NEW_ARRAY(VkDescriptorSet, pPacket->descriptorSetCount);
     uint32_t i;
     for (i = 0; i < pPacket->descriptorSetCount; ++i) {
        localDSs[i] = m_objMapper.remap_descriptorsets(pPacket->pDescriptorSets[i]);
        if (localDSs[i] == VK_NULL_HANDLE && pPacket->pDescriptorSets[i] != VK_NULL_HANDLE)
        {
+           vktrace_LogError("Skipping vkFreeDescriptorSets() due to invalid remapped VkDescriptorSet.");
            return VK_ERROR_VALIDATION_FAILED_EXT;
        }
     }
 
-    replayResult = m_vkFuncs.real_vkFreeDescriptorSets(remappedDevice, descriptorPool, pPacket->descriptorSetCount, localDSs);
+    replayResult = m_vkFuncs.real_vkFreeDescriptorSets(remappedDevice, remappedDescriptorPool, pPacket->descriptorSetCount, localDSs);
     if(replayResult == VK_SUCCESS)
     {
         for (i = 0; i < pPacket->descriptorSetCount; ++i) {
@@ -1073,6 +1148,7 @@ void vkReplay::manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuff
 //    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
 //    if (remappedDevice == VK_NULL_HANDLE)
 //    {
+//        vktrace_LogError("Skipping vkCreateGraphicsPipeline() due to invalid remapped VkDevice.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
 //    }
 //
@@ -1082,6 +1158,11 @@ void vkReplay::manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuff
 //    for (uint32_t i = 0; i < pPacket->pCreateInfo->stageCount; i++)
 //    {
 //        pRemappedStages[i].shader = m_objMapper.remap(pRemappedStages[i].shader);
+//        if (pRemappedStages[i].shader == VK_NULL_HANDLE)
+//        {
+//            vktrace_LogError("Skipping vkCreateGraphicsPipeline() due to invalid remapped VkShader.");
+//            return VK_ERROR_VALIDATION_FAILED_EXT;
+//        }
 //    }
 //
 //    VkGraphicsPipelineCreateInfo createInfo = {
@@ -1118,14 +1199,16 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     size_t dataSize;
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
+    if (remappeddevice == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Skipping vkGetPipelineCacheData() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
     VkPipelineCache remappedpipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
     if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedpipelineCache == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Skipping vkGetPipelineCacheData() due to invalid remapped VkPipelineCache.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
@@ -1209,13 +1292,9 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
-
-    // TODO : This is hacky, just correlating these remap values to 0,1,2 in array for now
-//    VkPipelineLayout local_layout;
-//    VkRenderPass     local_renderPass;
-//    VkPipeline       local_basePipelineHandle;
 
     // remap shaders from each stage
     VkPipelineShaderStageCreateInfo* pRemappedStages = VKTRACE_NEW_ARRAY(VkPipelineShaderStageCreateInfo, pPacket->pCreateInfos->stageCount);
@@ -1228,15 +1307,43 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
         for (j=0; j < pPacket->pCreateInfos[i].stageCount; j++)
         {
             pRemappedStages[j].module = m_objMapper.remap_shadermodules(pRemappedStages[j].module);
+            if (pRemappedStages[j].module == VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkShaderModule.");
+                VKTRACE_DELETE(pRemappedStages);
+                VKTRACE_DELETE(pLocalCIs);
+                return VK_ERROR_VALIDATION_FAILED_EXT;
+            }
         }
         VkPipelineShaderStageCreateInfo** ppSSCI = (VkPipelineShaderStageCreateInfo**)&(pLocalCIs[i].pStages);
         *ppSSCI = pRemappedStages;
 
         pLocalCIs[i].layout = m_objMapper.remap_pipelinelayouts(pPacket->pCreateInfos[i].layout);
+        if (pLocalCIs[i].layout == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkPipelineLayout.");
+            VKTRACE_DELETE(pRemappedStages);
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
 
         pLocalCIs[i].renderPass = m_objMapper.remap_renderpasss(pPacket->pCreateInfos[i].renderPass);
+        if (pLocalCIs[i].renderPass == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkRenderPass.");
+            VKTRACE_DELETE(pRemappedStages);
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
 
         pLocalCIs[i].basePipelineHandle = m_objMapper.remap_pipelines(pPacket->pCreateInfos[i].basePipelineHandle);
+        if (pLocalCIs[i].basePipelineHandle == VK_NULL_HANDLE && pPacket->pCreateInfos[i].basePipelineHandle != VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkPipeline.");
+            VKTRACE_DELETE(pRemappedStages);
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
 
         ((VkPipelineViewportStateCreateInfo*)pLocalCIs[i].pViewportState)->pViewports =
                 (VkViewport*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pViewportState->pViewports);
@@ -1247,13 +1354,20 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
                 (VkSampleMask*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pMultisampleState->pSampleMask);
     }
 
-    VkPipelineCache pipelineCache;
-    pipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
-    uint32_t createInfoCount = pPacket->createInfoCount;
+    VkPipelineCache remappedPipelineCache;
+    remappedPipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+    if (remappedPipelineCache == VK_NULL_HANDLE && pPacket->pipelineCache != VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkPipelineCache.");
+        VKTRACE_DELETE(pRemappedStages);
+        VKTRACE_DELETE(pLocalCIs);
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
+    uint32_t createInfoCount = pPacket->createInfoCount;
     VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
 
-    replayResult = m_vkFuncs.real_vkCreateGraphicsPipelines(remappedDevice, pipelineCache, createInfoCount, pLocalCIs, NULL, local_pPipelines);
+    replayResult = m_vkFuncs.real_vkCreateGraphicsPipelines(remappedDevice, remappedPipelineCache, createInfoCount, pLocalCIs, NULL, local_pPipelines);
 
     if (replayResult == VK_SUCCESS)
     {
@@ -1327,6 +1441,12 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
         VkEvent *pEvent = (VkEvent *) &(pPacket->pEvents[idx]);
         saveEvent[idx] = pPacket->pEvents[idx];
         *pEvent = m_objMapper.remap_events(pPacket->pEvents[idx]);
+        if (*pEvent == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCmdWaitEvents() due to invalid remapped VkEvent.");
+            VKTRACE_DELETE(saveEvent);
+            return;
+        }
     }
 
     VkBuffer* saveBuf = VKTRACE_NEW_ARRAY(VkBuffer, pPacket->bufferMemoryBarrierCount);
@@ -1335,6 +1455,13 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
         VkBufferMemoryBarrier *pNextBuf = (VkBufferMemoryBarrier *)& (pPacket->pBufferMemoryBarriers[idx]);
         saveBuf[numRemapBuf++] = pNextBuf->buffer;
         pNextBuf->buffer = m_objMapper.remap_buffers(pNextBuf->buffer);
+        if (pNextBuf->buffer == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCmdWaitEvents() due to invalid remapped VkBuffer.");
+            VKTRACE_DELETE(saveEvent);
+            VKTRACE_DELETE(saveBuf);
+            return;
+        }
     }
     VkImage* saveImg = VKTRACE_NEW_ARRAY(VkImage, pPacket->imageMemoryBarrierCount);
     for (idx = 0; idx < pPacket->imageMemoryBarrierCount; idx++)
@@ -1342,6 +1469,14 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
         VkImageMemoryBarrier *pNextImg = (VkImageMemoryBarrier *) &(pPacket->pImageMemoryBarriers[idx]);
         saveImg[numRemapImg++] = pNextImg->image;
         pNextImg->image = m_objMapper.remap_images(pNextImg->image);
+        if (pNextImg->image == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCmdWaitEvents() due to invalid remapped VkImage.");
+            VKTRACE_DELETE(saveEvent);
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
+            return;
+        }
     }
     m_vkFuncs.real_vkCmdWaitEvents(remappedCommandBuffer, pPacket->eventCount, pPacket->pEvents, pPacket->srcStageMask, pPacket->dstStageMask, pPacket->memoryBarrierCount, pPacket->pMemoryBarriers, pPacket->bufferMemoryBarrierCount, pPacket->pBufferMemoryBarriers, pPacket->imageMemoryBarrierCount, pPacket->pImageMemoryBarriers);
 
@@ -1482,7 +1617,10 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass*
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateRenderPass() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkRenderPass local_renderpass;
     replayResult = m_vkFuncs.real_vkCreateRenderPass(remappedDevice, pPacket->pCreateInfo, NULL, &local_renderpass);
@@ -1505,7 +1643,17 @@ void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass*
     memcpy((void*)&local_renderPassBeginInfo, (void*)pPacket->pRenderPassBegin, sizeof(VkRenderPassBeginInfo));
     local_renderPassBeginInfo.pClearValues = (const VkClearValue*)pPacket->pRenderPassBegin->pClearValues;
     local_renderPassBeginInfo.framebuffer = m_objMapper.remap_framebuffers(pPacket->pRenderPassBegin->framebuffer);
+    if (local_renderPassBeginInfo.framebuffer == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCmdBeginRenderPass() due to invalid remapped VkFramebuffer.");
+        return;
+    }
     local_renderPassBeginInfo.renderPass = m_objMapper.remap_renderpasss(pPacket->pRenderPassBegin->renderPass);
+    if (local_renderPassBeginInfo.renderPass == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCmdBeginRenderPass() due to invalid remapped VkRenderPass.");
+        return;
+    }
     m_vkFuncs.real_vkCmdBeginRenderPass(remappedCommandBuffer, &local_renderPassBeginInfo, pPacket->contents);
     return;
 }
@@ -1516,7 +1664,10 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
 
     VkCommandBuffer remappedCommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
     if (remappedCommandBuffer == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkBeginCommandBuffer() due to invalid remapped VkCommandBuffer.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkCommandBufferBeginInfo* pInfo = (VkCommandBufferBeginInfo*)pPacket->pBeginInfo;
     VkCommandBufferInheritanceInfo *pHinfo = (VkCommandBufferInheritanceInfo *) ((pInfo) ? pInfo->pInheritanceInfo : NULL);
@@ -1547,11 +1698,17 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
 //
 //    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
 //    if (remappedDevice == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkStorePipeline() due to invalid remapped VkDevice.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    VkPipeline remappedPipeline = m_objMapper.remap(pPacket->pipeline);
 //    if (remappedPipeline == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkStorePipeline() due to invalid remapped VkPipeline.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    size_t size = 0;
 //    void* pData = NULL;
@@ -1583,7 +1740,10 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
 //
 //    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
 //    if (remappedDevice == VK_NULL_HANDLE)
+//    {
+//        vktrace_LogError("Skipping vkDestroy() due to invalid remapped VkDevice.");
 //        return VK_ERROR_VALIDATION_FAILED_EXT;
+//    }
 //
 //    uint64_t remapHandle = m_objMapper.remap_<OBJECT_TYPE_HERE>(pPacket->object, pPacket->objType);
 //    <VkObject> object;
@@ -1602,12 +1762,21 @@ VkResult vkReplay::manually_replay_vkWaitForFences(packet_vkWaitForFences* pPack
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkWaitForFences() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkFence *pFence = VKTRACE_NEW_ARRAY(VkFence, pPacket->fenceCount);
     for (i = 0; i < pPacket->fenceCount; i++)
     {
         (*(pFence + i)) = m_objMapper.remap_fences((*(pPacket->pFences + i)));
+        if (*(pFence + i) == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkWaitForFences() due to invalid remapped VkFence.");
+            VKTRACE_DELETE(pFence);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
     }
 	if (pPacket->result == VK_SUCCESS)
 	{
@@ -1634,7 +1803,10 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory* pPa
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkAllocateMemory() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     gpuMemObj local_mem;
 
@@ -1653,7 +1825,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory* pPa
 void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory* pPacket)
 {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-    if (remappedDevice == VK_NULL_HANDLE) {
+    if (remappedDevice == VK_NULL_HANDLE)
+    {
         vktrace_LogError("Skipping vkFreeMemory() due to invalid remapped VkDevice.");
         return;
     }
@@ -1672,7 +1845,10 @@ VkResult vkReplay::manually_replay_vkMapMemory(packet_vkMapMemory* pPacket)
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkMapMemory() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
     void* pData;
@@ -1736,7 +1912,10 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkFlushMappedMemoryRanges() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkMappedMemoryRange* localRanges = VKTRACE_NEW_ARRAY(VkMappedMemoryRange, pPacket->memoryRangeCount);
     memcpy(localRanges, pPacket->pMemoryRanges, sizeof(VkMappedMemoryRange) * (pPacket->memoryRangeCount));
@@ -1748,6 +1927,7 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
         localRanges[i].memory = m_objMapper.remap_devicememorys(pPacket->pMemoryRanges[i].memory);
         if (localRanges[i].memory == VK_NULL_HANDLE || pLocalMems[i].pGpuMem == NULL)
         {
+            vktrace_LogError("Skipping vkFlushMappedMemoryRanges() due to invalid remapped VkDeviceMemory.");
             VKTRACE_DELETE(localRanges);
             VKTRACE_DELETE(pLocalMems);
             return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1785,28 +1965,21 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_v
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (remappedphysicalDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceSupportKHR() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
-//    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE)
-//    {
-//        return vktrace_replay::VKTRACE_REPLAY_ERROR;
-//    }
+    if (remappedSurfaceKHR == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceSupportKHR() due to invalid remapped VkSurfaceKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, remappedSurfaceKHR, pPacket->pSupported);
-//    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-//    if (remappedDevice == VK_NULL_HANDLE)
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//
-//    gpuMemObj local_mem;
-//
-//    if (!m_objMapper.m_adjustForGPU)
-//        replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, &local_mem.replayGpuMem);
-//    if (replayResult == VK_SUCCESS || m_objMapper.m_adjustForGPU)
-//    {
-//        local_mem.pGpuMem = new (gpuMemory);
-//        if (local_mem.pGpuMem)
-//            local_mem.pGpuMem->setAllocInfo(pPacket->pAllocateInfo, m_objMapper.m_adjustForGPU);
-//        m_objMapper.add_to_devicememorys_map(pPacket->pMemory->handle, local_mem);
-//    }
+
     return replayResult;
 }
 
@@ -1815,7 +1988,18 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pac
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (remappedphysicalDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceCapabilitiesKHR() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
+    if (remappedSurfaceKHR == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceCapabilitiesKHR() due to invalid remapped VkSurfaceKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     m_display->resize_window(pPacket->pSurfaceCapabilities->currentExtent.width, pPacket->pSurfaceCapabilities->currentExtent.height);
 
@@ -1829,7 +2013,18 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_v
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (remappedphysicalDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceFormatsKHR() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
+    if (remappedSurfaceKHR == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceFormatsKHR() due to invalid remapped VkSurfaceKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceFormatsKHR(remappedphysicalDevice, remappedSurfaceKHR, pPacket->pSurfaceFormatCount, pPacket->pSurfaceFormats);
 
@@ -1841,7 +2036,18 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(pac
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (remappedphysicalDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfacePresentModesKHR() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     VkSurfaceKHR remappedSurfaceKHR = m_objMapper.remap_surfacekhrs(pPacket->surface);
+    if (remappedSurfaceKHR == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSurfacePresentModesKHR() due to invalid remapped VkSurfaceKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfacePresentModesKHR(remappedphysicalDevice, remappedSurfaceKHR, pPacket->pPresentModeCount, pPacket->pPresentModes);
 
@@ -1856,16 +2062,28 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     VkSurfaceKHR save_surface;
     pSC = (VkSwapchainKHR *) &pPacket->pCreateInfo->oldSwapchain;
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (remappeddevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
-//    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
-//    {
-//        return vktrace_replay::VKTRACE_REPLAY_ERROR;
-//    }
     save_oldSwapchain = pPacket->pCreateInfo->oldSwapchain;
     (*pSC) = m_objMapper.remap_swapchainkhrs(save_oldSwapchain);
+    if ((*pSC) == VK_NULL_HANDLE && save_oldSwapchain != VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid remapped VkSwapchainKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     save_surface = pPacket->pCreateInfo->surface;
     VkSurfaceKHR *pSurf = (VkSurfaceKHR *) &(pPacket->pCreateInfo->surface);
     *pSurf = m_objMapper.remap_surfacekhrs(*pSurf);
+    if (*pSurf == VK_NULL_HANDLE && pPacket->pCreateInfo->surface != VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid remapped VkSurfaceKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     m_display->resize_window(pPacket->pCreateInfo->imageExtent.width, pPacket->pCreateInfo->imageExtent.height);
 
@@ -1885,14 +2103,19 @@ VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchain
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-
-//    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
-//    {
-//        return vktrace_replay::VKTRACE_REPLAY_ERROR;
-//    }
+    if (remappeddevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkGetSwapchainImagesKHR() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkSwapchainKHR remappedswapchain;
     remappedswapchain = m_objMapper.remap_swapchainkhrs(pPacket->swapchain);
+    if (remappedswapchain == VK_NULL_HANDLE && pPacket->swapchain != VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid remapped VkSwapchainKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkImage packetImage[128] = {0};
     uint32_t numImages = 0;
@@ -1924,6 +2147,12 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
 {
     VkResult replayResult = VK_SUCCESS;
     VkQueue remappedQueue = m_objMapper.remap_queues(pPacket->queue);
+    if (remappedQueue == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped VkQueue.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     VkSemaphore localSemaphores[5];
     VkSwapchainKHR localSwapchains[5];
     VkResult localResults[5];
@@ -1953,6 +2182,20 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
     if (replayResult == VK_SUCCESS) {
         for (i=0; i<pPacket->pPresentInfo->swapchainCount; i++) {
             pRemappedSwapchains[i] = m_objMapper.remap_swapchainkhrs(pPacket->pPresentInfo->pSwapchains[i]);
+            if (pRemappedSwapchains[i] == VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped VkSwapchainKHR.");
+                if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
+                    VKTRACE_DELETE(pRemappedWaitSems);
+                }
+                if (pResults != NULL && pResults != localResults) {
+                    VKTRACE_DELETE(pResults);
+                }
+                if (pRemappedSwapchains != NULL && pRemappedSwapchains != localSwapchains) {
+                    VKTRACE_DELETE(pRemappedSwapchains);
+                }
+                return VK_ERROR_VALIDATION_FAILED_EXT;
+            }
         }
         present.sType = pPacket->pPresentInfo->sType;
         present.pNext = pPacket->pPresentInfo->pNext;
@@ -1965,9 +2208,19 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             present.pWaitSemaphores = pRemappedWaitSems;
             for (i = 0; i < pPacket->pPresentInfo->waitSemaphoreCount; i++) {
                 (*(pRemappedWaitSems + i)) = m_objMapper.remap_semaphores((*(pPacket->pPresentInfo->pWaitSemaphores + i)));
-                if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE) {
-                    replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-                    break;
+                if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE)
+                {
+                    vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped wait VkSemaphore.");
+                    if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
+                        VKTRACE_DELETE(pRemappedWaitSems);
+                    }
+                    if (pResults != NULL && pResults != localResults) {
+                        VKTRACE_DELETE(pResults);
+                    }
+                    if (pRemappedSwapchains != NULL && pRemappedSwapchains != localSwapchains) {
+                        VKTRACE_DELETE(pRemappedSwapchains);
+                    }
+                    return VK_ERROR_VALIDATION_FAILED_EXT;
                 }
             }
         }
@@ -2012,9 +2265,10 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
 {
     VkResult replayResult;
     VkSurfaceKHR local_pSurface;
-    VkInstance remappedinstance = m_objMapper.remap_instances(pPacket->instance);
-
-    if (pPacket->instance != VK_NULL_HANDLE && remappedinstance == VK_NULL_HANDLE) {
+    VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
+    if (remappedInstance == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateXcbSurfaceKHR() due to invalid remapped VkInstance.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
@@ -2026,7 +2280,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined WIN32
     VkIcdSurfaceWin32 *pSurf = (VkIcdSurfaceWin32 *) m_display->get_surface();
     VkWin32SurfaceCreateInfoKHR createInfo;
@@ -2035,7 +2289,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #else
     vktrace_LogError("manually_replay_vkCreateXcbSurfaceKHR not implemented on this vkreplay platform");
     replayResult = VK_FEATURE_NOT_PRESENT;
@@ -2090,9 +2344,10 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
 
     VkResult replayResult;
     VkSurfaceKHR local_pSurface;
-    VkInstance remappedinstance = m_objMapper.remap_instances(pPacket->instance);
-
-    if (pPacket->instance != VK_NULL_HANDLE && remappedinstance == VK_NULL_HANDLE) {
+    VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
+    if (remappedInstance == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateWin32SurfaceKHR() due to invalid remapped VkInstance.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
@@ -2104,7 +2359,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *) m_display->get_surface();
     VkXcbSurfaceCreateInfoKHR createInfo;
@@ -2113,7 +2368,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #else
     vktrace_LogError("manually_replay_vkCreateWin32SurfaceKHR not implemented on this playback platform");
     replayResult = VK_FEATURE_NOT_PRESENT;
@@ -2129,9 +2384,11 @@ VkResult  vkReplay::manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCrea
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkDebugReportCallbackEXT local_msgCallback;
     VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
-
-    if (remappedInstance == NULL)
-        return replayResult;
+    if (remappedInstance == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateDebugReportCallbackEXT() due to invalid remapped VkInstance.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     if (!g_fpDbgMsgCallback || !m_vkFuncs.real_vkCreateDebugReportCallbackEXT) {
         // just eat this call as we don't have local call back function defined
@@ -2156,9 +2413,22 @@ VkResult  vkReplay::manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCrea
 void vkReplay::manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyDebugReportCallbackEXT* pPacket)
 {
     VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
+    if (remappedInstance == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkDestroyDebugReportCallbackEXT() due to invalid remapped VkInstance.");
+        return;
+    }
+
     VkDebugReportCallbackEXT remappedMsgCallback;
     remappedMsgCallback = m_objMapper.remap_debugreportcallbackexts(pPacket->callback);
-    if (!g_fpDbgMsgCallback) {
+    if (remappedMsgCallback == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkDestroyDebugReportCallbackEXT() due to invalid remapped VkDebugReportCallbackEXT.");
+        return;
+    }
+
+    if (!g_fpDbgMsgCallback)
+    {
         // just eat this call as we don't have local call back function defined
         return;
     } else
@@ -2170,19 +2440,24 @@ void vkReplay::manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyD
 VkResult vkReplay::manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCommandBuffers* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-
-//    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
-//    {
-//        return vktrace_replay::VKTRACE_REPLAY_ERROR;
-//    }
+    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
+    if (remappedDevice == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkAllocateCommandBuffers() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkCommandBuffer *local_pCommandBuffers = new VkCommandBuffer[pPacket->pAllocateInfo->commandBufferCount];
     VkCommandPool local_CommandPool;
     local_CommandPool = pPacket->pAllocateInfo->commandPool;
     ((VkCommandBufferAllocateInfo *) pPacket->pAllocateInfo)->commandPool = m_objMapper.remap_commandpools(pPacket->pAllocateInfo->commandPool);
+    if (pPacket->pAllocateInfo->commandPool == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkAllocateCommandBuffers() due to invalid remapped VkCommandPool.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
-    replayResult = m_vkFuncs.real_vkAllocateCommandBuffers(remappeddevice, pPacket->pAllocateInfo, local_pCommandBuffers);
+    replayResult = m_vkFuncs.real_vkAllocateCommandBuffers(remappedDevice, pPacket->pAllocateInfo, local_pCommandBuffers);
     ((VkCommandBufferAllocateInfo *) pPacket->pAllocateInfo)->commandPool = local_CommandPool;
 
     if (replayResult == VK_SUCCESS)
@@ -2198,8 +2473,9 @@ VkResult vkReplay::manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCom
 VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket)
 {
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
-    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE)
+    if (remappedphysicalDevice == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Error detected in vkGetPhysicalDeviceXcbPresentationSupportKHR() due to invalid remapped VkPhysicalDevice.");
         return VK_FALSE;
     }
 
@@ -2218,8 +2494,9 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(
 VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket)
 {
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
-    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE)
+    if (remappedphysicalDevice == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Error detected in vkGetPhysicalDeviceXcbPresentationSupportKHR() due to invalid remapped VkPhysicalDevice.");
         return VK_FALSE;
     }
 

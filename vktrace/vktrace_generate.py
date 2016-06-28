@@ -1495,6 +1495,7 @@ class Subcommand(object):
                         result = '        %s remapped%s = m_objMapper.remap_%ss(*pPacket->%s%s);\n' % (cleanParamType, paramName, paramName.lower(), paramName, objectTypeRemapParam)
                         result += '        if (pPacket->%s != VK_NULL_HANDLE && remapped%s == VK_NULL_HANDLE)\n' % (paramName, paramName)
                         result += '        {\n'
+                        result += '            vktrace_LogError("Error detected in %s() due to invalid remapped %s.");\n' % (funcName, cleanParamType)
                         result += '            return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
                         result += '        }\n'
                         return result
@@ -1508,6 +1509,7 @@ class Subcommand(object):
                         result += '                remapped%s[i] = m_objMapper.remap_%ss(pPacket->%s[i]%s);\n' % (paramName, cleanParamType.lower()[2:], paramName, objectTypeRemapParam)
                         result += '                if (pPacket->%s[i] != VK_NULL_HANDLE && remapped%s[i] == VK_NULL_HANDLE)\n' % (paramName, paramName)
                         result += '                {\n'
+                        result += '                    vktrace_LogError("Error detected in %s() due to invalid remapped %s.");\n' % (funcName, cleanParamType)
                         result += '                    return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
                         result += '                }\n'
                         result += '            }\n'
@@ -1517,6 +1519,7 @@ class Subcommand(object):
                 result += '%s\n' % self.lineinfo.get()
                 result += '            if (pPacket->%s != VK_NULL_HANDLE && remapped%s == VK_NULL_HANDLE)\n' % (paramName, paramName)
                 result += '            {\n'
+                result += '                vktrace_LogError("Error detected in %s() due to invalid remapped %s.");\n' % (funcName, cleanParamType)
                 result += '                return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
                 result += '            }\n'
                 return result
@@ -1544,6 +1547,7 @@ class Subcommand(object):
         ci_body.append('            VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);')
         ci_body.append('            if (remappedDevice == VK_NULL_HANDLE)')
         ci_body.append('            {')
+        ci_body.append('                vktrace_LogError("Error detected in vkCreateImage() due to invalid remapped VkDevice.");')
         ci_body.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
         ci_body.append('            }')
         ci_body.append('            replayResult = m_vkFuncs.real_vkCreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);')
@@ -1559,6 +1563,7 @@ class Subcommand(object):
         cb_body.append('            VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);')
         cb_body.append('            if (remappedDevice == VK_NULL_HANDLE)')
         cb_body.append('            {')
+        cb_body.append('                vktrace_LogError("Error detected in vkCreateBuffer() due to invalid remapped VkDevice.");')
         cb_body.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
         cb_body.append('            }')
         cb_body.append('            replayResult = m_vkFuncs.real_vkCreateBuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_bufferObj.replayBuffer);')
@@ -1575,6 +1580,7 @@ class Subcommand(object):
         cb_body.append('            if (replayResult == VK_SUCCESS) {')
         cb_body.append('                VkInstance remappedInstance = m_objMapper.remap_instances(*pPacket->pInstance);')
         cb_body.append('                if (remappedInstance == VK_NULL_HANDLE) {')
+        cb_body.append('                    vktrace_LogError("Error detected in vkCreateInstance() due to invalid remapped VkInstance.");')
         cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
         cb_body.append('                    break;')
         cb_body.append('                }')
@@ -1763,18 +1769,21 @@ class Subcommand(object):
                         rbody.append('            createInfo.cs.shader = m_objMapper.remap_shaders(pPacket->pCreateInfo->cs.shader);')
                         rbody.append('            if (createInfo.cs.shader == VK_NULL_HANDLE && pPacket->pCreateInfo->cs.shader != VK_NULL_HANDLE)')
                         rbody.append('            {')
+                        rbody.append('                vktrace_LogError("Error detected in vkCreateComputePipelines() due to invalid remapped VkShader.");')
                         rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
                         rbody.append('            }')
                     elif 'CreateBufferView' == proto.name:
                         rbody.append('            createInfo.buffer = m_objMapper.remap_buffers(pPacket->pCreateInfo->buffer);')
                         rbody.append('            if (createInfo.buffer == VK_NULL_HANDLE && pPacket->pCreateInfo->buffer != VK_NULL_HANDLE)')
                         rbody.append('            {')
+                        rbody.append('                vktrace_LogError("Error detected in vkCreateBufferView() due to invalid remapped VkBuffer.");')
                         rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
                         rbody.append('            }')
                     else:
                         rbody.append('            createInfo.image = m_objMapper.remap_images(pPacket->pCreateInfo->image);')
                         rbody.append('            if (createInfo.image == VK_NULL_HANDLE && pPacket->pCreateInfo->image != VK_NULL_HANDLE)')
                         rbody.append('            {')
+                        rbody.append('                vktrace_LogError("Error detected in vkCreateImageView() due to invalid remapped VkImage.");')
                         rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
                         rbody.append('            }')
                     rbody.append('            %s local_%s;' % (proto.params[-1].ty.strip('*').replace('const ', ''), proto.params[-1].name))
@@ -1786,9 +1795,19 @@ class Subcommand(object):
                         rbody.append('            VkDescriptorSetAllocateInfo local_AllocInfo, *local_pAllocateInfo = &local_AllocInfo;')
                         rbody.append('            VkDescriptorPool local_descPool;')
                         rbody.append('            local_descPool = m_objMapper.remap_descriptorpools(pPacket->pAllocateInfo->descriptorPool);')
+                        rbody.append('            if (local_descPool == VK_NULL_HANDLE)')
+                        rbody.append('            {')
+                        rbody.append('                vktrace_LogError("Error detected in vkAllocateDescriptorSets() due to invalid remapped VkDescriptorPool.");')
+                        rbody.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
+                        rbody.append('            }')
                         rbody.append('            for (uint32_t i = 0; i < pPacket->pAllocateInfo->descriptorSetCount; i++)')
                         rbody.append('            {')
                         rbody.append('                local_pSetLayouts[i] = m_objMapper.remap_descriptorsetlayouts(pPacket->%s->pSetLayouts[i]);' % (proto.params[-2].name))
+                        rbody.append('                if (local_pSetLayouts[i] == VK_NULL_HANDLE)')
+                        rbody.append('                {')
+                        rbody.append('                    vktrace_LogError("Error detected in vkAllocateDescriptorSets() due to invalid remapped VkDescriptorSetLayout.");')
+                        rbody.append('                    return vktrace_replay::VKTRACE_REPLAY_ERROR;')
+                        rbody.append('                }')
                         rbody.append('            }')
                         rbody.append('            memcpy(local_pAllocateInfo, pPacket->pAllocateInfo, sizeof(VkDescriptorSetAllocateInfo));')
                         rbody.append('            local_pAllocateInfo->pSetLayouts = local_pSetLayouts;')
@@ -1800,6 +1819,11 @@ class Subcommand(object):
                     rbody.append('            for (uint32_t i = 0; i < pPacket->fenceCount; i++)')
                     rbody.append('            {')
                     rbody.append('                fences[i] = m_objMapper.remap_fences(pPacket->%s[i]);' % (proto.params[-1].name))
+                    rbody.append('                if (fences[i] == VK_NULL_HANDLE)')
+                    rbody.append('                {')
+                    rbody.append('                    vktrace_LogError("Error detected in vkResetFences() due to invalid remapped VkFence.");')
+                    rbody.append('                    return vktrace_replay::VKTRACE_REPLAY_ERROR;')
+                    rbody.append('                }')
                     rbody.append('            }')
                 elif proto.name in do_while_dict:
                     rbody.append('            do {')
