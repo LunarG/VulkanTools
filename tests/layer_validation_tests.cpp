@@ -41,6 +41,7 @@
 #define SHADER_CHECKER_TESTS 1
 #define DEVICE_LIMITS_TESTS 1
 #define IMAGE_TESTS 1
+#define API_DUMP_TESTS 0
 
 //--------------------------------------------------------------------------------------
 // Mesh and VertexFormat Data
@@ -268,6 +269,7 @@ class VkLayerTest : public VkRenderFramework {
   protected:
     ErrorMonitor *m_errorMonitor;
     bool m_enableWSI;
+    bool m_enableApiDump;
 
     virtual void SetUp() {
         std::vector<const char *> instance_layer_names;
@@ -276,6 +278,12 @@ class VkLayerTest : public VkRenderFramework {
         std::vector<const char *> device_extension_names;
 
         instance_extension_names.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+
+        if (m_enableApiDump) {
+            instance_layer_names.push_back("VK_LAYER_LUNARG_api_dump");
+            device_layer_names.push_back("VK_LAYER_LUNARG_api_dump");
+        }
+
         /*
          * Since CreateDbgMsgCallback is an instance level extension call
          * any extension / layer that utilizes that feature also needs
@@ -345,6 +353,7 @@ class VkLayerTest : public VkRenderFramework {
 
     VkLayerTest() {
         m_enableWSI = false;
+        m_enableApiDump = false;
     }
 };
 
@@ -557,6 +566,15 @@ protected:
         m_enableWSI = true;
     }
 };
+
+class VkApiDumpEnabledLayerTest : public VkLayerTest {
+  public:
+protected:
+    VkApiDumpEnabledLayerTest() {
+        m_enableApiDump = true;
+    }
+};
+
 
 class VkBufferTest {
 public:
@@ -820,6 +838,7 @@ protected:
 };
 
 uint32_t VkVerticesObj::BindIdGenerator;
+
 // ********************************************************************************************************************
 // ********************************************************************************************************************
 // ********************************************************************************************************************
@@ -15044,6 +15063,17 @@ TEST_F(VkLayerTest, ClearImageErrors) {
     m_errorMonitor->VerifyFound();
 }
 #endif // IMAGE_TESTS
+
+#if API_DUMP_TESTS
+TEST_F(VkApiDumpEnabledLayerTest, TestApiDump) {
+
+    // This test invokes the framework only, dumping commands.
+    // Ideally we would have a test harness that automatically verifies
+    // we can dump the entire API.
+    // This test just checks for a pulse, using visual inspection.
+    TEST_DESCRIPTION("Empty test with ApiDump enabled.");
+}
+#endif
 
 int main(int argc, char **argv) {
     int result;
