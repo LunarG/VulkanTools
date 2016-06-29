@@ -126,6 +126,13 @@ class Subcommand(object):
             if ext.ifdef:
                 func_protos.append('#endif /* %s */' % ext.ifdef)
 
+            # LoaderLayerInterface V0
+            if proto.name in [ 'GetInstanceProcAddr', 'GetDeviceProcAddr']:
+                func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="VK_LAYER_LUNARG_vktrace", attr="VKAPI"))
+            if proto.name in [ 'EnumerateInstanceLayerProperties', 'EnumerateInstanceExtensionProperties',
+                               'EnumerateDeviceLayerProperties', 'EnumerateDeviceExtensionProperties' ]:
+                func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="vk", attr="VKAPI"))
+
         func_protos.append('#ifdef __cplusplus')
         func_protos.append('}')
         func_protos.append('#endif')
@@ -144,6 +151,13 @@ class Subcommand(object):
                 if ext.ifdef:
                     func_protos.append('#endif /* %s */' % ext.ifdef)
 
+                    # LoaderLayerInterface V0
+                    if proto.name in [ 'GetInstanceProcAddr', 'GetDeviceProcAddr']:
+                        func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="VK_LAYER_LUNARG_vktrace", attr="VKAPI"))
+                    if proto.name in [ 'EnumerateInstanceLayerProperties', 'EnumerateInstanceExtensionProperties',
+                                       'EnumerateDeviceLayerProperties', 'EnumerateDeviceExtensionProperties' ]:
+                        func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="vk", attr="VKAPI"))
+
         return "\n".join(func_protos)
 
     # Return set of printf '%' qualifier, input to that qualifier, and any dereference
@@ -160,8 +174,8 @@ class Subcommand(object):
             return ("\\\"%s\\\"", name, "*")
         if "uint64_t" in vk_type:
             if '*' in vk_type:
-                return ("%lu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
-            return ("%lu", name, deref)
+                return ("%\" PRIu64 \"",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%\" PRIu64 \"", name, deref)
         if "uint32_t" in vk_type:
             if '*' in vk_type:
                 return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
@@ -2063,7 +2077,9 @@ class VktraceTraceHeader(Subcommand):
     def generate_header(self, extensionName):
         header_txt = []
         header_txt.append('#include "vktrace_vk_vk_packets.h"')
-        header_txt.append('#include "vktrace_vk_packet_id.h"\n\n')
+        header_txt.append('#include "vktrace_vk_packet_id.h"')
+        header_txt.append('#include "vulkan/vk_layer.h"\n\n')
+        header_txt.append('void InitTracer(void);\n\n')
         header_txt.append('#ifdef WIN32')
         header_txt.append('BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext);')
         header_txt.append('extern INIT_ONCE gInitOnce;')
@@ -2116,6 +2132,7 @@ class VktracePacketID(Subcommand):
         header_txt.append('#include "vktrace_trace_packet_utils.h"')
         header_txt.append('#include "vktrace_trace_packet_identifiers.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
+        header_txt.append("#include <inttypes.h>")
         #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
         header_txt.append('#include "vk_enum_string_helper.h"')
         header_txt.append('#ifndef _WIN32')
