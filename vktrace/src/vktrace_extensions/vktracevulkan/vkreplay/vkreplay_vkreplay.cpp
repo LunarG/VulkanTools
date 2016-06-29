@@ -606,6 +606,7 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
                 if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE) {
                     vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped wait VkSemaphore.");
                     VKTRACE_DELETE(remappedSubmits);
+                    VKTRACE_DELETE(pRemappedBuffers);
                     VKTRACE_DELETE(pRemappedWaitSems);
                     return replayResult;
                 }
@@ -620,6 +621,8 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
                 if (*(pRemappedSignalSems + i) == VK_NULL_HANDLE) {
                     vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped signal VkSemaphore.");
                     VKTRACE_DELETE(remappedSubmits);
+                    VKTRACE_DELETE(pRemappedBuffers);
+                    VKTRACE_DELETE(pRemappedWaitSems);
                     VKTRACE_DELETE(pRemappedSignalSems);
                     return replayResult;
                 }
@@ -768,15 +771,16 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
     VkCopyDescriptorSet* pRemappedCopies = VKTRACE_NEW_ARRAY(VkCopyDescriptorSet, pPacket->descriptorCopyCount);
     memcpy(pRemappedCopies, pPacket->pDescriptorCopies, pPacket->descriptorCopyCount * sizeof(VkCopyDescriptorSet));
 
-    for (uint32_t i = 0; i < pPacket->descriptorWriteCount; i++)
+    bool errorBadRemap = false;
+
+    for (uint32_t i = 0; i < pPacket->descriptorWriteCount && !errorBadRemap; i++)
     {
         pRemappedWrites[i].dstSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorWrites[i].dstSet);
         if (pRemappedWrites[i].dstSet == VK_NULL_HANDLE)
         {
             vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped write VkDescriptorSet.");
-            VKTRACE_DELETE(pRemappedWrites);
-            VKTRACE_DELETE(pRemappedCopies);
-            return;
+            errorBadRemap = true;
+            break;
         }
 
         switch (pPacket->pDescriptorWrites[i].descriptorType) {
@@ -791,9 +795,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
                     if (pRemappedWrites[i].pImageInfo[j].sampler == VK_NULL_HANDLE)
                     {
                         vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped VkSampler.");
-                        VKTRACE_DELETE(pRemappedWrites);
-                        VKTRACE_DELETE(pRemappedCopies);
-                        return;
+                        errorBadRemap = true;
+                        break;
                     }
                 }
             }
@@ -811,9 +814,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
                     if (pRemappedWrites[i].pImageInfo[j].imageView == VK_NULL_HANDLE)
                     {
                         vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped VkImageView.");
-                        VKTRACE_DELETE(pRemappedWrites);
-                        VKTRACE_DELETE(pRemappedCopies);
-                        return;
+                        errorBadRemap = true;
+                        break;
                     }
                 }
             }
@@ -829,9 +831,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
                     if (pRemappedWrites[i].pImageInfo[j].sampler == VK_NULL_HANDLE)
                     {
                         vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped VkSampler.");
-                        VKTRACE_DELETE(pRemappedWrites);
-                        VKTRACE_DELETE(pRemappedCopies);
-                        return;
+                        errorBadRemap = true;
+                        break;
                     }
                 }
                 if (pPacket->pDescriptorWrites[i].pImageInfo[j].imageView != VK_NULL_HANDLE)
@@ -840,9 +841,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
                     if (pRemappedWrites[i].pImageInfo[j].imageView == VK_NULL_HANDLE)
                     {
                         vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped VkImageView.");
-                        VKTRACE_DELETE(pRemappedWrites);
-                        VKTRACE_DELETE(pRemappedCopies);
-                        return;
+                        errorBadRemap = true;
+                        break;
                     }
                 }
             }
@@ -859,9 +859,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
                     if (pRemappedWrites[i].pTexelBufferView[j] == VK_NULL_HANDLE)
                     {
                         vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped VkBufferView.");
-                        VKTRACE_DELETE(pRemappedWrites);
-                        VKTRACE_DELETE(pRemappedCopies);
-                        return;
+                        errorBadRemap = true;
+                        break;
                     }
                 }
             }
@@ -880,9 +879,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
                     if (pRemappedWrites[i].pBufferInfo[j].buffer == VK_NULL_HANDLE)
                     {
                         vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped VkBufferView.");
-                        VKTRACE_DELETE(pRemappedWrites);
-                        VKTRACE_DELETE(pRemappedCopies);
-                        return;
+                        errorBadRemap = true;
+                        break;
                     }
                 }
             }
@@ -892,28 +890,49 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
         }
     }
 
-    for (uint32_t i = 0; i < pPacket->descriptorCopyCount; i++)
+    for (uint32_t i = 0; i < pPacket->descriptorCopyCount && !errorBadRemap; i++)
     {
         pRemappedCopies[i].dstSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorCopies[i].dstSet);
         if (pRemappedCopies[i].dstSet == VK_NULL_HANDLE)
         {
             vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped destination VkDescriptorSet.");
-            VKTRACE_DELETE(pRemappedWrites);
-            VKTRACE_DELETE(pRemappedCopies);
-            return;
+            errorBadRemap = true;
+            break;
         }
 
         pRemappedCopies[i].srcSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorCopies[i].srcSet);
         if (pRemappedCopies[i].srcSet == VK_NULL_HANDLE)
         {
             vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped source VkDescriptorSet.");
-            VKTRACE_DELETE(pRemappedWrites);
-            VKTRACE_DELETE(pRemappedCopies);
-            return;
+            errorBadRemap = true;
+            break;
         }
     }
 
-    m_vkFuncs.real_vkUpdateDescriptorSets(remappedDevice, pPacket->descriptorWriteCount, pRemappedWrites, pPacket->descriptorCopyCount, pRemappedCopies);
+    if (!errorBadRemap)
+    {
+        // If an error occurred, don't call the real function, but skip ahead so that memory is cleaned up!
+
+        m_vkFuncs.real_vkUpdateDescriptorSets(remappedDevice, pPacket->descriptorWriteCount, pRemappedWrites, pPacket->descriptorCopyCount, pRemappedCopies);
+    }
+
+    for (uint32_t d = 0; d < pPacket->descriptorWriteCount; d++)
+    {
+        if (pRemappedWrites[d].pImageInfo != NULL) {
+            VKTRACE_DELETE((void*)pRemappedWrites[d].pImageInfo);
+            pRemappedWrites[d].pImageInfo = NULL;
+        }
+        if (pRemappedWrites[d].pBufferInfo != NULL) {
+            VKTRACE_DELETE((void*)pRemappedWrites[d].pBufferInfo);
+            pRemappedWrites[d].pImageInfo = NULL;
+        }
+        if (pRemappedWrites[d].pTexelBufferView != NULL) {
+            VKTRACE_DELETE((void*)pRemappedWrites[d].pTexelBufferView);
+            pRemappedWrites[d].pTexelBufferView = NULL;
+        }
+    }
+    VKTRACE_DELETE(pRemappedWrites);
+    VKTRACE_DELETE(pRemappedCopies);
 }
 
 VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDescriptorSetLayout* pPacket)
@@ -1050,12 +1069,13 @@ VkResult vkReplay::manually_replay_vkFreeDescriptorSets(packet_vkFreeDescriptorS
     VkDescriptorSet* localDSs = VKTRACE_NEW_ARRAY(VkDescriptorSet, pPacket->descriptorSetCount);
     uint32_t i;
     for (i = 0; i < pPacket->descriptorSetCount; ++i) {
-       localDSs[i] = m_objMapper.remap_descriptorsets(pPacket->pDescriptorSets[i]);
-       if (localDSs[i] == VK_NULL_HANDLE && pPacket->pDescriptorSets[i] != VK_NULL_HANDLE)
-       {
-           vktrace_LogError("Skipping vkFreeDescriptorSets() due to invalid remapped VkDescriptorSet.");
-           return VK_ERROR_VALIDATION_FAILED_EXT;
-       }
+        localDSs[i] = m_objMapper.remap_descriptorsets(pPacket->pDescriptorSets[i]);
+        if (localDSs[i] == VK_NULL_HANDLE && pPacket->pDescriptorSets[i] != VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkFreeDescriptorSets() due to invalid remapped VkDescriptorSet.");
+            VKTRACE_DELETE(localDSs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
     }
 
     replayResult = m_vkFuncs.real_vkFreeDescriptorSets(remappedDevice, remappedDescriptorPool, pPacket->descriptorSetCount, localDSs);
@@ -1065,6 +1085,7 @@ VkResult vkReplay::manually_replay_vkFreeDescriptorSets(packet_vkFreeDescriptorS
            m_objMapper.rm_from_descriptorsets_map(pPacket->pDescriptorSets[i]);
         }
     }
+    VKTRACE_DELETE(localDSs);
     return replayResult;
 }
 
@@ -1398,6 +1419,7 @@ VkResult vkReplay::manually_replay_vkCreatePipelineLayout(packet_vkCreatePipelin
         pSaveLayouts = (VkDescriptorSetLayout*) vktrace_malloc(sizeof(VkDescriptorSetLayout) * pPacket->pCreateInfo->setLayoutCount);
         if (!pSaveLayouts) {
             vktrace_LogError("Replay of CreatePipelineLayout out of memory.");
+            return VK_ERROR_VALIDATION_FAILED_EXT;
         }
     }
     uint32_t i = 0;
