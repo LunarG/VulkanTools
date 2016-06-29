@@ -25,6 +25,7 @@
 #include <unordered_map>
 #include "vktrace_vk_vk.h"
 #include "vulkan/vulkan.h"
+#include "vulkan/vk_layer.h"
 #include "vktrace_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vktrace_common.h"
@@ -2248,7 +2249,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
     PFN_vkVoidFunction addr;
     layer_instance_data  *instData;
 
-    vktrace_platform_thread_once(&gInitOnce, InitTracer);
+    vktrace_platform_thread_once((void*) &gInitOnce, InitTracer);
     if (!strcmp("vkGetInstanceProcAddr", funcName)) {
         if (gMessageStream != NULL) {
             return (PFN_vkVoidFunction) vktraceGetInstanceProcAddr;
@@ -2344,4 +2345,57 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
         return NULL;
 
     return pTable->GetInstanceProcAddr(instance, funcName);
+}
+
+static const VkLayerProperties layerProps = {
+    "VK_LAYER_LUNARG_vktrace",
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
+    1, "LunarG tracing layer",
+};
+
+template<typename T>
+VkResult EnumerateProperties(uint32_t src_count, const T *src_props, uint32_t *dst_count, T *dst_props) {
+    if (!dst_props || !src_props) {
+        *dst_count = src_count;
+        return VK_SUCCESS;
+    }
+
+    uint32_t copy_count = (*dst_count < src_count) ? *dst_count : src_count;
+    memcpy(dst_props, src_props, sizeof(T) * copy_count);
+    *dst_count = copy_count;
+
+    return (copy_count == src_count) ? VK_SUCCESS : VK_INCOMPLETE;
+}
+
+// LoaderLayerInterface V0
+// https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/blob/master/loader/LoaderAndLayerInterface.md
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pPropertyCount, VkLayerProperties *pProperties) {
+    return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pPropertyCount, VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
+        return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pPropertyCount, VkLayerProperties *pProperties) {
+    return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(const char *pLayerName, uint32_t *pPropertyCount, VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
+        return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    return __HOOKED_vkGetInstanceProcAddr(instance, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetDeviceProcAddr(VkDevice device, const char* funcName) {
+    return __HOOKED_vkGetDeviceProcAddr(device, funcName);
 }
