@@ -222,6 +222,7 @@ class Subcommand(object):
         init_tracer.append('            g_trimEnabled = true;')
         init_tracer.append('            g_trimIsPreTrim = (g_trimStartFrame > 0);')
         init_tracer.append('            g_trimIsInTrim = (g_trimStartFrame == 0);')
+        init_tracer.append('            trim_initialize();')
         init_tracer.append('        }')
         init_tracer.append('    }')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')

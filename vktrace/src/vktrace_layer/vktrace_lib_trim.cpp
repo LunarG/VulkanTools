@@ -24,6 +24,8 @@ bool g_trimIsPostTrim = false;
 uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
+VKTRACE_CRITICAL_SECTION trimRecordedPacketLock;
+VKTRACE_CRITICAL_SECTION trimStateTrackerLock;
 
 // implemented in vktrace_lib_trace.cpp
 extern layer_device_data* mdd(void* object);
@@ -32,6 +34,12 @@ extern layer_device_data* mdd(void* object);
 // will pass in that same address as needed, so we'll keep a map to correlate
 // the supplied address to the AllocationCallbacks object.
 static std::unordered_map<const void*, VkAllocationCallbacks> s_trimAllocatorMap;
+
+void trim_initialize()
+{
+    vktrace_create_critical_section(&trimStateTrackerLock);
+    vktrace_create_critical_section(&trimRecordedPacketLock);
+}
 
 void trim_add_Allocator(const VkAllocationCallbacks* pAllocator)
 {
@@ -63,6 +71,7 @@ VkAllocationCallbacks* trim_get_Allocator(const VkAllocationCallbacks* pAllocato
 //=============================================================================
 void trim_snapshot_state_tracker()
 {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimStateTrackerSnapshot = s_trimGlobalStateTracker;
 
     // copy all buffer contents and update the snapshot with the memory contents
@@ -136,6 +145,7 @@ void trim_snapshot_state_tracker()
             iter->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket = pHeader;
         }
     }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
 }
 
 // List of all the packets that have been recorded for the frames of interest.
@@ -145,31 +155,40 @@ static std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header
 
 #define TRIM_DEFINE_OBJECT_TRACKER_FUNCS(type) \
 Trim_ObjectInfo* trim_add_##type##_object(Vk##type var) { \
-   Trim_ObjectInfo& info = s_trimGlobalStateTracker.created##type##s[var]; \
-   memset(&info, 0, sizeof(Trim_ObjectInfo)); \
-   info.vkObject = (uint64_t)var; \
-   return &info; \
+    vktrace_enter_critical_section(&trimStateTrackerLock); \
+    Trim_ObjectInfo& info = s_trimGlobalStateTracker.created##type##s[var]; \
+    memset(&info, 0, sizeof(Trim_ObjectInfo)); \
+    info.vkObject = (uint64_t)var; \
+    vktrace_leave_critical_section(&trimStateTrackerLock); \
+    return &info; \
 } \
 void trim_remove_##type##_object(Vk##type var) { \
     /* make sure the object actually existed before we attempt to remove it. This is for testing and thus only happens in debug builds. */ \
+    vktrace_enter_critical_section(&trimStateTrackerLock); \
     assert(s_trimGlobalStateTracker.created##type##s.find(var) != s_trimGlobalStateTracker.created##type##s.end()); \
     s_trimGlobalStateTracker.created##type##s.erase(var); \
+    vktrace_leave_critical_section(&trimStateTrackerLock); \
 } \
 Trim_ObjectInfo* trim_get_##type##_objectInfo(Vk##type var) { \
-   TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
-   if (iter == s_trimGlobalStateTracker.created##type##s.end()) { \
-       return NULL; \
-   } \
-   return &(iter->second); \
+    vktrace_enter_critical_section(&trimStateTrackerLock); \
+    TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
+    Trim_ObjectInfo* pResult = NULL; \
+    if (iter != s_trimGlobalStateTracker.created##type##s.end()) { \
+        pResult = &(iter->second); \
+    } \
+    vktrace_leave_critical_section(&trimStateTrackerLock); \
+    return pResult;\
 }
 
 #define TRIM_DEFINE_MARK_REF(type) \
 void trim_mark_##type##_reference(Vk##type var) { \
-   TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
-   if (iter != s_trimGlobalStateTracker.created##type##s.end()) \
-   { \
-       iter->second.bReferencedInTrim = true; \
-   } \
+    vktrace_enter_critical_section(&trimStateTrackerLock); \
+    TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
+    if (iter != s_trimGlobalStateTracker.created##type##s.end()) \
+    { \
+        iter->second.bReferencedInTrim = true; \
+    } \
+    vktrace_leave_critical_section(&trimStateTrackerLock); \
 }
 
 
@@ -692,7 +711,9 @@ TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSetLayout)
 //===============================================
 void trim_add_recorded_packet(vktrace_trace_packet_header* pHeader)
 {
+    vktrace_enter_critical_section(&trimRecordedPacketLock);
     trim_recorded_packets.push_back(pHeader);
+    vktrace_leave_critical_section(&trimRecordedPacketLock);
 }
 
 void trim_write_recorded_packets()
@@ -1284,4 +1305,7 @@ void trim_delete_all_packets()
     TRIM_DELETE_ALL_PACKETS(Event);
     TRIM_DELETE_ALL_PACKETS(QueryPool);
     TRIM_DELETE_ALL_PACKETS(CommandBuffer);
+
+    vktrace_delete_critical_section(&trimRecordedPacketLock);
+    vktrace_delete_critical_section(&trimStateTrackerLock);
 }

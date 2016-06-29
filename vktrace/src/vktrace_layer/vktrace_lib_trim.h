@@ -20,6 +20,8 @@ extern uint64_t g_trimFrameCounter;
 extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
 
+void trim_initialize();
+
 // Use this to snapshot the global state tracker at the start of the trim frames.
 void trim_snapshot_state_tracker();
 
