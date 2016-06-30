@@ -641,6 +641,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         Trim_ObjectInfo* pInfo = trim_add_DescriptorPool_object(*pDescriptorPool);
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.DescriptorPool.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.DescriptorPool.createFlags = pCreateInfo->flags;
         pInfo->ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
         pInfo->ObjectInfo.DescriptorPool.numSets = 0;
 
@@ -2157,43 +2158,44 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(descriptorPool);
-        if (pPoolInfo != NULL)
+        if (pPoolInfo != NULL && 
+            pPoolInfo->ObjectInfo.DescriptorPool.createFlags & VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT != 0)
         {
             pPoolInfo->ObjectInfo.DescriptorPool.numSets -= descriptorSetCount;
-        }
 
-        for (uint32_t i = 0; i < descriptorSetCount; i++)
-        {
-            // Clean up memory
-            Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorSets[i]);
-            if (pInfo != NULL)
+            for (uint32_t i = 0; i < descriptorSetCount; i++)
             {
-                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != NULL)
+                // Clean up memory
+                Trim_ObjectInfo* pInfo = trim_get_DescriptorSet_objectInfo(pDescriptorSets[i]);
+                if (pInfo != NULL)
                 {
-                    for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
+                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != NULL)
                     {
-                        if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != NULL)
+                        for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
                         {
-                            delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
+                            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != NULL)
+                            {
+                                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
+                            }
+                            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != NULL)
+                            {
+                                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
+                            }
+                            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != NULL)
+                            {
+                                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
+                            }
                         }
-                        if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != NULL)
-                        {
-                            delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
-                        }
-                        if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != NULL)
-                        {
-                            delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
-                        }
-                    }
 
-                    delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets;
+                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets;
+                    }
+                    if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != NULL)
+                    {
+                        delete[] pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets;
+                    }
                 }
-                if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != NULL)
-                {
-                    delete[] pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets;
-                }
+                trim_remove_DescriptorSet_object(pDescriptorSets[i]);
             }
-            trim_remove_DescriptorSet_object(pDescriptorSets[i]);
         }
         if (g_trimIsInTrim)
         {

@@ -162,6 +162,7 @@ typedef struct _Trim_ObjectInfo
         struct _DescriptorPool {        // VkDescriptorPool
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
+            VkDescriptorPoolCreateFlags createFlags;
             uint32_t maxSets;
             uint32_t numSets;
         } DescriptorPool;

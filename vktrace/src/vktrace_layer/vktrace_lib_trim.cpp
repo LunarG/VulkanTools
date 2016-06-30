@@ -860,56 +860,40 @@ void trim_write_destroy_packets()
     for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdDescriptorPools.begin(); obj != s_trimGlobalStateTracker.createdDescriptorPools.end(); obj++)
     {
         // Free the associated DescriptorSets
-        VkDescriptorPool descriptorPool = (VkDescriptorPool)obj->first;
-        uint32_t descriptorSetCount = obj->second.ObjectInfo.DescriptorPool.numSets;
-        if (descriptorSetCount > 0)
+        VkDescriptorPool descriptorPool = static_cast<VkDescriptorPool>(obj->first);
+
+        // We can always call ResetDescriptorPool, but can only use FreeDescriptorSets if the pool was created with VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.
         {
             vktrace_trace_packet_header* pHeader;
-            packet_vkFreeDescriptorSets* pPacket = NULL;
-            CREATE_TRACE_PACKET(vkFreeDescriptorSets, descriptorSetCount*sizeof(VkDescriptorSet));
+            packet_vkResetDescriptorPool* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkResetDescriptorPool, 0);
             vktrace_set_packet_entrypoint_end_time(pHeader);
-            pPacket = interpret_body_as_vkFreeDescriptorSets(pHeader);
+            pPacket = interpret_body_as_vkResetDescriptorPool(pHeader);
             pPacket->device = obj->second.belongsToDevice;
             pPacket->descriptorPool = descriptorPool;
-
-            VkDescriptorSet* pDescriptorSets = new VkDescriptorSet[descriptorSetCount];
-            uint32_t index = 0;
-            for (TrimObjectInfoMap::iterator dsIter = s_trimGlobalStateTracker.createdDescriptorSets.begin(); dsIter != s_trimGlobalStateTracker.createdDescriptorSets.end(); dsIter++)
-            {
-                if (dsIter->second.ObjectInfo.DescriptorSet.descriptorPool == (VkDescriptorPool)obj->first && 
-                    index < descriptorSetCount)
-                {
-                    pDescriptorSets[index] = (VkDescriptorSet)dsIter->first;
-                    index++;
-                }
-            }
-
-            pPacket->descriptorSetCount = index;
-
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), descriptorSetCount*sizeof(VkDescriptorSet), pDescriptorSets);
+            pPacket->flags = 0;
             pPacket->result = VK_SUCCESS;
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
             FINISH_TRACE_PACKET();
-
-            delete[] pDescriptorSets;
         }
 
         // Now destroy the DescriptorPool
-        vktrace_trace_packet_header* pHeader;
-        packet_vkDestroyDescriptorPool* pPacket = NULL;
-        CREATE_TRACE_PACKET(vkDestroyDescriptorPool, sizeof(VkAllocationCallbacks));
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkDestroyDescriptorPool(pHeader);
-        pPacket->device = obj->second.belongsToDevice;
-        pPacket->descriptorPool = (VkDescriptorPool)obj->first;
-        pPacket->pAllocator = obj->second.ObjectInfo.DescriptorPool.pAllocator;
-        if (obj->second.ObjectInfo.DescriptorPool.pAllocator != NULL)
         {
-            VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.DescriptorPool.pAllocator);
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyDescriptorPool* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyDescriptorPool, sizeof(VkAllocationCallbacks));
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyDescriptorPool(pHeader);
+            pPacket->device = obj->second.belongsToDevice;
+            pPacket->descriptorPool = descriptorPool;
+            pPacket->pAllocator = obj->second.ObjectInfo.DescriptorPool.pAllocator;
+            if (obj->second.ObjectInfo.DescriptorPool.pAllocator != NULL)
+            {
+                VkAllocationCallbacks* pAllocator = trim_get_Allocator(obj->second.ObjectInfo.DescriptorPool.pAllocator);
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), &pAllocator);
+                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            }
+            FINISH_TRACE_PACKET();
         }
-        FINISH_TRACE_PACKET();
     }
 
     // Pipeline
