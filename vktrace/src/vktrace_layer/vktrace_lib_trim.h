@@ -35,6 +35,8 @@ void trim_delete_all_packets();
 void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
 void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
+void trim_reset_DescriptorPool(VkDescriptorPool descriptorPool);
+
 // Typically an application will have one VkAllocationCallbacks struct and 
 // will pass in that same address as needed, so we'll keep a map to correlate
 // the supplied address to the AllocationCallbacks object

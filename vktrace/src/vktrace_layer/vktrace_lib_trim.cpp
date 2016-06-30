@@ -460,51 +460,57 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(poolObj->second.ObjectInfo.DescriptorPool.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(poolObj->second.ObjectInfo.DescriptorPool.pCreatePacket));
 
-        // now allocate all DescriptorSets that are part of this pool
-        vktrace_trace_packet_header* pHeader;
-        packet_vkAllocateDescriptorSets* pPacket = NULL;
-        uint64_t vktraceStartTime = vktrace_get_time();
-        SEND_ENTRYPOINT_ID(vkAllocateDescriptorSets);
-        VkDescriptorSetAllocateInfo allocateInfo;
-        allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocateInfo.pNext = NULL;
-        allocateInfo.descriptorPool = (VkDescriptorPool)poolObj->first;
-        allocateInfo.descriptorSetCount = poolObj->second.ObjectInfo.DescriptorPool.numSets;
-
-        VkDescriptorSetLayout* pSetLayouts = new VkDescriptorSetLayout[allocateInfo.descriptorSetCount];
-        allocateInfo.pSetLayouts = pSetLayouts;
-        VkDescriptorSet* pDescriptorSets = new VkDescriptorSet[allocateInfo.descriptorSetCount];
-        uint32_t setLayoutIndex = 0;
-
-        for (TrimObjectInfoMap::iterator setObj = stateTracker.createdDescriptorSets.begin(); setObj != stateTracker.createdDescriptorSets.end(); setObj++)
+        if (poolObj->second.ObjectInfo.DescriptorPool.numSets > 0)
         {
-            // get descriptorSetLayouts and DescriptorSets specific to this pool
-            if (setObj->second.ObjectInfo.DescriptorSet.descriptorPool == allocateInfo.descriptorPool)
+            // now allocate all DescriptorSets that are part of this pool
+            vktrace_trace_packet_header* pHeader;
+            packet_vkAllocateDescriptorSets* pPacket = NULL;
+            uint64_t vktraceStartTime = vktrace_get_time();
+            SEND_ENTRYPOINT_ID(vkAllocateDescriptorSets);
+            VkDescriptorSetAllocateInfo allocateInfo;
+            allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            allocateInfo.pNext = NULL;
+            allocateInfo.descriptorPool = static_cast<VkDescriptorPool>(poolObj->first);
+
+            VkDescriptorSetLayout* pSetLayouts = new VkDescriptorSetLayout[poolObj->second.ObjectInfo.DescriptorPool.numSets];
+            allocateInfo.pSetLayouts = pSetLayouts;
+            VkDescriptorSet* pDescriptorSets = new VkDescriptorSet[poolObj->second.ObjectInfo.DescriptorPool.numSets];
+            uint32_t setIndex = 0;
+
+            for (TrimObjectInfoMap::iterator setObj = stateTracker.createdDescriptorSets.begin(); setObj != stateTracker.createdDescriptorSets.end(); setObj++)
             {
-                pSetLayouts[setLayoutIndex] = setObj->second.ObjectInfo.DescriptorSet.layout;
-                pDescriptorSets[setLayoutIndex] = (VkDescriptorSet)setObj->first;
-                setLayoutIndex++;
+                // get descriptorSetLayouts and DescriptorSets specific to this pool
+                if (setObj->second.ObjectInfo.DescriptorSet.descriptorPool == allocateInfo.descriptorPool &&
+                    setIndex < poolObj->second.ObjectInfo.DescriptorPool.numSets)
+                {
+                    pSetLayouts[setIndex] = setObj->second.ObjectInfo.DescriptorSet.layout;
+                    pDescriptorSets[setIndex] = static_cast<VkDescriptorSet>(setObj->first);
+                    setIndex++;
+                }
             }
+
+            // update descriptorSetCount to ensure it is correct
+            allocateInfo.descriptorSetCount = setIndex;
+
+            CREATE_TRACE_PACKET(vkAllocateDescriptorSets, vk_size_vkdescriptorsetallocateinfo(&allocateInfo) + (allocateInfo.descriptorSetCount * sizeof(VkDescriptorSet)));
+            pHeader->vktrace_begin_time = vktraceStartTime;
+
+            pHeader->entrypoint_begin_time = vktrace_get_time();
+            pHeader->entrypoint_end_time = vktrace_get_time();
+            pPacket = interpret_body_as_vkAllocateDescriptorSets(pHeader);
+            pPacket->device = poolObj->second.belongsToDevice;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkDescriptorSetAllocateInfo), &allocateInfo);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts), allocateInfo.descriptorSetCount * sizeof(VkDescriptorSetLayout), allocateInfo.pSetLayouts);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), allocateInfo.descriptorSetCount * sizeof(VkDescriptorSet), pDescriptorSets);
+            pPacket->result = VK_SUCCESS;
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
+            FINISH_TRACE_PACKET();
+
+            delete[] pSetLayouts;
+            delete[] pDescriptorSets;
         }
-
-        CREATE_TRACE_PACKET(vkAllocateDescriptorSets, vk_size_vkdescriptorsetallocateinfo(&allocateInfo) + (allocateInfo.descriptorSetCount * sizeof(VkDescriptorSet)));
-        pHeader->vktrace_begin_time = vktraceStartTime;
-
-        pHeader->entrypoint_begin_time = vktrace_get_time();
-        pHeader->entrypoint_end_time = vktrace_get_time();
-        pPacket = interpret_body_as_vkAllocateDescriptorSets(pHeader);
-        pPacket->device = poolObj->second.belongsToDevice;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkDescriptorSetAllocateInfo), &allocateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts), allocateInfo.descriptorSetCount * sizeof(VkDescriptorSetLayout), allocateInfo.pSetLayouts);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), allocateInfo.descriptorSetCount * sizeof(VkDescriptorSet), pDescriptorSets);
-        pPacket->result = VK_SUCCESS;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
-        FINISH_TRACE_PACKET();
-
-        delete[] pSetLayouts;
-        delete[] pDescriptorSets;
     }
 
     // Update DescriptorSets
@@ -679,6 +685,23 @@ void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer)
     s_cmdBufferPackets.erase(commandBuffer);
 }
 
+void trim_reset_DescriptorPool(VkDescriptorPool descriptorPool)
+{
+    for (TrimObjectInfoMap::iterator dsIter = s_trimGlobalStateTracker.createdDescriptorSets.begin(); dsIter != s_trimGlobalStateTracker.createdDescriptorSets.end(); )
+    {
+        if (dsIter->second.ObjectInfo.DescriptorSet.descriptorPool == descriptorPool)
+        {
+            VkDescriptorSet setToRemove = (VkDescriptorSet)dsIter->first;
+            dsIter++;
+            s_trimGlobalStateTracker.createdDescriptorSets.erase(setToRemove);
+        }
+        else
+        {
+            dsIter++;
+        }
+    }
+}
+
 //===============================================
 // Object tracking
 //===============================================
@@ -848,18 +871,20 @@ void trim_write_destroy_packets()
             pPacket = interpret_body_as_vkFreeDescriptorSets(pHeader);
             pPacket->device = obj->second.belongsToDevice;
             pPacket->descriptorPool = descriptorPool;
-            pPacket->descriptorSetCount = descriptorSetCount;
 
             VkDescriptorSet* pDescriptorSets = new VkDescriptorSet[descriptorSetCount];
             uint32_t index = 0;
             for (TrimObjectInfoMap::iterator dsIter = s_trimGlobalStateTracker.createdDescriptorSets.begin(); dsIter != s_trimGlobalStateTracker.createdDescriptorSets.end(); dsIter++)
             {
-                if (dsIter->second.ObjectInfo.DescriptorSet.descriptorPool == (VkDescriptorPool)obj->first)
+                if (dsIter->second.ObjectInfo.DescriptorSet.descriptorPool == (VkDescriptorPool)obj->first && 
+                    index < descriptorSetCount)
                 {
                     pDescriptorSets[index] = (VkDescriptorSet)dsIter->first;
                     index++;
                 }
             }
+
+            pPacket->descriptorSetCount = index;
 
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), descriptorSetCount*sizeof(VkDescriptorSet), pDescriptorSets);
             pPacket->result = VK_SUCCESS;

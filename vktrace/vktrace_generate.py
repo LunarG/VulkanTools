@@ -600,6 +600,10 @@ class Subcommand(object):
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_DescriptorSetLayout_objectInfo(descriptorSetLayout);")
             trim_instructions.append("        if (pInfo != NULL) { delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings; }")
             trim_instructions.append("        trim_remove_DescriptorSetLayout_object(descriptorSetLayout);")
+        elif 'ResetDescriptorPool' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(descriptorPool);")
+            trim_instructions.append("        pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
+            trim_instructions.append("        trim_reset_DescriptorPool(descriptorPool);")
         elif 'CreatePipelineLayout' is proto.name:
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_PipelineLayout_object(*pPipelineLayout);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")

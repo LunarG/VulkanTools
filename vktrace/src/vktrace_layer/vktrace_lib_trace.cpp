@@ -642,6 +642,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.DescriptorPool.pCreatePacket = pHeader;
         pInfo->ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
+        pInfo->ObjectInfo.DescriptorPool.numSets = 0;
 
         if (pAllocator != NULL)
         {
