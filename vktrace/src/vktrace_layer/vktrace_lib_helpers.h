@@ -392,51 +392,8 @@ static void add_VkComputePipelineCreateInfos_to_trace_packet(vktrace_trace_packe
         uint32_t i;
 
         for (i = 0; i < count; i++) {
-
             // shader stage
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->stage), sizeof(VkPipelineShaderStageCreateInfo), &pParam[i].stage);
             add_VkPipelineShaderStageCreateInfo_to_trace_packet(pHeader, (VkPipelineShaderStageCreateInfo*)&pPacket->stage, &pParam[i].stage);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->stage));
-
-/*
-            // Vertex Input State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pVertexInputState), sizeof(VkPipelineVertexInputStateCreateInfo), pParam[i]->pVertexInputState);
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pVertexInputState->pVertexBindingDescriptions), pParam[i]->pVertexInputState->bindingCount * sizeof(VkVertexInputBindingDescription), pParam[i]->pVertexInputState->pVertexBindingDescriptions);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pVertexInputState->pVertexBindingDescriptions));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pVertexInputState->pVertexAttributeDescriptions), pParam[i]->pVertexInputState->attributeCount * sizeof(VkVertexInputAttributeDescription), pParam[i]->pVertexInputState->pVertexAttributeDescriptions);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pVertexInputState->pVertexAttributeDescriptions));
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pVertexInputState));
-
-            // Input Assembly State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pInputAssemblyState), sizeof(VkPipelineInputAssemblyStateCreateInfo), pParam[i]->pInputAssemblyState);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pInputAssemblyState));
-
-            // Tesselation State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pTessellationState), sizeof(VkPipelineTessellationStateCreateInfo), pParam[i]->pTessellationState);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pTessellationState));
-
-            // Viewport State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pViewportState), sizeof(VkPipelineViewportStateCreateInfo), pParam[i]->pViewportState);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pViewportState));
-
-            // Raster State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRasterizationState), sizeof(VkPipelineRasterizationStateCreateInfo), pParam[i]->pRasterizationState);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRasterizationState));
-
-            // MultiSample State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMultisampleState), sizeof(VkPipelineMultisampleStateCreateInfo), pParam[i]->pMultisampleState);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMultisampleState));
-
-            // DepthStencil State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDepthStencilState), sizeof(VkPipelineDepthStencilStateCreateInfo), pParam[i]->pDepthStencilState);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDepthStencilState));
-
-            // ColorBlend State
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pColorBlendState), sizeof(VkPipelineColorBlendStateCreateInfo), pParam[i]->pColorBlendState);
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pColorBlendState->pAttachments), pParam[i]->pColorBlendState->attachmentCount * sizeof(VkPipelineColorBlendAttachmentState), pParam[i]->pColorBlendState->pAttachments);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pColorBlendState->pAttachments));
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pColorBlendState));
-*/
         }
     }
     return;
