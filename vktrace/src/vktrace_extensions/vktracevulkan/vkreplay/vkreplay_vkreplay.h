@@ -109,6 +109,7 @@ private:
     void manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuffers* pPacket);
     VkResult manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCacheData* pPacket);
     VkResult manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGraphicsPipelines* pPacket);
+    VkResult manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket);
     VkResult manually_replay_vkCreatePipelineLayout(packet_vkCreatePipelineLayout* pPacket);
     void manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket);
     void manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier* pPacket);

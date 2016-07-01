@@ -1130,6 +1130,65 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
     return replayResult;
 }
 
+VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
+{
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    size_t dataSize;
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    uint32_t i;
+
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    VkPipelineCache pipelineCache;
+    pipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+
+    VkComputePipelineCreateInfo* pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);
+    memcpy((void*)pLocalCIs, (void*)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo)*pPacket->createInfoCount);
+
+    // Fix up stage sub-elements
+    for (i=0; i<pPacket->createInfoCount; i++)
+    {
+        if (pLocalCIs[i].stage.pName)
+            pLocalCIs[i].stage.pName = (const char*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));
+
+        if (pLocalCIs[i].stage.pSpecializationInfo)
+        {
+            VkSpecializationInfo* si = VKTRACE_NEW(VkSpecializationInfo);
+            memcpy((void*)si, (void*)(pLocalCIs[i].stage.pSpecializationInfo), sizeof(VkSpecializationInfo));
+
+            if (si->mapEntryCount > 0 && si->pMapEntries)
+                si->pMapEntries = (const VkSpecializationMapEntry*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));
+            if (si->dataSize > 0 && si->pData)
+                si->pData = (const void*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)si->pData));
+            pLocalCIs[i].stage.pSpecializationInfo = si;
+        }
+
+        pLocalCIs[i].basePipelineHandle = m_objMapper.remap_pipelines(pLocalCIs[i].basePipelineHandle);
+    }
+
+    VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
+
+    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, pipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
+
+    if (replayResult == VK_SUCCESS)
+    {
+        for (i = 0; i < pPacket->createInfoCount; i++) {
+            m_objMapper.add_to_pipelines_map(pPacket->pPipelines[i], local_pPipelines[i]);
+        }
+    }
+
+    for (i=0; i<pPacket->createInfoCount; i++)
+        if (pLocalCIs[i].stage.pSpecializationInfo)
+            VKTRACE_DELETE((void *)pLocalCIs[i].stage.pSpecializationInfo);
+    VKTRACE_DELETE(pLocalCIs);
+    VKTRACE_DELETE(local_pPipelines);
+
+    return replayResult;
+}
+
 VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGraphicsPipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;

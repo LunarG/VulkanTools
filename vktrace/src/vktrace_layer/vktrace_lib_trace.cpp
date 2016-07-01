@@ -1139,9 +1139,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
     uint32_t i;
     size_t total_size;
 
+    //TODO: Need to write code to decipher these buffers during replay
     total_size = createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline);
-    for (i=0; i < createInfoCount; i++)
-        total_size += strlen(pCreateInfos[i].stage.pName)+1;
+    for (i=0; i < createInfoCount; i++) {
+        total_size += (strlen(pCreateInfos[i].stage.pName)+1);
+        if (pCreateInfos[i].stage.pSpecializationInfo) {
+            total_size += sizeof(VkSpecializationInfo);
+            if (pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount > 0 && pCreateInfos[i].stage.pSpecializationInfo->pMapEntries)
+                total_size += pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount * sizeof(VkSpecializationMapEntry);
+            if (pCreateInfos[i].stage.pSpecializationInfo->dataSize > 0 && pCreateInfos[i].stage.pSpecializationInfo->pData)
+                total_size += pCreateInfos[i].stage.pSpecializationInfo->dataSize;
+        }
+    }
     CREATE_TRACE_PACKET(vkCreateComputePipelines, total_size);
     result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     vktrace_set_packet_entrypoint_end_time(pHeader);
