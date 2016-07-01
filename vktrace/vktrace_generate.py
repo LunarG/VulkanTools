@@ -147,8 +147,8 @@ class Subcommand(object):
             return ("%p", "(void*)&%s" % name, deref)
         if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
             return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
-        if "char*" == vk_type:
-            return ("%s", name, "*")
+        if "char*" in vk_type:
+            return ("\\\"%s\\\"", name, "*")
         if "uint64_t" in vk_type:
             if '*' in vk_type:
                 return ("%lu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
@@ -182,7 +182,7 @@ class Subcommand(object):
                 return ("%i", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
             return ("%i", name, deref)
         if output_param:
-            return ("%p", "(void*)%s" % name, deref)
+            return ("%p {%p}", "(void*)%s, (%s == NULL) ? 0 : *(%s)" % (name, name, name), deref)
         return ("%p", "(void*)(%s)" % name, deref)
 
     def _generate_init_funcs(self):
