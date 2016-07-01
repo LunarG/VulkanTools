@@ -1115,6 +1115,12 @@ void vkReplay::manually_replay_vkCmdBindDescriptorSets(packet_vkCmdBindDescripto
     for (uint32_t idx = 0; idx < pPacket->descriptorSetCount && pPacket->pDescriptorSets != NULL; idx++)
     {
         pRemappedSets[idx] = m_objMapper.remap_descriptorsets(pPacket->pDescriptorSets[idx]);
+        if (pRemappedSets[idx] == VK_NULL_HANDLE && pPacket->pDescriptorSets[idx] != VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCmdBindDescriptorSets() due to invalid remapped VkDescriptorSet.");
+            vktrace_free(pRemappedSets);
+            return;
+        }
     }
 
     m_vkFuncs.real_vkCmdBindDescriptorSets(remappedCommandBuffer, pPacket->pipelineBindPoint, remappedLayout, pPacket->firstSet, pPacket->descriptorSetCount, pRemappedSets, pPacket->dynamicOffsetCount, pPacket->pDynamicOffsets);
