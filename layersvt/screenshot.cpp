@@ -36,13 +36,40 @@
 
 using namespace std;
 
-#include "vk_loader_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vk_struct_string_helper_cpp.h"
 #include "vk_layer_config.h"
 #include "vk_layer_table.h"
 #include "vk_layer_extension_utils.h"
 #include "vk_layer_utils.h"
+
+#if defined(__linux__)
+static inline char *local_getenv(const char *name) { return getenv(name); }
+
+static inline void local_free_getenv(const char *val) {}
+
+#elif defined(_WIN32)
+static inline char *local_getenv(const char *name) {
+    char *retVal;
+    DWORD valSize;
+
+    valSize = GetEnvironmentVariableA(name, NULL, 0);
+
+    // valSize DOES include the null terminator, so for any set variable
+    // will always be at least 1. If it's 0, the variable wasn't set.
+    if (valSize == 0)
+        return NULL;
+
+    // TODO; FIXME This should be using any app defined memory allocation
+    retVal = (char *)malloc(valSize);
+
+    GetEnvironmentVariableA(name, retVal, valSize);
+
+    return retVal;
+}
+
+static inline void local_free_getenv(const char *val) { free((void *)val); }
+#endif
 
 namespace screenshot {
 
@@ -926,7 +953,7 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     loader_platform_thread_lock_mutex(&globalLock);
 
     if (!screenshotEnvQueried) {
-        const char *_vk_screenshot = loader_getenv("_VK_SCREENSHOT");
+        const char *_vk_screenshot = local_getenv("_VK_SCREENSHOT");
         if (_vk_screenshot && *_vk_screenshot) {
             string spec(_vk_screenshot), word;
             size_t start = 0, comma = 0;
@@ -950,7 +977,7 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
                 start = comma + 1;
             }
         }
-        loader_free_getenv(_vk_screenshot);
+        local_free_getenv(_vk_screenshot);
         screenshotEnvQueried = true;
     }
 

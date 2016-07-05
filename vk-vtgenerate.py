@@ -107,9 +107,13 @@ class IcdDummyEntrypointsSubcommand(Subcommand):
 
     def _generate_stubs(self):
         stubs = []
+        exclusions = [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
+                       'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',
+                       'GetPhysicalDeviceDisplayPropertiesKHR', 'GetPhysicalDeviceDisplayPlanePropertiesKHR',
+                       'GetDisplayPlaneSupportedDisplaysKHR', 'GetDisplayModePropertiesKHR',
+                       'CreateDisplayModeKHR', 'GetDisplayPlaneCapabilitiesKHR', 'CreateDisplayPlaneSurfaceKHR']
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
-                               'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
+            if proto.name in exclusions:
                 continue
             decl = self._generate_stub_decl(proto)
             if proto.ret != "void":
@@ -140,9 +144,14 @@ class IcdGetProcAddrSubcommand(IcdDummyEntrypointsSubcommand):
         gpa_pname = gpa_proto.params[-1].name
 
         lookups = []
+        exclusions = [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
+                       'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',
+                       'GetPhysicalDeviceDisplayPropertiesKHR', 'GetPhysicalDeviceDisplayPlanePropertiesKHR',
+                       'GetDisplayPlaneSupportedDisplaysKHR', 'GetDisplayModePropertiesKHR',
+                       'CreateDisplayModeKHR', 'GetDisplayPlaneCapabilitiesKHR', 'CreateDisplayPlaneSurfaceKHR']
+
         for proto in self.protos:
-            if proto.name in [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
-                               'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',]:
+            if proto.name in exclusions:
                 continue
             lookups.append("if (!strcmp(%s, \"%s\"))" %
                     (gpa_pname, proto.name))
