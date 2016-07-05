@@ -1133,7 +1133,6 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
 VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    size_t dataSize;
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     uint32_t i;
 
