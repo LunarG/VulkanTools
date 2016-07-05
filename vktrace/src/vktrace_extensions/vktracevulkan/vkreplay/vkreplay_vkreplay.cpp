@@ -213,7 +213,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance* pPa
             }
         }
         pCreateInfo->ppEnabledExtensionNames = extension_names.data();
-        pCreateInfo->enabledExtensionCount = extension_names.size();
+        pCreateInfo->enabledExtensionCount = (uint32_t)extension_names.size();
 
         replayResult = m_vkFuncs.real_vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
 

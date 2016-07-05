@@ -57,7 +57,9 @@ set (HDR_LIST
 
 # def file - needed for Windows 32-bit so that vk functions names aren't mangled
 if (WIN32)
-    set (HDR_LIST ${HDR_LIST} VkLayer_vktrace_layer.def)
+    if (NOT(CMAKE_GENERATOR MATCHES "Win64"))
+        set (HDR_LIST ${HDR_LIST} VkLayer_vktrace_layer.def)
+    endif()
 endif()
 
 
