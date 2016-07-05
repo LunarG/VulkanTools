@@ -61,13 +61,14 @@ if (NOT WIN32)
     # extra setup for out-of-tree builds
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         add_custom_target(binary-dir-symlinks ALL
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/golden
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_all_tests.sh
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_all_tests_with_layers.sh
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/layer_test_suite.py
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/test_wrap_objects.sh
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_wrap_objects_tests.sh
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_loader_tests.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vkvalidatelayerdoc.sh
+            # Files unique to VulkanTools go below this line
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/golden
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/run_all_tests_with_layers.sh
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
             VERBATIM
             )
     endif()

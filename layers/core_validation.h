@@ -279,3 +279,31 @@ struct COMMAND_POOL_NODE {
     // TODO: why is this std::list?
     std::list<VkCommandBuffer> commandBuffers; // container of cmd buffers allocated from this pool
 };
+
+// Stuff from Device Limits Layer
+enum CALL_STATE {
+    UNCALLED,      // Function has not been called
+    QUERY_COUNT,   // Function called once to query a count
+    QUERY_DETAILS, // Function called w/ a count to query details
+};
+
+struct INSTANCE_STATE {
+    // Track the call state and array size for physical devices
+    CALL_STATE vkEnumeratePhysicalDevicesState;
+    uint32_t physical_devices_count;
+    INSTANCE_STATE() : vkEnumeratePhysicalDevicesState(UNCALLED), physical_devices_count(0) {};
+};
+
+struct PHYSICAL_DEVICE_STATE {
+    // Track the call state and array sizes for various query functions
+    CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState;
+    uint32_t queueFamilyPropertiesCount;
+    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState;
+    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState;
+    CALL_STATE vkGetPhysicalDeviceFeaturesState;
+    PHYSICAL_DEVICE_STATE()
+        : vkGetPhysicalDeviceQueueFamilyPropertiesState(UNCALLED),
+        vkGetPhysicalDeviceLayerPropertiesState(UNCALLED),
+        vkGetPhysicalDeviceExtensionPropertiesState(UNCALLED),
+        vkGetPhysicalDeviceFeaturesState(UNCALLED) {};
+};

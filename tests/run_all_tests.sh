@@ -7,7 +7,7 @@ cd $(dirname "$0")
 set -e
 
 #Verify that the loader is working
-./vk_loader_validation_tests
+./run_loader_tests.sh
 
 # Verify that validation checks in source match documentation
 ./vkvalidatelayerdoc.sh
@@ -35,4 +35,5 @@ set -e
 ./vktracereplay.sh
 
 # Test the wrap objects layer.
-./test_wrap_objects.sh
+./run_wrap_objects_tests.sh
+
