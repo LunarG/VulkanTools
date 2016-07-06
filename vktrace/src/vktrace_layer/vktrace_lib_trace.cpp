@@ -1139,7 +1139,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
     uint32_t i;
     size_t total_size;
 
-    //TODO: Need to write code to decipher these buffers during replay
     total_size = createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline);
     for (i=0; i < createInfoCount; i++) {
         total_size += (strlen(pCreateInfos[i].stage.pName)+1);
