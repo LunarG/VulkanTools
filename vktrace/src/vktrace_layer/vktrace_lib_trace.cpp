@@ -204,6 +204,8 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     packet_vkUnmapMemory* pPacket;
     VKAllocInfo *entry;
     size_t siz = 0;
+    uint64_t trace_begin_time = vktrace_get_time();
+
     // insert into packet the data that was written by CPU between the vkMapMemory call and here
     // Note must do this prior to the real vkUnMap() or else may get a FAULT
     vktrace_enter_critical_section(&g_memInfoLock);
@@ -217,6 +219,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
         }
     }
     CREATE_TRACE_PACKET(vkUnmapMemory, siz);
+    pHeader->vktrace_begin_time = trace_begin_time;
     pPacket = interpret_body_as_vkUnmapMemory(pHeader);
     if (siz)
     {
@@ -226,6 +229,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
         entry->pData = NULL;
     }
     vktrace_leave_critical_section(&g_memInfoLock);
+    pHeader->entrypoint_begin_time = vktrace_get_time();
     mdd(device)->devTable.UnmapMemory(device, memory);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket->device = device;
@@ -265,6 +269,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     size_t dataSize = 0;
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
+    uint64_t trace_begin_time = vktrace_get_time();
 
     // find out how much memory is in the ranges
     for (iter = 0; iter < memoryRangeCount; iter++)
@@ -275,6 +280,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     }
 
     CREATE_TRACE_PACKET(vkFlushMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
+    pHeader->vktrace_begin_time = trace_begin_time;
     pPacket = interpret_body_as_vkFlushMappedMemoryRanges(pHeader);
 
     vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->pMemoryRanges), rangesSize, pMemoryRanges);
@@ -313,6 +319,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     // now finalize the ppData array since it is done being updated
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
 
+    pHeader->entrypoint_begin_time = vktrace_get_time();
     result = mdd(device)->devTable.FlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket->device = device;
