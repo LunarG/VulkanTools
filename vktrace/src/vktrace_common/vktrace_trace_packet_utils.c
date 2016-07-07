@@ -117,7 +117,8 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
     pHeader->tracer_id = tracer_id;
     pHeader->thread_id = vktrace_platform_get_thread_id();
     pHeader->packet_id = packet_id;
-    pHeader->vktrace_begin_time = vktrace_get_time();
+    if (pHeader->vktrace_begin_time == 0)
+        pHeader->vktrace_begin_time = vktrace_get_time();
     pHeader->entrypoint_begin_time = pHeader->vktrace_begin_time;
     pHeader->entrypoint_end_time = 0;
     pHeader->vktrace_end_time = 0;
