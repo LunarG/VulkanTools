@@ -21,9 +21,6 @@
 #ifndef VKTRACEVIEWER_VK_QGROUPFRAMESPROXYMODEL_H
 #define VKTRACEVIEWER_VK_QGROUPFRAMESPROXYMODEL_H
 
-extern "C" {
-#include "vktrace_vk_packet_id.h"
-}
 
 #include "vktraceviewer_QTraceFileModel.h"
 #include <QAbstractProxyModel>
@@ -323,38 +320,8 @@ private:
     }
 
     //---------------------------------------------------------------------------------------------
-    void buildGroups()
-    {
-        m_mapSourceRowToProxyGroupRow.clear();
-        m_frameList.clear();
-        m_curFrameCount = 0;
+    void buildGroups();
 
-        if (sourceModel() != NULL)
-        {
-            FrameInfo* pCurFrame = addNewFrame();
-            m_mapSourceRowToProxyGroupRow.reserve(sourceModel()->rowCount());
-            for (int srcRow = 0; srcRow < sourceModel()->rowCount(); srcRow++)
-            {
-                int proxyRow = pCurFrame->mapChildRowToSourceRow.count();
-
-                // map source row to it's corresponding row in the proxy group.
-                m_mapSourceRowToProxyGroupRow.append(proxyRow);
-
-                // add this src row to the current proxy group.
-                pCurFrame->mapChildRowToSourceRow.append(srcRow);
-
-                // Should a new frame be started based on the API call in the previous row?
-                // If source data is a frame boundary make a new frame
-                QModelIndex tmpIndex = sourceModel()->index(srcRow, 0);
-                assert(tmpIndex.isValid());
-                vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)tmpIndex.internalPointer();
-                if (pHeader != NULL && pHeader->tracer_id == VKTRACE_TID_VULKAN && pHeader->packet_id == VKTRACE_TPI_VK_vkQueuePresentKHR)
-                {
-                    pCurFrame = addNewFrame();
-                }
-            } // end for each source row
-        }
-    }
 };
 
 #endif // VKTRACEVIEWER_VK_QGROUPFRAMESPROXYMODEL_H
