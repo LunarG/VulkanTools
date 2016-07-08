@@ -25,11 +25,9 @@ if (NOT PYTHONINTERP_FOUND)
     message(FATAL_ERROR "Missing PythonInterp. Install python interpreter 2.7 (on linux use cmd: sudo apt-get install python2.7)")
 endif()
 
-if (WIN32)
-    find_package(Qt5 COMPONENTS Widgets Gui Core Svg)
-    if (NOT Qt5_FOUND)
-        message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer, set env var Qt5_Dir to\nC:\\Qt\\5.3\\msvc2013_64\\lib\\cmake\\Qt5 or C:\\Qt\\5.3\\msvc2013\\lib\\cmake\\Qt5")
-    endif()
+find_package(Qt5 COMPONENTS Widgets Gui Core Svg)
+if (NOT Qt5_FOUND)
+    message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer on Windows, set env var Qt5_Dir to\nC:\\Qt\\5.3\\msvc2013_64\\lib\\cmake\\Qt5 or C:\\Qt\\5.3\\msvc2013\\lib\\cmake\\Qt5")
 endif()
 
 include_directories(
@@ -52,12 +50,10 @@ add_subdirectory(src/vktrace_common)
 add_subdirectory(src/vktrace_trace)
 add_subdirectory(src/vktrace_layer)
 add_subdirectory(src/vktrace_replay)
-if (WIN32)
-    # Only build vktraceviewer on Windows
-    # And Qt5 must be available
-    if (Qt5_FOUND)
-        add_subdirectory(src/vktrace_viewer)
-    endif()
+
+# Only build vktraceviewer if Qt5 is available
+if (Qt5_FOUND)
+    add_subdirectory(src/vktrace_viewer)
 endif()
 
 # use macro from stackoverflow (link below) to get all the extensions that are on the current system

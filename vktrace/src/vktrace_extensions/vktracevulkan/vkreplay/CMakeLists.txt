@@ -53,6 +53,10 @@ include_directories(
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils
 )
+# needed for vktraceviewer_vk library which is shared
+if (NOT MSVC)
+    add_compiler_flag("-fPIC")
+endif()
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${HDR_LIST})
 
