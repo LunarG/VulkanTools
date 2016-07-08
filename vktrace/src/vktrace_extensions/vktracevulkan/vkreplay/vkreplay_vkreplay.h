@@ -136,6 +136,7 @@ private:
     VkBool32 manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket);
 #endif
 #ifdef VK_USE_PLATFORM_XLIB_KHR
+    VkResult manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
 #endif
 #ifdef VK_USE_PLATFORM_WIN32_KHR
