@@ -437,6 +437,7 @@ class Subcommand(object):
                                          'QueuePresentKHR',
                                          #TODO add Wayland, Mir
                                          'CreateXcbSurfaceKHR',
+                                         'CreateXlibSurfaceKHR',
                                          'GetPhysicalDeviceXcbPresentationSupportKHR',
                                          'GetPhysicalDeviceXlibPresentationSupportKHR',
                                          'CreateWin32SurfaceKHR',
@@ -445,7 +446,7 @@ class Subcommand(object):
 
         # validate the manually_written_hooked_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
+        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
@@ -1646,6 +1647,7 @@ class Subcommand(object):
                                  'CreateSwapchainKHR',
                                  'GetSwapchainImagesKHR',
                                  'CreateXcbSurfaceKHR',
+                                 'CreateXlibSurfaceKHR',
                                  'CreateWin32SurfaceKHR',
                                  #TODO Wayland, Mir, Xlib
                                  #'GetPhysicalDeviceInfo',
@@ -1662,7 +1664,7 @@ class Subcommand(object):
 
         # validate the manually_replay_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR']
+        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR']
 
         for func in manually_replay_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
