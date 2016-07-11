@@ -484,7 +484,6 @@ class Subcommand(object):
             trim_instructions.append("                trim_add_Allocator(pAllocator);")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
-            trim_instructions.append("        if (g_trimIsPreTrim) { vktrace_delete_trace_packet(&pHeader); }")
         elif 'ResetFences' is proto.name:
             trim_instructions.append("        for (uint32_t i = 0; i < fenceCount; i++) {")
             trim_instructions.append("            Trim_ObjectInfo* pFenceInfo = trim_get_Fence_objectInfo(pFences[i]);")
@@ -2343,6 +2342,11 @@ class Subcommand(object):
                     rbody.append('            }')
                     rbody.append('            free(local_pSetLayouts);')
                     rbody.append('            free(local_pDescriptorSets);')
+                elif proto.name == 'GetImageMemoryRequirements':
+                    rbody.append('            if (memReqs.size != pPacket->pMemoryRequirements->size)')
+                    rbody.append('            {')
+                    rbody.append('                vktrace_LogError("Image memory size requirements differ: trace image %p needed %u bytes; replay image %p needed %u bytes.", pPacket->image, memReqs.size, remappedimage, pPacket->pMemoryRequirements->size);')
+                    rbody.append('            }')
                 elif proto.name == 'ResetFences':
                     rbody.append('            VKTRACE_DELETE(fences);')
                 elif create_func: # save handle mapping if create successful
