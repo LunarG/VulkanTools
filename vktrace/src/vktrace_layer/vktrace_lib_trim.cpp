@@ -361,6 +361,13 @@ void trim_write_all_referenced_object_calls()
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pCreatePacket));
         }
 
+        // GetImageMemoryRequirements
+        if (obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket != NULL)
+        {
+            vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket));
+        }
+
         // BindImageMemory
         if (obj->second.ObjectInfo.Image.pBindImageMemoryPacket != NULL)
         {

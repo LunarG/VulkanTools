@@ -104,6 +104,7 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
             bool bIsSwapchainImage;
+            vktrace_trace_packet_header* pGetImageMemoryRequirementsPacket;
             vktrace_trace_packet_header* pBindImageMemoryPacket;
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;

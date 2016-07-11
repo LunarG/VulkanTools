@@ -577,9 +577,13 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->ObjectInfo.Image.pAllocator = pAllocator;")
             trim_instructions.append("            trim_add_Allocator(pAllocator);")
             trim_instructions.append("        }")
+        elif ('GetImageMemoryRequirements' is proto.name):
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Image_objectInfo(image);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = pHeader;")
+            trim_instructions.append("        }")
         elif 'DestroyImage' is proto.name:
             trim_instructions.append("        trim_remove_Image_object(image);")
-#        elif ('GetImageMemoryRequirements' is proto.name):
         elif ('BindImageMemory' is proto.name):
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Image_objectInfo(image);")
             trim_instructions.append("        if (pInfo != NULL) {")
