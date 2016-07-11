@@ -95,8 +95,7 @@ void trim_snapshot_state_tracker()
             packet_vkMapMemory* pPacket = NULL;
             CREATE_TRACE_PACKET(vkMapMemory, sizeof(void*));
 
-            // actually map the memory. Assert that it is not already mapped.
-            assert(iter->second.ObjectInfo.DeviceMemory.mappedAddress == NULL);
+            // actually map the memory if it was not already mapped.
             if (iter->second.ObjectInfo.DeviceMemory.mappedAddress == NULL)
             {
                 result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, &pData);
@@ -117,12 +116,6 @@ void trim_snapshot_state_tracker()
             iter->second.ObjectInfo.DeviceMemory.pMapMemoryPacket = pHeader;
         }
         
-        //// at this point, the memory should be mapped and available to copy
-        //iter->second.ObjectInfo.DeviceMemory.pLocalCopy = (BYTE*)malloc(size);
-        //memcpy(iter->second.ObjectInfo.DeviceMemory.pLocalCopy, pData, size);
-
-        // if we mapped the memory above, then unmap it here.
-
         // By creating the packet for UnmapMemory, we'll be adding the pData buffer to it, which inherently copies it.
         {
             vktrace_trace_packet_header* pHeader;
@@ -135,8 +128,11 @@ void trim_snapshot_state_tracker()
                 vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
             }
 
-            // actually unmap the memory
-            mdd(device)->devTable.UnmapMemory(device, memory);
+            // actually unmap the memory if wasn't already mapped by the application
+            if (iter->second.ObjectInfo.DeviceMemory.mappedAddress == NULL)
+            {
+                mdd(device)->devTable.UnmapMemory(device, memory);
+            }
 
             vktrace_set_packet_entrypoint_end_time(pHeader);
             pPacket->device = device;
@@ -145,6 +141,7 @@ void trim_snapshot_state_tracker()
             iter->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket = pHeader;
         }
     }
+
     vktrace_leave_critical_section(&trimStateTrackerLock);
 }
 
@@ -658,6 +655,31 @@ void trim_write_all_referenced_object_calls()
             vktrace_trace_packet_header* pHeader = *packet;
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Submit Queues in order to signal necessary fences
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdFences.begin(); obj != stateTracker.createdFences.end(); obj++)
+    {
+        VkQueue queue = static_cast<VkQueue>(obj->second.ObjectInfo.Fence.pendingOnQueue);
+        if (queue != VK_NULL_HANDLE)
+        {
+            VkFence fence = static_cast<VkFence>(obj->first);
+
+            // The packet below will simulate the follow call:
+            //vkQueueSubmit(queue, 0, NULL, fence);
+
+            vktrace_trace_packet_header* pHeader;
+            packet_vkQueueSubmit* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkQueueSubmit, 0);
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkQueueSubmit(pHeader);
+            pPacket->queue = queue;
+            pPacket->submitCount = 0;
+            pPacket->pSubmits = NULL;
+            pPacket->fence = fence;
+            pPacket->result = VK_SUCCESS;
+            FINISH_TRACE_PACKET();
         }
     }
 }

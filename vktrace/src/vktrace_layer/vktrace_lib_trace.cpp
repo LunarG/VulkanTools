@@ -1608,6 +1608,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
         // when we're not trimming, we just need to track the queue
         vktrace_finalize_trace_packet(pHeader);
         vktrace_delete_trace_packet(&pHeader);
+
+        Trim_ObjectInfo* pFenceInfo = trim_get_Fence_objectInfo(fence);
+        if (pFenceInfo != NULL)
+        {
+            pFenceInfo->ObjectInfo.Fence.pendingOnQueue = queue;
+        }
     }
     else if (g_trimIsInTrim)
     {

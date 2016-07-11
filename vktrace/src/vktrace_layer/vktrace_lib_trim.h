@@ -186,6 +186,7 @@ typedef struct _Trim_ObjectInfo
         struct _Fence {           // VkFence
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
+            VkQueue pendingOnQueue;
         } Fence;
         struct _Event {           // VkEvent
             vktrace_trace_packet_header* pCreatePacket;
