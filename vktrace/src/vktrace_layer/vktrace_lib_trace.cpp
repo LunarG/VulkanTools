@@ -2165,7 +2165,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pPoolInfo = trim_get_DescriptorPool_objectInfo(descriptorPool);
         if (pPoolInfo != NULL && 
-            pPoolInfo->ObjectInfo.DescriptorPool.createFlags & VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT != 0)
+            (pPoolInfo->ObjectInfo.DescriptorPool.createFlags & VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT) != 0)
         {
             pPoolInfo->ObjectInfo.DescriptorPool.numSets -= descriptorSetCount;
 
