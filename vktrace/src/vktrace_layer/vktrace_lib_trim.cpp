@@ -658,10 +658,51 @@ void trim_write_all_referenced_object_calls()
         }
     }
 
+    // Collect semaphores that need signaling
+    size_t maxSemaphores = stateTracker.createdSemaphores.size();
+    uint32_t signalSemaphoreCount = 0;
+    VkSemaphore* pSignalSemaphores = VKTRACE_NEW_ARRAY(VkSemaphore, maxSemaphores);
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdSemaphores.begin(); obj != stateTracker.createdSemaphores.end(); obj++)
+    {
+        VkQueue queue = obj->second.ObjectInfo.Semaphore.signaledOnQueue;
+        if (queue != VK_NULL_HANDLE)
+        {
+            VkSemaphore semaphore = static_cast<VkSemaphore>(obj->first);
+            pSignalSemaphores[signalSemaphoreCount++] = semaphore;
+
+            VkSubmitInfo submit_info;
+            submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submit_info.pNext = NULL;
+            submit_info.waitSemaphoreCount = 0;
+            submit_info.pWaitSemaphores = NULL;
+            submit_info.pWaitDstStageMask = NULL;
+            submit_info.commandBufferCount = 0;
+            submit_info.pCommandBuffers = NULL;
+            submit_info.signalSemaphoreCount = 1;
+            submit_info.pSignalSemaphores = &semaphore;
+
+            // generating a packet for: vkQueueSubmit(queue, 1, pSubmits, VK_NULL_HANDLE);
+            vktrace_trace_packet_header* pHeader;
+            packet_vkQueueSubmit* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkQueueSubmit, sizeof(VkSubmitInfo) + sizeof(VkSemaphore));
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkQueueSubmit(pHeader);
+            pPacket->queue = queue;
+            pPacket->submitCount = 1;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&pPacket->pSubmits, sizeof(VkSubmitInfo), &submit_info);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&pPacket->pSubmits->pSignalSemaphores, sizeof(VkSemaphore), &semaphore);
+            vktrace_finalize_buffer_address(pHeader, (void**)&pPacket->pSubmits->pSignalSemaphores);
+            vktrace_finalize_buffer_address(pHeader, (void**)&pPacket->pSubmits);
+            pPacket->fence = VK_NULL_HANDLE;
+            pPacket->result = VK_SUCCESS;
+            FINISH_TRACE_PACKET();
+        }
+    }
+
     // Submit Queues in order to signal necessary fences
     for (TrimObjectInfoMap::iterator obj = stateTracker.createdFences.begin(); obj != stateTracker.createdFences.end(); obj++)
     {
-        VkQueue queue = static_cast<VkQueue>(obj->second.ObjectInfo.Fence.pendingOnQueue);
+        VkQueue queue = obj->second.ObjectInfo.Fence.pendingOnQueue;
         if (queue != VK_NULL_HANDLE)
         {
             VkFence fence = static_cast<VkFence>(obj->first);
@@ -682,6 +723,8 @@ void trim_write_all_referenced_object_calls()
             FINISH_TRACE_PACKET();
         }
     }
+
+    VKTRACE_DELETE(pSignalSemaphores);
 }
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \

@@ -182,6 +182,7 @@ typedef struct _Trim_ObjectInfo
         struct _Semaphore {           // VkSemaphore
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
+            VkQueue signaledOnQueue;
         } Semaphore;
         struct _Fence {           // VkFence
             vktrace_trace_packet_header* pCreatePacket;

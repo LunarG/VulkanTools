@@ -1609,10 +1609,37 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
         vktrace_finalize_trace_packet(pHeader);
         vktrace_delete_trace_packet(&pHeader);
 
-        Trim_ObjectInfo* pFenceInfo = trim_get_Fence_objectInfo(fence);
-        if (pFenceInfo != NULL)
+        if (result == VK_SUCCESS)
         {
-            pFenceInfo->ObjectInfo.Fence.pendingOnQueue = queue;
+            Trim_ObjectInfo* pFenceInfo = trim_get_Fence_objectInfo(fence);
+            if (pFenceInfo != NULL)
+            {
+                pFenceInfo->ObjectInfo.Fence.pendingOnQueue = queue;
+            }
+
+            if (pSubmits != NULL && pSubmits->pWaitSemaphores != NULL)
+            {
+                for (uint32_t i = 0; i < pSubmits->waitSemaphoreCount; i++)
+                {
+                    Trim_ObjectInfo* pInfo = trim_get_Semaphore_objectInfo(pSubmits->pWaitSemaphores[i]);
+                    if (pInfo != NULL)
+                    {
+                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                    }
+                }
+            }
+
+            if (pSubmits != NULL && pSubmits->pSignalSemaphores != NULL)
+            {
+                for (uint32_t i = 0; i < pSubmits->signalSemaphoreCount; i++)
+                {
+                    Trim_ObjectInfo* pInfo = trim_get_Semaphore_objectInfo(pSubmits->pSignalSemaphores[i]);
+                    if (pInfo != NULL)
+                    {
+                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                    }
+                }
+            }
         }
     }
     else if (g_trimIsInTrim)
@@ -2515,20 +2542,30 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPresentInfo->pResults));
     }
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPresentInfo));
+
     if (!g_trimEnabled)
     {
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
-        vktrace_delete_trace_packet(&pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
         vktrace_finalize_trace_packet(pHeader);
-        trim_add_recorded_packet(pHeader);
+
+        if (result == VK_SUCCESS && pPresentInfo != NULL && pPresentInfo->pWaitSemaphores != NULL)
+        {
+            for (uint32_t i = 0; i < pPresentInfo->waitSemaphoreCount; i++)
+            {
+                Trim_ObjectInfo* pInfo = trim_get_Semaphore_objectInfo(pPresentInfo->pWaitSemaphores[i]);
+                if (pInfo != NULL)
+                {
+                    pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                }
+            }
+        }
+
+        if (g_trimIsPreTrim) { vktrace_delete_trace_packet(&pHeader); }
+        if (g_trimIsInTrim) { trim_add_recorded_packet(pHeader); }
     }
     else // g_trimIsPostTrim
     {
