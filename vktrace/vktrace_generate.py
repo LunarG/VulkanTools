@@ -728,6 +728,24 @@ class Subcommand(object):
             trim_instructions.append("                pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
+        elif 'GetPhysicalDeviceSurfaceSupportKHR' is proto.name:
+            trim_instructions.append("        if (result == VK_SUCCESS && g_trimIsPreTrim)")
+            trim_instructions.append("        {")
+            trim_instructions.append("            Trim_ObjectInfo* pInfo = trim_get_PhysicalDevice_objectInfo(physicalDevice);")
+            trim_instructions.append("            if (pInfo != NULL)")
+            trim_instructions.append("            {")
+            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket = pHeader;")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+        elif 'GetPhysicalDeviceMemoryProperties' is proto.name:
+            trim_instructions.append("        if (g_trimIsPreTrim)")
+            trim_instructions.append("        {")
+            trim_instructions.append("            Trim_ObjectInfo* pInfo = trim_get_PhysicalDevice_objectInfo(physicalDevice);")
+            trim_instructions.append("            if (pInfo != NULL)")
+            trim_instructions.append("            {")
+            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket = pHeader;")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
         else:
             return None
         return "\n".join(trim_instructions)            
@@ -2253,6 +2271,10 @@ class Subcommand(object):
                             rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (dProto.name))
                             rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappeddevice, pPacket->pName);' % (dProto.name, dProto.name, proto.name))
                             rbody.append('            }')
+                elif proto.name == 'GetPhysicalDeviceMemoryProperties':
+                    rbody.append('            VkPhysicalDeviceMemoryProperties memProperties = *(pPacket->pMemoryProperties);')
+                elif proto.name == 'GetImageMemoryRequirements':
+                    rbody.append('            VkMemoryRequirements memReqs = *(pPacket->pMemoryRequirements);')
 
                 # build the call to the "real_" entrypoint
                 rr_string = '            '
@@ -2346,6 +2368,10 @@ class Subcommand(object):
                     rbody.append('            if (memReqs.size != pPacket->pMemoryRequirements->size)')
                     rbody.append('            {')
                     rbody.append('                vktrace_LogError("Image memory size requirements differ: trace image %p needed %u bytes; replay image %p needed %u bytes.", pPacket->image, memReqs.size, remappedimage, pPacket->pMemoryRequirements->size);')
+                    rbody.append('            }')
+                elif proto.name == 'GetPhysicalDeviceMemoryProperties':
+                    rbody.append('            if (memcmp(&memProperties, pPacket->pMemoryProperties, sizeof(VkPhysicalDeviceMemoryProperties)) != 0) {')
+                    rbody.append('                vktrace_LogError("Physical Device Memory properties differ. Memory heaps may not match as expected.");')
                     rbody.append('            }')
                 elif proto.name == 'ResetFences':
                     rbody.append('            VKTRACE_DELETE(fences);')

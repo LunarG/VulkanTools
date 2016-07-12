@@ -1127,6 +1127,16 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
     else if (g_trimIsPreTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
+
+        Trim_ObjectInfo* pInfo = trim_get_PhysicalDevice_objectInfo(physicalDevice);
+        if (pInfo != NULL)
+        {
+            pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = pHeader;
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     else if (g_trimIsInTrim)
     {
@@ -2266,10 +2276,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
     else if (g_trimIsPreTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
+        if (result == VK_SUCCESS && g_trimIsPreTrim)
+        {
+            Trim_ObjectInfo* pInfo = trim_get_PhysicalDevice_objectInfo(physicalDevice);
+            if (pInfo != NULL)
+            {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket = pHeader;
+            }
+        }
     }
     else if (g_trimIsInTrim)
     {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
         vktrace_finalize_trace_packet(pHeader);
         trim_add_recorded_packet(pHeader);
     }
