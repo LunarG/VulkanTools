@@ -930,7 +930,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdUpdateBuffer(
     VkBuffer                                  dstBuffer,
     VkDeviceSize                                dstOffset,
     VkDeviceSize                                dataSize,
-    const uint32_t*                             pData)
+    const void*                                 pData)
 {
     NULLDRV_LOG_FUNC;
 }
