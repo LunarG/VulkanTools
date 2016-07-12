@@ -709,7 +709,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdUpdateBuffer(
     VkBuffer                                  dstBuffer,
     VkDeviceSize                                dstOffset,
     VkDeviceSize                                dataSize,
-    const uint32_t*                             pData)
+    const void*                                 pData)
 {
     struct intel_cmd *cmd = intel_cmd(commandBuffer);
     struct intel_buf *dst = intel_buf(dstBuffer);
