@@ -10,50 +10,144 @@
 #include "vulkan.h"
 
 // Outputs object-related trace packets to the trace file.
-void trim_debug_send_all_calls();
-void trim_send_all_referenced_object_calls();
+void trim_write_all_referenced_object_calls();
 void trim_add_recorded_packet(vktrace_trace_packet_header* pHeader);
 void trim_write_recorded_packets();
+void trim_write_destroy_packets();
+void trim_delete_all_packets();
 
-// The intent is to store a list of trace packets that are necessary in order to re-create
-// the object that is the key of this map.
-typedef std::unordered_map< void*, std::list<vktrace_trace_packet_header*>> ObjectPacketMap;
+// some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).
+typedef struct _Trim_ObjectInfo
+{
+    uint64_t vkObject;                               // object handle
+    VkDebugReportObjectTypeEXT vkObjectType;         // object type
+    bool bReferencedInTrim;                          // True if the object was referenced during the trim frames
+    VkInstance belongsToInstance;                    // owning Instance
+    VkPhysicalDevice belongsToPhysicalDevice;        // owning PhysicalDevice
+    VkDevice belongsToDevice;                        // owning Device
+    union _ObjectInfo {                              // additional object-specific information
+        struct _Instance {              // VkInstance
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+            vktrace_trace_packet_header* pEnumeratePhysicalDevicesCountPacket;
+            vktrace_trace_packet_header* pEnumeratePhysicalDevicesPacket;
+        } Instance;
+        struct _PhysicalDevice {        // VkPhysicalDevice
 
-// Declares a map to track the packets related to a Vulkan object 'type'
-// along with methods to add a new call to an object, and to mark an object as being referenced.
-// Example macro expansion using type = Instance:
-// extern ObjectPacketMap g_createdInstances;
-// extern ObjectPacketMap g_referencedInstances;
-// void trim_add_Instance_call(VkInstance var, vktrace_trace_packet_header* pHeader);
-// void trim_mark_Instance_reference(VkInstance var);
+        } PhysicalDevice;
+        struct _SurfaceKHR {            // VkSurfaceKHR
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } SurfaceKHR;
+        struct _Device {                // VkDevice
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+        } Device;
+        struct _Queue {                 // VkQueue
+            vktrace_trace_packet_header* pCreatePacket;
+        } Queue;
+        struct _CommandPool {           // VkCommandPool
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+            uint32_t numCommandBuffersAllocated[VK_COMMAND_BUFFER_LEVEL_RANGE_SIZE];
+        } CommandPool;
+        struct _SwapchainKHR {           // VkSwapchainKHR
+            vktrace_trace_packet_header* pCreatePacket;
+            VkAllocationCallbacks allocator;
+            vktrace_trace_packet_header* pGetSwapchainImageCountPacket;
+            vktrace_trace_packet_header* pGetSwapchainImagesPacket;
+        } SwapchainKHR;
+        struct _CommandBuffer {         // VkCommandBuffer
+            VkCommandPool commandPool;
+            VkCommandBufferLevel level;
+        } CommandBuffer;
+
+        struct _Image {                 // VkImage
+            bool bIsSwapchainImage;
+        } Image;
+        struct _DeviceMemory {          // VkDeviceMemory
+            VkDeviceSize size;
+            void* mappedAddress;
+            VkDeviceSize mappedOffset;
+            VkDeviceSize mappedSize;
+        } DeviceMemory;
+        struct _DescriptorPool {        // VkDescriptorPool
+            VkDescriptorPoolCreateFlags createInfo_flags;
+            uint32_t createInfo_maxSets;
+            uint32_t createInfo_poolSizeCount;
+            VkDescriptorPoolSize* createInfo_pPoolSizes;
+        } DescriptorPool;
+    } ObjectInfo;
+} Trim_ObjectInfo;
+
+typedef std::unordered_map<void*, Trim_ObjectInfo> TrimObjectInfoMap;
+
 #define TRIM_DECLARE_OBJECT_TRACKERS(type) \
-extern ObjectPacketMap g_trim_created##type##s; \
-extern ObjectPacketMap g_trim_referenced##type##s; \
+TrimObjectInfoMap created##type##s; 
+
+#define TRIM_DECLARE_OBJECT_TRACKER_FUNCS(type) \
+Trim_ObjectInfo* trim_add_##type##_object(Vk##type var); \
+void trim_remove_##type##_object(Vk##type var); \
+Trim_ObjectInfo* trim_get_##type##_objectInfo(Vk##type var); \
 void trim_add_##type##_call(Vk##type var, vktrace_trace_packet_header* pHeader); \
 void trim_mark_##type##_reference(Vk##type var);
 
-TRIM_DECLARE_OBJECT_TRACKERS(Instance);
-TRIM_DECLARE_OBJECT_TRACKERS(PhysicalDevice);
-TRIM_DECLARE_OBJECT_TRACKERS(Device);
-TRIM_DECLARE_OBJECT_TRACKERS(CommandPool);
-TRIM_DECLARE_OBJECT_TRACKERS(CommandBuffer);
-TRIM_DECLARE_OBJECT_TRACKERS(DescriptorPool);
-TRIM_DECLARE_OBJECT_TRACKERS(RenderPass);
-TRIM_DECLARE_OBJECT_TRACKERS(Pipeline);
-TRIM_DECLARE_OBJECT_TRACKERS(Queue);
-TRIM_DECLARE_OBJECT_TRACKERS(Semaphore);
-TRIM_DECLARE_OBJECT_TRACKERS(DeviceMemory);
-TRIM_DECLARE_OBJECT_TRACKERS(Fence);
-TRIM_DECLARE_OBJECT_TRACKERS(SwapchainKHR);
-TRIM_DECLARE_OBJECT_TRACKERS(Image);
-TRIM_DECLARE_OBJECT_TRACKERS(ImageView);
-TRIM_DECLARE_OBJECT_TRACKERS(Buffer);
-TRIM_DECLARE_OBJECT_TRACKERS(BufferView);
-TRIM_DECLARE_OBJECT_TRACKERS(Framebuffer);
-TRIM_DECLARE_OBJECT_TRACKERS(Event);
-TRIM_DECLARE_OBJECT_TRACKERS(QueryPool);
-TRIM_DECLARE_OBJECT_TRACKERS(ShaderModule);
-TRIM_DECLARE_OBJECT_TRACKERS(PipelineLayout);
-TRIM_DECLARE_OBJECT_TRACKERS(Sampler);
-TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSetLayout);
-TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSet);
+typedef struct _Trim_StateTracker
+{
+    TRIM_DECLARE_OBJECT_TRACKERS(Instance);
+    TRIM_DECLARE_OBJECT_TRACKERS(PhysicalDevice);
+    TRIM_DECLARE_OBJECT_TRACKERS(Device);
+    TRIM_DECLARE_OBJECT_TRACKERS(SurfaceKHR);
+    TRIM_DECLARE_OBJECT_TRACKERS(CommandPool);
+    TRIM_DECLARE_OBJECT_TRACKERS(CommandBuffer);
+    TRIM_DECLARE_OBJECT_TRACKERS(DescriptorPool);
+    TRIM_DECLARE_OBJECT_TRACKERS(RenderPass);
+    TRIM_DECLARE_OBJECT_TRACKERS(Pipeline);
+    TRIM_DECLARE_OBJECT_TRACKERS(Queue);
+    TRIM_DECLARE_OBJECT_TRACKERS(Semaphore);
+    TRIM_DECLARE_OBJECT_TRACKERS(DeviceMemory);
+    TRIM_DECLARE_OBJECT_TRACKERS(Fence);
+    TRIM_DECLARE_OBJECT_TRACKERS(SwapchainKHR);
+    TRIM_DECLARE_OBJECT_TRACKERS(Image);
+    TRIM_DECLARE_OBJECT_TRACKERS(ImageView);
+    TRIM_DECLARE_OBJECT_TRACKERS(Buffer);
+    TRIM_DECLARE_OBJECT_TRACKERS(BufferView);
+    TRIM_DECLARE_OBJECT_TRACKERS(Framebuffer);
+    TRIM_DECLARE_OBJECT_TRACKERS(Event);
+    TRIM_DECLARE_OBJECT_TRACKERS(QueryPool);
+    TRIM_DECLARE_OBJECT_TRACKERS(ShaderModule);
+    TRIM_DECLARE_OBJECT_TRACKERS(PipelineLayout);
+    TRIM_DECLARE_OBJECT_TRACKERS(Sampler);
+    TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSetLayout);
+    TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSet);
+} Trim_StateTracker;
+
+
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Instance);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(PhysicalDevice);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Device);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(SurfaceKHR);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(CommandPool);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(CommandBuffer);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(DescriptorPool);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(RenderPass);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Pipeline);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Queue);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Semaphore);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(DeviceMemory);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Fence);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(SwapchainKHR);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Image);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(ImageView);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Buffer);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(BufferView);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Framebuffer);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Event);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(QueryPool);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(ShaderModule);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(PipelineLayout);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Sampler);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(DescriptorSetLayout);
+TRIM_DECLARE_OBJECT_TRACKER_FUNCS(DescriptorSet);
+
+extern Trim_StateTracker g_trimGlobalStateTracker;

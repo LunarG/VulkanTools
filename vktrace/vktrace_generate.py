@@ -200,10 +200,9 @@ class Subcommand(object):
         trim_trace_bools.append('// Indicates whether trim support will be utilized during this instance of vktrace.')
         trim_trace_bools.append('// Only set once based on the VKTRACE_TRIM_FRAMES env var.')
         trim_trace_bools.append('extern bool g_trimEnabled;')
-        trim_trace_bools.append('// Stores a boolean for each entrypoint to indicate whether or not to trace that function to a trace file.')
-        trim_trace_bools.append('// These maybe toggled on/off while vktrace is running to control whether or not API calls are recorded.')
-        trim_trace_bools.append('extern bool g_trimTraceFunc[%s + VKTRACE_TPI_BEGIN_API_HERE];' % len(self.protos))
-        trim_trace_bools.append('extern uint32_t g_trimTraceFuncCount;')
+        trim_trace_bools.append('extern bool g_trimIsPreTrim;')
+        trim_trace_bools.append('extern bool g_trimIsInTrim;')
+        trim_trace_bools.append('extern bool g_trimIsPostTrim;')
         trim_trace_bools.append('extern uint64_t g_trimFrameCounter;')
         trim_trace_bools.append('extern uint64_t g_trimStartFrame;')
         trim_trace_bools.append('extern uint64_t g_trimEndFrame;')
@@ -221,9 +220,10 @@ class Subcommand(object):
         init_tracer.append('    FINISH_TRACE_PACKET();\n}\n')
 
         init_tracer.append('extern VKTRACE_CRITICAL_SECTION g_memInfoLock;')
-        init_tracer.append('bool g_trimTraceFunc[%s + VKTRACE_TPI_BEGIN_API_HERE];' % len(self.protos))
         init_tracer.append('bool g_trimEnabled = false;')
-        init_tracer.append('uint32_t g_trimTraceFuncCount = sizeof(g_trimTraceFunc) / sizeof(g_trimTraceFunc[0]);')
+        init_tracer.append('bool g_trimIsPreTrim = false;')
+        init_tracer.append('bool g_trimIsInTrim = false;')
+        init_tracer.append('bool g_trimIsPostTrim = false;')
         init_tracer.append('uint64_t g_trimFrameCounter = 0;')
         init_tracer.append('uint64_t g_trimStartFrame = 0;')
         init_tracer.append('uint64_t g_trimEndFrame = UINT64_MAX;')
@@ -242,11 +242,10 @@ class Subcommand(object):
         init_tracer.append('        if (g_trimStartFrame <= g_trimEndFrame)')
         init_tracer.append('        {')
         init_tracer.append('            bTraceFromBeginning = (g_trimStartFrame == 0);')
+        init_tracer.append('            g_trimIsPreTrim = !bTraceFromBeginning;')
+        init_tracer.append('            g_trimIsInTrim = bTraceFromBeginning;')
         init_tracer.append('            g_trimEnabled = true;')
         init_tracer.append('        }')
-        init_tracer.append('    }')
-        init_tracer.append('    for (int i = 0; i < (%s + VKTRACE_TPI_BEGIN_API_HERE); i++){' % len(self.protos))
-        init_tracer.append('        g_trimTraceFunc[i] = bTraceFromBeginning;')
         init_tracer.append('    }')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
         init_tracer.append('    if (gMessageStream != NULL)')
@@ -436,18 +435,39 @@ class Subcommand(object):
                     ps.append('sizeof(%s)' % (p.ty.strip('*').replace('const ', '')))
         return ps
 
-    # Generate instructions for certain API calls that need to be tracked so that we can recreate
-    # objects that are used within a trimmed trace file.
-    def _generate_trim_instructions(self, proto):
+    # Generate instructions for certain API calls that need to be tracked prior to the trim frames 
+    # so that we can recreate objects that are used within a trimmed trace file.
+    def _generate_trim_statetracking_instructions(self, proto):
         trim_instructions = []
         if 'GetDeviceQueue' is proto.name:
-            trim_instructions.append("        trim_add_Queue_call(*pQueue, pHeader);")
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Queue_object(*pQueue);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.Queue.pCreatePacket = pHeader;")
+        elif 'CreateCommandPool' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_CommandPool_object(*pCommandPool);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
+            trim_instructions.append("        pInfo->ObjectInfo.CommandPool.pCreatePacket = pHeader;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.CommandPool.allocator = *pAllocator;")
+            trim_instructions.append("        }")
+        elif 'FreeCommandBuffers' is proto.name:
+            trim_instructions.append("        VkCommandBufferLevel level = trim_get_CommandBuffer_objectInfo(pCommandBuffers[0])->ObjectInfo.CommandBuffer.level;")
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_CommandPool_objectInfo(commandPool);")
+            trim_instructions.append("        pInfo->ObjectInfo.CommandPool.numCommandBuffersAllocated[level] -= commandBufferCount;")
+            trim_instructions.append("        for (uint32_t i = 0; i < commandBufferCount; i++)")
+            trim_instructions.append("        {")
+            trim_instructions.append("            trim_remove_CommandBuffer_object(pCommandBuffers[i]);")
+            trim_instructions.append("        }")
+        elif 'QueueWaitIdle' is proto.name:
+            trim_instructions.append("        trim_mark_Queue_reference(queue);")
         elif 'CreateSemaphore' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Semaphore_object(*pSemaphore);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        trim_add_Semaphore_call(*pSemaphore, pHeader);")
         elif 'CreateFence' is proto.name:
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Fence_object(*pFence);")
+            trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        trim_add_Fence_call(*pFence, pHeader);")
-        elif 'CreateCommandPool' is proto.name:
-            trim_instructions.append("        trim_add_CommandPool_call(*pCommandPool, pHeader);")
         elif ('EndCommandBuffer' is proto.name or
               'ResetCommandBuffer' is proto.name or
               'CmdBindPipeline' is proto.name or
@@ -487,39 +507,49 @@ class Subcommand(object):
               'CmdExecuteCommands' is proto.name):
             trim_instructions.append("        trim_add_CommandBuffer_call(commandBuffer, pHeader);")
         elif 'CreateImage' is proto.name:
+#            trim_instructions.append("        trim_dependency_Image_to_Device[*pImage] = device;")
             trim_instructions.append("        trim_add_Image_call(*pImage, pHeader);")
         elif ('GetImageMemoryRequirements' is proto.name or
               'BindImageMemory' is proto.name):
             trim_instructions.append("        trim_add_Image_call(image, pHeader);")
         elif 'CreateImageView' is proto.name:
+#            trim_instructions.append("        trim_dependency_ImageView_to_Device[*pView] = device;")
             trim_instructions.append("        trim_add_ImageView_call(*pView, pHeader);")
         elif 'CreateBuffer' is proto.name:
+#            trim_instructions.append("        trim_dependency_Buffer_to_Device[*pBuffer] = device;")
             trim_instructions.append("        trim_add_Buffer_call(*pBuffer, pHeader);")
         elif 'BindBufferMemory' is proto.name:
             trim_instructions.append("        trim_add_Buffer_call(buffer, pHeader);")
         elif 'CreateBufferView' is proto.name:
+#            trim_instructions.append("        trim_dependency_BufferView_to_Device[*pView] = device;")
             trim_instructions.append("        trim_add_BufferView_call(*pView, pHeader);")
         elif 'CreateFramebuffer' is proto.name:
+#            trim_instructions.append("        trim_dependency_Framebuffer_to_Device[*pFramebuffer] = device;")
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
         elif 'CreateEvent' is proto.name:
+#            trim_instructions.append("        trim_dependency_Event_to_Device[*pEvent] = device;")
             trim_instructions.append("        trim_add_Event_call(*pEvent, pHeader);")
         elif 'CreateQueryPool' is proto.name:
+#            trim_instructions.append("        trim_dependency_QueryPool_to_Device[*pQueryPool] = device;")
             trim_instructions.append("        trim_add_QueryPool_call(*pQueryPool, pHeader);")
         elif 'CreateShaderModule' is proto.name:
+#            trim_instructions.append("        trim_dependency_ShaderModule_to_Device[*pShaderModule] = device;")
             trim_instructions.append("        trim_add_ShaderModule_call(*pShaderModule, pHeader);")
         elif 'CreatePipelineLayout' is proto.name:
+#            trim_instructions.append("        trim_dependency_PipelineLayout_to_Device[*pPipelineLayout] = device;")
             trim_instructions.append("        trim_add_PipelineLayout_call(*pPipelineLayout, pHeader);")
         elif 'CreateSampler' is proto.name:
+#            trim_instructions.append("        trim_dependency_Sampler_to_Device[*pSampler] = device;")
             trim_instructions.append("        trim_add_Sampler_call(*pSampler, pHeader);")
         elif 'CreateDescriptorSetLayout' is proto.name:
+#            trim_instructions.append("        trim_dependency_DescriptorSetLayout_to_Device[*pSetLayout] = device;")
             trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")
         elif ('GetPhysicalDeviceSurfaceSupportKHR' is proto.name or
               'GetPhysicalDeviceMemoryProperties' is proto.name):
             trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
         else:
             return None
-        return "\n".join(trim_instructions)
-            
+        return "\n".join(trim_instructions)            
 
     # Generate functions used to trace API calls and store the input and result data into a packet
     # Here's the general flow of code insertion w/ option items flagged w/ "?"
@@ -668,21 +698,22 @@ class Subcommand(object):
                         # Else half of g_trimEnabled conditional
                         # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
                         func_body.append('    }')
-                        func_body.append('    else')
+                        func_body.append('    else if (g_trimIsPreTrim || g_trimIsInTrim)')
                         func_body.append('    {')
-                        func_body.append('        if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s])' % proto.name)
-                        func_body.append('        {')
-                        func_body.append('            vktrace_finalize_trace_packet(pHeader);')
-                        func_body.append('            trim_add_recorded_packet(pHeader);')
-                        func_body.append('        }')
-                        func_body.append('        else')
-                        func_body.append('        {')
-                        trim_instructions = self._generate_trim_instructions(proto);
-                        if trim_instructions is None:
+                        func_body.append('        vktrace_finalize_trace_packet(pHeader);')
+                        pretrim_instructions = self._generate_trim_statetracking_instructions(proto);
+                        if pretrim_instructions is None:
                             func_body.append('        vktrace_delete_trace_packet(&pHeader);')
                         else:
-                            func_body.append(trim_instructions)
-                        func_body.append('        }')
+                            func_body.append(pretrim_instructions)
+                            func_body.append('        if (g_trimIsInTrim)')
+                            func_body.append('        {')
+                            func_body.append('            trim_add_recorded_packet(pHeader);')
+                            func_body.append('        }')
+                        func_body.append('    }')
+                        func_body.append('    else // g_trimIsPostTrim')
+                        func_body.append('    {')
+                        func_body.append('        vktrace_delete_trace_packet(&pHeader);')
                         func_body.append('    }')
 
                         # Clean up instance or device data if needed
