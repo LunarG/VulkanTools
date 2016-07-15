@@ -32,7 +32,7 @@
 #include "vkreplay_seq.h"
 #include "vkreplay_window.h"
 
-vkreplayer_settings replaySettings = { NULL, 1, -1, -1, NULL, NULL };
+vkreplayer_settings replaySettings = { NULL, 1, -1, -1, false, NULL, NULL };
 
 vktrace_SettingInfo g_settings_info[] =
 {
@@ -40,6 +40,7 @@ vktrace_SettingInfo g_settings_info[] =
     { "l", "NumLoops", VKTRACE_SETTING_UINT, &replaySettings.numLoops, &replaySettings.numLoops, TRUE, "The number of times to replay the trace file or loop range." },
     { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, &replaySettings.loopStartFrame, &replaySettings.loopStartFrame, TRUE, "The start frame number of the loop range." },
     { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, &replaySettings.loopEndFrame, &replaySettings.loopEndFrame, TRUE, "The end frame number of the loop range." },
+    { "sgqpr", "SkipGetQueryPoolResults", VKTRACE_SETTING_BOOL, &replaySettings.skipGetQueryPoolResults, &replaySettings.skipGetQueryPoolResults, TRUE, "Skip vkGetQueryPoolResults(), needed when replaying trimmed traces." },
     { "s", "Screenshot", VKTRACE_SETTING_STRING, &replaySettings.screenshotList, &replaySettings.screenshotList, TRUE, "Comma separated list of frames to take a snapshot of."},
 #if _DEBUG
     { "v", "Verbosity", VKTRACE_SETTING_STRING, &replaySettings.verbosity, &replaySettings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},

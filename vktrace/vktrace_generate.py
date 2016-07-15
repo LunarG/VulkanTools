@@ -2258,6 +2258,8 @@ class Subcommand(object):
                         ret_value = False
                     else:
                         rr_string = '            replayResult = '
+                if proto.name == 'GetQueryPoolResults':
+                    rr_string += '(g_pReplaySettings->skipGetQueryPoolResults) ? VK_SUCCESS : '
                 rr_string += 'm_vkFuncs.real_vk%s(' % proto.name
                 for p in proto.params:
                     # For last param of Create funcs, pass address of param

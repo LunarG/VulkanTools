@@ -51,6 +51,8 @@ extern "C" {
 
 #define CHECK_RETURN_VALUE(entrypoint) returnValue = handle_replay_errors(#entrypoint, replayResult, pPacket->result, returnValue);
 
+extern vkreplayer_settings *g_pReplaySettings;
+
 class vkReplay {
 public:
     ~vkReplay();
