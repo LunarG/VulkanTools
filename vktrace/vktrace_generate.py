@@ -968,6 +968,7 @@ class Subcommand(object):
                                                                                  '    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:',
                                                                                  '    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:',
                                                                                  '    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:',
+                                                                                 '    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:',
                                                                                  '        {',
                                                                                  '            VkDescriptorImageInfo** ppImageInfo = (VkDescriptorImageInfo**)&pPacket->pDescriptorWrites[i].pImageInfo;\n',
                                                                                  '            *ppImageInfo = (VkDescriptorImageInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pImageInfo);\n',
