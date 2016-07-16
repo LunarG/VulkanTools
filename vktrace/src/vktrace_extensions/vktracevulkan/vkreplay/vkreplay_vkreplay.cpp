@@ -1663,7 +1663,7 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass*
 VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    /* //already add in py file, but no protection
+    //already add in py file, but no protection
     uint32_t** ppQueueFamilyIndices = (uint32_t**)&pPacket->pCreateInfo->pQueueFamilyIndices;
     if (pPacket->pCreateInfo->queueFamilyIndexCount)
     {
@@ -1673,7 +1673,7 @@ VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage* pPacket)
     {
         *ppQueueFamilyIndices = NULL;
     }
-    */
+    
     imageObj local_imageObj;
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
