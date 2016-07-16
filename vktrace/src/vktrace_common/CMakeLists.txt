@@ -21,6 +21,7 @@ set(SRC_LIST
     vktrace_settings.c
     vktrace_tracelog.c
     vktrace_trace_packet_utils.c
+    optimization_function.cpp
 )
 
 set (CXX_SRC_LIST

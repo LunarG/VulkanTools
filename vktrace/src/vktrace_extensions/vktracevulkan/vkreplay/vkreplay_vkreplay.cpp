@@ -34,6 +34,8 @@
 #include "vktrace_vk_vk_packets.h"
 #include "vk_enum_string_helper.h"
 
+#include "optimization_function.h"
+
 vkreplayer_settings *g_pReplaySettings;
 
 vkReplay::vkReplay(vkreplayer_settings *pReplaySettings)
@@ -1250,7 +1252,7 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
     }
     return replayResult;
 }
-
+/*
 VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1311,7 +1313,7 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
 
     return replayResult;
 }
-
+*/
 VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGraphicsPipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1658,6 +1660,81 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass*
     }
     return replayResult;
 }
+VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage* pPacket)
+{
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    /* //already add in py file, but no protection
+    uint32_t** ppQueueFamilyIndices = (uint32_t**)&pPacket->pCreateInfo->pQueueFamilyIndices;
+    if (pPacket->pCreateInfo->queueFamilyIndexCount)
+    {
+        *ppQueueFamilyIndices = (uint32_t*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pQueueFamilyIndices);
+    }
+    else
+    {
+        *ppQueueFamilyIndices = NULL;
+    }
+    */
+    imageObj local_imageObj;
+    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
+    if (remappedDevice == VK_NULL_HANDLE)
+    {
+        return VK_ERROR_VALIDATION_FAILED_EXT;// vktrace_replay::VKTRACE_REPLAY_ERROR;
+    }
+    replayResult = m_vkFuncs.real_vkCreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);
+    if (replayResult == VK_SUCCESS)
+    {
+        m_objMapper.add_to_images_map(*(pPacket->pImage), local_imageObj);
+    }
+    return replayResult;
+}
+
+VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
+{
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+   char **ppName = (char **)&(pPacket->pCreateInfos->stage.pName);
+   VkSpecializationInfo* *ppSpecializationInfo = (VkSpecializationInfo**)&(pPacket->pCreateInfos->stage.pSpecializationInfo);
+   *ppName = ( char *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pName);
+   *ppSpecializationInfo = ( VkSpecializationInfo*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pSpecializationInfo);
+   if (pPacket->pCreateInfos->stage.pSpecializationInfo)
+   {
+       VkSpecializationMapEntry** ppMapEntries = (VkSpecializationMapEntry**)&pPacket->pCreateInfos->stage.pSpecializationInfo->pMapEntries;
+       void** ppData = (void**)&pPacket->pCreateInfos->stage.pSpecializationInfo->pData;
+       *ppMapEntries = (VkSpecializationMapEntry*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pSpecializationInfo->pMapEntries);
+       *ppData = (void*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pSpecializationInfo->pData);
+   }
+   VkPipeline* pbasePipelineHandle = (VkPipeline*)&pPacket->pCreateInfos->basePipelineHandle;
+   *pbasePipelineHandle= m_objMapper.remap_pipelines(pPacket->pCreateInfos->basePipelineHandle);
+   VkShaderModule* pmodule = (VkShaderModule*)&pPacket->pCreateInfos->stage.module;
+   *pmodule = m_objMapper.remap_shadermodules(pPacket->pCreateInfos->stage.module);
+   VkPipelineLayout* playout = (VkPipelineLayout*)&pPacket->pCreateInfos->layout;
+   *playout = m_objMapper.remap_pipelinelayouts(pPacket->pCreateInfos->layout);
+
+   VkPipeline local_pPipelines;
+   VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+
+   if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
+   {
+       return VK_ERROR_VALIDATION_FAILED_EXT;// vktrace_replay::VKTRACE_REPLAY_ERROR;
+   }
+
+   VkPipelineCache remappedpipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+
+   if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedpipelineCache == VK_NULL_HANDLE)
+   {
+       return VK_ERROR_VALIDATION_FAILED_EXT;// vktrace_replay::VKTRACE_REPLAY_ERROR;
+   }
+
+   // No need to remap createInfoCount
+   // No need to remap pCreateInfos
+   // No need to remap pAllocator
+   replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, remappedpipelineCache, pPacket->createInfoCount, pPacket->pCreateInfos, pPacket->pAllocator, &local_pPipelines);
+   if (replayResult == VK_SUCCESS)
+   {
+       m_objMapper.add_to_pipelines_map(*(pPacket->pPipelines), local_pPipelines);
+   }
+   //CHECK_RETURN_VALUE(vkCreateComputePipelines);
+   return replayResult;
+}
 
 void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass* pPacket)
 {
@@ -1934,6 +2011,18 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory* pPacket)
     }
 }
 
+BOOL isvkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData)
+{
+    BOOL bRet = FALSE;
+    OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)pOPTPackageData;
+    if (((uint64_t)pChangedInfoArray[0].reserve0) & OPT_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES) // TODO need think about 32bit
+    {
+        bRet = TRUE;
+    }
+    return bRet;
+}
+//after OPT speed up, the format of this packet will be different with before, the packet now only include changed block(page).
+//
 VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1965,7 +2054,11 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
         {
             if (pPacket->pMemoryRanges[i].size != 0)
             {
+#ifdef USE_OPT_SPEEDUP
+                pLocalMems[i].pGpuMem->OPTcopyMappingData(pPacket->ppData[i]);
+#else
                 pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
+#endif
             }
         }
         else
@@ -1976,11 +2069,21 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
                 vktrace_LogError("vkFlushMappedMemoryRanges() malloc failed.");
             }
             pLocalMems[i].pGpuMem->setMemoryDataAddr(pBuf);
+#ifdef USE_OPT_SPEEDUP
+            pLocalMems[i].pGpuMem->OPTcopyMappingData(pPacket->ppData[i]);
+#else
             pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
+#endif
         }
     }
 
-    replayResult = m_vkFuncs.real_vkFlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
+#ifdef USE_OPT_SPEEDUP
+    replayResult = pPacket->result;//if this is a OPT refresh-all packet, we need avoid to call real api and return original return to avoid error message;
+    if (!isvkFlushMappedMemoryRangesSpecial((PBYTE)pPacket->ppData[0]))
+#endif
+    {
+        replayResult = m_vkFuncs.real_vkFlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
+    }
 
     VKTRACE_DELETE(localRanges);
     VKTRACE_DELETE(pLocalMems);

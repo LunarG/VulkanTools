@@ -285,7 +285,19 @@ int main(int argc, char **argv)
 
     // Create window. Initial size is 100x100. It will later get resized to the size
     // used by the traced app. The resize will happen  during playback of swapchain functions.
-    Display disp(100, 100, 0, false);
+#if defined(PLATFORM_LINUX)
+    Display disp(1024, 768, 0, false);
+#elif defined(WIN32)
+    RECT dp;
+    GetWindowRect(GetDesktopWindow(), &dp);
+    Display disp(dp.right, dp.bottom, 0, false);
+#endif
+    //**********************************************************
+#if _DEBUG
+    static BOOL debugStartup = TRUE;//FALSE
+    while (debugStartup);
+#endif
+    //***********************************************************
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)
     {

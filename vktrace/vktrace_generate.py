@@ -222,9 +222,16 @@ class Subcommand(object):
                            'VkPhysicalDevice': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pGpus), *pGpuCount*sizeof(VkPhysicalDevice), pGpus)',
                                                 'finalize_txt': 'default'},
                            'VkImageCreateInfo': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkImageCreateInfo), pCreateInfo);\n'
-						                                    '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices)',
-                                               'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));\n'
-											                   '    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo))'},
+						                                    'if (pCreateInfo->queueFamilyIndexCount) \n'
+                                                            '{\n'
+						                                    '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices)'
+															'}\n',
+                                               'finalize_txt': 
+						                                    'if (pCreateInfo->queueFamilyIndexCount) \n'
+                                                            '{\n'
+											                   'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));\n'
+															'}\n'
+											                '    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo))'},
                            'pDataSize': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDataSize), sizeof(size_t), &_dataSize)',
                                          'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize))'},
                            'pData': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), _dataSize, pData)',
@@ -408,6 +415,7 @@ class Subcommand(object):
                                          'CreateDevice',
                                          'CreateFramebuffer',
                                          'CreateInstance',
+                                         'CreateImage',
                                          'CreatePipelineCache',
                                          'CreateRenderPass',
                                          'GetPipelineCacheData',
@@ -1190,6 +1198,42 @@ class Subcommand(object):
         rof_body.append('        mr.pData = (uint8_t *) pBuf;')
         rof_body.append('    }')
         rof_body.append('')
+        # add for page guard optimization
+        rof_body.append('    void OPTcopyMappingData(const void* pSrcData)')
+        rof_body.append('    {')
+        rof_body.append('        if (m_mapRange.empty())')
+        rof_body.append('        {')
+        rof_body.append('            vktrace_LogError("gpuMemory::copyMappingData() m_mapRange is empty.");')
+        rof_body.append('            return;')
+        rof_body.append('        }')
+        rof_body.append('        MapRange mr = m_mapRange.back();')
+        rof_body.append('        if (!pSrcData || !mr.pData)')
+        rof_body.append('        {')
+        rof_body.append('            if (!pSrcData)')
+        rof_body.append('                vktrace_LogError("gpuMemory::copyMappingData() null src pointer.");')
+        rof_body.append('            else')
+        rof_body.append('                vktrace_LogError("gpuMemory::copyMappingData() null dest pointer totalSize=%u.", m_allocInfo.allocationSize);')
+        rof_body.append('            m_mapRange.pop_back();')
+        rof_body.append('            return;')
+        rof_body.append('        }')
+        rof_body.append('')
+        rof_body.append('        OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)pSrcData;')
+        rof_body.append('        if (pChangedInfoArray[0].length)')
+        rof_body.append('        {')
+        rof_body.append('            PBYTE pChangedData = (PBYTE)(pSrcData)+sizeof(OPTChangedBlockInfo)*(pChangedInfoArray[0].offset + 1);')
+        rof_body.append('            DWORD CurrentOffset = 0;')
+        rof_body.append('            for (DWORD i = 0; i < pChangedInfoArray[0].offset; i++)')
+        rof_body.append('            {')
+        rof_body.append('                if ((size_t)pChangedInfoArray[i + 1].length)')
+        rof_body.append('                {')
+        rof_body.append('                    memcpy(mr.pData +  (size_t)pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset, (size_t)pChangedInfoArray[i + 1].length);')
+        rof_body.append('                }')
+        rof_body.append('                CurrentOffset += pChangedInfoArray[i + 1].length;')
+        rof_body.append('            }')
+        rof_body.append('        }')
+        rof_body.append('    }')
+        rof_body.append('')
+		#  add for page guard optimization end
         rof_body.append('    void setMemoryMapRange(void *pBuf, const size_t size, const size_t offset, const bool pending)')
         rof_body.append('    {')
         rof_body.append('        MapRange mr;')
@@ -1633,10 +1677,11 @@ class Subcommand(object):
                                  'CreateFramebuffer',
                                  'GetPipelineCacheData',
                                  'CreateGraphicsPipelines',
-                                 'CreateComputePipelines',
                                  #'CreateInstance',
                                  'CreatePipelineLayout',
                                  'CreateRenderPass',
+                                 'CreateImage',
+                                 'CreateComputePipelines',
                                  'CmdBeginRenderPass',
                                  'CmdBindDescriptorSets',
                                  'CmdBindVertexBuffers',
@@ -2141,6 +2186,7 @@ class VktraceReplayObjMapperHeader(Subcommand):
         header_txt.append('#include <vector>')
         header_txt.append('#include <string>')
         header_txt.append('#include "vulkan/vulkan.h"')
+        header_txt.append('#include "optimization_function.h"')
         #header_txt.append('#include "vulkan/vk_lunarg_debug_marker.h"')
         return "\n".join(header_txt)
 
