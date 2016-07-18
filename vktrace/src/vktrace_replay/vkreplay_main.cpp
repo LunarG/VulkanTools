@@ -294,7 +294,7 @@ int main(int argc, char **argv)
 #endif
     //**********************************************************
 #if _DEBUG
-    static BOOL debugStartup = TRUE;//FALSE
+    static BOOL debugStartup = FALSE;//TRUE
     while (debugStartup);
 #endif
     //***********************************************************
