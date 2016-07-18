@@ -20,6 +20,12 @@ extern uint64_t g_trimFrameCounter;
 extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
 
+// Create / Destroy all image resources in the order performed by the application. 
+// Enabling this as a pre-processor macro so that we can compare performance and file size costs.
+// TRUE: Needed on AMD hardware
+// FALSE: Use normal object tracking to create only the necessary resources
+#define TRIM_USE_ORDERED_IMAGE_CREATION TRUE
+
 void trim_initialize();
 
 // Use this to snapshot the global state tracker at the start of the trim frames.
@@ -36,6 +42,10 @@ void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_pa
 void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
 void trim_reset_DescriptorPool(VkDescriptorPool descriptorPool);
+
+#if TRIM_USE_ORDERED_IMAGE_CREATION
+void trim_add_Image_call(vktrace_trace_packet_header* pHeader);
+#endif //TRIM_USE_ORDERED_IMAGE_CREATION
 
 // Typically an application will have one VkAllocationCallbacks struct and 
 // will pass in that same address as needed, so we'll keep a map to correlate
@@ -108,8 +118,10 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
             bool bIsSwapchainImage;
+#if !TRIM_USE_ORDERED_IMAGE_CREATION
             vktrace_trace_packet_header* pGetImageMemoryRequirementsPacket;
             vktrace_trace_packet_header* pBindImageMemoryPacket;
+#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
         } Image;

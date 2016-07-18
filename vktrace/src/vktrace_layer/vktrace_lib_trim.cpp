@@ -150,6 +150,20 @@ static std::list<vktrace_trace_packet_header*> trim_recorded_packets;
 
 static std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header*>> s_cmdBufferPackets;
 
+// List of all packets used to create or delete images.
+// We need to recreate them in the same order to ensure they will have the same size requirements as they had a trace-time.
+std::list<vktrace_trace_packet_header*> trim_image_calls;
+
+void trim_add_Image_call(vktrace_trace_packet_header* pHeader)
+{
+    if (pHeader != NULL)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        trim_image_calls.push_back(pHeader);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+}
+
 #define TRIM_DEFINE_OBJECT_TRACKER_FUNCS(type) \
 Trim_ObjectInfo* trim_add_##type##_object(Vk##type var) { \
     vktrace_enter_critical_section(&trimStateTrackerLock); \
@@ -386,6 +400,13 @@ void trim_write_all_referenced_object_calls()
     }
 
     // Image
+#ifdef TRIM_USE_ORDERED_IMAGE_CREATION
+    for (std::list<vktrace_trace_packet_header*>::iterator iter = trim_image_calls.begin(); iter != trim_image_calls.end(); iter++)
+    {
+        vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(*iter));
+    }
+#else
     for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
     {
         // CreateImage
@@ -409,6 +430,7 @@ void trim_write_all_referenced_object_calls()
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pBindImageMemoryPacket));
         }
     }
+#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
 
     // ImageView
     for (TrimObjectInfoMap::iterator obj = stateTracker.createdImageViews.begin(); obj != stateTracker.createdImageViews.end(); obj++)
