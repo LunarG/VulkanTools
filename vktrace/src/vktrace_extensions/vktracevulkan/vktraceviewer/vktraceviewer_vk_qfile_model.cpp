@@ -18,12 +18,12 @@
  *
  * Author: Peter Lohrmann <peterl@valvesoftware.com> <plohrmann@gmail.com>
  **************************************************************************/
+
+#include "vktraceviewer_vk_qfile_model.h"
 extern "C" {
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_vk_packet_id.h"
 }
-
-#include "vktraceviewer_vk_qfile_model.h"
 
 vktraceviewer_vk_QFileModel::vktraceviewer_vk_QFileModel(QObject* parent, vktraceviewer_trace_file_info* pTraceFileInfo)
         : vktraceviewer_QTraceFileModel(parent, pTraceFileInfo)
