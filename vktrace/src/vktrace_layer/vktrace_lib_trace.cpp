@@ -164,7 +164,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
 
 #include "optimization_function.h"
 
-#define OPT_TARGET_RANGE_SIZE 67108864
+#define OPT_TARGET_RANGE_SIZE 33554432//67108864
 //#define OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
 LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo);
 PVOID OPTHandler = NULL;
@@ -778,7 +778,7 @@ typedef struct __OPTCapture
 	{
 		OPTMappedMemory OPTmappedmem;
 #ifdef OPT_TARGET_RANGE_SIZE
-		if (size == OPT_TARGET_RANGE_SIZE)
+		if ( (size >= OPT_TARGET_RANGE_SIZE) && (size!=-1) )
 #endif
 		{
 			OPTmappedmem.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
@@ -1306,9 +1306,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     VKAllocInfo *entry;
     CREATE_TRACE_PACKET(vkMapMemory, sizeof(void*));
     result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, ppData);
-#ifdef USE_OPT_SPEEDUP
-	OPTControl.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
-#endif
     vktrace_set_packet_entrypoint_end_time(pHeader);
     entry = find_mem_info_entry(memory);
 
@@ -1316,6 +1313,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     if (size == VK_WHOLE_SIZE) {
         size = entry->totalSize - offset;
     }
+#ifdef USE_OPT_SPEEDUP
+    OPTControl.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
+#endif
     pPacket = interpret_body_as_vkMapMemory(pHeader);
     pPacket->device = device;
     pPacket->memory = memory;
