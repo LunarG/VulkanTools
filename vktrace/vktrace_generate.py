@@ -430,6 +430,7 @@ class Subcommand(object):
                                          'FreeDescriptorSets',
                                          'QueueSubmit',
                                          'FlushMappedMemoryRanges',
+                                         'InvalidateMappedMemoryRanges',
                                          'GetDeviceProcAddr',
                                          'GetInstanceProcAddr',
                                          'EnumerateInstanceExtensionProperties',

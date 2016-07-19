@@ -1503,6 +1503,31 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     return result;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemoryRanges(
+    VkDevice device,
+    uint32_t memoryRangeCount,
+    const VkMappedMemoryRange* pMemoryRanges)
+{
+#ifdef USE_OPT_SPEEDUP
+    OPTResetAllReadFlagAndPageGuard();
+#endif
+    vktrace_trace_packet_header* pHeader;
+    VkResult result;
+    packet_vkInvalidateMappedMemoryRanges* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkInvalidateMappedMemoryRanges, memoryRangeCount*sizeof(VkMappedMemoryRange));
+    result = mdd(device)->devTable.InvalidateMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkInvalidateMappedMemoryRanges(pHeader);
+    pPacket->device = device;
+    pPacket->memoryRangeCount = memoryRangeCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMemoryRanges), memoryRangeCount*sizeof(VkMappedMemoryRange), pMemoryRanges);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemoryRanges));
+    FINISH_TRACE_PACKET();
+    return result;
+}
+
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers(
     VkDevice device,
     const VkCommandBufferAllocateInfo* pAllocateInfo,
