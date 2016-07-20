@@ -1252,51 +1252,62 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
     }
     return replayResult;
 }
-/*
+
 VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     uint32_t i;
 
-    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
+    if (remappeddevice == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    VkPipelineCache pipelineCache;
-    pipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+    VkPipelineCache remappedPipelineCache;
+    remappedPipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+    if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedPipelineCache == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipelineCache.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkComputePipelineCreateInfo* pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);
     memcpy((void*)pLocalCIs, (void*)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo)*pPacket->createInfoCount);
 
     // Fix up stage sub-elements
-    for (i=0; i<pPacket->createInfoCount; i++)
+    for (i = 0; i < pPacket->createInfoCount; i++)
     {
         pLocalCIs[i].stage.module = m_objMapper.remap_shadermodules(pLocalCIs[i].stage.module);
-
-        if (pLocalCIs[i].stage.pName)
-            pLocalCIs[i].stage.pName = (const char*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));
-
-        if (pLocalCIs[i].stage.pSpecializationInfo)
+        if (pLocalCIs[i].stage.module == VK_NULL_HANDLE)
         {
-            VkSpecializationInfo* si = VKTRACE_NEW(VkSpecializationInfo);
-            memcpy((void*)si, (void*)(pLocalCIs[i].stage.pSpecializationInfo), sizeof(VkSpecializationInfo));
-
-            if (si->mapEntryCount > 0 && si->pMapEntries)
-                si->pMapEntries = (const VkSpecializationMapEntry*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));
-            if (si->dataSize > 0 && si->pData)
-                si->pData = (const void*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)si->pData));
-            pLocalCIs[i].stage.pSpecializationInfo = si;
+            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkShaderModule.");
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
         }
 
         pLocalCIs[i].layout = m_objMapper.remap_pipelinelayouts(pLocalCIs[i].layout);
+        if (pLocalCIs[i].layout == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipelineLayout.");
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+
+        VkPipeline origBasePipeline = pLocalCIs[i].basePipelineHandle;
         pLocalCIs[i].basePipelineHandle = m_objMapper.remap_pipelines(pLocalCIs[i].basePipelineHandle);
+        if (origBasePipeline != VK_NULL_HANDLE && pLocalCIs[i].basePipelineHandle == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipeline.");
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
     }
 
     VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
 
-    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, pipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
+    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, remappedPipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
 
     if (replayResult == VK_SUCCESS)
     {
@@ -1305,15 +1316,12 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
         }
     }
 
-    for (i=0; i<pPacket->createInfoCount; i++)
-        if (pLocalCIs[i].stage.pSpecializationInfo)
-            VKTRACE_DELETE((void *)pLocalCIs[i].stage.pSpecializationInfo);
     VKTRACE_DELETE(pLocalCIs);
     VKTRACE_DELETE(local_pPipelines);
 
     return replayResult;
 }
-*/
+
 VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGraphicsPipelines* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1659,54 +1667,6 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass*
         m_objMapper.add_to_renderpasss_map(*(pPacket->pRenderPass), local_renderpass);
     }
     return replayResult;
-}
-
-VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
-{
-    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-   char **ppName = (char **)&(pPacket->pCreateInfos->stage.pName);
-   VkSpecializationInfo* *ppSpecializationInfo = (VkSpecializationInfo**)&(pPacket->pCreateInfos->stage.pSpecializationInfo);
-   *ppName = ( char *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pName);
-   *ppSpecializationInfo = ( VkSpecializationInfo*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pSpecializationInfo);
-   if (pPacket->pCreateInfos->stage.pSpecializationInfo)
-   {
-       VkSpecializationMapEntry** ppMapEntries = (VkSpecializationMapEntry**)&pPacket->pCreateInfos->stage.pSpecializationInfo->pMapEntries;
-       void** ppData = (void**)&pPacket->pCreateInfos->stage.pSpecializationInfo->pData;
-       *ppMapEntries = (VkSpecializationMapEntry*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pSpecializationInfo->pMapEntries);
-       *ppData = (void*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfos->stage.pSpecializationInfo->pData);
-   }
-   VkPipeline* pbasePipelineHandle = (VkPipeline*)&pPacket->pCreateInfos->basePipelineHandle;
-   *pbasePipelineHandle= m_objMapper.remap_pipelines(pPacket->pCreateInfos->basePipelineHandle);
-   VkShaderModule* pmodule = (VkShaderModule*)&pPacket->pCreateInfos->stage.module;
-   *pmodule = m_objMapper.remap_shadermodules(pPacket->pCreateInfos->stage.module);
-   VkPipelineLayout* playout = (VkPipelineLayout*)&pPacket->pCreateInfos->layout;
-   *playout = m_objMapper.remap_pipelinelayouts(pPacket->pCreateInfos->layout);
-
-   VkPipeline local_pPipelines;
-   VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-
-   if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
-   {
-       return VK_ERROR_VALIDATION_FAILED_EXT;// vktrace_replay::VKTRACE_REPLAY_ERROR;
-   }
-
-   VkPipelineCache remappedpipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
-
-   if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedpipelineCache == VK_NULL_HANDLE)
-   {
-       return VK_ERROR_VALIDATION_FAILED_EXT;// vktrace_replay::VKTRACE_REPLAY_ERROR;
-   }
-
-   // No need to remap createInfoCount
-   // No need to remap pCreateInfos
-   // No need to remap pAllocator
-   replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, remappedpipelineCache, pPacket->createInfoCount, pPacket->pCreateInfos, pPacket->pAllocator, &local_pPipelines);
-   if (replayResult == VK_SUCCESS)
-   {
-       m_objMapper.add_to_pipelines_map(*(pPacket->pPipelines), local_pPipelines);
-   }
-   //CHECK_RETURN_VALUE(vkCreateComputePipelines);
-   return replayResult;
 }
 
 void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass* pPacket)
