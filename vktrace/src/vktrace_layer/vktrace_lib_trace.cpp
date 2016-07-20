@@ -532,8 +532,6 @@ typedef struct __OPTMappedMemory
 		pOPTData = (PBYTE)*ppData;
 #endif
 		OPTsize = size;
-		DWORD oldProt;
-		DWORD dwErr;
 
 		OPTSetExceptionHandler();
 
@@ -1105,7 +1103,6 @@ void FlushAllChangedMappedMemory(vkFlushMappedMemoryRangesFunc pFunc)
 {
     LPOPTMappedMemory pMappedMemoryTemp;
     uint64_t amount = OPTControl.MapMemory.size();
-    VkDevice device;
     if (amount)
     {
         int i = 0;
@@ -1128,7 +1125,6 @@ void OPTResetAllReadFlagAndPageGuard()
 {
     LPOPTMappedMemory pMappedMemoryTemp;
     uint64_t amount = OPTControl.MapMemory.size();
-    VkDevice device;
     if (amount)
     {
         int i = 0;
@@ -1143,8 +1139,6 @@ void OPTResetAllReadFlagAndPageGuard()
 
 LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 {
-	PBYTE pPage;
-	DWORD PageSize;
 	LONG lRet = EXCEPTION_CONTINUE_SEARCH;
 	if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_GUARD_PAGE_VIOLATION)
 	{
@@ -2365,43 +2359,6 @@ uint64_t getVkComputePipelineCreateInfosAdditionalSize(uint32_t createInfoCount,
         }
     }
     return uiRet;
-}
-
-VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(
-    VkDevice device,
-    const VkImageCreateInfo* pCreateInfo,
-    const VkAllocationCallbacks* pAllocator,
-    VkImage* pImage)
-{
-    VkResult result;
-    vktrace_trace_packet_header* pHeader;
-    packet_vkCreateImage* pPacket = NULL;
-    CREATE_TRACE_PACKET(vkCreateImage, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkImage) + sizeof(uint32_t)*pCreateInfo->queueFamilyIndexCount);
-    result = mdd(device)->devTable.CreateImage(device, pCreateInfo, pAllocator, pImage);
-    vktrace_set_packet_entrypoint_end_time(pHeader);
-    pPacket = interpret_body_as_vkCreateImage(pHeader);
-    pPacket->device = device;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkImageCreateInfo), pCreateInfo);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pImage), sizeof(VkImage), pImage);
-    if (pCreateInfo->queueFamilyIndexCount)
-    {
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t)*pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices);
-    }
-    else
-    {
-        //vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t)*pCreateInfo->queueFamilyIndexCount, NULL);
-    }
-    pPacket->result = result;
-    if (pCreateInfo->queueFamilyIndexCount)
-    {
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));
-    }
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pImage));
-	FINISH_TRACE_PACKET();
-    return result;
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines(

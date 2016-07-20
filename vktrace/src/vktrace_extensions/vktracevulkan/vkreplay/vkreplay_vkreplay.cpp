@@ -1660,33 +1660,6 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass*
     }
     return replayResult;
 }
-VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage* pPacket)
-{
-    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    //already add in py file, but no protection
-    uint32_t** ppQueueFamilyIndices = (uint32_t**)&pPacket->pCreateInfo->pQueueFamilyIndices;
-    if (pPacket->pCreateInfo->queueFamilyIndexCount)
-    {
-        *ppQueueFamilyIndices = (uint32_t*)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pQueueFamilyIndices);
-    }
-    else
-    {
-        *ppQueueFamilyIndices = NULL;
-    }
-    
-    imageObj local_imageObj;
-    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-    if (remappedDevice == VK_NULL_HANDLE)
-    {
-        return VK_ERROR_VALIDATION_FAILED_EXT;// vktrace_replay::VKTRACE_REPLAY_ERROR;
-    }
-    replayResult = m_vkFuncs.real_vkCreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);
-    if (replayResult == VK_SUCCESS)
-    {
-        m_objMapper.add_to_images_map(*(pPacket->pImage), local_imageObj);
-    }
-    return replayResult;
-}
 
 VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateComputePipelines* pPacket)
 {
