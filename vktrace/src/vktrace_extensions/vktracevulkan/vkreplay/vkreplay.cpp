@@ -111,7 +111,7 @@ void VKTRACER_CDECL VkReplayUpdateFromSettings(vktrace_SettingGroup* pSettingGro
     vktrace_SettingGroup_Apply_Overrides(&g_vkReplaySettingGroup, pSettingGroups, numSettingGroups);
 }
 
-int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::Display* pDisplay, vkreplayer_settings *pReplaySettings)
+int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::ReplayDisplay* pDisplay, vkreplayer_settings *pReplaySettings)
 {
     try
     {

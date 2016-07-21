@@ -27,7 +27,7 @@
 #include "vkreplay_vkreplay.h"
 #include "vk_icd.h"
 
-class vkDisplay: public vktrace_replay::DisplayImp {
+class vkDisplay: public vktrace_replay::ReplayDisplayImp {
 friend class vkReplay;
 public:
     vkDisplay();
