@@ -21,6 +21,7 @@
  **************************************************************************/
 #pragma once
 
+#include "vktrace_multiplatform.h"
 #include "vktrace_trace_packet_identifiers.h"
 #include "vktrace_filelike.h"
 #include "vktrace_memory.h"

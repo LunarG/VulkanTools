@@ -200,14 +200,14 @@ void * vktrace_platform_open_library(const char* libPath)
 
 void * vktrace_platform_get_library_entrypoint(void * libHandle, const char *name)
 {
+    // Get func ptr to library entrypoint. We don't log an error if
+    // we don't find the entrypoint, because cross-platform support
+    // causes vkreplay to query the address of all api entrypoints,
+    // even the wsi-specific ones.
 #ifdef WIN32
     FARPROC proc = GetProcAddress((HMODULE)libHandle, name);
-    if (!proc)
-        vktrace_LogError("Failed to find symbol %s in library handle %p", name, libHandle);
 #else
     void * proc = dlsym(libHandle, name);
-    if (!proc)
-        vktrace_LogError("Failed to find symbol %s in library handle %p, dlerror: %s", name, libHandle, dlerror());
 #endif
     return proc;
 }

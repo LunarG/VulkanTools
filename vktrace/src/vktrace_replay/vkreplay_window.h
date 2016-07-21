@@ -37,18 +37,18 @@ typedef HWND vktrace_window_handle;
  */
 namespace vktrace_replay {
 
-class DisplayImp {
+class ReplayDisplayImp {
 public:
-    virtual ~DisplayImp() {}
+    virtual ~ReplayDisplayImp() {}
     virtual int init(const unsigned int gpu_idx) = 0;
     virtual int set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) = 0;
     virtual int create_window(const unsigned int width, const unsigned int height) = 0;
     virtual void process_event() = 0;
 };
 
-class Display {
+class ReplayDisplay {
 public:
-    Display()
+    ReplayDisplay()
         : m_imp(NULL),
         m_width(0),
         m_height(0),
@@ -59,7 +59,7 @@ public:
 
     }
 
-    Display(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen) :
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen) :
         m_imp(NULL),
         m_width(width),
         m_height(height),
@@ -69,7 +69,7 @@ public:
     {
     }
 
-    Display(vktrace_window_handle hWindow, unsigned int width, unsigned int height) :
+    ReplayDisplay(vktrace_window_handle hWindow, unsigned int width, unsigned int height) :
         m_imp(NULL),
         m_width(width),
         m_height(height),
@@ -79,15 +79,15 @@ public:
     {
     }
 
-    virtual ~Display()
+    virtual ~ReplayDisplay()
     {
     }
 
-    void set_implementation(DisplayImp & disp)
+    void set_implementation(ReplayDisplayImp & disp)
     {
         m_imp = & disp;
     }
-    void set_implementation(DisplayImp * disp)
+    void set_implementation(ReplayDisplayImp * disp)
     {
         m_imp = disp;
     }
@@ -122,7 +122,7 @@ public:
     }
 
 private:
-    DisplayImp *m_imp;
+    ReplayDisplayImp *m_imp;
     unsigned int m_width;
     unsigned int m_height;
     unsigned int m_gpu;

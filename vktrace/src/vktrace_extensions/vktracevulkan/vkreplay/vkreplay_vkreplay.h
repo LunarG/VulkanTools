@@ -32,6 +32,7 @@
 #include <xcb/xcb.h>
 
 #endif
+#include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"
 #include "vkreplay_factory.h"
 #include "vktrace_trace_packet_identifiers.h"
@@ -55,7 +56,7 @@ public:
     ~vkReplay();
     vkReplay(vkreplayer_settings *pReplaySettings);
 
-    int init(vktrace_replay::Display & disp);
+    int init(vktrace_replay::ReplayDisplay & disp);
     vkDisplay * get_display() {return m_display;}
     vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header *packet);
     vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall, const VkResult resTrace, const vktrace_replay::VKTRACE_REPLAY_RESULT resIn);
@@ -131,17 +132,12 @@ private:
     VkResult manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchainKHR* pPacket);
     VkResult manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchainImagesKHR* pPacket);
     VkResult manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* pPacket);
-#ifdef VK_USE_PLATFORM_XCB_KHR
     VkResult manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket);
-#endif
-#ifdef VK_USE_PLATFORM_XLIB_KHR
     VkResult manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
-#endif
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     VkResult manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32SurfaceKHR* pPacket);
-#endif
+    VkBool32 manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreateDebugReportCallbackEXT* pPacket);
     void manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyDebugReportCallbackEXT* pPacket);
 
