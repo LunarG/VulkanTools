@@ -18,6 +18,7 @@ set(SRC_LIST
     vktraceviewer_vk_settings.cpp
     vktraceviewer_vk_qcontroller.cpp
     vktraceviewer_vk_qfile_model.cpp
+    vktraceviewer_vk_qgroupframesproxymodel.cpp
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_QReplayWorker.cpp
     ${SRC_DIR}/vktrace_replay/vkreplay_factory.cpp
 )
