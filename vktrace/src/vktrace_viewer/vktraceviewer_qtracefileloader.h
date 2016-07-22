@@ -25,6 +25,7 @@
 #include "vktraceviewer_controller_factory.h"
 #include "vktraceviewer_controller.h"
 
+#define USE_STATIC_CONTROLLER_LIBRARY 1
 class vktraceviewer_QTraceFileLoader : public QObject
 {
     Q_OBJECT

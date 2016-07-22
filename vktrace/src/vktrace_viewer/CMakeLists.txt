@@ -29,6 +29,8 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/vktrace_extensions/vktracevulkan/vkreplay
+    ${SRC_DIR}/vktrace_extensions/vktracevulkan/vktraceviewer
+    ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )
@@ -122,6 +124,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Svg
     vktrace_common
     vulkan_replay
+    vktraceviewer_vk
     ${CMAKE_DL_LIBS}
     ${X11_X11_LIB}
 )
