@@ -161,14 +161,68 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
 
 
 //OPT: Optimization by using page-guard for speed up capture 
+//     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from beginning to the game menu.
+//     The reason that caused such slow capture is DOOM updates a big mapped memory(over 67M) frequently, vktrace copies this memory block to harddrive when DOOM calls vkFlushmappedMemory to update it every time.
+//     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
+//     The Playback time for these trace file is round 7 minutes(on Win10/AMDFury/32GRam/I5 system).
 
 #include "optimization_function.h"
 
-#define OPT_TARGET_RANGE_SIZE 33554432//67108864
+#define OPT_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
+#define OPT_PAGEGUARD_ENABLE_DEFAULT true
+
+#define OPT_TARGET_RANGE_SIZE_CONTROL
+#define OPT_TARGET_RANGE_SIZE_DEFAULT 33554432//4194304//67108864
+#define OPT_PAGEGUARD_TARGET_RANGE_SIZE_MIN 2097152
+#define OPT_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
 //#define OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
+
 LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo);
-PVOID OPTHandler = NULL;
-uint32_t OPTHandlerRefAmount = 0;
+PVOID OPTHandler = NULL; //use to remove page guard handler
+uint32_t OPTHandlerRefAmount = 0; //for persistent map and multi-threading environment, map and unmap maybe overlap, we need to make sure remove handler after all persistent map has been unmapped.
+
+VkDeviceSize OPTTargetRangeSize = OPT_TARGET_RANGE_SIZE_DEFAULT;
+
+//return if enable pageguard;
+//if enable page guard, then check if need to update target range size, page guard only work for those persistent mapped memory which >= target range size. 
+bool getPageGuardEnableFlagOPT()
+{
+    static bool OPTEnablePageGuard = OPT_PAGEGUARD_ENABLE_DEFAULT;
+    static bool FirstTimeRun = true;
+    if (FirstTimeRun)
+    {
+        FirstTimeRun = false;
+        const char *penvpageguard = vktrace_get_global_var(OPT_PAGEGUARD_ENABLE_ENV);
+        if (penvpageguard)
+        {
+            int envvalue;
+            if (sscanf(penvpageguard, "%d", &envvalue) == 1)
+            {
+                if (envvalue)
+                {
+                    OPTEnablePageGuard = true;
+                    const char *penvtargetrangesize = vktrace_get_global_var(OPT_PAGEGUARD_TARGET_RANGE_SIZE_ENV);
+                    if (penvtargetrangesize)
+                    {
+                        VkDeviceSize rangesize;
+                        if (sscanf(penvtargetrangesize, "%llu", &rangesize) == 1)
+                        {
+                            if (rangesize > OPT_PAGEGUARD_TARGET_RANGE_SIZE_MIN)
+                            {
+                                OPTTargetRangeSize = rangesize;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    OPTEnablePageGuard = false;
+                }
+            }
+        }
+    }
+    return OPTEnablePageGuard;
+}
 
 void OPTSetExceptionHandler()
 {
@@ -199,24 +253,24 @@ void OPTRemoveExceptionHandler()
 	}
 }
 
+//page guard only work for virtual memory, real memory no page concept.
 static void* OPTAllocateMemory(size_t size)
 {
 	void* pMemory = NULL;
 
 	if (size != 0)
 	{
-       //pMemory = malloc(size);
        pMemory = (PBYTE)VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 	}
 
 	return pMemory;
 }
+
 static void OPTFreeMemory(void* pMemory)
 {
 	if (pMemory)
 	{
-		//free(pMemory);
-        VirtualFree(pMemory, 0, MEM_RELEASE);//note: from API doc,If the dwFreeType parameter is MEM_RELEASE, this parameter dwSize must be 0 (zero).
+        VirtualFree(pMemory, 0, MEM_RELEASE);
 	}
 }
 
@@ -775,12 +829,15 @@ typedef struct __OPTCapture
 		void** ppData)
 	{
 		OPTMappedMemory OPTmappedmem;
-#ifdef OPT_TARGET_RANGE_SIZE
-		if ( (size >= OPT_TARGET_RANGE_SIZE) && (size!=-1) )
+#ifdef OPT_TARGET_RANGE_SIZE_CONTROL
+        if ((size >= OPTTargetRangeSize) && (size != -1))
 #endif
 		{
-			OPTmappedmem.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
-			MapMemory[memory] = OPTmappedmem;
+            if (getPageGuardEnableFlagOPT())
+            {
+                OPTmappedmem.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
+                MapMemory[memory] = OPTmappedmem;
+            }
 		}
         MapMemoryPtr[memory] = (PBYTE)(*ppData);
 	}
