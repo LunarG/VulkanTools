@@ -626,10 +626,14 @@ void vktraceviewer::onTraceFileLoaded(bool bSuccess, vktraceviewer_trace_file_in
         g_settings.trace_file_to_open = vktrace_allocate_and_copy(m_traceFileInfo.filename);
         vktraceviewer_settings_updated();
 
+#ifndef USE_STATIC_CONTROLLER_LIBRARY
         if (!controllerFilename.isEmpty())
         {
             m_pController = m_controllerFactory.Load(controllerFilename.toStdString().c_str());
         }
+#else
+        m_pController = vtvCreateQController();
+#endif
 
         if (m_pController != NULL)
         {
@@ -683,7 +687,11 @@ void vktraceviewer::close_trace_file()
     {
         ui->bottomTabWidget->removeTab(ui->bottomTabWidget->indexOf(m_pTraceStatsTab));
         m_pController->UnloadTraceFile();
+#ifndef USE_STATIC_CONTROLLER_LIBRARY
         m_controllerFactory.Unload(&m_pController);
+#else
+        vtvDeleteQController(m_pController);
+#endif
     }
 
     if (m_pTimeline->model() != NULL)

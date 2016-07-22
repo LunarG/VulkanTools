@@ -65,12 +65,17 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
                 bOpened = false;
             }
 
+#ifdef USE_STATIC_CONTROLLER_LIBRARY
+            m_pController = vtvCreateQController();
+            if (bOpened)
+#else
             if (!load_controllers(&m_traceFileInfo))
             {
                 emit OutputMessage(VKTRACE_LOG_ERROR, "Failed to load necessary debug controllers.");
                 bOpened = false;
             }
             else if (bOpened)
+#endif
             {
                 connect(m_pController, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)), this, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)));
                 connect(m_pController, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)), this, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)));
@@ -115,7 +120,11 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
                     }
                 }
 
-                m_controllerFactory.Unload(&m_pController);
+#ifdef USE_STATIC_CONTROLLER_LIBRARY
+            vtvDeleteQController(m_pController);
+#else
+            m_controllerFactory.Unload(&m_pController);
+#endif
             }
         }
 
