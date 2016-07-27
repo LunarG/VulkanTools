@@ -1232,7 +1232,6 @@ class ApiDumpSubcommand(Subcommand):
                  '{\n'
                  '    using namespace StreamControl;\n'
                  '    using namespace std;\n'
-                 '    dispatch_key key = get_dispatch_key(queue);\n'
                  '    VkLayerDispatchTable *pDisp  = %s_dispatch_table(%s);\n'
                  '    %spDisp->%s;\n'
                  '    %s%s%s\n'
