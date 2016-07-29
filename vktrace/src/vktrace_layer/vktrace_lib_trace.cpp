@@ -1131,7 +1131,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
         Trim_ObjectInfo* pInfo = trim_get_PhysicalDevice_objectInfo(physicalDevice);
         if (pInfo != NULL)
         {
-            pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = pHeader;
+            if (pQueueFamilyProperties == nullptr)
+            {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = pHeader;
+            }
+            else
+            {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = pHeader;
+            }
         }
         else
         {
