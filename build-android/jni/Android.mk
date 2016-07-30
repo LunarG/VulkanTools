@@ -124,6 +124,20 @@ LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_MODULE := VkLayer_api_dump
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/api_dump/api_dump.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(SRC_DIR)/include \
+                    $(SRC_DIR)/layers \
+                    $(SRC_DIR)/layersvt \
+                    $(LAYER_DIR)/include \
+                    $(SRC_DIR)/loader
+LOCAL_STATIC_LIBRARIES += layer_utils
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_LDLIBS    := -llog
+include $(BUILD_SHARED_LIBRARY)
+
 # Pull in prebuilt shaderc
 include $(CLEAR_VARS)
 LOCAL_MODULE := shaderc-prebuilt
