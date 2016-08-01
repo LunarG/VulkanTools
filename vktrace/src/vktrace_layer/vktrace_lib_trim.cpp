@@ -67,6 +67,277 @@ VkAllocationCallbacks* trim_get_Allocator(const VkAllocationCallbacks* pAllocato
 }
 
 //=============================================================================
+// Helpers to generate trace packets
+//=============================================================================
+vktrace_trace_packet_header* trim_generate_vkCreateCommandPool(
+    VkDevice device, 
+    const VkCommandPoolCreateInfo* pCreateInfo, 
+    const VkAllocationCallbacks* pAllocator, 
+    VkCommandPool* pCommandPool)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateCommandPool* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCreateCommandPool, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkCommandPool));
+
+    // need to actually create the command Pool so that we have a valid handle to supply to the trace file for use on replay
+    result = mdd(device)->devTable.CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateCommandPool(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkCommandPoolCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandPool), sizeof(VkCommandPool), pCommandPool);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandPool));
+    vktrace_finalize_trace_packet(pHeader);
+
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkAllocateCommandBuffers(
+    VkDevice device,
+    const VkCommandBufferAllocateInfo* pAllocateInfo,
+    VkCommandBuffer* pCommandBuffers)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkAllocateCommandBuffers* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkAllocateCommandBuffers, get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkCommandBuffer) * pAllocateInfo->commandBufferCount);
+
+    // Need to actually allocate the CommandBuffer(s) so that we have a valid handle.
+    result = mdd(device)->devTable.AllocateCommandBuffers(device, pAllocateInfo, pCommandBuffers);
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkAllocateCommandBuffers(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkCommandBufferAllocateInfo), pAllocateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandBuffers), sizeof(VkCommandBuffer) * pAllocateInfo->commandBufferCount, pCommandBuffers);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandBuffers));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkBeginCommandBuffer(
+    VkCommandBuffer commandBuffer,
+    const VkCommandBufferBeginInfo* pBeginInfo)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkBeginCommandBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkBeginCommandBuffer, get_struct_chain_size((void*)pBeginInfo));
+
+    // Don't need to actually begin command buffer, we just need the packet, pretend the call was successful.
+    result = VK_SUCCESS;
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkBeginCommandBuffer(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBeginInfo), sizeof(VkCommandBufferBeginInfo), pBeginInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBeginInfo->pInheritanceInfo), sizeof(VkCommandBufferInheritanceInfo), pBeginInfo->pInheritanceInfo);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBeginInfo->pInheritanceInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBeginInfo));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkCmdPipelineBarrier(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineStageFlags                        srcStageMask,
+    VkPipelineStageFlags                        dstStageMask,
+    VkDependencyFlags                           dependencyFlags,
+    uint32_t                                    memoryBarrierCount,
+    const VkMemoryBarrier*                      pMemoryBarriers,
+    uint32_t                                    bufferMemoryBarrierCount,
+    const VkBufferMemoryBarrier*                pBufferMemoryBarriers,
+    uint32_t                                    imageMemoryBarrierCount,
+    const VkImageMemoryBarrier*                 pImageMemoryBarriers)
+{
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdPipelineBarrier* pPacket = NULL;
+    size_t customSize;
+    customSize = (memoryBarrierCount * sizeof(VkMemoryBarrier)) +
+        (bufferMemoryBarrierCount * sizeof(VkBufferMemoryBarrier)) +
+        (imageMemoryBarrierCount * sizeof(VkImageMemoryBarrier));
+    CREATE_TRACE_PACKET(vkCmdPipelineBarrier, customSize);
+
+    // Don't actually need to issue the PipelineBarrier, just need the packet.
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCmdPipelineBarrier(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->srcStageMask = srcStageMask;
+    pPacket->dstStageMask = dstStageMask;
+    pPacket->dependencyFlags = dependencyFlags;
+    pPacket->memoryBarrierCount = memoryBarrierCount;
+    pPacket->bufferMemoryBarrierCount = bufferMemoryBarrierCount;
+    pPacket->imageMemoryBarrierCount = imageMemoryBarrierCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMemoryBarriers), memoryBarrierCount * sizeof(VkMemoryBarrier), pMemoryBarriers);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBufferMemoryBarriers), bufferMemoryBarrierCount * sizeof(VkBufferMemoryBarrier), pBufferMemoryBarriers);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pImageMemoryBarriers), imageMemoryBarrierCount * sizeof(VkImageMemoryBarrier), pImageMemoryBarriers);
+
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemoryBarriers));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBufferMemoryBarriers));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pImageMemoryBarriers));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkEndCommandBuffer(
+    VkCommandBuffer commandBuffer)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkEndCommandBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkEndCommandBuffer, 0);
+
+    // Don't need to actually end command buffer, we just need the packet, pretend the call was successful.
+    result = VK_SUCCESS;
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkEndCommandBuffer(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->result = result;
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkQueueSubmit(
+    VkQueue queue,
+    uint32_t submitCount,
+    const VkSubmitInfo* pSubmits,
+    VkFence fence)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkQueueSubmit* pPacket = NULL;
+    size_t arrayByteCount = 0;
+    uint32_t i = 0;
+    for (i = 0; i < submitCount; ++i) {
+        arrayByteCount += vk_size_vksubmitinfo(&pSubmits[i]);
+    }
+    CREATE_TRACE_PACKET(vkQueueSubmit, arrayByteCount);
+
+    // Don't actually need to submit the queue, just pretend the call was successful.
+    result = VK_SUCCESS;
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkQueueSubmit(pHeader);
+    pPacket->queue = queue;
+    pPacket->submitCount = submitCount;
+    pPacket->fence = fence;
+    pPacket->result = result;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits), submitCount*sizeof(VkSubmitInfo), pSubmits);
+    for (i = 0; i < submitCount; ++i) {
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pCommandBuffers), pPacket->pSubmits[i].commandBufferCount * sizeof(VkCommandBuffer), pSubmits[i].pCommandBuffers);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pCommandBuffers));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pWaitSemaphores), pPacket->pSubmits[i].waitSemaphoreCount * sizeof(VkSemaphore), pSubmits[i].pWaitSemaphores);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pWaitSemaphores));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pSignalSemaphores), pPacket->pSubmits[i].signalSemaphoreCount * sizeof(VkSemaphore), pSubmits[i].pSignalSemaphores);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pSignalSemaphores));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pWaitDstStageMask), sizeof(VkPipelineStageFlags), pSubmits[i].pWaitDstStageMask);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pWaitDstStageMask));
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkQueueWaitIdle(
+    VkQueue queue)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkQueueWaitIdle* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkQueueWaitIdle, 0);
+
+    // Don't want to actually wait on the queue, so pretend it completed successfully
+    result = VK_SUCCESS;
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkQueueWaitIdle(pHeader);
+    pPacket->queue = queue;
+    pPacket->result = result;
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkResetCommandPool(
+    VkDevice device,
+    VkCommandPool commandPool,
+    VkCommandPoolResetFlags flags)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkResetCommandPool* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkResetCommandPool, 0);
+
+    // Actually make this call, because we need to release the commandbuffer(s) we created.
+    result = mdd(device)->devTable.ResetCommandPool(device, commandPool, flags);
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkResetCommandPool(pHeader);
+    pPacket->device = device;
+    pPacket->commandPool = commandPool;
+    pPacket->flags = flags;
+    pPacket->result = result;
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkFreeCommandBuffers(
+    VkDevice device,
+    VkCommandPool commandPool,
+    uint32_t commandBufferCount,
+    const VkCommandBuffer* pCommandBuffers)
+{
+    vktrace_trace_packet_header* pHeader;
+    packet_vkFreeCommandBuffers* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkFreeCommandBuffers, commandBufferCount*sizeof(VkCommandBuffer));
+
+    // Actually make this call because we need to Free the commandBuffer(s) we created.
+    mdd(device)->devTable.FreeCommandBuffers(device, commandPool, commandBufferCount, pCommandBuffers);
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkFreeCommandBuffers(pHeader);
+    pPacket->device = device;
+    pPacket->commandPool = commandPool;
+    pPacket->commandBufferCount = commandBufferCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandBuffers), commandBufferCount*sizeof(VkCommandBuffer), pCommandBuffers);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandBuffers));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header* trim_generate_vkDestroyCommandPool(
+    VkDevice device,
+    VkCommandPool commandPool,
+    const VkAllocationCallbacks* pAllocator)
+{
+    vktrace_trace_packet_header* pHeader;
+    packet_vkDestroyCommandPool* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkDestroyCommandPool, sizeof(VkAllocationCallbacks));
+
+    // Actually make this call to destroy the commandPool that we created
+    mdd(device)->devTable.DestroyCommandPool(device, commandPool, pAllocator);
+
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkDestroyCommandPool(pHeader);
+    pPacket->device = device;
+    pPacket->commandPool = commandPool;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=============================================================================
 // Use this to snapshot the global state tracker at the start of the trim frames.
 //=============================================================================
 void trim_snapshot_state_tracker()
@@ -310,7 +581,7 @@ void trim_write_all_referenced_object_calls()
         vktrace_write_trace_packet(obj->second.ObjectInfo.Device.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Device.pCreatePacket));
     }
-
+    
     // Queue
     for (TrimObjectInfoMap::iterator obj = stateTracker.createdQueues.begin(); obj != stateTracker.createdQueues.end(); obj++)
     {
@@ -431,6 +702,178 @@ void trim_write_all_referenced_object_calls()
         }
     }
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+
+    for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
+    {
+        VkImageLayout initialLayout = obj->second.ObjectInfo.Image.initialLayout;
+        VkImageLayout desiredLayout = obj->second.ObjectInfo.Image.mostRecentLayout;
+
+        // Need to make sure images have the correct VkImageLayout.
+        if (desiredLayout != initialLayout && obj->second.ObjectInfo.Image.bIsSwapchainImage == false) // TODO: find the solution for swapchain images
+        {
+            VkImage image = static_cast<VkImage>(obj->first);
+            VkDevice device = obj->second.belongsToDevice;
+            uint32_t mipLevels = obj->second.ObjectInfo.Image.mipLevels;
+            uint32_t arrayLayers = obj->second.ObjectInfo.Image.arrayLayers;
+            VkFormat format = obj->second.ObjectInfo.Image.format;
+            VkSharingMode sharingMode = obj->second.ObjectInfo.Image.sharingMode;
+            uint32_t queueFamilyIndex = obj->second.ObjectInfo.Image.queueFamilyIndex;
+            uint32_t srcAccessMask = (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) ? VK_ACCESS_HOST_WRITE_BIT : 0;
+            VkImageAspectFlagBits aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+            if (format == VK_FORMAT_D16_UNORM ||
+                format == VK_FORMAT_X8_D24_UNORM_PACK32 ||
+                format == VK_FORMAT_D32_SFLOAT)
+            {
+                aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+            }
+            else if (format == VK_FORMAT_D32_SFLOAT ||
+                format == VK_FORMAT_D16_UNORM_S8_UINT ||
+                format == VK_FORMAT_D24_UNORM_S8_UINT ||
+                format == VK_FORMAT_D32_SFLOAT_S8_UINT)
+            {
+                aspectMask = (VkImageAspectFlagBits)(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+            }
+            uint32_t srcQueueFamilyIndex = queueFamilyIndex;
+            uint32_t dstQueueFamilyIndex = queueFamilyIndex;
+
+            if (sharingMode == VK_SHARING_MODE_CONCURRENT)
+            {
+                srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            }
+
+            // This current approach is SUPER _NOT_ efficient.
+            // We should create a command pool on each device only once.
+            // We should only create one Command Buffer in each pool.
+            // We should batch all the VkImageMemoryBarrier structs into a single call to VkCmdPipelineBarrier (per-device).
+            // We should only end the command buffers once
+            // We should only queue submit them once
+            // We should only delete them once
+            // Instead, this code is doing all of the above, for every single image transition.
+
+            // This means:
+            // 0) Need a VkCommandPool
+            VkCommandPool tmpCommandPool;
+            const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
+                VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+                NULL,
+                VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT or VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
+                0 //demo->graphics_queue_node_index, TODO: Will need to search for this
+            };
+            vktrace_trace_packet_header* pCreateCommandPoolPacket = trim_generate_vkCreateCommandPool(device, &cmdPoolCreateInfo, NULL, &tmpCommandPool);
+            vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
+
+            // 1) Create & begin a command buffer
+            VkCommandBuffer tmpCommandBuffer;
+            const VkCommandBufferAllocateInfo cmdBufferAllocInfo = {
+                VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                NULL,
+                tmpCommandPool,
+                VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                1
+            };
+            vktrace_trace_packet_header* pAllocateCommandBufferPacket = trim_generate_vkAllocateCommandBuffers(device, &cmdBufferAllocInfo, &tmpCommandBuffer);
+            vktrace_write_trace_packet(pAllocateCommandBufferPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pAllocateCommandBufferPacket);
+
+            VkCommandBufferBeginInfo cmdBufferBeginInfo = {
+                VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                NULL,
+                0,
+                NULL,
+            };
+
+            vktrace_trace_packet_header* pBeginCommandBufferPacket = trim_generate_vkBeginCommandBuffer(tmpCommandBuffer, &cmdBufferBeginInfo);
+            vktrace_write_trace_packet(pBeginCommandBufferPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pBeginCommandBufferPacket);
+
+            // 2) Make VkImageMemoryBarrier structs to change the image's layout
+            VkImageMemoryBarrier imageMemoryBarrier = {
+                VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                NULL,
+                srcAccessMask,
+                0, // dstAccessMask, determined below
+                initialLayout,
+                desiredLayout,
+                srcQueueFamilyIndex,
+                dstQueueFamilyIndex,
+                image,
+                { aspectMask, 0, mipLevels, 0, arrayLayers } };
+
+            if (desiredLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+                /* Make sure anything that was copying from this image has completed */
+                imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            }
+
+            if (desiredLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+                imageMemoryBarrier.dstAccessMask =
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            }
+
+            if (desiredLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+                imageMemoryBarrier.dstAccessMask =
+                    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            }
+
+            if (desiredLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+                /* Make sure any Copy or CPU writes to image are flushed */
+                imageMemoryBarrier.dstAccessMask =
+                    VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+            }
+
+            VkImageMemoryBarrier *pmemory_barrier = &imageMemoryBarrier;
+
+            VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+            // 3) Use VkCmdPipelineBarrier to transition the images
+            vktrace_trace_packet_header* pCmdPipelineBarrierPacket = trim_generate_vkCmdPipelineBarrier(tmpCommandBuffer, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+            vktrace_write_trace_packet(pCmdPipelineBarrierPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pCmdPipelineBarrierPacket);
+
+            // 4) VkEndCommandBuffer()
+            vktrace_trace_packet_header* pEndCommandBufferPacket = trim_generate_vkEndCommandBuffer(tmpCommandBuffer);
+            vktrace_write_trace_packet(pEndCommandBufferPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pEndCommandBufferPacket);
+            
+            VkQueue trimQueue;
+            uint32_t queueIndex = 0; // just using the first queue available, we don't yet verify if this even exists, just assuming.
+            mdd(device)->devTable.GetDeviceQueue(device, queueFamilyIndex, queueIndex, &trimQueue);
+            
+            // 5) vkQueueSubmit()
+            VkSubmitInfo submitInfo = {
+                VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                NULL,
+                0,
+                NULL,
+                NULL,
+                1,
+                &tmpCommandBuffer,
+                0,
+                NULL };
+            VkFence nullFence = VK_NULL_HANDLE;
+            vktrace_trace_packet_header* pQueueSubmitPacket = trim_generate_vkQueueSubmit(trimQueue, 1, &submitInfo, nullFence);
+            vktrace_write_trace_packet(pQueueSubmitPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pQueueSubmitPacket);
+
+            // 5a) vkWaitQueueIdle()
+            vktrace_trace_packet_header* pQueueWaitIdlePacket = trim_generate_vkQueueWaitIdle(trimQueue);
+            vktrace_write_trace_packet(pQueueWaitIdlePacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pQueueWaitIdlePacket);
+
+            // 6) vkResetCommandPool() or vkFreeCommandBuffers()
+            vktrace_trace_packet_header* pResetCommandPoolPacket = trim_generate_vkResetCommandPool(device, tmpCommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+            vktrace_write_trace_packet(pResetCommandPoolPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pResetCommandPoolPacket);
+
+            // 7) vkDestroyCommandPool()
+            vktrace_trace_packet_header* pDestroyCommandPoolPacket = trim_generate_vkDestroyCommandPool(device, tmpCommandPool, NULL);
+            vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
+        }
+    }
 
     // ImageView
     for (TrimObjectInfoMap::iterator obj = stateTracker.createdImageViews.begin(); obj != stateTracker.createdImageViews.end(); obj++)

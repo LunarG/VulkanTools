@@ -589,6 +589,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(
     else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
+
         if (g_trimIsPreTrim)
         {
             trim_add_CommandBuffer_call(commandBuffer, pHeader);
@@ -1806,6 +1807,16 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
     else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
+        for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
+        {
+            Trim_ObjectInfo* pImageInfo = trim_get_Image_objectInfo(pImageMemoryBarriers[i].image);
+            assert(pImageInfo != nullptr);
+            if (pImageInfo != nullptr)
+            {
+                pImageInfo->ObjectInfo.Image.mostRecentLayout = pImageMemoryBarriers[i].newLayout;
+            }
+        }
+
         if (g_trimIsPreTrim)
         {
             trim_add_CommandBuffer_call(commandBuffer, pHeader);
@@ -1865,6 +1876,16 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
     else if (g_trimIsPreTrim || g_trimIsInTrim)
     {
         vktrace_finalize_trace_packet(pHeader);
+        for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
+        {
+            Trim_ObjectInfo* pImageInfo = trim_get_Image_objectInfo(pImageMemoryBarriers[i].image);
+            assert(pImageInfo != nullptr);
+            if (pImageInfo != nullptr)
+            {
+                pImageInfo->ObjectInfo.Image.mostRecentLayout = pImageMemoryBarriers[i].newLayout;
+            }
+        }
+
         if (g_trimIsPreTrim)
         {
             trim_add_CommandBuffer_call(commandBuffer, pHeader);

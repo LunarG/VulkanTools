@@ -519,6 +519,22 @@ class Subcommand(object):
             trim_instructions.append("        if (g_trimIsPreTrim) { vktrace_delete_trace_packet(&pHeader); }")
         elif 'DestroyFence' is proto.name:
             trim_instructions.append("        trim_remove_Fence_object(fence);")
+        elif ('CmdCopyImage' is proto.name or
+              'CmdBlitImage' is proto.name or
+              'CmdResolveImage' is proto.name or
+              'CmdCopyBufferToImage' is proto.name):
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Image_objectInfo(dstImage);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.mostRecentLayout = dstImageLayout;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim_add_CommandBuffer_call(commandBuffer, pHeader); }")
+        elif ('CmdClearColorImage' is proto.name or
+              'CmdClearDepthStencilImage' is proto.name):
+            trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_get_Image_objectInfo(image);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.mostRecentLayout = imageLayout;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim_add_CommandBuffer_call(commandBuffer, pHeader); }")
         elif ('EndCommandBuffer' is proto.name or
               'ResetCommandBuffer' is proto.name or
               'CmdBindPipeline' is proto.name or
@@ -541,16 +557,10 @@ class Subcommand(object):
               'CmdDispatch' is proto.name or
               'CmdDispatchIndirect' is proto.name or
               'CmdCopyBuffer' is proto.name or
-              'CmdCopyImage' is proto.name or
-              'CmdBlitImage' is proto.name or
-              'CmdCopyBufferToImage' is proto.name or
               'CmdCopyImageToBuffer' is proto.name or
               'CmdUpdateBuffer' is proto.name or
               'CmdFillBuffer' is proto.name or
-              'CmdClearColorImage' is proto.name or
-              'CmdClearDepthStencilImage' is proto.name or
               'CmdClearAttachments' is proto.name or
-              'CmdResolveImage' is proto.name or
               'CmdSetEvent' is proto.name or
               'CmdResetEvent' is proto.name or
               'CmdNextSubpass' is proto.name or
@@ -577,6 +587,14 @@ class Subcommand(object):
             trim_instructions.append("        pInfo->ObjectInfo.Image.pCreatePacket = pHeader;")
             trim_instructions.append("#endif //!TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.format = pCreateInfo->format;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.extent = pCreateInfo->extent;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.sharingMode = pCreateInfo->sharingMode;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.queueFamilyIndex = (pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT && pCreateInfo->pQueueFamilyIndices != NULL) ? pCreateInfo->pQueueFamilyIndices[0] : 0;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.initialLayout = pCreateInfo->initialLayout;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.mostRecentLayout = pCreateInfo->initialLayout;")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.Image.pAllocator = pAllocator;")
             trim_instructions.append("            trim_add_Allocator(pAllocator);")

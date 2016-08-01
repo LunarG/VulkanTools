@@ -124,6 +124,16 @@ typedef struct _Trim_ObjectInfo
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
+            VkFormat format;
+            VkExtent3D extent;
+            uint32_t mipLevels;
+            uint32_t arrayLayers;
+            VkSharingMode sharingMode;
+            uint32_t queueFamilyIndex;
+            VkAccessFlagBits accessFlags;
+            VkImageAspectFlags aspectMask;
+            VkImageLayout initialLayout;
+            VkImageLayout mostRecentLayout;
         } Image;
         struct _ImageView {             // VkImageView
             vktrace_trace_packet_header* pCreatePacket;
