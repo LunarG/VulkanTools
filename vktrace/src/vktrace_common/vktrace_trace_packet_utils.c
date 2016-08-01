@@ -2,6 +2,7 @@
  *
  * Copyright 2014-2016 Valve Corporation
  * Copyright (C) 2014-2016 LunarG, Inc.
+ * Copyright (C) 2016 Advanced Micro Device, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +23,8 @@
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_interconnect.h"
 #include "vktrace_filelike.h"
+#include "optimization_function.h"
+
 #ifdef WIN32
 #include <rpc.h>
 #pragma comment (lib, "Rpcrt4.lib")
@@ -171,7 +174,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, size);
 
         // copy buffer to the location
-        memcpy(*ptr_address, pBuffer, (size_t)size);
+        opt_memcpy(*ptr_address, pBuffer, (size_t)size);
     }
 }
 

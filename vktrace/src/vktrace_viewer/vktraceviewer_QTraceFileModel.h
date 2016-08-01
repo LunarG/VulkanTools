@@ -179,26 +179,29 @@ public:
             QString tip;
             tip += "<html><table>";
 #if defined(_DEBUG)
-            tip += "<tr><td><b>Packet header:</b></td><td/></tr>";
-            tip += QString("<tr><td>pHeader->size</td><td>= %1 bytes</td></tr>").arg(pHeader->size);
-            tip += QString("<tr><td>pHeader->global_packet_index</td><td>= %1</td></tr>").arg(pHeader->global_packet_index);
-            tip += QString("<tr><td>pHeader->tracer_id</td><td>= %1</td></tr>").arg(pHeader->tracer_id);
-            tip += QString("<tr><td>pHeader->packet_id</td><td>= %1</td></tr>").arg(pHeader->packet_id);
-            tip += QString("<tr><td>pHeader->thread_id</td><td>= %1</td></tr>").arg(pHeader->thread_id);
-            tip += QString("<tr><td>pHeader->vktrace_begin_time</td><td>= %1</td></tr>").arg(pHeader->vktrace_begin_time);
-            tip += QString("<tr><td>pHeader->entrypoint_begin_time</td><td>= %1</td></tr>").arg(pHeader->entrypoint_begin_time);
-            tip += QString("<tr><td>pHeader->entrypoint_end_time</td><td>= %1 (%2)</td></tr>").arg(pHeader->entrypoint_end_time).arg(pHeader->entrypoint_end_time - pHeader->entrypoint_begin_time);
-            tip += QString("<tr><td>pHeader->vktrace_end_time</td><td>= %1 (%2)</td></tr>").arg(pHeader->vktrace_end_time).arg(pHeader->vktrace_end_time - pHeader->vktrace_begin_time);
-            tip += QString("<tr><td>pHeader->next_buffers_offset</td><td>= %1</td></tr>").arg(pHeader->next_buffers_offset);
-            tip += QString("<tr><td>pHeader->pBody</td><td>= %1</td></tr>").arg(pHeader->pBody);
+            tip += "<tr><td><b>Packet header (pHeader->):</b></td><td/></tr>";
+            tip += QString("<tr><td>size</td><td>= %1 bytes</td></tr>").arg(pHeader->size);
+            tip += QString("<tr><td>global_packet_index</td><td>= %1</td></tr>").arg(pHeader->global_packet_index);
+            tip += QString("<tr><td>tracer_id</td><td>= %1</td></tr>").arg(pHeader->tracer_id);
+            tip += QString("<tr><td>packet_id</td><td>= %1</td></tr>").arg(pHeader->packet_id);
+            tip += QString("<tr><td>thread_id</td><td>= %1</td></tr>").arg(pHeader->thread_id);
+            tip += QString("<tr><td>vktrace_begin_time</td><td>= %1</td></tr>").arg(pHeader->vktrace_begin_time);
+            tip += QString("<tr><td>entrypoint_begin_time</td><td>= %1</td></tr>").arg(pHeader->entrypoint_begin_time);
+            tip += QString("<tr><td>entrypoint_end_time</td><td>= %1 (%2)</td></tr>").arg(pHeader->entrypoint_end_time).arg(pHeader->entrypoint_end_time - pHeader->entrypoint_begin_time);
+            tip += QString("<tr><td>vktrace_end_time</td><td>= %1 (%2)</td></tr>").arg(pHeader->vktrace_end_time).arg(pHeader->vktrace_end_time - pHeader->vktrace_begin_time);
+            tip += QString("<tr><td>next_buffers_offset</td><td>= %1</td></tr>").arg(pHeader->next_buffers_offset);
+            tip += QString("<tr><td>pBody</td><td>= %1</td></tr>").arg(pHeader->pBody);
             tip += "<br>";
 #endif
             tip += "<tr><td><b>";
             QString multiline = this->get_packet_string_multiline(pHeader);
-            multiline.replace("(\n", "</b>(</td><td/></tr><tr><td>");
+            // only replaces the first '('
+            multiline.replace(multiline.indexOf("("), 1, "</b>(</td><td/></tr><tr><td>");
+            multiline.replace(", ", ", </td></tr><tr><td>");
             multiline.replace(" = ", "</td><td>= ");
-            multiline.replace("\n", "</td></tr><tr><td>");
-            multiline.replace("  ", "&nbsp;&nbsp;");
+
+            // only replaces the final ')'
+            multiline.replace(multiline.lastIndexOf(")"), 1, "</td></tr><tr><td>)</td><td>");
             tip += multiline;
             tip += "</td></tr></table>";
             tip += "</html>";
