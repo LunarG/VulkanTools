@@ -906,6 +906,7 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('')
         header_txt.append('%s' % self.lineinfo.get())
         header_txt.append('static bool g_ApiDumpDetailed = true;')
+        header_txt.append('static uint64_t g_frameCounter = 0;')
         header_txt.append('')
         header_txt.append('static LOADER_PLATFORM_THREAD_ONCE_DECLARATION(initOnce);')
         header_txt.append('')
@@ -1039,8 +1040,8 @@ class ApiDumpSubcommand(Subcommand):
         f_open = 'loader_platform_thread_lock_mutex(&printLock);\n    '
         log_func = '%s\n' % self.lineinfo.get()
         log_func += '    if (StreamControl::writeAddress == true) {'
-        log_func += '\n        (*outputStream) << "t{" << getTIDIndex() << "} vk%s(' % proto.name
-        log_func_no_addr = '\n        (*outputStream) << "t{" << getTIDIndex() << "} vk%s(' % proto.name
+        log_func += '\n        (*outputStream) << "t{" << getTIDIndex() << "} f{" << g_frameCounter << "} vk%s(' % proto.name
+        log_func_no_addr = '\n        (*outputStream) << "t{" << getTIDIndex() << "} f{" << g_frameCounter << "} vk%s(' % proto.name
         f_close = '\n    loader_platform_thread_unlock_mutex(&printLock);'
         pindex = 0
         prev_count_name = ''
@@ -1175,7 +1176,7 @@ class ApiDumpSubcommand(Subcommand):
                      '    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;\n'
                      '    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");\n'
                      '    if (fpCreateInstance == NULL) {\n'
-                     '        (*outputStream) << "t{" << getTIDIndex() << "} vkCreateInstance FAILED TO FIND PROC ADDRESS" << endl;\n'
+                     '        (*outputStream) << "t{" << getTIDIndex() << "} " << g_frameCounter << " vkCreateInstance FAILED TO FIND PROC ADDRESS" << endl;\n'
                      '        return VK_ERROR_INITIALIZATION_FAILED;\n'
                      '    }\n'
                      '    // Advance the link info for the next element on the chain\n'
@@ -1224,6 +1225,18 @@ class ApiDumpSubcommand(Subcommand):
                  '    instanceExtMap.erase(pDisp);\n'
                  '    destroy_instance_dispatch_table(key);\n'
                  '    %s%s%s\n'
+                 '%s'
+                 '}' % (qual, decl, table_type, dispatch_param, ret_val, proto.c_call(), f_open, log_func, f_close, stmt))
+        elif proto.name == "QueuePresentKHR":
+            funcs.append('%s%s\n'
+                 '{\n'
+                 '    using namespace StreamControl;\n'
+                 '    using namespace std;\n'
+                 '    dispatch_key key = get_dispatch_key(queue);\n'
+                 '    VkLayerDispatchTable *pDisp  = %s_dispatch_table(%s);\n'
+                 '    %spDisp->%s;\n'
+                 '    %s%s%s\n'
+                 '    ++g_frameCounter;\n'
                  '%s'
                  '}' % (qual, decl, table_type, dispatch_param, ret_val, proto.c_call(), f_open, log_func, f_close, stmt))
         else:

@@ -25,7 +25,7 @@
 vktraceviewer_vk_settings g_vkTraceViewerSettings;
 static vktraceviewer_vk_settings s_defaultVkSettings;
 
-vktrace_SettingInfo g_settings_info[] =
+vktrace_SettingInfo g_vk_settings[] =
 {
     { "ri", "PrintReplayInfoMsgs", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.printReplayInfoMsgs, &s_defaultVkSettings.printReplayInfoMsgs, TRUE, "Print info messages reported when replaying trace file."},
     { "rw", "PrintReplayWarningMsgs", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.printReplayWarningMsgs, &s_defaultVkSettings.printReplayWarningMsgs, TRUE, "Print warning messages reported when replaying trace file."},
@@ -43,8 +43,8 @@ vktrace_SettingInfo g_settings_info[] =
 vktrace_SettingGroup g_vkTraceViewerSettingGroup =
 {
     "vktraceviewer_vk",
-    sizeof(g_settings_info) / sizeof(g_settings_info[0]),
-    &g_settings_info[0]
+    sizeof(g_vk_settings) / sizeof(g_vk_settings[0]),
+    &g_vk_settings[0]
 };
 
 void initialize_default_settings()
