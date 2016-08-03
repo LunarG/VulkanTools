@@ -422,6 +422,7 @@ class Subcommand(object):
                                          'FreeDescriptorSets',
                                          'QueueSubmit',
                                          'FlushMappedMemoryRanges',
+                                         'InvalidateMappedMemoryRanges',
                                          'GetDeviceProcAddr',
                                          'GetInstanceProcAddr',
                                          'EnumerateInstanceExtensionProperties',
@@ -1027,6 +1028,11 @@ class Subcommand(object):
                                                                                      '{\n',
                                                                                      '    pPacket->ppData[i] = (void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->ppData[i]);\n',
                                                                                      '}']},
+                             'InvalidateMappedMemoryRanges' : {'param': 'ppData', 'txt': ['uint32_t i = 0;\n',
+                                                                                     'for (i = 0; i < pPacket->memoryRangeCount; i++)\n',
+                                                                                     '{\n',
+                                                                                     '    pPacket->ppData[i] = (void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->ppData[i]);\n',
+                                                                                     '}']},
                              'QueuePresentKHR' : {'param': 'pPresentInfo', 'txt': ['VkSwapchainKHR **ppSC = (VkSwapchainKHR **)& pPacket->pPresentInfo->pSwapchains;\n',
                                                                                    '*ppSC = (VkSwapchainKHR*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)(pPacket->pPresentInfo->pSwapchains));\n',
                                                                                    'VkSemaphore **ppS = (VkSemaphore **) &pPacket->pPresentInfo->pWaitSemaphores;\n',
@@ -1057,6 +1063,8 @@ class Subcommand(object):
                 if 'UnmapMemory' == proto.name:
                     proto.params.append(vulkan.Param("void*", "pData"))
                 elif 'FlushMappedMemoryRanges' == proto.name:
+                    proto.params.append(vulkan.Param("void**", "ppData"))
+                elif 'InvalidateMappedMemoryRanges' == proto.name:
                     proto.params.append(vulkan.Param("void**", "ppData"))
                 if_body.append('%s' % self.lineinfo.get())
                 if_body.append('typedef struct packet_vk%s {' % proto.name)
@@ -1660,6 +1668,7 @@ class Subcommand(object):
                                  'FreeMemory',
                                  'FreeDescriptorSets',
                                  'FlushMappedMemoryRanges',
+                                 'InvalidateMappedMemoryRanges',
                                  #'GetGlobalExtensionInfo',
                                  #'GetImageSubresourceInfo',
                                  #'GetObjectInfo',
