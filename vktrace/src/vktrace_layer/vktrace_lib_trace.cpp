@@ -258,6 +258,78 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
     // end custom code
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemoryRanges(
+    VkDevice device,
+    uint32_t memoryRangeCount,
+    const VkMappedMemoryRange* pMemoryRanges)
+{
+    vktrace_trace_packet_header* pHeader;
+    VkResult result;
+    size_t rangesSize = 0;
+    size_t dataSize = 0;
+    uint32_t iter;
+    packet_vkInvalidateMappedMemoryRanges* pPacket = NULL;
+    uint64_t trace_begin_time = vktrace_get_time();
+
+    // find out how much memory is in the ranges
+    for (iter = 0; iter < memoryRangeCount; iter++)
+    {
+        VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+        rangesSize += vk_size_vkmappedmemoryrange(pRange);
+        dataSize += (size_t)pRange->size;
+    }
+
+    CREATE_TRACE_PACKET(vkInvalidateMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
+    pHeader->vktrace_begin_time = trace_begin_time;
+    pPacket = interpret_body_as_vkInvalidateMappedMemoryRanges(pHeader);
+
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->pMemoryRanges), rangesSize, pMemoryRanges);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemoryRanges));
+
+    // insert into packet the data that was written by CPU between the vkMapMemory call and here
+    // create a temporary local ppData array and add it to the packet (to reserve the space for the array)
+    void** ppTmpData = (void **) malloc(memoryRangeCount * sizeof(void*));
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->ppData), sizeof(void*)*memoryRangeCount, ppTmpData);
+    free(ppTmpData);
+
+    // now the actual memory
+    vktrace_enter_critical_section(&g_memInfoLock);
+    for (iter = 0; iter < memoryRangeCount; iter++)
+    {
+        VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+        VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
+
+        if (pEntry != NULL)
+        {
+            assert(pEntry->handle == pRange->memory);
+            assert(pEntry->totalSize >= (pRange->size + pRange->offset));
+            assert(pEntry->totalSize >= pRange->size);
+            assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
+            pEntry->didFlush = TRUE;//Do we need didInvalidate?
+        }
+        else
+        {
+             vktrace_LogError("Failed to copy app memory into trace packet (idx = %u) on vkInvalidateMappedMemoryRanges", pHeader->global_packet_index);
+        }
+    }
+    vktrace_leave_critical_section(&g_memInfoLock);
+
+    // now finalize the ppData array since it is done being updated
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
+
+    pHeader->entrypoint_begin_time = vktrace_get_time();
+    result = mdd(device)->devTable.InvalidateMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket->device = device;
+    pPacket->memoryRangeCount = memoryRangeCount;
+    pPacket->result = result;
+    FINISH_TRACE_PACKET();
+    return result;
+}
+
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRanges(
     VkDevice device,
     uint32_t memoryRangeCount,
