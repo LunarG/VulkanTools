@@ -42,7 +42,7 @@ cp -f ../layers/descriptor_sets.cpp   generated/common/
 # 1 to 1 correspondence -- one layer one source file; additional files are copied
 # at fixup step
 declare layers=(core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump)
-declare src_dirs=(../layers ../layers generated/include ../layers ../layers ../layers generated/include generated/include)
+declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers generated/include generated/include)
 
 SRC_ROOT=generated/layer-src
 BUILD_ROOT=generated/gradle-build
