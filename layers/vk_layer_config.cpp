@@ -42,6 +42,7 @@ class ConfigFile {
 
   private:
     bool m_fileIsParsed;
+    std::string m_fileName;
     std::map<std::string, std::string> m_valueMap;
 
     void parseFile(const char *filename);
@@ -114,6 +115,13 @@ void setLayerOption(const char *_option, const char *_val) { g_configFileObj.set
 // Constructor for ConfigFile. Initialize layers to log error messages to stdout by default. If a vk_layer_settings file is present,
 // its settings will override the defaults.
 ConfigFile::ConfigFile() : m_fileIsParsed(false) {
+
+#ifdef ANDROID
+    m_fileName = "/sdcard/Android/vk_layer_settings.txt";
+#else
+    m_fileName = "vk_layer_settings.txt";
+#endif
+
     m_valueMap["lunarg_core_validation.report_flags"] = "error";
     m_valueMap["lunarg_image.report_flags"] = "error";
     m_valueMap["lunarg_object_tracker.report_flags"] = "error";
@@ -151,7 +159,7 @@ ConfigFile::~ConfigFile() {}
 const char *ConfigFile::getOption(const std::string &_option) {
     std::map<std::string, std::string>::const_iterator it;
     if (!m_fileIsParsed) {
-        parseFile("vk_layer_settings.txt");
+        parseFile(m_fileName.c_str());
     }
 
     if ((it = m_valueMap.find(_option)) == m_valueMap.end())
@@ -162,7 +170,7 @@ const char *ConfigFile::getOption(const std::string &_option) {
 
 void ConfigFile::setOption(const std::string &_option, const std::string &_val) {
     if (!m_fileIsParsed) {
-        parseFile("vk_layer_settings.txt");
+        parseFile(m_fileName.c_str());
     }
 
     m_valueMap[_option] = _val;
