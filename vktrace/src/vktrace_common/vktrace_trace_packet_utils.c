@@ -35,6 +35,8 @@
 #include <time.h>
 #endif
 
+#include "optimization_function.h"
+
 static uint64_t g_packet_index = 0;
 
 void vktrace_gen_uuid(uint32_t* pUuid)

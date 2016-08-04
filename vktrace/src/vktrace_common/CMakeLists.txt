@@ -34,7 +34,7 @@ set_source_files_properties( ${CXX_SRC_LIST} PROPERTIES LANGUAGE CXX)
 file( GLOB_RECURSE HDRS *.[h|inl] )
 
 if (NOT MSVC)
-    add_compiler_flag("-fPIC")
+    add_compiler_flag("-fPIC -std=c++11")
 endif()
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${CXX_SRC_LIST} ${HDRS})

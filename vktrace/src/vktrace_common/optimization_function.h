@@ -19,19 +19,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef _cplusplus
-extern "C" void *opt_memcpy(void * destination, const void * source, size_t num);
-#else
-void *opt_memcpy(void * destination, const void * source, size_t num);
-#endif
+//use PPL parallel_invoke call(on windows for now, but PPL also has a PPLx for Linux), or use cross-platform memcpy multithread which exclude PPL
+//#define OPT_MEMCPY_USE_PPL_LIB
+
 
 #ifdef WIN32
 typedef struct __OPTChangedBlockInfo
 {
-    DWORD offset;
-    DWORD length;
-    DWORD reserve0;
-    DWORD reserve1;
+    uint32_t offset;
+    uint32_t length;
+    uint32_t reserve0;
+    uint32_t reserve1;
 } OPTChangedBlockInfo, *pOPTChangedBlockInfo;
 #endif // WIN32
 

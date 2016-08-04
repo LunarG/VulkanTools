@@ -421,6 +421,7 @@ class Subcommand(object):
                                          'CmdWaitEvents',
                                          'CmdBeginRenderPass',
                                          'CmdPushConstants',
+                                         'DestroyInstance',
                                          'EnumeratePhysicalDevices',
                                          'FreeMemory',
                                          'FreeDescriptorSets',

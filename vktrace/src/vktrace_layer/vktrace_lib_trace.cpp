@@ -36,6 +36,8 @@
 #include "vktrace_vk_exts.h"
 #include <stdio.h>
 
+#include "optimization_function.h"
+
 // declared as extern in vktrace_lib_helpers.h
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
 VKMemInfo g_memInfo = {0, NULL, NULL, 0};
@@ -159,6 +161,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
 }
 
 
+#if defined(WIN32) //page guard solution for windows//USE_OPT_SPEEDUP
 
 //OPT: Optimization by using page-guard for speed up capture 
 //     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from beginning to the game menu.
@@ -166,7 +169,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
 //     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
 //     The Playback time for these trace file is round 7 minutes(on Win10/AMDFury/32GRam/I5 system).
 
-#include "optimization_function.h"
 
 #define OPT_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
 #define OPT_PAGEGUARD_ENABLE_DEFAULT true
@@ -335,6 +337,7 @@ typedef struct __OPTMappedMemory
 		  delete[] pOPTBlockChangedArray;
 		}*/
 	}
+
 	BOOL isOPTUseCopyForRealMappedMemory()
 	{
 		BOOL bRet = FALSE;
@@ -344,6 +347,7 @@ typedef struct __OPTMappedMemory
 		}
 		return bRet;
 	}
+
 	//get head addr and size for a block which is located by a given index
 	BOOL OPTgetChangedRangeByIndex(uint64_t index, PBYTE *paddr, VkDeviceSize *pBlockSize)
 	{
@@ -466,6 +470,7 @@ typedef struct __OPTMappedMemory
 		}
 		return uiRet;
 	}
+
 	uint64_t OPTgetBlockOffset(uint64_t index)
 	{
 		uint64_t uiRet = 0;
@@ -509,6 +514,7 @@ typedef struct __OPTMappedMemory
 			}
 		}
 	}
+
     void OPTResetAllReadFlagAndPageGuard()
     {
         DWORD oldProt;
@@ -529,6 +535,7 @@ typedef struct __OPTMappedMemory
             }
         }
     }
+
     BOOL OPTSetAllPageGuardAndFlag(BOOL bSetPageGuard, BOOL bSetBlockChanged)
 	{
         BOOL bRet = TRUE;
@@ -565,6 +572,7 @@ typedef struct __OPTMappedMemory
 		}
         return bRet;
 	}
+
 	BOOL OPT_vkMapMemory(
 		VkDevice device,
 		VkDeviceMemory memory,
@@ -665,6 +673,7 @@ typedef struct __OPTMappedMemory
 		}
 		return bRet;
 	}
+
 	//for output,
 	//if pData!=NULL,the pData + Offset is head addr of an array of OPTChangedBlockInfo, the [0] is block amount, size (size for all changed blocks which amount is block amount),then block1 offset,block1 size...., 
 	//               the block? offset is  this changed block offset to mapped memory head addr,the array followed by changed blocks data
@@ -773,6 +782,7 @@ typedef struct __OPTMappedMemory
         }    
         return bRet;
 	}
+
 	void clearOPTChangedDataPackage()
 	{
 		if (pOPTChangedDataPackage)
@@ -852,10 +862,12 @@ typedef struct __OPTCapture
         }
         MapMemoryPtr.erase(memory);
 	}
+
     PBYTE OPT_getMappedPointer(VkDevice device, VkDeviceMemory memory)
     {
         return MapMemoryPtr[memory];
     }
+
 	//return: if it's target mapped memory and no change at all;
     //PBYTE *ppPackageDataforOutOfMap, must be an array include memoryRangeCount elements
 	BOOL OPT_vkFlushMappedMemoryRanges(
@@ -981,6 +993,7 @@ typedef struct __OPTCapture
         LPOPTMappedMemory pRet = OPT_findMappedMemory(device, pMemoryRange->memory);
         return pRet;
     }
+
     //get size of all changed package in array of pMemoryRanges
     VkDeviceSize OPT_ALLChangedPackageSizeInMappedMemory(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges, PBYTE *ppPackageDataforOutOfMap)
 	{
@@ -1003,6 +1016,7 @@ typedef struct __OPTCapture
         }
 		return iRet;
 	}
+
     //get ptr and size of OPTChangedDataPackage;
     PBYTE getOPTChangedDataPackageOutofMap(PBYTE *ppPackageDataforOutOfMap, DWORD dwRangeIndex, VkDeviceSize  *pSize)
     {
@@ -1038,6 +1052,7 @@ typedef struct __OPTCapture
         }
         return bRet;
     }
+
     BOOL isHostWriteFlagSetInBufferMemoryBarrier(uint32_t  memoryBarrierCount, const VkBufferMemoryBarrier*  pMemoryBarriers)
     {
         BOOL bRet = FALSE;
@@ -1055,6 +1070,7 @@ typedef struct __OPTCapture
         }
         return bRet;
     }
+
     BOOL isHostWriteFlagSetInImageMemoryBarrier(uint32_t  memoryBarrierCount, const VkImageMemoryBarrier*  pMemoryBarriers)
     {
         BOOL bRet = FALSE;
@@ -1072,6 +1088,7 @@ typedef struct __OPTCapture
         }
         return bRet;
     }
+
     BOOL isHostWriteFlagSet(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags  dependencyFlags, 
         uint32_t   memoryBarrierCount, const VkMemoryBarrier*   pMemoryBarriers,
         uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
@@ -1086,6 +1103,7 @@ typedef struct __OPTCapture
             }
         return bRet;
     }
+
     BOOL isReadyForHostReadInMemoryBarriers(uint32_t  memoryBarrierCount, const VkMemoryBarrier*  pMemoryBarriers)
     {
         BOOL bRet = FALSE;
@@ -1103,6 +1121,7 @@ typedef struct __OPTCapture
         }
         return bRet;
     }
+
     BOOL isReadyForHostReadInBufferMemoryBarrier(uint32_t  memoryBarrierCount, const VkBufferMemoryBarrier*  pMemoryBarriers)
     {
         BOOL bRet = FALSE;
@@ -1120,6 +1139,7 @@ typedef struct __OPTCapture
         }
         return bRet;
     }
+
     BOOL isReadyForHostReadInImageMemoryBarrier(uint32_t  memoryBarrierCount, const VkImageMemoryBarrier*  pMemoryBarriers)
     {
         BOOL bRet = FALSE;
@@ -1137,6 +1157,7 @@ typedef struct __OPTCapture
         }
         return bRet;
     }
+
     BOOL isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags  dependencyFlags,
         uint32_t   memoryBarrierCount, const VkMemoryBarrier*   pMemoryBarriers,
         uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
@@ -1178,6 +1199,7 @@ void FlushAllChangedMappedMemory(vkFlushMappedMemoryRangesFunc pFunc)
         delete[] pMemoryRanges;
     }
 }
+
 void OPTResetAllReadFlagAndPageGuard()
 {
     LPOPTMappedMemory pMappedMemoryTemp;
@@ -1194,6 +1216,7 @@ void OPTResetAllReadFlagAndPageGuard()
     }
 }
 
+//page guard handler
 LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 {
 	LONG lRet = EXCEPTION_CONTINUE_SEARCH;
@@ -1211,7 +1234,7 @@ LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
             uint64_t index = pMappedMem->OPTgetIndexOfChangedBlockByAddr(addr);
             if (bWrite)
             {
-                pMappedMem->OPTSetBlockChanged(index, TRUE);//
+                pMappedMem->OPTSetBlockChanged(index, TRUE);
                 lRet = EXCEPTION_CONTINUE_EXECUTION;
             }
             else
@@ -1223,7 +1246,7 @@ LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 
                 //*addr = *(pMappedMem->pOPTRealMappedData + OffsetOfAddr);
                 //DWORD oldProt;
-                //VirtualProtect(pBlock, (SIZE_T)BlockSize, PAGE_READWRITE | PAGE_GUARD, &oldProt);//set pageguard//set this should make running very slow
+                //VirtualProtect(pBlock, (SIZE_T)BlockSize, PAGE_READWRITE | PAGE_GUARD, &oldProt);//set pageguard//set this(actually cannot do it directly) should make running very slow
 
                 lRet = EXCEPTION_CONTINUE_EXECUTION;
 #else
@@ -1237,6 +1260,7 @@ LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
 	return lRet;
 }
 
+//for coherent map, need this method to dump data so simulate target application write data when playback.
 VkResult OPT_vkFlushMappedMemoryRangesWithoutAPICall(
     VkDevice device,
     uint32_t memoryRangeCount,
@@ -1341,7 +1365,11 @@ VkResult OPT_vkFlushMappedMemoryRangesWithoutAPICall(
     return result;
 }
 //OPT end
+#else
 
+#undef USE_OPT_SPEEDUP
+
+#endif//page guard solution for windows
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     VkDevice device,
@@ -1765,6 +1793,11 @@ VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInf
     return chain_info;
 }
 
+#ifndef OPT_MEMCPY_USE_PPL_LIB
+extern "C" BOOL OPT_init_multi_threads_memcpy();
+extern "C" void OPT_done_multi_threads_memcpy();
+#endif
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     const VkInstanceCreateInfo* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
@@ -1779,6 +1812,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     uint64_t vktraceStartTime = vktrace_get_time();
     SEND_ENTRYPOINT_ID(vkCreateInstance);
     startTime = vktrace_get_time();
+	
+#ifndef OPT_MEMCPY_USE_PPL_LIB	
+    OPT_init_multi_threads_memcpy();
+#endif
 
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
@@ -1832,6 +1869,28 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     FINISH_TRACE_PACKET();
     return result;
 }
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
+    VkInstance instance,
+    const VkAllocationCallbacks* pAllocator)
+{
+    vktrace_trace_packet_header* pHeader;
+    packet_vkDestroyInstance* pPacket = NULL;
+    dispatch_key key = get_dispatch_key(instance);
+    CREATE_TRACE_PACKET(vkDestroyInstance, sizeof(VkAllocationCallbacks));
+    mid(instance)->instTable.DestroyInstance(instance, pAllocator);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkDestroyInstance(pHeader);
+    pPacket->instance = instance;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    FINISH_TRACE_PACKET();
+    g_instanceDataMap.erase(key);
+#ifndef OPT_MEMCPY_USE_PPL_LIB
+	OPT_done_multi_threads_memcpy();
+#endif
+}
+
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
     VkDevice device,
