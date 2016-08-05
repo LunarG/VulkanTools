@@ -1673,6 +1673,7 @@ class Subcommand(object):
                                  #'GetImageSubresourceInfo',
                                  #'GetObjectInfo',
                                  #'GetPhysicalDeviceExtensionInfo',
+                                 'GetPhysicalDeviceMemoryProperties',
                                  'GetPhysicalDeviceSurfaceSupportKHR',
                                  'GetPhysicalDeviceSurfaceCapabilitiesKHR',
                                  'GetPhysicalDeviceSurfaceFormatsKHR',
