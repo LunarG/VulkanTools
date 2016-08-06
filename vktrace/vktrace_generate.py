@@ -117,9 +117,14 @@ class Subcommand(object):
         func_protos.append('extern"C" {')
         func_protos.append('#endif')
         func_protos.append('// Hooked function prototypes\n')
-        for proto in self.protos:
-            if proto.name not in proto_exclusions:
-                func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                func_protos.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name not in proto_exclusions:
+                    func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+            if ext.ifdef:
+                func_protos.append('#endif /* %s */' % ext.ifdef)
 
         func_protos.append('#ifdef __cplusplus')
         func_protos.append('}')
@@ -131,9 +136,13 @@ class Subcommand(object):
         func_protos.append('// Hooked function prototypes\n')
         for ext in vulkan.extensions_all:
             if (extensionName.lower() == ext.name.lower()):
+                if ext.ifdef:
+                    func_protos.append('#ifdef %s' % ext.ifdef)
                 for proto in ext.protos:
                     if proto.name not in proto_exclusions:
                         func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+                if ext.ifdef:
+                    func_protos.append('#endif /* %s */' % ext.ifdef)
 
         return "\n".join(func_protos)
 
@@ -543,15 +552,20 @@ class Subcommand(object):
         pid_enum.append('enum VKTRACE_TRACE_PACKET_ID_VK')
         pid_enum.append('{')
         first_func = True
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            if first_func:
-                first_func = False
-                pid_enum.append('    VKTRACE_TPI_VK_vkApiVersion = VKTRACE_TPI_BEGIN_API_HERE,')
-                pid_enum.append('    VKTRACE_TPI_VK_vk%s,' % proto.name)
-            else:
-                pid_enum.append('    VKTRACE_TPI_VK_vk%s,' % proto.name)
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                pid_enum.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
+                if first_func:
+                    first_func = False
+                    pid_enum.append('    VKTRACE_TPI_VK_vkApiVersion = VKTRACE_TPI_BEGIN_API_HERE,')
+                    pid_enum.append('    VKTRACE_TPI_VK_vk%s,' % proto.name)
+                else:
+                    pid_enum.append('    VKTRACE_TPI_VK_vk%s,' % proto.name)
+            if ext.ifdef:
+                pid_enum.append('#endif /* %s */' % ext.ifdef)
         pid_enum.append('};\n')
         return "\n".join(pid_enum)
 
@@ -564,13 +578,18 @@ class Subcommand(object):
         func_body.append('    {')
         func_body.append('        return "vkApiVersion";')
         func_body.append('    }')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
-            func_body.append('    {')
-            func_body.append('        return "vk%s";' % proto.name)
-            func_body.append('    }')
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                func_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
+                func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
+                func_body.append('    {')
+                func_body.append('        return "vk%s";' % proto.name)
+                func_body.append('    }')
+            if ext.ifdef:
+                func_body.append('#endif /* %s */' % ext.ifdef)
         func_body.append('    default:')
         func_body.append('        return NULL;')
         func_body.append('    }')
@@ -589,34 +608,39 @@ class Subcommand(object):
         func_body.append('        snprintf(str, 1024, "vkApiVersion = 0x%x", pPacket->version);')
         func_body.append('        return str;')
         func_body.append('    }')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
-            func_body.append('    {')
-            func_str = 'vk%s(' % proto.name
-            print_vals = ''
-            create_func = False
-            if 'Create' in proto.name or 'Alloc' in proto.name or 'MapMemory' in proto.name:
-                create_func = True
-            for p in proto.params:
-                last_param = False
-                if (p.name == proto.params[-1].name):
-                    last_param = True
-                if last_param and create_func: # last param of create func
-                    (pft, pfi, ptr) = self._get_printf_params(p.ty,'pPacket->%s' % p.name, True)
-                else:
-                    (pft, pfi, ptr) = self._get_printf_params(p.ty, 'pPacket->%s' % p.name, False)
-                if last_param == True:
-                    func_str += '%s%s = %s)' % (ptr, p.name, pft)
-                    print_vals += ', %s' % (pfi)
-                else:
-                    func_str += '%s%s = %s, ' % (ptr, p.name, pft)
-                    print_vals += ', %s' % (pfi)
-            func_body.append('        packet_vk%s* pPacket = (packet_vk%s*)(pHeader->pBody);' % (proto.name, proto.name))
-            func_body.append('        snprintf(str, 1024, "%s"%s);' % (func_str, print_vals))
-            func_body.append('        return str;')
-            func_body.append('    }')
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                func_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
+                func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
+                func_body.append('    {')
+                func_str = 'vk%s(' % proto.name
+                print_vals = ''
+                create_func = False
+                if 'Create' in proto.name or 'Alloc' in proto.name or 'MapMemory' in proto.name:
+                    create_func = True
+                for p in proto.params:
+                    last_param = False
+                    if (p.name == proto.params[-1].name):
+                        last_param = True
+                    if last_param and create_func: # last param of create func
+                        (pft, pfi, ptr) = self._get_printf_params(p.ty,'pPacket->%s' % p.name, True)
+                    else:
+                        (pft, pfi, ptr) = self._get_printf_params(p.ty, 'pPacket->%s' % p.name, False)
+                    if last_param == True:
+                        func_str += '%s%s = %s)' % (ptr, p.name, pft)
+                        print_vals += ', %s' % (pfi)
+                    else:
+                        func_str += '%s%s = %s, ' % (ptr, p.name, pft)
+                        print_vals += ', %s' % (pfi)
+                func_body.append('        packet_vk%s* pPacket = (packet_vk%s*)(pHeader->pBody);' % (proto.name, proto.name))
+                func_body.append('        snprintf(str, 1024, "%s"%s);' % (func_str, print_vals))
+                func_body.append('        return str;')
+                func_body.append('    }')
+            if ext.ifdef:
+                func_body.append('#endif /* %s */' % ext.ifdef)
         func_body.append('    default:')
         func_body.append('        return NULL;')
         func_body.append('    }')
@@ -638,16 +662,21 @@ class Subcommand(object):
         interp_func_body.append('        {')
         interp_func_body.append('            return interpret_body_as_vkApiVersion(pHeader)->header;')
         interp_func_body.append('        }')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                interp_func_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
 
-            interp_func_body.append('        case VKTRACE_TPI_VK_vk%s:\n        {' % proto.name)
-            header_prefix = 'h'
-            if 'Dbg' in proto.name :
-                header_prefix = 'pH'
-            interp_func_body.append('%s' % self.lineinfo.get())
-            interp_func_body.append('            return interpret_body_as_vk%s(pHeader)->%seader;\n        }' % (proto.name, header_prefix))
+                interp_func_body.append('        case VKTRACE_TPI_VK_vk%s:\n        {' % proto.name)
+                header_prefix = 'h'
+                if 'Dbg' in proto.name :
+                    header_prefix = 'pH'
+                interp_func_body.append('%s' % self.lineinfo.get())
+                interp_func_body.append('            return interpret_body_as_vk%s(pHeader)->%seader;\n        }' % (proto.name, header_prefix))
+            if ext.ifdef:
+                interp_func_body.append('#endif /* %s */' % ext.ifdef)
         interp_func_body.append('        default:')
         interp_func_body.append('            return NULL;')
         interp_func_body.append('    }')
@@ -1066,6 +1095,21 @@ class Subcommand(object):
                     proto.params.append(vulkan.Param("void**", "ppData"))
                 elif 'InvalidateMappedMemoryRanges' == proto.name:
                     proto.params.append(vulkan.Param("void**", "ppData"))
+                # TODO : This is an O(N^4) way of finding if this proto is guarded by an ifdef.
+                # If the concept of an ifdef field is ok, rewrite the outer loop to already have the ext.ifdef value ready:
+                # for ext in vulkan.extensions_all:
+                #     if ext.ifdef: if_body.append('#ifdef') # wrap all the protos in a single #ifdef block instead of repeating #ifdef for each proto
+                #     for proto in ext.protos:
+                #
+                # A more general question is if self.protos is always vulkan.extensions_all, or should some cases be vulkan.extensions?
+                proto_ext_ifdef = None
+                for ext in vulkan.extensions_all:
+                    if ext.ifdef:
+                        for ext_proto in ext.protos:
+                            if proto.name == ext_proto.name:
+                                proto_ext_ifdef = ext.ifdef
+                if proto_ext_ifdef:
+                    if_body.append('#ifdef %s' % proto_ext_ifdef)
                 if_body.append('%s' % self.lineinfo.get())
                 if_body.append('typedef struct packet_vk%s {' % proto.name)
                 if_body.append('    vktrace_trace_packet_header* header;')
@@ -1095,6 +1139,8 @@ class Subcommand(object):
                             if_body.append('    }')
                 if_body.append('    return pPacket;')
                 if_body.append('}\n')
+                if proto_ext_ifdef:
+                    if_body.append('#endif /* %s */' % proto_ext_ifdef)
         return "\n".join(if_body)
 
     def _generate_interp_funcs_ext(self, extensionName):
@@ -1102,6 +1148,8 @@ class Subcommand(object):
         custom_case_dict = { }
         for ext in vulkan.extensions_all:
             if ext.name.lower() == extensionName.lower():
+                if ext.ifdef:
+                    if_body.append('#ifdef %s' % ext.ifdef)
                 for proto in ext.protos:
                     if_body.append('typedef struct packet_vk%s {' % proto.name)
                     if_body.append('    vktrace_trace_packet_header* pHeader;')
@@ -1126,6 +1174,8 @@ class Subcommand(object):
                                 if_body.append('    }')
                     if_body.append('    return pPacket;')
                     if_body.append('}\n')
+                if ext.ifdef:
+                    if_body.append('#endif /* %s */' % ext.ifdef)
         return "\n".join(if_body)
 
     def _generate_replay_func_ptrs(self):
@@ -1133,15 +1183,20 @@ class Subcommand(object):
         xf_body.append('struct vkFuncs {')
         xf_body.append('    void init_funcs(void * libHandle);')
         xf_body.append('    void *m_libHandle;\n')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                xf_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
 
-            xf_body.append('    typedef %s( VKAPI_PTR * type_vk%s)(' % (proto.ret, proto.name))
-            for p in proto.params:
-                xf_body.append('        %s,' % p.c())
-            xf_body[-1] = xf_body[-1].replace(',', ');')
-            xf_body.append('    type_vk%s real_vk%s;' % (proto.name, proto.name))
+                xf_body.append('    typedef %s( VKAPI_PTR * type_vk%s)(' % (proto.ret, proto.name))
+                for p in proto.params:
+                    xf_body.append('        %s,' % p.c())
+                xf_body[-1] = xf_body[-1].replace(',', ');')
+                xf_body.append('    type_vk%s real_vk%s;' % (proto.name, proto.name))
+            if ext.ifdef:
+                xf_body.append('#endif /* %s */' % ext.ifdef)
         xf_body.append('};')
         return "\n".join(xf_body)
 
@@ -1470,13 +1525,18 @@ class Subcommand(object):
     def _generate_replay_init_funcs(self):
         rif_body = []
         rif_body.append('void vkFuncs::init_funcs(void * handle)\n{\n    m_libHandle = handle;')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            if 'DebugReport' not in proto.name:
-                rif_body.append('    real_vk%s = (type_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));' % (proto.name, proto.name, proto.name))
-            else: # These func ptrs get assigned at GetProcAddr time
-                rif_body.append('    real_vk%s = (type_vk%s)NULL;' % (proto.name, proto.name))
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                rif_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
+                if 'DebugReport' not in proto.name:
+                    rif_body.append('    real_vk%s = (type_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));' % (proto.name, proto.name, proto.name))
+                else: # These func ptrs get assigned at GetProcAddr time
+                    rif_body.append('    real_vk%s = (type_vk%s)NULL;' % (proto.name, proto.name))
+            if ext.ifdef:
+                rif_body.append('#endif /* %s */' % ext.ifdef)
         rif_body.append('}')
         return "\n".join(rif_body)
 
@@ -1747,6 +1807,20 @@ class Subcommand(object):
             if proto.name in proto_exclusions:
                 continue
 
+            # TODO : This is an O(N^4) way of finding if this proto is guarded by an ifdef.
+            # If the concept of an ifdef field is ok, rewrite the outer loop to already have the ext.ifdef value ready:
+            # for ext in vulkan.extensions_all:
+            #     if ext.ifdef: if_body.append('#ifdef') # wrap all the protos in a single #ifdef block instead of repeating #ifdef for each proto
+            #     for proto in ext.protos:
+            proto_ext_ifdef = None
+            for ext in vulkan.extensions_all:
+                if ext.ifdef:
+                    for ext_proto in ext.protos:
+                        if proto.name == ext_proto.name:
+                            proto_ext_ifdef = ext.ifdef
+            if proto_ext_ifdef:
+                rbody.append('#ifdef %s' % proto_ext_ifdef)
+
             ret_value = False
             create_view = False
             create_func = False
@@ -1853,17 +1927,22 @@ class Subcommand(object):
                     rbody.append('            }')
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif proto.name == 'GetInstanceProcAddr':
-                    for iProto in self.protos:
-                        if iProto.name in proto_exclusions:
-                            continue
-                        if 'DebugReport' in iProto.name:
-                            rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
-                            rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
-                            rbody.append('            }')
-                        elif  (iProto.params[0].ty == 'VkInstance' or iProto.params[0].ty != 'VkPhysicalDevice')  and 'KHR' in iProto.name:
-                            rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
-                            rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
-                            rbody.append('            }')
+                    for iExt in vulkan.extensions_all:
+                        if iExt.ifdef:
+                            rbody.append('#ifdef %s' % iExt.ifdef)
+                        for iProto in iExt.protos:
+                            if iProto.name in proto_exclusions:
+                                continue
+                            if 'DebugReport' in iProto.name:
+                                rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
+                                rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
+                                rbody.append('            }')
+                            elif  (iProto.params[0].ty == 'VkInstance' or iProto.params[0].ty != 'VkPhysicalDevice')  and 'KHR' in iProto.name:
+                                rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
+                                rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
+                                rbody.append('            }')
+                        if iExt.ifdef:
+                            rbody.append('#endif /* %s */' % iExt.ifdef)
                 elif proto.name == 'GetDeviceProcAddr':
                     for dProto in self.protos:
                        if dProto.name in proto_exclusions:
@@ -1981,6 +2060,8 @@ class Subcommand(object):
                 rbody.append('            CHECK_RETURN_VALUE(vk%s);' % proto.name)
             rbody.append('            break;')
             rbody.append('        }')
+            if proto_ext_ifdef:
+                rbody.append('#endif /* %s */' % proto_ext_ifdef)
         rbody.append('        default:')
         rbody.append('            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);')
         rbody.append('            returnValue = vktrace_replay::VKTRACE_REPLAY_INVALID_ID;')
