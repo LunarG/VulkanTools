@@ -1,5 +1,5 @@
 project(vktraceviewer)
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.0)
 
 include("${SRC_DIR}/build_options.cmake")
 

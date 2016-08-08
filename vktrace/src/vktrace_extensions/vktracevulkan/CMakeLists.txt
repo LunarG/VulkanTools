@@ -73,7 +73,7 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_gener
 # Directories which actually contain vulkan-specific vktrace plugins.
 add_subdirectory(vkreplay/)
 # Only build vktraceviewer when Qt5 is available
-if (Qt5_FOUND)
+if (Qt5_FOUND AND BUILD_VKTRACEVIEWER)
     add_subdirectory(vktraceviewer/)
 endif()
 
