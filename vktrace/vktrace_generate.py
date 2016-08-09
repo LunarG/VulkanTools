@@ -152,6 +152,8 @@ class Subcommand(object):
         # TODO : Need ENUM and STRUCT checks here
         if "VkImageLayout" in vk_type:
             return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
+        if "VkMappedMemoryRange" in vk_type:
+            return ("%p [0]={memory=%p, offset=%d, size=%d}", "%s, (%s == NULL)?0:%s->memory, (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "*")
         if "VkClearColor" in vk_type:
             return ("%p", "(void*)&%s" % name, deref)
         if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
