@@ -1874,6 +1874,16 @@ static bool getMemoryTypeIdx(VkDevice traceDevice,
         }
     }
 
+    // Didn't find a superset, search for mem type with both HOST_VISIBLE and HOST_COHERENT set
+    for (uint32_t i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
+    {
+        if ((VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags)
+        {
+            *pReplayIdx = i;
+            return true;
+        }
+    }
+
     // Didn't find a match
     return false;
 }
