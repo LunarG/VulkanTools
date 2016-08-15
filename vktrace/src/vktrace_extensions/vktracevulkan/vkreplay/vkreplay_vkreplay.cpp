@@ -1287,6 +1287,7 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
         if (pLocalCIs[i].stage.pSpecializationInfo)
         {
             VkSpecializationInfo* si = VKTRACE_NEW(VkSpecializationInfo);
+            pLocalCIs[i].stage.pSpecializationInfo = (const VkSpecializationInfo*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo));
             memcpy((void*)si, (void*)(pLocalCIs[i].stage.pSpecializationInfo), sizeof(VkSpecializationInfo));
 
             if (si->mapEntryCount > 0 && si->pMapEntries)
