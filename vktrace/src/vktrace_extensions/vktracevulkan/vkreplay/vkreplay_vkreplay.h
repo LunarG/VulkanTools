@@ -30,12 +30,12 @@
 #include <string>
 #if defined(PLATFORM_LINUX)
 #include <xcb/xcb.h>
-
 #endif
 #include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"
 #include "vkreplay_factory.h"
 #include "vktrace_trace_packet_identifiers.h"
+#include <unordered_map>
 
 extern "C" {
 #include "vktrace_vk_vk_packets.h"
@@ -93,6 +93,9 @@ private:
     std::vector<int> m_screenshotFrames;
     VkResult manually_replay_vkCreateInstance(packet_vkCreateInstance* pPacket);
     VkResult manually_replay_vkCreateDevice(packet_vkCreateDevice* pPacket);
+    VkResult manually_replay_vkCreateBuffer(packet_vkCreateBuffer* pPacket);
+    VkResult manually_replay_vkCreateImage(packet_vkCreateImage* pPacket);
+    VkResult manually_replay_vkCreateCommandPool(packet_vkCreateCommandPool* pPacket);
     VkResult manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumeratePhysicalDevices* pPacket);
     // TODO138 : Many new functions in API now that we need to assess if manual code needed
     //VkResult manually_replay_vkGetPhysicalDeviceInfo(packet_vkGetPhysicalDeviceInfo* pPacket);
@@ -127,6 +130,7 @@ private:
     VkResult manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket);
     VkResult manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInvalidateMappedMemoryRanges* pPacket);
     void manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetPhysicalDeviceMemoryProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_vkGetPhysicalDeviceQueueFamilyProperties* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_vkGetPhysicalDeviceSurfaceFormatsKHR* pPacket);
@@ -164,4 +168,44 @@ private:
 
         }
     }
+
+    struct QueueFamilyProperties {
+        uint32_t count;
+        VkQueueFamilyProperties* queueFamilyProperties;
+    };
+
+    // Map VkPhysicalDevice to QueueFamilyPropeties (and ultimately queue indices)
+    std::unordered_map<VkPhysicalDevice, struct QueueFamilyProperties> traceQueueFamilyProperties;
+    std::unordered_map<VkPhysicalDevice, struct QueueFamilyProperties> replayQueueFamilyProperties;
+
+    // Map VkDevice to a VkPhysicalDevice
+    std::unordered_map<VkDevice, VkPhysicalDevice> tracePhysicalDevices;
+    std::unordered_map<VkDevice, VkPhysicalDevice> replayPhysicalDevices;
+
+    // Map VkBuffer to VkDevice, so we can search for the VkDevice used to create a buffer
+    std::unordered_map<VkBuffer, VkDevice> traceBufferToDevice;
+    std::unordered_map<VkBuffer, VkDevice> replayBufferToDevice;
+
+    // Map VkImage to VkDevice, so we can search for the VkDevice used to create an image
+    std::unordered_map<VkImage, VkDevice> traceImageToDevice;
+    std::unordered_map<VkImage, VkDevice> replayImageToDevice;
+
+    // Map VkPhysicalDevice to VkPhysicalDeviceMemoryProperites
+    std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> traceMemoryProperties;
+    std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> replayMemoryProperties;
+
+    bool getMemoryTypeIdx(VkDevice traceDevice,
+                          VkDevice replayDevice,
+                          uint32_t traceIdx,
+                          uint32_t* pReplayIdx);
+
+    bool getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
+                           VkPhysicalDevice replayPhysicalDevice,
+                           uint32_t traceIdx,
+                           uint32_t* pReplayIdx);
+    bool getQueueFamilyIdx(VkDevice traceDevice,
+        VkDevice replayDevice,
+        uint32_t traceIdx,
+        uint32_t* pReplayIdx);
+
 };
