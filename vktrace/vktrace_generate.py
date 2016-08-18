@@ -1556,38 +1556,6 @@ class Subcommand(object):
                 return 'remapped%s' % (paramName)
         return 'pPacket->%s' % (paramName)
 
-    def _gen_replay_create_image(self):
-        ci_body = []
-        ci_body.append('            imageObj local_imageObj;')
-        ci_body.append('            VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);')
-        ci_body.append('            if (remappedDevice == VK_NULL_HANDLE)')
-        ci_body.append('            {')
-        ci_body.append('                vktrace_LogError("Error detected in vkCreateImage() due to invalid remapped VkDevice.");')
-        ci_body.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
-        ci_body.append('            }')
-        ci_body.append('            replayResult = m_vkFuncs.real_vkCreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);')
-        ci_body.append('            if (replayResult == VK_SUCCESS)')
-        ci_body.append('            {')
-        ci_body.append('                m_objMapper.add_to_images_map(*(pPacket->pImage), local_imageObj);')
-        ci_body.append('            }')
-        return "\n".join(ci_body)
-
-    def _gen_replay_create_buffer(self):
-        cb_body = []
-        cb_body.append('            bufferObj local_bufferObj;')
-        cb_body.append('            VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);')
-        cb_body.append('            if (remappedDevice == VK_NULL_HANDLE)')
-        cb_body.append('            {')
-        cb_body.append('                vktrace_LogError("Error detected in vkCreateBuffer() due to invalid remapped VkDevice.");')
-        cb_body.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
-        cb_body.append('            }')
-        cb_body.append('            replayResult = m_vkFuncs.real_vkCreateBuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_bufferObj.replayBuffer);')
-        cb_body.append('            if (replayResult == VK_SUCCESS)')
-        cb_body.append('            {')
-        cb_body.append('                m_objMapper.add_to_buffers_map(*(pPacket->pBuffer), local_bufferObj);')
-        cb_body.append('            }')
-        return "\n".join(cb_body)
-
     def _gen_replay_create_instance(self):
         cb_body = []
         cb_body.append('            replayResult = manually_replay_vkCreateInstance(pPacket);')
@@ -1720,9 +1688,7 @@ class Subcommand(object):
                 sys.exit("Entry '%s' in manually_replay_funcs list is not in the vulkan function prototypes" % func)
 
         # map protos to custom functions if body is fully custom
-        custom_body_dict = {'CreateImage': self._gen_replay_create_image,
-                            'CreateBuffer': self._gen_replay_create_buffer,
-                            'CreateInstance': self._gen_replay_create_instance,
+        custom_body_dict = {'CreateInstance': self._gen_replay_create_instance,
                             'GetPhysicalDeviceXcbPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXcbPresentationSupportKHR,
                             'GetPhysicalDeviceXlibPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXlibPresentationSupportKHR,
                             'GetPhysicalDeviceWin32PresentationSupportKHR': self._gen_replay_GetPhysicalDeviceWin32PresentationSupportKHR }
