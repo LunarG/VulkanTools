@@ -417,7 +417,7 @@ VkResult vkReplay::manually_replay_vkCreateBuffer(packet_vkCreateBuffer* pPacket
             if (pPacket->pCreateInfo->pQueueFamilyIndices &&
                 getQueueFamilyIdx(pPacket->device,
                                   remappedDevice,
-                                  *pPacket->pCreateInfo->pQueueFamilyIndices,
+                                  pPacket->pCreateInfo->pQueueFamilyIndices[i],
                                   &replayIdx))
             {
                 *((uint32_t*)&pPacket->pCreateInfo->pQueueFamilyIndices[i]) = replayIdx;
@@ -457,7 +457,7 @@ VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage* pPacket)
             if (pPacket->pCreateInfo->pQueueFamilyIndices &&
                 getQueueFamilyIdx(pPacket->device,
                                   remappedDevice,
-                                  *pPacket->pCreateInfo->pQueueFamilyIndices,
+                                  pPacket->pCreateInfo->pQueueFamilyIndices[i],
                                   &replayIdx))
             {
                 *((uint32_t*)&pPacket->pCreateInfo->pQueueFamilyIndices[i]) = replayIdx;
@@ -2775,7 +2775,7 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
             if (pPacket->pCreateInfo->pQueueFamilyIndices &&
                 getQueueFamilyIdx(pPacket->device,
                                   remappeddevice,
-                                  *pPacket->pCreateInfo->pQueueFamilyIndices,
+                                  pPacket->pCreateInfo->pQueueFamilyIndices[i],
                                   &replayIdx))
                 {
                     *((uint32_t*)&pPacket->pCreateInfo->pQueueFamilyIndices[i]) = replayIdx;
