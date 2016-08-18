@@ -849,6 +849,180 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket)
     return replayResult;
 }
 
+VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse* pPacket)
+{
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+
+    VkQueue remappedQueue = m_objMapper.remap_queues(pPacket->queue);
+    if (remappedQueue == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkQueue.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    VkFence remappedFence = m_objMapper.remap_fences(pPacket->fence);
+    if (pPacket->fence != VK_NULL_HANDLE && remappedFence == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    VkBindSparseInfo* remappedBindSparseInfos = VKTRACE_NEW_ARRAY(VkBindSparseInfo, pPacket->bindInfoCount);
+    VkSparseImageMemoryBind *pRemappedImageMemories = NULL;
+    VkSparseMemoryBind *pRemappedBufferMemories = NULL;
+    VkSparseMemoryBind *pRemappedImageOpaqueMemories = NULL;
+    VkSemaphore *pRemappedWaitSems = NULL;
+    VkSemaphore	*pRemappedSignalSems = NULL;
+    VkSparseImageMemoryBindInfo* sIMBinf = NULL;
+    VkSparseBufferMemoryBindInfo* sBMBinf = NULL;
+    VkSparseImageOpaqueMemoryBindInfo* sIMOBinf = NULL;
+
+    memcpy((void*)remappedBindSparseInfos, (void*)(pPacket->pBindInfo), sizeof(VkBindSparseInfo)*pPacket->bindInfoCount);
+
+    for (uint32_t bindInfo_idx = 0; bindInfo_idx < pPacket->bindInfoCount; bindInfo_idx++) {
+        if (remappedBindSparseInfos[bindInfo_idx].pBufferBinds)
+        {
+            sBMBinf = VKTRACE_NEW_ARRAY(VkSparseBufferMemoryBindInfo, remappedBindSparseInfos[bindInfo_idx].bufferBindCount);
+            remappedBindSparseInfos[bindInfo_idx].pBufferBinds = (const VkSparseBufferMemoryBindInfo*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pBufferBinds));
+            memcpy((void*)sBMBinf, (void*)remappedBindSparseInfos[bindInfo_idx].pBufferBinds, sizeof(VkSparseBufferMemoryBindInfo)*remappedBindSparseInfos[bindInfo_idx].bufferBindCount);
+
+            sBMBinf->buffer = m_objMapper.remap_buffers(sBMBinf->buffer);
+
+            if (sBMBinf->buffer == VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkBuffer.");
+                goto FAILURE;
+            }
+
+            if (sBMBinf->bindCount > 0 && sBMBinf->pBinds)
+            {
+                pRemappedBufferMemories = (VkSparseMemoryBind*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pBufferBinds->pBinds));
+            }
+
+            for (uint32_t bindCountIdx = 0; bindCountIdx < sBMBinf->bindCount; bindCountIdx++)
+            {
+                gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pRemappedBufferMemories[bindCountIdx].memory)->second;
+                VkDeviceMemory replay_mem = m_objMapper.remap_devicememorys(pRemappedBufferMemories[bindCountIdx].memory);
+
+                if (replay_mem == VK_NULL_HANDLE || local_mem.pGpuMem == NULL)
+                {
+                    vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkDeviceMemory.");
+                    goto FAILURE;
+                }
+                pRemappedBufferMemories[bindCountIdx].memory = replay_mem;
+            }
+            sBMBinf->pBinds = pRemappedBufferMemories;
+            remappedBindSparseInfos[bindInfo_idx].pBufferBinds = sBMBinf;
+        }
+
+        if (remappedBindSparseInfos[bindInfo_idx].pImageBinds)
+        {
+            sIMBinf = VKTRACE_NEW_ARRAY(VkSparseImageMemoryBindInfo, remappedBindSparseInfos[bindInfo_idx].imageBindCount);
+            remappedBindSparseInfos[bindInfo_idx].pImageBinds = (const VkSparseImageMemoryBindInfo*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pImageBinds));
+            memcpy((void*)sIMBinf, (void*)remappedBindSparseInfos[bindInfo_idx].pImageBinds, sizeof(VkSparseImageMemoryBindInfo)*remappedBindSparseInfos[bindInfo_idx].imageBindCount);
+
+            sIMBinf->image = m_objMapper.remap_images(sIMBinf->image);
+
+            if(sIMBinf->image == VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkImage.");
+                goto FAILURE;
+            }
+
+            if (sIMBinf->bindCount > 0 && sIMBinf->pBinds)
+            {
+                pRemappedImageMemories = (VkSparseImageMemoryBind*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pImageBinds->pBinds));
+            }
+            for (uint32_t bindCountIdx = 0; bindCountIdx < sIMBinf->bindCount; bindCountIdx++)
+            {
+                gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pRemappedImageMemories[bindCountIdx].memory)->second;
+                VkDeviceMemory replay_mem = m_objMapper.remap_devicememorys(pRemappedImageMemories[bindCountIdx].memory);
+
+                if (replay_mem == VK_NULL_HANDLE || local_mem.pGpuMem == NULL)
+                {
+                    vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkDeviceMemory.");
+                    goto FAILURE;
+                }
+                pRemappedImageMemories[bindCountIdx].memory = replay_mem;
+            }
+            sIMBinf->pBinds = pRemappedImageMemories;
+            remappedBindSparseInfos[bindInfo_idx].pImageBinds = sIMBinf;
+        }
+
+        if (remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds)
+        {
+            sIMOBinf = VKTRACE_NEW_ARRAY(VkSparseImageOpaqueMemoryBindInfo, remappedBindSparseInfos[bindInfo_idx].imageOpaqueBindCount);
+            remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds = (const VkSparseImageOpaqueMemoryBindInfo*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds));
+            memcpy((void*)sIMOBinf, (void*)remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds, sizeof(VkSparseImageOpaqueMemoryBindInfo)*remappedBindSparseInfos[bindInfo_idx].imageOpaqueBindCount);
+
+            sIMOBinf->image = m_objMapper.remap_images(sIMOBinf->image);
+
+            if (sIMOBinf->image == VK_NULL_HANDLE)
+            {
+                vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkImage.");
+                goto FAILURE;
+            }
+
+            if (sIMOBinf->bindCount > 0 && sIMOBinf->pBinds)
+            {
+                pRemappedImageOpaqueMemories = (VkSparseMemoryBind*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds->pBinds));
+            }
+            for (uint32_t bindCountIdx = 0; bindCountIdx < sIMOBinf->bindCount; bindCountIdx++)
+            {
+                gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pRemappedImageOpaqueMemories[bindCountIdx].memory)->second;
+                VkDeviceMemory replay_mem = m_objMapper.remap_devicememorys(pRemappedImageOpaqueMemories[bindCountIdx].memory);
+
+                if (replay_mem == VK_NULL_HANDLE || local_mem.pGpuMem == NULL)
+                {
+                    vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkDeviceMemory.");
+                    goto FAILURE;
+                }
+                pRemappedImageOpaqueMemories[bindCountIdx].memory = replay_mem;
+            }
+            sIMOBinf->pBinds = pRemappedImageOpaqueMemories;
+            remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds = sIMOBinf;
+        }
+
+        if (remappedBindSparseInfos[bindInfo_idx].pWaitSemaphores != NULL) {
+            pRemappedWaitSems = VKTRACE_NEW_ARRAY(VkSemaphore, remappedBindSparseInfos[bindInfo_idx].waitSemaphoreCount);
+            remappedBindSparseInfos[bindInfo_idx].pWaitSemaphores = pRemappedWaitSems;
+	        for (uint32_t i = 0; i < remappedBindSparseInfos[bindInfo_idx].waitSemaphoreCount; i++) {
+                (*(pRemappedWaitSems + i)) = m_objMapper.remap_semaphores((*(remappedBindSparseInfos[bindInfo_idx].pWaitSemaphores + i)));
+                if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE) {
+                    vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped wait VkSemaphore.");
+                    goto FAILURE;
+                }
+            }
+        }
+        if (remappedBindSparseInfos[bindInfo_idx].pSignalSemaphores != NULL) {
+            pRemappedSignalSems = VKTRACE_NEW_ARRAY(VkSemaphore, remappedBindSparseInfos[bindInfo_idx].signalSemaphoreCount);
+            remappedBindSparseInfos[bindInfo_idx].pSignalSemaphores = pRemappedSignalSems;
+            for (uint32_t i = 0; i < remappedBindSparseInfos[bindInfo_idx].signalSemaphoreCount; i++) {
+                (*(pRemappedSignalSems + i)) = m_objMapper.remap_semaphores((*(remappedBindSparseInfos[bindInfo_idx].pSignalSemaphores + i)));
+                if (*(pRemappedSignalSems + i) == VK_NULL_HANDLE) {
+                    vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped signal VkSemaphore.");
+                    goto FAILURE;
+                }
+            }
+        }
+    }
+
+    replayResult = m_vkFuncs.real_vkQueueBindSparse(remappedQueue,
+        pPacket->bindInfoCount,
+        remappedBindSparseInfos,
+        remappedFence);
+
+FAILURE:
+    VKTRACE_DELETE(remappedBindSparseInfos);
+    VKTRACE_DELETE(sIMBinf);
+    VKTRACE_DELETE(sBMBinf);
+    VKTRACE_DELETE(sIMOBinf);
+    VKTRACE_DELETE(pRemappedSignalSems);
+    VKTRACE_DELETE(pRemappedWaitSems);
+    return replayResult;
+}
+
+
 //VkResult vkReplay::manually_replay_vkGetObjectInfo(packet_vkGetObjectInfo* pPacket)
 //{
 //    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;

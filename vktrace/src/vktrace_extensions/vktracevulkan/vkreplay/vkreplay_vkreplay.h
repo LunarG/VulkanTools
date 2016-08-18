@@ -102,6 +102,7 @@ private:
     //VkResult manually_replay_vkGetGlobalExtensionInfo(packet_vkGetGlobalExtensionInfo* pPacket);
     //VkResult manually_replay_vkGetPhysicalDeviceExtensionInfo(packet_vkGetPhysicalDeviceExtensionInfo* pPacket);
     VkResult manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket);
+    VkResult manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse* pPacket);
     //VkResult manually_replay_vkGetObjectInfo(packet_vkGetObjectInfo* pPacket);
     //VkResult manually_replay_vkGetImageSubresourceInfo(packet_vkGetImageSubresourceInfo* pPacket);
     void manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorSets* pPacket);

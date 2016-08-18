@@ -1029,6 +1029,71 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
     return result;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(
+    VkQueue queue,
+    uint32_t bindInfoCount,
+    const VkBindSparseInfo* pBindInfo,
+    VkFence fence)
+{
+    vktrace_trace_packet_header* pHeader;
+    VkResult result;
+    packet_vkQueueBindSparse* pPacket = NULL;
+    size_t arrayByteCount = 0;
+    uint32_t i = 0;
+
+    for (i = 0; i<bindInfoCount; ++i) {
+        arrayByteCount += vk_size_vkbindsparseinfo(&pBindInfo[i]);
+    }
+
+    CREATE_TRACE_PACKET(vkQueueBindSparse, arrayByteCount + 2 * sizeof(VkDeviceMemory));
+    result = mdd(queue)->devTable.QueueBindSparse(queue, bindInfoCount, pBindInfo, fence);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkQueueBindSparse(pHeader);
+    pPacket->queue = queue;
+    pPacket->bindInfoCount = bindInfoCount;
+    pPacket->fence = fence;
+    pPacket->result = result;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo), bindInfoCount * sizeof(VkBindSparseInfo), pBindInfo);
+
+    for (i = 0; i<bindInfoCount; ++i) {
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo[i].pBufferBinds), pPacket->pBindInfo[i].bufferBindCount * sizeof(VkSparseBufferMemoryBindInfo), pBindInfo[i].pBufferBinds);
+	for (uint32_t j = 0; j < pPacket->pBindInfo[i].bufferBindCount; j++) {
+            VkSparseBufferMemoryBindInfo *pSparseBufferMemoryBindInfo = (VkSparseBufferMemoryBindInfo *)&pPacket->pBindInfo[i].pBufferBinds[j];
+            const VkSparseBufferMemoryBindInfo *pSparseBufMemBndInf = &pBindInfo[i].pBufferBinds[j];
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSparseBufferMemoryBindInfo->pBinds), pSparseBufferMemoryBindInfo->bindCount * sizeof(VkSparseMemoryBind), pSparseBufMemBndInf->pBinds);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pSparseBufferMemoryBindInfo->pBinds));
+        }
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBindInfo[i].pBufferBinds));
+
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo[i].pImageBinds), pPacket->pBindInfo[i].imageBindCount * sizeof(VkSparseImageMemoryBindInfo), pBindInfo[i].pImageOpaqueBinds);
+        for (uint32_t j = 0; j < pPacket->pBindInfo[i].imageBindCount; j++) {
+            VkSparseImageMemoryBindInfo *pSparseImageMemoryBindInfo = (VkSparseImageMemoryBindInfo *)&pPacket->pBindInfo[i].pImageBinds[j];
+            const VkSparseImageMemoryBindInfo *pSparseImgMemBndInf = &pBindInfo[i].pImageBinds[j];
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSparseImageMemoryBindInfo->pBinds), pSparseImageMemoryBindInfo->bindCount * sizeof(VkSparseImageMemoryBind), pSparseImgMemBndInf->pBinds);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pSparseImageMemoryBindInfo->pBinds));
+        }
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBindInfo[i].pImageBinds));
+
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo[i].pImageOpaqueBinds), pPacket->pBindInfo[i].imageOpaqueBindCount * sizeof(VkSparseImageOpaqueMemoryBindInfo), pBindInfo[i].pImageOpaqueBinds);
+        for (uint32_t j = 0; j < pPacket->pBindInfo[i].imageOpaqueBindCount; j++) {
+            VkSparseImageOpaqueMemoryBindInfo *pSparseImageOpaqueMemoryBindInfo = (VkSparseImageOpaqueMemoryBindInfo *)&pPacket->pBindInfo[i].pImageOpaqueBinds[j];
+            const VkSparseImageOpaqueMemoryBindInfo *pSparseImgOpqMemBndInf = &pBindInfo[i].pImageOpaqueBinds[j];
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSparseImageOpaqueMemoryBindInfo->pBinds), pSparseImageOpaqueMemoryBindInfo->bindCount * sizeof(VkSparseMemoryBind), pSparseImgOpqMemBndInf->pBinds);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pSparseImageOpaqueMemoryBindInfo->pBinds));
+        }
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBindInfo[i].pImageOpaqueBinds));
+
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo[i].pWaitSemaphores), pPacket->pBindInfo[i].waitSemaphoreCount * sizeof(VkSemaphore), pBindInfo[i].pWaitSemaphores);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBindInfo[i].pWaitSemaphores));
+
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo[i].pSignalSemaphores), pPacket->pBindInfo[i].signalSemaphoreCount * sizeof(VkSemaphore), pBindInfo[i].pSignalSemaphores);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBindInfo[i].pSignalSemaphores));
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBindInfo));
+    FINISH_TRACE_PACKET();
+    return result;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    eventCount,
