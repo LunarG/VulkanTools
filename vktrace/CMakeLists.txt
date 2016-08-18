@@ -1,9 +1,13 @@
 PROJECT(vktrace_project)
 
-# We need CMake version 3.0+ in order to "find_package(Qt5)":
-cmake_minimum_required(VERSION 3.0)
-
 option(BUILD_VKTRACEVIEWER "Build VkTraceViewer" ON)
+
+if (BUILD_VKTRACEVIEWER)
+    # We need CMake version 3.0+ in order to "find_package(Qt5)":
+    cmake_minimum_required(VERSION 3.0)
+else ()
+    cmake_minimum_required(VERSION 2.8.11)
+endif()
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
