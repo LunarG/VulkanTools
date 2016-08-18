@@ -705,14 +705,30 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     // remove the loader extended createInfo structure
     VkInstanceCreateInfo localCreateInfo;
     memcpy(&localCreateInfo, pCreateInfo, sizeof(localCreateInfo));
+
+    // Alloc space to copy pointers
+    if (localCreateInfo.enabledLayerCount > 0)
+        localCreateInfo.ppEnabledLayerNames = (const char* const*) malloc(localCreateInfo.enabledLayerCount * sizeof(char*));
+    if (localCreateInfo.enabledExtensionCount > 0)
+        localCreateInfo.ppEnabledExtensionNames = (const char* const*) malloc(localCreateInfo.enabledExtensionCount * sizeof(char*));
+
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         char **ppName = (char **) &localCreateInfo.ppEnabledExtensionNames[i];
         *ppName = (char *) pCreateInfo->ppEnabledExtensionNames[i];
     }
-    for (i = 0; i < pCreateInfo->enabledLayerCount; i++) {
-        char **ppName = (char **) &localCreateInfo.ppEnabledLayerNames[i];
-        *ppName = (char *) pCreateInfo->ppEnabledLayerNames[i];
+
+    // If app requests vktrace layer, don't record that in the trace
+    char **ppName = (char **) &localCreateInfo.ppEnabledLayerNames[0];
+    for (i = 0 ; i < pCreateInfo->enabledLayerCount; i++) {
+        if (strcmp("VK_LAYER_LUNARG_vktrace", pCreateInfo->ppEnabledLayerNames[i]) == 0) {
+            // Decrement the enabled layer count and skip copying the pointer
+            localCreateInfo.enabledLayerCount--;
+        } else {
+            // Copy pointer and increment write pointer for everything else
+            *ppName++ = (char *) pCreateInfo->ppEnabledLayerNames[i];
+        }
     }
+
     //localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
     // The pNext pointer isn't getting marshalled into the trace buffer properly anyway, so
     // set it to NULL so that replay does not trip over it.
@@ -730,6 +746,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pInstance));
     FINISH_TRACE_PACKET();
+
+    if (localCreateInfo.enabledLayerCount > 0)
+        free((void *)localCreateInfo.ppEnabledExtensionNames);
+    if (localCreateInfo.enabledExtensionCount > 0)
+        free((void *)localCreateInfo.ppEnabledLayerNames);
+
     return result;
 }
 
