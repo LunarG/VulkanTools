@@ -55,3 +55,5 @@
 #define VKTRACER_LEAVE void __attribute__ ((destructor))
 
 #endif
+
+#define ROUNDUP4(_len) ((((_len)+3)>>2)<<2)

@@ -262,7 +262,7 @@ static void add_alloc_memory_to_trace_packet(vktrace_trace_packet_header* pHeade
 
 static void add_VkPipelineShaderStageCreateInfo_to_trace_packet(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* packetShader, const VkPipelineShaderStageCreateInfo* paramShader)
 {
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&packetShader->pName, strlen(paramShader->pName) + 1, paramShader->pName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&packetShader->pName, ROUNDUP4(strlen(paramShader->pName) + 1), paramShader->pName);
     vktrace_finalize_buffer_address(pHeader, (void**)&packetShader->pName);
 
     // Specialization info
