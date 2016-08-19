@@ -36,7 +36,7 @@ extern "C" {
 // Unfortunately, some of these are duplicated from vulkan.h
 // and platform-specific header files. Haven't figured out how
 // to avoid this.
-#if defined(WIN32)
+#if !defined(VK_USE_PLATFORM_XCB_KHR)
 typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 typedef struct xcb_connection_t xcb_connection_t;
 typedef uint32_t xcb_window_t;
@@ -48,6 +48,16 @@ typedef struct VkXcbSurfaceCreateInfoKHR {
     xcb_connection_t*             connection;
     xcb_window_t                  window;
 } VkXcbSurfaceCreateInfoKHR;
+typedef VkResult (VKAPI_PTR *PFN_vkCreateXcbSurfaceKHR)(VkInstance instance, const VkXcbSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, xcb_connection_t* connection, xcb_visualid_t visual_id);
+typedef struct {
+    VkIcdSurfaceBase base;
+    xcb_connection_t *connection;
+    xcb_window_t window;
+} VkIcdSurfaceXcb;
+#endif
+
+#if !defined(VK_USE_PLATFORM_XLIB_KHR)
 typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
 struct _XDisplay;
 typedef struct _XDisplay Display;
@@ -62,21 +72,13 @@ typedef struct VkXlibSurfaceCreateInfoKHR {
     Display*                       dpy;
     Window                         window;
 } VkXlibSurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateXcbSurfaceKHR)(VkInstance instance, const VkXcbSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, xcb_connection_t* connection, xcb_visualid_t visual_id);
 typedef VkResult (VKAPI_PTR *PFN_vkCreateXlibSurfaceKHR)(VkInstance instance, const VkXlibSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
 typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, Display* dpy, VisualID visualID);
-typedef struct {
-    VkIcdSurfaceBase base;
-    xcb_connection_t *connection;
-    xcb_window_t window;
-} VkIcdSurfaceXcb;
 typedef struct {
     VkIcdSurfaceBase base;
     Display *dpy;
     Window window;
 } VkIcdSurfaceXlib;
-
 #endif
 
 #if defined(PLATFORM_LINUX)
