@@ -233,11 +233,11 @@ class Subcommand(object):
                                          'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize))'},
                            'pData': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), _dataSize, pData)',
                                      'finalize_txt': 'default'},
-                           'pName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((pName != NULL) ? ROUNDUP4(strlen(pName) + 1) : 0), pName)',
+                           'pName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((pName != NULL) ? ROUNDUP_TO_4(strlen(pName) + 1) : 0), pName)',
                                      'finalize_txt': 'default'},
-                           'pMarker': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMarker), ((pMarker != NULL) ? ROUNDUP4(strlen(pMarker) + 1) : 0), pMarker)',
+                           'pMarker': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMarker), ((pMarker != NULL) ? ROUNDUP_TO_4(strlen(pMarker) + 1) : 0), pMarker)',
                                        'finalize_txt': 'default'},
-                           'pExtName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pExtName), ((pExtName != NULL) ? ROUNDUP4(strlen(pExtName) + 1) : 0), pExtName)',
+                           'pExtName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pExtName), ((pExtName != NULL) ? ROUNDUP_TO_4(strlen(pExtName) + 1) : 0), pExtName)',
                                         'finalize_txt': 'default'},
                            'pDescriptorSets': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), customSize, pDescriptorSets)',
                                                'finalize_txt': 'default'},
@@ -383,7 +383,7 @@ class Subcommand(object):
                 elif 'void' in p.ty:
                     ps.append('sizeof(%s)' % p.name)
                 elif 'char' in p.ty:
-                    ps.append('((%s != NULL) ? ROUNDUP4(strlen(%s) + 1) : 0)' % (p.name, p.name))
+                    ps.append('((%s != NULL) ? ROUNDUP_TO_4(strlen(%s) + 1) : 0)' % (p.name, p.name))
                 elif 'pDataSize' in p.name:
                     ps.append('((pDataSize != NULL) ? sizeof(size_t) : 0)')
                 elif 'IMAGE_SUBRESOURCE' in p.ty and 'pSubresource' == p.name:
@@ -668,8 +668,8 @@ class Subcommand(object):
         pid_enum.append('static void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header*  pHeader, VkApplicationInfo** ppStruct, const VkApplicationInfo *pInStruct)')
         pid_enum.append('{')
         pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkApplicationInfo), pInStruct);')
-        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName), (pInStruct->pApplicationName != NULL) ? ROUNDUP4(strlen(pInStruct->pApplicationName) + 1) : 0, pInStruct->pApplicationName);')
-        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName), (pInStruct->pEngineName != NULL) ? ROUNDUP4(strlen(pInStruct->pEngineName) + 1) : 0, pInStruct->pEngineName);')
+        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName), (pInStruct->pApplicationName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pApplicationName) + 1) : 0, pInStruct->pApplicationName);')
+        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName), (pInStruct->pEngineName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pEngineName) + 1) : 0, pInStruct->pEngineName);')
         pid_enum.append('    vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pApplicationName));')
         pid_enum.append('    vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pEngineName));')
         pid_enum.append('    vktrace_finalize_buffer_address(pHeader, (void**)&*ppStruct);')
@@ -685,7 +685,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledLayerCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledLayerCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) ROUNDUP4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz, pInStruct->ppEnabledLayerNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledLayerNames[i]);')
         pid_enum.append('        }')
@@ -695,7 +695,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledExtensionCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledExtensionCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) ROUNDUP4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz, pInStruct->ppEnabledExtensionNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledExtensionNames[i]);')
         pid_enum.append('        }')
@@ -721,7 +721,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledLayerCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledLayerCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) ROUNDUP4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz, pInStruct->ppEnabledLayerNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledLayerNames[i]);')
         pid_enum.append('        }')
@@ -731,7 +731,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledExtensionCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledExtensionCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) ROUNDUP4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz, pInStruct->ppEnabledExtensionNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledExtensionNames[i]);')
         pid_enum.append('        }')
