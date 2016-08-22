@@ -129,6 +129,9 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
     NAMES ${header}
     PATHS
       ${ImageMagick_INCLUDE_DIRS}
+      ${ImageMagick_INCLUDE_DIRS}/${component}
+      ${ImageMagick_INCLUDE_DIRS}/magick
+      ${ImageMagick_INCLUDE_DIRS}/wand
       ${IMAGEMAGIC_REGINCLUDE_PATH}
       ${IMAGEMAGIC_REGINCLUDE_PATH}/${component}
       ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
@@ -141,6 +144,9 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
     NAMES magick/magick-baseconfig.h
     PATHS
       ${ImageMagick_INCLUDE_DIRS}
+      ${ImageMagick_INCLUDE_DIRS}/${component}
+      ${ImageMagick_INCLUDE_DIRS}/magick
+      ${ImageMagick_INCLUDE_DIRS}/wand
       ${IMAGEMAGIC_REGINCLUDE_PATH}
       ${IMAGEMAGIC_REGINCLUDE_PATH}/${component}
       ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
