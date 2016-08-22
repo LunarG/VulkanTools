@@ -131,6 +131,8 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
       ${ImageMagick_INCLUDE_DIRS}
       ${IMAGEMAGIC_REGINCLUDE_PATH}
       ${IMAGEMAGIC_REGINCLUDE_PATH}/${component}
+      ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
+      ${IMAGEMAGIC_REGINCLUDE_PATH}/wand
     PATH_SUFFIXES
       ImageMagick ImageMagick-8 ImageMagick-7 ImageMagick-6
     DOC "Path to the ImageMagick include dir."
@@ -141,6 +143,8 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
       ${ImageMagick_INCLUDE_DIRS}
       ${IMAGEMAGIC_REGINCLUDE_PATH}
       ${IMAGEMAGIC_REGINCLUDE_PATH}/${component}
+      ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
+      ${IMAGEMAGIC_REGINCLUDE_PATH}/wand
     PATH_SUFFIXES
       ImageMagick ImageMagick-8 ImageMagick-7 ImageMagick-6
     DOC "Path to the ImageMagick arch-specific include dir."
