@@ -134,7 +134,7 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
       ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
       ${IMAGEMAGIC_REGINCLUDE_PATH}/wand
     PATH_SUFFIXES
-      ImageMagick ImageMagick-8 ImageMagick-7 ImageMagick-6
+      ImageMagick ImageMagick-6 ImageMagick-7
     DOC "Path to the ImageMagick include dir."
     )
   FIND_PATH(ImageMagick_${component}_ARCH_INCLUDE_DIR
@@ -146,7 +146,7 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
       ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
       ${IMAGEMAGIC_REGINCLUDE_PATH}/wand
     PATH_SUFFIXES
-      ImageMagick ImageMagick-8 ImageMagick-7 ImageMagick-6
+      ImageMagick ImageMagick-6 ImageMagick-7
     DOC "Path to the ImageMagick arch-specific include dir."
     )
   FIND_LIBRARY(ImageMagick_${component}_LIBRARY
