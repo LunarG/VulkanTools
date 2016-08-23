@@ -91,16 +91,16 @@ function(FIND_REGISTRY)
         GET_FILENAME_COMPONENT(IM_BIN_PATH  
           [HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;BinPath]
           ABSOLUTE CACHE)
-
+          
       # Otherwise, the WOW6432Node returned a string, assume 32-bit build on 64-bit OS and use that string.
       else()
 
         GET_FILENAME_COMPONENT(IM_BIN_PATH  
           [HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\ImageMagick\\Current;BinPath]
           ABSOLUTE CACHE)
-
+        
       endif()
-
+      
     endif()
 
     set (IMAGEMAGIC_REG_PATH ${IM_BIN_PATH} PARENT_SCOPE)
@@ -113,9 +113,8 @@ function(FIND_REGISTRY)
     set (IMAGEMAGIC_REG_PATH "" PARENT_SCOPE)
     set (IMAGEMAGIC_REGINCLUDE_PATH "" PARENT_SCOPE)
     set (IMAGEMAGIC_REGLIB_PATH "" PARENT_SCOPE)
-
+    
   endif()
-
 endfunction()
 
 
@@ -129,30 +128,18 @@ FUNCTION(FIND_IMAGEMAGICK_API component header)
     NAMES ${header}
     PATHS
       ${ImageMagick_INCLUDE_DIRS}
-      ${ImageMagick_INCLUDE_DIRS}/${component}
-      ${ImageMagick_INCLUDE_DIRS}/magick
-      ${ImageMagick_INCLUDE_DIRS}/wand
       ${IMAGEMAGIC_REGINCLUDE_PATH}
-      ${IMAGEMAGIC_REGINCLUDE_PATH}/${component}
-      ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
-      ${IMAGEMAGIC_REGINCLUDE_PATH}/wand
     PATH_SUFFIXES
-      ImageMagick ImageMagick/magick ImageMagick/wand ImageMagick/${component} ImageMagick-6 ImageMagick-6/magick ImageMagick-6/wand ImageMagick-6/{component} ImageMagick-7 ImageMagick-7/magick ImageMagick-7/wand ImageMagick-7/${component}
+      ImageMagick ImageMagick-6
     DOC "Path to the ImageMagick include dir."
     )
   FIND_PATH(ImageMagick_${component}_ARCH_INCLUDE_DIR
     NAMES magick/magick-baseconfig.h
     PATHS
       ${ImageMagick_INCLUDE_DIRS}
-      ${ImageMagick_INCLUDE_DIRS}/${component}
-      ${ImageMagick_INCLUDE_DIRS}/magick
-      ${ImageMagick_INCLUDE_DIRS}/wand
       ${IMAGEMAGIC_REGINCLUDE_PATH}
-      ${IMAGEMAGIC_REGINCLUDE_PATH}/${component}
-      ${IMAGEMAGIC_REGINCLUDE_PATH}/magick
-      ${IMAGEMAGIC_REGINCLUDE_PATH}/wand
     PATH_SUFFIXES
-      ImageMagick ImageMagick/magick ImageMagick/wand ImageMagick/${component} ImageMagick-6 ImageMagick-6/magick ImageMagick-6/wand ImageMagick-6/{component} ImageMagick-7 ImageMagick-7/magick ImageMagick-7/wand ImageMagick-7/${component}
+      ImageMagick ImageMagick-6
     DOC "Path to the ImageMagick arch-specific include dir."
     )
   FIND_LIBRARY(ImageMagick_${component}_LIBRARY
@@ -228,12 +215,12 @@ FOREACH(component ${ImageMagick_FIND_COMPONENTS}
       Magick++ CORE_RL_Magick++_ Magick++-6.Q16 Magick++-Q16 Magick++-6.Q8 Magick++-Q8 Magick++-6.Q16HDRI Magick++-Q16HDRI Magick++-6.Q8HDRI Magick++-Q8HDRI
       )
   ELSEIF(component STREQUAL "MagickWand")
-    FIND_IMAGEMAGICK_API(MagickWand MagickWand.h
-      Wand MagickWand CORE_RL_wand_ CORE_RL_MagickWand_ MagickWand-6.Q16 MagickWand-Q16 MagickWand-6.Q8 MagickWand-Q8 MagickWand-6.Q16HDRI MagickWand-Q16HDRI MagickWand-6.Q8HDRI MagickWand-Q8HDRI
+    FIND_IMAGEMAGICK_API(MagickWand wand/MagickWand.h
+      Wand MagickWand CORE_RL_wand_ MagickWand-6.Q16 MagickWand-Q16 MagickWand-6.Q8 MagickWand-Q8 MagickWand-6.Q16HDRI MagickWand-Q16HDRI MagickWand-6.Q8HDRI MagickWand-Q8HDRI
       )
   ELSEIF(component STREQUAL "MagickCore")
-    FIND_IMAGEMAGICK_API(MagickCore MagickCore.h
-      Magick MagickCore CORE_RL_magick_ CORE_RL_MagickCore_ MagickCore-6.Q16 MagickCore-Q16 MagickCore-6.Q8 MagickCore-Q8 MagickCore-6.Q16HDRI MagickCore-Q16HDRI MagickCore-6.Q8HDRI MagickCore-Q8HDRI
+    FIND_IMAGEMAGICK_API(MagickCore magick/MagickCore.h
+      Magick MagickCore CORE_RL_magick_ MagickCore-6.Q16 MagickCore-Q16 MagickCore-6.Q8 MagickCore-Q8 MagickCore-6.Q16HDRI MagickCore-Q16HDRI MagickCore-6.Q8HDRI MagickCore-Q8HDRI
       )
   ELSE(component STREQUAL "Magick++")
     IF(ImageMagick_EXECUTABLE_DIR)
@@ -277,7 +264,7 @@ SET(IMAGEMAGICK_MONTAGE_EXECUTABLE   ${ImageMagick_montage_EXECUTABLE}
     CACHE FILEPATH "Path to ImageMagick's montage executable.")
 SET(IMAGEMAGICK_COMPOSITE_EXECUTABLE ${ImageMagick_composite_EXECUTABLE}
     CACHE FILEPATH "Path to ImageMagick's composite executable.")
-
+    
 MARK_AS_ADVANCED(
   IMAGEMAGICK_BINARY_PATH
   IMAGEMAGICK_CONVERT_EXECUTABLE
