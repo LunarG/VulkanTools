@@ -2614,15 +2614,16 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_v
         return;
     }
 
-    // If we previously allocated queueFamilyProperities for the trace physical device, or the
+    // If we previously allocated queueFamilyProperities for the trace physical device and the
     // size of this query is larger than what we saved last time, then free the last properties
     // array (if we have one), and allocate a new array.
     if (traceQueueFamilyProperties.find(pPacket->physicalDevice) == traceQueueFamilyProperties.end() ||
-        *pPacket->pQueueFamilyPropertyCount >= traceQueueFamilyProperties[pPacket->physicalDevice].count)
+        *pPacket->pQueueFamilyPropertyCount > traceQueueFamilyProperties[pPacket->physicalDevice].count)
     {
         if (traceQueueFamilyProperties.find(pPacket->physicalDevice) != traceQueueFamilyProperties.end())
         {
             free(traceQueueFamilyProperties[pPacket->physicalDevice].queueFamilyProperties);
+            traceQueueFamilyProperties.erase(pPacket->physicalDevice);
         }
         if (pPacket->pQueueFamilyProperties)
         {
@@ -2637,15 +2638,16 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_v
 
     m_vkFuncs.real_vkGetPhysicalDeviceQueueFamilyProperties(remappedphysicalDevice, pPacket->pQueueFamilyPropertyCount, pPacket->pQueueFamilyProperties);
 
-    // If we previously allocated queueFamilyProperities for the replay physical device, or the
+    // If we previously allocated queueFamilyProperities for the replay physical device and the
     // size of this query is larger than what we saved last time, then free the last properties
     // array (if we have one), and allocate a new array.
     if (replayQueueFamilyProperties.find(remappedphysicalDevice) == replayQueueFamilyProperties.end() ||
-        *pPacket->pQueueFamilyPropertyCount >= replayQueueFamilyProperties[remappedphysicalDevice].count)
+        *pPacket->pQueueFamilyPropertyCount > replayQueueFamilyProperties[remappedphysicalDevice].count)
     {
         if (replayQueueFamilyProperties.find(remappedphysicalDevice) != replayQueueFamilyProperties.end())
         {
             free(replayQueueFamilyProperties[remappedphysicalDevice].queueFamilyProperties);
+            replayQueueFamilyProperties.erase(remappedphysicalDevice);
         }
         if (pPacket->pQueueFamilyProperties)
         {
