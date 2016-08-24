@@ -25,8 +25,13 @@ extern "C"{
 }
 
 #if defined(PLATFORM_LINUX) || defined(XCB_NVIDIA)
+#if defined(ANDROID)
+#include <android_native_app_glue.h>
+typedef ANativeWindow* vktrace_window_handle;
+#else
 #include <xcb/xcb.h>
 typedef xcb_window_t vktrace_window_handle;
+#endif
 #elif defined(WIN32)
 typedef HWND vktrace_window_handle;
 #endif
