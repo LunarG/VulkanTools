@@ -23,6 +23,9 @@
 
 #include <stdio.h>
 #include <string>
+#if defined(ANDROID)
+#include <android_native_app_glue.h>
+#endif
 #include "vktrace_common.h"
 #include "vktrace_tracelog.h"
 #include "vktrace_filelike.h"
@@ -36,15 +39,15 @@ vkreplayer_settings replaySettings = { NULL, 1, -1, -1, NULL, NULL };
 
 vktrace_SettingInfo g_settings_info[] =
 {
-    { "t", "TraceFile", VKTRACE_SETTING_STRING, &replaySettings.pTraceFilePath, &replaySettings.pTraceFilePath, TRUE, "The trace file to replay."},
-    { "l", "NumLoops", VKTRACE_SETTING_UINT, &replaySettings.numLoops, &replaySettings.numLoops, TRUE, "The number of times to replay the trace file or loop range." },
-    { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, &replaySettings.loopStartFrame, &replaySettings.loopStartFrame, TRUE, "The start frame number of the loop range." },
-    { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, &replaySettings.loopEndFrame, &replaySettings.loopEndFrame, TRUE, "The end frame number of the loop range." },
-    { "s", "Screenshot", VKTRACE_SETTING_STRING, &replaySettings.screenshotList, &replaySettings.screenshotList, TRUE, "Comma separated list of frames to take a snapshot of."},
+    { "t", "TraceFile", VKTRACE_SETTING_STRING, { &replaySettings.pTraceFilePath }, { &replaySettings.pTraceFilePath }, TRUE, "The trace file to replay."},
+    { "l", "NumLoops", VKTRACE_SETTING_UINT, { &replaySettings.numLoops }, { &replaySettings.numLoops }, TRUE, "The number of times to replay the trace file or loop range." },
+    { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, { &replaySettings.loopStartFrame }, { &replaySettings.loopStartFrame }, TRUE, "The start frame number of the loop range." },
+    { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, { &replaySettings.loopEndFrame }, { &replaySettings.loopEndFrame }, TRUE, "The end frame number of the loop range." },
+    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &replaySettings.screenshotList }, { &replaySettings.screenshotList }, TRUE, "Comma separated list of frames to take a snapshot of."},
 #if _DEBUG
-    { "v", "Verbosity", VKTRACE_SETTING_STRING, &replaySettings.verbosity, &replaySettings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, { &replaySettings.verbosity }, { &replaySettings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
-    { "v", "Verbosity", VKTRACE_SETTING_STRING, &replaySettings.verbosity, &replaySettings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, { &replaySettings.verbosity }, { &replaySettings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
 #endif
 };
 
