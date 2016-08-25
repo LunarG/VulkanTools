@@ -5,8 +5,10 @@ set -e
 
 GLSLANG_REVISION=$(cat $PWD/glslang_revision)
 SPIRV_TOOLS_REVISION=$(cat $PWD/spirv-tools_revision)
+SPIRV_HEADERS_REVISION=$(cat $PWD/spirv-headers_revision)
 echo "GLSLANG_REVISION=$GLSLANG_REVISION"
 echo "SPIRV_TOOLS_REVISION=$SPIRV_TOOLS_REVISION"
+echo "SPIRV_HEADERS_REVISION=$SPIRV_HEADERS_REVISION"
 
 LUNARGLASS_REVISION=$(cat $PWD/LunarGLASS_revision)
 echo "LUNARGLASS_REVISION=$LUNARGLASS_REVISION"
@@ -49,6 +51,7 @@ function create_spirv-tools () {
    mkdir -p $BASEDIR/spirv-tools/external/spirv-headers
    cd $BASEDIR/spirv-tools/external/spirv-headers
    git clone https://github.com/KhronosGroup/SPIRV-Headers .
+   git checkout $SPIRV_HEADERS_REVISION
 }
 
 function update_spirv-tools () {
@@ -63,8 +66,8 @@ function update_spirv-tools () {
    else
       cd $BASEDIR/spirv-tools/external/spirv-headers
       git fetch --all
-      git pull
    fi
+   git checkout $SPIRV_HEADERS_REVISION
 }
 
 function build_glslang () {

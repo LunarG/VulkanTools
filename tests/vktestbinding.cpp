@@ -271,8 +271,7 @@ Device::~Device() {
     vkDestroyDevice(handle(), NULL);
 }
 
-void Device::init(std::vector<const char *> &layers,
-                  std::vector<const char *> &extensions) {
+void Device::init(std::vector<const char *> &extensions, VkPhysicalDeviceFeatures *features) {
     // request all queues
     const std::vector<VkQueueFamilyProperties> queue_props =
         phy_.queue_properties();
@@ -302,14 +301,19 @@ void Device::init(std::vector<const char *> &layers,
     dev_info.pNext = NULL;
     dev_info.queueCreateInfoCount = queue_info.size();
     dev_info.pQueueCreateInfos = queue_info.data();
-    dev_info.enabledLayerCount = layers.size();
-    dev_info.ppEnabledLayerNames = layers.data();
+    dev_info.enabledLayerCount = 0;
+    dev_info.ppEnabledLayerNames = NULL;
     dev_info.enabledExtensionCount = extensions.size();
     dev_info.ppEnabledExtensionNames = extensions.data();
 
-    // request all supportable features enabled
-    auto features = phy().features();
-    dev_info.pEnabledFeatures = &features;
+    VkPhysicalDeviceFeatures all_features;
+    if (features) {
+        dev_info.pEnabledFeatures = features;
+    } else {
+        // request all supportable features enabled
+        all_features = phy().features();
+        dev_info.pEnabledFeatures = &all_features;
+    }
 
     init(dev_info);
 }
