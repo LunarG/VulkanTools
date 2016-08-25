@@ -2027,11 +2027,11 @@ class Subcommand(object):
                     rbody.append('                m_objMapper.clear_all_map_handles();')
                     rbody.append('            }')
                 elif 'MergePipelineCaches' in proto.name:
-                    rbody.append('            delete remappedpSrcCaches;')
+                    rbody.append('            delete[] remappedpSrcCaches;')
                 elif 'FreeCommandBuffers' in proto.name:
-                    rbody.append('            delete remappedpCommandBuffers;')
+                    rbody.append('            delete[] remappedpCommandBuffers;')
                 elif 'CmdExecuteCommands' in proto.name:
-                    rbody.append('            delete remappedpCommandBuffers;')
+                    rbody.append('            delete[] remappedpCommandBuffers;')
                 elif 'AllocateDescriptorSets' in proto.name:
                     rbody.append('            if (replayResult == VK_SUCCESS)')
                     rbody.append('            {')
@@ -2236,7 +2236,9 @@ class VktraceReplayVkFuncPtrs(Subcommand):
         header_txt = []
         header_txt.append('#pragma once\n')
         header_txt.append('#if defined(PLATFORM_LINUX) || defined(XCB_NVIDIA)')
+        header_txt.append('#if !defined(ANDROID)')
         header_txt.append('#include <xcb/xcb.h>\n')
+        header_txt.append('#endif')
         header_txt.append('#endif')
         header_txt.append('#include "vulkan/vulkan.h"')
         #header_txt.append('#include "vulkan/vk_lunarg_debug_marker.h"')
