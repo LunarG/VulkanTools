@@ -2293,50 +2293,78 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
 {
     VkPhysicalDevice tracePhysicalDevice;
     VkPhysicalDevice replayPhysicalDevice;
+    bool foundMatch = false;
+    uint32_t i,j;
 
     if (tracePhysicalDevices.find(traceDevice) == tracePhysicalDevices.end() ||
         replayPhysicalDevices.find(replayDevice) == replayPhysicalDevices.end())
     {
-        vktrace_LogWarning("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
+        vktrace_LogError("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
         return false;
     }
 
     tracePhysicalDevice = tracePhysicalDevices[traceDevice];
     replayPhysicalDevice = replayPhysicalDevices[replayDevice];
 
-    for (uint32_t i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
+    for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
     {
         if (traceMemoryProperties[tracePhysicalDevice].memoryTypes[traceIdx].propertyFlags == replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags)
         {
             *pReplayIdx = i;
-            return true;
+            foundMatch = true;
+            break;
         }
     }
 
-    // Didn't find an exact match, search for a superset
-    for (uint32_t i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
+    if (!foundMatch)
     {
-        if (traceMemoryProperties[tracePhysicalDevice].memoryTypes[traceIdx].propertyFlags ==
-            (traceMemoryProperties[tracePhysicalDevice].memoryTypes[traceIdx].propertyFlags & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags))
+        // Didn't find an exact match, search for a superset
+        for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
         {
-            *pReplayIdx = i;
-            return true;
+            if (traceMemoryProperties[tracePhysicalDevice].memoryTypes[traceIdx].propertyFlags ==
+                (traceMemoryProperties[tracePhysicalDevice].memoryTypes[traceIdx].propertyFlags & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags))
+            {
+                *pReplayIdx = i;
+                foundMatch = true;
+                break;
+            }
         }
     }
 
-    // Didn't find a superset, search for mem type with both HOST_VISIBLE and HOST_COHERENT set
-    for (uint32_t i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
+    if (!foundMatch)
     {
-        if ((VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags)
+        // Didn't find a superset, search for mem type with both HOST_VISIBLE and HOST_COHERENT set
+        for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
         {
-            *pReplayIdx = i;
-            return true;
+            if ((VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags)
+            {
+                *pReplayIdx = i;
+                foundMatch = true;
+                break;
+            }
         }
     }
+
+    if (foundMatch)
+    {
+        // Check to see if there are other replayMemoryProperties identical to the one that matched.
+        // If there are, print a warning and use the index from the trace file.
+        for (j = i+1; j < replayMemoryProperties[replayPhysicalDevice].memoryTypeCount; j++)
+        {
+            if (replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags == replayMemoryProperties[replayPhysicalDevice].memoryTypes[j].propertyFlags)
+            {
+                vktrace_LogWarning("memoryTypes propertyFlags identical in two or more entries, using idx %d from trace", traceIdx);
+                *pReplayIdx = traceIdx;
+                return true;
+            }
+         }
+        return true;
+     }
 
     // Didn't find a match
     return false;
 }
+
 
 VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory* pPacket)
 {
