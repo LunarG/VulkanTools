@@ -268,6 +268,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := vktrace_replay
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vktrace_vk_vk.cpp
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vkreplay_vk_replay_gen.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_interconnect.c
@@ -279,9 +280,9 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_factory.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_main.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_seq.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay.cpp
-#LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_settings.cpp
-#LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
-#LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_settings.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/include \
                     $(SRC_DIR)/include/vulkan \
@@ -291,15 +292,14 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/vktrace/src/vktrace_layer \
                     $(SRC_DIR)/vktrace/src/vktrace_replay \
                     $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay \
-                    $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/codegen \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
 LOCAL_SHARED_LIBRARIES += VkLayer_vktrace_layer
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
-LOCAL_LDLIBS    := -llog -landroid
+LOCAL_LDLIBS    := -llog -landroid -lvulkan
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/native_app_glue)

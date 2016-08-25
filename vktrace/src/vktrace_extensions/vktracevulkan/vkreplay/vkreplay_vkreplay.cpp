@@ -3242,7 +3242,7 @@ VkResult vkReplay::manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCom
             m_objMapper.add_to_commandbuffers_map(pPacket->pCommandBuffers[i], local_pCommandBuffers[i]);
         }
     }
-    delete local_pCommandBuffers;
+    delete[] local_pCommandBuffers;
     return replayResult;
 }
 

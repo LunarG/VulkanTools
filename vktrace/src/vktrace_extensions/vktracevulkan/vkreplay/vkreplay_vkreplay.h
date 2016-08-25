@@ -29,7 +29,11 @@
 #include <vector>
 #include <string>
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+#include <android_native_app_glue.h>
+#else
 #include <xcb/xcb.h>
+#endif // ANDROID
 #endif
 #include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"

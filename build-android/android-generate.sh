@@ -38,6 +38,11 @@ python ../vktrace/vktrace_generate.py Android vktrace-trace-c vk_core > generate
 python ../vktrace/vktrace_generate.py Android vktrace-core-trace-packets vk_core > generated/include/vktrace_vk_vk_packets.h
 python ../vktrace/vktrace_generate.py Android vktrace-packet-id vk_core > generated/include/vktrace_vk_packet_id.h
 
+# vkreplay
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_core > generated/include/vkreplay_vk_func_ptrs.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_core > generated/include/vkreplay_vk_replay_gen.cpp
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_core > generated/include/vkreplay_vk_objmapper.h
+
 cp -f ../layers/vk_layer_config.cpp   generated/common/
 cp -f ../layers/vk_layer_extension_utils.cpp  generated/common/
 cp -f ../layers/vk_layer_utils.cpp    generated/common/
