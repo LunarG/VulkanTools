@@ -289,7 +289,6 @@ class VkLayerTest : public VkRenderFramework {
 
         if (m_enableApiDump) {
             instance_layer_names.push_back("VK_LAYER_LUNARG_api_dump");
-            device_layer_names.push_back("VK_LAYER_LUNARG_api_dump");
         }
 
         /*
