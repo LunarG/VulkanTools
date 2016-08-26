@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <string>
 #if defined(ANDROID)
+#include <vector>
+#include <sstream>
+#include <android/log.h>
 #include <android_native_app_glue.h>
 #endif
 #include "vktrace_common.h"
@@ -188,8 +191,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
 #endif
 }
 
-extern "C"
-int main(int argc, char **argv)
+int vkreplay_main(int argc, char **argv)
 {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
@@ -383,3 +385,153 @@ int main(int argc, char **argv)
     }
     return err;
 }
+
+#if defined(ANDROID)
+static bool initialized = false;
+static bool active = false;
+
+// Convert Intents to argv
+// Ported from Hologram sample, only difference is flexible key
+std::vector<std::string> get_args(android_app &app, const char* intent_extra_data_key)
+{
+    std::vector<std::string> args;
+    JavaVM &vm = *app.activity->vm;
+    JNIEnv *p_env;
+    if (vm.AttachCurrentThread(&p_env, nullptr) != JNI_OK)
+        return args;
+
+    JNIEnv &env = *p_env;
+    jobject activity = app.activity->clazz;
+    jmethodID get_intent_method = env.GetMethodID(env.GetObjectClass(activity),
+            "getIntent", "()Landroid/content/Intent;");
+    jobject intent = env.CallObjectMethod(activity, get_intent_method);
+    jmethodID get_string_extra_method = env.GetMethodID(env.GetObjectClass(intent),
+            "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
+    jvalue get_string_extra_args;
+    get_string_extra_args.l = env.NewStringUTF(intent_extra_data_key);
+    jstring extra_str = static_cast<jstring>(env.CallObjectMethodA(intent,
+            get_string_extra_method, &get_string_extra_args));
+
+    std::string args_str;
+    if (extra_str) {
+        const char *extra_utf = env.GetStringUTFChars(extra_str, nullptr);
+        args_str = extra_utf;
+        env.ReleaseStringUTFChars(extra_str, extra_utf);
+        env.DeleteLocalRef(extra_str);
+    }
+
+    env.DeleteLocalRef(get_string_extra_args.l);
+    env.DeleteLocalRef(intent);
+    vm.DetachCurrentThread();
+
+    // split args_str
+    std::stringstream ss(args_str);
+    std::string arg;
+    while (std::getline(ss, arg, ' ')) {
+        if (!arg.empty())
+            args.push_back(arg);
+    }
+
+    return args;
+}
+
+static int32_t processInput(struct android_app* app, AInputEvent* event) {
+    return 0;
+}
+
+static void processCommand(struct android_app* app, int32_t cmd) {
+    switch(cmd) {
+        case APP_CMD_INIT_WINDOW: {
+            if (app->window) {
+                initialized = true;
+            }
+            break;
+        }
+        case APP_CMD_GAINED_FOCUS: {
+            active = true;
+            break;
+        }
+        case APP_CMD_LOST_FOCUS: {
+            active = false;
+            break;
+        }
+    }
+}
+
+// Start with carbon copy of main() and convert it to support Android, then diff them and move common code to helpers.
+void android_main(struct android_app *app)
+{
+    app_dummy();
+
+    const char* appTag = "vkreplay";
+
+    // Right now we are linking against libvulkan.so from the NDK, which requries API-24.  Come back and hook up the
+    // wrapper if we want to support earlier Android versions.
+    //
+    // int vulkanSupport = InitVulkan();
+    // if (vulkanSupport == 0) {
+    //     __android_log_print(ANDROID_LOG_ERROR, appTag, "No Vulkan support found");
+    //     return;
+    // }
+    //
+ 
+    app->onAppCmd = processCommand;
+    app->onInputEvent = processInput;
+
+    while(1) {
+        int events;
+        struct android_poll_source* source;
+        while (ALooper_pollAll(active ? 0 : -1, NULL, &events, (void**)&source) >= 0) {
+            if (source) {
+                source->process(app, source);
+            }
+
+            if (app->destroyRequested != 0) {
+                // anything to clean up?
+                return;
+            }
+        }
+
+        if (initialized && active) {
+            // Parse Intents into argc, argv
+            // Use the following key to send arguments to gtest, i.e.
+            // --es args "--gtest_filter=-VkLayerTest.foo"
+            const char key[] = "args";
+            std::vector<std::string> args = get_args(*app, key);
+
+            if (args.size() > 0) {
+                for (int i = 0; i < args.size(); i++)
+                    __android_log_print(ANDROID_LOG_INFO, appTag, "Intent arg[%i] = %s", i, args[i].c_str());
+            } else {
+                __android_log_print(ANDROID_LOG_INFO, appTag, "No Intent args detected");
+            }
+
+            //int argc = args.size() + 1;
+	    int argc = 3;
+            assert((argc == 3) && "Update this logic to support more than just traceFile name");
+            char *argv[] = { (char*)"vkreplay", (char*)"-t", (char*)args[0].c_str() };
+
+
+	    // sleep to allow attaching debugger
+	    sleep(10);
+
+	    // Call into common code
+            int err = vkreplay_main(argc, argv);
+            __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
+
+            ANativeActivity_finish(app->activity);
+
+            return;
+	}
+    }
+}
+
+#else // ANDROID
+
+extern "C"
+int main(int argc, char **argv)
+{
+    return vkreplay_main(argc, argv);
+}
+
+#endif

@@ -37,7 +37,11 @@ import vulkan
 headers = []
 objects = []
 protos = []
-proto_exclusions = [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
+proto_exclusions = [ # CLN HACK HACK HACK
+		     # although preserve removal of Android
+		     'CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR',
+                     'GetPhysicalDeviceWin32PresentationSupportKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR', 'GetPhysicalDeviceXlibPresentationSupportKHR',
+                     'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                      'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',
                      'GetPhysicalDeviceDisplayPropertiesKHR', 'GetPhysicalDeviceDisplayPlanePropertiesKHR',
                      'GetDisplayPlaneSupportedDisplaysKHR', 'GetDisplayModePropertiesKHR',
@@ -480,17 +484,22 @@ class Subcommand(object):
                                          'GetSwapchainImagesKHR',
                                          'QueuePresentKHR',
                                          #TODO add Wayland, Mir
-                                         'CreateXcbSurfaceKHR',
-                                         'CreateXlibSurfaceKHR',
-                                         'GetPhysicalDeviceXcbPresentationSupportKHR',
-                                         'GetPhysicalDeviceXlibPresentationSupportKHR',
-                                         'CreateWin32SurfaceKHR',
-                                         'GetPhysicalDeviceWin32PresentationSupportKHR',
+					 # CLN HACK HACK HACK
+                                         #'CreateXcbSurfaceKHR',
+                                         #'CreateXlibSurfaceKHR',
+                                         #'GetPhysicalDeviceXcbPresentationSupportKHR',
+                                         #'GetPhysicalDeviceXlibPresentationSupportKHR',
+                                         #'CreateWin32SurfaceKHR',
+                                         #'GetPhysicalDeviceWin32PresentationSupportKHR',
+					 'CreateAndroidSurfaceKHR',
                                          ]
 
         # validate the manually_written_hooked_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
+        # CLN HACK HACK HACK
+	#wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateAndroidSurfaceKHR',
+	#		             'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
+        wsi_platform_manual_funcs = ['CreateAndroidSurfaceKHR']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
@@ -1743,12 +1752,14 @@ class Subcommand(object):
                                  'GetPhysicalDeviceSurfacePresentModesKHR',
                                  'CreateSwapchainKHR',
                                  'GetSwapchainImagesKHR',
-                                 'CreateXcbSurfaceKHR',
-                                 'CreateXlibSurfaceKHR',
-                                 'GetPhysicalDeviceXcbPresentationSupportKHR',
-                                 'GetPhysicalDeviceXlibPresentationSupportKHR',
-                                 'CreateWin32SurfaceKHR',
-                                 'GetPhysicalDeviceWin32PresentationSupportKHR',
+				 # CLN HACK HACK HACK
+                                 #'CreateXcbSurfaceKHR',
+                                 #'CreateXlibSurfaceKHR',
+                                 #'GetPhysicalDeviceXcbPresentationSupportKHR',
+                                 #'GetPhysicalDeviceXlibPresentationSupportKHR',
+                                 #'CreateWin32SurfaceKHR',
+                                 #'GetPhysicalDeviceWin32PresentationSupportKHR',
+				 'CreateAndroidSurfaceKHR',
                                  #TODO Wayland, Mir, Xlib
                                  #'GetPhysicalDeviceInfo',
                                  'MapMemory',
@@ -1765,7 +1776,9 @@ class Subcommand(object):
 
         # validate the manually_replay_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR']
+	# CLN HACK HACK HACK
+        #wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateAndroidSurfaceKHR']
+        wsi_platform_manual_funcs = ['CreateAndroidSurfaceKHR']
 
         for func in manually_replay_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):

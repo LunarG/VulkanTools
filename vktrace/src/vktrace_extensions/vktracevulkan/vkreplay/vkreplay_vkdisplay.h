@@ -40,9 +40,13 @@ public:
     VkSurfaceKHR get_surface() { return (VkSurfaceKHR) &m_surface; };
     // VK_DEVICE get_device() { return m_dev[m_gpuIdx];}
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    ANativeWindow* get_window_handle() { return m_window; }
+#else
     xcb_window_t get_window_handle() { return m_XcbWindow; }
     xcb_connection_t* get_connection_handle() { return m_pXcbConnection; }
     xcb_screen_t* get_screen_handle() { return m_pXcbScreen; }
+#endif
 #elif defined(WIN32)
     HWND get_window_handle() { return m_windowHandle; }
     HINSTANCE get_connection_handle() { return m_connection; }
@@ -51,11 +55,16 @@ private:
     VkResult init_vk(const unsigned int gpu_idx);
     bool m_initedVK;
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    VkIcdSurfaceAndroid m_surface;
+    ANativeWindow* m_window;
+#else
     VkIcdSurfaceXcb m_surface;
     xcb_connection_t *m_pXcbConnection;
     xcb_screen_t *m_pXcbScreen;
     xcb_window_t m_XcbWindow;
     //VkPlatformHandleXcbKHR m_XcbPlatformHandle;
+#endif
 #elif defined(WIN32)
     VkIcdSurfaceWin32 m_surface;
     HWND m_windowHandle;
