@@ -265,7 +265,7 @@ LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := vktrace_replay
+LOCAL_MODULE := vkreplay
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vktrace_vk_vk.cpp
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vkreplay_vk_replay_gen.cpp
@@ -295,7 +295,7 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
 LOCAL_SHARED_LIBRARIES += VkLayer_vktrace_layer
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions -O0 -g
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
