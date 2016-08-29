@@ -2642,9 +2642,9 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_v
         return;
     }
 
-    // If we previously allocated queueFamilyProperities for the trace physical device and the
-    // size of this query is larger than what we saved last time, then free the last properties
-    // array (if we have one), and allocate a new array.
+    // If we haven't previously allocated queueFamilyProperties for the trace physical device, allocate it.
+    // If we previously allocated queueFamilyProperities for the trace physical device and the size of this
+    // query is larger than what we saved last time, then free the last properties map and allocate a new map.
     if (traceQueueFamilyProperties.find(pPacket->physicalDevice) == traceQueueFamilyProperties.end() ||
         *pPacket->pQueueFamilyPropertyCount > traceQueueFamilyProperties[pPacket->physicalDevice].count)
     {
@@ -2666,9 +2666,9 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_v
 
     m_vkFuncs.real_vkGetPhysicalDeviceQueueFamilyProperties(remappedphysicalDevice, pPacket->pQueueFamilyPropertyCount, pPacket->pQueueFamilyProperties);
 
-    // If we previously allocated queueFamilyProperities for the replay physical device and the
-    // size of this query is larger than what we saved last time, then free the last properties
-    // array (if we have one), and allocate a new array.
+    // If we haven't previously allocated queueFamilyProperties for the replay physical device, allocate it.
+    // If we previously allocated queueFamilyProperities for the replay physical device and the size of this
+    // query is larger than what we saved last time, then free the last properties map and allocate a new map.
     if (replayQueueFamilyProperties.find(remappedphysicalDevice) == replayQueueFamilyProperties.end() ||
         *pPacket->pQueueFamilyPropertyCount > replayQueueFamilyProperties[remappedphysicalDevice].count)
     {
