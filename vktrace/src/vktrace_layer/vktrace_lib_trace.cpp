@@ -41,10 +41,8 @@
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
 VKMemInfo g_memInfo = {0, NULL, NULL, 0};
 
-
 std::unordered_map<void *, layer_device_data *> g_deviceDataMap;
 std::unordered_map<void *, layer_instance_data *> g_instanceDataMap;
-
 
 layer_instance_data *mid(void *object)
 {
@@ -163,6 +161,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
         Trim_ObjectInfo* pInfo = trim_add_DeviceMemory_object(*pMemory);
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.DeviceMemory.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.DeviceMemory.memoryTypeIndex = pAllocateInfo->memoryTypeIndex;
+        pInfo->ObjectInfo.DeviceMemory.propertyFlags = Trim_LookUpMemoryProperties(device, pAllocateInfo->memoryTypeIndex);
         pInfo->ObjectInfo.DeviceMemory.size = pAllocateInfo->allocationSize;
         if (pAllocator != NULL)
         {
@@ -1242,6 +1242,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
                 {
                     Trim_ObjectInfo* pPDInfo = trim_add_PhysicalDevice_object(pPhysicalDevices[iter]);
                     pPDInfo->belongsToInstance = instance;
+                    // Get the memory properties of the device
+                    mid(instance)->instTable.GetPhysicalDeviceMemoryProperties(pPhysicalDevices[iter], &pPDInfo->ObjectInfo.PhysicalDevice.physicalDeviceMemoryProperties);
                 }
             }
         }

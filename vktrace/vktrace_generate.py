@@ -674,6 +674,7 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = pHeader;")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.memory = memory;")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim_IsMemoryDeviceOnly(device, memory);")
             trim_instructions.append("        }")
         elif 'CreateSampler' is proto.name:
             trim_instructions.append("        Trim_ObjectInfo* pInfo = trim_add_Sampler_object(*pSampler);")

@@ -43,6 +43,11 @@ void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
 void trim_reset_DescriptorPool(VkDescriptorPool descriptorPool);
 
+VkMemoryPropertyFlags Trim_LookUpMemoryProperties(VkDevice device, uint32_t memoryTypeIndex);
+
+// check if a memory type on the physical device is only DEVICE_LOCAL and not HOST_VISIBLE
+bool trim_IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
+
 #if TRIM_USE_ORDERED_IMAGE_CREATION
 void trim_add_Image_call(vktrace_trace_packet_header* pHeader);
 #endif //TRIM_USE_ORDERED_IMAGE_CREATION
@@ -75,6 +80,7 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pGetPhysicalDeviceMemoryPropertiesPacket;
             vktrace_trace_packet_header* pGetPhysicalDeviceQueueFamilyPropertiesCountPacket;
             vktrace_trace_packet_header* pGetPhysicalDeviceQueueFamilyPropertiesPacket;
+            VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
         } PhysicalDevice;
         struct _SurfaceKHR {            // VkSurfaceKHR
             vktrace_trace_packet_header* pCreatePacket;
@@ -106,6 +112,8 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
             VkDeviceSize size;
+            uint32_t memoryTypeIndex;
+            VkMemoryPropertyFlags propertyFlags;
             void* mappedAddress;
             VkDeviceSize mappedOffset;
             VkDeviceSize mappedSize;
@@ -152,6 +160,7 @@ typedef struct _Trim_ObjectInfo
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
             VkDeviceSize size;
+            bool needsStagingBuffer;
         } Buffer;
         struct _BufferView {            // VkBufferView
             vktrace_trace_packet_header* pCreatePacket;
