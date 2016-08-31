@@ -34,6 +34,7 @@
 #include "vk_enum_string_helper.h"
 
 using namespace std;
+#include "vktrace_pageguard_memorycopy.h"
 
 vkreplayer_settings *g_pReplaySettings;
 
@@ -1642,13 +1643,19 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     uint32_t i;
 
-    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
+    if (remappeddevice == VK_NULL_HANDLE)
     {
+        vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    VkPipelineCache pipelineCache;
-    pipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+    VkPipelineCache remappedPipelineCache;
+    remappedPipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
+    if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedPipelineCache == VK_NULL_HANDLE)
+    {
+        vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipelineCache.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
 
     VkComputePipelineCreateInfo* pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);
     memcpy((void*)pLocalCIs, (void*)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo)*pPacket->createInfoCount);
@@ -1657,30 +1664,34 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
     for (i=0; i<pPacket->createInfoCount; i++)
     {
         pLocalCIs[i].stage.module = m_objMapper.remap_shadermodules(pLocalCIs[i].stage.module);
-
-        if (pLocalCIs[i].stage.pName)
-            pLocalCIs[i].stage.pName = (const char*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));
-
-        if (pLocalCIs[i].stage.pSpecializationInfo)
+        if (pLocalCIs[i].stage.module == VK_NULL_HANDLE)
         {
-            VkSpecializationInfo* si = VKTRACE_NEW(VkSpecializationInfo);
-            pLocalCIs[i].stage.pSpecializationInfo = (const VkSpecializationInfo*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo));
-            memcpy((void*)si, (void*)(pLocalCIs[i].stage.pSpecializationInfo), sizeof(VkSpecializationInfo));
-
-            if (si->mapEntryCount > 0 && si->pMapEntries)
-                si->pMapEntries = (const VkSpecializationMapEntry*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));
-            if (si->dataSize > 0 && si->pData)
-                si->pData = (const void*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)si->pData));
-            pLocalCIs[i].stage.pSpecializationInfo = si;
+            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkShaderModule.");
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
         }
 
         pLocalCIs[i].layout = m_objMapper.remap_pipelinelayouts(pLocalCIs[i].layout);
+        if (pLocalCIs[i].layout == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipelineLayout.");
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+
+        VkPipeline origBasePipeline = pLocalCIs[i].basePipelineHandle;
         pLocalCIs[i].basePipelineHandle = m_objMapper.remap_pipelines(pLocalCIs[i].basePipelineHandle);
+        if (origBasePipeline != VK_NULL_HANDLE && pLocalCIs[i].basePipelineHandle == VK_NULL_HANDLE)
+        {
+            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipeline.");
+            VKTRACE_DELETE(pLocalCIs);
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
     }
 
     VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
 
-    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, pipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
+    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, remappedPipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
 
     if (replayResult == VK_SUCCESS)
     {
@@ -1689,9 +1700,6 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
         }
     }
 
-    for (i=0; i<pPacket->createInfoCount; i++)
-        if (pLocalCIs[i].stage.pSpecializationInfo)
-            VKTRACE_DELETE((void *)pLocalCIs[i].stage.pSpecializationInfo);
     VKTRACE_DELETE(pLocalCIs);
     VKTRACE_DELETE(local_pPipelines);
 
@@ -2492,6 +2500,18 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory* pPacket)
     }
 }
 
+BOOL isvkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData)
+{
+    BOOL bRet = FALSE;
+    PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pOPTPackageData;
+    if (((uint64_t)pChangedInfoArray[0].reserve0) & PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES) // TODO need think about 32bit
+    {
+        bRet = TRUE;
+    }
+    return bRet;
+}
+//after OPT speed up, the format of this packet will be different with before, the packet now only include changed block(page).
+//
 VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
@@ -2523,7 +2543,11 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
         {
             if (pPacket->pMemoryRanges[i].size != 0)
             {
+#ifdef USE_PAGEGUARD_SPEEDUP
+                pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
+#else
                 pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
+#endif
             }
         }
         else
@@ -2534,11 +2558,21 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
                 vktrace_LogError("vkFlushMappedMemoryRanges() malloc failed.");
             }
             pLocalMems[i].pGpuMem->setMemoryDataAddr(pBuf);
+#ifdef USE_PAGEGUARD_SPEEDUP
+            pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
+#else
             pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
+#endif
         }
     }
 
-    replayResult = m_vkFuncs.real_vkFlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
+#ifdef USE_PAGEGUARD_SPEEDUP
+    replayResult = pPacket->result;//if this is a OPT refresh-all packet, we need avoid to call real api and return original return to avoid error message;
+    if (!isvkFlushMappedMemoryRangesSpecial((PBYTE)pPacket->ppData[0]))
+#endif
+    {
+        replayResult = m_vkFuncs.real_vkFlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
+    }
 
     VKTRACE_DELETE(localRanges);
     VKTRACE_DELETE(pLocalMems);

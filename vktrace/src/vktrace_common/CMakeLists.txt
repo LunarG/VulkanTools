@@ -21,17 +21,23 @@ set(SRC_LIST
     vktrace_settings.c
     vktrace_tracelog.c
     vktrace_trace_packet_utils.c
+    vktrace_pageguard_memorycopy.cpp
+)
+
+set (CXX_SRC_LIST
+     vktrace_pageguard_memorycopy.cpp
 )
 
 set_source_files_properties( ${SRC_LIST} PROPERTIES LANGUAGE C)
+set_source_files_properties( ${CXX_SRC_LIST} PROPERTIES LANGUAGE CXX)
 
 file( GLOB_RECURSE HDRS *.[h|inl] )
 
 if (NOT MSVC)
-    add_compiler_flag("-fPIC")
+    add_compiler_flag("-fPIC -std=c++11")
 endif()
 
-add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${HDRS})
+add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${CXX_SRC_LIST} ${HDRS})
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
