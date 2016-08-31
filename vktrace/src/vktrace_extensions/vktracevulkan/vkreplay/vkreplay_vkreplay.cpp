@@ -34,7 +34,7 @@
 #include "vktrace_vk_vk_packets.h"
 #include "vk_enum_string_helper.h"
 
-#include "optimization_function.h"
+#include "vktrace_pageguard_memorycopy.h"
 
 vkreplayer_settings *g_pReplaySettings;
 
@@ -1947,8 +1947,8 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory* pPacket)
 BOOL isvkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData)
 {
     BOOL bRet = FALSE;
-    OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)pOPTPackageData;
-    if (((uint64_t)pChangedInfoArray[0].reserve0) & OPT_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES) // TODO need think about 32bit
+    PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pOPTPackageData;
+    if (((uint64_t)pChangedInfoArray[0].reserve0) & PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES) // TODO need think about 32bit
     {
         bRet = TRUE;
     }
@@ -1987,8 +1987,8 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
         {
             if (pPacket->pMemoryRanges[i].size != 0)
             {
-#ifdef USE_OPT_SPEEDUP
-                pLocalMems[i].pGpuMem->OPTcopyMappingData(pPacket->ppData[i]);
+#ifdef USE_PAGEGUARD_SPEEDUP
+                pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
 #else
                 pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
 #endif
@@ -2002,15 +2002,15 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
                 vktrace_LogError("vkFlushMappedMemoryRanges() malloc failed.");
             }
             pLocalMems[i].pGpuMem->setMemoryDataAddr(pBuf);
-#ifdef USE_OPT_SPEEDUP
-            pLocalMems[i].pGpuMem->OPTcopyMappingData(pPacket->ppData[i]);
+#ifdef USE_PAGEGUARD_SPEEDUP
+            pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
 #else
             pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
 #endif
         }
     }
 
-#ifdef USE_OPT_SPEEDUP
+#ifdef USE_PAGEGUARD_SPEEDUP
     replayResult = pPacket->result;//if this is a OPT refresh-all packet, we need avoid to call real api and return original return to avoid error message;
     if (!isvkFlushMappedMemoryRangesSpecial((PBYTE)pPacket->ppData[0]))
 #endif

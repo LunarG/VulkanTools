@@ -21,11 +21,11 @@ set(SRC_LIST
     vktrace_settings.c
     vktrace_tracelog.c
     vktrace_trace_packet_utils.c
-    optimization_function.cpp
+    vktrace_pageguard_memorycopy.cpp
 )
 
 set (CXX_SRC_LIST
-     optimization_function.cpp
+     vktrace_pageguard_memorycopy.cpp
 )
 
 set_source_files_properties( ${SRC_LIST} PROPERTIES LANGUAGE C)

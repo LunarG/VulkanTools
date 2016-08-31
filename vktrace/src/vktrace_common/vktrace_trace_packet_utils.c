@@ -23,7 +23,7 @@
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_interconnect.h"
 #include "vktrace_filelike.h"
-#include "optimization_function.h"
+#include "vktrace_pageguard_memorycopy.h"
 
 #ifdef WIN32
 #include <rpc.h>
@@ -35,7 +35,7 @@
 #include <time.h>
 #endif
 
-#include "optimization_function.h"
+#include "vktrace_pageguard_memorycopy.h"
 
 static uint64_t g_packet_index = 0;
 

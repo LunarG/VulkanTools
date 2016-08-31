@@ -36,7 +36,11 @@
 #include "vktrace_vk_exts.h"
 #include <stdio.h>
 
-#include "optimization_function.h"
+#include "vktrace_pageguard_memorycopy.h"
+#include "vktrace_lib_pagestatusarray.h"
+#include "vktrace_lib_pageguardmappedmemory.h"
+#include "vktrace_lib_pageguardcapture.h"
+#include "vktrace_lib_pageguard.h"
 
 // declared as extern in vktrace_lib_helpers.h
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
@@ -161,1215 +165,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
 }
 
 
-#if defined(WIN32) //page guard solution for windows//USE_OPT_SPEEDUP
-
-//OPT: Optimization by using page-guard for speed up capture 
-//     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from beginning to the game menu.
-//     The reason that caused such slow capture is DOOM updates a big mapped memory(over 67M) frequently, vktrace copies this memory block to harddrive when DOOM calls vkFlushmappedMemory to update it every time.
-//     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
-//     The Playback time for these trace file is round 7 minutes(on Win10/AMDFury/32GRam/I5 system).
-
-
-#define OPT_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
-#define OPT_PAGEGUARD_ENABLE_DEFAULT true
-
-#define OPT_TARGET_RANGE_SIZE_CONTROL
-#define OPT_TARGET_RANGE_SIZE_DEFAULT 33554432//4194304//67108864
-#define OPT_PAGEGUARD_TARGET_RANGE_SIZE_MIN 2097152
-#define OPT_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
-//#define OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-
-LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo);
-PVOID OPTHandler = NULL; //use to remove page guard handler
-uint32_t OPTHandlerRefAmount = 0; //for persistent map and multi-threading environment, map and unmap maybe overlap, we need to make sure remove handler after all persistent map has been unmapped.
-
-VkDeviceSize OPTTargetRangeSize = OPT_TARGET_RANGE_SIZE_DEFAULT;
-
-//return if enable pageguard;
-//if enable page guard, then check if need to update target range size, page guard only work for those persistent mapped memory which >= target range size. 
-bool getPageGuardEnableFlagOPT()
-{
-    static bool OPTEnablePageGuard = OPT_PAGEGUARD_ENABLE_DEFAULT;
-    static bool FirstTimeRun = true;
-    if (FirstTimeRun)
-    {
-        FirstTimeRun = false;
-        const char *penvpageguard = vktrace_get_global_var(OPT_PAGEGUARD_ENABLE_ENV);
-        if (penvpageguard)
-        {
-            int envvalue;
-            if (sscanf(penvpageguard, "%d", &envvalue) == 1)
-            {
-                if (envvalue)
-                {
-                    OPTEnablePageGuard = true;
-                    const char *penvtargetrangesize = vktrace_get_global_var(OPT_PAGEGUARD_TARGET_RANGE_SIZE_ENV);
-                    if (penvtargetrangesize)
-                    {
-                        VkDeviceSize rangesize;
-                        if (sscanf(penvtargetrangesize, "%llu", &rangesize) == 1)
-                        {
-                            if (rangesize > OPT_PAGEGUARD_TARGET_RANGE_SIZE_MIN)
-                            {
-                                OPTTargetRangeSize = rangesize;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    OPTEnablePageGuard = false;
-                }
-            }
-        }
-    }
-    return OPTEnablePageGuard;
-}
-
-void OPTSetExceptionHandler()
-{
-	if (!OPTHandler)
-	{
-		OPTHandler = AddVectoredExceptionHandler(1, PageGuardExceptionFilter);
-        OPTHandlerRefAmount = 1;
-	}
-    else
-    {
-        OPTHandlerRefAmount++;
-    }
-}
-
-void OPTRemoveExceptionHandler()
-{
-	if (OPTHandler)
-	{
-        if (OPTHandlerRefAmount)
-        {
-            OPTHandlerRefAmount--;
-        }
-        if (!OPTHandlerRefAmount)
-        {
-            RemoveVectoredExceptionHandler(OPTHandler);
-            OPTHandler = NULL;
-        }
-	}
-}
-
-//page guard only work for virtual memory, real memory no page concept.
-static void* OPTAllocateMemory(size_t size)
-{
-	void* pMemory = NULL;
-
-	if (size != 0)
-	{
-       pMemory = (PBYTE)VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	}
-
-	return pMemory;
-}
-
-static void OPTFreeMemory(void* pMemory)
-{
-	if (pMemory)
-	{
-        VirtualFree(pMemory, 0, MEM_RELEASE);
-	}
-}
-
-DWORD OPTSystemPageSize()
-{
-#if defined(PLATFORM_LINUX)
-    return 0x1000;
-#elif defined(WIN32)
-    SYSTEM_INFO sSysInfo;
-    GetSystemInfo(&sSysInfo);
-    return sSysInfo.dwPageSize;
-#endif
-}
-#define OPT_GUARD_PAGE_SIZE OPTSystemPageSize() //0x10000
-
-#define BLOCK_FLAG_ARRAY_CHANGED 0
-#define BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT 1
-#define BLOCK_FLAG_ARRAY_READ 2
-#define BLOCK_FLAG_ARRAY_READ_SNAPSHOT 3
-
-typedef struct __OPTMappedMemory
-{
-    VkDevice OPT_device;
-	VkDeviceMemory OPT_memory;
-    VkDeviceSize OPT_offset;
-    PBYTE pOPTData;//point to mapped memory in app process, if pOPTRealMappedData==NULL, pOPTData point to real mapped memory, 
-	               //if pOPTRealMappedData!=NULL, pOPTData point to real mapped memory copy, the copy can be added page guard
-	PBYTE pOPTRealMappedData;//point to real mapped memory in app process
-	PBYTE pOPTChangedDataPackage;// if not NULL, it point to a package which include changed info array and changed data block, allocated by this class
-	VkDeviceSize OPTsize;//the size of range
-    BOOL *pOPTBlockChangedArray;// the array that record which block has been changed from vkMap.. or last time vkFlush...
-    BOOL *pOPTBlockChangedArraySnapshot;//snapshot for the pOPTBlockChangedArray array 
-    BOOL *pOPTBlockReadArray;// the array that record which block has been read by host from vkMap.. or last time vkinvalidate or vkpipelinebarrier with specific para...
-    BOOL *pOPTBlockReadArraySnapshot;//snapshot for the pOPTBlockReadArray array 
-    BOOL OPTBlockError;// record if any block has been read by host and also write by host
-    VkDeviceSize OPTPageGuardSize;//size for one block
-    VkDeviceSize OPTPageSizeLeft;
-    uint64_t OPTPageGuardAmount;
-
-	__OPTMappedMemory()
-	{
-    OPT_device = NULL;
-	OPT_memory = NULL;
-	pOPTRealMappedData = NULL;
-	pOPTChangedDataPackage = NULL;
-	pOPTData = NULL;//point to mapped memory in app process
-	OPTsize = 0;//the size of range
-	pOPTBlockChangedArray = NULL;// the array that record which block has been changed from vkMap.. or last time vkFlush...
-    pOPTBlockChangedArraySnapshot = NULL;
-    pOPTBlockReadArray = NULL;
-    pOPTBlockReadArraySnapshot = NULL;
-    OPTBlockError = FALSE;
-    OPTPageGuardSize = OPT_GUARD_PAGE_SIZE; //size for one block
-	OPTPageSizeLeft = 0;
-	OPTPageGuardAmount = 0;
-	}
-
-	~__OPTMappedMemory()
-	{
-		/*if (pOPTBlockChangedArray)
-		{
-		  delete[] pOPTBlockChangedArray;
-		}*/
-	}
-
-	BOOL isOPTUseCopyForRealMappedMemory()
-	{
-		BOOL bRet = FALSE;
-		if (pOPTRealMappedData)
-		{
-			bRet = TRUE;
-		}
-		return bRet;
-	}
-
-	//get head addr and size for a block which is located by a given index
-	BOOL OPTgetChangedRangeByIndex(uint64_t index, PBYTE *paddr, VkDeviceSize *pBlockSize)
-	{
-		BOOL bRet = FALSE;
-		if (index < OPTPageGuardAmount)
-		{
-			bRet = TRUE;
-			if ((index + 1) == OPTPageGuardAmount)
-			{
-				if (paddr)
-				{
-					*paddr = pOPTData + index*OPTPageGuardSize;
-				}
-				if (pBlockSize)
-				{
-					*pBlockSize = (SIZE_T)OPTPageGuardSize + OPTPageSizeLeft;
-				}
-			}
-			else
-			{
-				if (paddr)
-				{
-					*paddr = pOPTData + index*OPTPageGuardSize;
-				}
-				if (pBlockSize)
-				{
-					*pBlockSize = (SIZE_T)OPTPageGuardSize;
-				}
-			}
-		}
-		return bRet;
-	}
-
-	//if return value <0, mean addr is out of page guard.
-	uint64_t OPTgetIndexOfChangedBlockByAddr(PBYTE addr)
-	{
-		uint64_t iRet = -1;
-		PBYTE pHead;
-		for (uint64_t i = 0; i < OPTPageGuardAmount; i++)
-		{
-			pHead = pOPTData + i*OPTPageGuardSize;
-			if ((i + 1) == OPTPageGuardAmount)
-			{
-				if ((addr >= pHead) && (addr < (pHead + (SIZE_T)OPTPageGuardSize + OPTPageSizeLeft)))
-				{
-					iRet = i;
-					break;
-				}
-			}
-			else
-			{
-				if ((addr >= pHead) && (addr < (pHead + (SIZE_T)OPTPageGuardSize)))
-				{
-					iRet = i;
-					break;
-				}
-			}
-		}
-		return iRet;
-	}
-
-    void OPTSetBlockChanged(uint64_t index, BOOL bChanged, int useWhich = BLOCK_FLAG_ARRAY_CHANGED)
-	{
-		if (index < OPTPageGuardAmount)
-		{
-            switch (useWhich)
-            {
-                case BLOCK_FLAG_ARRAY_CHANGED:
-                    pOPTBlockChangedArray[index] = bChanged;
-                    break;
-
-                case BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT:
-                    pOPTBlockChangedArraySnapshot[index] = bChanged;
-                    break;
-
-                case BLOCK_FLAG_ARRAY_READ_SNAPSHOT:
-                    pOPTBlockReadArraySnapshot[index] = bChanged;
-                    break;
-
-                default://BLOCK_FLAG_ARRAY_READ
-                    pOPTBlockReadArray[index] = bChanged;
-                    break;
-            }
-		}
-	}
-
-    BOOL OPTIsBlockChanged(uint64_t index, int useWhich = BLOCK_FLAG_ARRAY_CHANGED)
-	{
-		BOOL bRet = FALSE;
-		if (index < OPTPageGuardAmount)
-		{
-            switch (useWhich)
-            {
-            case BLOCK_FLAG_ARRAY_CHANGED:
-                bRet = pOPTBlockChangedArray[index];
-                break;
-
-            case BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT:
-                bRet = pOPTBlockChangedArraySnapshot[index];
-                break;
-
-            case BLOCK_FLAG_ARRAY_READ_SNAPSHOT:
-                bRet = pOPTBlockReadArraySnapshot[index];
-                break;
-
-            default://BLOCK_FLAG_ARRAY_READ
-                bRet = pOPTBlockReadArray[index];
-                break;
-            }
-		}
-		return bRet;
-	}
-
-	uint64_t OPTgetBlockSize(uint64_t index)
-	{
-		uint64_t uiRet = OPTPageGuardSize;
-		if ((index + 1) == OPTPageGuardAmount)
-		{
-			uiRet+=OPTPageSizeLeft;
-		}
-		return uiRet;
-	}
-
-	uint64_t OPTgetBlockOffset(uint64_t index)
-	{
-		uint64_t uiRet = 0;
-		if (index  < OPTPageGuardAmount)
-		{
-			uiRet = index*OPTPageGuardSize;
-		}
-		return uiRet;
-	}
-
-	BOOL OPTIsNoBlockChanged()
-	{
-		BOOL bRet = TRUE;
-		for (uint64_t i = 0; i < OPTPageGuardAmount; i++)
-		{
-			if (OPTIsBlockChanged(i))
-			{
-				bRet = FALSE;
-				break;
-			}
-		}
-		return bRet;
-	}
-
-	void OPTResetAllChangedFlagAndPageGuard()
-	{
-		DWORD oldProt;
-		for (uint64_t i = 0; i < OPTPageGuardAmount; i++)
-		{
-            if (OPTIsBlockChanged(i, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT))
-			{
-                OPTSetBlockChanged(i, BLOCK_FLAG_ARRAY_CHANGED);
-				if ((i + 1) == OPTPageGuardAmount)
-				{
-					VirtualProtect(pOPTData + i*OPTPageGuardSize, (SIZE_T)OPTPageGuardSize + OPTPageSizeLeft, PAGE_READWRITE | PAGE_GUARD, &oldProt);
-				}
-				else
-				{
-					VirtualProtect(pOPTData + i*OPTPageGuardSize, (SIZE_T)OPTPageGuardSize, PAGE_READWRITE | PAGE_GUARD, &oldProt);
-				}
-			}
-		}
-	}
-
-    void OPTResetAllReadFlagAndPageGuard()
-    {
-        DWORD oldProt;
-        OPTBackupBlockReadArraySnapshot();
-        for (uint64_t i = 0; i < OPTPageGuardAmount; i++)
-        {
-            if (OPTIsBlockChanged(i, BLOCK_FLAG_ARRAY_READ_SNAPSHOT))
-            {
-                OPTSetBlockChanged(i, BLOCK_FLAG_ARRAY_READ);
-                if ((i + 1) == OPTPageGuardAmount)
-                {
-                    VirtualProtect(pOPTData + i*OPTPageGuardSize, (SIZE_T)OPTPageGuardSize + OPTPageSizeLeft, PAGE_READWRITE | PAGE_GUARD, &oldProt);
-                }
-                else
-                {
-                    VirtualProtect(pOPTData + i*OPTPageGuardSize, (SIZE_T)OPTPageGuardSize, PAGE_READWRITE | PAGE_GUARD, &oldProt);
-                }
-            }
-        }
-    }
-
-    BOOL OPTSetAllPageGuardAndFlag(BOOL bSetPageGuard, BOOL bSetBlockChanged)
-	{
-        BOOL bRet = TRUE;
-        DWORD oldProt, dwErr;
-		DWORD dwMemSetting = bSetPageGuard ? (PAGE_READWRITE | PAGE_GUARD) : PAGE_READWRITE;
-
-		for (uint64_t i = 0; i < OPTPageGuardAmount; i++)
-		{
-			OPTSetBlockChanged(i, bSetBlockChanged);
-			if ((i + 1) == OPTPageGuardAmount)
-			{
-                if (!VirtualProtect(pOPTData + i*OPTPageGuardSize, (SIZE_T)OPTPageGuardSize + OPTPageSizeLeft, dwMemSetting, &oldProt))
-                {
-                    dwErr = GetLastError();
-                    bRet = FALSE;
-                }
-                else
-                {
-                    dwErr = GetLastError();
-                }
-			}
-			else
-			{
-                if(!VirtualProtect(pOPTData + i*OPTPageGuardSize, (SIZE_T)OPTPageGuardSize, dwMemSetting, &oldProt))
-                {
-                    dwErr = GetLastError();
-                    bRet = FALSE;
-                }
-                else
-                {
-                    dwErr = GetLastError();
-                }
-            }
-		}
-        return bRet;
-	}
-
-	BOOL OPT_vkMapMemory(
-		VkDevice device,
-		VkDeviceMemory memory,
-		VkDeviceSize offset,
-		VkDeviceSize size,
-		VkFlags flags,
-		void** ppData)
-	{
-        BOOL bRet = TRUE;
-        OPT_device = device;
-		OPT_memory = memory;
-        OPT_offset = offset;
-#ifndef OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-		pOPTRealMappedData = (PBYTE)*ppData;
-		pOPTData = (PBYTE)VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-		memcpy(pOPTData, pOPTRealMappedData, size);
-		*ppData = pOPTData;
-#else
-		pOPTData = (PBYTE)*ppData;
-#endif
-		OPTsize = size;
-
-		OPTSetExceptionHandler();
-
-		OPTPageSizeLeft = size % OPTPageGuardSize;
-		OPTPageGuardAmount = size / OPTPageGuardSize;
-		pOPTBlockChangedArray = new BOOL[OPTPageGuardAmount];
-		pOPTBlockChangedArraySnapshot = new BOOL[OPTPageGuardAmount];
-        pOPTBlockReadArray = new BOOL[OPTPageGuardAmount];
-        pOPTBlockReadArraySnapshot = new BOOL[OPTPageGuardAmount];
-		memset(pOPTBlockChangedArray, FALSE, OPTPageGuardAmount*sizeof(BOOL));
-        memset(pOPTBlockChangedArraySnapshot, FALSE, OPTPageGuardAmount*sizeof(BOOL));
-        memset(pOPTBlockReadArray, FALSE, OPTPageGuardAmount*sizeof(BOOL));
-        memset(pOPTBlockReadArraySnapshot, FALSE, OPTPageGuardAmount*sizeof(BOOL));
-
-        if (!OPTSetAllPageGuardAndFlag(TRUE, FALSE))
-		{
-            bRet = FALSE;
-		}
-        return bRet;
-	}
-    
-	void OPT_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
-	{
-        if ( (memory == OPT_memory)&&(device == OPT_device) )
-		{
-            OPTSetAllPageGuardAndFlag(FALSE, FALSE);
-			OPTRemoveExceptionHandler();
-			clearOPTChangedDataPackage();
-#ifndef OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-            memcpy(pOPTRealMappedData, pOPTData, OPTsize);
-            VirtualFree(pOPTData, OPTsize, MEM_RELEASE);
-            pOPTRealMappedData = NULL;
-            pOPTData = NULL;
-#else
-            pOPTData = NULL;
-#endif
-            delete[] pOPTBlockChangedArray;
-            delete[] pOPTBlockChangedArraySnapshot;
-            delete[] pOPTBlockReadArray;
-            delete[] pOPTBlockReadArraySnapshot;
-			OPT_memory = NULL;			
-			OPTsize = 0;
-		}
-	}
-
-    void OPTBackupBlockChangedArraySnapshot()
-    {
-        memcpy(pOPTBlockChangedArraySnapshot, pOPTBlockChangedArray, OPTPageGuardAmount*sizeof(BOOL));
-    }
-
-    void OPTBackupBlockReadArraySnapshot()
-    {
-        memcpy(pOPTBlockReadArraySnapshot, pOPTBlockReadArray, OPTPageGuardAmount*sizeof(BOOL));
-    }
-
-    DWORD getChangedBlockAmount(int useWhich = BLOCK_FLAG_ARRAY_CHANGED)
-	{
-		DWORD dwAmount = 0;
-		for (int i = 0; i < OPTPageGuardAmount; i++)
-		{
-            if (OPTIsBlockChanged(i, useWhich))
-			{
-				dwAmount++;
-			}
-		}
-		return dwAmount;
-	}
-
-	//is RangeLimit cover or partly cover Range
-	BOOL isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDeviceSize RangeSizeLimit, VkDeviceSize RangeOffset, VkDeviceSize RangeSize)
-	{
-		BOOL bRet = FALSE;
-		if ( ((RangeOffsetLimit<=RangeOffset) && ((RangeOffsetLimit + RangeSizeLimit)>RangeOffset)) ||
-			 ((RangeOffsetLimit<(RangeOffset + RangeSize)) && ((RangeOffsetLimit + RangeSizeLimit)>=(RangeOffset + RangeSize))) )
-		{
-			bRet = TRUE;
-		}
-		return bRet;
-	}
-
-	//for output,
-	//if pData!=NULL,the pData + Offset is head addr of an array of OPTChangedBlockInfo, the [0] is block amount, size (size for all changed blocks which amount is block amount),then block1 offset,block1 size...., 
-	//               the block? offset is  this changed block offset to mapped memory head addr,the array followed by changed blocks data
-	//                                     
-	//if pData==NULL, only get size
-	//DWORD *pdwSaveSize, the size of all changed blocks
-	//DWORD *pInfoSize, the size of array of OPTChangedBlockInfo
-	//VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is RangeSize, if RangeOffset<0, consider whole mapped memory
-	//return the amount of changed blocks.
-    DWORD getOPTChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, DWORD *pdwSaveSize, DWORD *pInfoSize, PBYTE pData, DWORD DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED)
-	{
-        DWORD dwAmount = getChangedBlockAmount(useWhich), dwIndex = 0, offset = 0;
-		DWORD infosize = sizeof(OPTChangedBlockInfo)*(dwAmount + 1), SaveSize = 0, CurrentBlockSize = 0;
-		PBYTE pChangedData;
-        OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)(pData ? (pData + DataOffset) : NULL);
-
-		if (pInfoSize)
-		{
-			*pInfoSize = infosize;
-		}
-		for (int i = 0; i < OPTPageGuardAmount; i++)
-		{
-			CurrentBlockSize = OPTgetBlockSize(i);
-			offset=OPTgetBlockOffset(i);
-            if (OPTIsBlockChanged(i, useWhich) &&
-				 ((RangeOffset<0) || isRangeIncluded(RangeOffset, RangeSize, (VkDeviceSize)offset, (VkDeviceSize) CurrentBlockSize) ) )
-			{
-				if (pChangedInfoArray)
-				{
-					pChangedInfoArray[dwIndex + 1].offset = offset;
-					pChangedInfoArray[dwIndex + 1].length = CurrentBlockSize;
-                    pChangedInfoArray[dwIndex + 1].reserve0 = 0;
-                    pChangedInfoArray[dwIndex + 1].reserve1 = 0;
-                    pChangedData = pData + DataOffset+ infosize + SaveSize;
-					memcpy(pChangedData, pOPTData + offset, CurrentBlockSize);
-				}
-				SaveSize += CurrentBlockSize;
-				dwIndex++;
-			}
-		}
-		if (pChangedInfoArray)
-		{
-			pChangedInfoArray[0].offset = dwAmount;
-			pChangedInfoArray[0].length = SaveSize;
-		}
-		if (pdwSaveSize)
-		{
-			*pdwSaveSize = SaveSize;
-		}
-		return dwAmount;
-	}
-
-	//return: if memory already changed;
-    //        evenif no change to mmeory, it will still allocate memory for info array which only include one OPTChangedBlockInfo,its  offset and length are all 0;
-	// VkDeviceSize       *pChangedSize, the size of all changed data block
-	// VkDeviceSize       *pDataPackageSize, size for ChangedDataPackage
-	// PBYTE              *ppChangedDataPackage, is an array of OPTChangedBlockInfo + all changed data, the [0] offset is blocks amount, length is size amount of these blocks(not include this info array),then block1 offset,block1 size....
-	//                     allocate needed memory in the method, ppChangedDataPackage point to returned pointer, if ppChangedDataPackage==null, only calculate size
-	BOOL OPT_vkFlushMappedMemoryRange(
-		VkDevice           device,
-		VkDeviceMemory     memory,
-		VkDeviceSize       offset,
-		VkDeviceSize       size,
-		VkDeviceSize       *pChangedSize,
-		VkDeviceSize       *pDataPackageSize,
-		PBYTE              *ppChangedDataPackage)
-	{
-		BOOL bRet = FALSE;
-		DWORD dwSaveSize, InfoSize;
-        OPTBackupBlockChangedArraySnapshot();
-        DWORD dwAmount = getOPTChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, NULL, 0, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT); //get the info size and size of changed blocks
-		if ( (dwSaveSize != 0) )
-		{
-           bRet = TRUE;
-		}        
-        if (pChangedSize)
-        {
-            *pChangedSize = dwSaveSize;
-        }
-        if (pDataPackageSize)
-        {
-            *pDataPackageSize = dwSaveSize + InfoSize;
-        }
-        pOPTChangedDataPackage = (PBYTE)OPTAllocateMemory(dwSaveSize + InfoSize);
-        getOPTChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, pOPTChangedDataPackage, 0, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
-
-        //if use copy of real mapped memory, need copy back to real mapped memory
-#ifndef OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-        OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)pOPTChangedDataPackage;
-        if (pChangedInfoArray[0].length)
-        {
-            PBYTE pChangedData = (PBYTE)pOPTChangedDataPackage + sizeof(OPTChangedBlockInfo)*(pChangedInfoArray[0].offset + 1);
-            DWORD CurrentOffset = 0;
-            for (DWORD i = 0; i < pChangedInfoArray[0].offset; i++)
-            {
-                memcpy(pOPTRealMappedData + pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset, (size_t)pChangedInfoArray[i + 1].length);
-                CurrentOffset += pChangedInfoArray[i + 1].length;
-            }
-        }
-#endif
-
-        if (ppChangedDataPackage)
-        {
-            //regist the changed package
-            *ppChangedDataPackage = pOPTChangedDataPackage;
-        }    
-        return bRet;
-	}
-
-	void clearOPTChangedDataPackage()
-	{
-		if (pOPTChangedDataPackage)
-		{
-			OPTFreeMemory(pOPTChangedDataPackage);
-			pOPTChangedDataPackage = NULL;
-		}
-	}
-
-	//get ptr and size of OPTChangedDataPackage;
-	PBYTE getOPTChangedDataPackage(VkDeviceSize  *pSize)
-	{
-		PBYTE pRet = NULL;
-		if (pOPTChangedDataPackage)
-		{
-			pRet=pOPTChangedDataPackage;
-			OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)pOPTChangedDataPackage;
-			if (pSize)
-			{
-				*pSize = sizeof(OPTChangedBlockInfo)*(pChangedInfoArray[0].offset + 1) + pChangedInfoArray[0].length;
-			}
-		}
-		return pRet;
-	}
-} OPTMappedMemory, *LPOPTMappedMemory;
-
-typedef VkResult (*vkFlushMappedMemoryRangesFunc)(VkDevice device, uint32_t memoryRangeCount,const VkMappedMemoryRange*  pMemoryRanges);
-    
-void setFlagTovkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData)
-{
-    OPTChangedBlockInfo *pChangedInfoArray = (OPTChangedBlockInfo *)pOPTPackageData;
-    pChangedInfoArray[0].reserve0 = pChangedInfoArray[0].reserve0 | OPT_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES;
-}
-
-    
-typedef struct __OPTCapture
-{
-	std::unordered_map< VkDeviceMemory, OPTMappedMemory > MapMemory;
-    OPTChangedBlockInfo EmptyChangedInfoArray;
-    std::unordered_map< VkDeviceMemory, PBYTE > MapMemoryPtr;
-
-    __OPTCapture()
-    {
-        EmptyChangedInfoArray.offset = 0;
-        EmptyChangedInfoArray.length = 0;
-    }
-
-	void OPT_vkMapMemory(
-		VkDevice device,
-		VkDeviceMemory memory,
-		VkDeviceSize offset,
-		VkDeviceSize size,
-		VkFlags flags,
-		void** ppData)
-	{
-		OPTMappedMemory OPTmappedmem;
-#ifdef OPT_TARGET_RANGE_SIZE_CONTROL
-        if ((size >= OPTTargetRangeSize) && (size != -1))
-#endif
-		{
-            if (getPageGuardEnableFlagOPT())
-            {
-                OPTmappedmem.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
-                MapMemory[memory] = OPTmappedmem;
-            }
-		}
-        MapMemoryPtr[memory] = (PBYTE)(*ppData);
-	}
-
-	void OPT_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
-	{
-        LPOPTMappedMemory lpOPTMemoryTemp=OPT_findMappedMemory( device,  memory);
-        if (lpOPTMemoryTemp)
-        {
-            lpOPTMemoryTemp->OPT_vkUnmapMemory(device, memory);
-            MapMemory.erase(memory);
-        }
-        MapMemoryPtr.erase(memory);
-	}
-
-    PBYTE OPT_getMappedPointer(VkDevice device, VkDeviceMemory memory)
-    {
-        return MapMemoryPtr[memory];
-    }
-
-	//return: if it's target mapped memory and no change at all;
-    //PBYTE *ppPackageDataforOutOfMap, must be an array include memoryRangeCount elements
-	BOOL OPT_vkFlushMappedMemoryRanges(
-		VkDevice device,
-		uint32_t memoryRangeCount,
-		const VkMappedMemoryRange* pMemoryRanges,
-        PBYTE *ppPackageDataforOutOfMap)
-	{
-		BOOL bRet = FALSE, bChanged = FALSE;
-		std::unordered_map< VkDeviceMemory, OPTMappedMemory >::const_iterator mappedmem_it;
-		for (uint32_t i = 0; i < memoryRangeCount;i++) 
-		{
-			VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[i];
-			size_t rangesSize = (size_t)pRange->size;
-
-            ppPackageDataforOutOfMap[i] = NULL;
-            LPOPTMappedMemory lpOPTMemoryTemp = OPT_findMappedMemory(device, pRange->memory);
-            if (lpOPTMemoryTemp)
-            {
-                if (lpOPTMemoryTemp->OPT_vkFlushMappedMemoryRange(device, pRange->memory, pRange->offset, pRange->size, NULL, NULL, NULL))
-                {
-                   bChanged = TRUE;
-                }				
-            }
-            else
-            {
-                bChanged = TRUE;
-                VkDeviceSize RealRangeSize= pRange->size;
-                if (RealRangeSize == VK_WHOLE_SIZE)
-                {
-                    RealRangeSize = pRange->size;//have to replace with real size, here just for break point
-                }
-                ppPackageDataforOutOfMap[i] = (PBYTE)OPTAllocateMemory(RealRangeSize + 2*sizeof(OPTChangedBlockInfo));
-                OPTChangedBlockInfo *pInfoTemp = (OPTChangedBlockInfo *)ppPackageDataforOutOfMap[i];
-                pInfoTemp[0].offset = 1;
-                pInfoTemp[0].length = (DWORD)RealRangeSize;
-                pInfoTemp[0].reserve0 = 0;
-                pInfoTemp[0].reserve1 = 0;
-                pInfoTemp[1].offset = 0;
-                pInfoTemp[1].length = (DWORD)RealRangeSize;
-                pInfoTemp[1].reserve0 = 0;
-                pInfoTemp[1].reserve1 = 0;
-                PBYTE pDataInPackage = (PBYTE)(pInfoTemp + 2);
-                PBYTE pDataMapped = OPT_getMappedPointer(device, pRange->memory);
-                memcpy(pDataInPackage, pDataMapped, RealRangeSize);
-            }
-		}
-		if (!bChanged) //&& (memoryRangeCount == 1) && (pMemoryRanges[0].size == OPT_TARGET_RANGE_SIZE))
-		{
-			bRet = TRUE;
-		}
-		return bRet;
-	}
-
-    LPOPTMappedMemory OPT_findMappedMemory(VkDevice device, VkDeviceMemory memory)
-    {
-        LPOPTMappedMemory pRet = NULL;
-        std::unordered_map< VkDeviceMemory, OPTMappedMemory >::const_iterator mappedmem_it;
-        mappedmem_it = MapMemory.find(memory);
-        if (mappedmem_it != MapMemory.end())
-        {
-            pRet = ((OPTMappedMemory *)&(mappedmem_it->second));
-            if (pRet->OPT_device != device)
-            {
-                pRet = NULL;
-            }
-        }
-        return pRet;
-    }
-
-    LPOPTMappedMemory OPT_findMappedMemory(PBYTE addr, VkDeviceSize *pOffsetOfAddr = NULL, PBYTE *ppBlock = NULL, VkDeviceSize *pBlockSize = NULL)
-	{
-		LPOPTMappedMemory pRet = NULL;
-		LPOPTMappedMemory pMappedMemoryTemp;
-        PBYTE RealMappedMemoryAddr = NULL;
-        PBYTE pBlock = NULL;
-        VkDeviceSize OffsetOfAddr = 0, BlockSize = 0;
-
-		for (std::unordered_map< VkDeviceMemory, OPTMappedMemory >::iterator it = MapMemory.begin(); it != MapMemory.end(); it++)
-		{
-			pMappedMemoryTemp = &(it->second);
-			if ((addr >= pMappedMemoryTemp->pOPTData) && (addr<(pMappedMemoryTemp->pOPTData + pMappedMemoryTemp->OPTsize)))
-			{
-				pRet = pMappedMemoryTemp;
-
-                OffsetOfAddr = (VkDeviceSize)(addr - pMappedMemoryTemp->pOPTData);
-                BlockSize = pMappedMemoryTemp->OPTPageGuardSize;
-                pBlock = addr - OffsetOfAddr % BlockSize;
-                if (ppBlock)
-                {
-                    *ppBlock = pBlock;
-                }
-                if (pBlockSize)
-                {
-                    *pBlockSize = BlockSize;
-                }
-                if (pOffsetOfAddr)
-                {
-                    *pOffsetOfAddr = OffsetOfAddr;
-                }
-			}
-		}
-		return pRet;
-	}
-
-    BOOL isBelongMemoryRanges(LPOPTMappedMemory pMappedMemory, VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)
-    {
-        BOOL bRet = FALSE;
-        for (uint32_t i = 0; i < memoryRangeCount; i++)
-        {
-            if ((pMappedMemory->OPT_memory == pMemoryRanges[i].memory) &&
-                (pMappedMemory->OPT_device == device))
-            {
-                bRet = TRUE;
-                break;
-            }
-        }
-        return bRet;
-    }
-
-    LPOPTMappedMemory OPT_findMappedMemory(VkDevice device, const VkMappedMemoryRange* pMemoryRange)
-    {
-        LPOPTMappedMemory pRet = OPT_findMappedMemory(device, pMemoryRange->memory);
-        return pRet;
-    }
-
-    //get size of all changed package in array of pMemoryRanges
-    VkDeviceSize OPT_ALLChangedPackageSizeInMappedMemory(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges, PBYTE *ppPackageDataforOutOfMap)
-	{
-		VkDeviceSize iRet = 0, PackageSize = 0;
-		LPOPTMappedMemory pMappedMemoryTemp;
-        for (uint32_t i = 0; i < memoryRangeCount; i++)
-        {
-            pMappedMemoryTemp=OPT_findMappedMemory(device, pMemoryRanges + i);
-            if (pMappedMemoryTemp)
-            {
-                pMappedMemoryTemp->getOPTChangedDataPackage(&PackageSize);
-            }
-            else
-            {
-                //getEmptyOPTChangedDataPackage(&PackageSize);
-                OPTChangedBlockInfo *pInfoTemp = (OPTChangedBlockInfo *)ppPackageDataforOutOfMap[i];
-                PackageSize = pInfoTemp->length + 2*sizeof(OPTChangedBlockInfo);
-            }
-            iRet += PackageSize;
-        }
-		return iRet;
-	}
-
-    //get ptr and size of OPTChangedDataPackage;
-    PBYTE getOPTChangedDataPackageOutofMap(PBYTE *ppPackageDataforOutOfMap, DWORD dwRangeIndex, VkDeviceSize  *pSize)
-    {
-        PBYTE pRet = (PBYTE)ppPackageDataforOutOfMap[dwRangeIndex];
-        OPTChangedBlockInfo *pInfo = (OPTChangedBlockInfo *)pRet;
-        if (pSize)
-        {
-            *pSize = sizeof(OPTChangedBlockInfo)*2 + pInfo->length;
-        }
-        return pRet;
-    }
-
-    void clearOPTChangedDataPackageOutofMap(PBYTE *ppPackageDataforOutOfMap, DWORD dwRangeIndex)
-    {
-        OPTFreeMemory(ppPackageDataforOutOfMap[dwRangeIndex]);
-        ppPackageDataforOutOfMap[dwRangeIndex] = NULL;
-    }
-
-    BOOL isHostWriteFlagSetInMemoryBarriers(uint32_t  memoryBarrierCount, const VkMemoryBarrier*  pMemoryBarriers)
-    {
-        BOOL bRet = FALSE;
-        if ((memoryBarrierCount != 0) && (pMemoryBarriers))
-        {
-            for (uint32_t i = 0; i < memoryBarrierCount; i++)
-            {
-                if (
-                    (pMemoryBarriers[i].srcAccessMask&VK_ACCESS_HOST_WRITE_BIT) 
-                    )
-                {
-                    bRet = TRUE;
-                }
-            }
-        }
-        return bRet;
-    }
-
-    BOOL isHostWriteFlagSetInBufferMemoryBarrier(uint32_t  memoryBarrierCount, const VkBufferMemoryBarrier*  pMemoryBarriers)
-    {
-        BOOL bRet = FALSE;
-        if ((memoryBarrierCount != 0) && (pMemoryBarriers))
-        {
-            for (uint32_t i = 0; i < memoryBarrierCount; i++)
-            {
-                if (
-                    (pMemoryBarriers[i].srcAccessMask&VK_ACCESS_HOST_WRITE_BIT) 
-                    )
-                {
-                    bRet = TRUE;
-                }
-            }
-        }
-        return bRet;
-    }
-
-    BOOL isHostWriteFlagSetInImageMemoryBarrier(uint32_t  memoryBarrierCount, const VkImageMemoryBarrier*  pMemoryBarriers)
-    {
-        BOOL bRet = FALSE;
-        if ((memoryBarrierCount != 0) && (pMemoryBarriers))
-        {
-            for (uint32_t i = 0; i < memoryBarrierCount; i++)
-            {
-                if (
-                    (pMemoryBarriers[i].srcAccessMask&VK_ACCESS_HOST_WRITE_BIT) 
-                    )
-                {
-                    bRet = TRUE;
-                }
-            }
-        }
-        return bRet;
-    }
-
-    BOOL isHostWriteFlagSet(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags  dependencyFlags, 
-        uint32_t   memoryBarrierCount, const VkMemoryBarrier*   pMemoryBarriers,
-        uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
-        uint32_t  imageMemoryBarrierCount, const VkImageMemoryBarrier*  pImageMemoryBarriers)
-    {
-        BOOL bRet = FALSE, bWrite=isHostWriteFlagSetInMemoryBarriers(memoryBarrierCount, pMemoryBarriers) ||
-                                  isHostWriteFlagSetInBufferMemoryBarrier(bufferMemoryBarrierCount, pBufferMemoryBarriers) ||
-                                  isHostWriteFlagSetInImageMemoryBarrier(imageMemoryBarrierCount, pImageMemoryBarriers);
-            if (bWrite||(srcStageMask&VK_PIPELINE_STAGE_HOST_BIT))// || (srcStageMask&VK_PIPELINE_STAGE_ALL_COMMANDS_BIT)
-            {
-                bRet = TRUE;
-            }
-        return bRet;
-    }
-
-    BOOL isReadyForHostReadInMemoryBarriers(uint32_t  memoryBarrierCount, const VkMemoryBarrier*  pMemoryBarriers)
-    {
-        BOOL bRet = FALSE;
-        if ((memoryBarrierCount != 0) && (pMemoryBarriers))
-        {
-            for (uint32_t i = 0; i < memoryBarrierCount; i++)
-            {
-                if (
-                    (pMemoryBarriers[i].dstAccessMask&VK_ACCESS_HOST_READ_BIT)
-                    )
-                {
-                    bRet = TRUE;
-                }
-            }
-        }
-        return bRet;
-    }
-
-    BOOL isReadyForHostReadInBufferMemoryBarrier(uint32_t  memoryBarrierCount, const VkBufferMemoryBarrier*  pMemoryBarriers)
-    {
-        BOOL bRet = FALSE;
-        if ((memoryBarrierCount != 0) && (pMemoryBarriers))
-        {
-            for (uint32_t i = 0; i < memoryBarrierCount; i++)
-            {
-                if (
-                    (pMemoryBarriers[i].dstAccessMask&VK_ACCESS_HOST_READ_BIT)
-                    )
-                {
-                    bRet = TRUE;
-                }
-            }
-        }
-        return bRet;
-    }
-
-    BOOL isReadyForHostReadInImageMemoryBarrier(uint32_t  memoryBarrierCount, const VkImageMemoryBarrier*  pMemoryBarriers)
-    {
-        BOOL bRet = FALSE;
-        if ((memoryBarrierCount != 0) && (pMemoryBarriers))
-        {
-            for (uint32_t i = 0; i < memoryBarrierCount; i++)
-            {
-                if (
-                    (pMemoryBarriers[i].dstAccessMask&VK_ACCESS_HOST_READ_BIT)
-                    )
-                {
-                    bRet = TRUE;
-                }
-            }
-        }
-        return bRet;
-    }
-
-    BOOL isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags  dependencyFlags,
-        uint32_t   memoryBarrierCount, const VkMemoryBarrier*   pMemoryBarriers,
-        uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
-        uint32_t  imageMemoryBarrierCount, const VkImageMemoryBarrier*  pImageMemoryBarriers)
-    {
-        BOOL bRet = FALSE, bRead = isReadyForHostReadInMemoryBarriers(memoryBarrierCount, pMemoryBarriers) ||
-            isReadyForHostReadInBufferMemoryBarrier(bufferMemoryBarrierCount, pBufferMemoryBarriers) ||
-            isReadyForHostReadInImageMemoryBarrier(imageMemoryBarrierCount, pImageMemoryBarriers);
-        if (bRead || (dstStageMask&VK_PIPELINE_STAGE_HOST_BIT))// || (srcStageMask&VK_PIPELINE_STAGE_ALL_COMMANDS_BIT)
-        {
-            bRet = TRUE;
-        }
-        return bRet;
-    }
-
-} OPTCapture, *LPOPTCapture;
-
-OPTCapture OPTControl;
-
-void FlushAllChangedMappedMemory(vkFlushMappedMemoryRangesFunc pFunc)
-{
-    LPOPTMappedMemory pMappedMemoryTemp;
-    uint64_t amount = OPTControl.MapMemory.size();
-    if (amount)
-    {
-        int i = 0;
-        VkMappedMemoryRange*  pMemoryRanges = new VkMappedMemoryRange[1];//amount
-        for (std::unordered_map< VkDeviceMemory, OPTMappedMemory >::iterator it = OPTControl.MapMemory.begin(); it != OPTControl.MapMemory.end(); it++)
-        {
-            pMappedMemoryTemp = &(it->second);
-            pMemoryRanges[0].memory = pMappedMemoryTemp->OPT_memory;
-            pMemoryRanges[0].offset = pMappedMemoryTemp->OPT_offset;
-            pMemoryRanges[0].pNext = NULL;
-            pMemoryRanges[0].size = pMappedMemoryTemp->OPTsize;
-            pMemoryRanges[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-            (*pFunc)(pMappedMemoryTemp->OPT_device, 1, pMemoryRanges);
-            i++;
-        }
-        delete[] pMemoryRanges;
-    }
-}
-
-void OPTResetAllReadFlagAndPageGuard()
-{
-    LPOPTMappedMemory pMappedMemoryTemp;
-    uint64_t amount = OPTControl.MapMemory.size();
-    if (amount)
-    {
-        int i = 0;
-        for (std::unordered_map< VkDeviceMemory, OPTMappedMemory >::iterator it = OPTControl.MapMemory.begin(); it != OPTControl.MapMemory.end(); it++)
-        {
-            pMappedMemoryTemp = &(it->second);
-            pMappedMemoryTemp->OPTResetAllReadFlagAndPageGuard();
-            i++;
-        }
-    }
-}
-
-//page guard handler
-LONG WINAPI PageGuardExceptionFilter(PEXCEPTION_POINTERS ExceptionInfo)
-{
-	LONG lRet = EXCEPTION_CONTINUE_SEARCH;
-	if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_GUARD_PAGE_VIOLATION)
-	{
-        VkDeviceSize OffsetOfAddr;
-        PBYTE pBlock;
-        VkDeviceSize BlockSize;
-		PBYTE addr = (PBYTE)ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
-		BOOL bWrite = ExceptionInfo->ExceptionRecord->ExceptionInformation[0];
-		LPOPTMappedMemory pMappedMem = OPTControl.OPT_findMappedMemory(addr, &OffsetOfAddr, &pBlock, &BlockSize);
-
-		if (pMappedMem)
-		{
-            uint64_t index = pMappedMem->OPTgetIndexOfChangedBlockByAddr(addr);
-            if (bWrite)
-            {
-                pMappedMem->OPTSetBlockChanged(index, TRUE);
-                lRet = EXCEPTION_CONTINUE_EXECUTION;
-            }
-            else
-            {
-                
-#ifndef OPT_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-                memcpy(pBlock, pMappedMem->pOPTRealMappedData + OffsetOfAddr - OffsetOfAddr % BlockSize, BlockSize);
-                pMappedMem->OPTSetBlockChanged(index, TRUE, BLOCK_FLAG_ARRAY_READ);
-
-                //*addr = *(pMappedMem->pOPTRealMappedData + OffsetOfAddr);
-                //DWORD oldProt;
-                //VirtualProtect(pBlock, (SIZE_T)BlockSize, PAGE_READWRITE | PAGE_GUARD, &oldProt);//set pageguard//set this(actually cannot do it directly) should make running very slow
-
-                lRet = EXCEPTION_CONTINUE_EXECUTION;
-#else
-                
-                pMappedMem->OPTSetBlockChanged(index, TRUE);
-                lRet = EXCEPTION_CONTINUE_EXECUTION;
-#endif
-            }
-		}
-	}
-	return lRet;
-}
-
-//for coherent map, need this method to dump data so simulate target application write data when playback.
-VkResult OPT_vkFlushMappedMemoryRangesWithoutAPICall(
-    VkDevice device,
-    uint32_t memoryRangeCount,
-    const VkMappedMemoryRange* pMemoryRanges)
-{
-    VkResult result = VK_SUCCESS;
-    vktrace_trace_packet_header* pHeader;
-    size_t rangesSize = 0;
-    size_t dataSize = 0;
-    uint32_t iter;
-    packet_vkFlushMappedMemoryRanges* pPacket = NULL;
-
-#ifdef USE_OPT_SPEEDUP
-    PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
-    BOOL bOPTTargetWithoutChange = OPTControl.OPT_vkFlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
-    if (bOPTTargetWithoutChange)
-    {
-        //result = mdd(device)->devTable.FlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
-        return result;
-    }
-#endif
-
-    // find out how much memory is in the ranges
-    for (iter = 0; iter < memoryRangeCount; iter++)
-    {
-        VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
-        rangesSize += vk_size_vkmappedmemoryrange(pRange);
-        dataSize += (size_t)pRange->size;
-    }
-#ifdef USE_OPT_SPEEDUP
-    dataSize = OPTControl.OPT_ALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData);
-#endif
-    CREATE_TRACE_PACKET(vkFlushMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
-    pPacket = interpret_body_as_vkFlushMappedMemoryRanges(pHeader);
-
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMemoryRanges), rangesSize, pMemoryRanges);
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemoryRanges));
-
-    // insert into packet the data that was written by CPU between the vkMapMemory call and here
-    // create a temporary local ppData array and add it to the packet (to reserve the space for the array)
-    void** ppTmpData = (void **)malloc(memoryRangeCount * sizeof(void*));
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*)*memoryRangeCount, ppTmpData);
-    free(ppTmpData);
-
-    // now the actual memory
-    vktrace_enter_critical_section(&g_memInfoLock);
-    for (iter = 0; iter < memoryRangeCount; iter++)
-    {
-        VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
-        VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
-
-        if (pEntry != NULL)
-        {
-            assert(pEntry->handle == pRange->memory);
-            assert(pEntry->totalSize >= (pRange->size + pRange->offset));
-            assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
-#ifdef USE_OPT_SPEEDUP
-            LPOPTMappedMemory pOPTMemoryTemp = OPTControl.OPT_findMappedMemory(device, pRange);
-            VkDeviceSize OPTPackageSizeTemp = 0;
-            if (pOPTMemoryTemp)
-            {
-                PBYTE pOPTDataTemp = pOPTMemoryTemp->getOPTChangedDataPackage(&OPTPackageSizeTemp);
-                setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                pOPTMemoryTemp->clearOPTChangedDataPackage();
-                pOPTMemoryTemp->OPTResetAllChangedFlagAndPageGuard();
-            }
-            else
-            {
-                PBYTE pOPTDataTemp = OPTControl.getOPTChangedDataPackageOutofMap(ppPackageData, iter, &OPTPackageSizeTemp);
-                setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                OPTControl.clearOPTChangedDataPackageOutofMap(ppPackageData, iter);
-            }
-#else
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
-#endif
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
-            pEntry->didFlush = TRUE;
-        }
-        else
-        {
-            vktrace_LogError("Failed to copy app memory into trace packet (idx = %u) on vkFlushedMappedMemoryRanges", pHeader->global_packet_index);
-        }
-    }
-#ifdef USE_OPT_SPEEDUP
-    delete[] ppPackageData;
-#endif
-    vktrace_leave_critical_section(&g_memInfoLock);
-
-    // now finalize the ppData array since it is done being updated
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
-
-    //result = mdd(device)->devTable.FlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
-    vktrace_set_packet_entrypoint_end_time(pHeader);
-    pPacket->device = device;
-    pPacket->memoryRangeCount = memoryRangeCount;
-    pPacket->result = result;
-
-    FINISH_TRACE_PACKET();
-    return result;
-}
-//OPT end
-#else
-
-#undef USE_OPT_SPEEDUP
-
-#endif//page guard solution for windows
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     VkDevice device,
@@ -1392,8 +187,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     if (size == VK_WHOLE_SIZE) {
         size = entry->totalSize - offset;
     }
-#ifdef USE_OPT_SPEEDUP
-    OPTControl.OPT_vkMapMemory(device, memory, offset, size, flags, ppData);
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
+    pageguardExit();
 #endif
     pPacket = interpret_body_as_vkMapMemory(pHeader);
     pPacket->device = device;
@@ -1420,8 +217,11 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     packet_vkUnmapMemory* pPacket;
     VKAllocInfo *entry;
     size_t siz = 0;
-#ifdef USE_OPT_SPEEDUP
-	OPTControl.OPT_vkUnmapMemory(device, memory);
+#ifdef USE_PAGEGUARD_SPEEDUP
+    void *PageGuardMappedData;
+    pageguardEnter();
+    getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData, &vkFlushMappedMemoryRangesWithoutAPICall);
+    pageguardExit();
 #endif
     uint64_t trace_begin_time = vktrace_get_time();
 
@@ -1454,6 +254,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     pPacket->device = device;
     pPacket->memory = memory;
     FINISH_TRACE_PACKET();
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    if (PageGuardMappedData != nullptr)
+    {
+        pageguardFreeMemory(PageGuardMappedData);
+    }
+    pageguardExit();
+#endif
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
@@ -1488,14 +296,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     size_t dataSize = 0;
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
-#ifdef USE_OPT_SPEEDUP
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
     PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
-    BOOL bOPTTargetWithoutChange = OPTControl.OPT_vkFlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
-	/*if (bOPTTargetWithoutChange)
-	{
-		result = mdd(device)->devTable.FlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
-		return result;
-	}*/
+    getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
+    pageguardExit();
 #endif
 
     uint64_t trace_begin_time = vktrace_get_time();
@@ -1507,8 +312,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
         dataSize += (size_t)pRange->size;
     }
-#ifdef USE_OPT_SPEEDUP
-    dataSize = OPTControl.OPT_ALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData);
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    dataSize = getPageGuardControlInstance().getALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData);
+    pageguardExit();
 #endif
 
     CREATE_TRACE_PACKET(vkFlushMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
@@ -1537,22 +344,24 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
             assert(pEntry->totalSize >= (pRange->size + pRange->offset));
             assert(pEntry->totalSize >= pRange->size);
             assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
-#ifdef USE_OPT_SPEEDUP
-            LPOPTMappedMemory pOPTMemoryTemp = OPTControl.OPT_findMappedMemory(device, pRange);
+#ifdef USE_PAGEGUARD_SPEEDUP
+            pageguardEnter();
+            LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
             VkDeviceSize OPTPackageSizeTemp = 0;
             if (pOPTMemoryTemp)
             {
-                PBYTE pOPTDataTemp = pOPTMemoryTemp->getOPTChangedDataPackage(&OPTPackageSizeTemp);
+                PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
                 vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                pOPTMemoryTemp->clearOPTChangedDataPackage();
-                pOPTMemoryTemp->OPTResetAllChangedFlagAndPageGuard();
+                pOPTMemoryTemp->clearChangedDataPackage();
+                pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
             }
             else
             {
-                PBYTE pOPTDataTemp = OPTControl.getOPTChangedDataPackageOutofMap(ppPackageData, iter, &OPTPackageSizeTemp);
+                PBYTE pOPTDataTemp = getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
                 vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                OPTControl.clearOPTChangedDataPackageOutofMap(ppPackageData, iter);
+                getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
             }
+            pageguardExit();
 #else
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
 #endif
@@ -1564,7 +373,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
              vktrace_LogError("Failed to copy app memory into trace packet (idx = %u) on vkFlushedMappedMemoryRanges", pHeader->global_packet_index);
         }
     }
-#ifdef USE_OPT_SPEEDUP
+#ifdef USE_PAGEGUARD_SPEEDUP
     delete[] ppPackageData;
 #endif
     vktrace_leave_critical_section(&g_memInfoLock);
@@ -1587,8 +396,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     uint32_t memoryRangeCount,
     const VkMappedMemoryRange* pMemoryRanges)
 {
-#ifdef USE_OPT_SPEEDUP
-    OPTResetAllReadFlagAndPageGuard();
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    resetAllReadFlagAndPageGuard();
+    pageguardExit();
 #endif
     vktrace_trace_packet_header* pHeader;
     VkResult result;
@@ -1793,9 +604,9 @@ VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInf
     return chain_info;
 }
 
-#ifndef OPT_MEMCPY_USE_PPL_LIB
-extern "C" BOOL OPT_init_multi_threads_memcpy();
-extern "C" void OPT_done_multi_threads_memcpy();
+#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+extern "C" BOOL vktrace_pageguard_init_multi_threads_memcpy();
+extern "C" void vktrace_pageguard_done_multi_threads_memcpy();
 #endif
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
@@ -1813,8 +624,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     SEND_ENTRYPOINT_ID(vkCreateInstance);
     startTime = vktrace_get_time();
 	
-#ifndef OPT_MEMCPY_USE_PPL_LIB	
-    OPT_init_multi_threads_memcpy();
+#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB	
+    vktrace_pageguard_init_multi_threads_memcpy();
 #endif
 
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
@@ -1886,8 +697,8 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     FINISH_TRACE_PACKET();
     g_instanceDataMap.erase(key);
-#ifndef OPT_MEMCPY_USE_PPL_LIB
-	OPT_done_multi_threads_memcpy();
+#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+	vktrace_pageguard_done_multi_threads_memcpy();
 #endif
 }
 
@@ -2234,10 +1045,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
     const VkSubmitInfo* pSubmits,
     VkFence fence)
 {
-#ifdef USE_OPT_SPEEDUP
-        vkFlushMappedMemoryRangesFunc pFunc = &OPT_vkFlushMappedMemoryRangesWithoutAPICall;
-        FlushAllChangedMappedMemory(pFunc);
-        OPTResetAllReadFlagAndPageGuard();
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
+    resetAllReadFlagAndPageGuard();
+    pageguardExit();
 #endif
     vktrace_trace_packet_header* pHeader;
     VkResult result;
@@ -2331,18 +1143,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPipelineBarrier* pPacket = NULL;
     size_t customSize;
-#ifdef USE_OPT_SPEEDUP
-    if (OPTControl.isHostWriteFlagSet( srcStageMask,  dstStageMask,   dependencyFlags, memoryBarrierCount, pMemoryBarriers,
-                             bufferMemoryBarrierCount, pBufferMemoryBarriers, 
-                             imageMemoryBarrierCount, pImageMemoryBarriers) )
-          
-          
-    {
-        //vkFlushMappedMemoryRangesFunc pFunc = &OPT_vkFlushMappedMemoryRangesWithoutAPICall;
-        //FlushAllChangedMappedMemory(pFunc);
-        //OPTResetAllReadFlagAndPageGuard();
-    }
-#endif
     customSize = (memoryBarrierCount * sizeof(VkMemoryBarrier)) +
             (bufferMemoryBarrierCount * sizeof(VkBufferMemoryBarrier)) +
             (imageMemoryBarrierCount * sizeof(VkImageMemoryBarrier));
