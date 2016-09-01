@@ -571,7 +571,6 @@ void vktraceviewer_QTimelineView::paintEvent(QPaintEvent *event)
 {
     QPainter painter(viewport());
     paint(&painter, event);
-    viewport()->update();
 }
 
 //-----------------------------------------------------------------------------
