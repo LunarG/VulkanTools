@@ -699,7 +699,7 @@ void vktraceviewer::close_trace_file()
 #ifndef USE_STATIC_CONTROLLER_LIBRARY
         m_controllerFactory.Unload(&m_pController);
 #else
-        vtvDeleteQController(m_pController);
+        vtvDeleteQController(&m_pController);
 #endif
     }
 

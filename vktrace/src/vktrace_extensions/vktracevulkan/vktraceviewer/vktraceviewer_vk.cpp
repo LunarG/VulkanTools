@@ -30,11 +30,12 @@ VKTRACER_EXPORT vktraceviewer_QController* VKTRACER_CDECL vtvCreateQController()
     return (vktraceviewer_QController*) pController;
 }
 
-VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController* pController)
+VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController** ppController)
 {
-    if (pController != NULL)
+    if (ppController != NULL && *ppController != NULL)
     {
-        delete pController;
+        delete *ppController;
+        *ppController = NULL;
     }
 }
 
