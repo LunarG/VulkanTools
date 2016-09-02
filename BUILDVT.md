@@ -103,9 +103,11 @@ Windows 7+ with additional required software packages:
     - Here are some helpful links (warning they may go out of date with a newer ImageMagick).
       - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x64-dll.exe
       - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x86-dll.exe
-  - For each of the installs, be sure to check the following boxes:
+  - For each of the installs, be sure to **check** the following boxes:
       - "Install legacy utilities (e.g. convert)"
       - "Install development headers and libraries for C and C++"
+  - Make sure to **un-check** the option to add ImageMagick to your PATH
+      - If you fail to do so, CMake will always return the first ImageMagick it encounters
 - glslang is required for tests.
   - You can download and configure it (in a peer directory) here: https://github.com/KhronosGroup/glslang/blob/master/README.md
   - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2013 like so:
