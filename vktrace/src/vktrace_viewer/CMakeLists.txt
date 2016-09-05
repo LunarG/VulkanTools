@@ -139,28 +139,50 @@ if (MSVC)
 
   # There are also several other files that need to be copied or created
   FILE(WRITE ${CMAKE_CURRENT_LIST_DIR}/qt.conf "[Paths]\nPlugins=.")
-  add_custom_target(copy_deps_qt5 ALL
-                    ${CMAKE_COMMAND} -E make_directory "${COPY_DEST}/platforms"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/qt.conf" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Widgets.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Widgetsd.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Core.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Cored.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Gui.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Guid.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Svgd.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Svg.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libGLESv2d.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libGLESv2.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libEGLd.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libEGL.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindows.dll" "${COPY_DEST}/platforms"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindowsd.dll"  "${COPY_DEST}/platforms"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icudt54.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icuin54.dll" "${COPY_DEST}"
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icuuc54.dll" "${COPY_DEST}"
-                    COMMENT "Copying vktraceviewer Qt5 dependencies to ${COPY_DEST}"
-                    VERBATIM)
+  if(EXISTS "${QT_INSTALL_BINS}/icudt54.dll")
+    add_custom_target(copy_deps_qt5 ALL
+                      ${CMAKE_COMMAND} -E make_directory "${COPY_DEST}/platforms"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/qt.conf" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Widgets.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Widgetsd.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Core.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Cored.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Gui.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Guid.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Svgd.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Svg.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libGLESv2d.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libGLESv2.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libEGLd.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libEGL.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindows.dll" "${COPY_DEST}/platforms"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindowsd.dll"  "${COPY_DEST}/platforms"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icudt54.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icuin54.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icuuc54.dll" "${COPY_DEST}"
+                      COMMENT "Copying vktraceviewer Qt5 dependencies to ${COPY_DEST}"
+                      VERBATIM)
+  else()
+    add_custom_target(copy_deps_qt5 ALL
+                      ${CMAKE_COMMAND} -E make_directory "${COPY_DEST}/platforms"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_LIST_DIR}/qt.conf" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Widgets.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Widgetsd.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Core.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Cored.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Gui.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Guid.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Svgd.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/Qt5Svg.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libGLESv2d.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libGLESv2.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libEGLd.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/libEGL.dll" "${COPY_DEST}"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindows.dll" "${COPY_DEST}/platforms"
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindowsd.dll"  "${COPY_DEST}/platforms"
+                      COMMENT "Copying vktraceviewer Qt5 dependencies to ${COPY_DEST}"
+                      VERBATIM)
+  endif()
 
 endif()
 
