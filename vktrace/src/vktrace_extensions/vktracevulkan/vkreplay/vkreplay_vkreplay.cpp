@@ -249,12 +249,12 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
     if (traceQueueFamilyProperties.find(tracePhysicalDevice) == traceQueueFamilyProperties.end() ||
         replayQueueFamilyProperties.find(replayPhysicalDevice) == replayQueueFamilyProperties.end())
     {
-        return false;
+        goto ERROR;
     }
 
     if (min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count) == 0)
     {
-        return false;
+        goto ERROR;
     }
 
     for (uint32_t i = 0; i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count); i++)
@@ -277,6 +277,8 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
         }
     }
 
+ERROR:
+    vktrace_LogError("Cannot determine queue family index - has vkGetPhysicalDeviceQueueFamilyProperties been called?");
     // Didn't find a match
     return false;
 }
@@ -2285,7 +2287,6 @@ VkResult vkReplay::manually_replay_vkWaitForFences(packet_vkWaitForFences* pPack
     return replayResult;
 }
 
-
 bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
                                 VkDevice replayDevice,
                                 uint32_t traceIdx,
@@ -2299,12 +2300,16 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
     if (tracePhysicalDevices.find(traceDevice) == tracePhysicalDevices.end() ||
         replayPhysicalDevices.find(replayDevice) == replayPhysicalDevices.end())
     {
-        vktrace_LogError("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
-        return false;
+        goto ERROR;
     }
 
     tracePhysicalDevice = tracePhysicalDevices[traceDevice];
     replayPhysicalDevice = replayPhysicalDevices[replayDevice];
+
+    if (min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount) == 0)
+    {
+        goto ERROR;
+    }
 
     for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
     {
@@ -2361,7 +2366,9 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
         return true;
      }
 
+ERROR:
     // Didn't find a match
+    vktrace_LogError("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
     return false;
 }
 
@@ -2627,9 +2634,9 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetP
         return;
     }
 
-    traceMemoryProperties[pPacket->physicalDevice] = *pPacket->pMemoryProperties;
+    traceMemoryProperties[pPacket->physicalDevice] = *(pPacket->pMemoryProperties);
     m_vkFuncs.real_vkGetPhysicalDeviceMemoryProperties(remappedphysicalDevice, pPacket->pMemoryProperties);
-    replayMemoryProperties[remappedphysicalDevice] = *pPacket->pMemoryProperties;
+    replayMemoryProperties[remappedphysicalDevice] = *(pPacket->pMemoryProperties);
     return;
 }
 
