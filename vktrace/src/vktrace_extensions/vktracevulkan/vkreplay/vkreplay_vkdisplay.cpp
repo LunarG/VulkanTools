@@ -188,6 +188,7 @@ int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, uns
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     m_window = hWindow;
+    m_surface.window = hWindow;
 #else
     m_XcbWindow = hWindow;
 #endif
@@ -282,6 +283,8 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
+    m_windowWidth = width;
+    m_windowHeight = height;
 #else
     if (width != m_windowWidth || height != m_windowHeight)
     {
