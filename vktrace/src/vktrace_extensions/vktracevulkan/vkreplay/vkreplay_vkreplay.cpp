@@ -249,12 +249,12 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
     if (traceQueueFamilyProperties.find(tracePhysicalDevice) == traceQueueFamilyProperties.end() ||
         replayQueueFamilyProperties.find(replayPhysicalDevice) == replayQueueFamilyProperties.end())
     {
-        goto ERROR;
+        goto fail;
     }
 
     if (min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count) == 0)
     {
-        goto ERROR;
+        goto fail;
     }
 
     for (uint32_t i = 0; i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count); i++)
@@ -277,7 +277,7 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
         }
     }
 
-ERROR:
+fail:
     vktrace_LogError("Cannot determine queue family index - has vkGetPhysicalDeviceQueueFamilyProperties been called?");
     // Didn't find a match
     return false;
@@ -2300,7 +2300,7 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
     if (tracePhysicalDevices.find(traceDevice) == tracePhysicalDevices.end() ||
         replayPhysicalDevices.find(replayDevice) == replayPhysicalDevices.end())
     {
-        goto ERROR;
+        goto fail;
     }
 
     tracePhysicalDevice = tracePhysicalDevices[traceDevice];
@@ -2308,7 +2308,7 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
 
     if (min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount) == 0)
     {
-        goto ERROR;
+        goto fail;
     }
 
     for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
@@ -2366,7 +2366,7 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
         return true;
      }
 
-ERROR:
+fail:
     // Didn't find a match
     vktrace_LogError("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
     return false;
