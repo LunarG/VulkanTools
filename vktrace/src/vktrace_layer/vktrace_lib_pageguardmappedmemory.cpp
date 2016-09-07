@@ -318,6 +318,7 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
         }
         else
         {
+            memcpy(pRealMappedData, pMappedData, MappedSize);
             *MappedData = pMappedData;
         }
         pRealMappedData = nullptr;

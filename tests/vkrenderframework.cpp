@@ -30,7 +30,8 @@
         assert(fp##entrypoint != NULL);                                        \
     }
 
-//Return true if format contains depth and stencil information
+// TODO : These functions are duplicated is vk_layer_utils.cpp, share code
+// Return true if format contains depth and stencil information
 bool vk_format_is_depth_and_stencil(VkFormat format) {
     bool is_ds = false;
 
@@ -44,6 +45,28 @@ bool vk_format_is_depth_and_stencil(VkFormat format) {
         break;
     }
     return is_ds;
+}
+
+// Return true if format is a stencil-only format
+bool vk_format_is_stencil_only(VkFormat format) {
+    return (format == VK_FORMAT_S8_UINT);
+}
+
+// Return true if format is a depth-only format
+bool vk_format_is_depth_only(VkFormat format) {
+    bool is_depth = false;
+
+    switch (format) {
+    case VK_FORMAT_D16_UNORM:
+    case VK_FORMAT_X8_D24_UNORM_PACK32:
+    case VK_FORMAT_D32_SFLOAT:
+        is_depth = true;
+        break;
+    default:
+        break;
+    }
+
+    return is_depth;
 }
 
 VkRenderFramework::VkRenderFramework()
@@ -72,7 +95,6 @@ VkRenderFramework::~VkRenderFramework() {}
 
 void VkRenderFramework::InitFramework() {
     std::vector<const char *> instance_layer_names;
-    std::vector<const char *> device_layer_names;
     std::vector<const char *> instance_extension_names;
     std::vector<const char *> device_extension_names;
     instance_extension_names.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
@@ -84,13 +106,12 @@ void VkRenderFramework::InitFramework() {
 #ifdef VK_USE_PLATFORM_XCB_KHR
     instance_extension_names.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
-    InitFramework(instance_layer_names, device_layer_names,
-                  instance_extension_names, device_extension_names);
+    InitFramework(instance_layer_names, instance_extension_names,
+                  device_extension_names);
 }
 
 void VkRenderFramework::InitFramework(
     std::vector<const char *> instance_layer_names,
-    std::vector<const char *> device_layer_names,
     std::vector<const char *> instance_extension_names,
     std::vector<const char *> device_extension_names,
     PFN_vkDebugReportCallbackEXT dbgFunction, void *userData) {
@@ -155,26 +176,7 @@ void VkRenderFramework::InitFramework(
     }
 
     /* TODO: Verify requested physical device extensions are available */
-    m_device =
-        new VkDeviceObj(0, objs[0], device_layer_names, device_extension_names);
-
-    /* Now register callback on device */
-    if (0) {
-        if (m_CreateDebugReportCallback) {
-            VkDebugReportCallbackCreateInfoEXT dbgInfo;
-            memset(&dbgInfo, 0, sizeof(dbgInfo));
-            dbgInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-            dbgInfo.pfnCallback = dbgFunction;
-            dbgInfo.pUserData = userData;
-            dbgInfo.flags =
-                VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-            err = m_CreateDebugReportCallback(this->inst, &dbgInfo, NULL,
-                                              &m_devMsgCallback);
-            ASSERT_VK_SUCCESS(err);
-        }
-    }
-    m_device->get_device_queue();
-    m_depthStencil = new VkDepthStencilObj(m_device);
+    this->device_extension_names = device_extension_names;
 }
 
 void VkRenderFramework::ShutdownFramework() {
@@ -208,8 +210,13 @@ void VkRenderFramework::ShutdownFramework() {
         vkDestroyInstance(this->inst, NULL);
 }
 
-void VkRenderFramework::InitState() {
+void VkRenderFramework::InitState(VkPhysicalDeviceFeatures *features) {
     VkResult U_ASSERT_ONLY err;
+
+    m_device = new VkDeviceObj(0, objs[0], device_extension_names, features);
+    m_device->get_device_queue();
+
+    m_depthStencil = new VkDepthStencilObj(m_device);
 
     m_render_target_fmt = VkTestFramework::GetFormat(inst, m_device);
 
@@ -417,10 +424,10 @@ VkDeviceObj::VkDeviceObj(uint32_t id, VkPhysicalDevice obj)
 }
 
 VkDeviceObj::VkDeviceObj(uint32_t id, VkPhysicalDevice obj,
-                         std::vector<const char *> &layer_names,
-                         std::vector<const char *> &extension_names)
+                         std::vector<const char *> &extension_names,
+                         VkPhysicalDeviceFeatures *features)
     : vk_testing::Device(obj), id(id) {
-    init(layer_names, extension_names);
+    init(extension_names, features);
 
     props = phy().properties();
     queue_props = phy().queue_properties();
@@ -563,6 +570,37 @@ void VkDescriptorSetObj::CreateVKDescriptorSet(
         // do the updates
         m_device->update_descriptor_sets(m_writes);
     }
+}
+
+VkRenderpassObj::VkRenderpassObj(VkDeviceObj *dev) {
+    // Create a renderPass with a single color attachment
+    VkAttachmentReference attach = {};
+    attach.layout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pColorAttachments = &attach;
+    subpass.colorAttachmentCount = 1;
+
+    VkRenderPassCreateInfo rpci = {};
+    rpci.subpassCount = 1;
+    rpci.pSubpasses = &subpass;
+    rpci.attachmentCount = 1;
+
+    VkAttachmentDescription attach_desc = {};
+    attach_desc.format = VK_FORMAT_B8G8R8A8_UNORM;
+    attach_desc.samples = VK_SAMPLE_COUNT_1_BIT;
+    attach_desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attach_desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    rpci.pAttachments = &attach_desc;
+    rpci.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+
+    device = dev->device();
+    vkCreateRenderPass(device, &rpci, NULL, &m_renderpass);
+}
+
+VkRenderpassObj::~VkRenderpassObj() {
+    vkDestroyRenderPass(device, m_renderpass, NULL);
 }
 
 VkImageObj::VkImageObj(VkDeviceObj *dev) {
@@ -720,9 +758,10 @@ bool VkImageObj::IsCompatible(VkFlags usage, VkFlags features) {
     return true;
 }
 
-void VkImageObj::init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
+void VkImageObj::init_no_layout(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
                       VkImageTiling requested_tiling,
                       VkMemoryPropertyFlags reqs) {
+
     VkFormatProperties image_fmt;
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 
@@ -760,6 +799,13 @@ void VkImageObj::init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
     imageCreateInfo.usage = usage;
 
     vk_testing::Image::init(*m_device, imageCreateInfo, reqs);
+}
+
+void VkImageObj::init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
+                      VkImageTiling requested_tiling,
+                      VkMemoryPropertyFlags reqs) {
+
+    init_no_layout(w, h, fmt, usage, requested_tiling, reqs);
 
     VkImageLayout newLayout;
     if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
@@ -769,7 +815,17 @@ void VkImageObj::init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
     else
         newLayout = m_descriptorImageInfo.imageLayout;
 
-    SetLayout(VK_IMAGE_ASPECT_COLOR_BIT, newLayout);
+    VkImageAspectFlags image_aspect = 0;
+    if (vk_format_is_depth_and_stencil(fmt)) {
+        image_aspect = VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_DEPTH_BIT;
+    } else if (vk_format_is_depth_only(fmt)) {
+        image_aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+    } else if (vk_format_is_stencil_only(fmt)) {
+        image_aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
+    } else { // color
+        image_aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+    SetLayout(image_aspect, newLayout);
 }
 
 VkResult VkImageObj::CopyImage(VkImageObj &src_image) {

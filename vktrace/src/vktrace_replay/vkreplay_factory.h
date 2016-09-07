@@ -63,7 +63,7 @@ typedef void (VKTRACER_CDECL *funcptr_vkreplayer_setlogcallback)(VKTRACE_REPORT_
 typedef void (VKTRACER_CDECL *funcptr_vkreplayer_registerdbgmsgcallback)(VKTRACE_DBG_MSG_CALLBACK_FUNCTION pCallback);
 typedef vktrace_SettingGroup* (VKTRACER_CDECL *funcptr_vkreplayer_getSettings)();
 typedef void (VKTRACER_CDECL *funcptr_vkreplayer_updatefromsettings)(vktrace_SettingGroup* pSettingGroups, unsigned int numSettingGroups);
-typedef int (VKTRACER_CDECL *funcptr_vkreplayer_initialize)(vktrace_replay::Display* pDisplay, vkreplayer_settings* pReplaySettings);
+typedef int (VKTRACER_CDECL *funcptr_vkreplayer_initialize)(vktrace_replay::ReplayDisplay* pDisplay, vkreplayer_settings* pReplaySettings);
 typedef void (VKTRACER_CDECL *funcptr_vkreplayer_deinitialize)();
 typedef vktrace_trace_packet_header* (VKTRACER_CDECL *funcptr_vkreplayer_interpret)(vktrace_trace_packet_header* pPacket);
 typedef vktrace_replay::VKTRACE_REPLAY_RESULT (VKTRACER_CDECL *funcptr_vkreplayer_replay)(vktrace_trace_packet_header* pPacket);

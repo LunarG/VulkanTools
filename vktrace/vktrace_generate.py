@@ -117,9 +117,14 @@ class Subcommand(object):
         func_protos.append('extern"C" {')
         func_protos.append('#endif')
         func_protos.append('// Hooked function prototypes\n')
-        for proto in self.protos:
-            if proto.name not in proto_exclusions:
-                func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                func_protos.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name not in proto_exclusions:
+                    func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+            if ext.ifdef:
+                func_protos.append('#endif /* %s */' % ext.ifdef)
 
         func_protos.append('#ifdef __cplusplus')
         func_protos.append('}')
@@ -131,9 +136,13 @@ class Subcommand(object):
         func_protos.append('// Hooked function prototypes\n')
         for ext in vulkan.extensions_all:
             if (extensionName.lower() == ext.name.lower()):
+                if ext.ifdef:
+                    func_protos.append('#ifdef %s' % ext.ifdef)
                 for proto in ext.protos:
                     if proto.name not in proto_exclusions:
                         func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+                if ext.ifdef:
+                    func_protos.append('#endif /* %s */' % ext.ifdef)
 
         return "\n".join(func_protos)
 
@@ -222,22 +231,22 @@ class Subcommand(object):
                            'VkPhysicalDevice': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pGpus), *pGpuCount*sizeof(VkPhysicalDevice), pGpus)',
                                                 'finalize_txt': 'default'},
                            'VkImageCreateInfo': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkImageCreateInfo), pCreateInfo);\n'
-			                                    '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices)',
+                                                            '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices)',
                                                'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));\n'
                                                                '    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo))'},
                            'VkBufferCreateInfo': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkBufferCreateInfo), pCreateInfo);\n'
-                                                  '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices)',
+                                                            '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices)',
                                                'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));\n'
                                                                '    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo))'},
                            'pDataSize': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDataSize), sizeof(size_t), &_dataSize)',
                                          'finalize_txt': 'vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize))'},
                            'pData': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), _dataSize, pData)',
                                      'finalize_txt': 'default'},
-                           'pName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((pName != NULL) ? strlen(pName) + 1 : 0), pName)',
+                           'pName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((pName != NULL) ? ROUNDUP_TO_4(strlen(pName) + 1) : 0), pName)',
                                      'finalize_txt': 'default'},
-                           'pMarker': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMarker), ((pMarker != NULL) ? strlen(pMarker) + 1 : 0), pMarker)',
+                           'pMarker': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMarker), ((pMarker != NULL) ? ROUNDUP_TO_4(strlen(pMarker) + 1) : 0), pMarker)',
                                        'finalize_txt': 'default'},
-                           'pExtName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pExtName), ((pExtName != NULL) ? strlen(pExtName) + 1 : 0), pExtName)',
+                           'pExtName': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pExtName), ((pExtName != NULL) ? ROUNDUP_TO_4(strlen(pExtName) + 1) : 0), pExtName)',
                                         'finalize_txt': 'default'},
                            'pDescriptorSets': {'add_txt': 'vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), customSize, pDescriptorSets)',
                                                'finalize_txt': 'default'},
@@ -383,7 +392,7 @@ class Subcommand(object):
                 elif 'void' in p.ty:
                     ps.append('sizeof(%s)' % p.name)
                 elif 'char' in p.ty:
-                    ps.append('((%s != NULL) ? strlen(%s) + 1 : 0)' % (p.name, p.name))
+                    ps.append('((%s != NULL) ? ROUNDUP_TO_4(strlen(%s) + 1) : 0)' % (p.name, p.name))
                 elif 'pDataSize' in p.name:
                     ps.append('((pDataSize != NULL) ? sizeof(size_t) : 0)')
                 elif 'IMAGE_SUBRESOURCE' in p.ty and 'pSubresource' == p.name:
@@ -426,6 +435,7 @@ class Subcommand(object):
                                          'FreeMemory',
                                          'FreeDescriptorSets',
                                          'QueueSubmit',
+                                         'QueueBindSparse',
                                          'FlushMappedMemoryRanges',
                                          'InvalidateMappedMemoryRanges',
                                          'GetDeviceProcAddr',
@@ -668,8 +678,8 @@ class Subcommand(object):
         pid_enum.append('static void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header*  pHeader, VkApplicationInfo** ppStruct, const VkApplicationInfo *pInStruct)')
         pid_enum.append('{')
         pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkApplicationInfo), pInStruct);')
-        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName), (pInStruct->pApplicationName != NULL) ? strlen(pInStruct->pApplicationName) + 1 : 0, pInStruct->pApplicationName);')
-        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName), (pInStruct->pEngineName != NULL) ? strlen(pInStruct->pEngineName) + 1 : 0, pInStruct->pEngineName);')
+        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName), (pInStruct->pApplicationName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pApplicationName) + 1) : 0, pInStruct->pApplicationName);')
+        pid_enum.append('    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName), (pInStruct->pEngineName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pEngineName) + 1) : 0, pInStruct->pEngineName);')
         pid_enum.append('    vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pApplicationName));')
         pid_enum.append('    vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pEngineName));')
         pid_enum.append('    vktrace_finalize_buffer_address(pHeader, (void**)&*ppStruct);')
@@ -685,7 +695,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledLayerCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledLayerCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) (1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz, pInStruct->ppEnabledLayerNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledLayerNames[i]);')
         pid_enum.append('        }')
@@ -695,7 +705,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledExtensionCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledExtensionCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) (1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz, pInStruct->ppEnabledExtensionNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledExtensionNames[i]);')
         pid_enum.append('        }')
@@ -721,7 +731,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledLayerCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledLayerCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) (1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz, pInStruct->ppEnabledLayerNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledLayerNames[i]);')
         pid_enum.append('        }')
@@ -731,7 +741,7 @@ class Subcommand(object):
         pid_enum.append('    if (pInStruct->enabledExtensionCount > 0) ')
         pid_enum.append('    {')
         pid_enum.append('        for (i = 0; i < pInStruct->enabledExtensionCount; i++) {')
-        pid_enum.append('            siz = (uint32_t) (1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
+        pid_enum.append('            siz = (uint32_t) ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));')
         pid_enum.append('            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz, pInStruct->ppEnabledExtensionNames[i]);')
         pid_enum.append('            vktrace_finalize_buffer_address(pHeader, (void **)&(*ppStruct)->ppEnabledExtensionNames[i]);')
         pid_enum.append('        }')
@@ -1037,6 +1047,11 @@ class Subcommand(object):
                                                                                      '{\n',
                                                                                      '    pPacket->ppData[i] = (void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->ppData[i]);\n',
                                                                                      '}']},
+                             'InvalidateMappedMemoryRanges' : {'param': 'ppData', 'txt': ['uint32_t i = 0;\n',
+                                                                                     'for (i = 0; i < pPacket->memoryRangeCount; i++)\n',
+                                                                                     '{\n',
+                                                                                     '    pPacket->ppData[i] = (void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->ppData[i]);\n',
+                                                                                     '}']},
                              'QueuePresentKHR' : {'param': 'pPresentInfo', 'txt': ['VkSwapchainKHR **ppSC = (VkSwapchainKHR **)& pPacket->pPresentInfo->pSwapchains;\n',
                                                                                    '*ppSC = (VkSwapchainKHR*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)(pPacket->pPresentInfo->pSwapchains));\n',
                                                                                    'VkSemaphore **ppS = (VkSemaphore **) &pPacket->pPresentInfo->pWaitSemaphores;\n',
@@ -1067,6 +1082,8 @@ class Subcommand(object):
                 if 'UnmapMemory' == proto.name:
                     proto.params.append(vulkan.Param("void*", "pData"))
                 elif 'FlushMappedMemoryRanges' == proto.name:
+                    proto.params.append(vulkan.Param("void**", "ppData"))
+                elif 'InvalidateMappedMemoryRanges' == proto.name:
                     proto.params.append(vulkan.Param("void**", "ppData"))
                 if_body.append('%s' % self.lineinfo.get())
                 if_body.append('typedef struct packet_vk%s {' % proto.name)
@@ -1104,6 +1121,8 @@ class Subcommand(object):
         custom_case_dict = { }
         for ext in vulkan.extensions_all:
             if ext.name.lower() == extensionName.lower():
+                if ext.ifdef:
+                    if_body.append('#ifdef %s' % ext.ifdef)
                 for proto in ext.protos:
                     if_body.append('typedef struct packet_vk%s {' % proto.name)
                     if_body.append('    vktrace_trace_packet_header* pHeader;')
@@ -1128,6 +1147,8 @@ class Subcommand(object):
                                 if_body.append('    }')
                     if_body.append('    return pPacket;')
                     if_body.append('}\n')
+                if ext.ifdef:
+                    if_body.append('#endif /* %s */' % ext.ifdef)
         return "\n".join(if_body)
 
     def _generate_replay_func_ptrs(self):
@@ -1135,15 +1156,20 @@ class Subcommand(object):
         xf_body.append('struct vkFuncs {')
         xf_body.append('    void init_funcs(void * libHandle);')
         xf_body.append('    void *m_libHandle;\n')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                xf_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
 
-            xf_body.append('    typedef %s( VKAPI_PTR * type_vk%s)(' % (proto.ret, proto.name))
-            for p in proto.params:
-                xf_body.append('        %s,' % p.c())
-            xf_body[-1] = xf_body[-1].replace(',', ');')
-            xf_body.append('    type_vk%s real_vk%s;' % (proto.name, proto.name))
+                xf_body.append('    typedef %s( VKAPI_PTR * type_vk%s)(' % (proto.ret, proto.name))
+                for p in proto.params:
+                    xf_body.append('        %s,' % p.c())
+                xf_body[-1] = xf_body[-1].replace(',', ');')
+                xf_body.append('    type_vk%s real_vk%s;' % (proto.name, proto.name))
+            if ext.ifdef:
+                xf_body.append('#endif /* %s */' % ext.ifdef)
         xf_body.append('};')
         return "\n".join(xf_body)
 
@@ -1508,13 +1534,18 @@ class Subcommand(object):
     def _generate_replay_init_funcs(self):
         rif_body = []
         rif_body.append('void vkFuncs::init_funcs(void * handle)\n{\n    m_libHandle = handle;')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            if 'DebugReport' not in proto.name:
-                rif_body.append('    real_vk%s = (type_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));' % (proto.name, proto.name, proto.name))
-            else: # These func ptrs get assigned at GetProcAddr time
-                rif_body.append('    real_vk%s = (type_vk%s)NULL;' % (proto.name, proto.name))
+        for ext in vulkan.extensions_all:
+            if ext.ifdef:
+                rif_body.append('#ifdef %s' % ext.ifdef)
+            for proto in ext.protos:
+                if proto.name in proto_exclusions:
+                    continue
+                if 'DebugReport' not in proto.name:
+                    rif_body.append('    real_vk%s = (type_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));' % (proto.name, proto.name, proto.name))
+                else: # These func ptrs get assigned at GetProcAddr time
+                    rif_body.append('    real_vk%s = (type_vk%s)NULL;' % (proto.name, proto.name))
+            if ext.ifdef:
+                rif_body.append('#endif /* %s */' % ext.ifdef)
         rif_body.append('}')
         return "\n".join(rif_body)
 
@@ -1671,12 +1702,26 @@ class Subcommand(object):
         cb_body.append('            }')
         return "\n".join(cb_body)
 
+    def _gen_replay_GetPhysicalDeviceWin32PresentationSupportKHR (self):
+        cb_body = []
+        cb_body.append('            VkBool32 rval = manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(pPacket);')
+        cb_body.append('            if (rval != pPacket->result)')
+        cb_body.append('            {')
+        cb_body.append('                vktrace_LogError("Return value %d from API call (vkGetPhysicalDeviceWin32PresentationSupportKHR) does not match return value from trace file %d.",')
+        cb_body.append('                                 rval, pPacket->result);')
+        cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+
     # Generate main replay case statements where actual replay API call is dispatched based on input packet data
     def _generate_replay(self):
         manually_replay_funcs = ['AllocateMemory',
                                  'BeginCommandBuffer',
                                  'CreateDescriptorSetLayout',
                                  'CreateDevice',
+                                 'CreateBuffer',
+                                 'CreateImage',
+                                 'CreateCommandPool',
                                  'CreateFramebuffer',
                                  'GetPipelineCacheData',
                                  'CreateGraphicsPipelines',
@@ -1695,10 +1740,13 @@ class Subcommand(object):
                                  'FreeMemory',
                                  'FreeDescriptorSets',
                                  'FlushMappedMemoryRanges',
+                                 'InvalidateMappedMemoryRanges',
                                  #'GetGlobalExtensionInfo',
                                  #'GetImageSubresourceInfo',
                                  #'GetObjectInfo',
                                  #'GetPhysicalDeviceExtensionInfo',
+                                 'GetPhysicalDeviceMemoryProperties',
+                                 'GetPhysicalDeviceQueueFamilyProperties',
                                  'GetPhysicalDeviceSurfaceSupportKHR',
                                  'GetPhysicalDeviceSurfaceCapabilitiesKHR',
                                  'GetPhysicalDeviceSurfaceFormatsKHR',
@@ -1707,11 +1755,15 @@ class Subcommand(object):
                                  'GetSwapchainImagesKHR',
                                  'CreateXcbSurfaceKHR',
                                  'CreateXlibSurfaceKHR',
+                                 'GetPhysicalDeviceXcbPresentationSupportKHR',
+                                 'GetPhysicalDeviceXlibPresentationSupportKHR',
                                  'CreateWin32SurfaceKHR',
+                                 'GetPhysicalDeviceWin32PresentationSupportKHR',
                                  #TODO Wayland, Mir, Xlib
                                  #'GetPhysicalDeviceInfo',
                                  'MapMemory',
                                  'QueueSubmit',
+                                 'QueueBindSparse',
                                  #'StorePipeline',
                                  'UnmapMemory',
                                  'UpdateDescriptorSets',
@@ -1730,11 +1782,10 @@ class Subcommand(object):
                 sys.exit("Entry '%s' in manually_replay_funcs list is not in the vulkan function prototypes" % func)
 
         # map protos to custom functions if body is fully custom
-        custom_body_dict = {'CreateImage': self._gen_replay_create_image,
-                            'CreateBuffer': self._gen_replay_create_buffer,
-                            'CreateInstance': self._gen_replay_create_instance,
+        custom_body_dict = {'CreateInstance': self._gen_replay_create_instance,
                             'GetPhysicalDeviceXcbPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXcbPresentationSupportKHR,
-                            'GetPhysicalDeviceXlibPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXlibPresentationSupportKHR }
+                            'GetPhysicalDeviceXlibPresentationSupportKHR': self._gen_replay_GetPhysicalDeviceXlibPresentationSupportKHR,
+                            'GetPhysicalDeviceWin32PresentationSupportKHR': self._gen_replay_GetPhysicalDeviceWin32PresentationSupportKHR }
         # multi-gpu Open funcs w/ list of local params to create
         custom_open_params = {'OpenSharedMemory': (-1,),
                               'OpenSharedSemaphore': (-1,),
@@ -1767,6 +1818,20 @@ class Subcommand(object):
         for proto in self.protos:
             if proto.name in proto_exclusions:
                 continue
+
+            # TODO : This is an O(N^4) way of finding if this proto is guarded by an ifdef.
+            # If the concept of an ifdef field is ok, rewrite the outer loop to already have the ext.ifdef value ready:
+            # for ext in vulkan.extensions_all:
+            #     if ext.ifdef: if_body.append('#ifdef') # wrap all the protos in a single #ifdef block instead of repeating #ifdef for each proto
+            #     for proto in ext.protos:
+            proto_ext_ifdef = None
+            for ext in vulkan.extensions_all:
+                if ext.ifdef:
+                    for ext_proto in ext.protos:
+                        if proto.name == ext_proto.name:
+                            proto_ext_ifdef = ext.ifdef
+            if proto_ext_ifdef:
+                rbody.append('#ifdef %s' % proto_ext_ifdef)
 
             ret_value = False
             create_view = False
@@ -1874,17 +1939,22 @@ class Subcommand(object):
                     rbody.append('            }')
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif proto.name == 'GetInstanceProcAddr':
-                    for iProto in self.protos:
-                        if iProto.name in proto_exclusions:
-                            continue
-                        if 'DebugReport' in iProto.name:
-                            rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
-                            rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
-                            rbody.append('            }')
-                        elif  (iProto.params[0].ty == 'VkInstance' or iProto.params[0].ty != 'VkPhysicalDevice')  and 'KHR' in iProto.name:
-                            rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
-                            rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
-                            rbody.append('            }')
+                    for iExt in vulkan.extensions_all:
+                        if iExt.ifdef:
+                            rbody.append('#ifdef %s' % iExt.ifdef)
+                        for iProto in iExt.protos:
+                            if iProto.name in proto_exclusions:
+                                continue
+                            if 'DebugReport' in iProto.name:
+                                rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
+                                rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
+                                rbody.append('            }')
+                            elif  (iProto.params[0].ty == 'VkInstance' or iProto.params[0].ty != 'VkPhysicalDevice')  and 'KHR' in iProto.name:
+                                rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (iProto.name))
+                                rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappedinstance, pPacket->pName);' % (iProto.name, iProto.name, proto.name))
+                                rbody.append('            }')
+                        if iExt.ifdef:
+                            rbody.append('#endif /* %s */' % iExt.ifdef)
                 elif proto.name == 'GetDeviceProcAddr':
                     for dProto in self.protos:
                        if dProto.name in proto_exclusions:
@@ -2002,6 +2072,8 @@ class Subcommand(object):
                 rbody.append('            CHECK_RETURN_VALUE(vk%s);' % proto.name)
             rbody.append('            break;')
             rbody.append('        }')
+            if proto_ext_ifdef:
+                rbody.append('#endif /* %s */' % proto_ext_ifdef)
         rbody.append('        default:')
         rbody.append('            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);')
         rbody.append('            returnValue = vktrace_replay::VKTRACE_REPLAY_INVALID_ID;')
@@ -2221,15 +2293,6 @@ class VktraceReplayC(Subcommand):
 
 def main():
 
-    wsi = {
-            "Win32",
-            "Android",
-            "Xcb",
-            "Xlib",
-            "Wayland",
-            "Mir"
-    }
-
     subcommands = {
             "vktrace-trace-h" : VktraceTraceHeader,
             "vktrace-trace-c" : VktraceTraceC,
@@ -2243,10 +2306,7 @@ def main():
             "vktrace-replay-c" : VktraceReplayC,
     }
 
-    if len(sys.argv) < 3 or sys.argv[1] not in wsi or sys.argv[2] not in subcommands:
-        print("Usage: %s <wsi> <subcommand> [options]" % sys.argv[0])
-        print
-        print("Available wsi (displayservers) are: %s" % " ".join(wsi))
+    if len(sys.argv) < 3 or sys.argv[2] not in subcommands:
         print("Available subcommands are: %s" % " ".join(subcommands))
         exit(1)
 

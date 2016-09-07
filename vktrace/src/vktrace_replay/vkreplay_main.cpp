@@ -109,7 +109,7 @@ int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray
                         if (res != VKTRACE_REPLAY_SUCCESS)
                         {
                            vktrace_LogError("Failed to replay packet_id %d, with global_packet_index %d.", packet->packet_id, packet->global_packet_index);
-						   static BOOL QuitOnAnyError=FALSE;
+                           static BOOL QuitOnAnyError=FALSE;
                            if(QuitOnAnyError)
                            {
                               return -1;
@@ -143,6 +143,12 @@ int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray
             }
         }
         settings.numLoops--;
+        //if screenshot is enabled run it for one cycle only
+        //as all consecutive cycles must generate same screen
+        if (replaySettings.screenshotList != NULL)
+        {
+            vktrace_free((char*)replaySettings.screenshotList);
+        }
         seq.set_bookmark(startingPacket);
         trace_running = true;
         if (replayer != NULL)
@@ -230,10 +236,6 @@ int main(int argc, char **argv)
         vktrace_set_global_var("_VK_SCREENSHOT", replaySettings.screenshotList);
 
     }
-    else
-    {
-        vktrace_set_global_var("_VK_SCREENSHOT","");
-    }
 
     // open trace file and read in header
     const char* pTraceFile = replaySettings.pTraceFilePath;
@@ -286,11 +288,11 @@ int main(int argc, char **argv)
     // Create window. Initial size is 100x100. It will later get resized to the size
     // used by the traced app. The resize will happen  during playback of swapchain functions.
 #if defined(PLATFORM_LINUX)
-    Display disp(1024, 768, 0, false);
+    vktrace_replay::ReplayDisplay disp(100, 100, 0, false);
 #elif defined(WIN32)
     RECT dp;
     GetWindowRect(GetDesktopWindow(), &dp);
-    Display disp(dp.right, dp.bottom, 0, false);
+    vktrace_replay::ReplayDisplay disp(dp.right, dp.bottom, 0, false);
 #endif
     //**********************************************************
 #if _DEBUG

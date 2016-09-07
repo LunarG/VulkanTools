@@ -169,14 +169,14 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
     uint8_t tidApi = VKTRACE_TID_RESERVED;
     bool bReplayerLoaded = false;
 
-    vktrace_replay::Display disp;
+    vktrace_replay::ReplayDisplay disp;
     if(separateReplayWindow)
     {
-        disp = vktrace_replay::Display(replayWindowWidth, replayWindowHeight, 0, false);
+        disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight, 0, false);
     }
     else
     {
-        disp = vktrace_replay::Display((vktrace_window_handle)hWindow, replayWindowWidth, replayWindowHeight);
+        disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, replayWindowWidth, replayWindowHeight);
     }
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)
@@ -499,15 +499,15 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach)
         {
             m_pReplayers[i]->Deinitialize();
 
-            vktrace_replay::Display disp;
+            vktrace_replay::ReplayDisplay disp;
             if(detach)
             {
-                disp = vktrace_replay::Display(m_pReplayWindowWidth, m_pReplayWindowHeight, 0, false);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight, 0, false);
             }
             else
             {
                 WId hWindow = m_pReplayWindow->winId();
-                disp = vktrace_replay::Display((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
             }
 
             int err = m_pReplayers[i]->Initialize(&disp, NULL);

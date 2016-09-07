@@ -124,6 +124,35 @@ LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_MODULE := VkLayer_api_dump
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/api_dump/api_dump.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(SRC_DIR)/include \
+                    $(SRC_DIR)/layers \
+                    $(SRC_DIR)/layersvt \
+                    $(LAYER_DIR)/include \
+                    $(SRC_DIR)/loader
+LOCAL_STATIC_LIBRARIES += layer_utils
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_LDLIBS    := -llog
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := VkLayer_screenshot
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(SRC_DIR)/include \
+                    $(SRC_DIR)/layers \
+                    $(SRC_DIR)/layersvt \
+                    $(LAYER_DIR)/include \
+                    $(SRC_DIR)/loader
+LOCAL_STATIC_LIBRARIES += layer_utils
+LOCAL_WHOLE_STATIC_LIBRARIES += libcutils
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_LDLIBS    := -llog
+include $(BUILD_SHARED_LIBRARY)
+
 # Pull in prebuilt shaderc
 include $(CLEAR_VARS)
 LOCAL_MODULE := shaderc-prebuilt
@@ -185,4 +214,27 @@ LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR --include=$(SRC_DIR)/common/vulk
 LOCAL_LDLIBS := -llog
 include $(BUILD_EXECUTABLE)
 
+# Note: The following module is similar in name to the executable, but differs so that loader won't enumerate the resulting .so
+include $(CLEAR_VARS)
+LOCAL_MODULE := VulkanLayerValidationTests
+LOCAL_SRC_FILES += $(SRC_DIR)/tests/layer_validation_tests.cpp \
+                   $(SRC_DIR)/tests/vktestbinding.cpp \
+                   $(SRC_DIR)/tests/vktestframeworkandroid.cpp \
+                   $(SRC_DIR)/tests/vkrenderframework.cpp \
+                   $(SRC_DIR)/common/vulkan_wrapper.cpp
+LOCAL_C_INCLUDES += $(SRC_DIR)/include \
+                    $(SRC_DIR)/layers \
+                    $(SRC_DIR)/libs \
+                    $(SRC_DIR)/common \
+                    $(SRC_DIR)/icd/common \
+                    $(SRC_DIR)/external/shaderc/libshaderc/include
+
+LOCAL_STATIC_LIBRARIES := googletest_main layer_utils
+LOCAL_SHARED_LIBRARIES += shaderc-prebuilt glslang-prebuilt OGLCompiler-prebuilt OSDependent-prebuilt HLSL-prebuilt shaderc_util-prebuilt SPIRV-prebuilt SPIRV-Tools-prebuilt
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVALIDATION_APK --include=$(SRC_DIR)/common/vulkan_wrapper.h
+LOCAL_WHOLE_STATIC_LIBRARIES += android_native_app_glue
+LOCAL_LDLIBS := -llog -landroid
+include $(BUILD_SHARED_LIBRARY)
+
+$(call import-module,android/native_app_glue)
 $(call import-module,third_party/googletest)

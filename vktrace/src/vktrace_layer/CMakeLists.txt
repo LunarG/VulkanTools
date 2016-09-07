@@ -18,10 +18,10 @@ project(VkLayer_vktrace_layer)
 include("${SRC_DIR}/build_options.cmake")
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/codegen)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-trace-h     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-trace-c     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.cpp)
-#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-ext-trace-h vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.h)
-#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py ${DisplayServer} vktrace-ext-trace-c vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-h     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-c     vk_core OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk.cpp)
+#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-ext-trace-h vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.h)
+#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-ext-trace-c vk_lunarg_debug_marker OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/codegen/vktrace_vk_vk_lunarg_debug_marker.cpp)
 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
@@ -35,9 +35,9 @@ set(CODEGEN_VKTRACE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../vktrace_extensions/vktra
 set(SRC_LIST
     ${SRC_LIST}
     vktrace_lib.c
-    vktrace_lib_pagestatusarray.h
-    vktrace_lib_pageguardmappedmemory.h
-    vktrace_lib_pageguardcapture.h
+    vktrace_lib_pagestatusarray.cpp
+    vktrace_lib_pageguardmappedmemory.cpp
+    vktrace_lib_pageguardcapture.cpp
     vktrace_lib_pageguard.cpp
     vktrace_lib_trace.cpp
     vktrace_vk_exts.cpp
@@ -51,9 +51,9 @@ set_source_files_properties( ${SRC_LIST} PROPERTIES LANGUAGE CXX)
 
 set (HDR_LIST
     vktrace_lib_helpers.h
-    vktrace_lib_pagestatusarray.cpp
-    vktrace_lib_pageguardmappedmemory.cpp
-    vktrace_lib_pageguardcapture.cpp
+    vktrace_lib_pagestatusarray.h
+    vktrace_lib_pageguardmappedmemory.h
+    vktrace_lib_pageguardcapture.h
     vktrace_lib_pageguard.h
     vktrace_vk_exts.h
     vk_dispatch_table_helper.h

@@ -5,8 +5,10 @@ set -e
 
 GLSLANG_REVISION=$(cat $PWD/glslang_revision)
 SPIRV_TOOLS_REVISION=$(cat $PWD/spirv-tools_revision)
+SPIRV_HEADERS_REVISION=$(cat $PWD/spirv-headers_revision)
 echo "GLSLANG_REVISION=$GLSLANG_REVISION"
 echo "SPIRV_TOOLS_REVISION=$SPIRV_TOOLS_REVISION"
+echo "SPIRV_HEADERS_REVISION=$SPIRV_HEADERS_REVISION"
 
 LUNARGLASS_REVISION=$(cat $PWD/LunarGLASS_revision)
 echo "LUNARGLASS_REVISION=$LUNARGLASS_REVISION"
@@ -27,16 +29,7 @@ function update_glslang () {
    echo "Updating $BASEDIR/glslang"
    cd $BASEDIR/glslang
    git fetch --all
-   git checkout $GLSLANG_REVISION
-   # Revert glslang a5c33d6ffb34ccede5b233bc724c907166b6e479
-   # See https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/681
-   git diff-index --quiet HEAD | true
-   rc=${PIPESTATUS[0]}
-   if (( $rc == 0 ))
-   then
-      echo "applying patch to revert glslang a5c33d"
-      git apply $BUILDDIR/glslang_revert_a5c33d.patch.txt
-   fi
+   git checkout --force $GLSLANG_REVISION
 }
 
 function create_spirv-tools () {
@@ -49,6 +42,7 @@ function create_spirv-tools () {
    mkdir -p $BASEDIR/spirv-tools/external/spirv-headers
    cd $BASEDIR/spirv-tools/external/spirv-headers
    git clone https://github.com/KhronosGroup/SPIRV-Headers .
+   git checkout $SPIRV_HEADERS_REVISION
 }
 
 function update_spirv-tools () {
@@ -63,8 +57,8 @@ function update_spirv-tools () {
    else
       cd $BASEDIR/spirv-tools/external/spirv-headers
       git fetch --all
-      git pull
    fi
+   git checkout $SPIRV_HEADERS_REVISION
 }
 
 function build_glslang () {

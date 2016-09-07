@@ -150,6 +150,7 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
 {
     void* pBufferStart;
     assert(byteCount > 0);
+    assert((byteCount&0x3) == 0);  // All buffer sizes should be multiple of 4 so structs in packet are kept aligned
     assert(pHeader->size >= pHeader->next_buffers_offset + byteCount);
     if (pHeader->size < pHeader->next_buffers_offset + byteCount || byteCount == 0)
     {
@@ -165,7 +166,11 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
 
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size, const void* pBuffer)
 {
+
+    // Make sure we have valid pointers and sizes. All pointers and sizes must be 4 byte aligned.
     assert(ptr_address != NULL);
+    assert((size&0x3) == 0);
+
     if (pBuffer == NULL || size == 0)
     {
         *ptr_address = NULL;
@@ -174,6 +179,9 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
     {
         // set ptr to the location of the added buffer
         *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, size);
+
+        // address of buffer in packet adding must be 4 byte aligned
+        assert(((uint64_t)*ptr_address&0x3) == 0);
 
         // copy buffer to the location
         opt_memcpy(*ptr_address, pBuffer, (size_t)size);

@@ -43,12 +43,55 @@ using namespace std;
 #include "vk_layer_extension_utils.h"
 #include "vk_layer_utils.h"
 
-#if defined(__linux__)
+#ifdef ANDROID
+
+#include <android/log.h>
+#include <sys/system_properties.h>
+
+static char android_env[64] = {};
+const char* env_var = "debug.vulkan.screenshot";
+
+char* android_exec(const char* cmd) {
+    FILE* pipe = popen(cmd, "r");
+    if (pipe != nullptr) {
+        fgets(android_env, 64, pipe);
+        pclose(pipe);
+    }
+
+    // Only if the value is set will we get a string back
+    if (strlen(android_env) > 0) {
+        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Vulkan screenshot layer capturing: %s", android_env);
+        return android_env;
+    }
+
+    return nullptr;
+}
+
+char* android_getenv(const char *key)
+{
+    std::string command("getprop ");
+    command += key;
+    return android_exec(command.c_str());
+}
+
+static inline char *local_getenv(const char *name) {
+    return android_getenv(name);
+}
+
+static inline void local_free_getenv(const char *val) {}
+
+#elif defined(__linux__)
+
+const char* env_var = "_VK_SCREENSHOT";
+
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}
 
 #elif defined(_WIN32)
+
+const char* env_var = "_VK_SCREENSHOT";
+
 static inline char *local_getenv(const char *name) {
     char *retVal;
     DWORD valSize;
@@ -113,7 +156,7 @@ static unordered_map<VkPhysicalDevice, PhysDeviceMapStruct *> physDeviceMap;
 // set: list of frames to take screenshots without duplication.
 static set<int> screenshotFrames;
 
-// Flag indicating we have queried _VK_SCREENSHOT env var
+// Flag indicating we have queried env_var
 static bool screenshotEnvQueried = false;
 
 static bool
@@ -633,6 +676,15 @@ static void writePPM(const char *filename, VkImage image1) {
 
     // Write the data to a PPM file.
     ofstream file(filename, ios::binary);
+    assert(file.is_open());
+
+    if (!file.is_open()) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s.  Be sure to grant read and write permissions.", filename);
+#endif
+       return;
+    }
+
     file << "P6\n";
     file << width << "\n";
     file << height << "\n";
@@ -953,7 +1005,7 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     loader_platform_thread_lock_mutex(&globalLock);
 
     if (!screenshotEnvQueried) {
-        const char *_vk_screenshot = local_getenv("_VK_SCREENSHOT");
+        const char *_vk_screenshot = local_getenv(env_var);
         if (_vk_screenshot && *_vk_screenshot) {
             string spec(_vk_screenshot), word;
             size_t start = 0, comma = 0;
@@ -986,7 +1038,16 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
         it = screenshotFrames.find(frameNumber);
         if (it != screenshotFrames.end()) {
             string fileName;
+
+#ifdef ANDROID
+            // std::to_string is not supported currently
+            char buffer [64];
+            snprintf(buffer, sizeof(buffer), "/sdcard/Android/%d", frameNumber);
+            std::string base(buffer);
+            fileName = base + ".ppm";
+#else
             fileName = to_string(frameNumber) + ".ppm";
+#endif
 
             VkImage image;
             VkSwapchainKHR swapchain;

@@ -138,6 +138,16 @@ void removePageGuardExceptionHandler()
     vktrace_sem_post(ref_amount_sem_id);
 }
 
+size_t pageguardGetAdjustedSize(size_t size)
+{
+    size_t pagesize = pageguardGetSystemPageSize();
+    if (size % pagesize)
+    {
+        size = size - (size % pagesize) + pagesize;
+    }
+    return size;
+}
+
 //page guard only work for virtual memory, real memory no page concept.
 void* pageguardAllocateMemory(size_t size)
 {
@@ -145,7 +155,7 @@ void* pageguardAllocateMemory(size_t size)
 
     if (size != 0)
     {
-       pMemory = (PBYTE)VirtualAlloc(nullptr, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+        pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize( size), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     }
 
     return pMemory;
@@ -260,7 +270,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
             {
                 
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-                memcpy(pBlock, pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize, BlockSize);
+                memcpy(pBlock, pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize, pMappedMem->getMappedBlockSize(index));
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
 
                 resultCode = EXCEPTION_CONTINUE_EXECUTION;

@@ -80,7 +80,7 @@ VkDeviceCreateInfo* vktrace_deepcopy_VkDeviceCreateInfo(const VkDeviceCreateInfo
             vktrace_vk_malloc_and_copy((void**)&pDestCreateInfo->ppEnabledExtensionNames, pSrcCreateInfo->enabledExtensionCount * sizeof(char *), pSrcCreateInfo->ppEnabledExtensionNames);
             for (i = 0; i < pSrcCreateInfo->enabledExtensionCount; i++)
             {
-                vktrace_vk_malloc_and_copy((void**)&pDestCreateInfo->ppEnabledExtensionNames[i], strlen(pSrcCreateInfo->ppEnabledExtensionNames[i]) + 1, pSrcCreateInfo->ppEnabledExtensionNames[i]);
+                vktrace_vk_malloc_and_copy((void**)&pDestCreateInfo->ppEnabledExtensionNames[i], ROUNDUP_TO_4(strlen(pSrcCreateInfo->ppEnabledExtensionNames[i]) + 1), pSrcCreateInfo->ppEnabledExtensionNames[i]);
             }
         }
         VkLayerCreateInfo *pSrcNext = ( VkLayerCreateInfo *) pSrcCreateInfo->pNext;
@@ -93,7 +93,7 @@ VkDeviceCreateInfo* vktrace_deepcopy_VkDeviceCreateInfo(const VkDeviceCreateInfo
                 vktrace_vk_malloc_and_copy((void**)&(*ppDstNext)->ppActiveLayerNames, pSrcNext->enabledLayerCount * sizeof(char*), pSrcNext->ppActiveLayerNames);
                 for (i = 0; i < pSrcNext->enabledLayerCount; i++)
                 {
-                    vktrace_vk_malloc_and_copy((void**)&(*ppDstNext)->ppActiveLayerNames[i], strlen(pSrcNext->ppActiveLayerNames[i]) + 1, pSrcNext->ppActiveLayerNames[i]);
+                    vktrace_vk_malloc_and_copy((void**)&(*ppDstNext)->ppActiveLayerNames[i], ROUNDUP_TO_4(strlen(pSrcNext->ppActiveLayerNames[i]) + 1), pSrcNext->ppActiveLayerNames[i]);
                 }
 
                 ppDstNext = (VkLayerCreateInfo**) &(*ppDstNext)->pNext;

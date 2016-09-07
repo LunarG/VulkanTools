@@ -28,7 +28,7 @@
 #include "SPIRV/SPVRemapper.h"
 #include <limits.h>
 #include <math.h>
-#include <wand/MagickWand.h>
+#include <MagickWand.h>
 
 #if defined(PATH_MAX) && !defined(MAX_PATH)
 #define MAX_PATH PATH_MAX

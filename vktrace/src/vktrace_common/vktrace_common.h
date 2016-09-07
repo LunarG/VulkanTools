@@ -55,3 +55,8 @@
 #define VKTRACER_LEAVE void __attribute__ ((destructor))
 
 #endif
+
+#define ROUNDUP_TO_2(_len)  ((((_len)+ 1)>>1)<<1)
+#define ROUNDUP_TO_4(_len)  ((((_len)+ 3)>>2)<<2)
+#define ROUNDUP_TO_8(_len)  ((((_len)+ 7)>>3)<<3)
+#define ROUNDUP_TO_16(_len) ((((_len)+15)>>4)<<4)

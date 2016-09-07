@@ -38,8 +38,8 @@ class VkDeviceObj : public vk_testing::Device {
   public:
     VkDeviceObj(uint32_t id, VkPhysicalDevice obj);
     VkDeviceObj(uint32_t id, VkPhysicalDevice obj,
-                std::vector<const char *> &layers,
-                std::vector<const char *> &extension_names);
+                std::vector<const char *> &extension_names,
+                VkPhysicalDeviceFeatures *features = nullptr);
 
     VkDevice device() { return handle(); }
     void get_device_queue();
@@ -72,14 +72,13 @@ class VkRenderFramework : public VkTestFramework {
     void InitRenderTarget(uint32_t targets, VkImageView *dsBinding);
     void InitFramework();
     void InitFramework(std::vector<const char *> instance_layer_names,
-                       std::vector<const char *> device_layer_names,
                        std::vector<const char *> instance_extension_names,
                        std::vector<const char *> device_extension_names,
                        PFN_vkDebugReportCallbackEXT = NULL,
                        void *userData = NULL);
 
     void ShutdownFramework();
-    void InitState();
+    void InitState(VkPhysicalDeviceFeatures *features = nullptr);
 
     const VkRenderPassBeginInfo &renderPassBeginInfo() const {
         return m_renderPassBeginInfo;
@@ -123,6 +122,7 @@ class VkRenderFramework : public VkTestFramework {
     PFN_vkDebugReportMessageEXT m_DebugReportMessage;
     VkDebugReportCallbackEXT m_globalMsgCallback;
     VkDebugReportCallbackEXT m_devMsgCallback;
+    std::vector<const char *> device_extension_names;
 
     /*
      * SetUp and TearDown are called by the Google Test framework
@@ -268,6 +268,17 @@ class VkIndexBufferObj : public VkConstantBufferObj {
     VkIndexType m_indexType;
 };
 
+class VkRenderpassObj {
+  public:
+    VkRenderpassObj(VkDeviceObj *device);
+    ~VkRenderpassObj();
+    VkRenderPass handle() {return m_renderpass;}
+
+  protected:
+    VkRenderPass m_renderpass;
+    VkDevice device;
+};
+
 class VkImageObj : public vk_testing::Image {
   public:
     VkImageObj(VkDeviceObj *dev);
@@ -275,6 +286,10 @@ class VkImageObj : public vk_testing::Image {
 
   public:
     void init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
+              VkImageTiling tiling = VK_IMAGE_TILING_LINEAR,
+              VkMemoryPropertyFlags reqs = 0);
+
+    void init_no_layout(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage,
               VkImageTiling tiling = VK_IMAGE_TILING_LINEAR,
               VkMemoryPropertyFlags reqs = 0);
 

@@ -42,6 +42,7 @@ class ConfigFile {
 
   private:
     bool m_fileIsParsed;
+    std::string m_fileName;
     std::map<std::string, std::string> m_valueMap;
 
     void parseFile(const char *filename);
@@ -114,12 +115,20 @@ void setLayerOption(const char *_option, const char *_val) { g_configFileObj.set
 // Constructor for ConfigFile. Initialize layers to log error messages to stdout by default. If a vk_layer_settings file is present,
 // its settings will override the defaults.
 ConfigFile::ConfigFile() : m_fileIsParsed(false) {
+
+#ifdef ANDROID
+    m_fileName = "/sdcard/Android/vk_layer_settings.txt";
+#else
+    m_fileName = "vk_layer_settings.txt";
+#endif
+
     m_valueMap["lunarg_core_validation.report_flags"] = "error";
     m_valueMap["lunarg_image.report_flags"] = "error";
     m_valueMap["lunarg_object_tracker.report_flags"] = "error";
     m_valueMap["lunarg_parameter_validation.report_flags"] = "error";
     m_valueMap["lunarg_swapchain.report_flags"] = "error";
     m_valueMap["google_threading.report_flags"] = "error";
+    m_valueMap["google_unique_objects.report_flags"] = "error";
 
 #ifdef WIN32
     // For Windows, enable message logging AND OutputDebugString
@@ -129,6 +138,7 @@ ConfigFile::ConfigFile() : m_fileIsParsed(false) {
     m_valueMap["lunarg_parameter_validation.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
     m_valueMap["lunarg_swapchain.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
     m_valueMap["google_threading.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
+    m_valueMap["google_unique_objects.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
 #else  // WIN32
     m_valueMap["lunarg_core_validation.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["lunarg_image.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
@@ -136,6 +146,7 @@ ConfigFile::ConfigFile() : m_fileIsParsed(false) {
     m_valueMap["lunarg_parameter_validation.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["lunarg_swapchain.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["google_threading.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
+    m_valueMap["google_unique_objects.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
 #endif // WIN32
 
     m_valueMap["lunarg_core_validation.log_filename"] = "stdout";
@@ -144,6 +155,7 @@ ConfigFile::ConfigFile() : m_fileIsParsed(false) {
     m_valueMap["lunarg_parameter_validation.log_filename"] = "stdout";
     m_valueMap["lunarg_swapchain.log_filename"] = "stdout";
     m_valueMap["google_threading.log_filename"] = "stdout";
+    m_valueMap["google_unique_objects.log_filename"] = "stdout";
 }
 
 ConfigFile::~ConfigFile() {}
@@ -151,7 +163,7 @@ ConfigFile::~ConfigFile() {}
 const char *ConfigFile::getOption(const std::string &_option) {
     std::map<std::string, std::string>::const_iterator it;
     if (!m_fileIsParsed) {
-        parseFile("vk_layer_settings.txt");
+        parseFile(m_fileName.c_str());
     }
 
     if ((it = m_valueMap.find(_option)) == m_valueMap.end())
@@ -162,7 +174,7 @@ const char *ConfigFile::getOption(const std::string &_option) {
 
 void ConfigFile::setOption(const std::string &_option, const std::string &_val) {
     if (!m_fileIsParsed) {
-        parseFile("vk_layer_settings.txt");
+        parseFile(m_fileName.c_str());
     }
 
     m_valueMap[_option] = _val;

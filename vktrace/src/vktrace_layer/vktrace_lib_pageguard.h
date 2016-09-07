@@ -74,6 +74,7 @@
 bool getPageGuardEnableFlag();
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();
+size_t pageguardGetAdjustedSize(size_t size);
 void* pageguardAllocateMemory(size_t size);
 void pageguardFreeMemory(void* pMemory);
 DWORD pageguardGetSystemPageSize();

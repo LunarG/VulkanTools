@@ -98,11 +98,14 @@ Windows 7+ with additional required software packages:
   - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
   - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
 - Image Magick is used by the tests to compare images (from http://www.imagemagick.org/script/binary-releases.php)
+  - You may use ImageMagick-6 or ImageMagick-7 releases
   - Install each a 32-bit and a 64-bit version, as the 64-bit installer does not install the 32-bit libraries and tools.
     - Here are some helpful links (warning they may go out of date with a newer ImageMagick).
       - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x64-dll.exe
       - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x86-dll.exe
-  - For each of the installs, be sure to check box to "Install development headers and libraries"
+  - For each of the installs, be sure to check the following boxes:
+      - "Install legacy utilities (e.g. convert)"
+      - "Install development headers and libraries for C and C++"
 - glslang is required for tests.
   - You can download and configure it (in a peer directory) here: https://github.com/KhronosGroup/glslang/blob/master/README.md
   - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2013 like so:

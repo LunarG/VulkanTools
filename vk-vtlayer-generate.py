@@ -868,7 +868,13 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('#include "api_dump.h"')
         header_txt.append('')
         header_txt.append('static std::ofstream fileStream;')
+        header_txt.append('')
+        header_txt.append('#ifdef ANDROID')
+        header_txt.append('static std::string fileName = "/sdcard/Android/vk_apidump.txt";')
+        header_txt.append('#else')
         header_txt.append('static std::string fileName = "vk_apidump.txt";')
+        header_txt.append('#endif')
+        header_txt.append('')
         header_txt.append('std::ostream* outputStream = NULL;')
         header_txt.append('void ConfigureOutputStream(bool writeToFile, bool flushAfterWrite)')
         header_txt.append('{')
@@ -1232,7 +1238,6 @@ class ApiDumpSubcommand(Subcommand):
                  '{\n'
                  '    using namespace StreamControl;\n'
                  '    using namespace std;\n'
-                 '    dispatch_key key = get_dispatch_key(queue);\n'
                  '    VkLayerDispatchTable *pDisp  = %s_dispatch_table(%s);\n'
                  '    %spDisp->%s;\n'
                  '    %s%s%s\n'

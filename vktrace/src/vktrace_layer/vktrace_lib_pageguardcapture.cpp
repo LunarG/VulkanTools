@@ -65,7 +65,6 @@ void PageGuardCapture::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMem
     LPPageGuardMappedMemory lpOPTMemoryTemp = findMappedMemoryObject(device, memory);
     if (lpOPTMemoryTemp)
     {
-        flushTargetChangedMappedMemory(lpOPTMemoryTemp, pFunc, nullptr);
         lpOPTMemoryTemp->vkUnmapMemoryPageGuardHandle(device, memory, MappedData);
         MapMemory.erase(memory);
     }

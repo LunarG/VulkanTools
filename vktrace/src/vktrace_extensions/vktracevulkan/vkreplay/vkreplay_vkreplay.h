@@ -30,11 +30,12 @@
 #include <string>
 #if defined(PLATFORM_LINUX)
 #include <xcb/xcb.h>
-
 #endif
+#include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"
 #include "vkreplay_factory.h"
 #include "vktrace_trace_packet_identifiers.h"
+#include <unordered_map>
 
 extern "C" {
 #include "vktrace_vk_vk_packets.h"
@@ -55,7 +56,7 @@ public:
     ~vkReplay();
     vkReplay(vkreplayer_settings *pReplaySettings);
 
-    int init(vktrace_replay::Display & disp);
+    int init(vktrace_replay::ReplayDisplay & disp);
     vkDisplay * get_display() {return m_display;}
     vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header *packet);
     vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall, const VkResult resTrace, const vktrace_replay::VKTRACE_REPLAY_RESULT resIn);
@@ -92,12 +93,16 @@ private:
     std::vector<int> m_screenshotFrames;
     VkResult manually_replay_vkCreateInstance(packet_vkCreateInstance* pPacket);
     VkResult manually_replay_vkCreateDevice(packet_vkCreateDevice* pPacket);
+    VkResult manually_replay_vkCreateBuffer(packet_vkCreateBuffer* pPacket);
+    VkResult manually_replay_vkCreateImage(packet_vkCreateImage* pPacket);
+    VkResult manually_replay_vkCreateCommandPool(packet_vkCreateCommandPool* pPacket);
     VkResult manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumeratePhysicalDevices* pPacket);
     // TODO138 : Many new functions in API now that we need to assess if manual code needed
     //VkResult manually_replay_vkGetPhysicalDeviceInfo(packet_vkGetPhysicalDeviceInfo* pPacket);
     //VkResult manually_replay_vkGetGlobalExtensionInfo(packet_vkGetGlobalExtensionInfo* pPacket);
     //VkResult manually_replay_vkGetPhysicalDeviceExtensionInfo(packet_vkGetPhysicalDeviceExtensionInfo* pPacket);
     VkResult manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket);
+    VkResult manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse* pPacket);
     //VkResult manually_replay_vkGetObjectInfo(packet_vkGetObjectInfo* pPacket);
     //VkResult manually_replay_vkGetImageSubresourceInfo(packet_vkGetImageSubresourceInfo* pPacket);
     void manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorSets* pPacket);
@@ -124,6 +129,9 @@ private:
     VkResult manually_replay_vkMapMemory(packet_vkMapMemory* pPacket);
     void manually_replay_vkUnmapMemory(packet_vkUnmapMemory* pPacket);
     VkResult manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket);
+    VkResult manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInvalidateMappedMemoryRanges* pPacket);
+    void manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetPhysicalDeviceMemoryProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_vkGetPhysicalDeviceQueueFamilyProperties* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_vkGetPhysicalDeviceSurfaceFormatsKHR* pPacket);
@@ -131,17 +139,12 @@ private:
     VkResult manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchainKHR* pPacket);
     VkResult manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchainImagesKHR* pPacket);
     VkResult manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* pPacket);
-#ifdef VK_USE_PLATFORM_XCB_KHR
     VkResult manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket);
-#endif
-#ifdef VK_USE_PLATFORM_XLIB_KHR
     VkResult manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
-#endif
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     VkResult manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32SurfaceKHR* pPacket);
-#endif
+    VkBool32 manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreateDebugReportCallbackEXT* pPacket);
     void manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyDebugReportCallbackEXT* pPacket);
 
@@ -166,4 +169,44 @@ private:
 
         }
     }
+
+    struct QueueFamilyProperties {
+        uint32_t count;
+        VkQueueFamilyProperties* queueFamilyProperties;
+    };
+
+    // Map VkPhysicalDevice to QueueFamilyPropeties (and ultimately queue indices)
+    std::unordered_map<VkPhysicalDevice, struct QueueFamilyProperties> traceQueueFamilyProperties;
+    std::unordered_map<VkPhysicalDevice, struct QueueFamilyProperties> replayQueueFamilyProperties;
+
+    // Map VkDevice to a VkPhysicalDevice
+    std::unordered_map<VkDevice, VkPhysicalDevice> tracePhysicalDevices;
+    std::unordered_map<VkDevice, VkPhysicalDevice> replayPhysicalDevices;
+
+    // Map VkBuffer to VkDevice, so we can search for the VkDevice used to create a buffer
+    std::unordered_map<VkBuffer, VkDevice> traceBufferToDevice;
+    std::unordered_map<VkBuffer, VkDevice> replayBufferToDevice;
+
+    // Map VkImage to VkDevice, so we can search for the VkDevice used to create an image
+    std::unordered_map<VkImage, VkDevice> traceImageToDevice;
+    std::unordered_map<VkImage, VkDevice> replayImageToDevice;
+
+    // Map VkPhysicalDevice to VkPhysicalDeviceMemoryProperites
+    std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> traceMemoryProperties;
+    std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> replayMemoryProperties;
+
+    bool getMemoryTypeIdx(VkDevice traceDevice,
+                          VkDevice replayDevice,
+                          uint32_t traceIdx,
+                          uint32_t* pReplayIdx);
+
+    bool getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
+                           VkPhysicalDevice replayPhysicalDevice,
+                           uint32_t traceIdx,
+                           uint32_t* pReplayIdx);
+    bool getQueueFamilyIdx(VkDevice traceDevice,
+        VkDevice replayDevice,
+        uint32_t traceIdx,
+        uint32_t* pReplayIdx);
+
 };
