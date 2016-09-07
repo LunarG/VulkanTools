@@ -150,20 +150,28 @@ class Subcommand(object):
     def _get_printf_params(self, vk_type, name, output_param):
         deref = ""
         # TODO : Need ENUM and STRUCT checks here
-        if "VkImageLayout" in vk_type:
+        if "VkImageLayout" in vk_type or "VkImageAspectMask" in vk_type:
             return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
         if "VkMappedMemoryRange" in vk_type:
-            return ("%p [0]={memory=%p, offset=%d, size=%d}", "%s, (%s == NULL)?0:%s->memory, (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "*")
+            return ("%p [0]={memory=%p, offset=%llu, size=%llu}", "%s, (%s == NULL)?0:%s->memory, (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "*")
+        if "VkImageMemoryBarrier" in vk_type:
+            return ("%p [0]={srcAccessMask=%lu, dstAccessMask=%lu, oldLayout=%s, newLayout=%s, srcQueueFamilyIndex=%u, dstQueueFamilyIndex=%u, image=%p, subresourceRange=%p}", "%s, (%s == NULL)?0:%s->srcAccessMask, (%s == NULL)?0:%s->dstAccessMask, (%s == NULL)?NULL:string_VkImageLayout(%s->oldLayout), (%s == NULL)?NULL:string_VkImageLayout(%s->newLayout), (%s == NULL)?0:%s->srcQueueFamilyIndex, (%s == NULL)?0:%s->dstQueueFamilyIndex, (%s == NULL)?NULL:%s->image, (%s == NULL)?0:&%s->subresourceRange" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "*")
+        if "VkSubmitInfo" in vk_type:
+            return ("%p [0]={... cmdBufferCount=%lu, pCmdBuffers[0] = {%p} ...}", "%s, (%s == NULL)?0:%s->commandBufferCount, (%s == NULL)?0:(%s->pCommandBuffers == NULL)?0:%s->pCommandBuffers[0]" % (name, name, name, name, name, name), "*")
         if "VkClearColor" in vk_type:
             return ("%p", "(void*)&%s" % name, deref)
         if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
             return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
         if "char*" in vk_type:
             return ("\\\"%s\\\"", name, "*")
+        if "VkDeviceSize" in vk_type:
+            if '*' in vk_type:
+                return ("%llu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%llu", name, deref)
         if "uint64_t" in vk_type:
             if '*' in vk_type:
-                return ("%lu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
-            return ("%lu", name, deref)
+                return ("%llu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%llu", name, deref)
         if "uint32_t" in vk_type:
             if '*' in vk_type:
                 return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
