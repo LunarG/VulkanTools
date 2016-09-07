@@ -233,7 +233,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
             pInfo->ObjectInfo.DeviceMemory.mappedOffset = offset;
             pInfo->ObjectInfo.DeviceMemory.mappedSize = size;
             pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
-            pInfo->ObjectInfo.DeviceMemory.bIsEverMapped = true;
         }
         if (g_trimIsInTrim)
         {
@@ -592,6 +591,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(
 
         if (g_trimIsPreTrim)
         {
+            trim_remove_CommandBuffer_calls(commandBuffer);
             trim_add_CommandBuffer_call(commandBuffer, pHeader);
         }
         if (g_trimIsInTrim)
@@ -975,10 +975,40 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
     {
         vktrace_finalize_trace_packet(pHeader);
         Trim_ObjectInfo* pInfo = trim_add_RenderPass_object(*pRenderPass);
-        pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.RenderPass.pCreatePacket = pHeader;
+        if (pInfo != NULL)
+        {
+            pInfo->belongsToDevice = device;
+            pInfo->ObjectInfo.RenderPass.pCreatePacket = pHeader;
+            if (pAllocator != NULL) {
+                pInfo->ObjectInfo.RenderPass.pAllocator = pAllocator;
+            }
+        }
+
+        //// track layouts of attachments
+        ////for (int i = 0; i < pCreateInfo->attachmentCount; i++)
+        ////{
+        ////    // TODO: interesting.... we don't know what object the attachment is just yet...
+        ////    // TODO: oh... right... the actual attachments come from the descriptor sets, which
+        ////    // we don't have access to at this very moment. 
+        ////    pCreateInfo->pAttachments[i].finalLayout;
+        ////}
+
+        //// Go through each subpass and gather attachment info
+        //for (int subpassIndex = 0; subpassIndex < pCreateInfo->subpassCount; subpassIndex++)
+        //{
+        //    const VkSubpassDescription* pSubpass = &pCreateInfo->pSubpasses[subpassIndex];
+        //    for (int input = 0; input < pSubpass->inputAttachmentCount; input++)
+        //    {
+        //        uint32_t attachment = pSubpass->pInputAttachments[input].attachment;
+        //        if (attachment < pCreateInfo->attachmentCount)
+        //        {
+
+        //        }
+        //    }
+        //}
+
+
         if (pAllocator != NULL) {
-            pInfo->ObjectInfo.RenderPass.pAllocator = pAllocator;
             trim_add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
@@ -1883,6 +1913,28 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
             if (pImageInfo != nullptr)
             {
                 pImageInfo->ObjectInfo.Image.mostRecentLayout = pImageMemoryBarriers[i].newLayout;
+
+                // assert to warn us if our current accessFlags do not match the provided src access mask
+                // because that would indicate that we've missed an earlier change.
+//                assert(pImageInfo->ObjectInfo.Image.accessFlags == pImageMemoryBarriers[i].srcAccessMask);
+
+                // Now update to keep track of the new destination access mask
+                pImageInfo->ObjectInfo.Image.accessFlags = pImageMemoryBarriers[i].dstAccessMask;
+            }
+        }
+
+        for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++)
+        {
+            Trim_ObjectInfo* pBufferInfo = trim_get_Buffer_objectInfo(pBufferMemoryBarriers[i].buffer);
+            assert(pBufferInfo != nullptr);
+            if (pBufferInfo != nullptr)
+            {
+                // assert to warn us if our current accessFlags do not match the provided src access mask
+                // because that would indicate that we've missed an earlier change.
+                assert(pBufferInfo->ObjectInfo.Buffer.accessFlags == pBufferMemoryBarriers[i].srcAccessMask);
+
+                // Now update to keep track of the new destination access mask
+                pBufferInfo->ObjectInfo.Buffer.accessFlags = pBufferMemoryBarriers[i].dstAccessMask;
             }
         }
 

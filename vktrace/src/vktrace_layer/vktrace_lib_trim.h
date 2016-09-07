@@ -106,13 +106,13 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
             VkDeviceSize size;
-            bool bIsEverMapped;
             void* mappedAddress;
             VkDeviceSize mappedOffset;
             VkDeviceSize mappedSize;
             uint8_t* pLocalCopy;
             vktrace_trace_packet_header* pMapMemoryPacket;
             vktrace_trace_packet_header* pUnmapMemoryPacket;
+            vktrace_trace_packet_header* pPersistentlyMapMemoryPacket;
         } DeviceMemory;
         struct _Image {                 // VkImage
             vktrace_trace_packet_header* pCreatePacket;
@@ -122,15 +122,18 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pGetImageMemoryRequirementsPacket;
             vktrace_trace_packet_header* pBindImageMemoryPacket;
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+            vktrace_trace_packet_header* pMapMemoryPacket;
+            vktrace_trace_packet_header* pUnmapMemoryPacket;
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
+            VkDeviceSize memorySize;
             VkFormat format;
             VkExtent3D extent;
             uint32_t mipLevels;
             uint32_t arrayLayers;
             VkSharingMode sharingMode;
             uint32_t queueFamilyIndex;
-            VkAccessFlagBits accessFlags;
+            VkAccessFlags accessFlags;
             VkImageAspectFlags aspectMask;
             VkImageLayout initialLayout;
             VkImageLayout mostRecentLayout;
@@ -143,8 +146,12 @@ typedef struct _Trim_ObjectInfo
             vktrace_trace_packet_header* pCreatePacket;
             const VkAllocationCallbacks* pAllocator;
             vktrace_trace_packet_header* pBindBufferMemoryPacket;
+            vktrace_trace_packet_header* pMapMemoryPacket;
+            vktrace_trace_packet_header* pUnmapMemoryPacket;
+            VkAccessFlags accessFlags;
             VkDeviceMemory memory;
             VkDeviceSize memoryOffset;
+            VkDeviceSize size;
         } Buffer;
         struct _BufferView {            // VkBufferView
             vktrace_trace_packet_header* pCreatePacket;

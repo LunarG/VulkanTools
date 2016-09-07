@@ -144,8 +144,8 @@ VKTRACER_ENTRY _Load(void)
         // If you need to debug startup, build with this set to true, then attach and change it to false.
     #ifdef _DEBUG
         {
-        BOOL debugStartup = FALSE;
-        while (debugStartup);
+            bool debugStartup = false;
+            while (debugStartup);
         }
     #endif
 #ifdef PLATFORM_LINUX
