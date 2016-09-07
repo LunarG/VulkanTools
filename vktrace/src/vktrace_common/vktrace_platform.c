@@ -354,16 +354,21 @@ void vktrace_platform_delete_thread(vktrace_thread* pThread)
 #endif
 }
 
+#if defined(WIN32)
+void vktrace_platform_thread_once(void *ctl, BOOL (CALLBACK * func) (PINIT_ONCE, PVOID, PVOID *))
+{
+    assert(func != NULL);
+    assert(ctl != NULL);
+    InitOnceExecuteOnce((PINIT_ONCE) ctl, (PINIT_ONCE_FN) func, NULL, NULL);
+}
+#else
 void vktrace_platform_thread_once(void *ctl, void (* func) (void))
 {
     assert(func != NULL);
     assert(ctl != NULL);
-#if defined(PLATFORM_LINUX)
     pthread_once((pthread_once_t *) ctl, func);
-#elif defined(WIN32)
-    InitOnceExecuteOnce((PINIT_ONCE) ctl, (PINIT_ONCE_FN) func, NULL, NULL);
-#endif
 }
+#endif
 
 void vktrace_create_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 {

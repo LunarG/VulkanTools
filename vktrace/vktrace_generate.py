@@ -206,7 +206,12 @@ class Subcommand(object):
         init_tracer.append('    FINISH_TRACE_PACKET();\n}\n')
 
         init_tracer.append('extern VKTRACE_CRITICAL_SECTION g_memInfoLock;')
+
+        init_tracer.append('#ifdef WIN32\n')
+        init_tracer.append('BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext)\n{')
+        init_tracer.append('#elif defined(PLATFORM_LINUX)\n')
         init_tracer.append('void InitTracer(void)\n{')
+        init_tracer.append('#endif\n')
         init_tracer.append('    const char *ipAddr = vktrace_get_global_var("VKTRACE_LIB_IPADDR");')
         init_tracer.append('    if (ipAddr == NULL)')
         init_tracer.append('        ipAddr = "127.0.0.1";')
@@ -215,7 +220,12 @@ class Subcommand(object):
         init_tracer.append('    vktrace_tracelog_set_tracer_id(VKTRACE_TID_VULKAN);')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
         init_tracer.append('    if (gMessageStream != NULL)')
-        init_tracer.append('        send_vk_api_version_packet();\n}\n')
+        init_tracer.append('        send_vk_api_version_packet();\n')
+        init_tracer.append('#ifdef WIN32\n')
+        init_tracer.append('    return true;\n}\n')
+        init_tracer.append('#elif defined(PLATFORM_LINUX)\n')
+        init_tracer.append('    return;\n}\n')
+        init_tracer.append('#endif\n')
         return "\n".join(init_tracer)
 
     # Take a list of params and return a list of dicts w/ ptr param details
@@ -2054,10 +2064,11 @@ class VktraceTraceHeader(Subcommand):
         header_txt = []
         header_txt.append('#include "vktrace_vk_vk_packets.h"')
         header_txt.append('#include "vktrace_vk_packet_id.h"\n\n')
-        header_txt.append('void InitTracer(void);\n\n')
         header_txt.append('#ifdef WIN32')
+        header_txt.append('BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext);')
         header_txt.append('extern INIT_ONCE gInitOnce;')
         header_txt.append('\n#elif defined(PLATFORM_LINUX)')
+        header_txt.append('void InitTracer(void);')
         header_txt.append('extern pthread_once_t gInitOnce;')
         header_txt.append('#endif\n')
         return "\n".join(header_txt)
