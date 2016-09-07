@@ -605,6 +605,7 @@ class Subcommand(object):
             trim_instructions.append("#endif //!TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;")
             trim_instructions.append("        pInfo->ObjectInfo.Image.format = pCreateInfo->format;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.aspectMask = trim_getImageAspectFromFormat(pCreateInfo->format);")
             trim_instructions.append("        pInfo->ObjectInfo.Image.extent = pCreateInfo->extent;")
             trim_instructions.append("        pInfo->ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;")
             trim_instructions.append("        pInfo->ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;")

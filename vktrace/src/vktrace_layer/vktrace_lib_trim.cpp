@@ -131,6 +131,32 @@ uint32_t trim_FindMemoryTypeIndex(VkDevice device, uint32_t memoryTypeBits, VkMe
     return 0;
 }
 
+VkImageAspectFlags trim_getImageAspectFromFormat(VkFormat format)
+{
+    VkImageAspectFlags aspectMask;
+    switch (format)
+    {
+    case VK_FORMAT_D16_UNORM:
+    case VK_FORMAT_D32_SFLOAT:
+    case VK_FORMAT_X8_D24_UNORM_PACK32:
+        aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        break;
+    case VK_FORMAT_S8_UINT:
+        aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+        break;
+    case VK_FORMAT_D16_UNORM_S8_UINT:
+    case VK_FORMAT_D24_UNORM_S8_UINT:
+    case VK_FORMAT_D32_SFLOAT_S8_UINT:
+        aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        break;
+    default:
+        aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        break;
+    }
+
+    return aspectMask;
+}
+
 //=============================================================================
 // Helpers to generate trace packets
 //=============================================================================
@@ -1217,6 +1243,9 @@ void trim_snapshot_state_tracker()
         imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
         imageMemoryBarrier.subresourceRange.levelCount = imageIter->second.ObjectInfo.Image.mipLevels;
 
+        imageMemoryBarrier.srcQueueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+        imageMemoryBarrier.dstQueueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+
         mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     }
 
@@ -1652,21 +1681,8 @@ void trim_write_all_referenced_object_calls()
             VkSharingMode sharingMode = obj->second.ObjectInfo.Image.sharingMode;
             uint32_t queueFamilyIndex = obj->second.ObjectInfo.Image.queueFamilyIndex;
             uint32_t srcAccessMask = (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) ? VK_ACCESS_HOST_WRITE_BIT : 0;
-            VkImageAspectFlagBits aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            VkImageAspectFlags aspectMask = trim_getImageAspectFromFormat(format);
 
-            if (format == VK_FORMAT_D16_UNORM ||
-                format == VK_FORMAT_X8_D24_UNORM_PACK32 ||
-                format == VK_FORMAT_D32_SFLOAT)
-            {
-                aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            }
-            else if (format == VK_FORMAT_D32_SFLOAT ||
-                format == VK_FORMAT_D16_UNORM_S8_UINT ||
-                format == VK_FORMAT_D24_UNORM_S8_UINT ||
-                format == VK_FORMAT_D32_SFLOAT_S8_UINT)
-            {
-                aspectMask = (VkImageAspectFlagBits)(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
-            }
             uint32_t srcQueueFamilyIndex = queueFamilyIndex;
             uint32_t dstQueueFamilyIndex = queueFamilyIndex;
 

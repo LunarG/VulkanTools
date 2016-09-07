@@ -48,6 +48,8 @@ VkMemoryPropertyFlags Trim_LookUpMemoryProperties(VkDevice device, uint32_t memo
 // check if a memory type on the physical device is only DEVICE_LOCAL and not HOST_VISIBLE
 bool trim_IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
 
+VkImageAspectFlags trim_getImageAspectFromFormat(VkFormat format);
+
 #if TRIM_USE_ORDERED_IMAGE_CREATION
 void trim_add_Image_call(vktrace_trace_packet_header* pHeader);
 #endif //TRIM_USE_ORDERED_IMAGE_CREATION
