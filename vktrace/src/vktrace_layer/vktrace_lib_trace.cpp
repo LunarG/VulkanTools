@@ -2383,6 +2383,13 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
                 return (PFN_vkVoidFunction) __HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR;
         }
 #endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+        if (instData->KHRAndroidSurfaceEnabled)
+        {
+            if (!strcmp("vkCreateAndroidSurfaceKHR", funcName))
+                return (PFN_vkVoidFunction) __HOOKED_vkCreateAndroidSurfaceKHR;
+        }
+#endif
     } else {
         if (instance == VK_NULL_HANDLE) {
             return NULL;

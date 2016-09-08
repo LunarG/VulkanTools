@@ -68,6 +68,7 @@ void ext_init_create_instance(
     instData->KHRWaylandSurfaceEnabled = false;
     instData->KHRMirSurfaceEnabled = false;
     instData->KHRWin32SurfaceEnabled = false;
+    instData->KHRAndroidSurfaceEnabled = false;
     for (uint32_t i = 0; i < extension_count; i++) {
         if (strcmp(ppEnabledExtensions[i], VK_EXT_DEBUG_REPORT_EXTENSION_NAME) == 0) {
             instData->LunargDebugReportEnabled = true;
@@ -98,6 +99,11 @@ void ext_init_create_instance(
 #ifdef VK_USE_PLATFORM_WIN32_KHR
         if (strcmp(ppEnabledExtensions[i], VK_KHR_WIN32_SURFACE_EXTENSION_NAME) == 0) {
             instData->KHRWin32SurfaceEnabled = true;
+        }
+#endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+        if (strcmp(ppEnabledExtensions[i], VK_KHR_ANDROID_SURFACE_EXTENSION_NAME) == 0) {
+            instData->KHRAndroidSurfaceEnabled = true;
         }
 #endif
     }

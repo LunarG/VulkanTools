@@ -60,6 +60,7 @@ typedef struct _layer_instance_data {
     bool KHRWaylandSurfaceEnabled;
     bool KHRMirSurfaceEnabled;
     bool KHRWin32SurfaceEnabled;
+    bool KHRAndroidSurfaceEnabled;
 } layer_instance_data;
 
 // defined in manually written file: vktrace_lib_trace.c
