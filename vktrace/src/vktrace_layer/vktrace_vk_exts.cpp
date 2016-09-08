@@ -58,6 +58,9 @@ void ext_init_create_instance(
     instData->instTable.CreateWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR) gpa(inst, "vkCreateWin32SurfaceKHR");
     instData->instTable.GetPhysicalDeviceWin32PresentationSupportKHR = (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR) gpa(inst, "vkGetPhysicalDeviceWin32PresentationSupportKHR");
 #endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+    instData->instTable.CreateAndroidSurfaceKHR = (PFN_vkCreateAndroidSurfaceKHR) gpa(inst, "vkCreateAndroidSurfaceKHR");
+#endif
     instData->LunargDebugReportEnabled = false;
     instData->KHRSurfaceEnabled = false;
     instData->KHRXlibSurfaceEnabled = false;
