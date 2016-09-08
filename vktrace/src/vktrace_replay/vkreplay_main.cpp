@@ -173,6 +173,17 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
     if (level == VKTRACE_LOG_NONE)
         return;
 
+#if defined(ANDROID)
+    switch(level)
+    {
+    case VKTRACE_LOG_DEBUG: __android_log_print(ANDROID_LOG_DEBUG, "vkreplay", "%s", pMessage); break;
+    case VKTRACE_LOG_ERROR: __android_log_print(ANDROID_LOG_ERROR, "vkreplay", "%s", pMessage); break;
+    case VKTRACE_LOG_WARNING: __android_log_print(ANDROID_LOG_WARN, "vkreplay", "%s", pMessage); break;
+    case VKTRACE_LOG_VERBOSE: __android_log_print(ANDROID_LOG_VERBOSE, "vkreplay", "%s", pMessage); break;
+    default:
+        __android_log_print(ANDROID_LOG_INFO, "vkreplay", "%s", pMessage); break;
+    }
+#else
     switch(level)
     {
     case VKTRACE_LOG_DEBUG: printf("vkreplay debug: %s\n", pMessage); break;
@@ -189,6 +200,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
     OutputDebugString(pMessage);
 #endif
 #endif
+#endif // ANDROID
 }
 
 int vkreplay_main(int argc, char **argv, ANativeWindow* window)
