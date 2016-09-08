@@ -84,6 +84,7 @@ typedef struct {
 #if defined(PLATFORM_LINUX)
 typedef void* HINSTANCE;
 typedef void* HWND;
+typedef void* HANDLE;
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
 typedef struct VkWin32SurfaceCreateInfoKHR {
     VkStructureType                sType;
