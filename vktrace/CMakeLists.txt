@@ -3,12 +3,7 @@ PROJECT(vktrace_project)
 # We need CMake version 3.0+ in order to "find_package(Qt5)":
 cmake_minimum_required(VERSION 3.0)
 
-if (WIN32)
-    option(BUILD_VKTRACEVIEWER "Build VkTraceViewer" ON)
-else()
-    #do not compile VKTraceViewer for Linux for now
-    option(BUILD_VKTRACEVIEWER "Build VkTraceViewer" OFF)
-endif()
+option(BUILD_VKTRACEVIEWER "Build VkTraceViewer" ON)
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
@@ -33,7 +28,11 @@ endif()
 if(BUILD_VKTRACEVIEWER)
     find_package(Qt5 COMPONENTS Widgets Gui Core Svg)
     if (NOT Qt5_FOUND)
-        message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer on Windows, set env var Qt5_Dir to\nC:\\Qt\\5.3\\msvc2013_64\\lib\\cmake\\Qt5 or C:\\Qt\\5.3\\msvc2013\\lib\\cmake\\Qt5")
+        if (WIN32)
+            message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer, set env var Qt5_Dir to\nC:\\Qt\\5.3\\msvc2013_64\\lib\\cmake\\Qt5 or C:\\Qt\\5.3\\msvc2013\\lib\\cmake\\Qt5")
+        else()
+            message(WARNING "Qt5 dev libraries not found, vktraceviewer will not be built.\nTo enable build of vktraceviewer, install package qt5-default.")
+        endif()
     endif()
 endif()
 
