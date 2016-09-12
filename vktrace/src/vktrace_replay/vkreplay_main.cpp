@@ -510,22 +510,21 @@ void android_main(struct android_app *app)
         if (initialized && active) {
             // Parse Intents into argc, argv
             // Use the following key to send arguments to gtest, i.e.
-            // --es args "--gtest_filter=-VkLayerTest.foo"
+            // --es args "-v\ debug\ -t\ /sdcard/cube0.vktrace"
             const char key[] = "args";
             std::vector<std::string> args = get_args(*app, key);
 
-            if (args.size() > 0) {
-                for (int i = 0; i < args.size(); i++)
-                    __android_log_print(ANDROID_LOG_INFO, appTag, "Intent arg[%i] = %s", i, args[i].c_str());
-            } else {
-                __android_log_print(ANDROID_LOG_INFO, appTag, "No Intent args detected");
-            }
+            int argc = args.size() + 1;
 
-            //int argc = args.size() + 1;
-	    int argc = 3;
-            assert((argc == 3) && "Update this logic to support more than just traceFile name");
-            char *argv[] = { (char*)"vkreplay", (char*)"-t", (char*)args[0].c_str() };
+            char** argv = (char**) malloc(argc * sizeof(char*));
+            argv[0] = (char*)"vkreplay";
+            for (int i = 0; i < args.size(); i++)
+                argv[i + 1] = (char*) args[i].c_str();
 
+
+            __android_log_print(ANDROID_LOG_INFO, appTag, "argc = %i", argc);
+            for (int i = 0; i < argc; i++)
+                __android_log_print(ANDROID_LOG_INFO, appTag, "argv[%i] = %s", i, argv[i]);
 
 	    // sleep to allow attaching debugger
 	    sleep(10);
@@ -535,6 +534,7 @@ void android_main(struct android_app *app)
             __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
 
             ANativeActivity_finish(app->activity);
+            free(argv);
 
             return;
 	}
