@@ -698,6 +698,31 @@ vktrace_trace_packet_header* trim_generate_vkWaitForFences(
     return pHeader;
 }
 
+vktrace_trace_packet_header* trim_generate_vkResetFences(
+    bool            makeCall,
+    VkDevice        device,
+    uint32_t        fenceCount,
+    const VkFence*  pFences)
+{
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkResetFences* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkResetFences, fenceCount*sizeof(VkFence));
+    if (makeCall)
+    {
+        result = mdd(device)->devTable.ResetFences(device, fenceCount, pFences);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkResetFences(pHeader);
+    pPacket->device = device;
+    pPacket->fenceCount = fenceCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pFences), fenceCount*sizeof(VkFence), pFences);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pFences));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
 vktrace_trace_packet_header* trim_generate_vkDestroyBuffer(
     bool            makeCall,
     VkDevice        device,
@@ -1025,7 +1050,12 @@ void trim_snapshot_state_tracker()
         mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
         VkFence fence = deviceToFenceMap[device];
         mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, fence);
-        mdd(device)->devTable.WaitForFences(device, 1, &fence, VK_TRUE, 10*1000*1000);
+        VkResult waitResult = mdd(device)->devTable.WaitForFences(device, 1, &fence, VK_TRUE, 10 * 1000 * 1000);
+        assert(waitResult == VK_SUCCESS);
+        if (waitResult == VK_SUCCESS)
+        {
+            mdd(device)->devTable.ResetFences(device, 1, &fence);
+        }
     }
 
     // 4a) Map, copy, unmap each image.
@@ -1312,7 +1342,12 @@ void trim_snapshot_state_tracker()
 
         VkFence fence = deviceToFenceMap[device];
         mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, fence);
-        mdd(device)->devTable.WaitForFences(device, 1, &fence, VK_TRUE, 10 * 1000 * 1000);
+        VkResult waitResult = mdd(device)->devTable.WaitForFences(device, 1, &fence, VK_TRUE, 10 * 1000 * 1000);
+        assert(waitResult == VK_SUCCESS);
+        if (waitResult == VK_SUCCESS)
+        {
+            mdd(device)->devTable.ResetFences(device, 1, &fence);
+        }
     }
 
     // 8) destroy the command pools / command buffers and fences
@@ -1957,6 +1992,10 @@ void trim_write_all_referenced_object_calls()
 
             // wait for queue to finish
             pHeader = trim_generate_vkWaitForFences(false, device, 1, &stagingInfo.fence, VK_TRUE, 10 * 1000 * 1000);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+
+            pHeader = trim_generate_vkResetFences(false, device, 1, &stagingInfo.fence);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
 
