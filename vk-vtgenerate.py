@@ -112,7 +112,8 @@ class IcdDummyEntrypointsSubcommand(Subcommand):
                        'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',
                        'GetPhysicalDeviceDisplayPropertiesKHR', 'GetPhysicalDeviceDisplayPlanePropertiesKHR',
                        'GetDisplayPlaneSupportedDisplaysKHR', 'GetDisplayModePropertiesKHR',
-                       'CreateDisplayModeKHR', 'GetDisplayPlaneCapabilitiesKHR', 'CreateDisplayPlaneSurfaceKHR']
+                       'CreateDisplayModeKHR', 'GetDisplayPlaneCapabilitiesKHR', 'CreateDisplayPlaneSurfaceKHR',
+                       'CreateSharedSwapchainsKHR']
         for proto in self.protos:
             if proto.name in exclusions:
                 continue
@@ -149,7 +150,8 @@ class IcdGetProcAddrSubcommand(IcdDummyEntrypointsSubcommand):
                        'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',
                        'GetPhysicalDeviceDisplayPropertiesKHR', 'GetPhysicalDeviceDisplayPlanePropertiesKHR',
                        'GetDisplayPlaneSupportedDisplaysKHR', 'GetDisplayModePropertiesKHR',
-                       'CreateDisplayModeKHR', 'GetDisplayPlaneCapabilitiesKHR', 'CreateDisplayPlaneSurfaceKHR']
+                       'CreateDisplayModeKHR', 'GetDisplayPlaneCapabilitiesKHR', 'CreateDisplayPlaneSurfaceKHR',
+                       'CreateSharedSwapchainsKHR']
 
         for ext in self.extensions:
             if ext.ifdef:
