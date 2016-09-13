@@ -2971,11 +2971,20 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
                 return VK_ERROR_VALIDATION_FAILED_EXT;
             }
         }
+
+        assert(pPacket->pPresentInfo->swapchainCount == 1 && "Multiple swapchain images not supported yet");
+        uint32_t remappedImageIndex = m_objMapper.remap_pImageIndex(*pPacket->pPresentInfo->pImageIndices);
+        if (remappedImageIndex == -1)
+        {
+            vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped pImageIndices.");
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+
         present.sType = pPacket->pPresentInfo->sType;
         present.pNext = pPacket->pPresentInfo->pNext;
         present.swapchainCount = pPacket->pPresentInfo->swapchainCount;
         present.pSwapchains = pRemappedSwapchains;
-        present.pImageIndices = pPacket->pPresentInfo->pImageIndices;
+        present.pImageIndices = &remappedImageIndex;
         present.waitSemaphoreCount = pPacket->pPresentInfo->waitSemaphoreCount;
         present.pWaitSemaphores = NULL;
         if (present.waitSemaphoreCount != 0) {
