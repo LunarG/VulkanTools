@@ -448,11 +448,48 @@ class Subcommand(object):
             trim_instructions.append("        trim_add_Fence_call(*pFence, pHeader);")
         elif 'CreateCommandPool' is proto.name:
             trim_instructions.append("        trim_add_CommandPool_call(*pCommandPool, pHeader);")
+        elif ('EndCommandBuffer' is proto.name or
+              'ResetCommandBuffer' is proto.name or
+              'CmdBindPipeline' is proto.name or
+              'CmdSetViewport' is proto.name or
+              'CmdSetScissor' is proto.name or
+              'CmdSetLineWidth' is proto.name or
+              'CmdSetDepthBias' is proto.name or
+              'CmdSetBlendConstants' is proto.name or
+              'CmdSetDepthBounds' is proto.name or
+              'CmdSetStencilCompareMask' is proto.name or
+              'CmdSetStencilWriteMask' is proto.name or
+              'CmdSetStencilReference' is proto.name or
+              'CmdBindDescriptorSets' is proto.name or
+              'CmdBindIndexBuffer' is proto.name or
+              'CmdBindVertexBuffers' is proto.name or
+              'CmdDraw' is proto.name or
+              'CmdDrawIndexed' is proto.name or
+              'CmdDrawIndirect' is proto.name or
+              'CmdDrawIndexedIndirect' is proto.name or
+              'CmdDispatch' is proto.name or
+              'CmdDispatchIndirect' is proto.name or
+              'CmdCopyBuffer' is proto.name or
+              'CmdCopyImage' is proto.name or
+              'CmdBlitImage' is proto.name or
+              'CmdCopyBufferToImage' is proto.name or
+              'CmdCopyImageToBuffer' is proto.name or
+              'CmdUpdateBuffer' is proto.name or
+              'CmdFillBuffer' is proto.name or
+              'CmdClearColorImage' is proto.name or
+              'CmdClearDepthStencilImage' is proto.name or
+              'CmdClearAttachments' is proto.name or
+              'CmdResolveImage' is proto.name or
+              'CmdSetEvent' is proto.name or
+              'CmdResetEvent' is proto.name or
+              'CmdNextSubpass' is proto.name or
+              'CmdEndRenderPass' is proto.name or
+              'CmdExecuteCommands' is proto.name):
+            trim_instructions.append("        trim_add_CommandBuffer_call(commandBuffer, pHeader);")
         elif 'CreateImage' is proto.name:
             trim_instructions.append("        trim_add_Image_call(*pImage, pHeader);")
-        elif 'GetImageMemoryRequirements' is proto.name:
-            trim_instructions.append("        trim_add_Image_call(image, pHeader);")
-        elif 'BindImageMemory' is proto.name:
+        elif ('GetImageMemoryRequirements' is proto.name or
+              'BindImageMemory' is proto.name):
             trim_instructions.append("        trim_add_Image_call(image, pHeader);")
         elif 'CreateImageView' is proto.name:
             trim_instructions.append("        trim_add_ImageView_call(*pView, pHeader);")
@@ -476,9 +513,8 @@ class Subcommand(object):
             trim_instructions.append("        trim_add_Sampler_call(*pSampler, pHeader);")
         elif 'CreateDescriptorSetLayout' is proto.name:
             trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")
-        elif 'GetPhysicalDeviceSurfaceSupportKHR' is proto.name:
-            trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
-        elif 'GetPhysicalDeviceMemoryProperties' is proto.name:
+        elif ('GetPhysicalDeviceSurfaceSupportKHR' is proto.name or
+              'GetPhysicalDeviceMemoryProperties' is proto.name):
             trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
         else:
             return None
