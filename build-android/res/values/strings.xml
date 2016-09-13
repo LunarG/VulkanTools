@@ -19,6 +19,6 @@
 
 <resources>
     <!-- Simple strings. -->
-    <string name="app_name">vkreplay</string>
+    <string name="app_name">VulkanLayerValidationTests</string>
 
 </resources>

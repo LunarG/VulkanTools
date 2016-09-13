@@ -33,10 +33,10 @@ python ../vk-vtlayer-generate.py Android api_dump ../include/vulkan/vulkan.h > g
 ( cd generated/include; python ../../../genvk.py paramchecker -registry ../../../vk.xml parameter_validation.h )
 
 # vktrace
-python ../vktrace/vktrace_generate.py Android vktrace-trace-h vk_core > generated/include/vktrace_vk_vk.h
-python ../vktrace/vktrace_generate.py Android vktrace-trace-c vk_core > generated/include/vktrace_vk_vk.cpp
-python ../vktrace/vktrace_generate.py Android vktrace-core-trace-packets vk_core > generated/include/vktrace_vk_vk_packets.h
-python ../vktrace/vktrace_generate.py Android vktrace-packet-id vk_core > generated/include/vktrace_vk_packet_id.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_core > generated/include/vktrace_vk_vk.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_core > generated/include/vktrace_vk_vk.cpp
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_core > generated/include/vktrace_vk_vk_packets.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_core > generated/include/vktrace_vk_packet_id.h
 
 # vkreplay
 python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_core > generated/include/vkreplay_vk_func_ptrs.h

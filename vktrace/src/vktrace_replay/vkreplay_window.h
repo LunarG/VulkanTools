@@ -58,18 +58,18 @@ public:
         m_width(0),
         m_height(0),
         m_gpu(0),
-        //m_fullscreen(false),
+        m_fullscreen(false),
         m_hWindow(0)
     {
 
     }
 
-    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, vktrace_window_handle window/*, const bool fullscreen*/) :
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen, const vktrace_window_handle window) :
         m_imp(NULL),
         m_width(width),
         m_height(height),
         m_gpu(gpu),
-        //m_fullscreen(fullscreen),
+        m_fullscreen(fullscreen),
         m_hWindow(window)
     {
     }
@@ -79,7 +79,7 @@ public:
         m_width(width),
         m_height(height),
         m_gpu(0),
-        //m_fullscreen(false),
+        m_fullscreen(false),
         m_hWindow(hWindow)
     {
     }
@@ -120,7 +120,10 @@ public:
     {
         return m_height;
     }
-
+    bool get_fullscreen()
+    {
+        return m_fullscreen;
+    }
     vktrace_window_handle get_window_handle()
     {
         return m_hWindow;
@@ -131,7 +134,7 @@ private:
     unsigned int m_width;
     unsigned int m_height;
     unsigned int m_gpu;
-    //bool m_fullscreen;
+    bool m_fullscreen;
     vktrace_window_handle m_hWindow;
 };
 

@@ -52,9 +52,7 @@ vkDisplay::vkDisplay()
 
 vkDisplay::~vkDisplay()
 {
-#if defined(PLATFORM_LINUX)
-#if defined(ANDROID)
-#else
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     if (m_XcbWindow != 0)
     {
         xcb_destroy_window(m_pXcbConnection, m_XcbWindow);
@@ -63,7 +61,6 @@ vkDisplay::~vkDisplay()
     {
         xcb_disconnect(m_pXcbConnection);
     }
-#endif
 #endif
 }
 
@@ -149,9 +146,7 @@ int vkDisplay::init(const unsigned int gpu_idx)
         m_initedVK = true;
     }
 #endif
-#if defined(PLATFORM_LINUX)
-#if defined(ANDROID)
-#else
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     const xcb_setup_t *setup;
     xcb_screen_iterator_t iter;
     int scr;
@@ -161,7 +156,6 @@ int vkDisplay::init(const unsigned int gpu_idx)
     while (scr-- > 0)
         xcb_screen_next(&iter);
     m_pXcbScreen = iter.data;
-#endif
 #endif
     return 0;
 }
