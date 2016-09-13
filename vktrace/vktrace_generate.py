@@ -436,6 +436,50 @@ class Subcommand(object):
                     ps.append('sizeof(%s)' % (p.ty.strip('*').replace('const ', '')))
         return ps
 
+    # Generate instructions for certain API calls that need to be tracked so that we can recreate
+    # objects that are used within a trimmed trace file.
+    def _generate_trim_instructions(self, proto):
+        trim_instructions = []
+        if 'GetDeviceQueue' is proto.name:
+            trim_instructions.append("        trim_add_Queue_call(*pQueue, pHeader);")
+        elif 'CreateSemaphore' is proto.name:
+            trim_instructions.append("        trim_add_Semaphore_call(*pSemaphore, pHeader);")
+        elif 'CreateFence' is proto.name:
+            trim_instructions.append("        trim_add_Fence_call(*pFence, pHeader);")                
+        elif 'CreateCommandPool' is proto.name:
+            trim_instructions.append("        trim_add_CommandPool_call(*pCommandPool, pHeader);")                
+        elif 'CreateImage' is proto.name:
+            trim_instructions.append("        trim_add_Image_call(*pImage, pHeader);")                
+        elif 'BindImageMemory' is proto.name:
+            trim_instructions.append("        trim_add_Image_call(image, pHeader);")                
+        elif 'CreateImageView' is proto.name:
+            trim_instructions.append("        trim_add_ImageView_call(*pView, pHeader);")
+        elif 'CreateBuffer' is proto.name:
+            trim_instructions.append("        trim_add_Buffer_call(*pBuffer, pHeader);")                
+        elif 'BindBufferMemory' is proto.name:
+            trim_instructions.append("        trim_add_Buffer_call(buffer, pHeader);")                
+        elif 'CreateBufferView' is proto.name:
+            trim_instructions.append("        trim_add_BufferView_call(*pView, pHeader);")
+        elif 'CreateFramebuffer' is proto.name:
+            trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
+        elif 'CreateEvent' is proto.name:
+            trim_instructions.append("        trim_add_Event_call(*pEvent, pHeader);")        
+        elif 'CreateQueryPool' is proto.name:
+            trim_instructions.append("        trim_add_QueryPool_call(*pQueryPool, pHeader);")          
+        elif 'CreateShaderModule' is proto.name:
+            trim_instructions.append("        trim_add_ShaderModule_call(*pShaderModule, pHeader);")
+        elif 'CreatePipelineLayout' is proto.name:
+            trim_instructions.append("        trim_add_PipelineLayout_call(*pPipelineLayout, pHeader);")                
+        elif 'CreateSampler' is proto.name:
+            trim_instructions.append("        trim_add_Sampler_call(*pSampler, pHeader);")                
+        elif 'CreateDescriptorSetLayout' is proto.name:
+            trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")                
+
+        else:
+            return None
+        return "\n".join(trim_instructions)
+            
+
     # Generate functions used to trace API calls and store the input and result data into a packet
     # Here's the general flow of code insertion w/ option items flagged w/ "?"
     # Result decl?
@@ -541,7 +585,6 @@ class Subcommand(object):
                         if 'void' not in proto.ret or '*' in proto.ret:
                             func_body.append('    %s result;' % proto.ret)
                             return_txt = 'result = '
-                        func_body.append('    if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s]){' % proto.name)
                         func_body.append('    vktrace_trace_packet_header* pHeader;')
                         if in_data_size:
                             func_body.append('    size_t _dataSize;')
@@ -556,7 +599,6 @@ class Subcommand(object):
 
                         # call down the layer chain and get return value (if there is one)
                         # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
-                        # Note: this section is replicated below in the '    else' condition; should be put into shared method
                         if extensionName == 'vk_lunarg_debug_marker':
                             table_txt = 'mdd(%s)->debugMarkerTable' % proto.params[0].name
                         elif proto.params[0].ty in ['VkInstance', 'VkPhysicalDevice']:
@@ -577,29 +619,30 @@ class Subcommand(object):
                         for pp_dict in ptr_packet_update_list:
                             if ('DeviceCreateInfo' not in proto.params[pp_dict['index']].ty):
                                 func_body.append('    %s;' % (pp_dict['finalize_txt']))
+                        func_body.append('    if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s])' % proto.name)
+                        func_body.append('    {')
                         # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
                         func_body.append('    FINISH_TRACE_PACKET();')
+
+                        # Else half of g_bTraceFunc conditional
+                        # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
+                        func_body.append('    }')
+                        func_body.append('    else')
+                        func_body.append('    {')
+                        func_body.append('        vktrace_finalize_trace_packet(pHeader);')
+                        trim_instructions = self._generate_trim_instructions(proto);
+                        if trim_instructions is None:
+                            func_body.append('        vktrace_delete_trace_packet(&pHeader);')
+                        else:
+                            func_body.append(trim_instructions)
+                        func_body.append('    }')
+
+                        # Clean up instance or device data if needed
                         if proto.name == "DestroyInstance":
                             func_body.append('    g_instanceDataMap.erase(key);')
                         elif proto.name == "DestroyDevice":
                             func_body.append('    g_deviceDataMap.erase(key);')
 
-                        # Else half of g_bTraceFunc conditional
-                        func_body.append('    }')
-                        func_body.append('    else')
-                        func_body.append('    {')
-
-                        # call down the layer chain and get return value (if there is one)
-                        # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
-                        # Note: this is copied from above, but should be put into a shared method
-                        if extensionName == 'vk_lunarg_debug_marker':
-                            table_txt = 'mdd(%s)->debugMarkerTable' % proto.params[0].name
-                        elif proto.params[0].ty in ['VkInstance', 'VkPhysicalDevice']:
-                           table_txt = 'mid(%s)->instTable' % proto.params[0].name
-                        else:
-                           table_txt = 'mdd(%s)->devTable' % proto.params[0].name
-                        func_body.append('    %s%s.%s;' % (return_txt, table_txt, proto.c_call()))
-                        func_body.append('    }')
                         # return result if needed
                         if 'void' not in proto.ret or '*' in proto.ret:
                             func_body.append('    return result;')
@@ -2091,6 +2134,7 @@ class VktraceTraceC(Subcommand):
         header_txt.append('#include "vktrace_platform.h"')
         header_txt.append('#include "vktrace_common.h"')
         header_txt.append('#include "vktrace_lib_helpers.h"')
+        header_txt.append('#include "vktrace_lib_trim.h"')
         header_txt.append('#include "vktrace_vk_vk.h"')
         #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker.h"')
         header_txt.append('#include "vktrace_interconnect.h"')

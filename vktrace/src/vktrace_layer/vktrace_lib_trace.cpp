@@ -29,6 +29,7 @@
 #include "vk_dispatch_table_helper.h"
 #include "vktrace_common.h"
 #include "vktrace_lib_helpers.h"
+#include "vktrace_lib_trim.h"
 
 #include "vktrace_interconnect.h"
 #include "vktrace_filelike.h"
@@ -136,32 +137,33 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
     VkDeviceMemory* pMemory)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkAllocateMemory* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkAllocateMemory, get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory));
+    result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkAllocateMemory(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkMemoryAllocateInfo), pAllocateInfo);
+    add_alloc_memory_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pNext), pAllocateInfo->pNext);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMemory), sizeof(VkDeviceMemory), pMemory);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemory));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkAllocateMemory])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkAllocateMemory* pPacket = NULL;
-        CREATE_TRACE_PACKET(vkAllocateMemory, get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory));
-        result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkAllocateMemory(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkMemoryAllocateInfo), pAllocateInfo);
-        add_alloc_memory_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pNext), pAllocateInfo->pNext);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pMemory), sizeof(VkDeviceMemory), pMemory);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemory));
         FINISH_TRACE_PACKET();
-        // begin custom code
-        add_new_handle_to_mem_info(*pMemory, pAllocateInfo->allocationSize, NULL);
-        // end custom code
     }
     else
     {
-        result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_DeviceMemory_call(*pMemory, pHeader);
     }
+    // begin custom code
+    add_new_handle_to_mem_info(*pMemory, pAllocateInfo->allocationSize, NULL);
+    // end custom code
     return result;
 }
 
@@ -174,38 +176,39 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     void** ppData)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkMapMemory* pPacket = NULL;
+    VKAllocInfo *entry;
+    CREATE_TRACE_PACKET(vkMapMemory, sizeof(void*));
+    result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, ppData);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    entry = find_mem_info_entry(memory);
+
+    // For vktrace usage, clamp the memory size to the total size if VK_WHOLE_SIZE is specified.
+    if (size == VK_WHOLE_SIZE) {
+        size = entry->totalSize;
+    }
+    pPacket = interpret_body_as_vkMapMemory(pHeader);
+    pPacket->device = device;
+    pPacket->memory = memory;
+    pPacket->offset = offset;
+    pPacket->size = size;
+    pPacket->flags = flags;
+    if (ppData != NULL)
+    {
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), *ppData);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
+        add_data_to_mem_info(memory, size, offset, *ppData);
+    }
+    pPacket->result = result;
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkMapMemory])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkMapMemory* pPacket = NULL;
-        VKAllocInfo *entry;
-        CREATE_TRACE_PACKET(vkMapMemory, sizeof(void*));
-        result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, ppData);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        entry = find_mem_info_entry(memory);
-
-        // For vktrace usage, clamp the memory size to the total size if VK_WHOLE_SIZE is specified.
-        if (size == VK_WHOLE_SIZE) {
-            size = entry->totalSize;
-        }
-        pPacket = interpret_body_as_vkMapMemory(pHeader);
-        pPacket->device = device;
-        pPacket->memory = memory;
-        pPacket->offset = offset;
-        pPacket->size = size;
-        pPacket->flags = flags;
-        if (ppData != NULL)
-        {
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), *ppData);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
-            add_data_to_mem_info(memory, size, offset, *ppData);
-        }
-        pPacket->result = result;
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.MapMemory(device, memory, offset, size, flags, ppData);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_DeviceMemory_call(memory, pHeader);
     }
     return result;
 }
@@ -214,47 +217,48 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     VkDevice device,
     VkDeviceMemory memory)
 {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkUnmapMemory* pPacket;
+    VKAllocInfo *entry;
+    size_t siz = 0;
+    uint64_t trace_begin_time = vktrace_get_time();
+
+    // insert into packet the data that was written by CPU between the vkMapMemory call and here
+    // Note must do this prior to the real vkUnMap() or else may get a FAULT
+    vktrace_enter_critical_section(&g_memInfoLock);
+    entry = find_mem_info_entry(memory);
+    if (entry && entry->pData != NULL)
+    {
+        if (!entry->didFlush)
+        {
+            // no FlushMapped Memory
+            siz = (size_t)entry->rangeSize;
+        }
+    }
+    CREATE_TRACE_PACKET(vkUnmapMemory, siz);
+    pHeader->vktrace_begin_time = trace_begin_time;
+    pPacket = interpret_body_as_vkUnmapMemory(pHeader);
+    if (siz)
+    {
+        assert(entry->handle == memory);
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), siz, entry->pData);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
+        entry->pData = NULL;
+    }
+    vktrace_leave_critical_section(&g_memInfoLock);
+    pHeader->entrypoint_begin_time = vktrace_get_time();
+    mdd(device)->devTable.UnmapMemory(device, memory);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket->device = device;
+    pPacket->memory = memory;
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkUnmapMemory])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkUnmapMemory* pPacket;
-        VKAllocInfo *entry;
-        size_t siz = 0;
-	uint64_t trace_begin_time = vktrace_get_time();
-
-        // insert into packet the data that was written by CPU between the vkMapMemory call and here
-        // Note must do this prior to the real vkUnMap() or else may get a FAULT
-        vktrace_enter_critical_section(&g_memInfoLock);
-        entry = find_mem_info_entry(memory);
-        if (entry && entry->pData != NULL)
-        {
-            if (!entry->didFlush)
-            {
-                // no FlushMapped Memory
-                siz = (size_t)entry->rangeSize;
-            }
-        }
-        CREATE_TRACE_PACKET(vkUnmapMemory, siz);
-        pHeader->vktrace_begin_time = trace_begin_time;
-        pPacket = interpret_body_as_vkUnmapMemory(pHeader);
-        if (siz)
-        {
-            assert(entry->handle == memory);
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), siz, entry->pData);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
-            entry->pData = NULL;
-        }
-        vktrace_leave_critical_section(&g_memInfoLock);
-	pHeader->entrypoint_begin_time = vktrace_get_time();
-        mdd(device)->devTable.UnmapMemory(device, memory);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket->device = device;
-        pPacket->memory = memory;
         FINISH_TRACE_PACKET();
     }
     else
     {
-        mdd(device)->devTable.UnmapMemory(device, memory);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_DeviceMemory_call(memory, pHeader);
     }
 }
 
@@ -263,27 +267,28 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
     VkDeviceMemory memory,
     const VkAllocationCallbacks* pAllocator)
 {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkFreeMemory* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkFreeMemory, sizeof(VkAllocationCallbacks));
+    mdd(device)->devTable.FreeMemory(device, memory, pAllocator);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkFreeMemory(pHeader);
+    pPacket->device = device;
+    pPacket->memory = memory;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkFreeMemory])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkFreeMemory* pPacket = NULL;
-        CREATE_TRACE_PACKET(vkFreeMemory, sizeof(VkAllocationCallbacks));
-        mdd(device)->devTable.FreeMemory(device, memory, pAllocator);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkFreeMemory(pHeader);
-        pPacket->device = device;
-        pPacket->memory = memory;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
         FINISH_TRACE_PACKET();
-        // begin custom code
-        rm_handle_from_mem_info(memory);
-        // end custom code
     }
     else
     {
-        mdd(device)->devTable.FreeMemory(device, memory, pAllocator);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_DeviceMemory_call(memory, pHeader);
     }
+    // begin custom code
+    rm_handle_from_mem_info(memory);
+    // end custom code
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemoryRanges(
@@ -442,25 +447,26 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
     VkCommandBuffer* pCommandBuffers)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkAllocateCommandBuffers* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkAllocateCommandBuffers, get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkCommandBuffer) * pAllocateInfo->commandBufferCount);
+    result = mdd(device)->devTable.AllocateCommandBuffers(device, pAllocateInfo, pCommandBuffers);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkAllocateCommandBuffers(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkCommandBufferAllocateInfo), pAllocateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandBuffers), sizeof(VkCommandBuffer) * pAllocateInfo->commandBufferCount, pCommandBuffers);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandBuffers));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkAllocateCommandBuffers])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkAllocateCommandBuffers* pPacket = NULL;
-        CREATE_TRACE_PACKET(vkAllocateCommandBuffers, get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkCommandBuffer) * pAllocateInfo->commandBufferCount);
-        result = mdd(device)->devTable.AllocateCommandBuffers(device, pAllocateInfo, pCommandBuffers);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkAllocateCommandBuffers(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkCommandBufferAllocateInfo), pAllocateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandBuffers), sizeof(VkCommandBuffer) * pAllocateInfo->commandBufferCount, pCommandBuffers);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandBuffers));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.AllocateCommandBuffers(device, pAllocateInfo, pCommandBuffers);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_CommandPool_call(pAllocateInfo->commandPool, pHeader);
     }
     return result;
 }
@@ -500,31 +506,32 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
     VkDescriptorPool* pDescriptorPool)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateDescriptorPool* pPacket = NULL;
+    // begin custom code (needs to use get_struct_chain_size)
+    CREATE_TRACE_PACKET(vkCreateDescriptorPool, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDescriptorPool));
+    // end custom code
+    result = mdd(device)->devTable.CreateDescriptorPool(device, pCreateInfo, pAllocator, pDescriptorPool);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateDescriptorPool(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkDescriptorPoolCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pPoolSizes), pCreateInfo->poolSizeCount * sizeof(VkDescriptorPoolSize), pCreateInfo->pPoolSizes);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorPool), sizeof(VkDescriptorPool), pDescriptorPool);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pPoolSizes));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorPool));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateDescriptorPool])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateDescriptorPool* pPacket = NULL;
-        // begin custom code (needs to use get_struct_chain_size)
-        CREATE_TRACE_PACKET(vkCreateDescriptorPool, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDescriptorPool));
-        // end custom code
-        result = mdd(device)->devTable.CreateDescriptorPool(device, pCreateInfo, pAllocator, pDescriptorPool);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreateDescriptorPool(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkDescriptorPoolCreateInfo), pCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pPoolSizes), pCreateInfo->poolSizeCount * sizeof(VkDescriptorPoolSize), pCreateInfo->pPoolSizes);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorPool), sizeof(VkDescriptorPool), pDescriptorPool);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pPoolSizes));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorPool));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreateDescriptorPool(device, pCreateInfo, pAllocator, pDescriptorPool);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_DescriptorPool_call(*pDescriptorPool, pHeader);
     }
     return result;
 }
@@ -588,19 +595,24 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(
     }
     localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
 
+    CREATE_TRACE_PACKET(vkCreateDevice, get_struct_chain_size((void*)&localCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDevice));
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateDevice(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    add_VkDeviceCreateInfo_to_packet(pHeader, (VkDeviceCreateInfo**)&(pPacket->pCreateInfo), &localCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDevice), sizeof(VkDevice), pDevice);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDevice));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateDevice])
     {
-        CREATE_TRACE_PACKET(vkCreateDevice, get_struct_chain_size((void*)&localCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDevice));
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreateDevice(pHeader);
-        pPacket->physicalDevice = physicalDevice;
-        add_VkDeviceCreateInfo_to_packet(pHeader, (VkDeviceCreateInfo**)&(pPacket->pCreateInfo), &localCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDevice), sizeof(VkDevice), pDevice);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDevice));
         FINISH_TRACE_PACKET();
+    }
+    else
+    {
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_Device_call(*pDevice, pHeader);
     }
     return result;
 }
@@ -612,32 +624,33 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
     VkFramebuffer* pFramebuffer)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateFramebuffer* pPacket = NULL;
+    // begin custom code
+    uint32_t attachmentCount = (pCreateInfo != NULL && pCreateInfo->pAttachments != NULL) ? pCreateInfo->attachmentCount : 0;
+    CREATE_TRACE_PACKET(vkCreateFramebuffer, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkFramebuffer));
+    // end custom code
+    result = mdd(device)->devTable.CreateFramebuffer(device, pCreateInfo, pAllocator, pFramebuffer);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateFramebuffer(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkFramebufferCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments), attachmentCount * sizeof(VkImageView), pCreateInfo->pAttachments);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pFramebuffer), sizeof(VkFramebuffer), pFramebuffer);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pFramebuffer));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateFramebuffer])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateFramebuffer* pPacket = NULL;
-        // begin custom code
-        uint32_t attachmentCount = (pCreateInfo != NULL && pCreateInfo->pAttachments != NULL) ? pCreateInfo->attachmentCount : 0;
-        CREATE_TRACE_PACKET(vkCreateFramebuffer, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkFramebuffer));
-        // end custom code
-        result = mdd(device)->devTable.CreateFramebuffer(device, pCreateInfo, pAllocator, pFramebuffer);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreateFramebuffer(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkFramebufferCreateInfo), pCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments), attachmentCount * sizeof(VkImageView), pCreateInfo->pAttachments);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pFramebuffer), sizeof(VkFramebuffer), pFramebuffer);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pFramebuffer));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreateFramebuffer(device, pCreateInfo, pAllocator, pFramebuffer);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_Framebuffer_call(*pFramebuffer, pHeader);
     }
     return result;
 }
@@ -705,21 +718,29 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     // The pNext pointer isn't getting marshalled into the trace buffer properly anyway, so
     // set it to NULL so that replay does not trip over it.
     localCreateInfo.pNext = NULL;
+    CREATE_TRACE_PACKET(vkCreateInstance, sizeof(VkInstance) + get_struct_chain_size((void*)&localCreateInfo) + sizeof(VkAllocationCallbacks));
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkCreateInstance(pHeader);
+
+    add_VkInstanceCreateInfo_to_packet(pHeader, (VkInstanceCreateInfo**)&(pPacket->pCreateInfo), (VkInstanceCreateInfo*)&localCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pInstance), sizeof(VkInstance), pInstance);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pInstance));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateInstance])
     {
-        CREATE_TRACE_PACKET(vkCreateInstance, sizeof(VkInstance) + get_struct_chain_size((void*)&localCreateInfo) + sizeof(VkAllocationCallbacks));
-        pHeader->vktrace_begin_time = vktraceStartTime;
-        pHeader->entrypoint_begin_time = startTime;
-        pHeader->entrypoint_end_time = endTime;
-        pPacket = interpret_body_as_vkCreateInstance(pHeader);
-
-        add_VkInstanceCreateInfo_to_packet(pHeader, (VkInstanceCreateInfo**)&(pPacket->pCreateInfo), (VkInstanceCreateInfo*)&localCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pInstance), sizeof(VkInstance), pInstance);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pInstance));
         FINISH_TRACE_PACKET();
+    }
+    else
+    {
+        vktrace_finalize_trace_packet(pHeader);
+        // instead of writing the trace packet to the trace file, we save the packet to our list.
+        //vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+        //vktrace_delete_trace_packet(&pHeader);
+        trim_add_Instance_call(*pInstance, pHeader);
     }
     return result;
 }
@@ -731,53 +752,54 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
     VkRenderPass* pRenderPass)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateRenderPass* pPacket = NULL;
+    // begin custom code (get_struct_chain_size)
+    uint32_t attachmentCount = (pCreateInfo != NULL && (pCreateInfo->pAttachments != NULL)) ? pCreateInfo->attachmentCount : 0;
+    uint32_t dependencyCount = (pCreateInfo != NULL && (pCreateInfo->pDependencies != NULL)) ? pCreateInfo->dependencyCount : 0;
+    uint32_t subpassCount = (pCreateInfo != NULL && (pCreateInfo->pSubpasses != NULL)) ? pCreateInfo->subpassCount : 0;
+    CREATE_TRACE_PACKET(vkCreateRenderPass, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkRenderPass));
+    // end custom code
+    result = mdd(device)->devTable.CreateRenderPass(device, pCreateInfo, pAllocator, pRenderPass);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateRenderPass(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkRenderPassCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments), attachmentCount * sizeof(VkAttachmentDescription), pCreateInfo->pAttachments);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pDependencies), dependencyCount * sizeof(VkSubpassDependency), pCreateInfo->pDependencies);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses), subpassCount * sizeof(VkSubpassDescription), pCreateInfo->pSubpasses);
+    uint32_t i;
+    for (i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
+        VkSubpassDescription *pSubpass = (VkSubpassDescription *)&pPacket->pCreateInfo->pSubpasses[i];
+        const VkSubpassDescription *pSp = &pCreateInfo->pSubpasses[i];
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pInputAttachments), pSubpass->inputAttachmentCount * sizeof(VkAttachmentReference), pSp->pInputAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pInputAttachments));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pColorAttachments), pSubpass->colorAttachmentCount * sizeof(VkAttachmentReference), pSp->pColorAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pColorAttachments));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pResolveAttachments), pSubpass->colorAttachmentCount * sizeof(VkAttachmentReference), pSp->pResolveAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pResolveAttachments));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pDepthStencilAttachment), 1 * sizeof(VkAttachmentReference), pSp->pDepthStencilAttachment);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pDepthStencilAttachment));
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pPreserveAttachments), pSubpass->preserveAttachmentCount * sizeof(VkAttachmentReference), pSp->pPreserveAttachments);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pPreserveAttachments));
+    }
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRenderPass), sizeof(VkRenderPass), pRenderPass);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pDependencies));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRenderPass));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateRenderPass])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateRenderPass* pPacket = NULL;
-        // begin custom code (get_struct_chain_size)
-        uint32_t attachmentCount = (pCreateInfo != NULL && (pCreateInfo->pAttachments != NULL)) ? pCreateInfo->attachmentCount : 0;
-        uint32_t dependencyCount = (pCreateInfo != NULL && (pCreateInfo->pDependencies != NULL)) ? pCreateInfo->dependencyCount : 0;
-        uint32_t subpassCount = (pCreateInfo != NULL && (pCreateInfo->pSubpasses != NULL)) ? pCreateInfo->subpassCount : 0;
-        CREATE_TRACE_PACKET(vkCreateRenderPass, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkRenderPass));
-        // end custom code
-        result = mdd(device)->devTable.CreateRenderPass(device, pCreateInfo, pAllocator, pRenderPass);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreateRenderPass(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkRenderPassCreateInfo), pCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments), attachmentCount * sizeof(VkAttachmentDescription), pCreateInfo->pAttachments);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pDependencies), dependencyCount * sizeof(VkSubpassDependency), pCreateInfo->pDependencies);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses), subpassCount * sizeof(VkSubpassDescription), pCreateInfo->pSubpasses);
-        uint32_t i;
-        for (i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
-            VkSubpassDescription *pSubpass = (VkSubpassDescription *)&pPacket->pCreateInfo->pSubpasses[i];
-            const VkSubpassDescription *pSp = &pCreateInfo->pSubpasses[i];
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pInputAttachments), pSubpass->inputAttachmentCount * sizeof(VkAttachmentReference), pSp->pInputAttachments);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pInputAttachments));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pColorAttachments), pSubpass->colorAttachmentCount * sizeof(VkAttachmentReference), pSp->pColorAttachments);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pColorAttachments));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pResolveAttachments), pSubpass->colorAttachmentCount * sizeof(VkAttachmentReference), pSp->pResolveAttachments);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pResolveAttachments));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pDepthStencilAttachment), 1 * sizeof(VkAttachmentReference), pSp->pDepthStencilAttachment);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pDepthStencilAttachment));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pPreserveAttachments), pSubpass->preserveAttachmentCount * sizeof(VkAttachmentReference), pSp->pPreserveAttachments);
-            vktrace_finalize_buffer_address(pHeader, (void**)&(pSubpass->pPreserveAttachments));
-        }
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRenderPass), sizeof(VkRenderPass), pRenderPass);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pAttachments));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pDependencies));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRenderPass));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreateRenderPass(device, pCreateInfo, pAllocator, pRenderPass);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_RenderPass_call(*pRenderPass, pHeader);
     }
     return result;
 }
@@ -911,34 +933,37 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
     VkPhysicalDevice* pPhysicalDevices)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkEnumeratePhysicalDevices* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    //TODO make sure can handle being called twice with pPD == 0
+    SEND_ENTRYPOINT_ID(vkEnumeratePhysicalDevices);
+    startTime = vktrace_get_time();
+    result = mid(instance)->instTable.EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+    endTime = vktrace_get_time();
+    CREATE_TRACE_PACKET(vkEnumeratePhysicalDevices, sizeof(uint32_t) + ((pPhysicalDevices && pPhysicalDeviceCount) ? *pPhysicalDeviceCount * sizeof(VkPhysicalDevice) : 0));
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkEnumeratePhysicalDevices(pHeader);
+    pPacket->instance = instance;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPhysicalDeviceCount), sizeof(uint32_t), pPhysicalDeviceCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPhysicalDevices), *pPhysicalDeviceCount*sizeof(VkPhysicalDevice), pPhysicalDevices);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPhysicalDeviceCount));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPhysicalDevices));
+
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkEnumeratePhysicalDevices])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkEnumeratePhysicalDevices* pPacket = NULL;
-        uint64_t startTime;
-        uint64_t endTime;
-        uint64_t vktraceStartTime = vktrace_get_time();
-        //TODO make sure can handle being called twice with pPD == 0
-        SEND_ENTRYPOINT_ID(vkEnumeratePhysicalDevices);
-        startTime = vktrace_get_time();
-        result = mid(instance)->instTable.EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
-        endTime = vktrace_get_time();
-        CREATE_TRACE_PACKET(vkEnumeratePhysicalDevices, sizeof(uint32_t) + ((pPhysicalDevices && pPhysicalDeviceCount) ? *pPhysicalDeviceCount * sizeof(VkPhysicalDevice) : 0));
-        pHeader->vktrace_begin_time = vktraceStartTime;
-        pHeader->entrypoint_begin_time = startTime;
-        pHeader->entrypoint_end_time = endTime;
-        pPacket = interpret_body_as_vkEnumeratePhysicalDevices(pHeader);
-        pPacket->instance = instance;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPhysicalDeviceCount), sizeof(uint32_t), pPhysicalDeviceCount);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPhysicalDevices), *pPhysicalDeviceCount*sizeof(VkPhysicalDevice), pPhysicalDevices);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPhysicalDeviceCount));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPhysicalDevices));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mid(instance)->instTable.EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+        vktrace_finalize_trace_packet(pHeader);
+        // push onto instance list
+        trim_add_Instance_call(instance, pHeader);
     }
     return result;
 }
@@ -994,35 +1019,36 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
     VkDescriptorSet* pDescriptorSets)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkAllocateDescriptorSets* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    SEND_ENTRYPOINT_ID(vkAllocateDescriptorSets);
+    startTime = vktrace_get_time();
+    result = mdd(device)->devTable.AllocateDescriptorSets(device, pAllocateInfo, pDescriptorSets);
+    endTime = vktrace_get_time();
+    CREATE_TRACE_PACKET(vkAllocateDescriptorSets, vk_size_vkdescriptorsetallocateinfo(pAllocateInfo) + (pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet)));
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkAllocateDescriptorSets(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkDescriptorSetAllocateInfo), pAllocateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts), pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSetLayout), pAllocateInfo->pSetLayouts);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet), pDescriptorSets);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkAllocateDescriptorSets])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkAllocateDescriptorSets* pPacket = NULL;
-        uint64_t startTime;
-        uint64_t endTime;
-        uint64_t vktraceStartTime = vktrace_get_time();
-        SEND_ENTRYPOINT_ID(vkAllocateDescriptorSets);
-        startTime = vktrace_get_time();
-        result = mdd(device)->devTable.AllocateDescriptorSets(device, pAllocateInfo, pDescriptorSets);
-        endTime = vktrace_get_time();
-        CREATE_TRACE_PACKET(vkAllocateDescriptorSets, vk_size_vkdescriptorsetallocateinfo(pAllocateInfo) + (pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet)));
-        pHeader->vktrace_begin_time = vktraceStartTime;
-        pHeader->entrypoint_begin_time = startTime;
-        pHeader->entrypoint_end_time = endTime;
-        pPacket = interpret_body_as_vkAllocateDescriptorSets(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkDescriptorSetAllocateInfo), pAllocateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts), pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSetLayout), pAllocateInfo->pSetLayouts);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet), pDescriptorSets);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.AllocateDescriptorSets(device, pAllocateInfo, pDescriptorSets);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_DescriptorPool_call(pAllocateInfo->descriptorPool, pHeader);
     }
     return result;
 }
@@ -1042,84 +1068,91 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
     uint32_t descriptorCopyCount,
     const VkCopyDescriptorSet* pDescriptorCopies )
 {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkUpdateDescriptorSets* pPacket = NULL;
+    // begin custom code
+    size_t arrayByteCount = 0;
+    size_t i;
+
+    for (i = 0; i < descriptorWriteCount; i++)
+    {
+        arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
+    }
+
+    for (i = 0; i < descriptorCopyCount; i++)
+    {
+        arrayByteCount += get_struct_chain_size(&pDescriptorCopies[i]);
+    }
+
+    CREATE_TRACE_PACKET(vkUpdateDescriptorSets, arrayByteCount);
+    // end custom code
+
+    mdd(device)->devTable.UpdateDescriptorSets(device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkUpdateDescriptorSets(pHeader);
+    pPacket->device = device;
+    pPacket->descriptorWriteCount = descriptorWriteCount;
+    // begin custom code
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites), descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
+    for (i = 0; i < descriptorWriteCount; i++)
+    {
+        switch (pPacket->pDescriptorWrites[i].descriptorType) {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        {
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
+                pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),
+                pDescriptorWrites[i].pImageInfo);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo));
+        }
+        break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+        {
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView),
+                pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView),
+                pDescriptorWrites[i].pTexelBufferView);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView));
+        }
+        break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+        {
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo),
+                pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo),
+                pDescriptorWrites[i].pBufferInfo);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo));
+        }
+        break;
+        default:
+            break;
+        }
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
+
+    pPacket->descriptorCopyCount = descriptorCopyCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorCopies), descriptorCopyCount * sizeof(VkCopyDescriptorSet), pDescriptorCopies);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorCopies));
+    // end custom code
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkUpdateDescriptorSets])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkUpdateDescriptorSets* pPacket = NULL;
-        // begin custom code
-        size_t arrayByteCount = 0;
-        size_t i;
-
-        for (i = 0; i < descriptorWriteCount; i++)
-        {
-            arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
-        }
-
-        for (i = 0; i < descriptorCopyCount; i++)
-        {
-            arrayByteCount += get_struct_chain_size(&pDescriptorCopies[i]);
-        }
-
-        CREATE_TRACE_PACKET(vkUpdateDescriptorSets, arrayByteCount);
-        // end custom code
-
-        mdd(device)->devTable.UpdateDescriptorSets(device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkUpdateDescriptorSets(pHeader);
-        pPacket->device = device;
-        pPacket->descriptorWriteCount = descriptorWriteCount;
-        // begin custom code
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites), descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
-        for (i = 0; i < descriptorWriteCount; i++)
-        {
-            switch (pPacket->pDescriptorWrites[i].descriptorType) {
-            case VK_DESCRIPTOR_TYPE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-            {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
-                    pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),
-                    pDescriptorWrites[i].pImageInfo);
-                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo));
-            }
-            break;
-            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView),
-                    pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView),
-                    pDescriptorWrites[i].pTexelBufferView);
-                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView));
-            }
-            break;
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-            {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo),
-                    pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo),
-                    pDescriptorWrites[i].pBufferInfo);
-                vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo));
-            }
-            break;
-            default:
-                break;
-            }
-        }
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
-
-        pPacket->descriptorCopyCount = descriptorCopyCount;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorCopies), descriptorCopyCount * sizeof(VkCopyDescriptorSet), pDescriptorCopies);
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorCopies));
-        // end custom code
         FINISH_TRACE_PACKET();
     }
     else
     {
-        mdd(device)->devTable.UpdateDescriptorSets(device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+        vktrace_finalize_trace_packet(pHeader);
+        if (descriptorWriteCount > 0)
+        {
+            trim_add_DescriptorSet_call(pDescriptorWrites[0].dstSet, pHeader);
+        }
+        else if (descriptorCopyCount > 0)
+        {
+            trim_add_DescriptorSet_call(pDescriptorCopies[0].dstSet, pHeader);
+        }
     }
 }
 
@@ -1407,35 +1440,36 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
     VkPipeline* pPipelines)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateGraphicsPipelines* pPacket = NULL;
+    size_t total_size = 0;
+    uint32_t i;
+    for (i = 0; i < createInfoCount; i++) {
+        total_size += get_struct_chain_size((void*)&pCreateInfos[i]);
+    }
+    CREATE_TRACE_PACKET(vkCreateGraphicsPipelines, total_size + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline));
+    result = mdd(device)->devTable.CreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateGraphicsPipelines(pHeader);
+    pPacket->device = device;
+    pPacket->pipelineCache = pipelineCache;
+    pPacket->createInfoCount = createInfoCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfos), createInfoCount*sizeof(VkGraphicsPipelineCreateInfo), pCreateInfos);
+    add_VkGraphicsPipelineCreateInfos_to_trace_packet(pHeader, (VkGraphicsPipelineCreateInfo*)pPacket->pCreateInfos, pCreateInfos, createInfoCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelines), createInfoCount*sizeof(VkPipeline), pPipelines);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfos));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateGraphicsPipelines])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateGraphicsPipelines* pPacket = NULL;
-        size_t total_size = 0;
-        uint32_t i;
-        for (i = 0; i < createInfoCount; i++) {
-            total_size += get_struct_chain_size((void*)&pCreateInfos[i]);
-        }
-        CREATE_TRACE_PACKET(vkCreateGraphicsPipelines, total_size + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline));
-        result = mdd(device)->devTable.CreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreateGraphicsPipelines(pHeader);
-        pPacket->device = device;
-        pPacket->pipelineCache = pipelineCache;
-        pPacket->createInfoCount = createInfoCount;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfos), createInfoCount*sizeof(VkGraphicsPipelineCreateInfo), pCreateInfos);
-        add_VkGraphicsPipelineCreateInfos_to_trace_packet(pHeader, (VkGraphicsPipelineCreateInfo*)pPacket->pCreateInfos, pCreateInfos, createInfoCount);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelines), createInfoCount*sizeof(VkPipeline), pPipelines);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfos));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_Pipeline_call(*pPipelines, pHeader);
     }
     return result;
 }
@@ -1449,44 +1483,45 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
     VkPipeline* pPipelines)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateComputePipelines* pPacket = NULL;
+    uint32_t i;
+    size_t total_size;
+
+    total_size = createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline);
+    for (i = 0; i < createInfoCount; i++) {
+        total_size += ROUNDUP_TO_4(strlen(pCreateInfos[i].stage.pName) + 1);
+        if (pCreateInfos[i].stage.pSpecializationInfo) {
+            total_size += sizeof(VkSpecializationInfo);
+            if (pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount > 0 && pCreateInfos[i].stage.pSpecializationInfo->pMapEntries)
+                total_size += pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount * sizeof(VkSpecializationMapEntry);
+            if (pCreateInfos[i].stage.pSpecializationInfo->dataSize > 0 && pCreateInfos[i].stage.pSpecializationInfo->pData)
+                total_size += pCreateInfos[i].stage.pSpecializationInfo->dataSize;
+        }
+    }
+    CREATE_TRACE_PACKET(vkCreateComputePipelines, total_size);
+    result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateComputePipelines(pHeader);
+    pPacket->device = device;
+    pPacket->pipelineCache = pipelineCache;
+    pPacket->createInfoCount = createInfoCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfos), createInfoCount*sizeof(VkComputePipelineCreateInfo), pCreateInfos);
+    add_VkComputePipelineCreateInfos_to_trace_packet(pHeader, (VkComputePipelineCreateInfo*)pPacket->pCreateInfos, pCreateInfos, createInfoCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelines), createInfoCount*sizeof(VkPipeline), pPipelines);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfos));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateComputePipelines])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateComputePipelines* pPacket = NULL;
-        uint32_t i;
-        size_t total_size;
-
-        total_size = createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline);
-        for (i=0; i < createInfoCount; i++) {
-            total_size += ROUNDUP_TO_4(strlen(pCreateInfos[i].stage.pName)+1);
-            if (pCreateInfos[i].stage.pSpecializationInfo) {
-                total_size += sizeof(VkSpecializationInfo);
-                if (pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount > 0 && pCreateInfos[i].stage.pSpecializationInfo->pMapEntries)
-                    total_size += pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount * sizeof(VkSpecializationMapEntry);
-                if (pCreateInfos[i].stage.pSpecializationInfo->dataSize > 0 && pCreateInfos[i].stage.pSpecializationInfo->pData)
-                    total_size += pCreateInfos[i].stage.pSpecializationInfo->dataSize;
-            }
-        }
-        CREATE_TRACE_PACKET(vkCreateComputePipelines, total_size);
-        result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreateComputePipelines(pHeader);
-        pPacket->device = device;
-        pPacket->pipelineCache = pipelineCache;
-        pPacket->createInfoCount = createInfoCount;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfos), createInfoCount*sizeof(VkComputePipelineCreateInfo), pCreateInfos);
-        add_VkComputePipelineCreateInfos_to_trace_packet(pHeader, (VkComputePipelineCreateInfo*)pPacket->pCreateInfos, pCreateInfos, createInfoCount);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelines), createInfoCount*sizeof(VkPipeline), pPipelines);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfos));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_Device_call(device, pHeader);
     }
     return result;
 }
@@ -1498,29 +1533,30 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
     VkPipelineCache* pPipelineCache)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreatePipelineCache* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCreatePipelineCache, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkPipelineCache));
+    result = mdd(device)->devTable.CreatePipelineCache(device, pCreateInfo, pAllocator, pPipelineCache);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreatePipelineCache(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkPipelineCacheCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData), pPacket->pCreateInfo->initialDataSize, pCreateInfo->pInitialData);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelineCache), sizeof(VkPipelineCache), pPipelineCache);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelineCache));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreatePipelineCache])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreatePipelineCache* pPacket = NULL;
-        CREATE_TRACE_PACKET(vkCreatePipelineCache, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkPipelineCache));
-        result = mdd(device)->devTable.CreatePipelineCache(device, pCreateInfo, pAllocator, pPipelineCache);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkCreatePipelineCache(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkPipelineCacheCreateInfo), pCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData), pPacket->pCreateInfo->initialDataSize, pCreateInfo->pInitialData);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelineCache), sizeof(VkPipelineCache), pPipelineCache);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelineCache));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreatePipelineCache(device, pCreateInfo, pAllocator, pPipelineCache);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_Device_call(device, pHeader);
     }
     return result;
 }
@@ -1697,28 +1733,29 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(
     VkSwapchainKHR* pSwapchain)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateSwapchainKHR* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCreateSwapchainKHR, vk_size_vkswapchaincreateinfokhr(pCreateInfo) + sizeof(VkSwapchainKHR) + sizeof(VkAllocationCallbacks));
+    result = mdd(device)->devTable.CreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
+    pPacket = interpret_body_as_vkCreateSwapchainKHR(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkSwapchainCreateInfoKHR), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSwapchain), sizeof(VkSwapchainKHR), pSwapchain);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), pCreateInfo->queueFamilyIndexCount * sizeof(uint32_t), pCreateInfo->pQueueFamilyIndices);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchain));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateSwapchainKHR])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateSwapchainKHR* pPacket = NULL;
-        CREATE_TRACE_PACKET(vkCreateSwapchainKHR, vk_size_vkswapchaincreateinfokhr(pCreateInfo) + sizeof(VkSwapchainKHR) + sizeof(VkAllocationCallbacks));
-        result = mdd(device)->devTable.CreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
-        pPacket = interpret_body_as_vkCreateSwapchainKHR(pHeader);
-        pPacket->device = device;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkSwapchainCreateInfoKHR), pCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSwapchain), sizeof(VkSwapchainKHR), pSwapchain);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), pCreateInfo->queueFamilyIndexCount * sizeof(uint32_t), pCreateInfo->pQueueFamilyIndices);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchain));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.CreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_SwapchainKHR_call(*pSwapchain, pHeader);
     }
     return result;
 }
@@ -1730,35 +1767,36 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
     VkImage* pSwapchainImages)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    size_t _dataSize;
+    packet_vkGetSwapchainImagesKHR* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    result = mdd(device)->devTable.GetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, pSwapchainImages);
+    endTime = vktrace_get_time();
+    _dataSize = (pSwapchainImageCount == NULL || pSwapchainImages == NULL) ? 0 : (*pSwapchainImageCount *sizeof(VkImage));
+    CREATE_TRACE_PACKET(vkGetSwapchainImagesKHR, sizeof(uint32_t) + _dataSize);
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkGetSwapchainImagesKHR(pHeader);
+    pPacket->device = device;
+    pPacket->swapchain = swapchain;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSwapchainImageCount), sizeof(uint32_t), pSwapchainImageCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSwapchainImages), _dataSize, pSwapchainImages);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchainImageCount));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchainImages));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkGetSwapchainImagesKHR])
     {
-        vktrace_trace_packet_header* pHeader;
-        size_t _dataSize;
-        packet_vkGetSwapchainImagesKHR* pPacket = NULL;
-        uint64_t startTime;
-        uint64_t endTime;
-        uint64_t vktraceStartTime = vktrace_get_time();
-        startTime = vktrace_get_time();
-        result = mdd(device)->devTable.GetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, pSwapchainImages);
-        endTime = vktrace_get_time();
-        _dataSize = (pSwapchainImageCount == NULL || pSwapchainImages == NULL) ? 0 : (*pSwapchainImageCount *sizeof(VkImage));
-        CREATE_TRACE_PACKET(vkGetSwapchainImagesKHR, sizeof(uint32_t) + _dataSize);
-        pHeader->vktrace_begin_time = vktraceStartTime;
-        pHeader->entrypoint_begin_time = startTime;
-        pHeader->entrypoint_end_time = endTime;
-        pPacket = interpret_body_as_vkGetSwapchainImagesKHR(pHeader);
-        pPacket->device = device;
-        pPacket->swapchain = swapchain;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSwapchainImageCount), sizeof(uint32_t), pSwapchainImageCount);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSwapchainImages), _dataSize, pSwapchainImages);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchainImageCount));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchainImages));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mdd(device)->devTable.GetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, pSwapchainImages);
+        vktrace_finalize_trace_packet(pHeader);
+        trim_add_SwapchainKHR_call(swapchain, pHeader);
     }
     return result;
 }
@@ -1812,6 +1850,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
         g_trimFrameCounter++;
         if (g_trimFrameCounter == g_trimStartFrame)
         {
+            // For debugging, have trim output all the object calls until now.
+            trim_debug_send_all_calls();
+
             // enable frame tracing
             for (uint32_t i = 0; i < g_trimTraceFuncCount; i++)
             {
@@ -1840,27 +1881,29 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
     VkSurfaceKHR*                               pSurface)
 {
     VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateWin32SurfaceKHR* pPacket = NULL;
+    // don't bother with copying the actual win32 hinstance, hwnd into the trace packet, vkreplay has to use it's own anyway
+    CREATE_TRACE_PACKET(vkCreateWin32SurfaceKHR, sizeof(VkSurfaceKHR) + sizeof(VkAllocationCallbacks) + sizeof(VkWin32SurfaceCreateInfoKHR));
+    result = mid(instance)->instTable.CreateWin32SurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+    pPacket = interpret_body_as_vkCreateWin32SurfaceKHR(pHeader);
+    pPacket->instance = instance;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkWin32SurfaceCreateInfoKHR), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurface), sizeof(VkSurfaceKHR), pSurface);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateWin32SurfaceKHR])
     {
-        vktrace_trace_packet_header* pHeader;
-        packet_vkCreateWin32SurfaceKHR* pPacket = NULL;
-        // don't bother with copying the actual win32 hinstance, hwnd into the trace packet, vkreplay has to use it's own anyway
-        CREATE_TRACE_PACKET(vkCreateWin32SurfaceKHR, sizeof(VkSurfaceKHR) + sizeof(VkAllocationCallbacks) + sizeof(VkWin32SurfaceCreateInfoKHR));
-        result = mid(instance)->instTable.CreateWin32SurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
-        pPacket = interpret_body_as_vkCreateWin32SurfaceKHR(pHeader);
-        pPacket->instance = instance;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkWin32SurfaceCreateInfoKHR), pCreateInfo);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurface), sizeof(VkSurfaceKHR), pSurface);
-        pPacket->result = result;
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
-        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        result = mid(instance)->instTable.CreateWin32SurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+        vktrace_finalize_trace_packet(pHeader);
+        // push onto instance list
+        trim_add_Instance_call(instance, pHeader);
     }
     return result;
 }
@@ -2420,25 +2463,27 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDevicePro
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcAddr(VkInstance instance, const char* funcName)
 {
     PFN_vkVoidFunction addr;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetInstanceProcAddr* pPacket = NULL;
+    //assert(strcmp("vkGetInstanceProcAddr", funcName));
+    CREATE_TRACE_PACKET(vkGetInstanceProcAddr, ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0));
+    addr = __HOOKED_vkGetInstanceProcAddr(instance, funcName);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetInstanceProcAddr(pHeader);
+    pPacket->instance = instance;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0), funcName);
+    pPacket->result = addr;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (g_trimTraceFunc[VKTRACE_TPI_VK_vkGetInstanceProcAddr])
     {
-        packet_vkGetInstanceProcAddr* pPacket = NULL;
-        //assert(strcmp("vkGetInstanceProcAddr", funcName));
-        CREATE_TRACE_PACKET(vkGetInstanceProcAddr, ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0));
-        addr = __HOOKED_vkGetInstanceProcAddr(instance, funcName);
-        vktrace_set_packet_entrypoint_end_time(pHeader);
-        pPacket = interpret_body_as_vkGetInstanceProcAddr(pHeader);
-        pPacket->instance = instance;
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->pName), ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0), funcName);
-        pPacket->result = addr;
-        vktrace_finalize_buffer_address(pHeader, (void**) &(pPacket->pName));
         FINISH_TRACE_PACKET();
     }
     else
     {
-        addr = __HOOKED_vkGetInstanceProcAddr(instance, funcName);
-    }
-    return addr;
+        vktrace_finalize_trace_packet(pHeader);
+        // push onto instance list
+        trim_add_Instance_call(instance, pHeader);
+    }    return addr;
 }
 
 /* GIPA with no trace packet creation */
