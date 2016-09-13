@@ -12,8 +12,11 @@ ObjectPacketMap g_trim_created##type##s; \
 ObjectPacketMap g_trim_referenced##type##s;
 
 TRIM_DEFINE_OBJECT_TRACKERS(Instance);
+TRIM_DEFINE_OBJECT_TRACKERS(PhysicalDevice);
 TRIM_DEFINE_OBJECT_TRACKERS(Device);
+TRIM_DEFINE_OBJECT_TRACKERS(SwapchainKHR);
 TRIM_DEFINE_OBJECT_TRACKERS(CommandPool);
+TRIM_DEFINE_OBJECT_TRACKERS(CommandBuffer);
 TRIM_DEFINE_OBJECT_TRACKERS(DescriptorPool);
 TRIM_DEFINE_OBJECT_TRACKERS(RenderPass);
 TRIM_DEFINE_OBJECT_TRACKERS(Pipeline);
@@ -21,7 +24,6 @@ TRIM_DEFINE_OBJECT_TRACKERS(Queue);
 TRIM_DEFINE_OBJECT_TRACKERS(Semaphore);
 TRIM_DEFINE_OBJECT_TRACKERS(DeviceMemory);
 TRIM_DEFINE_OBJECT_TRACKERS(Fence);
-TRIM_DEFINE_OBJECT_TRACKERS(SwapchainKHR);
 TRIM_DEFINE_OBJECT_TRACKERS(Image);
 TRIM_DEFINE_OBJECT_TRACKERS(ImageView);
 TRIM_DEFINE_OBJECT_TRACKERS(Buffer);
@@ -51,6 +53,7 @@ TRIM_DEFINE_OBJECT_TRACKERS(DescriptorSet);
 void trim_debug_send_all_calls()
 {
     TRIM_WRITE_OBJECT_PACKETS(Instance);
+    TRIM_WRITE_OBJECT_PACKETS(PhysicalDevice);
     TRIM_WRITE_OBJECT_PACKETS(Device);
     TRIM_WRITE_OBJECT_PACKETS(SwapchainKHR);
     TRIM_WRITE_OBJECT_PACKETS(Queue);
@@ -128,6 +131,9 @@ void trim_mark_##type##_reference(Vk##type var) { \
 //===============================================
 TRIM_ADD_OBJECT_CALL(Instance);
 TRIM_MARK_OBJECT_REFERENCE(Instance);
+
+TRIM_ADD_OBJECT_CALL(PhysicalDevice);
+TRIM_MARK_OBJECT_REFERENCE(PhysicalDevice);
 
 TRIM_ADD_OBJECT_CALL(Device)
 TRIM_MARK_OBJECT_REFERENCE(Device)

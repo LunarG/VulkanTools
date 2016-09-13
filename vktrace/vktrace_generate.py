@@ -445,36 +445,41 @@ class Subcommand(object):
         elif 'CreateSemaphore' is proto.name:
             trim_instructions.append("        trim_add_Semaphore_call(*pSemaphore, pHeader);")
         elif 'CreateFence' is proto.name:
-            trim_instructions.append("        trim_add_Fence_call(*pFence, pHeader);")                
+            trim_instructions.append("        trim_add_Fence_call(*pFence, pHeader);")
         elif 'CreateCommandPool' is proto.name:
-            trim_instructions.append("        trim_add_CommandPool_call(*pCommandPool, pHeader);")                
+            trim_instructions.append("        trim_add_CommandPool_call(*pCommandPool, pHeader);")
         elif 'CreateImage' is proto.name:
-            trim_instructions.append("        trim_add_Image_call(*pImage, pHeader);")                
+            trim_instructions.append("        trim_add_Image_call(*pImage, pHeader);")
+        elif 'GetImageMemoryRequirements' is proto.name:
+            trim_instructions.append("        trim_add_Image_call(image, pHeader);")
         elif 'BindImageMemory' is proto.name:
-            trim_instructions.append("        trim_add_Image_call(image, pHeader);")                
+            trim_instructions.append("        trim_add_Image_call(image, pHeader);")
         elif 'CreateImageView' is proto.name:
             trim_instructions.append("        trim_add_ImageView_call(*pView, pHeader);")
         elif 'CreateBuffer' is proto.name:
-            trim_instructions.append("        trim_add_Buffer_call(*pBuffer, pHeader);")                
+            trim_instructions.append("        trim_add_Buffer_call(*pBuffer, pHeader);")
         elif 'BindBufferMemory' is proto.name:
-            trim_instructions.append("        trim_add_Buffer_call(buffer, pHeader);")                
+            trim_instructions.append("        trim_add_Buffer_call(buffer, pHeader);")
         elif 'CreateBufferView' is proto.name:
             trim_instructions.append("        trim_add_BufferView_call(*pView, pHeader);")
         elif 'CreateFramebuffer' is proto.name:
             trim_instructions.append("        trim_add_Framebuffer_call(*pFramebuffer, pHeader);")
         elif 'CreateEvent' is proto.name:
-            trim_instructions.append("        trim_add_Event_call(*pEvent, pHeader);")        
+            trim_instructions.append("        trim_add_Event_call(*pEvent, pHeader);")
         elif 'CreateQueryPool' is proto.name:
-            trim_instructions.append("        trim_add_QueryPool_call(*pQueryPool, pHeader);")          
+            trim_instructions.append("        trim_add_QueryPool_call(*pQueryPool, pHeader);")
         elif 'CreateShaderModule' is proto.name:
             trim_instructions.append("        trim_add_ShaderModule_call(*pShaderModule, pHeader);")
         elif 'CreatePipelineLayout' is proto.name:
-            trim_instructions.append("        trim_add_PipelineLayout_call(*pPipelineLayout, pHeader);")                
+            trim_instructions.append("        trim_add_PipelineLayout_call(*pPipelineLayout, pHeader);")
         elif 'CreateSampler' is proto.name:
-            trim_instructions.append("        trim_add_Sampler_call(*pSampler, pHeader);")                
+            trim_instructions.append("        trim_add_Sampler_call(*pSampler, pHeader);")
         elif 'CreateDescriptorSetLayout' is proto.name:
-            trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")                
-
+            trim_instructions.append("        trim_add_DescriptorSetLayout_call(*pSetLayout, pHeader);")
+        elif 'GetPhysicalDeviceSurfaceSupportKHR' is proto.name:
+            trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
+        elif 'GetPhysicalDeviceMemoryProperties' is proto.name:
+            trim_instructions.append("        trim_add_PhysicalDevice_call(physicalDevice, pHeader);")
         else:
             return None
         return "\n".join(trim_instructions)
@@ -622,7 +627,7 @@ class Subcommand(object):
                         func_body.append('    if (g_trimTraceFunc[VKTRACE_TPI_VK_vk%s])' % proto.name)
                         func_body.append('    {')
                         # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
-                        func_body.append('    FINISH_TRACE_PACKET();')
+                        func_body.append('        FINISH_TRACE_PACKET();')
 
                         # Else half of g_bTraceFunc conditional
                         # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
