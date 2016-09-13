@@ -203,7 +203,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
 #endif // ANDROID
 }
 
-int vkreplay_main(int argc, char **argv, ANativeWindow* window)
+int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
 {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
@@ -308,7 +308,7 @@ int vkreplay_main(int argc, char **argv, ANativeWindow* window)
     // Create window. Initial size is 100x100. It will later get resized to the size
     // used by the traced app. The resize will happen  during playback of swapchain functions.
 #if defined(PLATFORM_LINUX)
-    vktrace_replay::ReplayDisplay disp(100, 100, 0, window/*, false*/);
+    vktrace_replay::ReplayDisplay disp(100, 100, 0, false, window);
 #elif defined(WIN32)
     RECT dp;
     GetWindowRect(GetDesktopWindow(), &dp);
@@ -489,7 +489,7 @@ void android_main(struct android_app *app)
     //     return;
     // }
     //
- 
+
     app->onAppCmd = processCommand;
     app->onInputEvent = processInput;
 
@@ -526,10 +526,10 @@ void android_main(struct android_app *app)
             for (int i = 0; i < argc; i++)
                 __android_log_print(ANDROID_LOG_INFO, appTag, "argv[%i] = %s", i, argv[i]);
 
-	    // sleep to allow attaching debugger
-	    sleep(10);
+            // sleep to allow attaching debugger
+            //sleep(10);
 
-	    // Call into common code
+            // Call into common code
             int err = vkreplay_main(argc, argv, app->window);
             __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
 
@@ -537,7 +537,7 @@ void android_main(struct android_app *app)
             free(argv);
 
             return;
-	}
+        }
     }
 }
 
