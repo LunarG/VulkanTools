@@ -6,9 +6,11 @@ set -e
 GLSLANG_REVISION=$(cat "${PWD}"/glslang_revision)
 SPIRV_TOOLS_REVISION=$(cat "${PWD}"/spirv-tools_revision)
 SPIRV_HEADERS_REVISION=$(cat "${PWD}"/spirv-headers_revision)
+JSONCPP_REVISION=$(cat "${PWD}"/jsoncpp_revision)
 echo "GLSLANG_REVISION=${GLSLANG_REVISION}"
 echo "SPIRV_TOOLS_REVISION=${SPIRV_TOOLS_REVISION}"
 echo "SPIRV_HEADERS_REVISION=${SPIRV_HEADERS_REVISION}"
+echo "JSONCPP_REVISION=${JSONCPP_REVISION}"
 
 LUNARGLASS_REVISION=$(cat "${PWD}"/LunarGLASS_revision)
 echo "LUNARGLASS_REVISION=$LUNARGLASS_REVISION"
@@ -129,26 +131,42 @@ function build_spirv-tools () {
    make -j $(nproc)
 }
 
-# If any options are provided, just compile those tools
-# If no options are provided, build everything
+function create_jsoncpp () {
+   rm -rf ${BASEDIR}/jsoncpp
+   echo "Creating local jsoncpp repository (${BASEDIR}/jsoncpp)."
+   mkdir -p ${BASEDIR}/jsoncpp
+   cd ${BASEDIR}/jsoncpp
+   git clone https://github.com/open-source-parsers/jsoncpp.git .
+   git checkout ${JSONCPP_REVISION}
+}
+
+function update_jsoncpp () {
+   echo "Updating ${BASEDIR}/jsoncpp"
+   cd ${BASEDIR}/jsoncpp
+   git fetch --all
+   git checkout ${JSONCPP_REVISION}
+}
+
+function build_jsoncpp () {
+   echo "Building ${BASEDIR}/jsoncpp"
+   cd ${BASEDIR}/jsoncpp
+   python amalgamate.py
+}
+
 INCLUDE_GLSLANG=false
 INCLUDE_SPIRV_TOOLS=false
+INCLUDE_LUNARGLASS=false
+INCLUDE_JSONCPP=false
 
 if [ "$#" == 0 ]; then
-  echo "Building glslang, spirv-tools"
+  # If no options are provided, build everything
+  echo "Building glslang, spirv-tools, LunarGLASS, and jsoncpp"
   INCLUDE_GLSLANG=true
   INCLUDE_SPIRV_TOOLS=true
-fi
-
-# If any options are provided, just compile those tools
-# If no options are provided, build everything
-INCLUDE_LUNARGLASS=false
-
-if [ "$#" == 0 ]; then
-  echo "Building LunarGLASS"
   INCLUDE_LUNARGLASS=true
+  INCLUDE_JSONCPP=true
 else
-  # Parse options
+  # If any options are provided, just compile those tools
   while [[ $# > 0 ]]
   do
     option="$1"
@@ -159,22 +177,32 @@ else
         INCLUDE_GLSLANG=true
         echo "Building glslang ($option)"
         ;;
+
         # options to specify build of spirv-tools components
         -s|--spirv-tools)
         INCLUDE_SPIRV_TOOLS=true
         echo "Building spirv-tools ($option)"
-	;;
+        ;;
+
         # options to specify build of LunarGLASS components
         -l|--LunarGLASS)
         INCLUDE_LUNARGLASS=true
         echo "Building LunarGLASS ($option)"
         ;;
+
+        # options to specify build of jsoncpp components
+        -j|--jsoncpp)
+        INCLUDE_JSONCPP=true
+        echo "Building jsoncpp ($option)"
+        ;;
+
         *)
         echo "Unrecognized option: $option"
         echo "Try the following:"
         echo " -g | --glslang      # enable glslang"
         echo " -s | --spirv-tools  # enable spirv-tools"
         echo " -l | --LunarGLASS   # enable LunarGLASS"
+        echo " -j | --jsoncpp      # enable jsoncpp"
         exit 1
         ;;
     esac
@@ -190,7 +218,6 @@ if [ ${INCLUDE_GLSLANG} == "true" ]; then
   build_glslang
 fi
 
-
 if [ ${INCLUDE_SPIRV_TOOLS} == "true" ]; then
     if [ ! -d "${BASEDIR}/spirv-tools" -o ! -d "${BASEDIR}/spirv-tools/.git" ]; then
        create_spirv-tools
@@ -198,6 +225,7 @@ if [ ${INCLUDE_SPIRV_TOOLS} == "true" ]; then
     update_spirv-tools
     build_spirv-tools
 fi
+
 if [ $INCLUDE_LUNARGLASS == "true" ]; then
     if [ ! -d "${BASEDIR}/LunarGLASS" -o ! -d "${BASEDIR}/LunarGLASS/.git" ]; then
        create_LunarGLASS
@@ -206,3 +234,10 @@ if [ $INCLUDE_LUNARGLASS == "true" ]; then
     build_LunarGLASS
 fi
 
+if [ ${INCLUDE_JSONCPP} == "true" ]; then
+    if [ ! -d "${BASEDIR}/jsoncpp" -o ! -d "${BASEDIR}/jsoncpp/.git" ]; then
+       create_jsoncpp
+    fi
+    update_jsoncpp
+    build_jsoncpp
+fi
