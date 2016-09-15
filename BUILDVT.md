@@ -93,8 +93,8 @@ Windows 7+ with additional required software packages:
   - You may use ImageMagick-6 or ImageMagick-7 releases
   - Install each a 32-bit and a 64-bit version, as the 64-bit installer does not install the 32-bit libraries and tools.
     - Here are some helpful links (warning they may go out of date with a newer ImageMagick).
-      - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x64-dll.exe
-      - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x86-dll.exe
+      - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-7.0.3-1-Q16-x64-dll.exe
+      - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-7.0.3-1-Q16-x86-dll.exe
   - For each of the installs, be sure to **check** the following boxes:
       - "Install legacy utilities (e.g. convert)"
       - "Install development headers and libraries for C and C++"
