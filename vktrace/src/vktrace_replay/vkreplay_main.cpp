@@ -477,15 +477,11 @@ void android_main(struct android_app *app)
 
     const char* appTag = "vkreplay";
 
-    // Right now we are linking against libvulkan.so from the NDK, which requries API-24.  Come back and hook up the
-    // wrapper if we want to support earlier Android versions.
-    //
-    // int vulkanSupport = InitVulkan();
-    // if (vulkanSupport == 0) {
-    //     __android_log_print(ANDROID_LOG_ERROR, appTag, "No Vulkan support found");
-    //     return;
-    // }
-    //
+    int vulkanSupport = InitVulkan();
+    if (vulkanSupport == 0) {
+        __android_log_print(ANDROID_LOG_ERROR, appTag, "No Vulkan support found");
+        return;
+    }
 
     app->onAppCmd = processCommand;
     app->onInputEvent = processInput;
