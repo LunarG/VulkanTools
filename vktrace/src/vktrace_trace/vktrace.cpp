@@ -172,16 +172,6 @@ int main(int argc, char* argv[])
         {
             validArgs = FALSE;
         }
-        else
-        {
-            size_t len = strlen(g_settings.output_trace);
-            if (strncmp(&g_settings.output_trace[len-8], ".vktrace", 8) != 0)
-            {
-                // output trace filename does not end in .vktrace
-                vktrace_LogError("Output trace file specified with -o parameter must have a '.vktrace' extension.");
-                validArgs = FALSE;
-            }
-        }
 
         if (strcmp(g_settings.verbosity, "quiet") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_NONE);
@@ -200,7 +190,7 @@ int main(int argc, char* argv[])
             vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
             validArgs = FALSE;
         }
-		vktrace_set_global_var("_VK_TRACE_VERBOSITY", g_settings.verbosity);
+        vktrace_set_global_var("_VK_TRACE_VERBOSITY", g_settings.verbosity);
 
         if (validArgs == FALSE)
         {

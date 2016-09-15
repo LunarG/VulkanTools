@@ -256,11 +256,6 @@ int vktraceviewer_QGenerateTraceDialog::exec()
 
 QString vktraceviewer_QGenerateTraceDialog::get_trace_file_path()
 {
-    // make sure it has the correct extension
-    if (!m_pTraceFileLineEdit->text().endsWith(".vktrace"))
-    {
-        m_pTraceFileLineEdit->setText(m_pTraceFileLineEdit->text() + ".vktrace");
-    }
     return m_pTraceFileLineEdit->text();
 }
 
@@ -318,7 +313,7 @@ void vktraceviewer_QGenerateTraceDialog::on_findTraceFileButton_clicked()
 {
     // open file dialog
     QString suggestedName = m_pTraceFileLineEdit->text();
-    QString selectedName = QFileDialog::getSaveFileName(this, tr("Output Trace File"), suggestedName, tr("vktrace file (*.vktrace)"));
+    QString selectedName = QFileDialog::getSaveFileName(this, tr("Output Trace File"), suggestedName, tr("vktrace file (*.vktrace *.*)"));
     if (!selectedName.isEmpty())
     {
         m_pTraceFileLineEdit->setText(selectedName);
