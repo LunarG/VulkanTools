@@ -28,39 +28,39 @@ namespace trim
     // FALSE: Use normal object tracking to create only the necessary resources
 #define TRIM_USE_ORDERED_IMAGE_CREATION TRUE
 
-    void trim_initialize();
+    void initialize();
 
     // Use this to snapshot the global state tracker at the start of the trim frames.
-    void trim_snapshot_state_tracker();
+    void snapshot_state_tracker();
 
     // Outputs object-related trace packets to the trace file.
-    void trim_write_all_referenced_object_calls();
-    void trim_add_recorded_packet(vktrace_trace_packet_header* pHeader);
-    void trim_write_recorded_packets();
-    void trim_write_destroy_packets();
-    void trim_delete_all_packets();
+    void write_all_referenced_object_calls();
+    void add_recorded_packet(vktrace_trace_packet_header* pHeader);
+    void write_recorded_packets();
+    void write_destroy_packets();
+    void delete_all_packets();
 
-    void trim_add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
-    void trim_remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
+    void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
+    void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
-    void trim_reset_DescriptorPool(VkDescriptorPool descriptorPool);
+    void reset_DescriptorPool(VkDescriptorPool descriptorPool);
 
-    VkMemoryPropertyFlags Trim_LookUpMemoryProperties(VkDevice device, uint32_t memoryTypeIndex);
+    VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTypeIndex);
 
     // check if a memory type on the physical device is only DEVICE_LOCAL and not HOST_VISIBLE
-    bool trim_IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
+    bool IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
 
-    VkImageAspectFlags trim_getImageAspectFromFormat(VkFormat format);
+    VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
 
 #if TRIM_USE_ORDERED_IMAGE_CREATION
-    void trim_add_Image_call(vktrace_trace_packet_header* pHeader);
+    void add_Image_call(vktrace_trace_packet_header* pHeader);
 #endif //TRIM_USE_ORDERED_IMAGE_CREATION
 
     // Typically an application will have one VkAllocationCallbacks struct and 
     // will pass in that same address as needed, so we'll keep a map to correlate
     // the supplied address to the AllocationCallbacks object
-    void trim_add_Allocator(const VkAllocationCallbacks* pAllocator);
-    VkAllocationCallbacks* trim_get_Allocator(const VkAllocationCallbacks* pAllocator);
+    void add_Allocator(const VkAllocationCallbacks* pAllocator);
+    VkAllocationCallbacks* get_Allocator(const VkAllocationCallbacks* pAllocator);
 
     // some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).
     typedef struct _Trim_ObjectInfo
@@ -245,17 +245,17 @@ namespace trim
                 const VkAllocationCallbacks* pAllocator;
             } QueryPool;
         } ObjectInfo;
-    } Trim_ObjectInfo;
+    } ObjectInfo;
 
-    typedef std::unordered_map<void*, Trim_ObjectInfo> TrimObjectInfoMap;
+    typedef std::unordered_map<void*, ObjectInfo> TrimObjectInfoMap;
 
 #define TRIM_DECLARE_OBJECT_TRACKERS(type) \
     TrimObjectInfoMap created##type##s; 
 
 #define TRIM_DECLARE_OBJECT_TRACKER_FUNCS(type) \
-    Trim_ObjectInfo* trim_add_##type##_object(Vk##type var); \
-    void trim_remove_##type##_object(Vk##type var); \
-    Trim_ObjectInfo* trim_get_##type##_objectInfo(Vk##type var);
+    ObjectInfo* add_##type##_object(Vk##type var); \
+    void remove_##type##_object(Vk##type var); \
+    ObjectInfo* get_##type##_objectInfo(Vk##type var);
 
     typedef struct _Trim_StateTracker
     {
@@ -286,7 +286,7 @@ namespace trim
         TRIM_DECLARE_OBJECT_TRACKERS(Sampler);
         TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSetLayout);
         TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSet);
-    } Trim_StateTracker;
+    } StateTracker;
 
     TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Instance);
     TRIM_DECLARE_OBJECT_TRACKER_FUNCS(PhysicalDevice);
