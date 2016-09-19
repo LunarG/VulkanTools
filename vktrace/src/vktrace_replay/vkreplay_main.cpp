@@ -274,6 +274,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    //set global version num
+    vktrace_set_trace_version(fileHeader.trace_file_version);
+
     // Make sure trace file version is supported
     if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE)
     {

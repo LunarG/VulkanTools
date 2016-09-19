@@ -875,7 +875,7 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse* p
     VkSparseMemoryBind *pRemappedBufferMemories = NULL;
     VkSparseMemoryBind *pRemappedImageOpaqueMemories = NULL;
     VkSemaphore *pRemappedWaitSems = NULL;
-    VkSemaphore	*pRemappedSignalSems = NULL;
+    VkSemaphore *pRemappedSignalSems = NULL;
     VkSparseImageMemoryBindInfo* sIMBinf = NULL;
     VkSparseBufferMemoryBindInfo* sBMBinf = NULL;
     VkSparseImageOpaqueMemoryBindInfo* sIMOBinf = NULL;
@@ -989,7 +989,7 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse* p
         if (remappedBindSparseInfos[bindInfo_idx].pWaitSemaphores != NULL) {
             pRemappedWaitSems = VKTRACE_NEW_ARRAY(VkSemaphore, remappedBindSparseInfos[bindInfo_idx].waitSemaphoreCount);
             remappedBindSparseInfos[bindInfo_idx].pWaitSemaphores = pRemappedWaitSems;
-	        for (uint32_t i = 0; i < remappedBindSparseInfos[bindInfo_idx].waitSemaphoreCount; i++) {
+            for (uint32_t i = 0; i < remappedBindSparseInfos[bindInfo_idx].waitSemaphoreCount; i++) {
                 (*(pRemappedWaitSems + i)) = m_objMapper.remap_semaphores((*(remappedBindSparseInfos[bindInfo_idx].pWaitSemaphores + i)));
                 if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE) {
                     vktrace_LogError("Skipping vkQueueSubmit() due to invalid remapped wait VkSemaphore.");
@@ -2503,6 +2503,7 @@ BOOL isvkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData)
     }
     return bRet;
 }
+
 //after OPT speed up, the format of this packet will be different with before, the packet now only include changed block(page).
 //
 VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket)
@@ -2537,7 +2538,10 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
             if (pPacket->pMemoryRanges[i].size != 0)
             {
 #ifdef USE_PAGEGUARD_SPEEDUP
-                pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
+                if(vktrace_check_min_version(VKTRACE_TRACE_FILE_VERSION_5))
+                    pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
+                else
+                    pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
 #else
                 pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
 #endif
@@ -2552,7 +2556,10 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
             }
             pLocalMems[i].pGpuMem->setMemoryDataAddr(pBuf);
 #ifdef USE_PAGEGUARD_SPEEDUP
-            pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
+            if(vktrace_check_min_version(VKTRACE_TRACE_FILE_VERSION_5))
+                pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
+            else
+                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
 #else
             pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size, (size_t)pPacket->pMemoryRanges[i].offset);
 #endif
@@ -2561,7 +2568,7 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
 
 #ifdef USE_PAGEGUARD_SPEEDUP
     replayResult = pPacket->result;//if this is a OPT refresh-all packet, we need avoid to call real api and return original return to avoid error message;
-    if (!isvkFlushMappedMemoryRangesSpecial((PBYTE)pPacket->ppData[0]))
+    if (!vktrace_check_min_version(VKTRACE_TRACE_FILE_VERSION_5) || !isvkFlushMappedMemoryRangesSpecial((PBYTE)pPacket->ppData[0]))
 #endif
     {
         replayResult = m_vkFuncs.real_vkFlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
