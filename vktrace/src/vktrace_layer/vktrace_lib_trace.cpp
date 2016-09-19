@@ -655,7 +655,7 @@ VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInf
     return chain_info;
 }
 
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
 extern "C" BOOL vktrace_pageguard_init_multi_threads_memcpy();
 extern "C" void vktrace_pageguard_done_multi_threads_memcpy();
 #endif
@@ -675,7 +675,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     SEND_ENTRYPOINT_ID(vkCreateInstance);
     startTime = vktrace_get_time();
 
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
     vktrace_pageguard_init_multi_threads_memcpy();
 #endif
 
@@ -748,7 +748,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     FINISH_TRACE_PACKET();
     g_instanceDataMap.erase(key);
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
 	vktrace_pageguard_done_multi_threads_memcpy();
 #endif
 }
