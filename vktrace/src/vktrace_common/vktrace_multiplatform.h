@@ -81,49 +81,22 @@ typedef struct {
 } VkIcdSurfaceXlib;
 #endif
 
-#if defined(PLATFORM_LINUX)
-#if defined(ANDROID)
-typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
-typedef struct xcb_connection_t xcb_connection_t;
-typedef uint32_t xcb_window_t;
-typedef uint32_t xcb_visualid_t;
-typedef struct VkXcbSurfaceCreateInfoKHR {
-    VkStructureType               sType;
-    const void*                   pNext;
-    VkXcbSurfaceCreateFlagsKHR    flags;
-    xcb_connection_t*             connection;
-    xcb_window_t                  window;
-} VkXcbSurfaceCreateInfoKHR;
-typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
-struct _XDisplay;
-typedef struct _XDisplay Display;
-typedef uint32_t CARD32;
-typedef CARD32 XID;
-typedef XID Window;
-typedef CARD32 VisualID;
-typedef struct VkXlibSurfaceCreateInfoKHR {
-    VkStructureType                sType;
-    const void*                    pNext;
-    VkXlibSurfaceCreateFlagsKHR    flags;
-    Display*                       dpy;
-    Window                         window;
-} VkXlibSurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateXcbSurfaceKHR)(VkInstance instance, const VkXcbSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, xcb_connection_t* connection, xcb_visualid_t visual_id);
-typedef VkResult (VKAPI_PTR *PFN_vkCreateXlibSurfaceKHR)(VkInstance instance, const VkXlibSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, Display* dpy, VisualID visualID);
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
+typedef VkFlags VkAndroidSurfaceCreateFlagsKHR;
+typedef uint32_t* ANativeWindow;
+typedef struct VkAndroidSurfaceCreateInfoKHR {
+    VkStructureType                   sType;
+    const void*                       pNext;
+    VkAndroidSurfaceCreateFlagsKHR    flags;
+    ANativeWindow*                    window;
+} VkAndroidSurfaceCreateInfoKHR;
+typedef VkResult (VKAPI_PTR *PFN_vkCreateAndroidSurfaceKHR)(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
 typedef struct {
-    VkIcdSurfaceBase base;
-    xcb_connection_t *connection;
-    xcb_window_t window;
-} VkIcdSurfaceXcb;
-typedef struct {
-    VkIcdSurfaceBase base;
-    Display *dpy;
-    Window window;
-} VkIcdSurfaceXlib;
-#endif // ANDROID
+  ANativeWindow* window;
+} VkIcdSurfaceAndroid;
+#endif
 
+#if defined(PLATFORM_LINUX)
 typedef void* HINSTANCE;
 typedef void* HWND;
 typedef void* HANDLE;
@@ -139,21 +112,6 @@ typedef VkResult (VKAPI_PTR *PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, c
 typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
 
 #endif
-
-#if !defined(ANDROID)
-typedef VkFlags VkAndroidSurfaceCreateFlagsKHR;
-typedef uint32_t* ANativeWindow;
-typedef struct VkAndroidSurfaceCreateInfoKHR {
-    VkStructureType                   sType;
-    const void*                       pNext;
-    VkAndroidSurfaceCreateFlagsKHR    flags;
-    ANativeWindow*                    window;
-} VkAndroidSurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateAndroidSurfaceKHR)(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef struct {
-  ANativeWindow* window;
-} VkIcdSurfaceAndroid;
-#endif // ANDROID
 
 #ifdef __cplusplus
 }

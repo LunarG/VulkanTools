@@ -3354,7 +3354,8 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR
     m_display->get_window_handle();
     return (m_vkFuncs.real_vkGetPhysicalDeviceXcbPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->connection, m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
-    // TODO
+    // This is not defined for Android
+    return VK_TRUE;
 #elif defined PLATFORM_LINUX
 #error manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR on PLATFORM_LINUX requires one of VK_USE_PLATFORM_XLIB_KHR or VK_USE_PLATFORM_XCB_KHR or VK_USE_PLATFORM_ANDROID_KHR
 #elif defined WIN32
