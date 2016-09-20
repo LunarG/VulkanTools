@@ -820,7 +820,6 @@ namespace trim
 
         VkCommandPool commandPool;
         VkCommandBuffer commandBuffer;
-        VkFence fence;
         VkQueue queue;
     };
 
@@ -837,7 +836,6 @@ namespace trim
 
         std::unordered_map<VkDevice, VkCommandPool> deviceToCommandPoolMap;
         std::unordered_map<VkDevice, VkCommandBuffer> deviceToCommandBufferMap;
-        std::unordered_map<VkDevice, VkFence> deviceToFenceMap;
 
         VkInstance instance = VK_NULL_HANDLE;
         if (s_trimStateTrackerSnapshot.createdInstances.size() > 0)
@@ -922,24 +920,6 @@ namespace trim
             commandBufferBeginInfo.flags = 0;
             VkResult result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
             assert(result == VK_SUCCESS);
-
-            // Find or create a Fence for this device
-            if (deviceToFenceMap.find(device) == deviceToFenceMap.end())
-            {
-                // create a new fence on the device
-                VkFenceCreateInfo fenceCreateInfo;
-                fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-                fenceCreateInfo.pNext = NULL;
-                fenceCreateInfo.flags = 0;
-
-                VkFence fence = VK_NULL_HANDLE;
-                VkResult result = mdd(device)->devTable.CreateFence(device, &fenceCreateInfo, NULL, &fence);
-                assert(result == VK_SUCCESS);
-                if (result == VK_SUCCESS)
-                {
-                    deviceToFenceMap[device] = fence;
-                }
-            }
         }
 
         // 2a) Transition all images into host-readable state.
@@ -1000,7 +980,6 @@ namespace trim
 
                 stagingInfo.commandPool = deviceToCommandPoolMap[device];
                 stagingInfo.commandBuffer = commandBuffer;
-                stagingInfo.fence = deviceToFenceMap[device];
                 mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &stagingInfo.queue);
 
                 stagingInfo.bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1082,14 +1061,9 @@ namespace trim
             // Submit the queue and wait for it to complete
             VkQueue queue = VK_NULL_HANDLE;
             mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
-            VkFence fence = deviceToFenceMap[device];
-            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, fence);
-            VkResult waitResult = mdd(device)->devTable.WaitForFences(device, 1, &fence, VK_TRUE, 10 * 1000 * 1000);
+            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
             assert(waitResult == VK_SUCCESS);
-            if (waitResult == VK_SUCCESS)
-            {
-                mdd(device)->devTable.ResetFences(device, 1, &fence);
-            }
         }
 
         // 4a) Map, copy, unmap each image.
@@ -1374,14 +1348,9 @@ namespace trim
             VkQueue queue = VK_NULL_HANDLE;
             mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
 
-            VkFence fence = deviceToFenceMap[device];
-            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, fence);
-            VkResult waitResult = mdd(device)->devTable.WaitForFences(device, 1, &fence, VK_TRUE, 10 * 1000 * 1000);
+            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
             assert(waitResult == VK_SUCCESS);
-            if (waitResult == VK_SUCCESS)
-            {
-                mdd(device)->devTable.ResetFences(device, 1, &fence);
-            }
         }
 
         // 8) destroy the command pools / command buffers and fences
@@ -1400,12 +1369,6 @@ namespace trim
             mdd(device)->devTable.ResetCommandPool(device, commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
             mdd(device)->devTable.DestroyCommandPool(device, commandPool, NULL);
             deviceToCommandPoolMap.erase(device);
-
-            // fences
-            assert(deviceToFenceMap.find(device) != deviceToFenceMap.end());
-            VkFence fence = deviceToFenceMap[device];
-            mdd(device)->devTable.DestroyFence(device, fence, NULL);
-            deviceToFenceMap.erase(device);
         }
     
         // Now: generate a vkMapMemory to recreate the persistently mapped buffers
@@ -1999,16 +1962,6 @@ namespace trim
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
-                // create fence
-                VkFenceCreateInfo fenceCreateInfo = {};
-                fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-                fenceCreateInfo.pNext = NULL;
-                fenceCreateInfo.flags = 0;
-
-                pHeader = generate_vkCreateFence(false, device, &fenceCreateInfo, NULL, &stagingInfo.fence);
-                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pHeader);
-
                 // Queue submit the command buffer
                 VkSubmitInfo submitInfo = {};
                 submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -2021,16 +1974,12 @@ namespace trim
                 submitInfo.pWaitSemaphores = NULL;
                 submitInfo.waitSemaphoreCount = 0;
 
-                pHeader = generate_vkQueueSubmit(false, device, stagingInfo.queue, 1, &submitInfo, stagingInfo.fence);
+                pHeader = generate_vkQueueSubmit(false, device, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
                 // wait for queue to finish
-                pHeader = generate_vkWaitForFences(false, device, 1, &stagingInfo.fence, VK_TRUE, 10 * 1000 * 1000);
-                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pHeader);
-
-                pHeader = generate_vkResetFences(false, device, 1, &stagingInfo.fence);
+                pHeader = generate_vkQueueWaitIdle(false, device, stagingInfo.queue);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
