@@ -29,6 +29,7 @@ static const size_t SIZE_LIMIT_TO_USE_OPTIMIZATION = 1048576; //turn off optimiz
 bool vktrace_sem_create(vktrace_sem_id *sem_id, uint32_t initvalue)
 {
     bool sem_create_ok = false;
+#if defined(USE_PAGEGUARD_SPEEDUP)
 #if defined(WIN32)
     static const uint32_t maxValue=0x40000; // Posix doesn't have this value in its sem_create interface, but windows have it. here we also don't need this value, so give it a value that's has no limit for this case.
     HANDLE sid = CreateSemaphore(NULL, initvalue, maxValue, NULL);
@@ -48,35 +49,42 @@ bool vktrace_sem_create(vktrace_sem_id *sem_id, uint32_t initvalue)
         }
     }
 #endif
+#endif // USE_PAGEGUARD_SPEEDUP
     return sem_create_ok;
 }
 
 void vktrace_sem_delete(vktrace_sem_id sid)
 {
+#if defined(USE_PAGEGUARD_SPEEDUP)
 #if defined(WIN32)
     CloseHandle(sid);
 #else
     sem_close(sid);
     delete (sem_t *)sid;
 #endif
+#endif // USE_PAGEGUARD_SPEEDUP
 }
 
 void vktrace_sem_wait(vktrace_sem_id sid)
 {
+#if defined(USE_PAGEGUARD_SPEEDUP)
 #if defined(WIN32)
     WaitForSingleObject(sid, INFINITE);
 #else
     sem_wait(sid);
 #endif
+#endif // USE_PAGEGUARD_SPEEDUP
 }
 
 void vktrace_sem_post(vktrace_sem_id sid)
 {
+#if defined(USE_PAGEGUARD_SPEEDUP)
 #if defined(WIN32)
     ReleaseSemaphore(sid, 1, NULL);
 #else
     sem_post(sid);
 #endif
+#endif // USE_PAGEGUARD_SPEEDUP
 }
 
 #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
