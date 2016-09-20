@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-//OPT: Optimization by using page-guard for speed up capture 
+//OPT: Optimization by using page-guard for speed up capture
 //     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from beginning to the game menu.
 //     The reason that caused such slow capture is DOOM updates a big mapped memory(over 67M) frequently, vktrace copies this memory block to harddrive when DOOM calls vkFlushmappedMemory to update it every time.
 //     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
@@ -53,7 +53,7 @@ VkDeviceSize& PageGuardMappedMemory::getMappedSize()
 
 PageGuardMappedMemory::PageGuardMappedMemory()
     :MappedDevice(nullptr),
-    MappedMemory(nullptr),
+    MappedMemory((VkDeviceMemory)nullptr),
     pRealMappedData(nullptr),
     pChangedDataPackage(nullptr),
     pMappedData(nullptr),
@@ -332,7 +332,7 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
 #endif
         delete pPageStatus;
         pPageStatus = nullptr;
-        MappedMemory = nullptr;
+        MappedMemory =(VkDeviceMemory)nullptr;
         MappedSize = 0;
     }
 }
@@ -384,7 +384,7 @@ bool PageGuardMappedMemory::isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDev
 //for output,
 //if pData!=nullptr,the pData + Offset is head addr of an array of PageGuardChangedBlockInfo, the [0] is block amount, size (size for all changed blocks which amount is block amount),then block1 offset,block1 size...., 
 //               the block? offset is  this changed block offset to mapped memory head addr,the array followed by changed blocks data
-//                                     
+//
 //if pData==nullptr, only get size
 //DWORD *pdwSaveSize, the size of all changed blocks
 //DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo

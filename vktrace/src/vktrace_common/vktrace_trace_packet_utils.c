@@ -43,7 +43,7 @@ void vktrace_gen_uuid(uint32_t* pUuid)
 {
     uint32_t buf[] = { 0xABCDEF, 0x12345678, 0xFFFECABC, 0xABCDDEF0 };
     vktrace_platform_rand_s(buf, sizeof(buf)/sizeof(uint32_t));
-    
+
     pUuid[0] = buf[0];
     pUuid[1] = buf[1];
     pUuid[2] = buf[2];
@@ -184,7 +184,11 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         assert(((uint64_t)*ptr_address&0x3) == 0);
 
         // copy buffer to the location
+#ifdef WIN32
         opt_memcpy(*ptr_address, pBuffer, (size_t)size);
+#else
+        memcpy(*ptr_address, pBuffer, (size_t)size);
+#endif
     }
 }
 

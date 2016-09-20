@@ -674,8 +674,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     uint64_t vktraceStartTime = vktrace_get_time();
     SEND_ENTRYPOINT_ID(vkCreateInstance);
     startTime = vktrace_get_time();
-	
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB	
+
+#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
     vktrace_pageguard_init_multi_threads_memcpy();
 #endif
 
@@ -1323,7 +1323,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(
     result = mdd(device)->devTable.GetPipelineCacheData(device, pipelineCache, pDataSize, pData);
     endTime = vktrace_get_time();
     assert(pDataSize);
-    CREATE_TRACE_PACKET(vkGetPipelineCacheData, sizeof(size_t)  + *pDataSize );
+    CREATE_TRACE_PACKET(vkGetPipelineCacheData, sizeof(size_t) + ROUNDUP_TO_4(*pDataSize));
     pHeader->vktrace_begin_time = vktraceStartTime;
     pHeader->entrypoint_begin_time = startTime;
     pHeader->entrypoint_end_time = endTime;
@@ -1332,7 +1332,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(
     pPacket->device = device;
     pPacket->pipelineCache = pipelineCache;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDataSize), sizeof(size_t), pDataSize);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), *pDataSize, pData);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), ROUNDUP_TO_4(*pDataSize), pData);
     pPacket->result = result;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
@@ -1421,7 +1421,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
     }
     CREATE_TRACE_PACKET(vkCreateComputePipelines, total_size);*/
     CREATE_TRACE_PACKET(vkCreateComputePipelines, createInfoCount*sizeof(VkComputePipelineCreateInfo) + getVkComputePipelineCreateInfosAdditionalSize( createInfoCount, pCreateInfos) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline));
-	
+
     result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreateComputePipelines(pHeader);
@@ -1449,13 +1449,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreatePipelineCache* pPacket = NULL;
-    CREATE_TRACE_PACKET(vkCreatePipelineCache, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkPipelineCache));
+    // Need to round up the size when we create the packet because pCreateInfo->initialDataSize may not be a mult of 4
+    CREATE_TRACE_PACKET(vkCreatePipelineCache, ROUNDUP_TO_4(get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkPipelineCache)));
     result = mdd(device)->devTable.CreatePipelineCache(device, pCreateInfo, pAllocator, pPipelineCache);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreatePipelineCache(pHeader);
     pPacket->device = device;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkPipelineCacheCreateInfo), pCreateInfo);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData), pPacket->pCreateInfo->initialDataSize, pCreateInfo->pInitialData);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData), ROUNDUP_TO_4(pPacket->pCreateInfo->initialDataSize), pCreateInfo->pInitialData);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelineCache), sizeof(VkPipelineCache), pPipelineCache);
     pPacket->result = result;

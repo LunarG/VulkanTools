@@ -121,7 +121,7 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
                 }
 
 #ifdef USE_STATIC_CONTROLLER_LIBRARY
-            vtvDeleteQController(m_pController);
+            vtvDeleteQController(&m_pController);
 #else
             m_controllerFactory.Unload(&m_pController);
 #endif

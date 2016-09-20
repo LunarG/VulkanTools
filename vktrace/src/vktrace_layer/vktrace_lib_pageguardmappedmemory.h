@@ -40,7 +40,7 @@ private:
     VkDevice MappedDevice;
     VkDeviceMemory MappedMemory;
     VkDeviceSize MappedOffset;
-    PBYTE pMappedData; /// point to mapped memory in app process, if pRealMappedData==nullptr, pMappedData point to real mapped memory, 
+    PBYTE pMappedData; /// point to mapped memory in app process, if pRealMappedData==nullptr, pMappedData point to real mapped memory,
     /// if pRealMappedData!=nullptr, pMappedData point to real mapped memory copy, the copy can be added page guard
     PBYTE pRealMappedData; /// point to real mapped memory in app process
     PBYTE pChangedDataPackage; /// if not nullptr, it point to a package which include changed info array and changed data block, allocated by this class
@@ -108,7 +108,7 @@ public:
     /// for output,
     /// if pData!=nullptr,the pData + Offset is head addr of an array of PageGuardChangedBlockInfo, the [0] is block amount, size (size for all changed blocks which amount is block amount),then block1 offset,block1 size...., 
     ///               the block? offset is  this changed block offset to mapped memory head addr,the array followed by changed blocks data
-    ///                                     
+    ///
     /// if pData==nullptr, only get size
     /// DWORD *pdwSaveSize, the size of all changed blocks
     /// DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo

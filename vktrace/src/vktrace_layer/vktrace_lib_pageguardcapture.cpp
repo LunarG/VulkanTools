@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-//OPT: Optimization by using page-guard for speed up capture 
+//OPT: Optimization by using page-guard for speed up capture
 //     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from beginning to the game menu.
 //     The reason that caused such slow capture is DOOM updates a big mapped memory(over 67M) frequently, vktrace copies this memory block to harddrive when DOOM calls vkFlushmappedMemory to update it every time.
 //     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 

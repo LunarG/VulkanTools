@@ -47,7 +47,7 @@ void pageguardExit()
 #define PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
 
 //PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY is a compile flag for add page guard on real mapped memory.
-//If comment this flag, pageguard will be added on a copy of mapped memory, with the flag, page guard will be added to 
+//If comment this flag, pageguard will be added on a copy of mapped memory, with the flag, page guard will be added to
 //real mapped memory.
 //for some hareware, add to mapped memory not the copy of it may not be allowed, so turn on this flag just for you are already sure page guard can work on that hardware.
 //If add page guard to the copy of mapped memory, it's always allowed but need to do synchonization between the mapped memory and its copy.
@@ -268,14 +268,13 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
             }
             else
             {
-                
+
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
                 memcpy(pBlock, pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize, pMappedMem->getMappedBlockSize(index));
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
 
                 resultCode = EXCEPTION_CONTINUE_EXECUTION;
 #else
-                
                 pMappedMem->setMappedBlockChanged(index, true);
                 resultCode = EXCEPTION_CONTINUE_EXECUTION;
 #endif

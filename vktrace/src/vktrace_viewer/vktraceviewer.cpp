@@ -144,12 +144,15 @@ vktraceviewer::vktraceviewer(QWidget *parent)
 
     // setup timeline
     m_pTimeline = new vktraceviewer_QTimelineView();
-    m_pTimeline->setMinimumHeight(100);
-    connect(m_pTimeline, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slot_timeline_clicked(const QModelIndex &)));
-    ui->timelineLayout->addWidget(m_pTimeline);
-    ui->timelineLayout->removeWidget(ui->timelineViewPlaceholder);
-    delete ui->timelineViewPlaceholder;
-    ui->timelineViewPlaceholder = NULL;
+    if (m_pTimeline != NULL)
+    {
+        m_pTimeline->setMinimumHeight(100);
+        connect(m_pTimeline, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slot_timeline_clicked(const QModelIndex &)));
+        ui->timelineLayout->addWidget(m_pTimeline);
+        ui->timelineLayout->removeWidget(ui->timelineViewPlaceholder);
+        delete ui->timelineViewPlaceholder;
+        ui->timelineViewPlaceholder = NULL;
+    }
 
     m_pGenerateTraceDialog = new vktraceviewer_QGenerateTraceDialog(this);
     connect(m_pGenerateTraceDialog, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)), this, SLOT(OnOutputMessage(VktraceLogLevel, const QString&)));
@@ -242,7 +245,10 @@ void vktraceviewer::set_calltree_model(vktraceviewer_QTraceFileModel* pTraceFile
     m_pTraceFileModel = pTraceFileModel;
     m_pProxyModel = pModel;
 
-    m_pTimeline->setModel(pTraceFileModel);
+    if (m_pTimeline != NULL)
+    {
+        m_pTimeline->setModel(pTraceFileModel);
+    }
 
     if (pModel == NULL)
     {
@@ -361,7 +367,7 @@ void vktraceviewer::highlight_timeline_item(unsigned long long packetArrayIndex,
     {
         QModelIndex location = m_pTraceFileModel->index(packetArrayIndex, 0);
 
-        if (m_pTimeline->currentIndex() != location)
+        if (m_pTimeline != NULL && m_pTimeline->currentIndex() != location)
         {
             // scroll to the index
             if (bScrollTo)
@@ -389,7 +395,10 @@ void vktraceviewer::on_replay_state_changed(bool bReplayInProgress)
     ui->searchNextButton->setEnabled(bEnableUi);
     ui->searchPrevButton->setEnabled(bEnableUi);
     ui->searchTextBox->setEnabled(bEnableUi);
-    m_pTimeline->setEnabled(bEnableUi);
+    if (m_pTimeline != NULL)
+    {
+        m_pTimeline->setEnabled(bEnableUi);
+    }
 }
 
 unsigned long long vktraceviewer::get_current_packet_index()
@@ -690,11 +699,11 @@ void vktraceviewer::close_trace_file()
 #ifndef USE_STATIC_CONTROLLER_LIBRARY
         m_controllerFactory.Unload(&m_pController);
 #else
-        vtvDeleteQController(m_pController);
+        vtvDeleteQController(&m_pController);
 #endif
     }
 
-    if (m_pTimeline->model() != NULL)
+    if (m_pTimeline != NULL && m_pTimeline->model() != NULL)
     {
         m_pTimeline->setModel(NULL);
         m_pTimeline->repaint();
@@ -930,7 +939,7 @@ void vktraceviewer::selectApicallModelIndex(QModelIndex index, bool scrollTo, bo
         }
     }
 
-    if (m_pTimeline->currentIndex() != index)
+    if (m_pTimeline != NULL && m_pTimeline->currentIndex() != index)
     {
         // scroll to the index
         if (scrollTo)

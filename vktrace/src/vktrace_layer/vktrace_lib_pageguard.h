@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-//  Optimization by using page-guard for speed up capture 
+//  Optimization by using page-guard for speed up capture
 //
 //  Background:
 //
@@ -26,19 +26,19 @@
 //  Page guard process:
 //
 //     1. The target app call map buffer and get a mapped memory pointer(for example pMemReal).
-//     
+//
 //     2. The capturer then allocates a duplicated memory of at least the same size(for example pMemCopy). Copies all data from pMemReal to pMemCopy
-//     
+//
 //     3. The capturer adds page guard to pMemCopy for every page.Then returns the pMemCopy(not pMemReal) to the target app.
 //
 //     4. When the target app uses pMemCopy to write, page guard will be triggered and page guard handler will records which page has been changed.
-//     
+//
 //     5. When the target app uses pMemCopy to read data, page guard will be triggered and page guard handler records which page the target app wants to read. And only copy that page from real mapped memory to copied memory so after page guard exception, target app will read right data.
-//     
+//
 //     6. When the target app calls CPU->GPU synchronization(vkFlushMappedMemoryRanges and submits queue), the capturer saves all changed pages and also copies back these changed pages to pMemReal from pMemCopy, resets all page guard which triggered by write.
-//     
+//
 //     7. When the target app calls GPU->CPU synchronization(vkInvalidateMappedMemoryRanges, also include vkQueueSubmit which is before that synchronization happen), clear all read array and resets all page guard which triggered by read.
-//     
+//
 //     8. When the target app calls to unmap the memory, the capturer saves all changed pages to HD and also copies back these changed pages to pMemReal from pMemCopy. Finally removes all page guards and frees pMemCopy.
 //
 //  Known limitations:
@@ -83,8 +83,6 @@ void pageguardEnter();
 void pageguardExit();
 
 
-
- 
 void setFlagTovkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData);
 
 
@@ -97,8 +95,8 @@ void resetAllReadFlagAndPageGuard();
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
 
 VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges);
-    
-PageGuardCapture& getPageGuardControlInstance();	
+
+PageGuardCapture& getPageGuardControlInstance();
 
 //page guard for windows end
 #else

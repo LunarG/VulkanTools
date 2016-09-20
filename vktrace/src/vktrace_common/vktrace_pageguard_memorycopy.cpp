@@ -79,9 +79,9 @@ void vktrace_sem_post(vktrace_sem_id sid)
 #endif
 }
 
-#if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB) 
+#if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
 
-#if defined(WIN32) 
+#if defined(WIN32)
 #define PARALLEL_INVOKE_NUM   10
 extern "C" void *opt_memcpy(void * destination, const void * source, size_t size)
 {
@@ -171,7 +171,7 @@ typedef struct
 bool vktrace_pageguard_create_thread(vktrace_pageguard_thread_id *ptid, vktrace_pageguard_thread_function_ptr pfunc, vktrace_pageguard_task_control_block *ptaskpara)
 {
     bool create_thread_ok = false;
-#if defined(WIN32) 
+#if defined(WIN32)
     DWORD dwThreadID;
     HANDLE thread_handle;
     thread_handle = CreateThread(NULL, 0,
@@ -202,7 +202,7 @@ bool vktrace_pageguard_create_thread(vktrace_pageguard_thread_id *ptid, vktrace_
 
 void vktrace_pageguard_join_thread(vktrace_pageguard_thread_id tid)
 {
-#if defined(WIN32) 
+#if defined(WIN32)
     WaitForSingleObject((HANDLE)tid, INFINITE);
 #else
     pthread_join((pthread_t)tid, NULL);
@@ -211,7 +211,7 @@ void vktrace_pageguard_join_thread(vktrace_pageguard_thread_id tid)
 
 void vktrace_pageguard_delete_thread(vktrace_pageguard_thread_id tid)
 {
-#if defined(WIN32) 
+#if defined(WIN32)
     DWORD  dwExitCode=0;
     TerminateThread((HANDLE)tid, dwExitCode);
 #else
@@ -222,7 +222,7 @@ void vktrace_pageguard_delete_thread(vktrace_pageguard_thread_id tid)
 int vktrace_pageguard_get_cpu_core_count()
 {
     int iret = 4;
-#if defined(WIN32) 
+#if defined(WIN32)
     SYSTEM_INFO sSysInfo;
     GetSystemInfo(&sSysInfo);
     iret = sSysInfo.dwNumberOfProcessors;

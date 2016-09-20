@@ -250,12 +250,12 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
     if (traceQueueFamilyProperties.find(tracePhysicalDevice) == traceQueueFamilyProperties.end() ||
         replayQueueFamilyProperties.find(replayPhysicalDevice) == replayQueueFamilyProperties.end())
     {
-        return false;
+        goto fail;
     }
 
     if (min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count) == 0)
     {
-        return false;
+        goto fail;
     }
 
     for (uint32_t i = 0; i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count); i++)
@@ -278,6 +278,8 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
         }
     }
 
+fail:
+    vktrace_LogError("Cannot determine queue family index - has vkGetPhysicalDeviceQueueFamilyProperties been called?");
     // Didn't find a match
     return false;
 }
@@ -1641,55 +1643,45 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     uint32_t i;
 
-    if (remappeddevice == VK_NULL_HANDLE)
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE)
     {
-        vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    VkPipelineCache remappedPipelineCache;
-    remappedPipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
-    if (pPacket->pipelineCache != VK_NULL_HANDLE && remappedPipelineCache == VK_NULL_HANDLE)
-    {
-        vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipelineCache.");
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
+    VkPipelineCache pipelineCache;
+    pipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
 
     VkComputePipelineCreateInfo* pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);
     memcpy((void*)pLocalCIs, (void*)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo)*pPacket->createInfoCount);
 
     // Fix up stage sub-elements
-    for (i = 0; i < pPacket->createInfoCount; i++)
+    for (i = 0; i<pPacket->createInfoCount; i++)
     {
         pLocalCIs[i].stage.module = m_objMapper.remap_shadermodules(pLocalCIs[i].stage.module);
-        if (pLocalCIs[i].stage.module == VK_NULL_HANDLE)
+
+        if (pLocalCIs[i].stage.pName)
+            pLocalCIs[i].stage.pName = (const char*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));
+
+        if (pLocalCIs[i].stage.pSpecializationInfo)
         {
-            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkShaderModule.");
-            VKTRACE_DELETE(pLocalCIs);
-            return VK_ERROR_VALIDATION_FAILED_EXT;
+            VkSpecializationInfo* si = VKTRACE_NEW(VkSpecializationInfo);
+            pLocalCIs[i].stage.pSpecializationInfo = (const VkSpecializationInfo*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo));
+            memcpy((void*)si, (void*)(pLocalCIs[i].stage.pSpecializationInfo), sizeof(VkSpecializationInfo));
+
+            if (si->mapEntryCount > 0 && si->pMapEntries)
+                si->pMapEntries = (const VkSpecializationMapEntry*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));
+            if (si->dataSize > 0 && si->pData)
+                si->pData = (const void*)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)si->pData));
+            pLocalCIs[i].stage.pSpecializationInfo = si;
         }
 
         pLocalCIs[i].layout = m_objMapper.remap_pipelinelayouts(pLocalCIs[i].layout);
-        if (pLocalCIs[i].layout == VK_NULL_HANDLE)
-        {
-            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipelineLayout.");
-            VKTRACE_DELETE(pLocalCIs);
-            return VK_ERROR_VALIDATION_FAILED_EXT;
-        }
-
-        VkPipeline origBasePipeline = pLocalCIs[i].basePipelineHandle;
         pLocalCIs[i].basePipelineHandle = m_objMapper.remap_pipelines(pLocalCIs[i].basePipelineHandle);
-        if (origBasePipeline != VK_NULL_HANDLE && pLocalCIs[i].basePipelineHandle == VK_NULL_HANDLE)
-        {
-            vktrace_LogError("Skipping vkCreateComputePipelines() due to invalid remapped VkPipeline.");
-            VKTRACE_DELETE(pLocalCIs);
-            return VK_ERROR_VALIDATION_FAILED_EXT;
-        }
     }
 
     VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
 
-    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, remappedPipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
+    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, pipelineCache, pPacket->createInfoCount, pLocalCIs, NULL, local_pPipelines);
 
     if (replayResult == VK_SUCCESS)
     {
@@ -1698,6 +1690,9 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
         }
     }
 
+    for (i = 0; i<pPacket->createInfoCount; i++)
+        if (pLocalCIs[i].stage.pSpecializationInfo)
+            VKTRACE_DELETE((void *)pLocalCIs[i].stage.pSpecializationInfo);
     VKTRACE_DELETE(pLocalCIs);
     VKTRACE_DELETE(local_pPipelines);
 
@@ -2293,7 +2288,6 @@ VkResult vkReplay::manually_replay_vkWaitForFences(packet_vkWaitForFences* pPack
     return replayResult;
 }
 
-
 bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
                                 VkDevice replayDevice,
                                 uint32_t traceIdx,
@@ -2307,12 +2301,16 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
     if (tracePhysicalDevices.find(traceDevice) == tracePhysicalDevices.end() ||
         replayPhysicalDevices.find(replayDevice) == replayPhysicalDevices.end())
     {
-        vktrace_LogError("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
-        return false;
+        goto fail;
     }
 
     tracePhysicalDevice = tracePhysicalDevices[traceDevice];
     replayPhysicalDevice = replayPhysicalDevices[replayDevice];
+
+    if (min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount) == 0)
+    {
+        goto fail;
+    }
 
     for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
     {
@@ -2369,7 +2367,9 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
         return true;
      }
 
+fail:
     // Didn't find a match
+    vktrace_LogError("Cannot determine memory type during vkAllocateMemory - vkGetPhysicalDeviceMemoryProperties should be called before vkAllocateMemory.");
     return false;
 }
 
@@ -2661,9 +2661,9 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetP
         return;
     }
 
-    traceMemoryProperties[pPacket->physicalDevice] = *pPacket->pMemoryProperties;
+    traceMemoryProperties[pPacket->physicalDevice] = *(pPacket->pMemoryProperties);
     m_vkFuncs.real_vkGetPhysicalDeviceMemoryProperties(remappedphysicalDevice, pPacket->pMemoryProperties);
-    replayMemoryProperties[remappedphysicalDevice] = *pPacket->pMemoryProperties;
+    replayMemoryProperties[remappedphysicalDevice] = *(pPacket->pMemoryProperties);
     return;
 }
 

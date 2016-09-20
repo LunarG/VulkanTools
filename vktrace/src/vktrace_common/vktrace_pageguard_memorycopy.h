@@ -25,7 +25,7 @@
 
 #if defined(WIN32)
     #define USE_PAGEGUARD_SPEEDUP
-    #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB) 
+    #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
         #include <ppl.h>
         using namespace concurrency;
     #endif
@@ -43,7 +43,7 @@ typedef struct __PageGuardChangedBlockInfo
     uint32_t reserve1;
 } PageGuardChangedBlockInfo, *pPageGuardChangedBlockInfo;
 
-#if defined(WIN32) 
+#if defined(WIN32)
 typedef HANDLE vktrace_pageguard_thread_id;
 typedef HANDLE vktrace_sem_id;
 #else

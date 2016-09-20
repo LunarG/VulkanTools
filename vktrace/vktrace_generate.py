@@ -206,7 +206,12 @@ class Subcommand(object):
         init_tracer.append('    FINISH_TRACE_PACKET();\n}\n')
 
         init_tracer.append('extern VKTRACE_CRITICAL_SECTION g_memInfoLock;')
+
+        init_tracer.append('#ifdef WIN32\n')
+        init_tracer.append('BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext)\n{')
+        init_tracer.append('#elif defined(PLATFORM_LINUX)\n')
         init_tracer.append('void InitTracer(void)\n{')
+        init_tracer.append('#endif\n')
         init_tracer.append('    const char *ipAddr = vktrace_get_global_var("VKTRACE_LIB_IPADDR");')
         init_tracer.append('    if (ipAddr == NULL)')
         init_tracer.append('        ipAddr = "127.0.0.1";')
@@ -215,7 +220,12 @@ class Subcommand(object):
         init_tracer.append('    vktrace_tracelog_set_tracer_id(VKTRACE_TID_VULKAN);')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
         init_tracer.append('    if (gMessageStream != NULL)')
-        init_tracer.append('        send_vk_api_version_packet();\n}\n')
+        init_tracer.append('        send_vk_api_version_packet();\n')
+        init_tracer.append('#ifdef WIN32\n')
+        init_tracer.append('    return true;\n}\n')
+        init_tracer.append('#elif defined(PLATFORM_LINUX)\n')
+        init_tracer.append('    return;\n}\n')
+        init_tracer.append('#endif\n')
         return "\n".join(init_tracer)
 
     # Take a list of params and return a list of dicts w/ ptr param details
@@ -875,6 +885,7 @@ class Subcommand(object):
                            'uint32_t j;\n',
                            'for (i=0; i<pPacket->createInfoCount; i++) {\n',
                            '    if (pPacket->pCreateInfos[i].sType == VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO) {\n',
+
                            '        // need to make a non-const pointer to the pointer so that we can properly change the original pointer to the interpretted one\n',
                            '        VkGraphicsPipelineCreateInfo* pNonConst = (VkGraphicsPipelineCreateInfo*)&(pPacket->pCreateInfos[i]);\n',
                            '        // shader stages array\n',
@@ -908,18 +919,18 @@ class Subcommand(object):
                            '        if (pNonConstDyState) {\n',
                            '            pNonConstDyState->pDynamicStates = (const VkDynamicState*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pDynamicState->pDynamicStates);\n',
                            '        }\n',
+
                            '        // ColorBuffer State\n',
                            '        pNonConst->pColorBlendState = (const VkPipelineColorBlendStateCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pColorBlendState);\n',
                            '        VkPipelineColorBlendStateCreateInfo* pNonConstCbState = (VkPipelineColorBlendStateCreateInfo*)pNonConst->pColorBlendState;\n',
-                           '        if (pNonConstCbState) {\n',
+                           '        if (pNonConstCbState)\n',
                            '            pNonConstCbState->pAttachments = (const VkPipelineColorBlendAttachmentState*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pColorBlendState->pAttachments);\n',
-                           '        }\n',
                            '    } else {\n',
                            '        // This is unexpected.\n',
                            '        vktrace_LogError("CreateGraphicsPipelines must have CreateInfo stype of VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO.");\n',
                            '        pPacket->header = NULL;\n',
                            '    }\n',
-                           '}']
+                           '}\n']
         # TODO : This code is now too large and complex, need to make codegen smarter for pointers embedded in struct params to handle those cases automatically
                               # TODO138 : Just ripped out a bunch of custom code here that was out of date. Need to scrub these function and verify they're correct
         custom_case_dict = { #'CreateFramebuffer' : {'param': 'pCreateInfo', 'txt': ['VkFramebufferCreateInfo* pInfo = (VkFramebufferCreateInfo*)pPacket->pCreateInfo;\n',
@@ -1029,9 +1040,7 @@ class Subcommand(object):
                                                                                  '}'
                                                                                ]},
                              'CreateGraphicsPipelines' : {'param': 'pCreateInfos', 'txt': create_gfx_pipe},
-                             'CreateComputePipelines' : {'param': 'pCreateInfos', 'txt': ['for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n',
-                                                                                          '    interpret_VkPipelineShaderStageCreateInfo(pHeader, (VkPipelineShaderStageCreateInfo*)(&pPacket->pCreateInfos[i].stage));\n',
-                                                                                          '}']},
+                             'CreateComputePipeline' : {'param': 'pCreateInfo', 'txt': ['interpret_VkPipelineShaderStageCreateInfo(pHeader, (VkPipelineShaderStageCreateInfo*)(&pPacket->pCreateInfo->cs));']},
                              'CreateFramebuffer' : {'param': 'pCreateInfo', 'txt': ['VkImageView** ppAV = (VkImageView**)&(pPacket->pCreateInfo->pAttachments);\n',
                                                                                     '*ppAV = (VkImageView*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)(pPacket->pCreateInfo->pAttachments));']},
                              'CmdBeginRenderPass' : {'param': 'pRenderPassBegin', 'txt': ['VkClearValue** ppCV = (VkClearValue**)&(pPacket->pRenderPassBegin->pClearValues);\n',
@@ -1262,7 +1271,7 @@ class Subcommand(object):
         rof_body.append('        }')
         rof_body.append('    }')
         rof_body.append('')
-		#  add for page guard optimization end
+        #  add for page guard optimization end
         rof_body.append('    void setMemoryMapRange(void *pBuf, const size_t size, const size_t offset, const bool pending)')
         rof_body.append('    {')
         rof_body.append('        MapRange mr;')
@@ -1617,38 +1626,6 @@ class Subcommand(object):
                         objectTypeRemapParam = ', pPacket->objType'
                 return 'remapped%s' % (paramName)
         return 'pPacket->%s' % (paramName)
-
-    def _gen_replay_create_image(self):
-        ci_body = []
-        ci_body.append('            imageObj local_imageObj;')
-        ci_body.append('            VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);')
-        ci_body.append('            if (remappedDevice == VK_NULL_HANDLE)')
-        ci_body.append('            {')
-        ci_body.append('                vktrace_LogError("Error detected in vkCreateImage() due to invalid remapped VkDevice.");')
-        ci_body.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
-        ci_body.append('            }')
-        ci_body.append('            replayResult = m_vkFuncs.real_vkCreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);')
-        ci_body.append('            if (replayResult == VK_SUCCESS)')
-        ci_body.append('            {')
-        ci_body.append('                m_objMapper.add_to_images_map(*(pPacket->pImage), local_imageObj);')
-        ci_body.append('            }')
-        return "\n".join(ci_body)
-
-    def _gen_replay_create_buffer(self):
-        cb_body = []
-        cb_body.append('            bufferObj local_bufferObj;')
-        cb_body.append('            VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);')
-        cb_body.append('            if (remappedDevice == VK_NULL_HANDLE)')
-        cb_body.append('            {')
-        cb_body.append('                vktrace_LogError("Error detected in vkCreateBuffer() due to invalid remapped VkDevice.");')
-        cb_body.append('                return vktrace_replay::VKTRACE_REPLAY_ERROR;')
-        cb_body.append('            }')
-        cb_body.append('            replayResult = m_vkFuncs.real_vkCreateBuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_bufferObj.replayBuffer);')
-        cb_body.append('            if (replayResult == VK_SUCCESS)')
-        cb_body.append('            {')
-        cb_body.append('                m_objMapper.add_to_buffers_map(*(pPacket->pBuffer), local_bufferObj);')
-        cb_body.append('            }')
-        return "\n".join(cb_body)
 
     def _gen_replay_create_instance(self):
         cb_body = []
@@ -2088,10 +2065,11 @@ class VktraceTraceHeader(Subcommand):
         header_txt = []
         header_txt.append('#include "vktrace_vk_vk_packets.h"')
         header_txt.append('#include "vktrace_vk_packet_id.h"\n\n')
-        header_txt.append('void InitTracer(void);\n\n')
         header_txt.append('#ifdef WIN32')
+        header_txt.append('BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext);')
         header_txt.append('extern INIT_ONCE gInitOnce;')
         header_txt.append('\n#elif defined(PLATFORM_LINUX)')
+        header_txt.append('void InitTracer(void);')
         header_txt.append('extern pthread_once_t gInitOnce;')
         header_txt.append('#endif\n')
         return "\n".join(header_txt)

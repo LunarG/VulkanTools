@@ -48,7 +48,7 @@ signals:
 extern "C"
 {
 VKTRACER_EXPORT vktraceviewer_QController* VKTRACER_CDECL vtvCreateQController(void);
-VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController* pController);
+VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController** ppController);
 
 // entrypoints that must be exposed by each controller library
 typedef vktraceviewer_QController* (VKTRACER_CDECL *funcptr_vktraceviewer_CreateQController)(void);
