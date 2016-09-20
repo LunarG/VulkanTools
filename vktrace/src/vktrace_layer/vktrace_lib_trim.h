@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <list>
 #include "vktrace_trace_packet_identifiers.h"
+#include "vktrace_lib_trim_generate.h"
 #include "vulkan.h"
 
 // Trim support
