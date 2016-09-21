@@ -659,6 +659,30 @@ namespace trim {
         }
 
         //=====================================================================
+        vktrace_trace_packet_header* vkDestroyBufferView(
+            bool makeCall,
+            VkDevice device,
+            VkBufferView bufferView,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyBufferView* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyBufferView, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyBufferView(device, bufferView, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyBufferView(pHeader);
+            pPacket->device = device;
+            pPacket->bufferView = bufferView;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
         vktrace_trace_packet_header* vkFreeMemory(
             bool makeCall,
             VkDevice device,
@@ -681,5 +705,611 @@ namespace trim {
             vktrace_finalize_trace_packet(pHeader);
             return pHeader;
         }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkAllocateDescriptorSets(
+            bool makeCall,
+            VkDevice device,
+            const VkDescriptorSetAllocateInfo* pAllocateInfo,
+            VkDescriptorSet* pDescriptorSets)
+        {
+            VkResult result = VK_SUCCESS;
+            vktrace_trace_packet_header* pHeader;
+            packet_vkAllocateDescriptorSets* pPacket = NULL;
+            uint64_t startTime;
+            uint64_t endTime;
+            uint64_t vktraceStartTime = vktrace_get_time();
+            startTime = vktrace_get_time();
+
+            if (makeCall)
+            {
+                result = mdd(device)->devTable.AllocateDescriptorSets(device, pAllocateInfo, pDescriptorSets);
+            }
+
+            endTime = vktrace_get_time();
+            CREATE_TRACE_PACKET(vkAllocateDescriptorSets, vk_size_vkdescriptorsetallocateinfo(pAllocateInfo) + (pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet)));
+            pHeader->vktrace_begin_time = vktraceStartTime;
+            pHeader->entrypoint_begin_time = startTime;
+            pHeader->entrypoint_end_time = endTime;
+            pPacket = interpret_body_as_vkAllocateDescriptorSets(pHeader);
+            pPacket->device = device;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo), sizeof(VkDescriptorSetAllocateInfo), pAllocateInfo);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts), pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSetLayout), pAllocateInfo->pSetLayouts);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorSets), pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet), pDescriptorSets);
+            pPacket->result = result;
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo->pSetLayouts));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkUpdateDescriptorSets(
+            bool makeCall,
+            VkDevice device,
+            uint32_t descriptorWriteCount,
+            const VkWriteDescriptorSet* pDescriptorWrites,
+            uint32_t descriptorCopyCount,
+            const VkCopyDescriptorSet* pDescriptorCopies)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkUpdateDescriptorSets* pPacket = NULL;
+            // begin custom code
+            size_t arrayByteCount = 0;
+            size_t i;
+
+            for (i = 0; i < descriptorWriteCount; i++)
+            {
+                arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
+            }
+
+            for (i = 0; i < descriptorCopyCount; i++)
+            {
+                arrayByteCount += get_struct_chain_size(&pDescriptorCopies[i]);
+            }
+
+            CREATE_TRACE_PACKET(vkUpdateDescriptorSets, arrayByteCount);
+            // end custom code
+
+            if (makeCall)
+            {
+                mdd(device)->devTable.UpdateDescriptorSets(device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+            }
+
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkUpdateDescriptorSets(pHeader);
+            pPacket->device = device;
+            pPacket->descriptorWriteCount = descriptorWriteCount;
+            // begin custom code
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites), descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
+            for (i = 0; i < descriptorWriteCount; i++)
+            {
+                switch (pPacket->pDescriptorWrites[i].descriptorType) {
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                {
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
+                        pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),
+                        pDescriptorWrites[i].pImageInfo);
+                    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo));
+                }
+                break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                {
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView),
+                        pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView),
+                        pDescriptorWrites[i].pTexelBufferView);
+                    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView));
+                }
+                break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                {
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo),
+                        pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo),
+                        pDescriptorWrites[i].pBufferInfo);
+                    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo));
+                }
+                break;
+                default:
+                    break;
+                }
+            }
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
+
+            pPacket->descriptorCopyCount = descriptorCopyCount;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorCopies), descriptorCopyCount * sizeof(VkCopyDescriptorSet), pDescriptorCopies);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorCopies));
+            // end custom code
+
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkResetDescriptorPool(
+            bool makeCall,
+            VkDevice device,
+            VkDescriptorPool descriptorPool,
+            VkDescriptorPoolResetFlags flags)
+        {
+            VkResult result = VK_SUCCESS;
+            vktrace_trace_packet_header* pHeader;
+            packet_vkResetDescriptorPool* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkResetDescriptorPool, 0);
+            if (makeCall)
+            {
+                result = mdd(device)->devTable.ResetDescriptorPool(device, descriptorPool, flags);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkResetDescriptorPool(pHeader);
+            pPacket->device = device;
+            pPacket->descriptorPool = descriptorPool;
+            pPacket->flags = 0;
+            pPacket->result = result;
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyQueryPool(
+            bool makeCall,
+            VkDevice device,
+            VkQueryPool queryPool,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyQueryPool* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyQueryPool, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyQueryPool(device, queryPool, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyQueryPool(pHeader);
+            pPacket->device = device;
+            pPacket->queryPool = queryPool;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyEvent(
+            bool makeCall,
+            VkDevice device,
+            VkEvent event,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyEvent* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyEvent, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyEvent(device, event, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyEvent(pHeader);
+            pPacket->device = device;
+            pPacket->event = event;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyFence(
+            bool makeCall,
+            VkDevice device,
+            VkFence fence,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyFence* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyFence, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyFence(device, fence, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyFence(pHeader);
+            pPacket->device = device;
+            pPacket->fence = fence;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroySemaphore(
+            bool makeCall,
+            VkDevice device,
+            VkSemaphore semaphore,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroySemaphore* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroySemaphore, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroySemaphore(device, semaphore, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroySemaphore(pHeader);
+            pPacket->device = device;
+            pPacket->semaphore = semaphore;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyFramebuffer(
+            bool makeCall,
+            VkDevice device,
+            VkFramebuffer framebuffer,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyFramebuffer* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyFramebuffer, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyFramebuffer(device, framebuffer, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyFramebuffer(pHeader);
+            pPacket->device = device;
+            pPacket->framebuffer = framebuffer;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyDescriptorPool(
+            bool makeCall,
+            VkDevice device,
+            VkDescriptorPool descriptorPool,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyDescriptorPool* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyDescriptorPool, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyDescriptorPool(device, descriptorPool, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyDescriptorPool(pHeader);
+            pPacket->device = device;
+            pPacket->descriptorPool = descriptorPool;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyPipeline(
+            bool makeCall,
+            VkDevice device,
+            VkPipeline pipeline,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyPipeline* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyPipeline, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyPipeline(device, pipeline, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyPipeline(pHeader);
+            pPacket->device = device;
+            pPacket->pipeline = pipeline;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyPipelineCache(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineCache pipelineCache,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyPipelineCache* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyPipelineCache, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyPipelineCache(device, pipelineCache, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyPipelineCache(pHeader);
+            pPacket->device = device;
+            pPacket->pipelineCache = pipelineCache;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyPipelineLayout(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineLayout pipelineLayout,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyPipelineLayout* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyPipelineLayout, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyPipelineLayout(device, pipelineLayout, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyPipelineLayout(pHeader);
+            pPacket->device = device;
+            pPacket->pipelineLayout = pipelineLayout;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyShaderModule(
+            bool makeCall,
+            VkDevice device,
+            VkShaderModule shaderModule,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyShaderModule* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyShaderModule, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyShaderModule(device, shaderModule, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyShaderModule(pHeader);
+            pPacket->device = device;
+            pPacket->shaderModule = shaderModule;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyRenderPass(
+            bool makeCall,
+            VkDevice device,
+            VkRenderPass renderPass,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyRenderPass* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyRenderPass, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyRenderPass(device, renderPass, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyRenderPass(pHeader);
+            pPacket->device = device;
+            pPacket->renderPass = renderPass;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyDescriptorSetLayout(
+            bool makeCall,
+            VkDevice device,
+            VkDescriptorSetLayout descriptorSetLayout,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyDescriptorSetLayout* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyDescriptorSetLayout, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyDescriptorSetLayout(device, descriptorSetLayout, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyDescriptorSetLayout(pHeader);
+            pPacket->device = device;
+            pPacket->descriptorSetLayout = descriptorSetLayout;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroySampler(
+            bool makeCall,
+            VkDevice device,
+            VkSampler sampler,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroySampler* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroySampler, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroySampler(device, sampler, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroySampler(pHeader);
+            pPacket->device = device;
+            pPacket->sampler = sampler;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyImage(
+            bool makeCall,
+            VkDevice device,
+            VkImage image,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyImage* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyImage, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyImage(device, image, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyImage(pHeader);
+            pPacket->device = device;
+            pPacket->image = image;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyImageView(
+            bool makeCall,
+            VkDevice device,
+            VkImageView imageView,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyImageView* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyImageView, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyImageView(device, imageView, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyImageView(pHeader);
+            pPacket->device = device;
+            pPacket->imageView = imageView;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroySwapchainKHR(
+            bool makeCall,
+            VkDevice device,
+            VkSwapchainKHR swapchain,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroySwapchainKHR* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroySwapchainKHR, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroySwapchainKHR(device, swapchain, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroySwapchainKHR(pHeader);
+            pPacket->device = device;
+            pPacket->swapchain = swapchain;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroySurfaceKHR(
+            bool makeCall,
+            VkInstance instance,
+            VkSurfaceKHR surface,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroySurfaceKHR* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroySurfaceKHR, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mid(instance)->instTable.DestroySurfaceKHR(instance, surface, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroySurfaceKHR(pHeader);
+            pPacket->instance = instance;
+            pPacket->surface = surface;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyDevice(
+            bool makeCall,
+            VkDevice device,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyDevice* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyDevice, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mdd(device)->devTable.DestroyDevice(device, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyDevice(pHeader);
+            pPacket->device = device;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkDestroyInstance(
+            bool makeCall,
+            VkInstance instance,
+            const VkAllocationCallbacks* pAllocator)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkDestroyInstance* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkDestroyInstance, sizeof(VkAllocationCallbacks));
+            if (makeCall)
+            {
+                mid(instance)->instTable.DestroyInstance(instance, pAllocator);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkDestroyInstance(pHeader);
+            pPacket->instance = instance;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
     } // namespace generate
 } // namespace trim

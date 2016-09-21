@@ -159,10 +159,151 @@ namespace trim {
             VkBuffer buffer,
             const VkAllocationCallbacks* pAllocator);
 
+        vktrace_trace_packet_header* vkDestroyBufferView(
+            bool makeCall,
+            VkDevice device,
+            VkBufferView bufferView,
+            const VkAllocationCallbacks* pAllocator);
+
         vktrace_trace_packet_header* vkFreeMemory(
             bool makeCall,
             VkDevice device,
             VkDeviceMemory memory,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkAllocateDescriptorSets(
+            bool makeCall,
+            VkDevice device,
+            const VkDescriptorSetAllocateInfo* pAllocateInfo,
+            VkDescriptorSet* pDescriptorSets);
+
+        vktrace_trace_packet_header* vkUpdateDescriptorSets(
+            bool makeCall,
+            VkDevice device,
+            uint32_t descriptorWriteCount,
+            const VkWriteDescriptorSet* pDescriptorWrites,
+            uint32_t descriptorCopyCount,
+            const VkCopyDescriptorSet* pDescriptorCopies);
+
+        vktrace_trace_packet_header* vkResetDescriptorPool(
+            bool makeCall,
+            VkDevice device,
+            VkDescriptorPool descriptorPool,
+            VkDescriptorPoolResetFlags flags);
+
+        vktrace_trace_packet_header* vkDestroyQueryPool(
+            bool makeCall,
+            VkDevice device,
+            VkQueryPool queryPool,
+            const VkAllocationCallbacks* pAllocator
+            );
+
+        vktrace_trace_packet_header* vkDestroyEvent(
+            bool makeCall,
+            VkDevice device,
+            VkEvent event,
+            const VkAllocationCallbacks* pAllocator
+            );
+
+        vktrace_trace_packet_header* vkDestroyFence(
+            bool makeCall,
+            VkDevice device,
+            VkFence fence,
+            const VkAllocationCallbacks* pAllocator
+            );
+
+        vktrace_trace_packet_header* vkDestroySemaphore(
+            bool makeCall,
+            VkDevice device,
+            VkSemaphore semaphore,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyFramebuffer(
+            bool makeCall,
+            VkDevice device,
+            VkFramebuffer framebuffer,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyDescriptorPool(
+            bool makeCall,
+            VkDevice device,
+            VkDescriptorPool descriptorPool,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyPipeline(
+            bool makeCall,
+            VkDevice device,
+            VkPipeline pipeline,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyPipelineCache(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineCache pipelineCache,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyPipelineLayout(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineLayout pipelineLayout,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyShaderModule(
+            bool makeCall,
+            VkDevice device,
+            VkShaderModule shaderModule,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyRenderPass(
+            bool makeCall,
+            VkDevice device,
+            VkRenderPass renderPass,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyDescriptorSetLayout(
+            bool makeCall,
+            VkDevice device,
+            VkDescriptorSetLayout descriptorSetLayout,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroySampler(
+            bool makeCall,
+            VkDevice device,
+            VkSampler sampler,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyImage(
+            bool makeCall,
+            VkDevice device,
+            VkImage image,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyImageView(
+            bool makeCall,
+            VkDevice device,
+            VkImageView imageView,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroySwapchainKHR(
+            bool makeCall,
+            VkDevice device,
+            VkSwapchainKHR swapchain,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroySurfaceKHR(
+            bool makeCall,
+            VkInstance instance,
+            VkSurfaceKHR surface,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyDevice(
+            bool makeCall,
+            VkDevice device,
+            const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkDestroyInstance(
+            bool makeCall,
+            VkInstance instance,
             const VkAllocationCallbacks* pAllocator);
     } // namespace generate
 } // namespace trim
