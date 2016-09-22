@@ -184,15 +184,168 @@ namespace trim
     std::unordered_map<VkBuffer, StagingInfo> bufferToStagedInfoMap;
 
     //=============================================================================
+    // Associates a Device to a trim-specific CommandPool
+    //=============================================================================
+    static std::unordered_map<VkDevice, VkCommandPool> s_deviceToCommandPoolMap;
+
+    //=============================================================================
+    // Find existing trim-specific CommandPool from the Device, or 
+    // create a new one.
+    //=============================================================================
+    VkCommandPool getCommandPoolFromDevice(VkDevice device, uint32_t queueFamilyIndex = 0)
+    {
+        assert(device != VK_NULL_HANDLE);
+
+        VkCommandPool commandPool = VK_NULL_HANDLE;
+        if (s_deviceToCommandPoolMap.find(device) == s_deviceToCommandPoolMap.end())
+        {
+            // create a new command pool on the device
+            VkCommandPoolCreateInfo cmdPoolCreateInfo;
+            cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            cmdPoolCreateInfo.pNext = NULL;
+            cmdPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
+            cmdPoolCreateInfo.flags = 0;
+
+            VkResult result = mdd(device)->devTable.CreateCommandPool(device, &cmdPoolCreateInfo, NULL, &commandPool);
+            assert(result == VK_SUCCESS);
+            if (result == VK_SUCCESS)
+            {
+                s_deviceToCommandPoolMap[device] = commandPool;
+            }
+        }
+        else
+        {
+            commandPool = s_deviceToCommandPoolMap[device];
+        }
+        return commandPool;
+    }
+
+    //=============================================================================
+    // Associates a Device to a trim-specific CommandBuffer
+    //=============================================================================
+    static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
+
+    //=============================================================================
+    // Find existing trim-specific CommandBuffer from the Device, or 
+    // create a new one.
+    //=============================================================================
+    VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool commandPool = VK_NULL_HANDLE)
+    {
+        assert(device != VK_NULL_HANDLE);
+
+        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+        if (s_deviceToCommandBufferMap.find(device) == s_deviceToCommandBufferMap.end())
+        {
+            if (commandPool == VK_NULL_HANDLE)
+            {
+                commandPool = getCommandPoolFromDevice(device, 0);
+            }
+
+            // allocate a new command buffer on the device
+            VkCommandBufferAllocateInfo allocateInfo;
+            allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocateInfo.pNext = NULL;
+            allocateInfo.commandPool = commandPool;
+            allocateInfo.level = (VkCommandBufferLevel)VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocateInfo.commandBufferCount = 1;
+
+            VkResult result = mdd(device)->devTable.AllocateCommandBuffers(device, &allocateInfo, &commandBuffer);
+            assert(result == VK_SUCCESS);
+            if (result == VK_SUCCESS)
+            {
+                s_deviceToCommandBufferMap[device] = commandBuffer;
+            }
+        }
+        else
+        {
+            commandBuffer = s_deviceToCommandBufferMap[device];
+        }
+
+        return commandBuffer;
+    }
+
+    //=============================================================================
+    StagingInfo createStagingBuffer(VkDevice device, VkCommandPool commandPool, VkCommandBuffer commandBuffer, VkDeviceSize size)
+    {
+        StagingInfo stagingInfo = {};
+
+        stagingInfo.commandPool = commandPool;
+        stagingInfo.commandBuffer = commandBuffer;
+        mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &stagingInfo.queue);
+
+        stagingInfo.bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        stagingInfo.bufferCreateInfo.pNext = NULL;
+        stagingInfo.bufferCreateInfo.flags = 0;
+        stagingInfo.bufferCreateInfo.size = size;
+        stagingInfo.bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        stagingInfo.bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        stagingInfo.bufferCreateInfo.queueFamilyIndexCount = 0;
+        stagingInfo.bufferCreateInfo.pQueueFamilyIndices = NULL;
+
+        mdd(device)->devTable.CreateBuffer(device, &stagingInfo.bufferCreateInfo, NULL, &stagingInfo.buffer);
+
+        mdd(device)->devTable.GetBufferMemoryRequirements(device, stagingInfo.buffer, &stagingInfo.bufferMemoryRequirements);
+
+        stagingInfo.memoryAllocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        stagingInfo.memoryAllocationInfo.pNext = NULL;
+        stagingInfo.memoryAllocationInfo.allocationSize = stagingInfo.bufferMemoryRequirements.size;
+        stagingInfo.memoryAllocationInfo.memoryTypeIndex = FindMemoryTypeIndex(device, stagingInfo.bufferMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+        mdd(device)->devTable.AllocateMemory(device, &stagingInfo.memoryAllocationInfo, nullptr, &stagingInfo.memory);
+
+        mdd(device)->devTable.BindBufferMemory(device, stagingInfo.buffer, stagingInfo.memory, 0);
+
+        return stagingInfo;
+    }
+
+    //=============================================================================
+    void transitionImage(VkDevice device, VkCommandBuffer commandBuffer, VkImage image, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, uint32_t queueFamilyIndex, VkImageLayout oldnewLayout, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t mipLevels)
+    {
+        // Create a pipeline barrier to make it host readable
+        VkImageMemoryBarrier imageMemoryBarrier;
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.pNext = NULL;
+        imageMemoryBarrier.srcAccessMask = srcAccessMask;
+        imageMemoryBarrier.dstAccessMask = dstAccessMask;
+        imageMemoryBarrier.oldLayout = oldnewLayout;
+        imageMemoryBarrier.newLayout = oldnewLayout;
+        imageMemoryBarrier.image = image;
+        imageMemoryBarrier.subresourceRange.aspectMask = aspectMask;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+        imageMemoryBarrier.subresourceRange.layerCount = layerCount;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+        imageMemoryBarrier.subresourceRange.levelCount = mipLevels;
+        imageMemoryBarrier.srcQueueFamilyIndex = queueFamilyIndex;
+        imageMemoryBarrier.dstQueueFamilyIndex = queueFamilyIndex;
+
+        mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    };
+
+    //=============================================================================
+    void transitionBuffer(VkDevice device, VkCommandBuffer commandBuffer, VkBuffer buffer, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkDeviceSize offset, VkDeviceSize size)
+    {
+        // Create a pipeline barrier to make it host readable
+        VkBufferMemoryBarrier bufferMemoryBarrier;
+        bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+        bufferMemoryBarrier.pNext = NULL;
+        bufferMemoryBarrier.srcAccessMask = srcAccessMask;
+        bufferMemoryBarrier.dstAccessMask = dstAccessMask;
+        bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        bufferMemoryBarrier.buffer = buffer;
+        bufferMemoryBarrier.offset = offset;
+        bufferMemoryBarrier.size = size;
+
+        mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
+    };
+
+    //=============================================================================
     // Use this to snapshot the global state tracker at the start of the trim frames.
     //=============================================================================
     void snapshot_state_tracker()
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
         s_trimStateTrackerSnapshot = s_trimGlobalStateTracker;
-
-        std::unordered_map<VkDevice, VkCommandPool> deviceToCommandPoolMap;
-        std::unordered_map<VkDevice, VkCommandBuffer> deviceToCommandBufferMap;
 
         VkInstance instance = VK_NULL_HANDLE;
         if (s_trimStateTrackerSnapshot.createdInstances.size() > 0)
@@ -223,51 +376,10 @@ namespace trim
             VkDevice device = static_cast<VkDevice>(deviceIter->first);
 
             // Find or create an existing command pool
-            VkCommandPool commandPool = VK_NULL_HANDLE;
-            if (deviceToCommandPoolMap.find(device) == deviceToCommandPoolMap.end())
-            {
-                // create a new command pool on the device
-                VkCommandPoolCreateInfo cmdPoolCreateInfo;
-                cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-                cmdPoolCreateInfo.pNext = NULL;
-                cmdPoolCreateInfo.queueFamilyIndex = 0; // TODO: just a guess - probably need to do this for each queue family
-                cmdPoolCreateInfo.flags = 0;
-
-                VkResult result = mdd(device)->devTable.CreateCommandPool(device, &cmdPoolCreateInfo, NULL, &commandPool);
-                assert(result == VK_SUCCESS);
-                if (result == VK_SUCCESS)
-                {
-                    deviceToCommandPoolMap[device] = commandPool;
-                }
-            }
-            else
-            {
-                commandPool = deviceToCommandPoolMap[device];
-            }
+            VkCommandPool commandPool = getCommandPoolFromDevice(device);
 
             // Find or create an existing command buffer
-            VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-            if (deviceToCommandBufferMap.find(device) == deviceToCommandBufferMap.end())
-            {
-                // allocate a new command buffer on the device
-                VkCommandBufferAllocateInfo allocateInfo;
-                allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-                allocateInfo.pNext = NULL;
-                allocateInfo.commandPool = commandPool;
-                allocateInfo.level = (VkCommandBufferLevel)VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocateInfo.commandBufferCount = 1;
-
-                VkResult result = mdd(device)->devTable.AllocateCommandBuffers(device, &allocateInfo, &commandBuffer);
-                assert(result == VK_SUCCESS);
-                if (result == VK_SUCCESS)
-                {
-                    deviceToCommandBufferMap[device] = commandBuffer;
-                }
-            }
-            else
-            {
-                commandBuffer = deviceToCommandBufferMap[device];
-            }
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             // Begin the command buffer
             VkCommandBufferBeginInfo commandBufferBeginInfo;
@@ -291,28 +403,19 @@ namespace trim
                 continue;
             }
 
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
-            // Create a memory barrier to make it host readable
-            VkImageMemoryBarrier imageMemoryBarrier;
-            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageMemoryBarrier.pNext = NULL;
-            imageMemoryBarrier.srcAccessMask = imageIter->second.ObjectInfo.Image.accessFlags;
-            imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
-            imageMemoryBarrier.oldLayout = imageIter->second.ObjectInfo.Image.mostRecentLayout;
-            imageMemoryBarrier.newLayout = imageIter->second.ObjectInfo.Image.mostRecentLayout;
-            imageMemoryBarrier.image = image;
-            imageMemoryBarrier.subresourceRange.aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
-            imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-            imageMemoryBarrier.subresourceRange.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
-            imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-            imageMemoryBarrier.subresourceRange.levelCount = imageIter->second.ObjectInfo.Image.mipLevels;
-            imageMemoryBarrier.srcQueueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-            imageMemoryBarrier.dstQueueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-
-            mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+            // Create a pipeline barrier to make it host readable
+            transitionImage(device,
+                commandBuffer,
+                image,
+                imageIter->second.ObjectInfo.Image.accessFlags,
+                VK_ACCESS_HOST_READ_BIT,
+                imageIter->second.ObjectInfo.Image.queueFamilyIndex,
+                imageIter->second.ObjectInfo.Image.mostRecentLayout,
+                imageIter->second.ObjectInfo.Image.aspectMask,
+                imageIter->second.ObjectInfo.Image.arrayLayers,
+                imageIter->second.ObjectInfo.Image.mipLevels);
         }
 
         // 2b) Transition all buffers into host-readable state.
@@ -321,9 +424,7 @@ namespace trim
             VkDevice device = bufferIter->second.belongsToDevice;
             VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
 
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             // If the buffer needs a staging buffer, it's because it's on DEVICE_LOCAL memory that is not HOST_VISIBLE.
             // So we have to create another buffer and memory that IS HOST_VISIBLE so that we can copy the data
@@ -332,36 +433,12 @@ namespace trim
             // the DEVICE_LOCAL buffer.
             if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer)
             {
-                // TODO: Need to store this in the trim buffer info.
-                StagingInfo stagingInfo = {};
-
-                stagingInfo.commandPool = deviceToCommandPoolMap[device];
-                stagingInfo.commandBuffer = commandBuffer;
-                mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &stagingInfo.queue);
-
-                stagingInfo.bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-                stagingInfo.bufferCreateInfo.pNext = NULL;
-                stagingInfo.bufferCreateInfo.flags = 0;
-                stagingInfo.bufferCreateInfo.size = bufferIter->second.ObjectInfo.Buffer.size;
-                stagingInfo.bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-                stagingInfo.bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-                stagingInfo.bufferCreateInfo.queueFamilyIndexCount = 0;
-                stagingInfo.bufferCreateInfo.pQueueFamilyIndices = NULL;
-
-                mdd(device)->devTable.CreateBuffer(device, &stagingInfo.bufferCreateInfo, NULL, &stagingInfo.buffer);
-
-                mdd(device)->devTable.GetBufferMemoryRequirements(device, stagingInfo.buffer, &stagingInfo.bufferMemoryRequirements);
-
-                stagingInfo.memoryAllocationInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-                stagingInfo.memoryAllocationInfo.pNext = NULL;
-                stagingInfo.memoryAllocationInfo.allocationSize = stagingInfo.bufferMemoryRequirements.size;
-                stagingInfo.memoryAllocationInfo.memoryTypeIndex = FindMemoryTypeIndex(device, stagingInfo.bufferMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-                mdd(device)->devTable.AllocateMemory(device, &stagingInfo.memoryAllocationInfo, nullptr, &stagingInfo.memory);
-
-                mdd(device)->devTable.BindBufferMemory(device, stagingInfo.buffer, stagingInfo.memory, 0);
+                VkCommandPool commandPool = getCommandPoolFromDevice(device);
+                StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer, bufferIter->second.ObjectInfo.Buffer.size);
 
                 // Copy from device_local buffer to host_visible buffer
+                stagingInfo.copyRegion.srcOffset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
+                stagingInfo.copyRegion.dstOffset = 0;
                 stagingInfo.copyRegion.size = bufferIter->second.ObjectInfo.Buffer.size;
 
                 mdd(device)->devTable.CmdCopyBuffer(
@@ -376,19 +453,13 @@ namespace trim
             }
             else
             {
-                // Create a memory barrier to make it host readable
-                VkBufferMemoryBarrier bufferMemoryBarrier;
-                bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-                bufferMemoryBarrier.pNext = NULL;
-                bufferMemoryBarrier.srcAccessMask = bufferIter->second.ObjectInfo.Buffer.accessFlags;
-                bufferMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
-                bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                bufferMemoryBarrier.buffer = buffer;
-                bufferMemoryBarrier.offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
-                bufferMemoryBarrier.size = bufferIter->second.ObjectInfo.Buffer.size;
-
-                mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
+                transitionBuffer(device,
+                    commandBuffer,
+                    buffer,
+                    bufferIter->second.ObjectInfo.Buffer.accessFlags,
+                    VK_ACCESS_HOST_READ_BIT,
+                    bufferIter->second.ObjectInfo.Buffer.memoryOffset,
+                    bufferIter->second.ObjectInfo.Buffer.size);
             }
         }
 
@@ -396,10 +467,7 @@ namespace trim
         for (TrimObjectInfoMap::iterator deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin(); deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++)
         {
             VkDevice device = static_cast<VkDevice>(deviceIter->first);
-
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             mdd(device)->devTable.EndCommandBuffer(commandBuffer);
 
@@ -592,10 +660,7 @@ namespace trim
         for (TrimObjectInfoMap::iterator deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin(); deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++)
         {
             VkDevice device = static_cast<VkDevice>(deviceIter->first);
-
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             // Begin the command buffer
             VkCommandBufferBeginInfo commandBufferBeginInfo;
@@ -619,29 +684,18 @@ namespace trim
                 continue;
             }
 
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
-            // Create a memory barrier to make it host readable
-            VkImageMemoryBarrier imageMemoryBarrier;
-            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageMemoryBarrier.pNext = NULL;
-            imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_READ_BIT;
-            imageMemoryBarrier.dstAccessMask = imageIter->second.ObjectInfo.Image.accessFlags;
-            imageMemoryBarrier.oldLayout = imageIter->second.ObjectInfo.Image.mostRecentLayout;
-            imageMemoryBarrier.newLayout = imageIter->second.ObjectInfo.Image.mostRecentLayout;
-            imageMemoryBarrier.image = image;
-            imageMemoryBarrier.subresourceRange.aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
-            imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
-            imageMemoryBarrier.subresourceRange.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
-            imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-            imageMemoryBarrier.subresourceRange.levelCount = imageIter->second.ObjectInfo.Image.mipLevels;
-
-            imageMemoryBarrier.srcQueueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-            imageMemoryBarrier.dstQueueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-
-            mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+            transitionImage(device, 
+                commandBuffer, 
+                image, 
+                VK_ACCESS_HOST_READ_BIT, 
+                imageIter->second.ObjectInfo.Image.accessFlags, 
+                imageIter->second.ObjectInfo.Image.queueFamilyIndex, 
+                imageIter->second.ObjectInfo.Image.mostRecentLayout, 
+                imageIter->second.ObjectInfo.Image.aspectMask, 
+                imageIter->second.ObjectInfo.Image.arrayLayers, 
+                imageIter->second.ObjectInfo.Image.mipLevels);
         }
 
         // 6b) Transition all the buffers back to their previous state.
@@ -649,10 +703,7 @@ namespace trim
         {
             VkDevice device = bufferIter->second.belongsToDevice;
             VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
-
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             if (bufferToStagedInfoMap.find(buffer) != bufferToStagedInfoMap.end())
             {
@@ -663,19 +714,13 @@ namespace trim
             }
             else
             {
-                // Create a memory barrier to make it host readable
-                VkBufferMemoryBarrier bufferMemoryBarrier;
-                bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-                bufferMemoryBarrier.pNext = NULL;
-                bufferMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_READ_BIT;
-                bufferMemoryBarrier.dstAccessMask = bufferIter->second.ObjectInfo.Buffer.accessFlags;
-                bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                bufferMemoryBarrier.buffer = buffer;
-                bufferMemoryBarrier.offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
-                bufferMemoryBarrier.size = bufferIter->second.ObjectInfo.Buffer.size;
-
-                mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
+                transitionBuffer(device, 
+                    commandBuffer, 
+                    buffer,
+                    VK_ACCESS_HOST_READ_BIT,
+                    bufferIter->second.ObjectInfo.Buffer.accessFlags,
+                    bufferIter->second.ObjectInfo.Buffer.memoryOffset, 
+                    bufferIter->second.ObjectInfo.Buffer.size);
             }
         }
 
@@ -683,10 +728,7 @@ namespace trim
         for (TrimObjectInfoMap::iterator deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin(); deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++)
         {
             VkDevice device = static_cast<VkDevice>(deviceIter->first);
-
-            // Find an existing command buffer
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             mdd(device)->devTable.EndCommandBuffer(commandBuffer);
 
@@ -714,18 +756,16 @@ namespace trim
         for (TrimObjectInfoMap::iterator deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin(); deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++)
         {
             VkDevice device = static_cast<VkDevice>(deviceIter->first);
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
-            assert(deviceToCommandBufferMap.find(device) != deviceToCommandBufferMap.end());
-            VkCommandBuffer commandBuffer = deviceToCommandBufferMap[device];
             mdd(device)->devTable.ResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-            deviceToCommandBufferMap.erase(device);
+            s_deviceToCommandBufferMap.erase(device);
 
             // command pools
-            assert(deviceToCommandPoolMap.find(device) != deviceToCommandPoolMap.end());
-            VkCommandPool commandPool = deviceToCommandPoolMap[device];
+            VkCommandPool commandPool = getCommandPoolFromDevice(device);
             mdd(device)->devTable.ResetCommandPool(device, commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
             mdd(device)->devTable.DestroyCommandPool(device, commandPool, NULL);
-            deviceToCommandPoolMap.erase(device);
+            s_deviceToCommandPoolMap.erase(device);
         }
     
         // Now: generate a vkMapMemory to recreate the persistently mapped buffers
