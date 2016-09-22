@@ -25,6 +25,7 @@
 #include <unordered_map>
 #include "vktrace_vk_vk.h"
 #include "vulkan/vulkan.h"
+#include "vulkan/vk_layer.h"
 #include "vktrace_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vktrace_common.h"
@@ -655,7 +656,7 @@ VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInf
     return chain_info;
 }
 
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
 extern "C" BOOL vktrace_pageguard_init_multi_threads_memcpy();
 extern "C" void vktrace_pageguard_done_multi_threads_memcpy();
 #endif
@@ -675,7 +676,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     SEND_ENTRYPOINT_ID(vkCreateInstance);
     startTime = vktrace_get_time();
 
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
     vktrace_pageguard_init_multi_threads_memcpy();
 #endif
 
@@ -684,7 +685,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     assert(fpGetInstanceProcAddr);
-    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(*pInstance, "vkCreateInstance");
+    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");
     if (fpCreateInstance == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -704,14 +705,30 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     // remove the loader extended createInfo structure
     VkInstanceCreateInfo localCreateInfo;
     memcpy(&localCreateInfo, pCreateInfo, sizeof(localCreateInfo));
+
+    // Alloc space to copy pointers
+    if (localCreateInfo.enabledLayerCount > 0)
+        localCreateInfo.ppEnabledLayerNames = (const char* const*) malloc(localCreateInfo.enabledLayerCount * sizeof(char*));
+    if (localCreateInfo.enabledExtensionCount > 0)
+        localCreateInfo.ppEnabledExtensionNames = (const char* const*) malloc(localCreateInfo.enabledExtensionCount * sizeof(char*));
+
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         char **ppName = (char **) &localCreateInfo.ppEnabledExtensionNames[i];
         *ppName = (char *) pCreateInfo->ppEnabledExtensionNames[i];
     }
-    for (i = 0; i < pCreateInfo->enabledLayerCount; i++) {
-        char **ppName = (char **) &localCreateInfo.ppEnabledLayerNames[i];
-        *ppName = (char *) pCreateInfo->ppEnabledLayerNames[i];
+
+    // If app requests vktrace layer, don't record that in the trace
+    char **ppName = (char **) &localCreateInfo.ppEnabledLayerNames[0];
+    for (i = 0 ; i < pCreateInfo->enabledLayerCount; i++) {
+        if (strcmp("VK_LAYER_LUNARG_vktrace", pCreateInfo->ppEnabledLayerNames[i]) == 0) {
+            // Decrement the enabled layer count and skip copying the pointer
+            localCreateInfo.enabledLayerCount--;
+        } else {
+            // Copy pointer and increment write pointer for everything else
+            *ppName++ = (char *) pCreateInfo->ppEnabledLayerNames[i];
+        }
     }
+
     //localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
     // The pNext pointer isn't getting marshalled into the trace buffer properly anyway, so
     // set it to NULL so that replay does not trip over it.
@@ -729,6 +746,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pInstance));
     FINISH_TRACE_PACKET();
+
+    if (localCreateInfo.enabledLayerCount > 0)
+        free((void *)localCreateInfo.ppEnabledExtensionNames);
+    if (localCreateInfo.enabledExtensionCount > 0)
+        free((void *)localCreateInfo.ppEnabledLayerNames);
+
     return result;
 }
 
@@ -748,7 +771,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     FINISH_TRACE_PACKET();
     g_instanceDataMap.erase(key);
-#ifndef PAGEGUARD_MEMCPY_USE_PPL_LIB
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
 	vktrace_pageguard_done_multi_threads_memcpy();
 #endif
 }
@@ -1836,6 +1859,33 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     return result;
 }
 #endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKHR(
+    VkInstance                                  instance,
+    const VkAndroidSurfaceCreateInfoKHR*        pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    vktrace_trace_packet_header* pHeader;
+    VkResult result;
+    packet_vkCreateAndroidSurfaceKHR* pPacket = NULL;
+    // don't bother with copying the actual native window into the trace packet, vkreplay has to use it's own anyway
+    CREATE_TRACE_PACKET(vkCreateAndroidSurfaceKHR, sizeof(VkSurfaceKHR) + sizeof(VkAllocationCallbacks) + sizeof(VkAndroidSurfaceCreateInfoKHR));
+    result = mid(instance)->instTable.CreateAndroidSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+    pPacket = interpret_body_as_vkCreateAndroidSurfaceKHR(pHeader);
+    pPacket->instance = instance;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkAndroidSurfaceCreateInfoKHR), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurface), sizeof(VkSurfaceKHR), pSurface);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
+    FINISH_TRACE_PACKET();
+    return result;
+}
+#endif
+
 //TODO Wayland and Mir support
 
 /* TODO: Probably want to make this manual to get the result of the boolean and then check it on replay
@@ -2248,7 +2298,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
     PFN_vkVoidFunction addr;
     layer_instance_data  *instData;
 
-    vktrace_platform_thread_once(&gInitOnce, InitTracer);
+    vktrace_platform_thread_once((void*) &gInitOnce, InitTracer);
     if (!strcmp("vkGetInstanceProcAddr", funcName)) {
         if (gMessageStream != NULL) {
             return (PFN_vkVoidFunction) vktraceGetInstanceProcAddr;
@@ -2333,6 +2383,13 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
                 return (PFN_vkVoidFunction) __HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR;
         }
 #endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+        if (instData->KHRAndroidSurfaceEnabled)
+        {
+            if (!strcmp("vkCreateAndroidSurfaceKHR", funcName))
+                return (PFN_vkVoidFunction) __HOOKED_vkCreateAndroidSurfaceKHR;
+        }
+#endif
     } else {
         if (instance == VK_NULL_HANDLE) {
             return NULL;
@@ -2344,4 +2401,57 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
         return NULL;
 
     return pTable->GetInstanceProcAddr(instance, funcName);
+}
+
+static const VkLayerProperties layerProps = {
+    "VK_LAYER_LUNARG_vktrace",
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
+    1, "LunarG tracing layer",
+};
+
+template<typename T>
+VkResult EnumerateProperties(uint32_t src_count, const T *src_props, uint32_t *dst_count, T *dst_props) {
+    if (!dst_props || !src_props) {
+        *dst_count = src_count;
+        return VK_SUCCESS;
+    }
+
+    uint32_t copy_count = (*dst_count < src_count) ? *dst_count : src_count;
+    memcpy(dst_props, src_props, sizeof(T) * copy_count);
+    *dst_count = copy_count;
+
+    return (copy_count == src_count) ? VK_SUCCESS : VK_INCOMPLETE;
+}
+
+// LoaderLayerInterface V0
+// https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/blob/master/loader/LoaderAndLayerInterface.md
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pPropertyCount, VkLayerProperties *pProperties) {
+    return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pPropertyCount, VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
+        return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pPropertyCount, VkLayerProperties *pProperties) {
+    return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(const char *pLayerName, uint32_t *pPropertyCount, VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
+        return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    return __HOOKED_vkGetInstanceProcAddr(instance, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetDeviceProcAddr(VkDevice device, const char* funcName) {
+    return __HOOKED_vkGetDeviceProcAddr(device, funcName);
 }

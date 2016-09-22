@@ -144,7 +144,12 @@ void LogGuts(VktraceLogLevel level, const char* fmt, va_list args)
     }
     else
     {
+#ifdef ANDROID
+        #include <android/log.h>
+        __android_log_print(ANDROID_LOG_INFO, "vktrace", "%s: %s\n", vktrace_LogLevelToString(level), message);
+#else
         printf("%s: %s\n", vktrace_LogLevelToString(level), message);
+#endif
     }
 
     vktrace_free(message);

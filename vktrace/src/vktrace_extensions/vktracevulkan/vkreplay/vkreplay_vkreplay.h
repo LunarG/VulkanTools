@@ -29,7 +29,11 @@
 #include <vector>
 #include <string>
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+#include <android_native_app_glue.h>
+#else
 #include <xcb/xcb.h>
+#endif // ANDROID
 #endif
 #include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"
@@ -145,6 +149,7 @@ private:
     VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32SurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket);
+    VkResult manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndroidSurfaceKHR* pPacket);
     VkResult manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreateDebugReportCallbackEXT* pPacket);
     void manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyDebugReportCallbackEXT* pPacket);
 

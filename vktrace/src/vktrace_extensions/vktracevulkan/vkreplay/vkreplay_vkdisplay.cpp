@@ -34,10 +34,15 @@ vkDisplay::vkDisplay()
     m_frameNumber(0)
 {
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    memset(&m_surface, 0, sizeof(VkIcdSurfaceAndroid));
+    m_window = 0;
+#else
     memset(&m_surface, 0, sizeof(VkIcdSurfaceXcb));
     m_pXcbConnection = NULL;
     m_pXcbScreen = NULL;
     m_XcbWindow = 0;
+#endif
 #elif defined(WIN32)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceWin32));
     m_windowHandle = NULL;
@@ -47,7 +52,7 @@ vkDisplay::vkDisplay()
 
 vkDisplay::~vkDisplay()
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     if (m_XcbWindow != 0)
     {
         xcb_destroy_window(m_pXcbConnection, m_XcbWindow);
@@ -141,7 +146,7 @@ int vkDisplay::init(const unsigned int gpu_idx)
         m_initedVK = true;
     }
 #endif
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     const xcb_setup_t *setup;
     xcb_screen_iterator_t iter;
     int scr;
@@ -175,7 +180,12 @@ LRESULT WINAPI WindowProcVk( HWND window, unsigned int msg, WPARAM wp, LPARAM lp
 int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height)
 {
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    m_window = hWindow;
+    m_surface.window = hWindow;
+#else
     m_XcbWindow = hWindow;
+#endif
 #elif defined(WIN32)
     m_windowHandle = hWindow;
 #endif
@@ -187,6 +197,9 @@ int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, uns
 int vkDisplay::create_window(const unsigned int width, const unsigned int height)
 {
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    return 0;
+#else
 
     uint32_t value_mask, value_list[32];
     m_XcbWindow = xcb_generate_id(m_pXcbConnection);
@@ -213,6 +226,7 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
     m_surface.connection = m_pXcbConnection;
     m_surface.window = m_XcbWindow;
     return 0;
+#endif
 #elif defined(WIN32)
     // Register Window class
     WNDCLASSEX wcex = {};
@@ -262,6 +276,10 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 void vkDisplay::resize_window(const unsigned int width, const unsigned int height)
 {
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    m_windowWidth = width;
+    m_windowHeight = height;
+#else
     if (width != m_windowWidth || height != m_windowHeight)
     {
         uint32_t values[2];
@@ -272,6 +290,7 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
         m_windowWidth = width;
         m_windowHeight = height;
     }
+#endif
 #elif defined(WIN32)
     if (width != m_windowWidth || height != m_windowHeight)
     {

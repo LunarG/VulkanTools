@@ -23,6 +23,12 @@
 
 #include <stdio.h>
 #include <string>
+#if defined(ANDROID)
+#include <vector>
+#include <sstream>
+#include <android/log.h>
+#include <android_native_app_glue.h>
+#endif
 #include "vktrace_common.h"
 #include "vktrace_tracelog.h"
 #include "vktrace_filelike.h"
@@ -36,15 +42,15 @@ vkreplayer_settings replaySettings = { NULL, 1, -1, -1, NULL, NULL };
 
 vktrace_SettingInfo g_settings_info[] =
 {
-    { "t", "TraceFile", VKTRACE_SETTING_STRING, &replaySettings.pTraceFilePath, &replaySettings.pTraceFilePath, TRUE, "The trace file to replay."},
-    { "l", "NumLoops", VKTRACE_SETTING_UINT, &replaySettings.numLoops, &replaySettings.numLoops, TRUE, "The number of times to replay the trace file or loop range." },
-    { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, &replaySettings.loopStartFrame, &replaySettings.loopStartFrame, TRUE, "The start frame number of the loop range." },
-    { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, &replaySettings.loopEndFrame, &replaySettings.loopEndFrame, TRUE, "The end frame number of the loop range." },
-    { "s", "Screenshot", VKTRACE_SETTING_STRING, &replaySettings.screenshotList, &replaySettings.screenshotList, TRUE, "Comma separated list of frames to take a snapshot of."},
+    { "t", "TraceFile", VKTRACE_SETTING_STRING, { &replaySettings.pTraceFilePath }, { &replaySettings.pTraceFilePath }, TRUE, "The trace file to replay."},
+    { "l", "NumLoops", VKTRACE_SETTING_UINT, { &replaySettings.numLoops }, { &replaySettings.numLoops }, TRUE, "The number of times to replay the trace file or loop range." },
+    { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, { &replaySettings.loopStartFrame }, { &replaySettings.loopStartFrame }, TRUE, "The start frame number of the loop range." },
+    { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, { &replaySettings.loopEndFrame }, { &replaySettings.loopEndFrame }, TRUE, "The end frame number of the loop range." },
+    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &replaySettings.screenshotList }, { &replaySettings.screenshotList }, TRUE, "Comma separated list of frames to take a snapshot of."},
 #if _DEBUG
-    { "v", "Verbosity", VKTRACE_SETTING_STRING, &replaySettings.verbosity, &replaySettings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, { &replaySettings.verbosity }, { &replaySettings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
-    { "v", "Verbosity", VKTRACE_SETTING_STRING, &replaySettings.verbosity, &replaySettings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, { &replaySettings.verbosity }, { &replaySettings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
 #endif
 };
 
@@ -167,6 +173,17 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
     if (level == VKTRACE_LOG_NONE)
         return;
 
+#if defined(ANDROID)
+    switch(level)
+    {
+    case VKTRACE_LOG_DEBUG: __android_log_print(ANDROID_LOG_DEBUG, "vkreplay", "%s", pMessage); break;
+    case VKTRACE_LOG_ERROR: __android_log_print(ANDROID_LOG_ERROR, "vkreplay", "%s", pMessage); break;
+    case VKTRACE_LOG_WARNING: __android_log_print(ANDROID_LOG_WARN, "vkreplay", "%s", pMessage); break;
+    case VKTRACE_LOG_VERBOSE: __android_log_print(ANDROID_LOG_VERBOSE, "vkreplay", "%s", pMessage); break;
+    default:
+        __android_log_print(ANDROID_LOG_INFO, "vkreplay", "%s", pMessage); break;
+    }
+#else
     switch(level)
     {
     case VKTRACE_LOG_DEBUG: printf("vkreplay debug: %s\n", pMessage); break;
@@ -183,10 +200,10 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
     OutputDebugString(pMessage);
 #endif
 #endif
+#endif // ANDROID
 }
 
-extern "C"
-int main(int argc, char **argv)
+int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
 {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
@@ -291,7 +308,11 @@ int main(int argc, char **argv)
     // Create window. Initial size is 100x100. It will later get resized to the size
     // used by the traced app. The resize will happen  during playback of swapchain functions.
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+    vktrace_replay::ReplayDisplay disp(window, 100, 100);
+#else
     vktrace_replay::ReplayDisplay disp(100, 100, 0, false);
+#endif
 #elif defined(WIN32)
     RECT dp;
     GetWindowRect(GetDesktopWindow(), &dp);
@@ -383,3 +404,149 @@ int main(int argc, char **argv)
     }
     return err;
 }
+
+#if defined(ANDROID)
+static bool initialized = false;
+static bool active = false;
+
+// Convert Intents to argv
+// Ported from Hologram sample, only difference is flexible key
+std::vector<std::string> get_args(android_app &app, const char* intent_extra_data_key)
+{
+    std::vector<std::string> args;
+    JavaVM &vm = *app.activity->vm;
+    JNIEnv *p_env;
+    if (vm.AttachCurrentThread(&p_env, nullptr) != JNI_OK)
+        return args;
+
+    JNIEnv &env = *p_env;
+    jobject activity = app.activity->clazz;
+    jmethodID get_intent_method = env.GetMethodID(env.GetObjectClass(activity),
+            "getIntent", "()Landroid/content/Intent;");
+    jobject intent = env.CallObjectMethod(activity, get_intent_method);
+    jmethodID get_string_extra_method = env.GetMethodID(env.GetObjectClass(intent),
+            "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
+    jvalue get_string_extra_args;
+    get_string_extra_args.l = env.NewStringUTF(intent_extra_data_key);
+    jstring extra_str = static_cast<jstring>(env.CallObjectMethodA(intent,
+            get_string_extra_method, &get_string_extra_args));
+
+    std::string args_str;
+    if (extra_str) {
+        const char *extra_utf = env.GetStringUTFChars(extra_str, nullptr);
+        args_str = extra_utf;
+        env.ReleaseStringUTFChars(extra_str, extra_utf);
+        env.DeleteLocalRef(extra_str);
+    }
+
+    env.DeleteLocalRef(get_string_extra_args.l);
+    env.DeleteLocalRef(intent);
+    vm.DetachCurrentThread();
+
+    // split args_str
+    std::stringstream ss(args_str);
+    std::string arg;
+    while (std::getline(ss, arg, ' ')) {
+        if (!arg.empty())
+            args.push_back(arg);
+    }
+
+    return args;
+}
+
+static int32_t processInput(struct android_app* app, AInputEvent* event) {
+    return 0;
+}
+
+static void processCommand(struct android_app* app, int32_t cmd) {
+    switch(cmd) {
+        case APP_CMD_INIT_WINDOW: {
+            if (app->window) {
+                initialized = true;
+            }
+            break;
+        }
+        case APP_CMD_GAINED_FOCUS: {
+            active = true;
+            break;
+        }
+        case APP_CMD_LOST_FOCUS: {
+            active = false;
+            break;
+        }
+    }
+}
+
+// Start with carbon copy of main() and convert it to support Android, then diff them and move common code to helpers.
+void android_main(struct android_app *app)
+{
+    app_dummy();
+
+    const char* appTag = "vkreplay";
+
+    int vulkanSupport = InitVulkan();
+    if (vulkanSupport == 0) {
+        __android_log_print(ANDROID_LOG_ERROR, appTag, "No Vulkan support found");
+        return;
+    }
+
+    app->onAppCmd = processCommand;
+    app->onInputEvent = processInput;
+
+    while(1) {
+        int events;
+        struct android_poll_source* source;
+        while (ALooper_pollAll(active ? 0 : -1, NULL, &events, (void**)&source) >= 0) {
+            if (source) {
+                source->process(app, source);
+            }
+
+            if (app->destroyRequested != 0) {
+                // anything to clean up?
+                return;
+            }
+        }
+
+        if (initialized && active) {
+            // Parse Intents into argc, argv
+            // Use the following key to send arguments to gtest, i.e.
+            // --es args "-v\ debug\ -t\ /sdcard/cube0.vktrace"
+            const char key[] = "args";
+            std::vector<std::string> args = get_args(*app, key);
+
+            int argc = args.size() + 1;
+
+            char** argv = (char**) malloc(argc * sizeof(char*));
+            argv[0] = (char*)"vkreplay";
+            for (int i = 0; i < args.size(); i++)
+                argv[i + 1] = (char*) args[i].c_str();
+
+
+            __android_log_print(ANDROID_LOG_INFO, appTag, "argc = %i", argc);
+            for (int i = 0; i < argc; i++)
+                __android_log_print(ANDROID_LOG_INFO, appTag, "argv[%i] = %s", i, argv[i]);
+
+            // sleep to allow attaching debugger
+            //sleep(10);
+
+            // Call into common code
+            int err = vkreplay_main(argc, argv, app->window);
+            __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
+
+            ANativeActivity_finish(app->activity);
+            free(argv);
+
+            return;
+        }
+    }
+}
+
+#else // ANDROID
+
+extern "C"
+int main(int argc, char **argv)
+{
+    return vkreplay_main(argc, argv);
+}
+
+#endif

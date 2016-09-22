@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <spawn.h>
+#include <pthread.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/prctl.h>

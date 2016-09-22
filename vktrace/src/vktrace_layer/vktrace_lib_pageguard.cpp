@@ -27,7 +27,6 @@ static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = false;
 static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 32*1024*1024; // 32M, other tested value: 4M, 64M, this is the size which cause DOOM4 capture slow.
 static const VkDeviceSize  PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN = 1;// already tested: 2M
 
-
 static vktrace_sem_id ref_amount_sem_id;// TODO if vktrace inplement cross platform lib or dll load or unload function, this sem can be putted in those functions, but now we leave it to process quit. 
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
 
