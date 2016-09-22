@@ -2150,7 +2150,28 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(
     pPacket->result = result;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
-    FINISH_TRACE_PACKET();
+    if (!g_trimEnabled)
+    {
+        // trim not enabled, send packet as usual
+        FINISH_TRACE_PACKET();
+    }
+    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsPreTrim)
+        {
+            // trim doesn't need to do anything with this entrypoint
+            vktrace_delete_trace_packet(&pHeader);
+        }
+        else if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+    }
+    else // g_trimIsPostTrim
+    {
+        vktrace_delete_trace_packet(&pHeader);
+    }
     return result;
 }
 
