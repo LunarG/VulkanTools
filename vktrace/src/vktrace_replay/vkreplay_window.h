@@ -64,13 +64,13 @@ public:
 
     }
 
-    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen, const vktrace_window_handle window) :
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen) :
         m_imp(NULL),
         m_width(width),
         m_height(height),
         m_gpu(gpu),
         m_fullscreen(fullscreen),
-        m_hWindow(window)
+        m_hWindow(0)
     {
     }
 
