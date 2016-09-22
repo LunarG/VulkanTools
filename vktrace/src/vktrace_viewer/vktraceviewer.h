@@ -26,10 +26,6 @@
 #include <QString>
 #include <QThread>
 
-extern "C" {
-#include "vktrace_trace_packet_utils.h"
-}
-
 #include "vkreplay_seq.h"
 #include "vkreplay_factory.h"
 

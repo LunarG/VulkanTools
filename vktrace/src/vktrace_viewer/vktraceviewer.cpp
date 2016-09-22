@@ -489,7 +489,7 @@ void vktraceviewer::on_actionE_xit_triggered()
 void vktraceviewer::on_action_Open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QString(),
-                                                    tr("vktrace Binary Files (*.vktrace)"));
+                                                    tr("vktrace Binary Files (*.vktrace *.*)"));
 
     if (!fileName.isEmpty())
     {

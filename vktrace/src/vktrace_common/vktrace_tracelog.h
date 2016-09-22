@@ -44,6 +44,9 @@ void vktrace_trace_set_trace_file(FileLike* pFileLike);
 FileLike* vktrace_trace_get_trace_file();
 void vktrace_tracelog_set_tracer_id(uint8_t tracerId);
 
+void vktrace_set_trace_version(uint32_t version);
+BOOL vktrace_check_min_version(uint32_t version);
+
 // Logging is done by reporting the messages back to a callback.
 // Plugins should register a callback from the parent tool;
 // Tools should register their own callback so that they can output messages as desired.

@@ -120,8 +120,9 @@ class ErrorMonitor {
     ErrorMonitor() {
         test_platform_thread_create_mutex(&m_mutex);
         test_platform_thread_lock_mutex(&m_mutex);
-        m_msgFlags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+        m_msgFlags = VK_DEBUG_REPORT_ERROR_BIT_EXT;
         m_bailout = NULL;
+        m_desiredMsgSet = false;
         test_platform_thread_unlock_mutex(&m_mutex);
     }
 
@@ -135,6 +136,7 @@ class ErrorMonitor {
         m_desiredMsg = msgString;
         m_msgFound = VK_FALSE;
         m_msgFlags = msgFlags;
+        m_desiredMsgSet = true;
         test_platform_thread_unlock_mutex(&m_mutex);
     }
 
@@ -145,7 +147,7 @@ class ErrorMonitor {
             *m_bailout = true;
         }
         string errorString(msgString);
-        if (errorString.find(m_desiredMsg) != string::npos) {
+        if (m_desiredMsgSet && errorString.find(m_desiredMsg) != string::npos) {
             if (m_msgFound) { // If multiple matches, don't lose all but the last!
                 m_otherMsgs.push_back(m_failureMsg);
             }
@@ -153,6 +155,7 @@ class ErrorMonitor {
             m_msgFound = VK_TRUE;
             result = VK_TRUE;
         } else {
+            printf("Unexpected: %s\n", msgString);
             m_otherMsgs.push_back(errorString);
         }
         test_platform_thread_unlock_mutex(&m_mutex);
@@ -212,6 +215,7 @@ class ErrorMonitor {
     test_platform_thread_mutex m_mutex;
     bool *m_bailout;
     VkBool32 m_msgFound;
+    bool m_desiredMsgSet;
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL myDbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject,
@@ -392,7 +396,8 @@ void VkLayerTest::VKTriangleTest(const char *vertShaderText, const char *fragSha
 
     ASSERT_NO_FATAL_FAILURE(InitViewport());
 
-    VkConstantBufferObj constantBuffer(m_device, bufSize * 2, sizeof(float), (const void *)&data);
+    VkConstantBufferObj constantBuffer(m_device, bufSize * 2, sizeof(float), (const void *)&data,
+                                       VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
     VkShaderObj vs(m_device, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT, this);
     VkShaderObj ps(m_device, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT, this);
@@ -420,13 +425,9 @@ void VkLayerTest::VKTriangleTest(const char *vertShaderText, const char *fragSha
     // the ones we want
     if (failMask & BsoFailViewport) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_VIEWPORT);
-        m_viewports.clear();
-        m_scissors.clear();
     }
     if (failMask & BsoFailScissor) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_SCISSOR);
-        m_scissors.clear();
-        m_viewports.clear();
     }
     if (failMask & BsoFailBlend) {
         pipelineobj.MakeDynamic(VK_DYNAMIC_STATE_BLEND_CONSTANTS);
@@ -2305,12 +2306,19 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     ASSERT_TRUE(pass);
     m_errorMonitor->VerifyFound();
 
+    // Add a fence to avoid (justifiable) error about not providing fence OR semaphore
+    VkFenceCreateInfo fci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
+    VkFence fence;
+    err = vkCreateFence(m_device->device(), &fci, nullptr, &fence);
+
     // Try to acquire an image:
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
-    err = vkAcquireNextImageKHR(m_device->device(), swapchain, 0, VK_NULL_HANDLE, VK_NULL_HANDLE, &image_index);
+    err = vkAcquireNextImageKHR(m_device->device(), swapchain, 0, VK_NULL_HANDLE, fence, &image_index);
     pass = (err != VK_SUCCESS);
     ASSERT_TRUE(pass);
     m_errorMonitor->VerifyFound();
+
+    vkDestroyFence(m_device->device(), fence, nullptr);
 
     // Try to present an image:
     //
@@ -2686,14 +2694,12 @@ TEST_F(VkLayerTest, MapMemWithoutHostVisibleBit) {
     image_create_info.tiling = VK_IMAGE_TILING_LINEAR;
     image_create_info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
     image_create_info.flags = 0;
+    image_create_info.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 
     VkMemoryAllocateInfo mem_alloc = {};
     mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     mem_alloc.pNext = NULL;
     mem_alloc.allocationSize = 0;
-    // Introduce failure, do NOT set memProps to
-    // VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-    mem_alloc.memoryTypeIndex = 1;
 
     err = vkCreateImage(m_device->device(), &image_create_info, NULL, &image);
     ASSERT_VK_SUCCESS(err);
@@ -4343,6 +4349,7 @@ TEST_F(VkLayerTest, StencilLoadOp) {
     VkAttachmentDescription att = {};
     VkAttachmentReference ref = {};
     att.format = depth_stencil_fmt;
+    att.samples = VK_SAMPLE_COUNT_1_BIT;
     att.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     att.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     att.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -6189,7 +6196,7 @@ TEST_F(VkLayerTest, DynamicViewportNotBound) {
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     // Dynamic viewport state
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Dynamic viewport state not set for this command buffer");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Dynamic viewport(s) 0 are used by PSO, but were not provided");
     VKTriangleTest(bindStateVertShaderText, bindStateFragShaderText, BsoFailViewport);
     m_errorMonitor->VerifyFound();
 }
@@ -6200,7 +6207,7 @@ TEST_F(VkLayerTest, DynamicScissorNotBound) {
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     // Dynamic scissor state
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Dynamic scissor state not set for this command buffer");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Dynamic scissor(s) 0 are used by PSO, but were not provided");
     VKTriangleTest(bindStateVertShaderText, bindStateFragShaderText, BsoFailScissor);
     m_errorMonitor->VerifyFound();
 }
@@ -6682,18 +6689,13 @@ TEST_F(VkLayerTest, InvalidCmdBufferBufferDestroyed) {
                      "due to a buffer dependency being destroyed.");
     ASSERT_NO_FATAL_FAILURE(InitState());
 
-    VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-               VK_IMAGE_TILING_OPTIMAL, 0);
-    ASSERT_TRUE(image.initialized());
-
     VkBuffer buffer;
     VkDeviceMemory mem;
     VkMemoryRequirements mem_reqs;
 
     VkBufferCreateInfo buf_info = {};
     buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    buf_info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     buf_info.size = 256;
     buf_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     VkResult err = vkCreateBuffer(m_device->device(), &buf_info, NULL, &buffer);
@@ -6716,18 +6718,8 @@ TEST_F(VkLayerTest, InvalidCmdBufferBufferDestroyed) {
     err = vkBindBufferMemory(m_device->device(), buffer, mem, 0);
     ASSERT_VK_SUCCESS(err);
 
-    VkBufferImageCopy region = {};
-    region.bufferRowLength = 128;
-    region.bufferImageHeight = 128;
-    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    region.imageSubresource.layerCount = 1;
-    region.imageExtent.height = 4;
-    region.imageExtent.width = 4;
-    region.imageExtent.depth = 1;
     m_commandBuffer->BeginCommandBuffer();
-    vkCmdCopyBufferToImage(m_commandBuffer->GetBufferHandle(), buffer, image.handle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
-                           &region);
+    vkCmdFillBuffer(m_commandBuffer->GetBufferHandle(), buffer, 0, VK_WHOLE_SIZE, 0);
     m_commandBuffer->EndCommandBuffer();
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound buffer ");
@@ -6973,7 +6965,7 @@ TEST_F(VkLayerTest, BufferMemoryNotBound) {
 
     VkBufferCreateInfo buf_info = {};
     buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    buf_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     buf_info.size = 256;
     buf_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     VkResult err = vkCreateBuffer(m_device->device(), &buf_info, NULL, &buffer);
@@ -7097,9 +7089,6 @@ TEST_F(VkLayerTest, InvalidCmdBufferPipelineDestroyed) {
     vp_state_ci.scissorCount = 1;
     VkRect2D scissors = {}; // Dummy scissors to point to
     vp_state_ci.pScissors = &scissors;
-    // No dynamic state
-    VkPipelineDynamicStateCreateInfo dyn_state_ci = {};
-    dyn_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 
     VkPipelineShaderStageCreateInfo shaderStages[2];
     memset(&shaderStages, 0, 2 * sizeof(VkPipelineShaderStageCreateInfo));
@@ -7119,6 +7108,8 @@ TEST_F(VkLayerTest, InvalidCmdBufferPipelineDestroyed) {
 
     VkPipelineRasterizationStateCreateInfo rs_ci = {};
     rs_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rs_ci.rasterizerDiscardEnable = true;
+    rs_ci.lineWidth = 1.0f;
 
     VkPipelineColorBlendAttachmentState att = {};
     att.blendEnable = VK_FALSE;
@@ -7138,7 +7129,6 @@ TEST_F(VkLayerTest, InvalidCmdBufferPipelineDestroyed) {
     gp_ci.pViewportState = &vp_state_ci;
     gp_ci.pRasterizationState = &rs_ci;
     gp_ci.pColorBlendState = &cb_ci;
-    gp_ci.pDynamicState = &dyn_state_ci;
     gp_ci.flags = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT;
     gp_ci.layout = pipeline_layout;
     gp_ci.renderPass = renderPass();
@@ -7594,20 +7584,22 @@ TEST_F(VkLayerTest, InvalidPipeline) {
     // call vkCmdBindPipeline w/ false Pipeline
     uint64_t fake_pipeline_handle = 0xbaad6001;
     VkPipeline bad_pipeline = reinterpret_cast<VkPipeline &>(fake_pipeline_handle);
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Invalid Pipeline Object 0xbaad6001");
     ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Invalid Pipeline Object 0xbaad6001");
     BeginCommandBuffer();
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, bad_pipeline);
     m_errorMonitor->VerifyFound();
+
     // Now issue a draw call with no pipeline bound
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "At Draw/Dispatch time no valid VkPipeline is bound!");
-
-    BeginCommandBuffer();
     Draw(1, 0, 0, 0);
     m_errorMonitor->VerifyFound();
+
     // Finally same check once more but with Dispatch/Compute
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "At Draw/Dispatch time no valid VkPipeline is bound!");
-    BeginCommandBuffer();
+    vkCmdEndRenderPass(m_commandBuffer->GetBufferHandle()); // must be outside renderpass
     vkCmdDispatch(m_commandBuffer->GetBufferHandle(), 0, 0, 0);
     m_errorMonitor->VerifyFound();
 }
@@ -7773,7 +7765,7 @@ TEST_F(VkLayerTest, CreateBufferViewNoMemoryBoundToBuffer) {
     // a buffer view.
     VkBufferCreateInfo buff_ci = {};
     buff_ci.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buff_ci.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    buff_ci.usage = VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
     buff_ci.size = 256;
     buff_ci.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     VkBuffer buffer;
@@ -8081,10 +8073,10 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
         {{VK_SHADER_STAGE_VERTEX_BIT, 0, 1},
          "vkCreatePipelineLayout() call has push constants index 0 with "
          "size 1."},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 1, 1},
+        {{VK_SHADER_STAGE_VERTEX_BIT, 4, 1},
          "vkCreatePipelineLayout() call has push constants index 0 with "
          "size 1."},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 1, 0},
+        {{VK_SHADER_STAGE_VERTEX_BIT, 4, 0},
          "vkCreatePipelineLayout() call has push constants index 0 with "
          "size 0."},
         {{VK_SHADER_STAGE_VERTEX_BIT, 1, 4},
@@ -8096,7 +8088,7 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
         {{VK_SHADER_STAGE_VERTEX_BIT, too_big, too_big},
          "vkCreatePipelineLayout() call has push constants "
          "index 0 with offset "},
-        {{VK_SHADER_STAGE_VERTEX_BIT, too_big, 0},
+        {{VK_SHADER_STAGE_VERTEX_BIT, too_big, 4},
          "vkCreatePipelineLayout() call has push constants index 0 "
          "with offset "},
         {{VK_SHADER_STAGE_VERTEX_BIT, 0xFFFFFFF0, 0x00000020},
@@ -8122,7 +8114,9 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
     pc_range.offset = 0;
     pc_range.size = 16;
     pc_range.stageFlags = 0;
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "vkCreatePipelineLayout() call has no stageFlags set.");
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "vkCreatePipelineLayout: value of pCreateInfo->pPushConstantRanges[0].stageFlags must not be 0");
     err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL, &pipeline_layout);
     m_errorMonitor->VerifyFound();
     if (VK_SUCCESS == err) {
@@ -8142,17 +8136,14 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
            {VK_SHADER_STAGE_VERTEX_BIT, 0, 4},
            {VK_SHADER_STAGE_VERTEX_BIT, 0, 4},
            {VK_SHADER_STAGE_VERTEX_BIT, 0, 4}},
-          "vkCreatePipelineLayout() call has push constants with overlapping "
-          "ranges: 0:[0, 4), 1:[0, 4)"},
+          "vkCreatePipelineLayout() call has push constants with overlapping ranges:"},
          {
              {{VK_SHADER_STAGE_VERTEX_BIT, 0, 4},
               {VK_SHADER_STAGE_VERTEX_BIT, 4, 4},
               {VK_SHADER_STAGE_VERTEX_BIT, 8, 4},
               {VK_SHADER_STAGE_VERTEX_BIT, 12, 8},
               {VK_SHADER_STAGE_VERTEX_BIT, 16, 4}},
-             "vkCreatePipelineLayout() call has push constants with "
-             "overlapping "
-             "ranges: 3:[12, 20), 4:[16, 20)",
+             "vkCreatePipelineLayout() call has push constants with overlapping ranges: 3:[12, 20), 4:[16, 20)",
          },
          {
              {{VK_SHADER_STAGE_VERTEX_BIT, 16, 4},
@@ -8160,9 +8151,7 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
               {VK_SHADER_STAGE_VERTEX_BIT, 8, 4},
               {VK_SHADER_STAGE_VERTEX_BIT, 4, 4},
               {VK_SHADER_STAGE_VERTEX_BIT, 0, 4}},
-             "vkCreatePipelineLayout() call has push constants with "
-             "overlapping "
-             "ranges: 0:[16, 20), 1:[12, 20)",
+             "vkCreatePipelineLayout() call has push constants with overlapping ranges: 0:[16, 20), 1:[12, 20)",
          },
          {
              {{VK_SHADER_STAGE_VERTEX_BIT, 16, 4},
@@ -8170,9 +8159,7 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
               {VK_SHADER_STAGE_VERTEX_BIT, 4, 4},
               {VK_SHADER_STAGE_VERTEX_BIT, 12, 8},
               {VK_SHADER_STAGE_VERTEX_BIT, 0, 4}},
-             "vkCreatePipelineLayout() call has push constants with "
-             "overlapping "
-             "ranges: 0:[16, 20), 3:[12, 20)",
+             "vkCreatePipelineLayout() call has push constants with overlapping ranges: 0:[16, 20), 3:[12, 20)",
          },
          {
              {{VK_SHADER_STAGE_VERTEX_BIT, 16, 4},
@@ -8180,9 +8167,7 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
               {VK_SHADER_STAGE_VERTEX_BIT, 4, 96},
               {VK_SHADER_STAGE_VERTEX_BIT, 40, 8},
               {VK_SHADER_STAGE_VERTEX_BIT, 52, 4}},
-             "vkCreatePipelineLayout() call has push constants with "
-             "overlapping "
-             "ranges: 0:[16, 20), 2:[4, 100)",
+             "vkCreatePipelineLayout() call has push constants with overlapping ranges:",
          }}};
 
     for (const auto &iter : overlapping_range_tests) {
@@ -8225,17 +8210,15 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
     const uint8_t dummy_values[100] = {};
 
     // Check for invalid offset and size and if range is within layout range(s)
-    const std::array<PipelineLayoutTestCase, 16> cmd_range_tests = {{
-        {{VK_SHADER_STAGE_VERTEX_BIT, 0, 0},
-         "vkCmdPushConstants() call has push constants with size 0. Size "
-         "must be greater than zero and a multiple of 4."},
+    const std::array<PipelineLayoutTestCase, 11> cmd_range_tests = {{
+        {{VK_SHADER_STAGE_VERTEX_BIT, 0, 0}, "vkCmdPushConstants: parameter size must be greater than 0"},
         {{VK_SHADER_STAGE_VERTEX_BIT, 0, 1},
          "vkCmdPushConstants() call has push constants with size 1. Size "
          "must be greater than zero and a multiple of 4."},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 1, 1},
+        {{VK_SHADER_STAGE_VERTEX_BIT, 4, 1},
          "vkCmdPushConstants() call has push constants with size 1. Size "
          "must be greater than zero and a multiple of 4."},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 1, 0},
+        {{VK_SHADER_STAGE_VERTEX_BIT, 1, 4},
          "vkCmdPushConstants() call has push constants with offset 1. "
          "Offset must be a multiple of 4."},
         {{VK_SHADER_STAGE_VERTEX_BIT, 1, 4},
@@ -8259,14 +8242,11 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
         {{VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, 0, 16},
          "vkCmdPushConstants() stageFlags = 0x3 do not match the stageFlags in "
          "any of the ranges in pipeline layout"},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 0, too_big}, "vkCmdPushConstants() call has push constants with offset "},
-        {{VK_SHADER_STAGE_VERTEX_BIT, too_big, too_big}, "vkCmdPushConstants() call has push constants with offset "},
-        {{VK_SHADER_STAGE_VERTEX_BIT, too_big, 0}, "vkCmdPushConstants() call has push constants with offset "},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 0xFFFFFFF0, 0x00000020}, "vkCmdPushConstants() call has push constants with offset "},
-        {{VK_SHADER_STAGE_VERTEX_BIT, 0x00000020, 0xFFFFFFF0}, "vkCmdPushConstants() call has push constants with offset "},
     }};
 
-    // Two ranges for testing robustness
+    BeginCommandBuffer();
+
+    // Setup ranges: [0,16) [64,80)
     const VkPushConstantRange pc_range2[] = {
         {VK_SHADER_STAGE_VERTEX_BIT, 64, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 0, 16},
     };
@@ -8274,7 +8254,6 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
     pipeline_layout_ci.pPushConstantRanges = pc_range2;
     err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL, &pipeline_layout);
     ASSERT_VK_SUCCESS(err);
-    BeginCommandBuffer();
     for (const auto &iter : cmd_range_tests) {
         m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, iter.msg);
         vkCmdPushConstants(m_commandBuffer->GetBufferHandle(), pipeline_layout, iter.range.stageFlags, iter.range.offset,
@@ -8283,11 +8262,9 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
     }
 
     // Check for invalid stage flag
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "vkCmdPushConstants() call has no stageFlags set.");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "vkCmdPushConstants: value of stageFlags must not be 0");
     vkCmdPushConstants(m_commandBuffer->GetBufferHandle(), pipeline_layout, 0, 0, 16, dummy_values);
     m_errorMonitor->VerifyFound();
-    EndCommandBuffer();
-    vkResetCommandBuffer(m_commandBuffer->GetBufferHandle(), 0);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
 
     // overlapping range tests with cmd
@@ -8302,24 +8279,21 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
          "vkCmdPushConstants() Push constant range [40, 56) with stageFlags = "
          "0x1 not within flag-matching ranges in pipeline layout"},
     }};
+    // Setup ranges:  [0,16), [20,36), [36,44), [44,52), [80,92)
     const VkPushConstantRange pc_range3[] = {
-        {VK_SHADER_STAGE_VERTEX_BIT, 20, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 0, 16},  {VK_SHADER_STAGE_VERTEX_BIT, 0, 4},
-        {VK_SHADER_STAGE_VERTEX_BIT, 44, 8},  {VK_SHADER_STAGE_VERTEX_BIT, 80, 12}, {VK_SHADER_STAGE_VERTEX_BIT, 36, 8},
-        {VK_SHADER_STAGE_VERTEX_BIT, 56, 28},
+        {VK_SHADER_STAGE_VERTEX_BIT, 20, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 0, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 44, 8},
+        {VK_SHADER_STAGE_VERTEX_BIT, 80, 12}, {VK_SHADER_STAGE_VERTEX_BIT, 36, 8},
     };
     pipeline_layout_ci.pushConstantRangeCount = sizeof(pc_range3) / sizeof(VkPushConstantRange);
     pipeline_layout_ci.pPushConstantRanges = pc_range3;
     err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL, &pipeline_layout);
     ASSERT_VK_SUCCESS(err);
-    BeginCommandBuffer();
     for (const auto &iter : cmd_overlap_tests) {
         m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, iter.msg);
         vkCmdPushConstants(m_commandBuffer->GetBufferHandle(), pipeline_layout, iter.range.stageFlags, iter.range.offset,
                            iter.range.size, dummy_values);
         m_errorMonitor->VerifyFound();
     }
-    EndCommandBuffer();
-    vkResetCommandBuffer(m_commandBuffer->GetBufferHandle(), 0);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
 
     // positive overlapping range tests with cmd
@@ -8329,25 +8303,24 @@ TEST_F(VkLayerTest, InvalidPushConstants) {
         {{VK_SHADER_STAGE_VERTEX_BIT, 20, 12}, ""},
         {{VK_SHADER_STAGE_VERTEX_BIT, 56, 36}, ""},
     }};
+    // Setup ranges: [0,16) [20,36) [36,44) [44,52) [56,80) [80,92)
     const VkPushConstantRange pc_range4[] = {
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 64}, {VK_SHADER_STAGE_VERTEX_BIT, 20, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 0, 16},
-        {VK_SHADER_STAGE_VERTEX_BIT, 0, 4},  {VK_SHADER_STAGE_VERTEX_BIT, 44, 8},  {VK_SHADER_STAGE_VERTEX_BIT, 80, 12},
-        {VK_SHADER_STAGE_VERTEX_BIT, 36, 8}, {VK_SHADER_STAGE_VERTEX_BIT, 56, 28},
+        {VK_SHADER_STAGE_VERTEX_BIT, 20, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 0, 16}, {VK_SHADER_STAGE_VERTEX_BIT, 44, 8},
+        {VK_SHADER_STAGE_VERTEX_BIT, 80, 12}, {VK_SHADER_STAGE_VERTEX_BIT, 36, 8}, {VK_SHADER_STAGE_VERTEX_BIT, 56, 24},
     };
     pipeline_layout_ci.pushConstantRangeCount = sizeof(pc_range4) / sizeof(VkPushConstantRange);
     pipeline_layout_ci.pPushConstantRanges = pc_range4;
     err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL, &pipeline_layout);
     ASSERT_VK_SUCCESS(err);
-    BeginCommandBuffer();
     for (const auto &iter : cmd_overlap_tests_pos) {
         m_errorMonitor->ExpectSuccess();
         vkCmdPushConstants(m_commandBuffer->GetBufferHandle(), pipeline_layout, iter.range.stageFlags, iter.range.offset,
                            iter.range.size, dummy_values);
         m_errorMonitor->VerifyNotFound();
     }
-    EndCommandBuffer();
-    vkResetCommandBuffer(m_commandBuffer->GetBufferHandle(), 0);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
+
+    EndCommandBuffer();
 }
 
 TEST_F(VkLayerTest, DescriptorSetCompatibility) {
@@ -11777,8 +11750,7 @@ TEST_F(VkLayerTest, MissingClearAttachment) {
                      "structure passed to vkCmdClearAttachments");
     ASSERT_NO_FATAL_FAILURE(InitState());
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "vkCmdClearAttachments() attachment index 1 not found in attachment "
-                                         "reference array of active subpass 0");
+                                         "vkCmdClearAttachments() color attachment index 1 out of range for active subpass 0; ignored");
 
     VKTriangleTest(bindStateVertShaderText, bindStateFragShaderText, BsoFailCmdClearAttachments);
     m_errorMonitor->VerifyFound();
@@ -13059,7 +13031,12 @@ TEST_F(VkLayerTest, FramebufferIncompatible) {
     vkBeginCommandBuffer(sec_cb, &cbbi);
     vkEndCommandBuffer(sec_cb);
 
-    BeginCommandBuffer();
+    VkCommandBufferBeginInfo cbbi2 = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr,
+        0, nullptr
+    };
+    vkBeginCommandBuffer(m_commandBuffer->GetBufferHandle(), &cbbi2);
+    vkCmdBeginRenderPass(m_commandBuffer->GetBufferHandle(), &m_renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          " that is not the same as the primaryCB's current active framebuffer ");
@@ -14088,6 +14065,44 @@ TEST_F(VkLayerTest, CreatePipelineAttribComponents) {
     m_errorMonitor->VerifyNotFound();
 }
 
+TEST_F(VkLayerTest, CreatePipelineMissingEntrypoint) {
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         "No entrypoint found named `foo`");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    char const *vsSource = "#version 450\n"
+                           "out gl_PerVertex {\n"
+                           "    vec4 gl_Position;\n"
+                           "};\n"
+                           "void main(){\n"
+                           "   gl_Position = vec4(0);\n"
+                           "}\n";
+    char const *fsSource = "#version 450\n"
+                           "\n"
+                           "layout(location=0) out vec4 color;\n"
+                           "void main(){\n"
+                           "   color = vec4(1);\n"
+                           "}\n";
+
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this, "foo");
+
+    VkPipelineObj pipe(m_device);
+    pipe.AddColorAttachment();
+    pipe.AddShader(&vs);
+    pipe.AddShader(&fs);
+
+    VkDescriptorSetObj descriptorSet(m_device);
+    descriptorSet.AppendDummy();
+    descriptorSet.CreateVKDescriptorSet(m_commandBuffer);
+
+    pipe.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderPass());
+
+    m_errorMonitor->VerifyFound();
+}
+
 TEST_F(VkLayerTest, CreatePipelineSimplePositive) {
     m_errorMonitor->ExpectSuccess();
 
@@ -14123,6 +14138,72 @@ TEST_F(VkLayerTest, CreatePipelineSimplePositive) {
     pipe.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderPass());
 
     m_errorMonitor->VerifyNotFound();
+}
+
+TEST_F(VkLayerTest, CreatePipelineDepthStencilRequired) {
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        "pDepthStencilState is NULL when rasterization is enabled and subpass "
+        "uses a depth/stencil attachment");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    char const *vsSource = "#version 450\n"
+                           "void main(){ gl_Position = vec4(0); }\n";
+    char const *fsSource = "#version 450\n"
+                           "\n"
+                           "layout(location=0) out vec4 color;\n"
+                           "void main(){\n"
+                           "   color = vec4(1);\n"
+                           "}\n";
+
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this);
+
+    VkPipelineObj pipe(m_device);
+    pipe.AddColorAttachment();
+    pipe.AddShader(&vs);
+    pipe.AddShader(&fs);
+
+    VkDescriptorSetObj descriptorSet(m_device);
+    descriptorSet.AppendDummy();
+    descriptorSet.CreateVKDescriptorSet(m_commandBuffer);
+
+    VkAttachmentDescription attachments[] = {
+        { 0, VK_FORMAT_B8G8R8A8_UNORM, VK_SAMPLE_COUNT_1_BIT,
+          VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+          VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+          VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        },
+        { 0, VK_FORMAT_D16_UNORM, VK_SAMPLE_COUNT_1_BIT,
+          VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+          VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+          VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        },
+    };
+    VkAttachmentReference refs[] = {
+        { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
+        { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL },
+    };
+    VkSubpassDescription subpass = {
+        0, VK_PIPELINE_BIND_POINT_GRAPHICS, 0, nullptr,
+        1, &refs[0], nullptr, &refs[1],
+        0, nullptr
+    };
+    VkRenderPassCreateInfo rpci = {
+        VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO, nullptr,
+        0, 2, attachments, 1, &subpass, 0, nullptr
+    };
+    VkRenderPass rp;
+    VkResult err = vkCreateRenderPass(m_device->device(), &rpci, nullptr, &rp);
+    ASSERT_VK_SUCCESS(err);
+
+    pipe.CreateVKPipeline(descriptorSet.GetPipelineLayout(), rp);
+
+    m_errorMonitor->VerifyFound();
+
+    vkDestroyRenderPass(m_device->device(), rp, nullptr);
 }
 
 TEST_F(VkLayerTest, CreatePipelineRelaxedTypeMatch) {

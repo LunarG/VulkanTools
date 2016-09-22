@@ -38,6 +38,20 @@ void vktrace_trace_set_trace_file(FileLike* pFileLike)
     g_pFileOut = pFileLike;
 }
 
+// set initial value to 0 but once we read the trace file version
+// we will update this and use for version checks
+static uint32_t g_trace_version_num = 0;
+
+void vktrace_set_trace_version(uint32_t version)
+{
+    g_trace_version_num = version;
+}
+
+BOOL vktrace_check_min_version(uint32_t version)
+{
+    return ((g_trace_version_num) >= (version) ? true : false);
+}
+
 FileLike* vktrace_trace_get_trace_file()
 {
     return g_pFileOut;

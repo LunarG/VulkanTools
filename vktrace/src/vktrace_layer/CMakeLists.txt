@@ -35,6 +35,10 @@ set(CODEGEN_VKTRACE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../vktrace_extensions/vktra
 set(SRC_LIST
     ${SRC_LIST}
     vktrace_lib.c
+    vktrace_lib_pagestatusarray.cpp
+    vktrace_lib_pageguardmappedmemory.cpp
+    vktrace_lib_pageguardcapture.cpp
+    vktrace_lib_pageguard.cpp
     vktrace_lib_trace.cpp
     vktrace_lib_trim.cpp
     vktrace_lib_trim_generate.cpp
@@ -51,6 +55,10 @@ set (HDR_LIST
     vktrace_lib_helpers.h
     vktrace_lib_trim.h
     vktrace_lib_trim_generate.h
+    vktrace_lib_pagestatusarray.h
+    vktrace_lib_pageguardmappedmemory.h
+    vktrace_lib_pageguardcapture.h
+    vktrace_lib_pageguard.h
     vktrace_vk_exts.h
     vk_dispatch_table_helper.h
     codegen/vktrace_vk_vk.h

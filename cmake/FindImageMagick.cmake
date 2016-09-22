@@ -172,13 +172,13 @@ FUNCTION(FIND_IMAGEMAGICK_API component path header)
        )
     ENDIF()
 
-    # Add the architecture include path if it exists    
+    # Add the architecture include path if it exists
     IF (ImageMagick_${component}_ARCH_INCLUDE_DIR)
       LIST(APPEND ImageMagick_INCLUDE_DIRS
         ${ImageMagick_${component}_ARCH_INCLUDE_DIR}
-        )      
+        )
     ENDIF()
-    
+
     LIST(REMOVE_DUPLICATES ImageMagick_INCLUDE_DIRS)
     SET(ImageMagick_INCLUDE_DIRS ${ImageMagick_INCLUDE_DIRS} PARENT_SCOPE)
 

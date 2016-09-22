@@ -2912,6 +2912,8 @@ VkResult loader_icd_scan(const struct loader_instance *inst,
             if (num_good_icds == 0) {
                 res = VK_ERROR_INITIALIZATION_FAILED;
             }
+            cJSON_Delete(json);
+            json = NULL;
             continue;
         }
         char *file_vers = cJSON_Print(item);
@@ -2921,6 +2923,8 @@ VkResult loader_icd_scan(const struct loader_instance *inst,
             if (num_good_icds == 0) {
                 res = VK_ERROR_OUT_OF_HOST_MEMORY;
             }
+            cJSON_Delete(json);
+            json = NULL;
             continue;
         }
         loader_log(inst, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
@@ -4323,9 +4327,6 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateDevice(
             localCreateInfo.enabledExtensionCount++;
         }
     }
-
-    wsi_create_device(dev, pCreateInfo);
-    extensions_create_device(dev, pCreateInfo);
 
     // TODO: Why does fpCreateDevice behave differently than
     // this_icd->CreateDevice?
