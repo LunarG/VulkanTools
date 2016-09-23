@@ -108,7 +108,7 @@ enum descriptor_req {
     DESCRIPTOR_REQ_MULTI_SAMPLE = DESCRIPTOR_REQ_SINGLE_SAMPLE << 1,
 };
 
-struct DESCRIPTOR_POOL_NODE {
+struct DESCRIPTOR_POOL_NODE : BASE_NODE {
     VkDescriptorPool pool;
     uint32_t maxSets;       // Max descriptor sets allowed in this pool
     uint32_t availableSets; // Available descriptor sets in this pool
@@ -160,6 +160,17 @@ class BUFFER_NODE : public BASE_NODE {
           createInfo(rh_obj.createInfo){};
 };
 
+class BUFFER_VIEW_STATE : public BASE_NODE {
+  public:
+    VkBufferView buffer_view;
+    VkBufferViewCreateInfo create_info;
+    BUFFER_VIEW_STATE() : buffer_view(VK_NULL_HANDLE), create_info{} {};
+    BUFFER_VIEW_STATE(VkBufferView bv, const VkBufferViewCreateInfo *ci) : buffer_view(bv), create_info(*ci){};
+    BUFFER_VIEW_STATE(const BUFFER_VIEW_STATE &rh_obj) : buffer_view(rh_obj.buffer_view), create_info(rh_obj.create_info) {
+        in_use.store(rh_obj.in_use.load());
+    };
+};
+
 struct SAMPLER_NODE : public BASE_NODE {
     VkSampler sampler;
     VkSamplerCreateInfo createInfo;
@@ -184,6 +195,17 @@ class IMAGE_NODE : public BASE_NODE {
     IMAGE_NODE(const IMAGE_NODE &rh_obj)
         : image(rh_obj.image), createInfo(rh_obj.createInfo), mem(rh_obj.mem), valid(rh_obj.valid), memOffset(rh_obj.memOffset),
           memSize(rh_obj.memSize) {
+        in_use.store(rh_obj.in_use.load());
+    };
+};
+
+class IMAGE_VIEW_STATE : public BASE_NODE {
+  public:
+    VkImageView image_view;
+    VkImageViewCreateInfo create_info;
+    IMAGE_VIEW_STATE() : image_view(VK_NULL_HANDLE), create_info{} {};
+    IMAGE_VIEW_STATE(VkImageView iv, const VkImageViewCreateInfo *ci) : image_view(iv), create_info(*ci){};
+    IMAGE_VIEW_STATE(const IMAGE_VIEW_STATE &rh_obj) : image_view(rh_obj.image_view), create_info(rh_obj.create_info) {
         in_use.store(rh_obj.in_use.load());
     };
 };
@@ -222,7 +244,7 @@ struct MEMORY_RANGE {
 };
 
 // Data struct for tracking memory object
-struct DEVICE_MEM_INFO {
+struct DEVICE_MEM_INFO : public BASE_NODE {
     void *object; // Dispatchable object used to create this memory (device of swapchain)
     bool global_valid; // If allocation is mapped, set to "true" to be picked up by subsequently bound ranges
     VkDeviceMemory mem;
@@ -296,7 +318,7 @@ struct DAGNode {
     std::vector<uint32_t> next;
 };
 
-struct RENDER_PASS_NODE {
+struct RENDER_PASS_NODE : public BASE_NODE {
     VkRenderPass renderPass;
     VkRenderPassCreateInfo const *pCreateInfo;
     std::vector<bool> hasSelfDependency;
@@ -649,15 +671,17 @@ DESCRIPTOR_POOL_NODE *getPoolNode(const layer_data *, const VkDescriptorPool);
 BUFFER_NODE *getBufferNode(const layer_data *, VkBuffer);
 IMAGE_NODE *getImageNode(const layer_data *, VkImage);
 DEVICE_MEM_INFO *getMemObjInfo(const layer_data *, VkDeviceMemory);
-VkBufferViewCreateInfo *getBufferViewInfo(const layer_data *, VkBufferView);
+BUFFER_VIEW_STATE *getBufferViewState(const layer_data *, VkBufferView);
 SAMPLER_NODE *getSamplerNode(const layer_data *, VkSampler);
-VkImageViewCreateInfo *getImageViewData(const layer_data *, VkImageView);
+IMAGE_VIEW_STATE *getImageViewState(const layer_data *, VkImageView);
 VkSwapchainKHR getSwapchainFromImage(const layer_data *, VkImage);
 SWAPCHAIN_NODE *getSwapchainNode(const layer_data *, VkSwapchainKHR);
 void invalidateCommandBuffers(std::unordered_set<GLOBAL_CB_NODE *>, VK_OBJECT);
 bool ValidateMemoryIsBoundToBuffer(const layer_data *, const BUFFER_NODE *, const char *);
+bool ValidateMemoryIsBoundToImage(const layer_data *, const IMAGE_NODE *, const char *);
 void AddCommandBufferBindingSampler(GLOBAL_CB_NODE *, SAMPLER_NODE *);
 void AddCommandBufferBindingImage(const layer_data *, GLOBAL_CB_NODE *, IMAGE_NODE *);
+void AddCommandBufferBindingImageView(const layer_data *, GLOBAL_CB_NODE *, IMAGE_VIEW_STATE *);
 void AddCommandBufferBindingBuffer(const layer_data *, GLOBAL_CB_NODE *, BUFFER_NODE *);
 }
 
