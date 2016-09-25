@@ -159,4 +159,70 @@ cd build32
 cmake -G "Visual Studio 12" ..
 msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release
 ```
+## Android Build
+Install the required tools for Linux and Windows covered above, then add the
+following.
+### Android Studio
+- Install 2.1 or later verion of [Android Studio](http://tools.android.com/download/studio/stable)
+- From the "Welcome to Android Studio" splash screen, add the following components using Configure > SDK Manager:
+  - SDK Tools > Android NDK
 
+#### Add NDK to path
+
+On Linux:
+```
+export PATH=$HOME/Android/sdk/ndk-bundle:$PATH
+```
+On Windows:
+```
+set PATH=%LOCALAPPDATA%\Android\sdk\ndk-bundle;%PATH%
+```
+On OSX:
+```
+export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
+```
+### Additional OSX System Requirements
+Tested on OSX version 10.11.4
+
+ Setup Homebrew and components
+- Follow instructions on [brew.sh](http://brew.sh) to get homebrew installed.
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+- Ensure Homebrew is at the beginning of your PATH:
+```
+export PATH=/usr/local/bin:$PATH
+```
+- Add packages with the following (may need refinement)
+```
+brew install cmake python python3 git
+```
+### Build steps for Android
+Use the following to ensure the Android build works.
+#### Linux
+Follow the setup steps for Linux, then from your terminal:
+```
+cd build-android
+./update_external_sources_android.sh
+./android-generate.sh
+ndk-build -j $(nproc)
+```
+#### OSX
+Follow the setup steps for OSX above, then from your terminal:
+```
+cd build-android
+./update_external_sources_android.sh
+./android-generate.sh
+ndk-build -j $(sysctl -n hw.ncpu)
+```
+#### Windows
+Follow the setup steps for Windows above, then from Developer Command Prompt for VS2013:
+```
+cd build-android
+update_external_sources_android.bat
+android-generate.bat
+ndk-build
+```
+
+## Android usage
+See the [test_vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/android_doc_update/build-android/test_vktracereplay.sh) file for an example of how to use vktrace/vkreplay and screenshot layers.  It can be executed after performing the ndk-build step above.  The script requires a rooted device, but this will be updated soon to work on non-rooted devices.
