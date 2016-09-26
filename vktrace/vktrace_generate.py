@@ -1068,6 +1068,8 @@ class Subcommand(object):
             create_func = False
             if 'Create' in proto.name or 'Alloc' in proto.name or 'MapMemory' in proto.name:
                 create_func = True
+            if 'GetSwapchainImages' in proto.name:
+                create_func = True
             for p in proto.params:
                 last_param = False
                 if (p.name == proto.params[-1].name):
