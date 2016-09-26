@@ -24,11 +24,12 @@
 #include "vktrace_lib_pageguard.h"
 
 static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = false;
-static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 32*1024*1024; // 32M, other tested value: 4M, 64M, this is the size which cause DOOM4 capture slow.
-static const VkDeviceSize  PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN = 1;// already tested: 2M
+static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 2; //cover all reasonal mapped memory size, the mapped memory size may be less than 1 page, so processing for mapped memory size<1 page is already added,
+                                                                   //other value: 32 * 1024 * 1024 (32M),  64M, this is the size which cause DOOM4 capture very slow.
+static const VkDeviceSize  PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN = 1; // already tested: 2,2M,4M,32M,64M, because commonly page size is 4k, so only range size=2 can cover small size mapped memory.
 
 
-static vktrace_sem_id ref_amount_sem_id;// TODO if vktrace inplement cross platform lib or dll load or unload function, this sem can be putted in those functions, but now we leave it to process quit. 
+static vktrace_sem_id ref_amount_sem_id;// TODO if vktrace implement cross platform lib or dll load or unload function, this sem can be putted in those functions, but now we leave it to process quit.
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
 
 static vktrace_sem_id map_lock_sem_id;
