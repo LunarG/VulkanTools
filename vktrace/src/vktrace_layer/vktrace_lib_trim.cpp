@@ -427,6 +427,52 @@ namespace trim
     };
 
     //=============================================================================
+    // \param isMappedOffset If the buffer is currently mapped by the application, this is the offset that was used during that call to vkMapMemory.
+    // \param pIsMappedAddress If the buffer is currently mapped by the application, this is the address of the buffer that was returned by vkMapMemory.
+    void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkDeviceSize isMappedOffset, void* pIsMappedAddress, vktrace_trace_packet_header** ppMapMemoryPacket, vktrace_trace_packet_header** ppUnmapMemoryPacket)
+    {
+        assert(ppMapMemoryPacket != NULL);
+        assert(ppUnmapMemoryPacket != NULL);
+
+        uint32_t flags = 0;
+
+        vktrace_trace_packet_header* pMapMemory = generate::vkMapMemory(
+            makeCalls,
+            device,
+            memory,
+            offset,
+            size,
+            flags,
+            &pIsMappedAddress
+            );
+
+        if (pIsMappedAddress == NULL)
+        {
+            // if the mapped address is still NULL, that means the map failed for some reason.
+            // Since it failed, we'll just delete the packet and won't create an unmap for it.
+            vktrace_delete_trace_packet(&pMapMemory);
+        }
+        else
+        {
+            *ppMapMemoryPacket = pMapMemory;
+
+            // By creating the packet for UnmapMemory, we'll be adding the pData buffer to it, which inherently copies it.
+
+            // need to adjust the pointer to ensure it points to the beginning of the image memory, which may NOT be
+            // the same as the offset of the mapped address.
+            void* bufferAddress = (BYTE*)pIsMappedAddress + (offset - isMappedOffset);
+
+            // Actually unmap the memory if it wasn't already mapped by the application
+            *ppUnmapMemoryPacket = generate::vkUnmapMemory(
+                makeCalls,
+                size,
+                bufferAddress,
+                device,
+                memory);
+        }
+    }
+
+    //=============================================================================
     // Use this to snapshot the global state tracker at the start of the trim frames.
     //=============================================================================
     void snapshot_state_tracker()
@@ -702,44 +748,7 @@ namespace trim
 
                 if (size != 0)
                 {
-                    // actually map the memory, and also generate a trace packet to use when writing out referenced objects
-                    vktrace_trace_packet_header* pMapMemory = generate::vkMapMemory(
-                        true,
-                        device,
-                        memory,
-                        offset,
-                        size,
-                        flags,
-                        &mappedAddress
-                        );
-
-                    if (mappedAddress == NULL)
-                    {
-                        // if the mapped address is still NULL, that means the map failed for some reason.
-                        // It shouldn't be due to missing VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, since we created
-                        // this buffer specifically to ready from it. Would need to investigate if this happens.
-                        // Since it failed, we'll just delete the packet and won't create an unmap for it.
-                        vktrace_delete_trace_packet(&pMapMemory);
-                    }
-                    else
-                    {
-                        imageIter->second.ObjectInfo.Image.pMapMemoryPacket = pMapMemory;
-
-                        // By creating the packet for UnmapMemory, we'll be adding the pData buffer to it, which inherently copies it.
-
-                        // need to adjust the pointer to ensure it points to the beginning of the image memory, which may NOT be
-                        // the same as the offset of the mapped address.
-                        void* bufferAddress = (BYTE*)mappedAddress + offset;
-
-                        // Actually unmap the memory, and also generate a trace packet to use when writing out referenced objects
-                        vktrace_trace_packet_header* pUnmapMemory = generate::vkUnmapMemory(
-                            true,
-                            size,
-                            bufferAddress,
-                            device,
-                            memory);
-                        imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket = pUnmapMemory;
-                    }
+                    generateMapUnmap(true, device, memory, offset, size, 0, mappedAddress, &imageIter->second.ObjectInfo.Image.pMapMemoryPacket, &imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket);
                 }
             }
             else
@@ -765,42 +774,7 @@ namespace trim
                             bAlreadyMapped = (offset >= mappedOffset && (offset + size) <= (mappedOffset + mappedSize));
                         }
 
-                        vktrace_trace_packet_header* pMapMemory = generate::vkMapMemory(
-                            !bAlreadyMapped,
-                            device,
-                            memory,
-                            offset,
-                            size,
-                            flags,
-                            &mappedAddress
-                            );
-
-                        if (mappedAddress == NULL)
-                        {
-                            // if the mapped address is still NULL, that means the map failed for some reason.
-                            // One reason is that the memory does NOT have VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT. (TODO)
-                            // Since it failed, we'll just delete the packet and won't create an unmap for it.
-                            vktrace_delete_trace_packet(&pMapMemory);
-                        }
-                        else
-                        {
-                            imageIter->second.ObjectInfo.Image.pMapMemoryPacket = pMapMemory;
-
-                            // By creating the packet for UnmapMemory, we'll be adding the pData buffer to it, which inherently copies it.
-
-                            // need to adjust the pointer to ensure it points to the beginning of the image memory, which may NOT be
-                            // the same as the offset of the mapped address.
-                            void* imageAddress = (BYTE*)mappedAddress + (offset - mappedOffset);
-
-                            // Actually unmap the memory if it wasn't already mapped by the application
-                            vktrace_trace_packet_header* pUnmapMemory = generate::vkUnmapMemory(
-                                !bAlreadyMapped,
-                                size,
-                                imageAddress,
-                                device,
-                                memory);
-                            imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket = pUnmapMemory;
-                        }
+                        generateMapUnmap(!bAlreadyMapped, device, memory, offset, size, 0, mappedAddress, &imageIter->second.ObjectInfo.Image.pMapMemoryPacket, &imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket);
                     }
                 }
             }
@@ -855,41 +829,7 @@ namespace trim
                     bAlreadyMapped = (offset >= mappedOffset && (offset + size) <= (mappedOffset + mappedSize));
                 }
 
-                vktrace_trace_packet_header* pMapMemory = generate::vkMapMemory(
-                    !bAlreadyMapped,
-                    device,
-                    memory,
-                    offset,
-                    size,
-                    flags,
-                    &mappedAddress
-                    );
-                if (mappedAddress == NULL)
-                {
-                    // if the mapped address is still NULL, that means the map failed for some reason.
-                    // One reason is that the memory does NOT have VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT. (TODO)
-                    // Since it failed, we'll just delete the packet and won't create an unmap for it.
-                    vktrace_delete_trace_packet(&pMapMemory);
-                }
-                else
-                {
-                    bufferIter->second.ObjectInfo.Buffer.pMapMemoryPacket = pMapMemory;
-
-                    // By creating the packet for UnmapMemory, we'll be adding the pData buffer to it, which inherently copies it.
-
-                    // need to adjust the pointer to ensure it points to the beginning of the image memory, which may NOT be
-                    // the same as the offset of the mapped address.
-                    void* bufferAddress = (BYTE*)mappedAddress + (offset - mappedOffset);
-
-                    // Actually unmap the memory if it wasn't already mapped by the application
-                    vktrace_trace_packet_header* pUnmapMemory = generate::vkUnmapMemory(
-                        !bAlreadyMapped,
-                        size,
-                        bufferAddress,
-                        device,
-                        memory);
-                    bufferIter->second.ObjectInfo.Buffer.pUnmapMemoryPacket = pUnmapMemory;
-                }
+                generateMapUnmap(!bAlreadyMapped, device, memory, offset, size, 0, mappedAddress, &bufferIter->second.ObjectInfo.Buffer.pMapMemoryPacket, &bufferIter->second.ObjectInfo.Buffer.pUnmapMemoryPacket);
             }
         }
 
