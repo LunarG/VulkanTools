@@ -945,6 +945,15 @@ class Subcommand(object):
                         else:
                             func_body.append('    CREATE_TRACE_PACKET(vk%s, %s);' % (proto.name, ' + '.join(packet_size)))
 
+                        if proto.name == "CreateImage":
+                            func_body.append('    VkImageCreateInfo replayCreateInfo = *pCreateInfo;')
+                            func_body.append('    VkImageCreateInfo trimCreateInfo = *pCreateInfo;')
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_SRC usage to the image so that we can copy out of it.")
+                            func_body.append('        trimCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;')
+                            func_body.append('        pCreateInfo = &trimCreateInfo;')
+                            func_body.append('    }')                            
+
                         # call down the layer chain and get return value (if there is one)
                         # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
                         if extensionName == 'vk_lunarg_debug_marker':
@@ -955,6 +964,13 @@ class Subcommand(object):
                            table_txt = 'mdd(%s)->devTable' % proto.params[0].name
                         func_body.append('    %s%s.%s;' % (return_txt, table_txt, proto.c_call()))
                         func_body.append('    vktrace_set_packet_entrypoint_end_time(pHeader);')
+
+                        if proto.name == "CreateImage":
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_DST usage to the image so that we can recreate it.")
+                            func_body.append('        replayCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;')
+                            func_body.append('        pCreateInfo = &replayCreateInfo;')
+                            func_body.append('    }')
 
                         if in_data_size:
                             func_body.append('    _dataSize = (pDataSize == NULL || pData == NULL) ? 0 : *pDataSize;')

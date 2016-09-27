@@ -551,39 +551,90 @@ namespace trim
                 VkImageAspectFlags aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
                 if (aspectMask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))
                 {
-                    // ultimately we'll have to copy the depth separately from the stencil, but for now, just do depth
-                    aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                    stagingInfo.imageCopyRegions.reserve(2);
+
+                    // First depth, then stencil
+                    VkImageSubresource sub;
+                    sub.arrayLayer = 0;
+                    sub.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                    sub.mipLevel = 0;
+                    {
+                        VkSubresourceLayout layout;
+                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+
+                        VkBufferImageCopy copyRegion = {};
+                        copyRegion.bufferRowLength = layout.rowPitch;
+                        copyRegion.bufferImageHeight = layout.arrayPitch;
+                        copyRegion.bufferOffset = layout.offset;
+                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
+                        copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
+                        copyRegion.imageOffset.x = 0;
+                        copyRegion.imageOffset.y = 0;
+                        copyRegion.imageOffset.z = 0;
+                        copyRegion.imageSubresource.aspectMask = sub.aspectMask;
+                        copyRegion.imageSubresource.baseArrayLayer = 0;
+                        copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
+                        copyRegion.imageSubresource.mipLevel = 0;
+
+                        stagingInfo.imageCopyRegions.push_back(copyRegion);
+                    }
+
+                    sub.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+                    {
+                        VkSubresourceLayout layout;
+                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+
+                        VkBufferImageCopy copyRegion = {};
+                        copyRegion.bufferRowLength = layout.rowPitch;
+                        copyRegion.bufferImageHeight = layout.arrayPitch;
+                        copyRegion.bufferOffset = layout.offset;
+                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
+                        copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
+                        copyRegion.imageOffset.x = 0;
+                        copyRegion.imageOffset.y = 0;
+                        copyRegion.imageOffset.z = 0;
+                        copyRegion.imageSubresource.aspectMask = sub.aspectMask;
+                        copyRegion.imageSubresource.baseArrayLayer = 0;
+                        copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
+                        copyRegion.imageSubresource.mipLevel = 0;
+
+                        stagingInfo.imageCopyRegions.push_back(copyRegion);
+                    }
                 }
-
-                VkImageSubresource sub;
-                sub.arrayLayer = 0;
-                sub.aspectMask = aspectMask;
-                sub.mipLevel = 0;
-
-                // need to make a VkBufferImageCopy for each mip level
-                stagingInfo.imageCopyRegions.reserve(imageIter->second.ObjectInfo.Image.mipLevels);
-                for (uint32_t i = 0; i < imageIter->second.ObjectInfo.Image.mipLevels; i++)
+                else
                 {
-                    VkSubresourceLayout lay;
-                    sub.mipLevel = i;
-                    mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
+                    VkImageSubresource sub;
+                    sub.arrayLayer = 0;
+                    sub.aspectMask = aspectMask;
+                    sub.mipLevel = 0;
 
-                    VkBufferImageCopy copyRegion = {};
-                    copyRegion.bufferRowLength = 0; //< Don't think this are used since we're copying image to buffer
-                    copyRegion.bufferImageHeight = 0; //< Don't think this are used since we're copying image to buffer
-                    copyRegion.bufferOffset = lay.offset;
-                    copyRegion.imageExtent.depth = 1;
-                    copyRegion.imageExtent.width = (imageIter->second.ObjectInfo.Image.extent.width >> i);
-                    copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
-                    copyRegion.imageOffset.x = 0;
-                    copyRegion.imageOffset.y = 0;
-                    copyRegion.imageOffset.z = 0;
-                    copyRegion.imageSubresource.aspectMask = aspectMask;
-                    copyRegion.imageSubresource.baseArrayLayer = 0;
-                    copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
-                    copyRegion.imageSubresource.mipLevel = i;
+                    // need to make a VkBufferImageCopy for each mip level
+                    stagingInfo.imageCopyRegions.reserve(imageIter->second.ObjectInfo.Image.mipLevels);
+                    for (uint32_t i = 0; i < imageIter->second.ObjectInfo.Image.mipLevels; i++)
+                    {
+                        VkSubresourceLayout lay;
+                        sub.mipLevel = i;
+                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
 
-                    stagingInfo.imageCopyRegions.push_back(copyRegion);
+                        VkBufferImageCopy copyRegion = {};
+                        copyRegion.bufferRowLength = 0; //< tightly packed texels
+                        copyRegion.bufferImageHeight = 0; //< tightly packed texels
+                        copyRegion.bufferOffset = lay.offset;
+                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.width = (imageIter->second.ObjectInfo.Image.extent.width >> i);
+                        copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
+                        copyRegion.imageOffset.x = 0;
+                        copyRegion.imageOffset.y = 0;
+                        copyRegion.imageOffset.z = 0;
+                        copyRegion.imageSubresource.aspectMask = aspectMask;
+                        copyRegion.imageSubresource.baseArrayLayer = 0;
+                        copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
+                        copyRegion.imageSubresource.mipLevel = i;
+
+                        stagingInfo.imageCopyRegions.push_back(copyRegion);
+                    }
                 }
 
                 // From docs: srcImageLayout must specify the layout of the image subresources of srcImage specified in pRegions at the time this command is executed on a VkDevice
