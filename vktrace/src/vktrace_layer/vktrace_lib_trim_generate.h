@@ -305,5 +305,15 @@ namespace trim {
             bool makeCall,
             VkInstance instance,
             const VkAllocationCallbacks* pAllocator);
+
+        vktrace_trace_packet_header* vkCmdCopyBufferToImage(
+            bool makeCall,
+            VkDevice device,
+            VkCommandBuffer commandBuffer,
+            VkBuffer srcBuffer,
+            VkImage dstImage,
+            VkImageLayout dstImageLayout,
+            uint32_t regionCount,
+            const VkBufferImageCopy* pRegions);
     } // namespace generate
 } // namespace trim

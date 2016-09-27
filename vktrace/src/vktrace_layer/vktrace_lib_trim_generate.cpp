@@ -1311,5 +1311,38 @@ namespace trim {
         }
 
         //=====================================================================
+        vktrace_trace_packet_header* vkCmdCopyBufferToImage(
+            bool makeCall,
+            VkDevice device,
+            VkCommandBuffer commandBuffer,
+            VkBuffer srcBuffer,
+            VkImage dstImage,
+            VkImageLayout dstImageLayout,
+            uint32_t regionCount,
+            const VkBufferImageCopy* pRegions)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCmdCopyBufferToImage* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkCmdCopyBufferToImage, regionCount*sizeof(VkBufferImageCopy));
+
+            if (makeCall)
+            {
+                mdd(commandBuffer)->devTable.CmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
+            }
+
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCmdCopyBufferToImage(pHeader);
+            pPacket->commandBuffer = commandBuffer;
+            pPacket->srcBuffer = srcBuffer;
+            pPacket->dstImage = dstImage;
+            pPacket->dstImageLayout = dstImageLayout;
+            pPacket->regionCount = regionCount;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRegions), regionCount*sizeof(VkBufferImageCopy), pRegions);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRegions));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
     } // namespace generate
 } // namespace trim

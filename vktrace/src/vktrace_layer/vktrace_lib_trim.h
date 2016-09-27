@@ -150,6 +150,7 @@ namespace trim
                 VkImageAspectFlags aspectMask;
                 VkImageLayout initialLayout;
                 VkImageLayout mostRecentLayout;
+                bool needsStagingBuffer;
             } Image;
             struct _ImageView {             // VkImageView
                 vktrace_trace_packet_header* pCreatePacket;
