@@ -19,6 +19,7 @@
 //     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
 //     The Playback time for these trace file is round 7 minutes(on Win10/AMDFury/32GRam/I5 system).
 
+#include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pagestatusarray.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
 #include "vktrace_lib_pageguardcapture.h"
@@ -120,7 +121,7 @@ bool PageGuardCapture::vkFlushMappedMemoryRangesPageGuardHandle(
             pInfoTemp[1].reserve1 = 0;
             PBYTE pDataInPackage = (PBYTE)(pInfoTemp + 2);
             void* pDataMapped = getMappedMemoryPointer(device, pRange->memory);
-            memcpy(pDataInPackage, pDataMapped, RealRangeSize);
+            vktrace_pageguard_memcpy(pDataInPackage, pDataMapped, RealRangeSize);
         }
     }
     if (!bChanged)

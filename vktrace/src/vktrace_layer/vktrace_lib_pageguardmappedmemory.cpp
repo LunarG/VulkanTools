@@ -19,6 +19,7 @@
 //     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
 //     The Playback time for these trace file is round 7 minutes(on Win10/AMDFury/32GRam/I5 system).
 
+#include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pagestatusarray.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
 #include "vktrace_lib_pageguardcapture.h"
@@ -279,7 +280,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
     pRealMappedData = (PBYTE)*ppData;
     pMappedData = (PBYTE)pageguardAllocateMemory(size);
-    memcpy(pMappedData, pRealMappedData, size);
+    vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
     *ppData = pMappedData;
 #else
     pMappedData = (PBYTE)*ppData;
@@ -313,12 +314,12 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
         if (MappedData == nullptr)
         {
-            memcpy(pRealMappedData, pMappedData, MappedSize);
+            vktrace_pageguard_memcpy(pRealMappedData, pMappedData, MappedSize);
             pageguardFreeMemory(pMappedData);
         }
         else
         {
-            memcpy(pRealMappedData, pMappedData, MappedSize);
+            vktrace_pageguard_memcpy(pRealMappedData, pMappedData, MappedSize);
             *MappedData = pMappedData;
         }
         pRealMappedData = nullptr;
@@ -417,7 +418,7 @@ DWORD PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDev
                 pChangedInfoArray[dwIndex + 1].reserve0 = 0;
                 pChangedInfoArray[dwIndex + 1].reserve1 = 0;
                 pChangedData = pData + DataOffset + infosize + SaveSize;
-                memcpy(pChangedData, pMappedData + offset, CurrentBlockSize);
+                vktrace_pageguard_memcpy(pChangedData, pMappedData + offset, CurrentBlockSize);
             }
             SaveSize += CurrentBlockSize;
             dwIndex++;
@@ -478,7 +479,7 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(
         DWORD CurrentOffset = 0;
         for (DWORD i = 0; i < pChangedInfoArray[0].offset; i++)
         {
-            memcpy(pRealMappedData + pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset, (size_t)pChangedInfoArray[i + 1].length);
+            vktrace_pageguard_memcpy(pRealMappedData + pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset, (size_t)pChangedInfoArray[i + 1].length);
             CurrentOffset += pChangedInfoArray[i + 1].length;
         }
     }
