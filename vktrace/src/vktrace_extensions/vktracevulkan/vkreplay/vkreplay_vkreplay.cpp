@@ -2349,7 +2349,7 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice,
     if (!foundMatch)
     {
         // Didn't find a superset, search for mem type with both HOST_VISIBLE and HOST_COHERENT set
-        for (i = 0; i < min(traceMemoryProperties[tracePhysicalDevice].memoryTypeCount, replayMemoryProperties[replayPhysicalDevice].memoryTypeCount); i++)
+        for (i = 0; i < replayMemoryProperties[replayPhysicalDevice].memoryTypeCount; i++)
         {
             if ((VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags)
             {
@@ -3065,7 +3065,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *) m_display->get_surface();
     VkXcbSurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
@@ -3074,7 +3074,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
 #elif defined WIN32
     VkIcdSurfaceWin32 *pSurf = (VkIcdSurfaceWin32 *) m_display->get_surface();
     VkWin32SurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
@@ -3104,7 +3104,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
 #if defined PLATFORM_LINUX && defined VK_USE_PLATFORM_XLIB_KHR
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *) m_display->get_surface();
     VkXlibSurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.dpy = pSurf->dpy;
@@ -3113,7 +3113,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_XCB_KHR
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *) m_display->get_surface();
     VkXcbSurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
@@ -3126,7 +3126,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
 #elif defined WIN32
     VkIcdSurfaceWin32 *pSurf = (VkIcdSurfaceWin32 *) m_display->get_surface();
     VkWin32SurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
@@ -3157,7 +3157,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
 #if defined WIN32
     VkIcdSurfaceWin32 *pSurf = (VkIcdSurfaceWin32 *) m_display->get_surface();
     VkWin32SurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
@@ -3166,7 +3166,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
 #elif defined(PLATFORM_LINUX) && !defined(ANDROID)
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *) m_display->get_surface();
     VkXcbSurfaceCreateInfoKHR createInfo;
-    createInfo.sType = pPacket->pCreateInfo->sType;
+    createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
