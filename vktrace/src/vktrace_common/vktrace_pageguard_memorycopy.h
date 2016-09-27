@@ -23,6 +23,9 @@
 //#define PAGEGUARD_MEMCPY_USE_PPL_LIB
 #include "vktrace_platform.h"
 
+//page guard method is only available on windows now. but most source code of page guard terget cross-platform except pageguard handler and its set/reset/clear method. 
+//so, once we have more platforms to provide pageguard handler(include we implement it), the condition for #define USE_PAGEGUARD_SPEEDUP can be changed to enable pageguard.
+
 #if defined(WIN32)
     #define USE_PAGEGUARD_SPEEDUP
     #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
@@ -57,6 +60,11 @@ void vktrace_sem_delete(vktrace_sem_id sid);
 void vktrace_sem_wait(vktrace_sem_id sid);
 void vktrace_sem_post(vktrace_sem_id sid);
 void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n);
+extern "C" void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size);
+#else
+void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size);
 #endif
+
+
 
 #define PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES 0X00000001

@@ -185,7 +185,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
 
         // copy buffer to the location
 #ifdef WIN32
-        opt_memcpy(*ptr_address, pBuffer, (size_t)size);
+        vktrace_pageguard_memcpy(*ptr_address, pBuffer, (size_t)size);
 #else
         memcpy(*ptr_address, pBuffer, (size_t)size);
 #endif
