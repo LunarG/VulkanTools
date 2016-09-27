@@ -8,8 +8,8 @@
         "implementation_version": "1",
         "description": "Vktrace tracing library",
         "functions" : {
-          "vkGetInstanceProcAddr" : "VK_LAYER_LUNARG_vktracevkGetInstanceProcAddr",
-          "vkGetDeviceProcAddr" : "VK_LAYER_LUNARG_vktraceGetDeviceProcAddr"
+          "vkGetInstanceProcAddr" : "__HOOKED_vkGetInstanceProcAddr",
+          "vkGetDeviceProcAddr" : "__HOOKED_vkGetDeviceProcAddr"
         }
     }
 }
