@@ -2125,6 +2125,16 @@ namespace trim
     //===============================================
     void write_destroy_packets()
     {
+        // Make sure all queues have completed before trying to delete anything
+        for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdQueues.begin(); obj != s_trimGlobalStateTracker.createdQueues.end(); obj++)
+        {
+            VkQueue queue = static_cast<VkQueue>(obj->first);
+            VkDevice device = obj->second.belongsToDevice;
+            vktrace_trace_packet_header* pHeader = generate::vkQueueWaitIdle(false, device, queue);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+
         // QueryPool
         for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdQueryPools.begin(); obj != s_trimGlobalStateTracker.createdQueryPools.end(); obj++)
         {
