@@ -37,7 +37,7 @@ import vulkan
 headers = []
 objects = []
 protos = []
-proto_exclusions = [ 'CreateAndroidSurfaceKHR', 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
+proto_exclusions = [ 'CreateWaylandSurfaceKHR', 'CreateMirSurfaceKHR',
                      'GetPhysicalDeviceWaylandPresentationSupportKHR', 'GetPhysicalDeviceMirPresentationSupportKHR',
                      'GetPhysicalDeviceDisplayPropertiesKHR', 'GetPhysicalDeviceDisplayPlanePropertiesKHR',
                      'GetDisplayPlaneSupportedDisplaysKHR', 'GetDisplayModePropertiesKHR',
@@ -47,6 +47,10 @@ for ext in vulkan.extensions_all:
     headers.extend(ext.headers)
     objects.extend(ext.objects)
     protos.extend(ext.protos)
+
+# Add parameters we need to remap, along with their type, in pairs
+additional_remap_dict = {}
+additional_remap_dict['pImageIndex'] = "uint32_t"
 
 class Subcommand(object):
     def __init__(self, argv):
@@ -123,6 +127,14 @@ class Subcommand(object):
             for proto in ext.protos:
                 if proto.name not in proto_exclusions:
                     func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+
+                # LoaderLayerInterface V0
+                if proto.name in [ 'GetInstanceProcAddr', 'GetDeviceProcAddr']:
+                    func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="VK_LAYER_LUNARG_vktrace", attr="VKAPI"))
+                if proto.name in [ 'EnumerateInstanceLayerProperties', 'EnumerateInstanceExtensionProperties',
+                                   'EnumerateDeviceLayerProperties', 'EnumerateDeviceExtensionProperties' ]:
+                    func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="vk", attr="VKAPI"))
+
             if ext.ifdef:
                 func_protos.append('#endif /* %s */' % ext.ifdef)
 
@@ -141,6 +153,14 @@ class Subcommand(object):
                 for proto in ext.protos:
                     if proto.name not in proto_exclusions:
                         func_protos.append('VKTRACER_EXPORT %s;' % proto.c_func(prefix="__HOOKED_vk", attr="VKAPI"))
+
+                    # LoaderLayerInterface V0
+                    if proto.name in [ 'GetInstanceProcAddr', 'GetDeviceProcAddr']:
+                        func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="VK_LAYER_LUNARG_vktrace", attr="VKAPI"))
+                    if proto.name in [ 'EnumerateInstanceLayerProperties', 'EnumerateInstanceExtensionProperties',
+                                       'EnumerateDeviceLayerProperties', 'EnumerateDeviceExtensionProperties' ]:
+                        func_protos.append('VK_LAYER_EXPORT %s;' % proto.c_func(prefix="vk", attr="VKAPI"))
+
                 if ext.ifdef:
                     func_protos.append('#endif /* %s */' % ext.ifdef)
 
@@ -176,8 +196,8 @@ class Subcommand(object):
             return ("%llu", name, deref)
         if "uint64_t" in vk_type:
             if '*' in vk_type:
-                return ("%llu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
-            return ("%llu", name, deref)
+                return ("%\" PRIu64 \"",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%\" PRIu64 \"", name, deref)
         if "uint32_t" in vk_type:
             if '*' in vk_type:
                 return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
@@ -186,6 +206,8 @@ class Subcommand(object):
             if '*' in vk_type:
                 return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
             return ("%u", name, deref)
+        if "VisualID" in vk_type:
+            return ("%\" PRIu64 \"", "(uint64_t)%s" % name, deref)
         if "VkBool32" in vk_type:
             if '*' in vk_type:
                 return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
@@ -207,7 +229,7 @@ class Subcommand(object):
                 return ("%i", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
             return ("%i", name, deref)
         if output_param:
-            return ("%p {%p}", "(void*)%s, (%s == NULL) ? 0 : *(%s)" % (name, name, name), deref)
+            return ("%p {%\" PRIx64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
         return ("%p", "(void*)(%s)" % name, deref)
 
     def _generate_init_funcs(self):
@@ -888,11 +910,13 @@ class Subcommand(object):
                                          'GetPhysicalDeviceXlibPresentationSupportKHR',
                                          'CreateWin32SurfaceKHR',
                                          'GetPhysicalDeviceWin32PresentationSupportKHR',
+                                         'CreateAndroidSurfaceKHR',
                                          ]
 
         # validate the manually_written_hooked_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
+        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateAndroidSurfaceKHR',
+                                     'GetPhysicalDeviceXcbPresentationSupportKHR','GetPhysicalDeviceXlibPresentationSupportKHR', 'GetPhysicalDeviceWin32PresentationSupportKHR']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
@@ -1930,6 +1954,8 @@ class Subcommand(object):
         rc_body.append('    void clear_all_map_handles()\n    {')
         for var in sorted(obj_map_dict):
             rc_body.append('        %s.clear();' % var)
+        for var in additional_remap_dict:
+            rc_body.append('        m_%s.clear();' %var)
         rc_body.append('    }\n')
         disp_obj_types = [obj for obj in vulkan.object_dispatch_list]
         for var in sorted(obj_map_dict):
@@ -1974,6 +2000,25 @@ class Subcommand(object):
                 rc_body.append(self._add_to_map_decl(obj_map_dict[var], obj_map_dict[var], var))
                 rc_body.append(self._rm_from_map_decl(obj_map_dict[var], var))
                 rc_body.append(self._remap_decl(obj_map_dict[var], var))
+        for var in additional_remap_dict:
+            rc_body.append('        std::map<%s, %s> m_%s;' % (additional_remap_dict[var], additional_remap_dict[var], var))
+            rc_body.append('        void add_to_%s_map(%s traceVal, %s replayVal)' % (var, additional_remap_dict[var], additional_remap_dict[var]))
+            rc_body.append('        {')
+            rc_body.append('            m_%s[traceVal] = replayVal;' % var)
+            rc_body.append('        }')
+            rc_body.append('')
+            rc_body.append('        void rm_from_%s_map(const %s& key)' % (var, additional_remap_dict[var]))
+            rc_body.append('        {')
+            rc_body.append('            m_%s.erase(key);' % var)
+            rc_body.append('        }')
+            rc_body.append('')
+            rc_body.append('        %s remap_%s(const %s& value)' % (additional_remap_dict[var], var, additional_remap_dict[var]))
+            rc_body.append('        {')
+            rc_body.append('            std::map<%s, %s>::const_iterator q = m_%s.find(value);' % (additional_remap_dict[var], additional_remap_dict[var], var))
+            rc_body.append('            if (q == m_%s.end()) { vktrace_LogError("Failed to remap %s."); return UINT32_MAX; }' % (var, var))
+            rc_body.append('            return q->second;')
+            rc_body.append('        }')
+
         # VkDynamicStateObject code
 # TODO138 : Each dynamic state object is now unique so need to make sure their re-mapping is being handled correctly
 #        state_obj_remap_types = vulkan.object_dynamic_state_list
@@ -2198,6 +2243,7 @@ class Subcommand(object):
                                  'GetPhysicalDeviceXlibPresentationSupportKHR',
                                  'CreateWin32SurfaceKHR',
                                  'GetPhysicalDeviceWin32PresentationSupportKHR',
+                                 'CreateAndroidSurfaceKHR',
                                  #TODO Wayland, Mir, Xlib
                                  #'GetPhysicalDeviceInfo',
                                  'MapMemory',
@@ -2214,7 +2260,7 @@ class Subcommand(object):
 
         # validate the manually_replay_funcs list
         protoFuncs = [proto.name for proto in self.protos]
-        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR']
+        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR', 'CreateXcbSurfaceKHR', 'CreateXlibSurfaceKHR', 'CreateAndroidSurfaceKHR']
 
         for func in manually_replay_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
@@ -2233,7 +2279,7 @@ class Subcommand(object):
         # Functions that create views are unique from other create functions
         create_view_list = ['CreateBufferView', 'CreateImageView', 'CreateComputePipeline']
         # Functions to treat as "Create' that don't have 'Create' in the name
-        special_create_list = ['LoadPipeline', 'LoadPipelineDerivative', 'AllocateMemory', 'GetDeviceQueue', 'PinSystemMemory', 'AllocateDescriptorSets']
+        special_create_list = ['LoadPipeline', 'LoadPipelineDerivative', 'AllocateMemory', 'GetDeviceQueue', 'PinSystemMemory', 'AllocateDescriptorSets', 'AcquireNextImageKHR']
         # A couple funcs use do while loops
         do_while_dict = {'GetFenceStatus': 'replayResult != pPacket->result  && pPacket->result == VK_SUCCESS', 'GetEventStatus': '(pPacket->result == VK_EVENT_SET || pPacket->result == VK_EVENT_RESET) && replayResult != pPacket->result', 'GetQueryPoolResults': 'pPacket->result == VK_SUCCESS && replayResult != pPacket->result'}
         rbody = []
@@ -2474,6 +2520,8 @@ class Subcommand(object):
                     rbody.append('            {')
                     rbody.append('                m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);')
                     rbody.append('            }')
+                elif 'AcquireNextImageKHR' in proto.name:
+                    rbody.append('            m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);')
                 elif 'DestroyInstance' in proto.name:
                     rbody.append('            if (replayResult == VK_SUCCESS)')
                     rbody.append('            {')
@@ -2482,11 +2530,11 @@ class Subcommand(object):
                     rbody.append('                m_objMapper.clear_all_map_handles();')
                     rbody.append('            }')
                 elif 'MergePipelineCaches' in proto.name:
-                    rbody.append('            delete remappedpSrcCaches;')
+                    rbody.append('            delete[] remappedpSrcCaches;')
                 elif 'FreeCommandBuffers' in proto.name:
-                    rbody.append('            delete remappedpCommandBuffers;')
+                    rbody.append('            delete[] remappedpCommandBuffers;')
                 elif 'CmdExecuteCommands' in proto.name:
-                    rbody.append('            delete remappedpCommandBuffers;')
+                    rbody.append('            delete[] remappedpCommandBuffers;')
                 elif 'AllocateDescriptorSets' in proto.name:
                     rbody.append('            if (replayResult == VK_SUCCESS)')
                     rbody.append('            {')
@@ -2541,7 +2589,9 @@ class VktraceTraceHeader(Subcommand):
     def generate_header(self, extensionName):
         header_txt = []
         header_txt.append('#include "vktrace_vk_vk_packets.h"')
-        header_txt.append('#include "vktrace_vk_packet_id.h"\n\n')
+        header_txt.append('#include "vktrace_vk_packet_id.h"')
+        header_txt.append('#include "vulkan/vk_layer.h"\n\n')
+        header_txt.append('void InitTracer(void);\n\n')
         header_txt.append('#ifdef WIN32')
         header_txt.append('BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext);')
         header_txt.append('extern INIT_ONCE gInitOnce;')
@@ -2595,6 +2645,7 @@ class VktracePacketID(Subcommand):
         header_txt.append('#include "vktrace_trace_packet_utils.h"')
         header_txt.append('#include "vktrace_trace_packet_identifiers.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
+        header_txt.append("#include <inttypes.h>")
         #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
         header_txt.append('#include "vk_enum_string_helper.h"')
         header_txt.append('#ifndef _WIN32')
@@ -2698,7 +2749,9 @@ class VktraceReplayVkFuncPtrs(Subcommand):
         header_txt = []
         header_txt.append('#pragma once\n')
         header_txt.append('#if defined(PLATFORM_LINUX) || defined(XCB_NVIDIA)')
+        header_txt.append('#if !defined(ANDROID)')
         header_txt.append('#include <xcb/xcb.h>\n')
+        header_txt.append('#endif')
         header_txt.append('#endif')
         header_txt.append('#include "vulkan/vulkan.h"')
         #header_txt.append('#include "vulkan/vk_lunarg_debug_marker.h"')

@@ -81,6 +81,21 @@ typedef struct {
 } VkIcdSurfaceXlib;
 #endif
 
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
+typedef VkFlags VkAndroidSurfaceCreateFlagsKHR;
+typedef uint32_t* ANativeWindow;
+typedef struct VkAndroidSurfaceCreateInfoKHR {
+    VkStructureType                   sType;
+    const void*                       pNext;
+    VkAndroidSurfaceCreateFlagsKHR    flags;
+    ANativeWindow*                    window;
+} VkAndroidSurfaceCreateInfoKHR;
+typedef VkResult (VKAPI_PTR *PFN_vkCreateAndroidSurfaceKHR)(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef struct {
+  ANativeWindow* window;
+} VkIcdSurfaceAndroid;
+#endif
+
 #if defined(PLATFORM_LINUX)
 typedef void* HINSTANCE;
 typedef void* HWND;

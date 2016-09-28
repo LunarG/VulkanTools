@@ -236,5 +236,71 @@ LOCAL_WHOLE_STATIC_LIBRARIES += android_native_app_glue
 LOCAL_LDLIBS := -llog -landroid
 include $(BUILD_SHARED_LIBRARY)
 
+include $(CLEAR_VARS)
+LOCAL_MODULE := VkLayer_vktrace_layer
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vktrace_vk_vk.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_interconnect.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_platform.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_process.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_settings.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_trace.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_vk_exts.cpp
+LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
+		    $(SRC_DIR)/include \
+                    $(SRC_DIR)/layers \
+                    $(LAYER_DIR)/include \
+                    $(SRC_DIR)/vktrace/src/vktrace_common \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer \
+                    $(SRC_DIR)/loader
+LOCAL_STATIC_LIBRARIES += layer_utils
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
+LOCAL_CFLAGS += -DPLATFORM_LINUX=1
+LOCAL_CFLAGS += -DPLATFORM_POSIX=1
+LOCAL_LDLIBS    := -llog
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := vkreplay
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vkreplay_vk_replay_gen.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_interconnect.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_platform.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_process.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_settings.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_factory.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_main.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_seq.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_settings.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/common/vulkan_wrapper.cpp
+LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
+                    $(SRC_DIR)/include \
+                    $(SRC_DIR)/include/vulkan \
+                    $(SRC_DIR)/layers \
+                    $(LAYER_DIR)/include \
+                    $(SRC_DIR)/vktrace/src/vktrace_common \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer \
+                    $(SRC_DIR)/vktrace/src/vktrace_replay \
+                    $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay \
+                    $(SRC_DIR)/loader
+LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
+LOCAL_SHARED_LIBRARIES += VkLayer_vktrace_layer
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR --include=$(SRC_DIR)/common/vulkan_wrapper.h -fexceptions
+LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
+LOCAL_CFLAGS += -DPLATFORM_LINUX=1
+LOCAL_CFLAGS += -DPLATFORM_POSIX=1
+LOCAL_LDLIBS    := -llog -landroid
+include $(BUILD_SHARED_LIBRARY)
+
 $(call import-module,android/native_app_glue)
 $(call import-module,third_party/googletest)
