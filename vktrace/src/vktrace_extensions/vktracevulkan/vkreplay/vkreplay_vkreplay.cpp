@@ -267,6 +267,12 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
         goto fail;
     }
 
+    if (replayQueueFamilyProperties[replayPhysicalDevice].count == 1)
+    {
+        *pReplayIdx = 0;
+        return true;
+    }
+
     for (uint32_t i = 0; i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count); i++)
     {
         if (traceQueueFamilyProperties[tracePhysicalDevice].queueFamilyProperties[traceIdx].queueFlags == replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags)
