@@ -136,7 +136,7 @@ struct layer_data {
     unordered_map<VkFramebuffer, unique_ptr<FRAMEBUFFER_NODE>> frameBufferMap;
     unordered_map<VkImage, vector<ImageSubresourcePair>> imageSubresourceMap;
     unordered_map<ImageSubresourcePair, IMAGE_LAYOUT_NODE> imageLayoutMap;
-    unordered_map<VkRenderPass, RENDER_PASS_NODE *> renderPassMap;
+    unordered_map<VkRenderPass, unique_ptr<RENDER_PASS_NODE>> renderPassMap;
     unordered_map<VkShaderModule, unique_ptr<shader_module>> shaderModuleMap;
     VkDevice device;
 
@@ -619,6 +619,19 @@ void AddCommandBufferBindingBuffer(const layer_data *dev_data, GLOBAL_CB_NODE *c
     }
     // Now update cb binding for buffer
     buff_node->cb_bindings.insert(cb_node);
+}
+
+// Create binding link between given buffer view node and its buffer with command buffer node
+void AddCommandBufferBindingBufferView(const layer_data *dev_data, GLOBAL_CB_NODE *cb_node, BUFFER_VIEW_STATE *view_state) {
+    // First add bindings for bufferView
+    view_state->cb_bindings.insert(cb_node);
+    cb_node->object_bindings.insert(
+        {reinterpret_cast<uint64_t &>(view_state->buffer_view), VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT});
+    auto buffer_node = getBufferNode(dev_data, view_state->create_info.buffer);
+    // Add bindings for buffer within bufferView
+    if (buffer_node) {
+        AddCommandBufferBindingBuffer(dev_data, cb_node, buffer_node);
+    }
 }
 
 // For every mem obj bound to particular CB, free bindings related to that CB
@@ -2271,7 +2284,7 @@ static RENDER_PASS_NODE *getRenderPass(layer_data const *my_data, VkRenderPass r
     if (it == my_data->renderPassMap.end()) {
         return nullptr;
     }
-    return it->second;
+    return it->second.get();
 }
 
 static FRAMEBUFFER_NODE *getFramebuffer(const layer_data *my_data, VkFramebuffer framebuffer) {
@@ -3105,7 +3118,7 @@ static bool validatePipelineDrawtimeState(layer_data const *my_data,
         (pPipeline->graphicsPipelineCI.pRasterizationState->rasterizerDiscardEnable == VK_FALSE)) {
         VkSampleCountFlagBits pso_num_samples = getNumSamples(pPipeline);
         if (pCB->activeRenderPass) {
-            const VkRenderPassCreateInfo *render_pass_info = pCB->activeRenderPass->pCreateInfo;
+            auto const render_pass_info = pCB->activeRenderPass->createInfo.ptr();
             const VkSubpassDescription *subpass_desc = &render_pass_info->pSubpasses[pCB->activeSubpass];
             uint32_t i;
 
@@ -3156,7 +3169,7 @@ static bool validatePipelineDrawtimeState(layer_data const *my_data,
     if (pCB->activeRenderPass) {
         std::string err_string;
         if ((pCB->activeRenderPass->renderPass != pPipeline->graphicsPipelineCI.renderPass) &&
-            !verify_renderpass_compatibility(my_data, pCB->activeRenderPass->pCreateInfo, pPipeline->render_pass_ci.ptr(),
+            !verify_renderpass_compatibility(my_data, pCB->activeRenderPass->createInfo.ptr(), pPipeline->render_pass_ci.ptr(),
                                              err_string)) {
             // renderPass that PSO was created with must be compatible with active renderPass that PSO is being used with
             skip_call |=
@@ -3360,12 +3373,11 @@ static bool verifyPipelineCreateState(layer_data *my_data, const VkDevice device
     // produces nonsense errors that confuse users. Other layers should already
     // emit errors for renderpass being invalid.
     auto renderPass = getRenderPass(my_data, pPipeline->graphicsPipelineCI.renderPass);
-    if (renderPass &&
-        pPipeline->graphicsPipelineCI.subpass >= renderPass->pCreateInfo->subpassCount) {
+    if (renderPass && pPipeline->graphicsPipelineCI.subpass >= renderPass->createInfo.subpassCount) {
         skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                              DRAWSTATE_INVALID_PIPELINE_CREATE_STATE, "DS", "Invalid Pipeline CreateInfo State: Subpass index %u "
                                                                             "is out of range for this renderpass (0..%u)",
-                             pPipeline->graphicsPipelineCI.subpass, renderPass->pCreateInfo->subpassCount - 1);
+                             pPipeline->graphicsPipelineCI.subpass, renderPass->createInfo.subpassCount - 1);
     }
 
     if (!validate_and_capture_pipeline_shader_state(my_data->report_data, pPipeline, &my_data->phys_dev_properties.features,
@@ -3495,7 +3507,7 @@ static bool verifyPipelineCreateState(layer_data *my_data, const VkDevice device
 
         // If rasterization is not disabled, and subpass uses a depth/stencil
         // attachment, pDepthStencilState must be a pointer to a valid structure
-        auto subpass_desc = renderPass ? &renderPass->pCreateInfo->pSubpasses[pPipeline->graphicsPipelineCI.subpass] : nullptr;
+        auto subpass_desc = renderPass ? &renderPass->createInfo.pSubpasses[pPipeline->graphicsPipelineCI.subpass] : nullptr;
         if (subpass_desc && subpass_desc->pDepthStencilAttachment &&
             subpass_desc->pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED) {
             if (!pPipeline->graphicsPipelineCI.pDepthStencilState) {
@@ -4451,6 +4463,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     std::unique_lock<std::mutex> lock(global_lock);
     layer_data *my_device_data = get_my_data_ptr(get_dispatch_key(*pDevice), layer_data_map);
 
+    // Copy instance state into this device's layer_data struct
+    my_device_data->instance_state = unique_ptr<INSTANCE_STATE>(new INSTANCE_STATE(*(my_instance_data->instance_state)));
     // Setup device dispatch table
     my_device_data->device_dispatch_table = new VkLayerDispatchTable;
     layer_init_device_dispatch_table(*pDevice, my_device_data->device_dispatch_table, fpGetDeviceProcAddr);
@@ -4481,7 +4495,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
 }
 
 // prototype
-static void deleteRenderPasses(layer_data *);
 VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     // TODOSC : Shouldn't need any customization here
     dispatch_key key = get_dispatch_key(device);
@@ -4489,7 +4502,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     // Free all the memory
     std::unique_lock<std::mutex> lock(global_lock);
     deletePipelines(dev_data);
-    deleteRenderPasses(dev_data);
+    dev_data->renderPassMap.clear();
     deleteCommandBuffers(dev_data);
     // This will also delete all sets in the pool & remove them from setMap
     deletePools(dev_data);
@@ -4854,15 +4867,17 @@ static bool validateCommandBufferSimultaneousUse(layer_data *dev_data, GLOBAL_CB
     return skip_call;
 }
 
-static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB) {
-    bool skip_call = false;
+static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB, const char *call_source) {
+    bool skip = false;
+    if (dev_data->instance_state->disabled.command_buffer_state)
+        return skip;
     // Validate ONE_TIME_SUBMIT_BIT CB is not being submitted more than once
     if ((pCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) && (pCB->submitCount > 1)) {
-        skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                             0, __LINE__, DRAWSTATE_COMMAND_BUFFER_SINGLE_SUBMIT_VIOLATION, "DS",
-                             "CB 0x%" PRIxLEAST64 " was begun w/ VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT "
-                             "set, but has been submitted 0x%" PRIxLEAST64 " times.",
-                             (uint64_t)(pCB->commandBuffer), pCB->submitCount);
+        skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, 0,
+                        __LINE__, DRAWSTATE_COMMAND_BUFFER_SINGLE_SUBMIT_VIOLATION, "DS",
+                        "CB 0x%" PRIxLEAST64 " was begun w/ VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT "
+                        "set, but has been submitted 0x%" PRIxLEAST64 " times.",
+                        (uint64_t)(pCB->commandBuffer), pCB->submitCount);
     }
     // Validate that cmd buffers have been updated
     if (CB_RECORDED != pCB->state) {
@@ -4874,7 +4889,7 @@ static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB
                 const char *cause_str =
                     (obj.type == VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT) ? "destroyed or updated" : "destroyed";
 
-                skip_call |=
+                skip |=
                     log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                             reinterpret_cast<uint64_t &>(pCB->commandBuffer), __LINE__, DRAWSTATE_INVALID_COMMAND_BUFFER, "DS",
                             "You are submitting command buffer 0x%" PRIxLEAST64 " that is invalid because bound %s 0x%" PRIxLEAST64
@@ -4882,14 +4897,13 @@ static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB
                             reinterpret_cast<uint64_t &>(pCB->commandBuffer), type_str, obj.handle, cause_str);
             }
         } else { // Flag error for using CB w/o vkEndCommandBuffer() called
-            skip_call |=
-                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)(pCB->commandBuffer), __LINE__, DRAWSTATE_NO_END_COMMAND_BUFFER, "DS",
-                        "You must call vkEndCommandBuffer() on CB 0x%" PRIxLEAST64 " before this call to vkQueueSubmit()!",
-                        (uint64_t)(pCB->commandBuffer));
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            (uint64_t)(pCB->commandBuffer), __LINE__, DRAWSTATE_NO_END_COMMAND_BUFFER, "DS",
+                            "You must call vkEndCommandBuffer() on CB 0x%" PRIxLEAST64 " before this call to %s!",
+                            reinterpret_cast<uint64_t &>(pCB->commandBuffer), call_source);
         }
     }
-    return skip_call;
+    return skip;
 }
 
 // Validate that queueFamilyIndices of primary command buffers match this queue
@@ -4939,7 +4953,7 @@ static bool validatePrimaryCommandBufferState(layer_data *dev_data, GLOBAL_CB_NO
         }
     }
 
-    skip_call |= validateCommandBufferState(dev_data, pCB);
+    skip_call |= validateCommandBufferState(dev_data, pCB, "vkQueueSubmit()");
 
     return skip_call;
 }
@@ -5390,6 +5404,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(VkDevice device, VkFence fence, const Vk
 
 // For given obj node, if it is use, flag a validation error and return callback result, else return false
 bool ValidateObjectNotInUse(const layer_data *dev_data, BASE_NODE *obj_node, VK_OBJECT obj_struct) {
+    if (dev_data->instance_state->disabled.object_in_use)
+        return false;
     bool skip = false;
     if (obj_node->in_use.load()) {
         skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, obj_struct.type, obj_struct.handle, __LINE__,
@@ -5707,17 +5723,42 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(VkDevice device, VkBuffer buffer,
     }
 }
 
+static bool PreCallValidateDestroyBufferView(layer_data *dev_data, VkBufferView buffer_view, BUFFER_VIEW_STATE **buffer_view_state,
+                                             VK_OBJECT *obj_struct) {
+    if (dev_data->instance_state->disabled.destroy_buffer_view)
+        return false;
+    bool skip = false;
+    *buffer_view_state = getBufferViewState(dev_data, buffer_view);
+    if (buffer_view_state) {
+        *obj_struct = {reinterpret_cast<uint64_t &>(buffer_view), VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT};
+        skip |= ValidateObjectNotInUse(dev_data, *buffer_view_state, *obj_struct);
+    }
+    return skip;
+}
+
+static void PostCallRecordDestroyBufferView(layer_data *dev_data, VkBufferView buffer_view, BUFFER_VIEW_STATE *buffer_view_state,
+                                            VK_OBJECT obj_struct) {
+    dev_data->bufferViewMap.erase(buffer_view);
+    // Any bound cmd buffers are now invalid
+    invalidateCommandBuffers(buffer_view_state->cb_bindings, obj_struct);
+}
+
 VKAPI_ATTR void VKAPI_CALL
 DestroyBufferView(VkDevice device, VkBufferView bufferView, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-
     std::unique_lock<std::mutex> lock(global_lock);
-    auto view_state = getBufferViewState(dev_data, bufferView);
-    if (view_state) {
-        dev_data->bufferViewMap.erase(bufferView);
+    // Common data objects use pre & post call
+    BUFFER_VIEW_STATE *buffer_view_state = nullptr;
+    VK_OBJECT obj_struct;
+    // Validate state before calling down chain, update common data if we'll be calling down chain
+    bool skip = PreCallValidateDestroyBufferView(dev_data, bufferView, &buffer_view_state, &obj_struct);
+    if (!skip) {
+        lock.unlock();
+        dev_data->device_dispatch_table->DestroyBufferView(device, bufferView, pAllocator);
+        lock.lock();
+        // We made call so update state
+        PostCallRecordDestroyBufferView(dev_data, bufferView, buffer_view_state, obj_struct);
     }
-    lock.unlock();
-    dev_data->device_dispatch_table->DestroyBufferView(device, bufferView, pAllocator);
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyImage(VkDevice device, VkImage image, const VkAllocationCallbacks *pAllocator) {
@@ -6185,7 +6226,6 @@ DestroyRenderPass(VkDevice device, VkRenderPass renderPass, const VkAllocationCa
         invalidateCommandBuffers(rp_state->cb_bindings, obj_struct);
     }
     if (!skip) {
-        // TODO: leaking all the guts of the renderpass node here!
         dev_data->renderPassMap.erase(renderPass);
         lock.unlock();
         dev_data->device_dispatch_table->DestroyRenderPass(device, renderPass, pAllocator);
@@ -6417,7 +6457,7 @@ CreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t
     for (i = 0; i < count; i++) {
         pPipeNode[i] = new PIPELINE_NODE;
         pPipeNode[i]->initGraphicsPipeline(&pCreateInfos[i]);
-        pPipeNode[i]->render_pass_ci.initialize(getRenderPass(dev_data, pCreateInfos[i].renderPass)->pCreateInfo);
+        pPipeNode[i]->render_pass_ci.initialize(getRenderPass(dev_data, pCreateInfos[i].renderPass)->createInfo.ptr());
         pPipeNode[i]->pipeline_layout = *getPipelineLayout(dev_data, pCreateInfos[i].layout);
 
         skip_call |= verifyPipelineCreateState(dev_data, device, pPipeNode, i);
@@ -6901,7 +6941,7 @@ BeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo
                         if (framebuffer) {
                             if ((framebuffer->createInfo.renderPass != pInfo->renderPass) &&
                                 !verify_renderpass_compatibility(dev_data, framebuffer->renderPassCreateInfo.ptr(),
-                                                                 getRenderPass(dev_data, pInfo->renderPass)->pCreateInfo,
+                                                                 getRenderPass(dev_data, pInfo->renderPass)->createInfo.ptr(),
                                                                  errorString)) {
                                 // renderPass that framebuffer was created with must be compatible with local renderPass
                                 skip_call |= log_msg(
@@ -6935,13 +6975,13 @@ BeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo
             if (pInfo && pInfo->renderPass != VK_NULL_HANDLE) {
                 auto renderPass = getRenderPass(dev_data, pInfo->renderPass);
                 if (renderPass) {
-                    if (pInfo->subpass >= renderPass->pCreateInfo->subpassCount) {
+                    if (pInfo->subpass >= renderPass->createInfo.subpassCount) {
                         skip_call |= log_msg(
                             dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                             (uint64_t)commandBuffer, __LINE__, DRAWSTATE_BEGIN_CB_INVALID_STATE, "DS",
                             "vkBeginCommandBuffer(): Secondary Command Buffers (0x%p) must has a subpass index (%d) "
                             "that is less than the number of subpasses (%d).",
-                            (void *)commandBuffer, pInfo->subpass, renderPass->pCreateInfo->subpassCount);
+                            (void *)commandBuffer, pInfo->subpass, renderPass->createInfo.subpassCount);
                     }
                 }
             }
@@ -8265,7 +8305,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(VkCommandBuffer commandBuffer, ui
 
     // Validate that attachment is in reference list of active subpass
     if (pCB->activeRenderPass) {
-        const VkRenderPassCreateInfo *pRPCI = pCB->activeRenderPass->pCreateInfo;
+        const VkRenderPassCreateInfo *pRPCI = pCB->activeRenderPass->createInfo.ptr();
         const VkSubpassDescription *pSD = &pRPCI->pSubpasses[pCB->activeSubpass];
 
         for (uint32_t attachment_idx = 0; attachment_idx < attachmentCount; attachment_idx++) {
@@ -9247,7 +9287,7 @@ static bool ValidateFramebufferCreateInfo(layer_data *dev_data, const VkFramebuf
 
     auto rp_node = getRenderPass(dev_data, pCreateInfo->renderPass);
     if (rp_node) {
-        const VkRenderPassCreateInfo *rpci = rp_node->pCreateInfo;
+        const VkRenderPassCreateInfo *rpci = rp_node->createInfo.ptr();
         if (rpci->attachmentCount != pCreateInfo->attachmentCount) {
             skip_call |= log_msg(
                 dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT,
@@ -9379,7 +9419,7 @@ static bool PreCallValidateCreateFramebuffer(layer_data *dev_data, const VkFrame
 static void PostCallRecordCreateFramebuffer(layer_data *dev_data, const VkFramebufferCreateInfo *pCreateInfo, VkFramebuffer fb) {
     // Shadow create info and store in map
     std::unique_ptr<FRAMEBUFFER_NODE> fb_node(
-        new FRAMEBUFFER_NODE(fb, pCreateInfo, dev_data->renderPassMap[pCreateInfo->renderPass]->pCreateInfo));
+        new FRAMEBUFFER_NODE(fb, pCreateInfo, dev_data->renderPassMap[pCreateInfo->renderPass]->createInfo.ptr()));
 
     for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
         VkImageView view = pCreateInfo->pAttachments[i];
@@ -9514,8 +9554,8 @@ bool isRegionOverlapping(VkImageSubresourceRange range1, VkImageSubresourceRange
 static bool ValidateDependencies(const layer_data *my_data, FRAMEBUFFER_NODE const * framebuffer,
                                  RENDER_PASS_NODE const * renderPass) {
     bool skip_call = false;
-    const safe_VkFramebufferCreateInfo *pFramebufferInfo = &framebuffer->createInfo;
-    const VkRenderPassCreateInfo *pCreateInfo = renderPass->pCreateInfo;
+    auto const pFramebufferInfo = framebuffer->createInfo.ptr();
+    auto const pCreateInfo = renderPass->createInfo.ptr();
     auto const & subpass_to_node = renderPass->subpassToNode;
     std::vector<std::vector<uint32_t>> output_attachment_to_subpass(pCreateInfo->attachmentCount);
     std::vector<std::vector<uint32_t>> input_attachment_to_subpass(pCreateInfo->attachmentCount);
@@ -9791,23 +9831,27 @@ static bool CreatePassDAG(const layer_data *my_data, VkDevice device, const VkRe
     }
     for (uint32_t i = 0; i < pCreateInfo->dependencyCount; ++i) {
         const VkSubpassDependency &dependency = pCreateInfo->pDependencies[i];
-        if (dependency.srcSubpass > dependency.dstSubpass && dependency.srcSubpass != VK_SUBPASS_EXTERNAL &&
-            dependency.dstSubpass != VK_SUBPASS_EXTERNAL) {
+        if (dependency.srcSubpass == VK_SUBPASS_EXTERNAL || dependency.dstSubpass == VK_SUBPASS_EXTERNAL) {
+            if (dependency.srcSubpass == dependency.dstSubpass) {
+                skip_call |=
+                    log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
+                            DRAWSTATE_INVALID_RENDERPASS, "DS", "The src and dest subpasses cannot both be external.");
+            }
+
+            // We don't want to add edges to the DAG for dependencies to/from
+            // VK_SUBPASS_EXTERNAL. We don't use them for anything, and their
+            // presence complicates other code.
+            continue;
+        } else if (dependency.srcSubpass > dependency.dstSubpass) {
             skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                                  DRAWSTATE_INVALID_RENDERPASS, "DS",
                                  "Depedency graph must be specified such that an earlier pass cannot depend on a later pass.");
-        } else if (dependency.srcSubpass == VK_SUBPASS_EXTERNAL && dependency.dstSubpass == VK_SUBPASS_EXTERNAL) {
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 DRAWSTATE_INVALID_RENDERPASS, "DS", "The src and dest subpasses cannot both be external.");
         } else if (dependency.srcSubpass == dependency.dstSubpass) {
             has_self_dependency[dependency.srcSubpass] = true;
         }
-        if (dependency.dstSubpass != VK_SUBPASS_EXTERNAL) {
-            subpass_to_node[dependency.dstSubpass].prev.push_back(dependency.srcSubpass);
-        }
-        if (dependency.srcSubpass != VK_SUBPASS_EXTERNAL) {
-            subpass_to_node[dependency.srcSubpass].next.push_back(dependency.dstSubpass);
-        }
+
+        subpass_to_node[dependency.dstSubpass].prev.push_back(dependency.srcSubpass);
+        subpass_to_node[dependency.srcSubpass].next.push_back(dependency.dstSubpass);
     }
     return skip_call;
 }
@@ -9973,70 +10017,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderP
         std::vector<DAGNode> subpass_to_node(pCreateInfo->subpassCount);
         skip_call |= CreatePassDAG(dev_data, device, pCreateInfo, subpass_to_node, has_self_dependency);
 
-        // Shadow create info and store in map
-        VkRenderPassCreateInfo *localRPCI = new VkRenderPassCreateInfo(*pCreateInfo);
-        if (pCreateInfo->pAttachments) {
-            localRPCI->pAttachments = new VkAttachmentDescription[localRPCI->attachmentCount];
-            memcpy((void *)localRPCI->pAttachments, pCreateInfo->pAttachments,
-                   localRPCI->attachmentCount * sizeof(VkAttachmentDescription));
-        }
-        if (pCreateInfo->pSubpasses) {
-            localRPCI->pSubpasses = new VkSubpassDescription[localRPCI->subpassCount];
-            memcpy((void *)localRPCI->pSubpasses, pCreateInfo->pSubpasses, localRPCI->subpassCount * sizeof(VkSubpassDescription));
-
-            for (uint32_t i = 0; i < localRPCI->subpassCount; i++) {
-                VkSubpassDescription *subpass = (VkSubpassDescription *)&localRPCI->pSubpasses[i];
-                const uint32_t attachmentCount = subpass->inputAttachmentCount +
-                                                 subpass->colorAttachmentCount * (1 + (subpass->pResolveAttachments ? 1 : 0)) +
-                                                 ((subpass->pDepthStencilAttachment) ? 1 : 0) + subpass->preserveAttachmentCount;
-                VkAttachmentReference *attachments = new VkAttachmentReference[attachmentCount];
-
-                memcpy(attachments, subpass->pInputAttachments, sizeof(attachments[0]) * subpass->inputAttachmentCount);
-                subpass->pInputAttachments = attachments;
-                attachments += subpass->inputAttachmentCount;
-
-                memcpy(attachments, subpass->pColorAttachments, sizeof(attachments[0]) * subpass->colorAttachmentCount);
-                subpass->pColorAttachments = attachments;
-                attachments += subpass->colorAttachmentCount;
-
-                if (subpass->pResolveAttachments) {
-                    memcpy(attachments, subpass->pResolveAttachments, sizeof(attachments[0]) * subpass->colorAttachmentCount);
-                    subpass->pResolveAttachments = attachments;
-                    attachments += subpass->colorAttachmentCount;
-                }
-
-                if (subpass->pDepthStencilAttachment) {
-                    memcpy(attachments, subpass->pDepthStencilAttachment, sizeof(attachments[0]) * 1);
-                    subpass->pDepthStencilAttachment = attachments;
-                    attachments += 1;
-                }
-
-                memcpy(attachments, subpass->pPreserveAttachments, sizeof(attachments[0]) * subpass->preserveAttachmentCount);
-                subpass->pPreserveAttachments = &attachments->attachment;
-            }
-        }
-        if (pCreateInfo->pDependencies) {
-            localRPCI->pDependencies = new VkSubpassDependency[localRPCI->dependencyCount];
-            memcpy((void *)localRPCI->pDependencies, pCreateInfo->pDependencies,
-                   localRPCI->dependencyCount * sizeof(VkSubpassDependency));
-        }
-
-        auto render_pass = new RENDER_PASS_NODE(localRPCI);
+        auto render_pass = unique_ptr<RENDER_PASS_NODE>(new RENDER_PASS_NODE(pCreateInfo));
         render_pass->renderPass = *pRenderPass;
         render_pass->hasSelfDependency = has_self_dependency;
         render_pass->subpassToNode = subpass_to_node;
-#if MTMERGESOURCE
-        // MTMTODO : Merge with code from above to eliminate duplication
-        for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
-            VkAttachmentDescription desc = pCreateInfo->pAttachments[i];
-            MT_PASS_ATTACHMENT_INFO pass_info;
-            pass_info.load_op = desc.loadOp;
-            pass_info.store_op = desc.storeOp;
-            pass_info.stencil_load_op = desc.stencilLoadOp;
-            pass_info.stencil_store_op = desc.stencilStoreOp;
-            pass_info.attachment = i;
-            render_pass->attachments.push_back(pass_info);
-        }
+
         // TODO: Maybe fill list and then copy instead of locking
         std::unordered_map<uint32_t, bool> &attachment_first_read = render_pass->attachment_first_read;
         std::unordered_map<uint32_t, VkImageLayout> &attachment_first_layout = render_pass->attachment_first_layout;
@@ -10064,44 +10049,16 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderP
                 }
             }
         }
-#endif
-        dev_data->renderPassMap[*pRenderPass] = render_pass;
+
+        dev_data->renderPassMap[*pRenderPass] = std::move(render_pass);
     }
     return result;
 }
 
-// Free the renderpass shadow
-static void deleteRenderPasses(layer_data *my_data) {
-    for (auto renderPass : my_data->renderPassMap) {
-        const VkRenderPassCreateInfo *pRenderPassInfo = renderPass.second->pCreateInfo;
-        delete[] pRenderPassInfo->pAttachments;
-        if (pRenderPassInfo->pSubpasses) {
-            for (uint32_t i = 0; i < pRenderPassInfo->subpassCount; ++i) {
-                // Attachements are all allocated in a block, so just need to
-                //  find the first non-null one to delete
-                if (pRenderPassInfo->pSubpasses[i].pInputAttachments) {
-                    delete[] pRenderPassInfo->pSubpasses[i].pInputAttachments;
-                } else if (pRenderPassInfo->pSubpasses[i].pColorAttachments) {
-                    delete[] pRenderPassInfo->pSubpasses[i].pColorAttachments;
-                } else if (pRenderPassInfo->pSubpasses[i].pResolveAttachments) {
-                    delete[] pRenderPassInfo->pSubpasses[i].pResolveAttachments;
-                } else if (pRenderPassInfo->pSubpasses[i].pPreserveAttachments) {
-                    delete[] pRenderPassInfo->pSubpasses[i].pPreserveAttachments;
-                }
-            }
-            delete[] pRenderPassInfo->pSubpasses;
-        }
-        delete[] pRenderPassInfo->pDependencies;
-        delete pRenderPassInfo;
-        delete renderPass.second;
-    }
-    my_data->renderPassMap.clear();
-}
-
 static bool VerifyFramebufferAndRenderPassLayouts(layer_data *dev_data, GLOBAL_CB_NODE *pCB, const VkRenderPassBeginInfo *pRenderPassBegin) {
     bool skip_call = false;
-    const VkRenderPassCreateInfo *pRenderPassInfo = dev_data->renderPassMap[pRenderPassBegin->renderPass]->pCreateInfo;
-    const safe_VkFramebufferCreateInfo framebufferInfo = dev_data->frameBufferMap[pRenderPassBegin->framebuffer]->createInfo;
+    auto const pRenderPassInfo = getRenderPass(dev_data, pRenderPassBegin->renderPass)->createInfo.ptr();
+    auto const & framebufferInfo = dev_data->frameBufferMap[pRenderPassBegin->framebuffer]->createInfo;
     if (pRenderPassInfo->attachmentCount != framebufferInfo.attachmentCount) {
         skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                              DRAWSTATE_INVALID_RENDERPASS, "DS", "You cannot start a render pass using a framebuffer "
@@ -10164,7 +10121,7 @@ static void TransitionSubpassLayouts(layer_data *dev_data, GLOBAL_CB_NODE *pCB, 
     if (!framebuffer)
         return;
 
-    const VkSubpassDescription &subpass = renderPass->pCreateInfo->pSubpasses[subpass_index];
+    auto const &subpass = renderPass->createInfo.pSubpasses[subpass_index];
     for (uint32_t j = 0; j < subpass.inputAttachmentCount; ++j) {
         TransitionAttachmentRefLayout(dev_data, pCB, framebuffer, subpass.pInputAttachments[j]);
     }
@@ -10191,7 +10148,7 @@ static void TransitionFinalSubpassLayouts(layer_data *dev_data, GLOBAL_CB_NODE *
     if (!renderPass)
         return;
 
-    const VkRenderPassCreateInfo *pRenderPassInfo = renderPass->pCreateInfo;
+    const VkRenderPassCreateInfo *pRenderPassInfo = renderPass->createInfo.ptr();
     auto framebuffer = getFramebuffer(dev_data, pRenderPassBegin->framebuffer);
     if (!framebuffer)
         return;
@@ -10247,11 +10204,11 @@ CmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo *p
         if (renderPass) {
             uint32_t clear_op_size = 0; // Make sure pClearValues is at least as large as last LOAD_OP_CLEAR
             cb_node->activeFramebuffer = pRenderPassBegin->framebuffer;
-            for (size_t i = 0; i < renderPass->attachments.size(); ++i) {
+            for (size_t i = 0; i < renderPass->createInfo.attachmentCount; ++i) {
                 MT_FB_ATTACHMENT_INFO &fb_info = framebuffer->attachments[i];
-                VkFormat format = renderPass->pCreateInfo->pAttachments[renderPass->attachments[i].attachment].format;
-                if (FormatSpecificLoadAndStoreOpSettings(format, renderPass->attachments[i].load_op,
-                                                         renderPass->attachments[i].stencil_load_op,
+                auto pAttachment = &renderPass->createInfo.pAttachments[i];
+                if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->loadOp,
+                                                         pAttachment->stencilLoadOp,
                                                          VK_ATTACHMENT_LOAD_OP_CLEAR)) {
                     clear_op_size = static_cast<uint32_t>(i) + 1;
                     std::function<bool()> function = [=]() {
@@ -10259,16 +10216,16 @@ CmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo *p
                         return false;
                     };
                     cb_node->validate_functions.push_back(function);
-                } else if (FormatSpecificLoadAndStoreOpSettings(format, renderPass->attachments[i].load_op,
-                                                                renderPass->attachments[i].stencil_load_op,
+                } else if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->loadOp,
+                                                                pAttachment->stencilLoadOp,
                                                                 VK_ATTACHMENT_LOAD_OP_DONT_CARE)) {
                     std::function<bool()> function = [=]() {
                         SetImageMemoryValid(dev_data, getImageNode(dev_data, fb_info.image), false);
                         return false;
                     };
                     cb_node->validate_functions.push_back(function);
-                } else if (FormatSpecificLoadAndStoreOpSettings(format, renderPass->attachments[i].load_op,
-                                                                renderPass->attachments[i].stencil_load_op,
+                } else if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->loadOp,
+                                                                pAttachment->stencilLoadOp,
                                                                 VK_ATTACHMENT_LOAD_OP_LOAD)) {
                     std::function<bool()> function = [=]() {
                         return ValidateImageMemoryIsValid(dev_data, getImageNode(dev_data, fb_info.image),
@@ -10276,7 +10233,7 @@ CmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo *p
                     };
                     cb_node->validate_functions.push_back(function);
                 }
-                if (renderPass->attachment_first_read[renderPass->attachments[i].attachment]) {
+                if (renderPass->attachment_first_read[i]) {
                     std::function<bool()> function = [=]() {
                         return ValidateImageMemoryIsValid(dev_data, getImageNode(dev_data, fb_info.image),
                                                           "vkCmdBeginRenderPass()");
@@ -10335,7 +10292,7 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(VkCommandBuffer commandBuffer, VkSubpa
         skip_call |= addCmd(dev_data, pCB, CMD_NEXTSUBPASS, "vkCmdNextSubpass()");
         skip_call |= outsideRenderPass(dev_data, pCB, "vkCmdNextSubpass");
 
-        auto subpassCount = pCB->activeRenderPass->pCreateInfo->subpassCount;
+        auto subpassCount = pCB->activeRenderPass->createInfo.subpassCount;
         if (pCB->activeSubpass == subpassCount - 1) {
             skip_call |=
                 log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
@@ -10367,25 +10324,25 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(VkCommandBuffer commandBuffer) {
         RENDER_PASS_NODE* pRPNode = pCB->activeRenderPass;
         auto framebuffer = getFramebuffer(dev_data, pCB->activeFramebuffer);
         if (pRPNode) {
-            if (pCB->activeSubpass != pRPNode->pCreateInfo->subpassCount - 1) {
+            if (pCB->activeSubpass != pRPNode->createInfo.subpassCount - 1) {
                 skip_call |=
                     log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                             reinterpret_cast<uint64_t>(commandBuffer), __LINE__, DRAWSTATE_INVALID_SUBPASS_INDEX, "DS",
                             "vkCmdEndRenderPass(): Called before reaching final subpass");
             }
 
-            for (size_t i = 0; i < pRPNode->attachments.size(); ++i) {
+            for (size_t i = 0; i < pRPNode->createInfo.attachmentCount; ++i) {
                 MT_FB_ATTACHMENT_INFO &fb_info = framebuffer->attachments[i];
-                VkFormat format = pRPNode->pCreateInfo->pAttachments[pRPNode->attachments[i].attachment].format;
-                if (FormatSpecificLoadAndStoreOpSettings(format, pRPNode->attachments[i].store_op,
-                                                         pRPNode->attachments[i].stencil_store_op, VK_ATTACHMENT_STORE_OP_STORE)) {
+                auto pAttachment = &pRPNode->createInfo.pAttachments[i];
+                if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->storeOp,
+                                                         pAttachment->stencilStoreOp, VK_ATTACHMENT_STORE_OP_STORE)) {
                     std::function<bool()> function = [=]() {
                         SetImageMemoryValid(dev_data, getImageNode(dev_data, fb_info.image), true);
                         return false;
                     };
                     pCB->validate_functions.push_back(function);
-                } else if (FormatSpecificLoadAndStoreOpSettings(format, pRPNode->attachments[i].store_op,
-                                                                pRPNode->attachments[i].stencil_store_op,
+                } else if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->storeOp,
+                                                                pAttachment->stencilStoreOp,
                                                                 VK_ATTACHMENT_STORE_OP_DONT_CARE)) {
                     std::function<bool()> function = [=]() {
                         SetImageMemoryValid(dev_data, getImageNode(dev_data, fb_info.image), false);
@@ -10570,7 +10527,7 @@ static bool validateFramebuffer(layer_data *dev_data, VkCommandBuffer primaryBuf
         auto cb_renderpass = getRenderPass(dev_data, pSubCB->beginInfo.pInheritanceInfo->renderPass);
         if (cb_renderpass->renderPass != fb->createInfo.renderPass) {
             skip_call |= validateRenderPassCompatibility(dev_data, secondaryBuffer, fb->renderPassCreateInfo.ptr(), secondaryBuffer,
-                                                         cb_renderpass->pCreateInfo);
+                                                         cb_renderpass->createInfo.ptr());
         }
     }
     return skip_call;
@@ -10660,8 +10617,9 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
                 } else {
                     // Make sure render pass is compatible with parent command buffer pass if has continue
                     if (pCB->activeRenderPass->renderPass != secondary_rp_node->renderPass) {
-                        skip_call |= validateRenderPassCompatibility(dev_data, commandBuffer, pCB->activeRenderPass->pCreateInfo,
-                                                                    pCommandBuffers[i], secondary_rp_node->pCreateInfo);
+                        skip_call |=
+                            validateRenderPassCompatibility(dev_data, commandBuffer, pCB->activeRenderPass->createInfo.ptr(),
+                                                            pCommandBuffers[i], secondary_rp_node->createInfo.ptr());
                     }
                     //  If framebuffer for secondary CB is not NULL, then it must match active FB from primaryCB
                     skip_call |= validateFramebuffer(dev_data, commandBuffer, pCB, pCommandBuffers[i], pSubCB);
@@ -10669,8 +10627,8 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
                 string errorString = "";
                 // secondaryCB must have been created w/ RP compatible w/ primaryCB active renderpass
                 if ((pCB->activeRenderPass->renderPass != secondary_rp_node->renderPass) &&
-                    !verify_renderpass_compatibility(dev_data, pCB->activeRenderPass->pCreateInfo, secondary_rp_node->pCreateInfo,
-                                                     errorString)) {
+                    !verify_renderpass_compatibility(dev_data, pCB->activeRenderPass->createInfo.ptr(),
+                                                     secondary_rp_node->createInfo.ptr(), errorString)) {
                     skip_call |= log_msg(
                         dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                         (uint64_t)pCommandBuffers[i], __LINE__, DRAWSTATE_RENDERPASS_INCOMPATIBLE, "DS",
@@ -10682,7 +10640,7 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
             }
             // TODO(mlentine): Move more logic into this method
             skip_call |= validateSecondaryCommandBufferState(dev_data, pCB, pSubCB);
-            skip_call |= validateCommandBufferState(dev_data, pSubCB);
+            skip_call |= validateCommandBufferState(dev_data, pSubCB, "vkCmdExecuteCommands()");
             // Secondary cmdBuffers are considered pending execution starting w/
             // being recorded
             if (!(pSubCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT)) {
@@ -11254,19 +11212,36 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
 
     for (uint32_t i = 0; i < pPresentInfo->swapchainCount; ++i) {
         auto swapchain_data = getSwapchainNode(dev_data, pPresentInfo->pSwapchains[i]);
-        if (swapchain_data && pPresentInfo->pImageIndices[i] < swapchain_data->images.size()) {
-            VkImage image = swapchain_data->images[pPresentInfo->pImageIndices[i]];
-            skip_call |= ValidateImageMemoryIsValid(dev_data, getImageNode(dev_data, image), "vkQueuePresentKHR()");
-            vector<VkImageLayout> layouts;
-            if (FindLayouts(dev_data, image, layouts)) {
-                for (auto layout : layouts) {
-                    if (layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
-                        skip_call |=
-                                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT,
-                                        reinterpret_cast<uint64_t &>(queue), __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
-                                        "Images passed to present must be in layout "
-                                        "VK_IMAGE_LAYOUT_PRESENT_SRC_KHR but is in %s",
-                                        string_VkImageLayout(layout));
+        if (swapchain_data) {
+            if (pPresentInfo->pImageIndices[i] >= swapchain_data->images.size()) {
+                skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
+                                     reinterpret_cast<uint64_t const &>(pPresentInfo->pSwapchains[i]), __LINE__, DRAWSTATE_SWAPCHAIN_INVALID_IMAGE,
+                                     "DS", "vkQueuePresentKHR: Swapchain image index too large (%u). There are only %u images in this swapchain.",
+                                     pPresentInfo->pImageIndices[i], (uint32_t)swapchain_data->images.size());
+            }
+            else {
+                auto image = swapchain_data->images[pPresentInfo->pImageIndices[i]];
+                auto image_node = getImageNode(dev_data, image);
+                skip_call |= ValidateImageMemoryIsValid(dev_data, image_node, "vkQueuePresentKHR()");
+
+                if (!image_node->acquired) {
+                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
+                                         reinterpret_cast<uint64_t const &>(pPresentInfo->pSwapchains[i]), __LINE__, DRAWSTATE_SWAPCHAIN_IMAGE_NOT_ACQUIRED,
+                                         "DS", "vkQueuePresentKHR: Swapchain image index %u has not been acquired.",
+                                         pPresentInfo->pImageIndices[i]);
+                }
+
+                vector<VkImageLayout> layouts;
+                if (FindLayouts(dev_data, image, layouts)) {
+                    for (auto layout : layouts) {
+                        if (layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+                            skip_call |=
+                                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT,
+                                            reinterpret_cast<uint64_t &>(queue), __LINE__, DRAWSTATE_INVALID_IMAGE_LAYOUT, "DS",
+                                            "Images passed to present must be in layout "
+                                            "VK_IMAGE_LAYOUT_PRESENT_SRC_KHR but is in %s",
+                                            string_VkImageLayout(layout));
+                        }
                     }
                 }
             }
@@ -11288,6 +11263,22 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                 pSemaphore->signaler.first = VK_NULL_HANDLE;
                 pSemaphore->signaled = false;
             }
+        }
+
+        for (uint32_t i = 0; i < pPresentInfo->swapchainCount; ++i) {
+            // Note: this is imperfect, in that we can get confused about what
+            // did or didn't succeed-- but if the app does that, it's confused
+            // itself just as much.
+            auto local_result = pPresentInfo->pResults ? pPresentInfo->pResults[i] : result;
+
+            if (local_result != VK_SUCCESS && local_result != VK_SUBOPTIMAL_KHR)
+                continue; // this present didn't actually happen.
+
+            // Mark the image as having been released to the WSI
+            auto swapchain_data = getSwapchainNode(dev_data, pPresentInfo->pSwapchains[i]);
+            auto image = swapchain_data->images[pPresentInfo->pImageIndices[i]];
+            auto image_node = getImageNode(dev_data, image);
+            image_node->acquired = false;
         }
 
         // Note: even though presentation is directed to a queue, there is no
@@ -11314,6 +11305,14 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainK
     bool skip_call = false;
 
     std::unique_lock<std::mutex> lock(global_lock);
+
+    if (fence == VK_NULL_HANDLE && semaphore == VK_NULL_HANDLE) {
+        skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
+                             reinterpret_cast<uint64_t &>(device), __LINE__, DRAWSTATE_SWAPCHAIN_NO_SYNC_FOR_ACQUIRE, "DS",
+                             "vkAcquireNextImageKHR: Semaphore and fence cannot both be VK_NULL_HANDLE. There would be no way "
+                             "to determine the completion of this operation.");
+    }
+
     auto pSemaphore = getSemaphoreNode(dev_data, semaphore);
     if (pSemaphore && pSemaphore->signaled) {
         skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
@@ -11345,6 +11344,12 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainK
             pSemaphore->signaled = true;
             pSemaphore->signaler.first = VK_NULL_HANDLE;
         }
+
+        // Mark the image as acquired.
+        auto swapchain_data = getSwapchainNode(dev_data, swapchain);
+        auto image = swapchain_data->images[*pImageIndex];
+        auto image_node = getImageNode(dev_data, image);
+        image_node->acquired = true;
     }
     lock.unlock();
 
