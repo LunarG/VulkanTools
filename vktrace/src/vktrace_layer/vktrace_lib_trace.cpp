@@ -748,9 +748,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     FINISH_TRACE_PACKET();
 
     if (localCreateInfo.enabledLayerCount > 0)
-        free((void *)localCreateInfo.ppEnabledExtensionNames);
-    if (localCreateInfo.enabledExtensionCount > 0)
         free((void *)localCreateInfo.ppEnabledLayerNames);
+    if (localCreateInfo.enabledExtensionCount > 0)
+        free((void *)localCreateInfo.ppEnabledExtensionNames);
 
     return result;
 }
