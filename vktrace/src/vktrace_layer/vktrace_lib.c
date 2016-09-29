@@ -111,6 +111,19 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
     OutputDebugString(pMessage);
 #endif
 #endif
+
+#if defined(ANDROID)
+#include <android/log.h>
+    switch(level)
+    {
+    case VKTRACE_LOG_DEBUG:   __android_log_print(ANDROID_LOG_DEBUG,   "vktrace", "%s", pMessage); break;
+    case VKTRACE_LOG_ERROR:   __android_log_print(ANDROID_LOG_ERROR,   "vktrace", "%s", pMessage); break;
+    case VKTRACE_LOG_WARNING: __android_log_print(ANDROID_LOG_WARNING, "vktrace", "%s", pMessage); break;
+    case VKTRACE_LOG_VERBOSE: __android_log_print(ANDROID_LOG_INFO,    "vktrace", "%s", pMessage); break;
+    default:
+        __android_log_print(ANDROID_LOG_INFO, "vktrace", "%s", pMessage); break;
+    }
+#endif
 }
 
 extern
