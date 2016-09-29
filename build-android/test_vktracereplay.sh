@@ -6,6 +6,7 @@ script_start_time=$(date +%s)
 
 default_vkreplay_apk=./vkreplay/bin/NativeActivity-debug.apk
 default_vktrace_exe=../build/vktrace/vktrace
+default_vktrace32_exe=../build/vktrace/vktrace32
 default_cube_apk=../demos/android/cube-with-layers/bin/NativeActivity-debug.apk
 
 #if [[ $(basename "$PWD") != "build-android" ]]
@@ -21,14 +22,16 @@ default_cube_apk=../demos/android/cube-with-layers/bin/NativeActivity-debug.apk
 function printUsage {
    echo "Supported parameters are:"
    echo "    -s|--serial <target device serial number>"
+   echo "    -a|--abi <abi to install>"
    echo "    -t|--vktrace <full path to vktrace on host>"
    echo "    -r|--vkreplay <full path to vkreplay APK>"
-   echo "    -c|--cube <full path to cube APK"
+   echo "    -c|--cube <full path to cube APK>"
    echo
    echo "i.e. ${0##*/} -s 01234567 \\"
-   echo "              -t  ../build/vktrace/vktrace \\"
-   echo "              -r  ./vkreplay/bin/NativeActivity-debug.apk \\"
-   echo "              -c  ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk"
+   echo "              -a arm64-v8a \\"
+   echo "              -t ../build/vktrace/vktrace \\"
+   echo "              -r ./vkreplay/bin/NativeActivity-debug.apk \\"
+   echo "              -c ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk"
    exit 1
 }
 
@@ -48,6 +51,10 @@ do
             # include the flag, because we need to leave it off if not provided
             serial="$2"
             serialFlag="-s $serial"
+            shift 2
+            ;;
+        -a|--abi)
+            target_abi="$2"
             shift 2
             ;;
         -t|--vktrace)
@@ -82,7 +89,7 @@ then
     exit 1
 fi
 
-if [[ $(adb devices) != *"$serial"* ]]
+if [[ $(adb devices) != *"$serial"* ]];
 then
     echo Device not found: $serial
     echo
@@ -90,21 +97,45 @@ then
     exit 1
 fi
 
-if [[ -z $vktrace_exe ]]
+if [[ -z $target_abi ]];
+then
+    echo Using default target_abi
+    target_abi=$default_target_abi
+fi
+echo target_abi = $target_abi
+
+if [[ $target_abi == "armeabi-v7a" ]] ||
+   [[ $target_abi == "mips" ]] ||
+   [[ $target_abi == "x86" ]];
+then
+    echo Targeting 32-bit abi $target_abi
+    target_32bit_abi=1
+fi
+
+if [[ -z $vktrace_exe ]];
 then
     echo Using default vktrace_exe
     vktrace_exe=$default_vktrace_exe
+    if [[ $target_32bit_abi ]]
+    then
+        vktrace_exe=$default_vktrace32_exe
+    fi
+else
+    if [[ $target_32bit_abi ]]
+    then
+       echo Ensure your vktrace is 32-bit, i.e. vktrace32
+    fi
 fi
 echo vktrace_exe = $vktrace_exe
 
-if [[ -z $vkreplay_apk ]]
+if [[ -z $vkreplay_apk ]];
 then
     echo Using default vkreplay_apk
     vkreplay_apk=$default_vkreplay_apk
 fi
 echo vkreplay_apk = $vkreplay_apk
 
-if [[ -z $cube_apk ]]
+if [[ -z $cube_apk ]];
 then
     echo Using default cube_apk
     cube_apk=$default_cube_apk
@@ -290,10 +321,10 @@ let "script_run_time=$(date +%s)-$script_start_time"
 killall --older-than "$script_run_time"s vktrace || echo continuing...
 
 # install the latest CubeWithLayers, packaged with vktrace and screenshot
-adb $serialFlag install $cube_apk
+adb $serialFlag install --abi $target_abi $cube_apk
 
 # install vkreplay APK
-adb $serialFlag install $vkreplay_apk
+adb $serialFlag install --abi $target_abi $vkreplay_apk
 
 # trace and screenshot
 adb $serialFlag shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_vktrace
