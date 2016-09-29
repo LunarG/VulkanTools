@@ -24,6 +24,8 @@ set (LIBRARIES vktrace_common vulkan_replay)
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
+add_dependencies(${PROJECT_NAME} "vulkan-${MAJOR}")
+
 target_link_libraries(${PROJECT_NAME}
     ${LIBRARIES}
 )
