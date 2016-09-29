@@ -113,6 +113,7 @@ else()
             COMMAND copy ${src_json} ${dst_json}
             VERBATIM
             )
+        add_dependencies(vktrace_layer-json VkLayer_vktrace_layer)
     endif()
 endif()
 
