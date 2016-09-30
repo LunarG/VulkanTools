@@ -485,10 +485,6 @@ namespace trim
         {
             instance = (VkInstance)s_trimStateTrackerSnapshot.createdInstances.begin()->first;
         }
-        if (instance != VK_NULL_HANDLE && mid(instance)->LunargDebugReportEnabled)
-        {
-            mid(instance)->instTable.DebugReportMessageEXT(instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, (uint64_t)instance, __LINE__, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, "trace_trim", "Starting State Snapshot");
-        }
 
         // Copying all the buffers is a length process:
         // 1) Create a cmd pool and cmd buffer on each device; begin the command buffer.
@@ -1033,11 +1029,6 @@ namespace trim
                     );
                 iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = pPersistentlyMapMemory;
             }
-        }
-
-        if (instance != VK_NULL_HANDLE && mid(instance)->LunargDebugReportEnabled)
-        {
-            mid(instance)->instTable.DebugReportMessageEXT(instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, (uint64_t)instance, __LINE__, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, "trace_trim", "Completed State Snapshot!");
         }
 
         vktrace_leave_critical_section(&trimStateTrackerLock);
