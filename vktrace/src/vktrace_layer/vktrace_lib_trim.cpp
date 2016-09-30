@@ -532,6 +532,12 @@ namespace trim
                 continue;
             }
 
+            uint32_t queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+            if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT)
+            {
+                queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            }
+
             VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
             if (imageIter->second.ObjectInfo.Image.needsStagingBuffer)
@@ -643,7 +649,7 @@ namespace trim
                     image, 
                     imageIter->second.ObjectInfo.Image.accessFlags, 
                     imageIter->second.ObjectInfo.Image.accessFlags, 
-                    imageIter->second.ObjectInfo.Image.queueFamilyIndex, 
+                    queueFamilyIndex,
                     srcImageLayout,
                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                     aspectMask,
@@ -668,7 +674,7 @@ namespace trim
                     image,
                     imageIter->second.ObjectInfo.Image.accessFlags,
                     imageIter->second.ObjectInfo.Image.accessFlags,
-                    imageIter->second.ObjectInfo.Image.queueFamilyIndex,
+                    queueFamilyIndex,
                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                     srcImageLayout,
                     aspectMask,
@@ -683,7 +689,7 @@ namespace trim
                     image,
                     imageIter->second.ObjectInfo.Image.accessFlags,
                     VK_ACCESS_HOST_READ_BIT,
-                    imageIter->second.ObjectInfo.Image.queueFamilyIndex,
+                    queueFamilyIndex,
                     imageIter->second.ObjectInfo.Image.mostRecentLayout,
                     imageIter->second.ObjectInfo.Image.mostRecentLayout,
                     imageIter->second.ObjectInfo.Image.aspectMask,
@@ -920,12 +926,18 @@ namespace trim
             {
                 VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
+                uint32_t queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+                if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT)
+                {
+                    queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                }
+
                 transitionImage(device,
                     commandBuffer,
                     image,
                     VK_ACCESS_HOST_READ_BIT,
                     imageIter->second.ObjectInfo.Image.accessFlags,
-                    imageIter->second.ObjectInfo.Image.queueFamilyIndex,
+                    queueFamilyIndex,
                     imageIter->second.ObjectInfo.Image.mostRecentLayout,
                     imageIter->second.ObjectInfo.Image.mostRecentLayout,
                     imageIter->second.ObjectInfo.Image.aspectMask,
@@ -1333,6 +1345,12 @@ namespace trim
                 continue;
             }
 
+            uint32_t queueFamilyIndex = obj->second.ObjectInfo.Image.queueFamilyIndex;
+            if (obj->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT)
+            {
+                queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            }
+
             if (obj->second.ObjectInfo.Image.needsStagingBuffer)
             {
                 // make a staging buffer and copy the data into the image (similar to what we do for buffers)
@@ -1341,8 +1359,6 @@ namespace trim
 
                 // generate packets needed to create a staging buffer
                 generateCreateStagingBuffer(device, stagingInfo);
-
-
 
                 // here's where we map / unmap to insert data into the buffer
                 {
@@ -1398,7 +1414,7 @@ namespace trim
                     image,
                     0,
                     VK_ACCESS_TRANSFER_WRITE_BIT,
-                    obj->second.ObjectInfo.Image.queueFamilyIndex,
+                    queueFamilyIndex,
                     VK_IMAGE_LAYOUT_UNDEFINED,
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                     obj->second.ObjectInfo.Image.aspectMask,
@@ -1416,7 +1432,7 @@ namespace trim
                     image,
                     VK_ACCESS_TRANSFER_WRITE_BIT,
                     obj->second.ObjectInfo.Image.accessFlags,
-                    obj->second.ObjectInfo.Image.queueFamilyIndex,
+                    queueFamilyIndex,
                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                     obj->second.ObjectInfo.Image.mostRecentLayout,
                     obj->second.ObjectInfo.Image.aspectMask,
@@ -1469,18 +1485,11 @@ namespace trim
                     uint32_t arrayLayers = obj->second.ObjectInfo.Image.arrayLayers;
                     VkFormat format = obj->second.ObjectInfo.Image.format;
                     VkSharingMode sharingMode = obj->second.ObjectInfo.Image.sharingMode;
-                    uint32_t queueFamilyIndex = obj->second.ObjectInfo.Image.queueFamilyIndex;
                     uint32_t srcAccessMask = (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) ? VK_ACCESS_HOST_WRITE_BIT : 0;
                     VkImageAspectFlags aspectMask = getImageAspectFromFormat(format);
 
                     uint32_t srcQueueFamilyIndex = queueFamilyIndex;
                     uint32_t dstQueueFamilyIndex = queueFamilyIndex;
-
-                    if (sharingMode == VK_SHARING_MODE_CONCURRENT)
-                    {
-                        srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                        dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                    }
 
                     // This current approach is SUPER _NOT_ efficient.
                     // We should create a command pool on each device only once.
