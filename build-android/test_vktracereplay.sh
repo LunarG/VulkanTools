@@ -8,6 +8,7 @@ default_vkreplay_apk=./vkreplay/bin/NativeActivity-debug.apk
 default_vktrace_exe=../build/vktrace/vktrace
 default_vktrace32_exe=../build/vktrace/vktrace32
 default_cube_apk=../demos/android/cube-with-layers/bin/NativeActivity-debug.apk
+default_target_abi=$(adb shell getprop ro.product.cpu.abi)
 
 #if [[ $(basename "$PWD") != "build-android" ]]
 #then
@@ -23,9 +24,9 @@ function printUsage {
    echo "Supported parameters are:"
    echo "    -s|--serial <target device serial number>"
    echo "    -a|--abi <abi to install>"
-   echo "    -t|--vktrace <full path to vktrace on host>"
-   echo "    -r|--vkreplay <full path to vkreplay APK>"
-   echo "    -c|--cube <full path to cube APK>"
+   echo "    -t|--vktrace <full path to vktrace on host> (optional)"
+   echo "    -r|--vkreplay <full path to vkreplay APK> (optional)"
+   echo "    -c|--cube <full path to cube APK> (optional)"
    echo
    echo "i.e. ${0##*/} -s 01234567 \\"
    echo "              -a arm64-v8a \\"
