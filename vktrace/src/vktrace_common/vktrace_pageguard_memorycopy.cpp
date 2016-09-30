@@ -272,7 +272,7 @@ vktrace_pageguard_task_control_block *vktrace_pageguard_get_task_control_block()
     if (!ptask_control_block)
     {
         int thread_number = vktrace_pageguard_get_cpu_core_count();
-        ptask_control_block = new vktrace_pageguard_task_control_block[thread_number];
+        ptask_control_block = reinterpret_cast<vktrace_pageguard_task_control_block *>(new uint8_t[thread_number*sizeof(vktrace_pageguard_task_control_block)]);
         memset((void *)ptask_control_block, 0, thread_number*sizeof(vktrace_pageguard_task_control_block));
     }
     return ptask_control_block;
@@ -454,7 +454,7 @@ void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n)
         taskunitamount = thread_number;
     }
     size_t size_per_unit = n / taskunitamount, size_left = n%taskunitamount, size;
-    vktrace_pageguard_task_unit_parameters *units = new vktrace_pageguard_task_unit_parameters[taskunitamount];
+    vktrace_pageguard_task_unit_parameters *units = reinterpret_cast<vktrace_pageguard_task_unit_parameters *>(new uint8_t[taskunitamount*sizeof(vktrace_pageguard_task_unit_parameters)]);
     assert(units);
     for (int i = 0; i < taskunitamount; i++)
     {
