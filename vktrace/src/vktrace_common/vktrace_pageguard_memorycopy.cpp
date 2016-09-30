@@ -194,7 +194,7 @@ bool vktrace_pageguard_create_thread(vktrace_pageguard_thread_id *ptid, vktrace_
 
 #else
     pthread_t thread;
-    int state = PTHREAD_CANCEL_ENABLE, oldstate, oldtype;
+    int state = PTHREAD_CANCEL_ENABLE, oldtype;
     state = PTHREAD_CANCEL_ASYNCHRONOUS;
     pthread_setcanceltype(state, &oldtype);
     if (pthread_create(&thread, NULL, pfunc, (void *)ptaskpara) == 0)
