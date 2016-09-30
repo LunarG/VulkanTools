@@ -1334,6 +1334,14 @@ namespace trim
             VkImage image = static_cast<VkImage>(obj->first);
             VkDevice device = obj->second.belongsToDevice;
 
+            if (obj->second.ObjectInfo.Image.mostRecentLayout == VK_IMAGE_LAYOUT_UNDEFINED)
+            {
+                // If the current layout is UNDEFINED, that means the app hasn't used it yet, or it doesn't care what is currently
+                // in the image and so it will be discarded when the app uses it next. As such, there's no point in us trying to
+                // recreate this image.
+                continue;
+            }
+
             if (obj->second.ObjectInfo.Image.needsStagingBuffer)
             {
                 // make a staging buffer and copy the data into the image (similar to what we do for buffers)
@@ -1461,7 +1469,7 @@ namespace trim
                 VkImageLayout desiredLayout = obj->second.ObjectInfo.Image.mostRecentLayout;
 
                 // Need to make sure images have the correct VkImageLayout.
-                if (desiredLayout != initialLayout && obj->second.ObjectInfo.Image.bIsSwapchainImage == false) // TODO: find the solution for swapchain images
+                if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false)
                 {
                     VkDevice device = obj->second.belongsToDevice;
                     uint32_t mipLevels = obj->second.ObjectInfo.Image.mipLevels;
