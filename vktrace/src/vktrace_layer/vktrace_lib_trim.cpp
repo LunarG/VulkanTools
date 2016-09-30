@@ -1351,19 +1351,21 @@ namespace trim
                 // generate packets needed to create a staging buffer
                 generateCreateStagingBuffer(device, stagingInfo);
 
+
+
                 // here's where we map / unmap to insert data into the buffer
                 {
                     // write map / unmap packets so the memory contents gets set on replay
-                    if (obj->second.ObjectInfo.Buffer.pMapMemoryPacket != NULL)
+                    if (obj->second.ObjectInfo.Image.pMapMemoryPacket != NULL)
                     {
-                        vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pMapMemoryPacket, vktrace_trace_get_trace_file());
-                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pMapMemoryPacket));
+                        vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pMapMemoryPacket, vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pMapMemoryPacket));
                     }
 
-                    if (obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket != NULL)
+                    if (obj->second.ObjectInfo.Image.pUnmapMemoryPacket != NULL)
                     {
-                        vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
-                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket));
+                        vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pUnmapMemoryPacket));
                     }
                 }
 
