@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-//  Optimization by using page-guard for speed up capture
+//  Optimization by using page-guard for speed up capture and capture persistent mapped memory
 //
 //  Background:
 //
@@ -22,6 +22,8 @@
 //     The reason that caused such slow capture is DOOM updates a big mapped memory(over 67M) frequently, vktrace copies this memory block to harddrive when DOOM calls vkFlushmappedMemory to update it every time.
 //     Here we use page guard to record which page of big memory block has been changed and only save those changed pages, it make the capture time reduce to round 15 minutes, the trace file size is round 40G, 
 //     The Playback time for these trace file is round 7 minutes(on Win10/AMDFury/32GRam/I5 system).
+//
+//     The page guard method also has been tested ok for capture/playback SaschaWillems(July20) applications. Test system:  CPU: AMD FX-9590, GPU: R9 200 Series, RAM: 16 GB, Driver: Crimson Public Driver 16.7.3.
 //
 //  Page guard process:
 //
@@ -43,7 +45,7 @@
 //
 //  Known limitations:
 //
-//     1. for a page which is in mapped memory, if target app first read it before write, then do GPU->CPU synchronization like vkFlushMappedMemoryRanges trigger flush copied mapped memory to (real)mapped memory, that page will not be recorded as changed page.
+//     1. for a page which is in mapped memory, if target app first read it before write, then do GPU->CPU synchronization like vkFlushMappedMemoryRanges trigger flush copied mapped memory( pMemCopy ) to real mapped memory( pMemReal ), that page will not be recorded as changed page.
 //
 //     2. one page accessed by a thread and the access just happen when another thread already finish copying date to real mapped memory for that page but haven't reset page guard of that page, that page will not be recorded as changed page.
 

@@ -85,14 +85,6 @@ Windows 7+ with additional required software packages:
 - Python 3 (from https://www.python.org/downloads).  Notes:
   - Select to install the optional sub-package to add Python to the system PATH environment variable.
   - Need python3.3 or later to get the Windows py.exe launcher that is used to get python3 rather than python2 if both are installed on Windows
-  - Python lxml package must be installed
-  - Download the lxml package from
-        http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
-        32-bit latest for Python 3.5 is: lxml-3.5.0-cp35-none-win32.whl
-        64-bit latest for Python 3.5 is: lxml-3.5.0-cp35-none-win_amd64.whl
-  - The package can be installed with pip as follows:
-        pip install lxml-3.5.0-cp35-none-win32.whl
-        If pip is not in your path, you can find it at $PYTHON_HOME\Scripts\pip.exe, where PYTHON_HOME is the folder where you installed Python.
 - Git (from http://git-scm.com/download/win).
   - Note: If you use Cygwin, you can normally use Cygwin's "git.exe".  However, in order to use the "update_external_sources.bat" script, you must have this version.
   - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
@@ -101,8 +93,8 @@ Windows 7+ with additional required software packages:
   - You may use ImageMagick-6 or ImageMagick-7 releases
   - Install each a 32-bit and a 64-bit version, as the 64-bit installer does not install the 32-bit libraries and tools.
     - Here are some helpful links (warning they may go out of date with a newer ImageMagick).
-      - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x64-dll.exe
-      - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-6.9.3-2-Q16-x86-dll.exe
+      - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-7.0.3-1-Q16-x64-dll.exe
+      - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-7.0.3-1-Q16-x86-dll.exe
   - For each of the installs, be sure to **check** the following boxes:
       - "Install legacy utilities (e.g. convert)"
       - "Install development headers and libraries for C and C++"

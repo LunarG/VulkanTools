@@ -422,40 +422,70 @@ VKAPI_ATTR VkBool32 VKAPI_CALL
 dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
     uint64_t srcObject, size_t location, int32_t msgCode,
     const char *pLayerPrefix, const char *pMsg, void *pUserData) {
+
+    // clang-format off
     char *message = (char *)malloc(strlen(pMsg) + 100);
 
     assert(message);
 
-    if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-        sprintf(message, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode,
-            pMsg);
+    // We know we're submitting queues without fences, ignore this
+    if (strstr(pMsg, "vkQueueSubmit parameter, VkFence fence, is null pointer"))
+        return false;
+
+    if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+        sprintf(message, "INFORMATION: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
         validation_error = 1;
     } else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-        // We know that we're submitting queues without fences, ignore this
-        // warning
-        if (strstr(pMsg,
-            "vkQueueSubmit parameter, VkFence fence, is null pointer")) {
-            return false;
-        }
-        sprintf(message, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode,
-            pMsg);
+        sprintf(message, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        validation_error = 1;
+    } else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+        sprintf(message, "PERFOERMANCE WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        validation_error = 1;
+    } else if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        sprintf(message, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        validation_error = 1;
+    } else if (msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
+        sprintf(message, "DEBUG: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
         validation_error = 1;
     } else {
+        sprintf(message, "INFORMATION: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
         validation_error = 1;
-        return false;
     }
 
 #ifdef _WIN32
+
     in_callback = true;
     struct demo *demo = (struct demo*) pUserData;
     if (!demo->suppress_popups)
         MessageBox(NULL, message, "Alert", MB_OK);
     in_callback = false;
+
+#elif defined(ANDROID)
+
+    if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+        __android_log_print(ANDROID_LOG_INFO,  APP_SHORT_NAME, "%s", message);
+    } else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
+        __android_log_print(ANDROID_LOG_WARN,  APP_SHORT_NAME, "%s", message);
+    } else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+        __android_log_print(ANDROID_LOG_WARN,  APP_SHORT_NAME, "%s", message);
+    } else if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        __android_log_print(ANDROID_LOG_ERROR, APP_SHORT_NAME, "%s", message);
+    } else if (msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
+        __android_log_print(ANDROID_LOG_DEBUG, APP_SHORT_NAME, "%s", message);
+    } else {
+        __android_log_print(ANDROID_LOG_INFO,  APP_SHORT_NAME, "%s", message);
+    }
+
 #else
+
     printf("%s\n", message);
     fflush(stdout);
+
 #endif
+
     free(message);
+
+    //clang-format on
 
     /*
     * false indicates that layer should not bail-out of an
@@ -626,7 +656,7 @@ static void demo_draw_build_cmd(struct demo *demo, VkCommandBuffer cmd_buf) {
     VkImageMemoryBarrier image_memory_barrier = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
         .pNext = NULL,
-        .srcAccessMask = 0,
+        .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
         .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         .oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
         .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -3195,6 +3225,9 @@ static void demo_init(struct demo *demo, int argc, char **argv) {
             continue;
         }
 
+#if defined(ANDROID)
+        ERR_EXIT("Usage: cube [--validate]\n", "Usage");
+#else
         fprintf(stderr, "Usage:\n  %s [--use_staging] [--validate] [--break] "
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
                         "[--xlib] "
@@ -3203,6 +3236,7 @@ static void demo_init(struct demo *demo, int argc, char **argv) {
                 APP_SHORT_NAME);
         fflush(stderr);
         exit(1);
+#endif
     }
 
     if (!demo->use_xlib)
@@ -3309,6 +3343,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/log.h>
 #include <android_native_app_glue.h>
+#include "android_util.h"
+
 static bool initialized = false;
 static bool active = false;
 struct demo demo;
@@ -3334,7 +3370,25 @@ static void processCommand(struct android_app* app, int32_t cmd) {
                 if (demo.prepared) {
                     demo_cleanup(&demo);
                 }
-                demo_init(&demo, 0, NULL);
+
+                // Parse Intents into argc, argv
+                // Use the following key to send arguments, i.e.
+                // --es args "--validate"
+                const char key[] = "args";
+                char* appTag = (char*) APP_SHORT_NAME;
+                int argc = 0;
+                char** argv = get_args(app, key, appTag, &argc);
+
+                __android_log_print(ANDROID_LOG_INFO, appTag, "argc = %i", argc);
+                for (int i = 0; i < argc; i++)
+                    __android_log_print(ANDROID_LOG_INFO, appTag, "argv[%i] = %s", i, argv[i]);
+
+                demo_init(&demo, argc, argv);
+
+                // Free the argv malloc'd by get_args
+                for (int i = 0; i < argc; i++)
+                    free(argv[i]);
+
                 demo.window = (void*)app->window;
                 demo_init_vk_swapchain(&demo);
                 demo_prepare(&demo);

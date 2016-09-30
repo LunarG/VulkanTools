@@ -44,7 +44,6 @@ function trace_replay {
 }
 
 trace_replay cube
-trace_replay tri
 
 exit 0
 

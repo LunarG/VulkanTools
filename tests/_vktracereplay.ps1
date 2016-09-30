@@ -75,38 +75,38 @@ if ($exitstatus -eq 0) {
 }
 
 # check the average pixel value of each screenshot to ensure something plausible was written
-if ($exitstatus -eq 0) {
-    $trace_mean = (convert 1-trace.ppm -format "%[mean]" info:)
-    $replay_mean = (convert 1-replay.ppm -format "%[mean]" info:)
-    $version = (identify -version)
-
-    # normalize the values so we can support Q8 and Q16 imagemagick installations
-    if ($version -match "Q8") {
-        $trace_mean = $trace_mean   / 255 # 2^8-1
-        $replay_mean = $replay_mean / 255 # 2^8-1
-    } else {
-        $trace_mean = $trace_mean   / 65535 # 2^16-1
-        $replay_mean = $replay_mean / 65535 # 2^16-1
-    }
-
-    # if either screenshot is too bright or too dark, it either failed, or is a bad test
-    if (($trace_mean -lt 0.10) -or ($trace_mean -gt 0.90)){
-        echo ''
-        echo 'Trace screenshot failed mean check, must be in range [0.1, 0.9]'
-        write-host 'Detected mean:' $trace_mean
-        echo ''
-        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-        $exitstatus = 1
-    }
-    if (($replay_mean -lt 0.10) -or ($replay_mean -gt 0.90)){
-        echo ''
-        echo 'Replay screenshot failed mean check, must be in range [0.1, 0.9]'
-        write-host 'Detected mean:' $replay_mean
-        echo ''
-        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-        $exitstatus = 1
-    }
-}
+#if ($exitstatus -eq 0) {
+#    $trace_mean = (convert 1-trace.ppm -format "%[mean]" info:)
+#    $replay_mean = (convert 1-replay.ppm -format "%[mean]" info:)
+#    $version = (identify -version)
+#
+#    # normalize the values so we can support Q8 and Q16 imagemagick installations
+#    if ($version -match "Q8") {
+#        $trace_mean = $trace_mean   / 255 # 2^8-1
+#        $replay_mean = $replay_mean / 255 # 2^8-1
+#    } else {
+#        $trace_mean = $trace_mean   / 65535 # 2^16-1
+#        $replay_mean = $replay_mean / 65535 # 2^16-1
+#    }
+#
+#    # if either screenshot is too bright or too dark, it either failed, or is a bad test
+#    if (($trace_mean -lt 0.10) -or ($trace_mean -gt 0.90)){
+#        echo ''
+#        echo 'Trace screenshot failed mean check, must be in range [0.1, 0.9]'
+#        write-host 'Detected mean:' $trace_mean
+#        echo ''
+#        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+#        $exitstatus = 1
+#    }
+#    if (($replay_mean -lt 0.10) -or ($replay_mean -gt 0.90)){
+#        echo ''
+#        echo 'Replay screenshot failed mean check, must be in range [0.1, 0.9]'
+#        write-host 'Detected mean:' $replay_mean
+#        echo ''
+#        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+#        $exitstatus = 1
+#    }
+#}
 
 # if we passed all the checks, the test is good
 if ($exitstatus -eq 0) {

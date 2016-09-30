@@ -267,6 +267,12 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
         goto fail;
     }
 
+    if (replayQueueFamilyProperties[replayPhysicalDevice].count == 1)
+    {
+        *pReplayIdx = 0;
+        return true;
+    }
+
     for (uint32_t i = 0; i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count); i++)
     {
         if (traceQueueFamilyProperties[tracePhysicalDevice].queueFamilyProperties[traceIdx].queueFlags == replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags)
@@ -2866,6 +2872,40 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
             }
         }
     }
+
+    // Get the list of VkFormats that are supported:
+    VkPhysicalDevice remappedPhysicalDevice = replayPhysicalDevices[remappeddevice];
+    uint32_t formatCount;
+    VkResult res;
+    // Note that pPacket->pCreateInfo->surface has been remapped above
+    res = vkGetPhysicalDeviceSurfaceFormatsKHR(remappedPhysicalDevice, pPacket->pCreateInfo->surface,
+                                               &formatCount, NULL);
+    assert(!res);
+    VkSurfaceFormatKHR *surfFormats =
+        (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
+    assert(surfFormats);
+    res = vkGetPhysicalDeviceSurfaceFormatsKHR(remappedPhysicalDevice, pPacket->pCreateInfo->surface,
+                                               &formatCount, surfFormats);
+    assert(!res);
+    // If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+    // the surface has no preferred format.  Otherwise, at least one
+    // supported format will be returned.
+    if (!(formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED)) {
+        bool found = false;
+        for (uint32_t i = 0; i < formatCount; i++) {
+            if (pPacket->pCreateInfo->imageFormat == surfFormats[i].format) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            vktrace_LogWarning("Format %d is not supported for presentable images, using format %d",
+                               pPacket->pCreateInfo->imageFormat, surfFormats[0].format);
+            VkFormat *pFormat = (VkFormat *) &(pPacket->pCreateInfo->imageFormat);
+            *pFormat = surfFormats[0].format;
+        }
+    }
+    free(surfFormats);
 
     replayResult = m_vkFuncs.real_vkCreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS)

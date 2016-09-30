@@ -24,7 +24,12 @@
 
 using namespace std;
 
-static const size_t SIZE_LIMIT_TO_USE_OPTIMIZATION = 1048576; //turn off optimization of memcpy if size < this limit
+static const size_t SIZE_LIMIT_TO_USE_OPTIMIZATION = 1*1024*1024; //turn off optimization of memcpy if size < this limit.
+                                                                  //for multithread memcopy, there is system cost on multiple threads include switch control from different threads,
+                                                                  //synchronization and communication like semaphore wait and post and other process which system don't need to handle
+                                                                  //in single thread memcpy, if these cost is greater than benefit of using multithread,we should directly call memcpy.
+                                                                  //here set the value with 1M base on roughly estimation of the cost.
+
 
 bool vktrace_sem_create(vktrace_sem_id *sem_id, uint32_t initvalue)
 {
@@ -90,8 +95,8 @@ void vktrace_sem_post(vktrace_sem_id sid)
 #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
 
 #if defined(WIN32)
-#define PARALLEL_INVOKE_NUM   10
-extern "C" void *opt_memcpy(void * destination, const void * source, size_t size)
+#define PARALLEL_INVOKE_NUM   10 //this is the maximum task number that  parallel_invoke can use, how many threads are actually used to finish these task depand on system concurrency algorithm.
+extern "C" void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size)
 {
     void *pRet=NULL;
         if (size < SIZE_LIMIT_TO_USE_OPTIMIZATION)
@@ -135,7 +140,7 @@ extern "C" void *opt_memcpy(void * destination, const void * source, size_t size
     return pRet;
 }
 #else//defined(PAGEGUARD_MEMCPY_USE_PPL_LIB), Linux
-extern "C" void *opt_memcpy(void * destination, const void * source, size_t size)
+extern "C" void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size)
 {
     return memcpy(destination, source, (size_t)size);
 }
@@ -194,7 +199,7 @@ bool vktrace_pageguard_create_thread(vktrace_pageguard_thread_id *ptid, vktrace_
 
 #else
     pthread_t thread;
-    int state = PTHREAD_CANCEL_ENABLE, oldstate, oldtype;
+    int state = PTHREAD_CANCEL_ENABLE, oldtype;
     state = PTHREAD_CANCEL_ASYNCHRONOUS;
     pthread_setcanceltype(state, &oldtype);
     if (pthread_create(&thread, NULL, pfunc, (void *)ptaskpara) == 0)
@@ -272,7 +277,7 @@ vktrace_pageguard_task_control_block *vktrace_pageguard_get_task_control_block()
     if (!ptask_control_block)
     {
         int thread_number = vktrace_pageguard_get_cpu_core_count();
-        ptask_control_block = new vktrace_pageguard_task_control_block[thread_number];
+        ptask_control_block = reinterpret_cast<vktrace_pageguard_task_control_block *>(new uint8_t[thread_number*sizeof(vktrace_pageguard_task_control_block)]);
         memset((void *)ptask_control_block, 0, thread_number*sizeof(vktrace_pageguard_task_control_block));
     }
     return ptask_control_block;
@@ -454,7 +459,7 @@ void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n)
         taskunitamount = thread_number;
     }
     size_t size_per_unit = n / taskunitamount, size_left = n%taskunitamount, size;
-    vktrace_pageguard_task_unit_parameters *units = new vktrace_pageguard_task_unit_parameters[taskunitamount];
+    vktrace_pageguard_task_unit_parameters *units = reinterpret_cast<vktrace_pageguard_task_unit_parameters *>(new uint8_t[taskunitamount*sizeof(vktrace_pageguard_task_unit_parameters)]);
     assert(units);
     for (int i = 0; i < taskunitamount; i++)
     {
@@ -473,7 +478,7 @@ void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n)
     vktrace_pageguard_clear_task_queue();
 }
 
-extern "C" void *opt_memcpy(void * destination, const void * source, size_t size)
+extern "C" void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size)
 {
     void *pRet = NULL;
     if (size < SIZE_LIMIT_TO_USE_OPTIMIZATION)
@@ -487,5 +492,4 @@ extern "C" void *opt_memcpy(void * destination, const void * source, size_t size
     }
     return pRet;
 }
-
 #endif

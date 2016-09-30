@@ -61,6 +61,8 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${HDR_LIST})
 
+add_dependencies(${PROJECT_NAME} "vulkan-${MAJOR}")
+
 target_link_libraries(${PROJECT_NAME} 
     ${OS_REPLAYER_LIBS}
     ${VKTRACE_VULKAN_LIB}

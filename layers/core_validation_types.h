@@ -146,29 +146,23 @@ struct DESCRIPTOR_POOL_NODE : BASE_NODE {
 
 class BUFFER_NODE : public BASE_NODE {
   public:
-    using BASE_NODE::in_use;
     VkBuffer buffer;
     VkDeviceMemory mem;
     VkDeviceSize memOffset;
     VkDeviceSize memSize; // Note: may differ from createInfo::size
     VkBufferCreateInfo createInfo;
-    BUFFER_NODE() : buffer(VK_NULL_HANDLE), mem(VK_NULL_HANDLE), memOffset(0), memSize(0), createInfo{} { in_use.store(0); };
     BUFFER_NODE(VkBuffer buff, const VkBufferCreateInfo *pCreateInfo)
         : buffer(buff), mem(VK_NULL_HANDLE), memOffset(0), memSize(0), createInfo(*pCreateInfo){};
-    BUFFER_NODE(const BUFFER_NODE &rh_obj)
-        : buffer(rh_obj.buffer), mem(rh_obj.mem), memOffset(rh_obj.memOffset), memSize(rh_obj.memSize),
-          createInfo(rh_obj.createInfo){};
+
+    BUFFER_NODE(BUFFER_NODE const &rh_obj) = delete;
 };
 
 class BUFFER_VIEW_STATE : public BASE_NODE {
   public:
     VkBufferView buffer_view;
     VkBufferViewCreateInfo create_info;
-    BUFFER_VIEW_STATE() : buffer_view(VK_NULL_HANDLE), create_info{} {};
     BUFFER_VIEW_STATE(VkBufferView bv, const VkBufferViewCreateInfo *ci) : buffer_view(bv), create_info(*ci){};
-    BUFFER_VIEW_STATE(const BUFFER_VIEW_STATE &rh_obj) : buffer_view(rh_obj.buffer_view), create_info(rh_obj.create_info) {
-        in_use.store(rh_obj.in_use.load());
-    };
+    BUFFER_VIEW_STATE(const BUFFER_VIEW_STATE &rh_obj) = delete;
 };
 
 struct SAMPLER_NODE : public BASE_NODE {
@@ -182,32 +176,25 @@ struct SAMPLER_NODE : public BASE_NODE {
 
 class IMAGE_NODE : public BASE_NODE {
   public:
-    using BASE_NODE::in_use;
     VkImage image;
     VkImageCreateInfo createInfo;
     VkDeviceMemory mem;
     bool valid; // If this is a swapchain image backing memory track valid here as it doesn't have DEVICE_MEM_INFO
+    bool acquired;  // If this is a swapchain image, has it been acquired by the app.
     VkDeviceSize memOffset;
     VkDeviceSize memSize;
-    IMAGE_NODE() : image(VK_NULL_HANDLE), createInfo{}, mem(VK_NULL_HANDLE), valid(false), memOffset(0), memSize(0){};
     IMAGE_NODE(VkImage img, const VkImageCreateInfo *pCreateInfo)
-        : image(img), createInfo(*pCreateInfo), mem(VK_NULL_HANDLE), valid(false), memOffset(0), memSize(0){};
-    IMAGE_NODE(const IMAGE_NODE &rh_obj)
-        : image(rh_obj.image), createInfo(rh_obj.createInfo), mem(rh_obj.mem), valid(rh_obj.valid), memOffset(rh_obj.memOffset),
-          memSize(rh_obj.memSize) {
-        in_use.store(rh_obj.in_use.load());
-    };
+        : image(img), createInfo(*pCreateInfo), mem(VK_NULL_HANDLE), valid(false), acquired(false), memOffset(0), memSize(0){};
+
+    IMAGE_NODE(IMAGE_NODE const &rh_obj) = delete;
 };
 
 class IMAGE_VIEW_STATE : public BASE_NODE {
   public:
     VkImageView image_view;
     VkImageViewCreateInfo create_info;
-    IMAGE_VIEW_STATE() : image_view(VK_NULL_HANDLE), create_info{} {};
     IMAGE_VIEW_STATE(VkImageView iv, const VkImageViewCreateInfo *ci) : image_view(iv), create_info(*ci){};
-    IMAGE_VIEW_STATE(const IMAGE_VIEW_STATE &rh_obj) : image_view(rh_obj.image_view), create_info(rh_obj.create_info) {
-        in_use.store(rh_obj.in_use.load());
-    };
+    IMAGE_VIEW_STATE(const IMAGE_VIEW_STATE &rh_obj) = delete;
 };
 
 // Simple struct to hold handle and type of object so they can be uniquely identified and looked up in appropriate map
@@ -295,20 +282,12 @@ enum DRAW_TYPE {
 
 class IMAGE_CMD_BUF_LAYOUT_NODE {
   public:
-    IMAGE_CMD_BUF_LAYOUT_NODE() {}
+    IMAGE_CMD_BUF_LAYOUT_NODE() = default;
     IMAGE_CMD_BUF_LAYOUT_NODE(VkImageLayout initialLayoutInput, VkImageLayout layoutInput)
         : initialLayout(initialLayoutInput), layout(layoutInput) {}
 
     VkImageLayout initialLayout;
     VkImageLayout layout;
-};
-
-struct MT_PASS_ATTACHMENT_INFO {
-    uint32_t attachment;
-    VkAttachmentLoadOp load_op;
-    VkAttachmentStoreOp store_op;
-    VkAttachmentLoadOp stencil_load_op;
-    VkAttachmentStoreOp stencil_store_op;
 };
 
 // Store the DAG.
@@ -320,38 +299,14 @@ struct DAGNode {
 
 struct RENDER_PASS_NODE : public BASE_NODE {
     VkRenderPass renderPass;
-    VkRenderPassCreateInfo const *pCreateInfo;
+    safe_VkRenderPassCreateInfo createInfo;
     std::vector<bool> hasSelfDependency;
     std::vector<DAGNode> subpassToNode;
-    std::vector<std::vector<VkFormat>> subpassColorFormats;
-    std::vector<MT_PASS_ATTACHMENT_INFO> attachments;
     std::unordered_map<uint32_t, bool> attachment_first_read;
     std::unordered_map<uint32_t, VkImageLayout> attachment_first_layout;
 
-    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo) : pCreateInfo(pCreateInfo) {
-        uint32_t i;
-
-        subpassColorFormats.reserve(pCreateInfo->subpassCount);
-        for (i = 0; i < pCreateInfo->subpassCount; i++) {
-            const VkSubpassDescription *subpass = &pCreateInfo->pSubpasses[i];
-            std::vector<VkFormat> color_formats;
-            uint32_t j;
-
-            color_formats.reserve(subpass->colorAttachmentCount);
-            for (j = 0; j < subpass->colorAttachmentCount; j++) {
-                const uint32_t att = subpass->pColorAttachments[j].attachment;
-
-                if (att != VK_ATTACHMENT_UNUSED) {
-                    color_formats.push_back(pCreateInfo->pAttachments[att].format);
-                }
-                else {
-                    color_formats.push_back(VK_FORMAT_UNDEFINED);
-                }
-            }
-
-            subpassColorFormats.push_back(color_formats);
-        }
-    }
+    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo)
+        : createInfo(pCreateInfo) {}
 };
 
 // Cmd Buffer Tracking
@@ -683,6 +638,7 @@ void AddCommandBufferBindingSampler(GLOBAL_CB_NODE *, SAMPLER_NODE *);
 void AddCommandBufferBindingImage(const layer_data *, GLOBAL_CB_NODE *, IMAGE_NODE *);
 void AddCommandBufferBindingImageView(const layer_data *, GLOBAL_CB_NODE *, IMAGE_VIEW_STATE *);
 void AddCommandBufferBindingBuffer(const layer_data *, GLOBAL_CB_NODE *, BUFFER_NODE *);
+void AddCommandBufferBindingBufferView(const layer_data *, GLOBAL_CB_NODE *, BUFFER_VIEW_STATE *);
 }
 
 #endif // CORE_VALIDATION_TYPES_H_
