@@ -13922,7 +13922,7 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
                                                                             "enabled, logicOpEnable must be "
                                                                             "VK_FALSE");
     } else {
-        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, ", logicOp must be a valid VkLogicOp value");
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "pColorBlendState->logicOp (16)");
     }
     // Create a pipeline using logicOp
     VkResult err;
@@ -13942,9 +13942,6 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
     vp_state_ci.scissorCount = 1;
     VkRect2D scissors = {}; // Dummy scissors to point to
     vp_state_ci.pScissors = &scissors;
-    // No dynamic state
-    VkPipelineDynamicStateCreateInfo dyn_state_ci = {};
-    dyn_state_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 
     VkPipelineShaderStageCreateInfo shaderStages[2];
     memset(&shaderStages, 0, 2 * sizeof(VkPipelineShaderStageCreateInfo));
@@ -13963,6 +13960,7 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
 
     VkPipelineRasterizationStateCreateInfo rs_ci = {};
     rs_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rs_ci.lineWidth = 1.0f;
 
     VkPipelineColorBlendAttachmentState att = {};
     att.blendEnable = VK_FALSE;
@@ -13976,6 +13974,10 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
     cb_ci.attachmentCount = 1;
     cb_ci.pAttachments = &att;
 
+    VkPipelineMultisampleStateCreateInfo ms_ci = {};
+    ms_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    ms_ci.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
     VkGraphicsPipelineCreateInfo gp_ci = {};
     gp_ci.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     gp_ci.stageCount = 2;
@@ -13985,7 +13987,7 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
     gp_ci.pViewportState = &vp_state_ci;
     gp_ci.pRasterizationState = &rs_ci;
     gp_ci.pColorBlendState = &cb_ci;
-    gp_ci.pDynamicState = &dyn_state_ci;
+    gp_ci.pMultisampleState = &ms_ci;
     gp_ci.flags = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT;
     gp_ci.layout = pipeline_layout;
     gp_ci.renderPass = renderPass();
@@ -14003,7 +14005,6 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
     if (VK_SUCCESS == err) {
         vkDestroyPipeline(m_device->device(), pipeline, NULL);
     }
-    m_errorMonitor->VerifyFound();
     vkDestroyPipelineCache(m_device->device(), pipelineCache, NULL);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
 }
@@ -17244,14 +17245,14 @@ TEST_F(VkLayerTest, ResolveImageLowSampleCount) {
     resolveRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.srcSubresource.mipLevel = 0;
     resolveRegion.srcSubresource.baseArrayLayer = 0;
-    resolveRegion.srcSubresource.layerCount = 0;
+    resolveRegion.srcSubresource.layerCount = 1;
     resolveRegion.srcOffset.x = 0;
     resolveRegion.srcOffset.y = 0;
     resolveRegion.srcOffset.z = 0;
     resolveRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.dstSubresource.mipLevel = 0;
     resolveRegion.dstSubresource.baseArrayLayer = 0;
-    resolveRegion.dstSubresource.layerCount = 0;
+    resolveRegion.dstSubresource.layerCount = 1;
     resolveRegion.dstOffset.x = 0;
     resolveRegion.dstOffset.y = 0;
     resolveRegion.dstOffset.z = 0;
@@ -17346,14 +17347,14 @@ TEST_F(VkLayerTest, ResolveImageHighSampleCount) {
     resolveRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.srcSubresource.mipLevel = 0;
     resolveRegion.srcSubresource.baseArrayLayer = 0;
-    resolveRegion.srcSubresource.layerCount = 0;
+    resolveRegion.srcSubresource.layerCount = 1;
     resolveRegion.srcOffset.x = 0;
     resolveRegion.srcOffset.y = 0;
     resolveRegion.srcOffset.z = 0;
     resolveRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.dstSubresource.mipLevel = 0;
     resolveRegion.dstSubresource.baseArrayLayer = 0;
-    resolveRegion.dstSubresource.layerCount = 0;
+    resolveRegion.dstSubresource.layerCount = 1;
     resolveRegion.dstOffset.x = 0;
     resolveRegion.dstOffset.y = 0;
     resolveRegion.dstOffset.z = 0;
@@ -17451,14 +17452,14 @@ TEST_F(VkLayerTest, ResolveImageFormatMismatch) {
     resolveRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.srcSubresource.mipLevel = 0;
     resolveRegion.srcSubresource.baseArrayLayer = 0;
-    resolveRegion.srcSubresource.layerCount = 0;
+    resolveRegion.srcSubresource.layerCount = 1;
     resolveRegion.srcOffset.x = 0;
     resolveRegion.srcOffset.y = 0;
     resolveRegion.srcOffset.z = 0;
     resolveRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.dstSubresource.mipLevel = 0;
     resolveRegion.dstSubresource.baseArrayLayer = 0;
-    resolveRegion.dstSubresource.layerCount = 0;
+    resolveRegion.dstSubresource.layerCount = 1;
     resolveRegion.dstOffset.x = 0;
     resolveRegion.dstOffset.y = 0;
     resolveRegion.dstOffset.z = 0;
@@ -17555,14 +17556,14 @@ TEST_F(VkLayerTest, ResolveImageTypeMismatch) {
     resolveRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.srcSubresource.mipLevel = 0;
     resolveRegion.srcSubresource.baseArrayLayer = 0;
-    resolveRegion.srcSubresource.layerCount = 0;
+    resolveRegion.srcSubresource.layerCount = 1;
     resolveRegion.srcOffset.x = 0;
     resolveRegion.srcOffset.y = 0;
     resolveRegion.srcOffset.z = 0;
     resolveRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     resolveRegion.dstSubresource.mipLevel = 0;
     resolveRegion.dstSubresource.baseArrayLayer = 0;
-    resolveRegion.dstSubresource.layerCount = 0;
+    resolveRegion.dstSubresource.layerCount = 1;
     resolveRegion.dstOffset.x = 0;
     resolveRegion.dstOffset.y = 0;
     resolveRegion.dstOffset.z = 0;

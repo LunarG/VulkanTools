@@ -110,23 +110,7 @@ struct MT_FB_ATTACHMENT_INFO {
     VkImage image;
     VkDeviceMemory mem;
 };
-
-struct MT_DESCRIPTOR_SET_INFO {
-    std::vector<VkImageView> images;
-    std::vector<VkBuffer> buffers;
-};
-
-// Track Swapchain Information
-struct MT_SWAP_CHAIN_INFO {
-    VkSwapchainCreateInfoKHR createInfo;
-    std::vector<VkImage> images;
-};
 #endif
-
-struct SHADER_DS_MAPPING {
-    uint32_t slotCount;
-    VkDescriptorSetLayoutCreateInfo *pShaderMappingSlot;
-};
 
 struct GENERIC_HEADER {
     VkStructureType sType;
@@ -141,7 +125,6 @@ struct IMAGE_LAYOUT_NODE {
 class PHYS_DEV_PROPERTIES_NODE {
   public:
     VkPhysicalDeviceProperties properties;
-    VkPhysicalDeviceFeatures features;
     std::vector<VkQueueFamilyProperties> queue_family_properties;
 };
 
@@ -198,12 +181,6 @@ class FRAMEBUFFER_NODE : public BASE_NODE {
         : framebuffer(fb), createInfo(pCreateInfo), renderPassCreateInfo(pRPCI){};
 };
 
-typedef struct stencil_data {
-    uint32_t compareMask;
-    uint32_t writeMask;
-    uint32_t reference;
-} CBStencilData;
-
 // Track command pools and their command buffers
 struct COMMAND_POOL_NODE : public BASE_NODE {
     VkCommandPoolCreateFlags createFlags;
@@ -229,14 +206,12 @@ struct INSTANCE_STATE {
 
 struct PHYSICAL_DEVICE_STATE {
     // Track the call state and array sizes for various query functions
-    CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState;
-    uint32_t queueFamilyPropertiesCount;
-    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState;
-    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState;
-    CALL_STATE vkGetPhysicalDeviceFeaturesState;
-    PHYSICAL_DEVICE_STATE()
-        : vkGetPhysicalDeviceQueueFamilyPropertiesState(UNCALLED),
-        vkGetPhysicalDeviceLayerPropertiesState(UNCALLED),
-        vkGetPhysicalDeviceExtensionPropertiesState(UNCALLED),
-        vkGetPhysicalDeviceFeaturesState(UNCALLED) {};
+    CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState = UNCALLED;
+    uint32_t queueFamilyPropertiesCount = 0;
+    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;
+    VkPhysicalDeviceFeatures features = {};
+    VkPhysicalDevice phys_device = VK_NULL_HANDLE;
+    std::vector<VkQueueFamilyProperties> queue_family_properties;
 };

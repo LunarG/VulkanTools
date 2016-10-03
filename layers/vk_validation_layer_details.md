@@ -109,7 +109,6 @@ The Draw State portion of the core validation layer tracks state leading into Dr
 | Uniform Buffer Alignment  | Uniform Buffer offsets in BindBufferMemory, BindDescriptorSets must agree with offset alignment device limit | INVALID_UNIFORM_BUFFER_OFFSET | vkBindBufferMemory vkCmdBindDescriptorSets | VertexBufferInvalid | None |
 | Independent Blending  | If independent blending is not enabled, all elements of pAttachments must be identical | INDEPENDENT_BLEND | vkCreateGraphicsPipelines | DisabledIndependentBlend | Create test |
 | Enabled Logic Operations  | If logic operations is not enabled, logicOpEnable must be VK_FALSE | DISABLED_LOGIC_OP | vkCreateGraphicsPipelines | ColorBlendLogicOpTests | NA |
-| Valid Logic Operations  | If logicOpEnable is VK_TRUE, logicOp must be a valid VkLogicOp value | INVALID_LOGIC_OP | vkCreateGraphicsPipelines | ColorBlendLogicOpTests | NA |
 | QueueFamilyIndex is Valid | Validates that QueueFamilyIndices are less an the number of QueueFamilies | INVALID_QUEUE_INDEX | vkCmdWaitEvents vkCmdPipelineBarrier vkCreateBuffer vkCreateImage | InvalidQueueIndexInvalidQuery | NA |
 | Invalid Queue Family Consistency | Validates that items created in one Queue Family are not submitted using a different one | INVALID_QUEUE_FAMILY | vkCmdExecuteCommands vkQueueSubmit | MismatchedQueueFamiliesOnSubmit |
 | Push Constants | Validate that the size of push constant ranges and updates does not exceed maxPushConstantSize | PUSH_CONSTANTS_ERROR | vkCreatePipelineLayout vkCmdPushConstants | InvalidPushConstants | NA |
@@ -275,6 +274,7 @@ The VK_LAYER_LUNARG_object_tracker layer maintains a record of all Vulkan object
 | Unknown object  | Internal layer errors when it attempts to update use count for an object that's not in its internal tracking datastructures. | UNKNOWN_OBJECT |  | CreateUnknownObject | NA |
 | Correct Command Pool | Validates that command buffers in a FreeCommandBuffers call were all created in the specified commandPool | COMMAND_POOL_MISMATCH | vkFreeCommandBuffers | InvalidCommandPoolConsistency | NA |
 | Correct Descriptor Pool | Validates that descriptor sets in a FreeDescriptorSets call were all created in the specified descriptorPool | DESCRIPTOR_POOL_MISMATCH | vkFreeDescriptorSets | InvalidDescriptorPoolConsistency | NA |
+| Inconsistent Allocators | Validates that a custom allocator is either provided for both create and destroy, or neither. | ALLOCATOR_MISMATCH | | TODO | None |
 | NA | Enum used for informational messages | NONE | | TODO | None |
 | NA | Enum used for errors in the layer itself. This does not indicate an app issue, but instead a bug in the layer. | INTERNAL_ERROR | | TODO | None |
 
@@ -357,7 +357,6 @@ This layer is a work in progress. VK_LAYER_LUNARG_swapchain layer is intended to
 | Valid sType | Validates that a struct has correct value for sType | WRONG_STYPE | vkCreateSwapchainKHR vkQueuePresentKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | Valid pNext | Validates that a struct has NULL for the value of pNext | WRONG_NEXT | vkCreateSwapchainKHR vkQueuePresentKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | Non-zero value | Validates that a required value should be non-zero | ZERO_VALUE | vkQueuePresentKHR | TODO | None |
-| Compatible Allocator | Validates that pAllocator is compatible (i.e. NULL or not) when an object is created and destroyed | INCOMPATIBLE_ALLOCATOR | vkDestroySurfaceKHR | TODO | None |
 | Valid use of queueFamilyIndex | Validates that a queueFamilyIndex not used before vkGetPhysicalDeviceQueueFamilyProperties() was called | DID_NOT_QUERY_QUEUE_FAMILIES | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | None |
 | Valid queueFamilyIndex value | Validates that a queueFamilyIndex value is less-than pQueueFamilyPropertyCount returned by vkGetPhysicalDeviceQueueFamilyProperties | QUEUE_FAMILY_INDEX_TOO_LARGE | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | None |
 | Supported combination of queue and surface | Validates that the surface associated with a swapchain was seen to support the queueFamilyIndex of a given queue | SURFACE_NOT_SUPPORTED_WITH_QUEUE | vkQueuePresentKHR | TODO | None |
