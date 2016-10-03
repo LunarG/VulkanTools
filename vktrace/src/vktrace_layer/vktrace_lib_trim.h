@@ -259,6 +259,8 @@ namespace trim
     void remove_##type##_object(Vk##type var); \
     ObjectInfo* get_##type##_objectInfo(Vk##type var);
 
+    void mark_CommandBuffer_reference(VkCommandBuffer commandbuffer);
+
     typedef struct _Trim_StateTracker
     {
         TRIM_DECLARE_OBJECT_TRACKERS(Instance);

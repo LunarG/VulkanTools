@@ -1092,22 +1092,6 @@ namespace trim
     TRIM_DEFINE_REMOTE_OBJECT_FUNC(type) \
     TRIM_DEFINE_GET_OBJECT_FUNC(type)
 
-    #define TRIM_DEFINE_MARK_REF(type) \
-    void mark_##type##_reference(Vk##type var) { \
-        vktrace_enter_critical_section(&trimStateTrackerLock); \
-        TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
-        if (iter != s_trimGlobalStateTracker.created##type##s.end()) \
-        { \
-            iter->second.bReferencedInTrim = true; \
-        } \
-        vktrace_leave_critical_section(&trimStateTrackerLock); \
-    }
-
-
-    TRIM_DEFINE_MARK_REF(Instance);
-    TRIM_DEFINE_MARK_REF(PhysicalDevice);
-    TRIM_DEFINE_MARK_REF(Device);
-
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Instance);
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PhysicalDevice);
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Device);
@@ -1135,6 +1119,47 @@ namespace trim
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Event);
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(QueryPool);
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSet);
+    
+#define TRIM_MARK_OBJECT_REFERENCE(type) \
+    void mark_##type##_reference(Vk##type var) { \
+        ObjectInfo* info = &s_trimStateTrackerSnapshot.created##type##s[var]; \
+        info->bReferencedInTrim = true; \
+    }
+
+#define TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(type) \
+    void mark_##type##_reference(Vk##type var) { \
+        ObjectInfo* info = &s_trimStateTrackerSnapshot.created##type##s[var]; \
+        info->bReferencedInTrim = true; \
+        mark_Device_reference((VkDevice)info->belongsToDevice); \
+    }
+
+    TRIM_MARK_OBJECT_REFERENCE(Instance);
+    TRIM_MARK_OBJECT_REFERENCE(PhysicalDevice);
+    TRIM_MARK_OBJECT_REFERENCE(Device);
+
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandPool)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandBuffer)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorPool)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSet)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(RenderPass)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineCache)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Pipeline)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Queue)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Semaphore)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DeviceMemory)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Fence)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(SwapchainKHR)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Image)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(ImageView)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Buffer)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(BufferView)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Framebuffer)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Event)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(QueryPool)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(ShaderModule)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineLayout)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Sampler)
+    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSetLayout)
 
     //=============================================================================
     // Recreate all objects
@@ -1959,11 +1984,25 @@ namespace trim
         for (TrimObjectInfoMap::iterator cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end(); cmdBuffer++)
         {
             std::list<vktrace_trace_packet_header*>& packets = s_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
-            for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); packet++)
+
+            if (cmdBuffer->second.bReferencedInTrim)
             {
-                vktrace_trace_packet_header* pHeader = *packet;
-                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pHeader);
+                // write the packets
+                for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); packet++)
+                {
+                    vktrace_trace_packet_header* pHeader = *packet;
+                    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pHeader);
+                }
+            }
+            else
+            {
+                // just delete the packets
+                for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); packet++)
+                {
+                    vktrace_trace_packet_header* pHeader = *packet;
+                    vktrace_delete_trace_packet(&pHeader);
+                }
             }
         }
         vktrace_leave_critical_section(&trimCommandBufferPacketLock);
@@ -2014,19 +2053,6 @@ namespace trim
         VKTRACE_DELETE(pSignalSemaphores);
     }
 
-    #define TRIM_MARK_OBJECT_REFERENCE(type) \
-    void mark_##type##_reference(Vk##type var) { \
-        ObjectInfo* info = &s_trimGlobalStateTracker.created##type##s[var]; \
-        info->bReferencedInTrim = true; \
-    }
-
-    #define TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(type) \
-    void mark_##type##_reference(Vk##type var) { \
-        ObjectInfo* info = &s_trimGlobalStateTracker.created##type##s[var]; \
-        info->bReferencedInTrim = true; \
-        mark_Device_reference((VkDevice)info->belongsToDevice); \
-    }
-
     //===============================================
     // Object tracking
     //===============================================
@@ -2073,30 +2099,6 @@ namespace trim
             }
         }
     }
-
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandPool)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandBuffer)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorPool)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSet)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(RenderPass)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineCache)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Pipeline)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Queue)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Semaphore)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DeviceMemory)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Fence)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(SwapchainKHR)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Image)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(ImageView)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Buffer)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(BufferView)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Framebuffer)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Event)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(QueryPool)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(ShaderModule)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineLayout)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Sampler)
-    TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSetLayout)
 
     //===============================================
     // Packet Recording for frames of interest

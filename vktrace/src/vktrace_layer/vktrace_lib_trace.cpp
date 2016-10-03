@@ -1812,26 +1812,29 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
                 pFenceInfo->ObjectInfo.Fence.pendingOnQueue = queue;
             }
 
-            if (pSubmits != NULL && pSubmits->pWaitSemaphores != NULL)
+            if (pSubmits != NULL)
             {
-                for (uint32_t i = 0; i < pSubmits->waitSemaphoreCount; i++)
+                if (pSubmits->pWaitSemaphores != NULL)
                 {
-                    trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits->pWaitSemaphores[i]);
-                    if (pInfo != NULL)
+                    for (uint32_t i = 0; i < pSubmits->waitSemaphoreCount; i++)
                     {
-                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                        trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits->pWaitSemaphores[i]);
+                        if (pInfo != NULL)
+                        {
+                            pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                        }
                     }
                 }
-            }
 
-            if (pSubmits != NULL && pSubmits->pSignalSemaphores != NULL)
-            {
-                for (uint32_t i = 0; i < pSubmits->signalSemaphoreCount; i++)
+                if (pSubmits->pSignalSemaphores != NULL)
                 {
-                    trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits->pSignalSemaphores[i]);
-                    if (pInfo != NULL)
+                    for (uint32_t i = 0; i < pSubmits->signalSemaphoreCount; i++)
                     {
-                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                        trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits->pSignalSemaphores[i]);
+                        if (pInfo != NULL)
+                        {
+                            pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                        }
                     }
                 }
             }
@@ -1842,6 +1845,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
         // Currently tracing the frame, so need to track references & store packet to write post-tracing.
         vktrace_finalize_trace_packet(pHeader);
         trim::add_recorded_packet(pHeader);
+
+        if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL)
+        {
+            for (uint32_t i = 0; i < pSubmits->commandBufferCount; i++)
+            {
+                trim::mark_CommandBuffer_reference(pSubmits->pCommandBuffers[i]);
+            }
+        }
     }
     else // g_trimIsPostTrim
     {
