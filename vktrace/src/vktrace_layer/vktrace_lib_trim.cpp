@@ -1980,8 +1980,17 @@ namespace trim
         // Fence
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdFences.begin(); obj != stateTracker.createdFences.end(); obj++)
         {
-            vktrace_write_trace_packet(obj->second.ObjectInfo.Fence.pCreatePacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Fence.pCreatePacket));
+            VkDevice device = obj->second.belongsToDevice;
+            VkFence fence = static_cast<VkFence>(obj->first);
+            VkAllocationCallbacks* pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
+
+            VkFenceCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+            createInfo.flags = (obj->second.ObjectInfo.Fence.signaled) ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
+
+            vktrace_trace_packet_header* pCreateFence = generate::vkCreateFence(false, device, &createInfo, pAllocator, &fence);
+            vktrace_write_trace_packet(pCreateFence, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(pCreateFence));
         }
 
         // Event
@@ -2050,20 +2059,6 @@ namespace trim
                 submit_info.pSignalSemaphores = &semaphore;
 
                 vktrace_trace_packet_header* pHeader = generate::vkQueueSubmit(false, obj->second.belongsToDevice, queue, 1, &submit_info, VK_NULL_HANDLE);
-                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pHeader);
-            }
-        }
-
-        // Submit Queues in order to signal necessary fences
-        for (TrimObjectInfoMap::iterator obj = stateTracker.createdFences.begin(); obj != stateTracker.createdFences.end(); obj++)
-        {
-            VkQueue queue = obj->second.ObjectInfo.Fence.pendingOnQueue;
-            if (queue != VK_NULL_HANDLE)
-            {
-                VkFence fence = static_cast<VkFence>(obj->first);
-
-                vktrace_trace_packet_header* pHeader = generate::vkQueueSubmit(false, obj->second.belongsToDevice, queue, 0, NULL, fence);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
             }
@@ -2162,7 +2157,7 @@ namespace trim
         for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdQueryPools.begin(); obj != s_trimGlobalStateTracker.createdQueryPools.end(); obj++)
         {
             VkQueryPool queryPool = static_cast<VkQueryPool>(obj->first);
-            VkAllocationCallbacks* pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
+            VkAllocationCallbacks* pAllocator = get_Allocator(obj->second.ObjectInfo.QueryPool.pAllocator);
 
             vktrace_trace_packet_header* pHeader = generate::vkDestroyQueryPool(false, obj->second.belongsToDevice, queryPool, pAllocator);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
@@ -2173,7 +2168,7 @@ namespace trim
         for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdEvents.begin(); obj != s_trimGlobalStateTracker.createdEvents.end(); obj++)
         {
             VkEvent event = static_cast<VkEvent>(obj->first);
-            VkAllocationCallbacks* pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
+            VkAllocationCallbacks* pAllocator = get_Allocator(obj->second.ObjectInfo.Event.pAllocator);
 
             vktrace_trace_packet_header* pHeader = generate::vkDestroyEvent(false, obj->second.belongsToDevice, event, pAllocator);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());

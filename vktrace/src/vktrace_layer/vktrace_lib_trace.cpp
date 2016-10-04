@@ -1809,7 +1809,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
             trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(fence);
             if (pFenceInfo != NULL)
             {
-                pFenceInfo->ObjectInfo.Fence.pendingOnQueue = queue;
+                pFenceInfo->ObjectInfo.Fence.signaled = true;
             }
 
             if (pSubmits != NULL)
