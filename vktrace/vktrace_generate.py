@@ -180,6 +180,8 @@ class Subcommand(object):
             return ("%p [0]={... waitSemaphoreCount=%lu, pWaitSemaphores[0]=%p, cmdBufferCount=%lu, pCmdBuffers[0]=%p, signalSemaphoreCount=%lu, pSignalSemaphores[0]=%p ...}", "%s, (%s == NULL)?0:%s->waitSemaphoreCount, (%s == NULL)?0:(%s->pWaitSemaphores == NULL)?0:%s->pWaitSemaphores[0], (%s == NULL)?0:%s->commandBufferCount, (%s == NULL)?0:(%s->pCommandBuffers == NULL)?0:%s->pCommandBuffers[0], (%s == NULL)?0:%s->signalSemaphoreCount, (%s == NULL)?0:(%s->pSignalSemaphores == NULL)?0:%s->pSignalSemaphores[0]" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
         if "VkPresentInfoKHR" in vk_type:
             return ("%p {... waitSemaphoreCount=%lu, pWaitSemaphores[0]=%p, swapchainCount=%lu, pSwapchains[0]=%p, pImageIndices[0]=%lu ...}", "%s, (%s == NULL)?0:%s->waitSemaphoreCount, (%s == NULL)?0:(%s->pWaitSemaphores == NULL)?0:%s->pWaitSemaphores[0], (%s == NULL)?0:%s->swapchainCount, (%s == NULL)?0:(%s->pSwapchains == NULL)?0:%s->pSwapchains[0], (%s == NULL)?0:(%s->pImageIndices == NULL)?0:%s->pImageIndices[0]" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkFenceCreateInfo" in vk_type:
+            return ("%p { flags=%s }", "%s, (%s == NULL)?\"0\":(%s->flags == VK_FENCE_CREATE_SIGNALED_BIT)?\"VK_FENCE_CREATE_SIGNALED_BIT\":\"0\"" % (name, name, name), "")
         if "VkBufferCopy" in vk_type:
             return ("%p [0]={srcOffset=%llu, dstOffset=%llu, size=%llu}", "%s, (%s == NULL)?0:%s->srcOffset, (%s == NULL)?0:%s->dstOffset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "")
         if "VkMemoryRequirements" in vk_type:
@@ -229,7 +231,7 @@ class Subcommand(object):
                 return ("%i", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
             return ("%i", name, deref)
         if output_param:
-            return ("%p {%\" PRIx64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
+            return ("%p {%\" PRIX64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
         return ("%p", "(void*)(%s)" % name, deref)
 
     def _generate_init_funcs(self):
