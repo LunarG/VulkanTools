@@ -1,12 +1,12 @@
 #!/bin/bash
 
-set -vex
+#set -vex
 
 script_start_time=$(date +%s)
 
 default_vkreplay_apk=./vkreplay/bin/NativeActivity-debug.apk
 default_vktrace_exe=../build/vktrace/vktrace
-default_vktrace32_exe=../build/vktrace/vktrace32
+default_vktrace32_exe=../build32/vktrace/vktrace32
 default_target_abi=$(adb shell getprop ro.product.cpu.abi)
 default_activity=android.app.NativeActivity
 default_frame=1
@@ -265,7 +265,7 @@ then
     echo Please package APK with the following permissions:
     echo     android.permission.READ_EXTERNAL_STORAGE
     echo     android.permission.WRITE_EXTERNAL_STORAGE
-    echo     android.permission.INTERNET_EXTERNAL_STORAGE
+    echo     android.permission.INTERNET
     exit 1
 fi
 apk_contents=$(jar tvf $apk)
@@ -282,6 +282,9 @@ fi
 #
 # Start up
 #
+
+# We want to halt on errors here
+set -e
 
 # Wake up the device
 adb $serialFlag shell input keyevent "KEYCODE_MENU"
@@ -326,8 +329,11 @@ adb $serialFlag reverse tcp:34201 tcp:34201
 $vktrace_exe -v full -o $package.vktrace &
 adb $serialFlag shell am start $package/$activity
 
+# don't halt on error for this loop
+set +e
+
 # wait until trace screenshot arrives, or a timeout
-vktrace_seconds=30                                     # Duration in seconds.
+vktrace_seconds=300                                    # Duration in seconds.
 vktrace_end_time=$(( $(date +%s) + vktrace_seconds ))  # Calculate end time.
 sleep 5 # pause to let the screenshot write finish
 until adb $serialFlag shell ls -la /sdcard/Android/$frame.ppm
@@ -347,6 +353,12 @@ done
 # stop our background vktrace
 kill $!
 
+# pause for a moment to let our trace file finish writing
+sleep 1
+
+# halt on errors here
+set -e
+
 # set up for vkreplay
 adb $serialFlag shell am force-stop $package
 adb $serialFlag push $package\0.vktrace /sdcard/$package.vktrace
@@ -362,10 +374,18 @@ adb $serialFlag shell setprop debug.vulkan.screenshot $frame
 adb $serialFlag shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE
 adb $serialFlag shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE
 sleep 5 # small pause to allow permission to take
+
+# Wake up the device
+adb $serialFlag shell input keyevent "KEYCODE_MENU"
+adb $serialFlag shell input keyevent "KEYCODE_HOME"
+
 adb $serialFlag shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/$package.vktrace"
 
+# don't halt on the errors in this loop
+set +e
+
 # wait until vkreplay screenshot arrives, or a timeout
-vkreplay_seconds=30                                      # Duration in seconds.
+vkreplay_seconds=300                                     # Duration in seconds.
 vkreplay_end_time=$(( $(date +%s) + vkreplay_seconds ))  # Calculate end time.
 sleep 5 # pause to let the screenshot write finish
 until adb $serialFlag shell ls -la /sdcard/Android/$frame.ppm
@@ -381,6 +401,9 @@ do
     sleep 5
 done
 
+# halt on any errors here
+set -e
+
 # grab the screenshot
 adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vkreplay.ppm
 adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$frame.vkreplay.ppm
@@ -388,6 +411,9 @@ adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$fr
 # clean up
 adb $serialFlag shell am force-stop com.example.vkreplay
 adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+
+# don't halt in the exit code below
+set +e
 
 # the rest is a quick port from vktracereplay.sh
 
@@ -404,10 +430,10 @@ fi
 cmp -s $package.$frame.vktrace.ppm $package.$frame.vkreplay.ppm
 
 if [ $? -eq 0 ] ; then
-    printf "$GREEN[  PASSED  ]$NC ${$apk-$package}\n"
+    printf "$GREEN[  PASSED  ]$NC {$apk-$package}\n"
 else
     printf "$RED[  FAILED  ]$NC screenshot file compare failed\n"
-    printf "$RED[  FAILED  ]$NC ${$apk-$package}\n"
+    printf "$RED[  FAILED  ]$NC {$apk-$package}\n"
     printf "TEST FAILED\n"
     exit 1
 fi
