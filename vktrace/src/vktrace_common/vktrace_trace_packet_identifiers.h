@@ -82,6 +82,8 @@ typedef struct {
     uint8_t is_64_bit;
 } vktrace_tracer_info;
 
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+
 typedef struct {
     uint16_t trace_file_version;
     uint32_t uuid[4];
@@ -104,6 +106,45 @@ typedef struct {
     uint64_t next_buffers_offset; // used for tracking the addition of buffers to the trace packet
     uintptr_t pBody; // points to the body of the packet
 } vktrace_trace_packet_header;
+
+#else
+
+// vktrace_trace_file_header and vktrace_trace_packet_header are written and
+// read by both host and target CPU, which can be different architectures.
+// Specifically for Android, x86 and arm32 align 64-bit integers differently,
+// so we must require 8 byte alignment.
+// These changes are guarded by a 64-bit check above for now.
+
+#if defined(_WIN32) || defined(_WIN64)
+#define ALIGN8 __declspec(align(8))
+#else
+#define ALIGN8 __attribute__((aligned(8)))
+#endif
+
+typedef struct {
+    uint16_t trace_file_version;
+    uint32_t uuid[4];
+    ALIGN8 uint64_t first_packet_offset;   // will be size of header including size of tracer_id_array and state_snapshot_path/binary
+    uint8_t tracer_count;           // number of tracers referenced in this trace file
+    vktrace_tracer_info tracer_id_array[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE]; // array of tracer_ids and values which are referenced in the trace file
+    ALIGN8 uint64_t trace_start_time;
+} vktrace_trace_file_header;
+
+typedef struct {
+    ALIGN8 uint64_t size; // total size, including extra data, needed to get to the next packet_header
+    ALIGN8 uint64_t global_packet_index;
+    uint8_t tracer_id; // TODO: need to uniquely identify tracers in a way that is known by the replayer
+    uint16_t packet_id; // VKTRACE_TRACE_PACKET_ID (or one of the api-specific IDs)
+    uint32_t thread_id;
+    ALIGN8 uint64_t vktrace_begin_time; // start of measuring vktrace's overhead related to this packet
+    ALIGN8 uint64_t entrypoint_begin_time;
+    ALIGN8 uint64_t entrypoint_end_time;
+    ALIGN8 uint64_t vktrace_end_time; // end of measuring vktrace's overhead related to this packet
+    ALIGN8 uint64_t next_buffers_offset; // used for tracking the addition of buffers to the trace packet
+    uintptr_t pBody; // points to the body of the packet
+} vktrace_trace_packet_header;
+
+#endif // 64-bit
 
 typedef struct {
     vktrace_trace_packet_header* pHeader;
