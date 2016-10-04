@@ -1679,6 +1679,7 @@ namespace trim
             if (obj->second.ObjectInfo.Buffer.needsStagingBuffer)
             {
                 StagingInfo stagingInfo = s_bufferToStagedInfoMap[buffer];
+                stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
                 // Generate packets to create the staging buffer
                 generateCreateStagingBuffer(device, stagingInfo);
@@ -1730,11 +1731,29 @@ namespace trim
                 pHeader = generate::vkBeginCommandBuffer(false, device, stagingInfo.commandBuffer, &commandBufferBeginInfo);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
+                
+                // Transition Buffer to be writeable
+                generateTransitionBuffer(device,
+                    stagingInfo.commandBuffer,
+                    buffer,
+                    0,
+                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                    obj->second.ObjectInfo.Buffer.memoryOffset,
+                    obj->second.ObjectInfo.Buffer.size);
 
                 // issue call to copy buffer
                 pHeader = generate::vkCmdCopyBuffer(false, device, stagingInfo.commandBuffer, stagingInfo.buffer, buffer, 1, &stagingInfo.copyRegion);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
+
+                // transition buffer to final access mask
+                generateTransitionBuffer(device,
+                    stagingInfo.commandBuffer,
+                    buffer,
+                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                    obj->second.ObjectInfo.Buffer.accessFlags,
+                    obj->second.ObjectInfo.Buffer.memoryOffset,
+                    obj->second.ObjectInfo.Buffer.size);
 
                 pHeader = generate::vkEndCommandBuffer(false, device, stagingInfo.commandBuffer);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());

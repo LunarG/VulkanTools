@@ -976,6 +976,14 @@ class Subcommand(object):
                             func_body.append("        // need to add TRANSFER_SRC usage to the image so that we can copy out of it.")
                             func_body.append('        trimCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;')
                             func_body.append('        pCreateInfo = &trimCreateInfo;')
+                            func_body.append('    }') 
+                        elif proto.name == "CreateBuffer":
+                            func_body.append('    VkBufferCreateInfo replayCreateInfo = *pCreateInfo;')
+                            func_body.append('    VkBufferCreateInfo trimCreateInfo = *pCreateInfo;')
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_SRC usage to the buffer so that we can copy out of it.")
+                            func_body.append('        trimCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;')
+                            func_body.append('        pCreateInfo = &trimCreateInfo;')
                             func_body.append('    }')                            
 
                         # call down the layer chain and get return value (if there is one)
@@ -993,6 +1001,12 @@ class Subcommand(object):
                             func_body.append("    if (g_trimEnabled) {")
                             func_body.append("        // need to add TRANSFER_DST usage to the image so that we can recreate it.")
                             func_body.append('        replayCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;')
+                            func_body.append('        pCreateInfo = &replayCreateInfo;')
+                            func_body.append('    }')
+                        elif proto.name == "CreateBuffer":
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_DST usage to the buffer so that we can recreate it.")
+                            func_body.append('        replayCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;')
                             func_body.append('        pCreateInfo = &replayCreateInfo;')
                             func_body.append('    }')
 
