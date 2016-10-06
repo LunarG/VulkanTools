@@ -717,7 +717,7 @@ namespace trim
                 StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer, bufferIter->second.ObjectInfo.Buffer.size);
 
                 // Copy from device_local buffer to host_visible buffer
-                stagingInfo.copyRegion.srcOffset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
+                stagingInfo.copyRegion.srcOffset = 0;
                 stagingInfo.copyRegion.dstOffset = 0;
                 stagingInfo.copyRegion.size = bufferIter->second.ObjectInfo.Buffer.size;
 
@@ -738,7 +738,7 @@ namespace trim
                     buffer,
                     bufferIter->second.ObjectInfo.Buffer.accessFlags,
                     VK_ACCESS_HOST_READ_BIT,
-                    bufferIter->second.ObjectInfo.Buffer.memoryOffset,
+                    0,
                     bufferIter->second.ObjectInfo.Buffer.size);
             }
         }
@@ -967,7 +967,7 @@ namespace trim
                     buffer,
                     VK_ACCESS_HOST_READ_BIT,
                     bufferIter->second.ObjectInfo.Buffer.accessFlags,
-                    bufferIter->second.ObjectInfo.Buffer.memoryOffset, 
+                    0,
                     bufferIter->second.ObjectInfo.Buffer.size);
             }
         }
@@ -1738,10 +1738,12 @@ namespace trim
                     buffer,
                     0,
                     VK_ACCESS_TRANSFER_WRITE_BIT,
-                    obj->second.ObjectInfo.Buffer.memoryOffset,
+                    0,
                     obj->second.ObjectInfo.Buffer.size);
 
                 // issue call to copy buffer
+                stagingInfo.copyRegion.dstOffset = 0;
+                stagingInfo.copyRegion.srcOffset = 0;
                 pHeader = generate::vkCmdCopyBuffer(false, device, stagingInfo.commandBuffer, stagingInfo.buffer, buffer, 1, &stagingInfo.copyRegion);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
@@ -1752,7 +1754,7 @@ namespace trim
                     buffer,
                     VK_ACCESS_TRANSFER_WRITE_BIT,
                     obj->second.ObjectInfo.Buffer.accessFlags,
-                    obj->second.ObjectInfo.Buffer.memoryOffset,
+                    0,
                     obj->second.ObjectInfo.Buffer.size);
 
                 pHeader = generate::vkEndCommandBuffer(false, device, stagingInfo.commandBuffer);
