@@ -67,7 +67,6 @@ namespace trim
     typedef struct _Trim_ObjectInfo
     {
         uint64_t vkObject;                               // object handle
-        VkDebugReportObjectTypeEXT vkObjectType;         // object type
         bool bReferencedInTrim;                          // True if the object was referenced during the trim frames
         VkInstance belongsToInstance;                    // owning Instance
         VkPhysicalDevice belongsToPhysicalDevice;        // owning PhysicalDevice
