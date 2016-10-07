@@ -47,6 +47,7 @@
 
 #pragma once
 #include "core_validation_error_enums.h"
+#include "vk_validation_error_messages.h"
 #include "core_validation_types.h"
 #include "descriptor_sets.h"
 #include "vk_layer_logging.h"
@@ -70,6 +71,10 @@ struct CHECK_DISABLED {
     bool command_buffer_state;
     bool destroy_buffer_view; // Skip validation at DestroyBufferView time
     bool object_in_use;       // Skip all object in_use checking
+    bool idle_descriptor_set; // Skip check to verify that descriptor set is no in-use
+    bool push_constant_range; // Skip push constant range checks
+    bool free_descriptor_sets; // Skip validation prior to vkFreeDescriptorSets()
+    bool allocate_descriptor_sets; // Skip validation prior to vkAllocateDescriptorSets()
 };
 
 #if MTMERGE
