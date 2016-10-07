@@ -2112,6 +2112,23 @@ TEST_F(VkLayerTest, NonCoherentMemoryMapping) {
     m_errorMonitor->VerifyNotFound();
     vkUnmapMemory(m_device->device(), mem);
 
+    // Map without offset and flush WHOLE_SIZE with two separate offsets
+    m_errorMonitor->ExpectSuccess();
+    err = vkMapMemory(m_device->device(), mem, 0, VK_WHOLE_SIZE, 0, (void **)&pData);
+    ASSERT_VK_SUCCESS(err);
+    mmr.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+    mmr.memory = mem;
+    mmr.offset = allocation_size - 100;
+    mmr.size = VK_WHOLE_SIZE;
+    err = vkFlushMappedMemoryRanges(m_device->device(), 1, &mmr);
+    ASSERT_VK_SUCCESS(err);
+    mmr.offset = allocation_size - 200;
+    mmr.size = VK_WHOLE_SIZE;
+    err = vkFlushMappedMemoryRanges(m_device->device(), 1, &mmr);
+    ASSERT_VK_SUCCESS(err);
+    m_errorMonitor->VerifyNotFound();
+    vkUnmapMemory(m_device->device(), mem);
+
     vkFreeMemory(m_device->device(), mem, NULL);
 }
 
@@ -2467,6 +2484,11 @@ TEST_F(VkWsiEnabledLayerTest, TestEnabledWsi) {
     swapchain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     swapchain_create_info.pNext = NULL;
     swapchain_create_info.flags = 0;
+    swapchain_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    swapchain_create_info.surface = surface;
+    swapchain_create_info.imageArrayLayers = 1;
+    swapchain_create_info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    swapchain_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "called before calling vkGetPhysicalDeviceSurfaceCapabilitiesKHR().");
     err = vkCreateSwapchainKHR(m_device->device(), &swapchain_create_info, NULL, &swapchain);
@@ -10836,6 +10858,46 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     m_errorMonitor->VerifyFound();
 }
 
+TEST_F(VkLayerTest, LayoutFromPresentWithoutAccessMemoryRead) {
+    // Transition an image away from PRESENT_SRC_KHR without ACCESS_MEMORY_READ in srcAccessMask
+
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_WARNING_BIT_EXT,
+        "must have required access bit");
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    VkImageObj image(m_device);
+    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    ASSERT_TRUE(image.initialized());
+
+    VkImageMemoryBarrier barrier = {};
+    VkImageSubresourceRange range;
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.srcAccessMask = 0;
+    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    barrier.image = image.handle();
+    range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    range.baseMipLevel = 0;
+    range.levelCount = 1;
+    range.baseArrayLayer = 0;
+    range.layerCount = 1;
+    barrier.subresourceRange = range;
+    VkCommandBufferObj cmdbuf(m_device, m_commandPool);
+    cmdbuf.BeginCommandBuffer();
+    cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1,
+                           &barrier);
+    barrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    barrier.srcAccessMask = 0;
+    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1,
+                           &barrier);
+
+    m_errorMonitor->VerifyFound();
+}
+
 TEST_F(VkLayerTest, IdxBufferAlignmentError) {
     // Bind a BeginRenderPass within an active RenderPass
     VkResult err;
@@ -14624,9 +14686,9 @@ TEST_F(VkLayerTest, CreatePipelineAttribLocationMismatch) {
 }
 
 TEST_F(VkLayerTest, CreatePipelineAttribNotProvided) {
-    TEST_DESCRIPTION("Test that an error is produced for a VS input which is not "
+    TEST_DESCRIPTION("Test that an error is produced for a vertex shader input which is not "
                      "provided by a vertex attribute");
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "VS consumes input at location 0 but not provided");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Vertex shader consumes input at location 0 but not provided");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
@@ -14667,8 +14729,8 @@ TEST_F(VkLayerTest, CreatePipelineAttribNotProvided) {
 TEST_F(VkLayerTest, CreatePipelineAttribTypeMismatch) {
     TEST_DESCRIPTION("Test that an error is produced for a mismatch between the "
                      "fundamental type (float/int/uint) of an attribute and the "
-                     "VS input that consumes it");
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "location 0 does not match VS input type");
+                     "vertex shader input that consumes it");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "location 0 does not match vertex shader input type");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
@@ -14869,8 +14931,8 @@ TEST_F(VkLayerTest, CreatePipelineAttribArrayType) {
 
 TEST_F(VkLayerTest, CreatePipelineAttribComponents) {
     TEST_DESCRIPTION("Test that pipeline validation accepts consuming a vertex attribute "
-                     "through multiple VS inputs, each consuming a different subset of the "
-                     "components.");
+                     "through multiple vertex shader inputs, each consuming a different "
+                     "subset of the components.");
     m_errorMonitor->ExpectSuccess();
 
     ASSERT_NO_FATAL_FAILURE(InitState());

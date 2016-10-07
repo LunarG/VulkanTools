@@ -61,6 +61,7 @@
 #include "vk_layer_extension_utils.h"
 #include "vk_layer_utils.h"
 #include "spirv-tools/libspirv.h"
+#include "vk_validation_error_messages.h"
 
 #if defined __ANDROID__
 #include <android/log.h>
@@ -104,6 +105,28 @@ struct instance_layer_data {
     VkLayerInstanceDispatchTable dispatch_table;
 
     unordered_map<VkPhysicalDevice, PHYSICAL_DEVICE_STATE> physical_device_map;
+    unordered_map<VkSurfaceKHR, SURFACE_STATE> surface_map;
+
+    bool surfaceExtensionEnabled = false;
+    bool displayExtensionEnabled = false;
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+    bool androidSurfaceExtensionEnabled = false;
+#endif
+#ifdef VK_USE_PLATFORM_MIR_KHR
+    bool mirSurfaceExtensionEnabled = false;
+#endif
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+    bool waylandSurfaceExtensionEnabled = false;
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    bool win32SurfaceExtensionEnabled = false;
+#endif
+#ifdef VK_USE_PLATFORM_XCB_KHR
+    bool xcbSurfaceExtensionEnabled = false;
+#endif
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+    bool xlibSurfaceExtensionEnabled = false;
+#endif
 };
 
 struct layer_data {
@@ -362,6 +385,14 @@ COMMAND_POOL_NODE *getCommandPoolNode(layer_data *dev_data, VkCommandPool pool) 
 PHYSICAL_DEVICE_STATE *getPhysicalDeviceState(instance_layer_data *instance_data, VkPhysicalDevice phys) {
     auto it = instance_data->physical_device_map.find(phys);
     if (it == instance_data->physical_device_map.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+SURFACE_STATE *getSurfaceState(instance_layer_data *instance_data, VkSurfaceKHR surface) {
+    auto it = instance_data->surface_map.find(surface);
+    if (it == instance_data->surface_map.end()) {
         return nullptr;
     }
     return &it->second;
@@ -1951,7 +1982,7 @@ static bool validate_vi_against_vs_inputs(debug_report_data *report_data, VkPipe
             it_a++;
         } else if (!b_at_end && (a_at_end || b_first < a_first)) {
             if (log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, /*dev*/ 0,
-                        __LINE__, SHADER_CHECKER_INPUT_NOT_PRODUCED, "SC", "VS consumes input at location %d but not provided",
+                        __LINE__, SHADER_CHECKER_INPUT_NOT_PRODUCED, "SC", "Vertex shader consumes input at location %d but not provided",
                         b_first)) {
                 pass = false;
             }
@@ -1964,7 +1995,7 @@ static bool validate_vi_against_vs_inputs(debug_report_data *report_data, VkPipe
             if (attrib_type != FORMAT_TYPE_UNDEFINED && input_type != FORMAT_TYPE_UNDEFINED && attrib_type != input_type) {
                 if (log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0,
                             __LINE__, SHADER_CHECKER_INTERFACE_TYPE_MISMATCH, "SC",
-                            "Attribute type of `%s` at location %d does not match VS input type of `%s`",
+                            "Attribute type of `%s` at location %d does not match vertex shader input type of `%s`",
                             string_VkFormat(it_a->second->format), a_first,
                             describe_type(vs, it_b->second.type_id).c_str())) {
                     pass = false;
@@ -4292,6 +4323,39 @@ static void init_core_validation(instance_layer_data *instance_data, const VkAll
 
 }
 
+static void checkInstanceRegisterExtensions(const VkInstanceCreateInfo *pCreateInfo, instance_layer_data *instance_data) {
+    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SURFACE_EXTENSION_NAME))
+            instance_data->surfaceExtensionEnabled = true;
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_DISPLAY_EXTENSION_NAME))
+            instance_data->displayExtensionEnabled = true;
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+            instance_data->androidSurfaceExtensionEnabled = true;
+#endif
+#ifdef VK_USE_PLATFORM_MIR_KHR
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_MIR_SURFACE_EXTENSION_NAME))
+            instance_data->mirSurfaceExtensionEnabled = true;
+#endif
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+            instance_data->waylandSurfaceExtensionEnabled = true;
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
+            instance_data->win32SurfaceExtensionEnabled = true;
+#endif
+#ifdef VK_USE_PLATFORM_XCB_KHR
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+            instance_data->xcbSurfaceExtensionEnabled = true;
+#endif
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+        if (!strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+            instance_data->xlibSurfaceExtensionEnabled = true;
+#endif
+    }
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL
 CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
@@ -4315,6 +4379,7 @@ CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallba
 
     instance_data->report_data = debug_report_create_instance(
         &instance_data->dispatch_table, *pInstance, pCreateInfo->enabledExtensionCount, pCreateInfo->ppEnabledExtensionNames);
+    checkInstanceRegisterExtensions(pCreateInfo, instance_data);
     init_core_validation(instance_data, pAllocator);
 
     instance_data->instance_state = unique_ptr<INSTANCE_STATE>(new INSTANCE_STATE());
@@ -5237,7 +5302,7 @@ static void initializeAndTrackMemory(layer_data *dev_data, VkDeviceMemory mem, V
             // From spec: (ppData - offset) must be aligned to at least limits::minMemoryMapAlignment.
             uint64_t start_offset = offset % map_alignment;
             // Data passed to driver will be wrapped by a guardband of data to detect over- or under-writes.
-            mem_info->shadow_copy_base = malloc(2 * mem_info->shadow_pad_size + size + map_alignment + start_offset);
+            mem_info->shadow_copy_base = malloc(static_cast<size_t>(2 * mem_info->shadow_pad_size + size + map_alignment + start_offset));
 
             mem_info->shadow_copy =
                 reinterpret_cast<char *>((reinterpret_cast<uintptr_t>(mem_info->shadow_copy_base) + map_alignment) &
@@ -5245,7 +5310,7 @@ static void initializeAndTrackMemory(layer_data *dev_data, VkDeviceMemory mem, V
             assert(vk_safe_modulo(reinterpret_cast<uintptr_t>(mem_info->shadow_copy) + mem_info->shadow_pad_size - start_offset,
                                   map_alignment) == 0);
 
-            memset(mem_info->shadow_copy, NoncoherentMemoryFillValue, 2 * mem_info->shadow_pad_size + size);
+            memset(mem_info->shadow_copy, NoncoherentMemoryFillValue, static_cast<size_t>(2 * mem_info->shadow_pad_size + size));
             *ppData = static_cast<char *>(mem_info->shadow_copy) + mem_info->shadow_pad_size;
         }
     }
@@ -5740,9 +5805,9 @@ static bool PreCallValidateDestroyBufferView(layer_data *dev_data, VkBufferView 
 
 static void PostCallRecordDestroyBufferView(layer_data *dev_data, VkBufferView buffer_view, BUFFER_VIEW_STATE *buffer_view_state,
                                             VK_OBJECT obj_struct) {
-    dev_data->bufferViewMap.erase(buffer_view);
     // Any bound cmd buffers are now invalid
     invalidateCommandBuffers(buffer_view_state->cb_bindings, obj_struct);
+    dev_data->bufferViewMap.erase(buffer_view);
 }
 
 VKAPI_ATTR void VKAPI_CALL
@@ -8646,6 +8711,10 @@ static bool ValidateMaskBitsFromLayouts(const layer_data *my_data, VkCommandBuff
         skip_call |= ValidateMaskBits(my_data, cmdBuffer, accessMask, layout, VK_ACCESS_TRANSFER_READ_BIT, 0, type);
         break;
     }
+    case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR: {
+        skip_call |= ValidateMaskBits(my_data, cmdBuffer, accessMask, layout, VK_ACCESS_MEMORY_READ_BIT, 0, type);
+        break;
+    }
     case VK_IMAGE_LAYOUT_UNDEFINED: {
         if (accessMask != 0) {
             // TODO: Verify against Valid Use section spec
@@ -8723,10 +8792,12 @@ static bool ValidateBarriers(const char *funcName, VkCommandBuffer cmdBuffer, ui
         }
 
         if (mem_barrier) {
-            skip_call |=
-                ValidateMaskBitsFromLayouts(dev_data, cmdBuffer, mem_barrier->srcAccessMask, mem_barrier->oldLayout, "Source");
-            skip_call |=
-                ValidateMaskBitsFromLayouts(dev_data, cmdBuffer, mem_barrier->dstAccessMask, mem_barrier->newLayout, "Dest");
+            if (mem_barrier->oldLayout != mem_barrier->newLayout) {
+                skip_call |=
+                    ValidateMaskBitsFromLayouts(dev_data, cmdBuffer, mem_barrier->srcAccessMask, mem_barrier->oldLayout, "Source");
+                skip_call |=
+                    ValidateMaskBitsFromLayouts(dev_data, cmdBuffer, mem_barrier->dstAccessMask, mem_barrier->newLayout, "Dest");
+            }
             if (mem_barrier->newLayout == VK_IMAGE_LAYOUT_UNDEFINED || mem_barrier->newLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) {
                 log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
                         DRAWSTATE_INVALID_BARRIER, "DS", "%s: Image Layout cannot be transitioned to UNDEFINED or "
@@ -10194,7 +10265,7 @@ CmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo *p
         if (renderPass) {
             uint32_t clear_op_size = 0; // Make sure pClearValues is at least as large as last LOAD_OP_CLEAR
             cb_node->activeFramebuffer = pRenderPassBegin->framebuffer;
-            for (size_t i = 0; i < renderPass->createInfo.attachmentCount; ++i) {
+            for (uint32_t i = 0; i < renderPass->createInfo.attachmentCount; ++i) {
                 MT_FB_ATTACHMENT_INFO &fb_info = framebuffer->attachments[i];
                 auto pAttachment = &renderPass->createInfo.pAttachments[i];
                 if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->loadOp,
@@ -10234,15 +10305,15 @@ CmdBeginRenderPass(VkCommandBuffer commandBuffer, const VkRenderPassBeginInfo *p
             if (clear_op_size > pRenderPassBegin->clearValueCount) {
                 skip_call |=
                     log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT,
-                            reinterpret_cast<uint64_t &>(renderPass), __LINE__, DRAWSTATE_RENDERPASS_INCOMPATIBLE, "DS",
+                            reinterpret_cast<uint64_t &>(renderPass), __LINE__, VALIDATION_ERROR_00442, "DS",
                             "In vkCmdBeginRenderPass() the VkRenderPassBeginInfo struct has a clearValueCount of %u but there must "
                             "be at least %u "
                             "entries in pClearValues array to account for the highest index attachment in renderPass 0x%" PRIx64
                             " that uses VK_ATTACHMENT_LOAD_OP_CLEAR is %u. Note that the pClearValues array "
                             "is indexed by attachment number so even if some pClearValues entries between 0 and %u correspond to "
-                            "attachments that aren't cleared they will be ignored.",
+                            "attachments that aren't cleared they will be ignored. %s",
                             pRenderPassBegin->clearValueCount, clear_op_size, reinterpret_cast<uint64_t &>(renderPass),
-                            clear_op_size, clear_op_size - 1);
+                            clear_op_size, clear_op_size - 1, validation_error_map[VALIDATION_ERROR_00442]);
             }
             skip_call |= VerifyRenderAreaBounds(dev_data, pRenderPassBegin);
             skip_call |= VerifyFramebufferAndRenderPassLayouts(dev_data, cb_node, pRenderPassBegin);
@@ -10802,7 +10873,7 @@ static bool ValidateAndCopyNoncoherentMemoryToDriver(layer_data *dev_data, uint3
             if (mem_info->shadow_copy) {
                 VkDeviceSize size = (mem_info->mem_range.size != VK_WHOLE_SIZE)
                                         ? mem_info->mem_range.size
-                                        : (mem_info->alloc_info.allocationSize - pMemRanges[i].offset);
+                                        : (mem_info->alloc_info.allocationSize - mem_info->mem_range.offset);
                 char *data = static_cast<char *>(mem_info->shadow_copy);
                 for (uint64_t j = 0; j < mem_info->shadow_pad_size; ++j) {
                     if (data[j] != NoncoherentMemoryFillValue) {
@@ -11086,16 +11157,49 @@ CreateEvent(VkDevice device, const VkEventCreateInfo *pCreateInfo, const VkAlloc
     return result;
 }
 
+static bool PreCallValidateCreateSwapchainKHR(layer_data *dev_data, VkSwapchainCreateInfoKHR const *pCreateInfo,
+                                              SURFACE_STATE *surface_state, SWAPCHAIN_NODE *old_swapchain_state) {
+    auto most_recent_swapchain = surface_state->swapchain ? surface_state->swapchain : surface_state->old_swapchain;
+
+    if (most_recent_swapchain != old_swapchain_state || (surface_state->old_swapchain && surface_state->swapchain)) {
+        if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
+                    reinterpret_cast<uint64_t>(dev_data->device), __LINE__, DRAWSTATE_SWAPCHAIN_ALREADY_EXISTS, "DS",
+                    "vkCreateSwapchainKHR(): surface has an existing swapchain other than oldSwapchain"))
+            return true;
+    }
+    if (old_swapchain_state && old_swapchain_state->createInfo.surface != pCreateInfo->surface) {
+        if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
+                    reinterpret_cast<uint64_t const &>(pCreateInfo->oldSwapchain), __LINE__, DRAWSTATE_SWAPCHAIN_WRONG_SURFACE,
+                    "DS", "vkCreateSwapchainKHR(): pCreateInfo->oldSwapchain's surface is not pCreateInfo->surface"))
+            return true;
+    }
+
+    return false;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
                                                   const VkAllocationCallbacks *pAllocator,
                                                   VkSwapchainKHR *pSwapchain) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    auto surface_state = getSurfaceState(dev_data->instance_data, pCreateInfo->surface);
+    auto old_swapchain_state = getSwapchainNode(dev_data, pCreateInfo->oldSwapchain);
+
+    if (PreCallValidateCreateSwapchainKHR(dev_data, pCreateInfo, surface_state, old_swapchain_state))
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+
     VkResult result = dev_data->dispatch_table.CreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
 
     if (VK_SUCCESS == result) {
         std::lock_guard<std::mutex> lock(global_lock);
-        dev_data->device_extensions.swapchainMap[*pSwapchain] = unique_ptr<SWAPCHAIN_NODE>(new SWAPCHAIN_NODE(pCreateInfo));
+        auto swapchain_state = unique_ptr<SWAPCHAIN_NODE>(new SWAPCHAIN_NODE(pCreateInfo, *pSwapchain));
+        surface_state->swapchain = swapchain_state.get();
+        dev_data->device_extensions.swapchainMap[*pSwapchain] = std::move(swapchain_state);
+    } else {
+        surface_state->swapchain = nullptr;
     }
+
+    // Spec requires that even if CreateSwapchainKHR fails, oldSwapchain behaves as replaced.
+    surface_state->old_swapchain = old_swapchain_state;
 
     return result;
 }
@@ -11125,6 +11229,15 @@ DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocatio
                 dev_data->imageMap.erase(swapchain_image);
             }
         }
+
+        auto surface_state = getSurfaceState(dev_data->instance_data, swapchain_data->createInfo.surface);
+        if (surface_state) {
+            if (surface_state->swapchain == swapchain_data)
+                surface_state->swapchain = nullptr;
+            if (surface_state->old_swapchain == swapchain_data)
+                surface_state->old_swapchain = nullptr;
+        }
+
         dev_data->device_extensions.swapchainMap.erase(swapchain);
     }
     lock.unlock();
@@ -11452,6 +11565,86 @@ GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice, uint32_t
     }
 }
 
+template<typename TCreateInfo, typename FPtr>
+static VkResult CreateSurface(VkInstance instance, TCreateInfo const *pCreateInfo,
+                              VkAllocationCallbacks const *pAllocator, VkSurfaceKHR *pSurface,
+                              FPtr fptr)
+{
+    instance_layer_data *instance_data = get_my_data_ptr(get_dispatch_key(instance), instance_layer_data_map);
+
+    // Call down the call chain:
+    VkResult result = (instance_data->dispatch_table.*fptr)(instance, pCreateInfo, pAllocator, pSurface);
+
+    if (result == VK_SUCCESS) {
+        std::unique_lock<std::mutex> lock(global_lock);
+        instance_data->surface_map[*pSurface] = SURFACE_STATE(*pSurface);
+        lock.unlock();
+    }
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks *pAllocator) {
+    bool skip_call = false;
+    instance_layer_data *instance_data = get_my_data_ptr(get_dispatch_key(instance), instance_layer_data_map);
+    std::unique_lock<std::mutex> lock(global_lock);
+    auto surface_state = getSurfaceState(instance_data, surface);
+
+    if (surface_state) {
+        // TODO: track swapchains created from this surface.
+        instance_data->surface_map.erase(surface);
+    }
+    lock.unlock();
+
+    if (!skip_call) {
+        // Call down the call chain:
+        instance_data->dispatch_table.DestroySurfaceKHR(instance, surface, pAllocator);
+    }
+}
+
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR *pCreateInfo,
+                                                       const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
+    return CreateSurface(instance, pCreateInfo, pAllocator, pSurface, &VkLayerInstanceDispatchTable::CreateAndroidSurfaceKHR);
+}
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+
+#ifdef VK_USE_PLATFORM_MIR_KHR
+VKAPI_ATTR VkResult VKAPI_CALL CreateMirSurfaceKHR(VkInstance instance, const VkMirSurfaceCreateInfoKHR *pCreateInfo,
+                                                   const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
+    return CreateSurface(instance, pCreateInfo, pAllocator, pSurface, &VkLayerInstanceDispatchTable::CreateMirSurfaceKHR);
+}
+#endif // VK_USE_PLATFORM_MIR_KHR
+
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(VkInstance instance, const VkWaylandSurfaceCreateInfoKHR *pCreateInfo,
+                                                       const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
+    return CreateSurface(instance, pCreateInfo, pAllocator, pSurface, &VkLayerInstanceDispatchTable::CreateWaylandSurfaceKHR);
+}
+#endif // VK_USE_PLATFORM_WAYLAND_KHR
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(VkInstance instance, const VkWin32SurfaceCreateInfoKHR *pCreateInfo,
+                                                     const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
+    return CreateSurface(instance, pCreateInfo, pAllocator, pSurface, &VkLayerInstanceDispatchTable::CreateWin32SurfaceKHR);
+}
+#endif // VK_USE_PLATFORM_WIN32_KHR
+
+#ifdef VK_USE_PLATFORM_XCB_KHR
+VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(VkInstance instance, const VkXcbSurfaceCreateInfoKHR *pCreateInfo,
+                                                   const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
+    return CreateSurface(instance, pCreateInfo, pAllocator, pSurface, &VkLayerInstanceDispatchTable::CreateXcbSurfaceKHR);
+}
+#endif // VK_USE_PLATFORM_XCB_KHR
+
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(VkInstance instance, const VkXlibSurfaceCreateInfoKHR *pCreateInfo,
+                                                   const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
+    return CreateSurface(instance, pCreateInfo, pAllocator, pSurface, &VkLayerInstanceDispatchTable::CreateXlibSurfaceKHR);
+}
+#endif // VK_USE_PLATFORM_XLIB_KHR
+
+
 VKAPI_ATTR VkResult VKAPI_CALL
 CreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
                              const VkAllocationCallbacks *pAllocator, VkDebugReportCallbackEXT *pMsgCallback) {
@@ -11519,6 +11712,9 @@ intercept_core_device_command(const char *name);
 static PFN_vkVoidFunction
 intercept_khr_swapchain_command(const char *name, VkDevice dev);
 
+static PFN_vkVoidFunction
+intercept_khr_surface_command(const char *name, VkInstance instance);
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
     if (proc)
@@ -11544,6 +11740,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         proc = intercept_core_device_command(funcName);
     if (!proc)
         proc = intercept_khr_swapchain_command(funcName, VK_NULL_HANDLE);
+    if (!proc)
+        proc = intercept_khr_surface_command(funcName, instance);
     if (proc)
         return proc;
 
@@ -11751,6 +11949,57 @@ intercept_khr_swapchain_command(const char *name, VkDevice dev) {
 
     if (!strcmp("vkCreateSharedSwapchainsKHR", name))
         return reinterpret_cast<PFN_vkVoidFunction>(CreateSharedSwapchainsKHR);
+
+    return nullptr;
+}
+
+static PFN_vkVoidFunction
+intercept_khr_surface_command(const char *name, VkInstance instance) {
+    static const struct {
+        const char *name;
+        PFN_vkVoidFunction proc;
+        bool instance_layer_data::*enable;
+    } khr_surface_commands[] = {
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+        {"vkCreateAndroidSurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateAndroidSurfaceKHR),
+            &instance_layer_data::androidSurfaceExtensionEnabled},
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+#ifdef VK_USE_PLATFORM_MIR_KHR
+        {"vkCreateMirSurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateMirSurfaceKHR),
+            &instance_layer_data::mirSurfaceExtensionEnabled},
+#endif // VK_USE_PLATFORM_MIR_KHR
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+        {"vkCreateWaylandSurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateWaylandSurfaceKHR),
+            &instance_layer_data::waylandSurfaceExtensionEnabled},
+#endif // VK_USE_PLATFORM_WAYLAND_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+        {"vkCreateWin32SurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateWin32SurfaceKHR),
+            &instance_layer_data::win32SurfaceExtensionEnabled},
+#endif // VK_USE_PLATFORM_WIN32_KHR
+#ifdef VK_USE_PLATFORM_XCB_KHR
+        {"vkCreateXcbSurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateXcbSurfaceKHR),
+            &instance_layer_data::xcbSurfaceExtensionEnabled},
+#endif // VK_USE_PLATFORM_XCB_KHR
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+        {"vkCreateXlibSurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateXlibSurfaceKHR),
+            &instance_layer_data::xlibSurfaceExtensionEnabled},
+#endif // VK_USE_PLATFORM_XLIB_KHR
+        {"vkDestroySurfaceKHR", reinterpret_cast<PFN_vkVoidFunction>(DestroySurfaceKHR),
+            &instance_layer_data::surfaceExtensionEnabled},
+    };
+
+    instance_layer_data *instance_data = nullptr;
+    if (instance) {
+        instance_data = get_my_data_ptr(get_dispatch_key(instance), instance_layer_data_map);
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(khr_surface_commands); i++) {
+        if (!strcmp(khr_surface_commands[i].name, name)) {
+            if (instance_data && !(instance_data->*(khr_surface_commands[i].enable)))
+                return nullptr;
+            return khr_surface_commands[i].proc;
+        }
+    }
 
     return nullptr;
 }
