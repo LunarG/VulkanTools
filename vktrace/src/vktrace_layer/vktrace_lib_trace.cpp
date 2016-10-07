@@ -2490,34 +2490,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
             for (uint32_t i = 0; i < descriptorSetCount; i++)
             {
                 // Clean up memory
-                trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorSets[i]);
-                if (pInfo != NULL)
-                {
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != NULL)
-                    {
-                        for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
-                        {
-                            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != NULL)
-                            {
-                                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
-                            }
-                            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != NULL)
-                            {
-                                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
-                            }
-                            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != NULL)
-                            {
-                                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
-                            }
-                        }
-
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets;
-                    }
-                    if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != NULL)
-                    {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets;
-                    }
-                }
                 trim::remove_DescriptorSet_object(pDescriptorSets[i]);
             }
         }

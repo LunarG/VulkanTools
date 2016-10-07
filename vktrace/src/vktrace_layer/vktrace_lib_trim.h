@@ -121,7 +121,6 @@ namespace trim
                 void* mappedAddress;
                 VkDeviceSize mappedOffset;
                 VkDeviceSize mappedSize;
-                uint8_t* pLocalCopy;
                 vktrace_trace_packet_header* pMapMemoryPacket;
                 vktrace_trace_packet_header* pUnmapMemoryPacket;
                 vktrace_trace_packet_header* pPersistentlyMapMemoryPacket;
@@ -247,11 +246,6 @@ namespace trim
         } ObjectInfo;
     } ObjectInfo;
 
-    typedef std::unordered_map<void*, ObjectInfo> TrimObjectInfoMap;
-
-#define TRIM_DECLARE_OBJECT_TRACKERS(type) \
-    TrimObjectInfoMap created##type##s; 
-
 #define TRIM_DECLARE_OBJECT_TRACKER_FUNCS(type) \
     ObjectInfo* add_##type##_object(Vk##type var); \
     void remove_##type##_object(Vk##type var); \
@@ -259,35 +253,37 @@ namespace trim
 
     void mark_CommandBuffer_reference(VkCommandBuffer commandbuffer);
 
+    typedef std::unordered_map<void*, ObjectInfo> TrimObjectInfoMap;
+
     typedef struct _Trim_StateTracker
     {
-        TRIM_DECLARE_OBJECT_TRACKERS(Instance);
-        TRIM_DECLARE_OBJECT_TRACKERS(PhysicalDevice);
-        TRIM_DECLARE_OBJECT_TRACKERS(Device);
-        TRIM_DECLARE_OBJECT_TRACKERS(SurfaceKHR);
-        TRIM_DECLARE_OBJECT_TRACKERS(CommandPool);
-        TRIM_DECLARE_OBJECT_TRACKERS(CommandBuffer);
-        TRIM_DECLARE_OBJECT_TRACKERS(DescriptorPool);
-        TRIM_DECLARE_OBJECT_TRACKERS(RenderPass);
-        TRIM_DECLARE_OBJECT_TRACKERS(PipelineCache);
-        TRIM_DECLARE_OBJECT_TRACKERS(Pipeline);
-        TRIM_DECLARE_OBJECT_TRACKERS(Queue);
-        TRIM_DECLARE_OBJECT_TRACKERS(Semaphore);
-        TRIM_DECLARE_OBJECT_TRACKERS(DeviceMemory);
-        TRIM_DECLARE_OBJECT_TRACKERS(Fence);
-        TRIM_DECLARE_OBJECT_TRACKERS(SwapchainKHR);
-        TRIM_DECLARE_OBJECT_TRACKERS(Image);
-        TRIM_DECLARE_OBJECT_TRACKERS(ImageView);
-        TRIM_DECLARE_OBJECT_TRACKERS(Buffer);
-        TRIM_DECLARE_OBJECT_TRACKERS(BufferView);
-        TRIM_DECLARE_OBJECT_TRACKERS(Framebuffer);
-        TRIM_DECLARE_OBJECT_TRACKERS(Event);
-        TRIM_DECLARE_OBJECT_TRACKERS(QueryPool);
-        TRIM_DECLARE_OBJECT_TRACKERS(ShaderModule);
-        TRIM_DECLARE_OBJECT_TRACKERS(PipelineLayout);
-        TRIM_DECLARE_OBJECT_TRACKERS(Sampler);
-        TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSetLayout);
-        TRIM_DECLARE_OBJECT_TRACKERS(DescriptorSet);
+        TrimObjectInfoMap createdInstances;
+        TrimObjectInfoMap createdPhysicalDevices;
+        TrimObjectInfoMap createdDevices;
+        TrimObjectInfoMap createdSurfaceKHRs;
+        TrimObjectInfoMap createdCommandPools;
+        TrimObjectInfoMap createdCommandBuffers;
+        TrimObjectInfoMap createdDescriptorPools;
+        TrimObjectInfoMap createdRenderPasss;
+        TrimObjectInfoMap createdPipelineCaches;
+        TrimObjectInfoMap createdPipelines;
+        TrimObjectInfoMap createdQueues;
+        TrimObjectInfoMap createdSemaphores;
+        TrimObjectInfoMap createdDeviceMemorys;
+        TrimObjectInfoMap createdFences;
+        TrimObjectInfoMap createdSwapchainKHRs;
+        TrimObjectInfoMap createdImages;
+        TrimObjectInfoMap createdImageViews;
+        TrimObjectInfoMap createdBuffers;
+        TrimObjectInfoMap createdBufferViews;
+        TrimObjectInfoMap createdFramebuffers;
+        TrimObjectInfoMap createdEvents;
+        TrimObjectInfoMap createdQueryPools;
+        TrimObjectInfoMap createdShaderModules;
+        TrimObjectInfoMap createdPipelineLayouts;
+        TrimObjectInfoMap createdSamplers;
+        TrimObjectInfoMap createdDescriptorSetLayouts;
+        TrimObjectInfoMap createdDescriptorSets;
     } StateTracker;
 
     TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Instance);
@@ -317,4 +313,32 @@ namespace trim
     TRIM_DECLARE_OBJECT_TRACKER_FUNCS(Sampler);
     TRIM_DECLARE_OBJECT_TRACKER_FUNCS(DescriptorSetLayout);
     TRIM_DECLARE_OBJECT_TRACKER_FUNCS(DescriptorSet);
+
+    void remove_Instance_object(VkInstance var);
+    void remove_PhysicalDevice_object(VkPhysicalDevice var);
+    void remove_Device_object(VkDevice var);
+    void remove_SurfaceKHR_object(VkSurfaceKHR var);
+    void remove_CommandPool_object(VkCommandPool var);
+    void remove_CommandBuffer_object(VkCommandBuffer var);
+    void remove_DescriptorPool_object(VkDescriptorPool var);
+    void remove_RenderPass_object(VkRenderPass var);
+    void remove_PipelineCache_object(VkPipelineCache var);
+    void remove_Pipeline_object(VkPipeline var);
+    void remove_Queue_object(VkQueue var);
+    void remove_Semaphore_object(VkSemaphore var);
+    void remove_DeviceMemory_object(VkDeviceMemory var);
+    void remove_Fence_object(VkFence var);
+    void remove_SwapchainKHR_object(VkSwapchainKHR var);
+    void remove_Image_object(VkImage var);
+    void remove_ImageView_object(VkImageView var);
+    void remove_Buffer_object(VkBuffer var);
+    void remove_BufferView_object(VkBufferView var);
+    void remove_Framebuffer_object(VkFramebuffer var);
+    void remove_Event_object(VkEvent var);
+    void remove_QueryPool_object(VkQueryPool var);
+    void remove_ShaderModule_object(VkShaderModule var);
+    void remove_PipelineLayout_object(VkPipelineLayout var);
+    void remove_Sampler_object(VkSampler var);
+    void remove_DescriptorSetLayout_object(VkDescriptorSetLayout var);
+    void remove_DescriptorSet_object(VkDescriptorSet var);
 } // namespace trim
