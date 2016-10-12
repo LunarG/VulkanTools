@@ -51,9 +51,35 @@ namespace trim
 
     void initialize()
     {
-        vktrace_create_critical_section(&trimStateTrackerLock);
-        vktrace_create_critical_section(&trimRecordedPacketLock);
-        vktrace_create_critical_section(&trimCommandBufferPacketLock);
+        const char *trimFrames = vktrace_get_global_var("VKTRACE_TRIM_FRAMES");
+        if (trimFrames != nullptr)
+        {
+            uint32_t numFrames = 0;
+            if (sscanf(trimFrames, "%llu,%lu", &g_trimStartFrame, &numFrames) == 2)
+            {
+                g_trimEndFrame = g_trimStartFrame + numFrames;
+            }
+            else
+            {
+                int matches = sscanf(trimFrames, "%llu-%llu", &g_trimStartFrame, &g_trimEndFrame);
+                assert(matches == 2);
+            }
+
+            // make sure the start/end frames are in expected order.
+            if (g_trimStartFrame <= g_trimEndFrame)
+            {
+                g_trimEnabled = true;
+                g_trimIsPreTrim = (g_trimStartFrame > 0);
+                g_trimIsInTrim = (g_trimStartFrame == 0);
+            }
+        }
+
+        if (g_trimEnabled)
+        {
+            vktrace_create_critical_section(&trimStateTrackerLock);
+            vktrace_create_critical_section(&trimRecordedPacketLock);
+            vktrace_create_critical_section(&trimCommandBufferPacketLock);
+        }
     }
 
     void add_Allocator(const VkAllocationCallbacks* pAllocator)
