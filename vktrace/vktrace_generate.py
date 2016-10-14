@@ -261,6 +261,7 @@ class Subcommand(object):
         init_tracer.append('    vktrace_trace_set_trace_file(vktrace_FileLike_create_msg(gMessageStream));')
         init_tracer.append('    vktrace_tracelog_set_tracer_id(VKTRACE_TID_VULKAN);')
         init_tracer.append('    trim::initialize();')
+        init_tracer.append('    vktrace_initialize_trace_packet_utils();')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
         init_tracer.append('    if (gMessageStream != NULL)')
         init_tracer.append('        send_vk_api_version_packet();\n')

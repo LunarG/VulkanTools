@@ -172,6 +172,7 @@ VKTRACER_LEAVE _Unload(void)
             vktrace_delete_trace_packet(&pHeader);
             vktrace_free(vktrace_trace_get_trace_file());
             vktrace_trace_set_trace_file(NULL);
+            vktrace_deinitialize_trace_packet_utils();
         }
         if (gMessageStream != NULL)
         {
