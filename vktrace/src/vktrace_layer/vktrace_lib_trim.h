@@ -160,6 +160,7 @@ namespace trim
                 vktrace_trace_packet_header* pBindBufferMemoryPacket;
                 vktrace_trace_packet_header* pMapMemoryPacket;
                 vktrace_trace_packet_header* pUnmapMemoryPacket;
+                uint32_t queueFamilyIndex;
                 VkAccessFlags accessFlags;
                 VkDeviceMemory memory;
                 VkDeviceSize memoryOffset;

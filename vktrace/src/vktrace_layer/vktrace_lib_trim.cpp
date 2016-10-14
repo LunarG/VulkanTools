@@ -1762,10 +1762,10 @@ namespace trim
                 const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
                     VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                     NULL,
-                    VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT or VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-                    0 //demo->graphics_queue_node_index, TODO: Will need to search for this
+                    VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                    obj->second.ObjectInfo.Image.queueFamilyIndex
                 };
-                vktrace_trace_packet_header* pCreateCommandPoolPacket = generate::vkCreateCommandPool(true, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
+                vktrace_trace_packet_header* pCreateCommandPoolPacket = generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
                 vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
 
@@ -1854,6 +1854,11 @@ namespace trim
                 pHeader = generate::vkFreeCommandBuffers(false, device, stagingInfo.commandPool, 1, &stagingInfo.commandBuffer);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
+
+                // delete command pool
+                vktrace_trace_packet_header* pDestroyCommandPoolPacket = generate::vkDestroyCommandPool(false, device, stagingInfo.commandPool, nullptr);
+                vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
             }
             else
             {
@@ -1889,9 +1894,11 @@ namespace trim
                     const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
                         VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                         NULL,
-                        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT or VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-                        0 //demo->graphics_queue_node_index, TODO: Will need to search for this
+                        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                        obj->second.ObjectInfo.Image.queueFamilyIndex
                     };
+
+                    // Need to actually make these calls so that we get a commandPool and CommandBuffer object to use in the generated call
                     vktrace_trace_packet_header* pCreateCommandPoolPacket = generate::vkCreateCommandPool(true, device, &cmdPoolCreateInfo, NULL, &tmpCommandPool);
                     vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
@@ -2061,10 +2068,10 @@ namespace trim
                 const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
                     VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                     NULL,
-                    VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT or VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-                    0 //demo->graphics_queue_node_index, TODO: Will need to search for this
+                    VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                    obj->second.ObjectInfo.Buffer.queueFamilyIndex
                 };
-                vktrace_trace_packet_header* pCreateCommandPoolPacket = generate::vkCreateCommandPool(true, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
+                vktrace_trace_packet_header* pCreateCommandPoolPacket = generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
                 vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
 
@@ -2147,6 +2154,11 @@ namespace trim
                 pHeader = generate::vkFreeCommandBuffers(false, device, stagingInfo.commandPool, 1, &stagingInfo.commandBuffer);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
+
+                // delete command pool
+                vktrace_trace_packet_header* pDestroyCommandPoolPacket = generate::vkDestroyCommandPool(false, device, stagingInfo.commandPool, nullptr);
+                vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
             }
             else
             {

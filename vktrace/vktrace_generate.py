@@ -705,6 +705,7 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->belongsToDevice = device;")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.pCreatePacket = pHeader;")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.size = pCreateInfo->size;")
+            trim_instructions.append("            if (pCreateInfo->queueFamilyIndexCount > 0) { pInfo->ObjectInfo.Buffer.queueFamilyIndex = pCreateInfo->pQueueFamilyIndices[0]; }")
             trim_instructions.append("            if (pAllocator != NULL) {")
             trim_instructions.append("                pInfo->ObjectInfo.Buffer.pAllocator = pAllocator;")
             trim_instructions.append("            }")
