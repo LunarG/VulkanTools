@@ -454,6 +454,25 @@ class Subcommand(object):
                     ps.append('sizeof(%s)' % (p.ty.strip('*').replace('const ', '')))
         return ps
 
+    # Generate instructions for certain API calls that need special handling when we are recording
+    # them during the trim frames. This ensures that we recreate the objects that are referenced 
+    # during the trim frames.
+    def _generate_trim_recording_instructions(self, proto):
+        trim_instructions = []
+        if 'CmdExecuteCommands' is proto.name:
+            trim_instructions.append("            trim::add_recorded_packet(pHeader);")
+            trim_instructions.append("            trim::mark_CommandBuffer_reference(commandBuffer);")
+            trim_instructions.append("            if (pCommandBuffers != nullptr && commandBufferCount > 0)")
+            trim_instructions.append("            {")            
+            trim_instructions.append("                for (uint32_t i = 0; i < commandBufferCount; i++)")
+            trim_instructions.append("                {")
+            trim_instructions.append("                    trim::mark_CommandBuffer_reference(pCommandBuffers[i]);")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+        else:
+            return None
+        return "\n".join(trim_instructions)  
+        
     # Generate instructions for certain API calls that need to be tracked prior to the trim frames 
     # so that we can recreate objects that are used within a trimmed trace file.
     def _generate_trim_statetracking_instructions(self, proto):
@@ -652,7 +671,7 @@ class Subcommand(object):
             trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::remove_Image_object(image);")
-        elif ('BindImageMemory' is proto.name):
+        elif 'BindImageMemory' is proto.name:
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
@@ -694,7 +713,7 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyBuffer' is proto.name:
             trim_instructions.append("        trim::remove_Buffer_object(buffer);")
-        elif ('BindBufferMemory' is proto.name):
+        elif 'BindBufferMemory' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);")
             trim_instructions.append("        if (pInfo != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = pHeader;")
@@ -744,7 +763,6 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyDescriptorSetLayout' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_DescriptorSetLayout_objectInfo(descriptorSetLayout);")
-            trim_instructions.append("        if (pInfo != NULL) { delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings; }")
             trim_instructions.append("        trim::remove_DescriptorSetLayout_object(descriptorSetLayout);")
         elif 'ResetDescriptorPool' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(descriptorPool);")
@@ -831,6 +849,8 @@ class Subcommand(object):
             trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket = pHeader;")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
+        elif 'DestroyDevice' is proto.name:
+            trim_instructions.append("        trim::remove_Device_object(device);")
         else:
             return None
         return "\n".join(trim_instructions)            
@@ -1018,7 +1038,7 @@ class Subcommand(object):
                         func_body.append('    else if (g_trimIsPreTrim || g_trimIsInTrim)')
                         func_body.append('    {')
                         func_body.append('        vktrace_finalize_trace_packet(pHeader);')
-                        pretrim_instructions = self._generate_trim_statetracking_instructions(proto);
+                        pretrim_instructions = self._generate_trim_statetracking_instructions(proto)
                         if pretrim_instructions is None:
                             func_body.append('        if (g_trimIsPreTrim)')
                             func_body.append('        {')
@@ -1028,7 +1048,11 @@ class Subcommand(object):
                             func_body.append(pretrim_instructions)
                         func_body.append('        if (g_trimIsInTrim)')
                         func_body.append('        {')
-                        func_body.append('            trim::add_recorded_packet(pHeader);')
+                        intrim_instructions = self._generate_trim_recording_instructions(proto)
+                        if intrim_instructions is None:
+                            func_body.append('            trim::add_recorded_packet(pHeader);')
+                        else:
+                            func_body.append(intrim_instructions)
                         func_body.append('        }')
                         func_body.append('    }')
                         func_body.append('    else // g_trimIsPostTrim')

@@ -1466,15 +1466,29 @@ namespace trim
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \
     void mark_##type##_reference(Vk##type var) { \
-        ObjectInfo* info = &s_trimStateTrackerSnapshot.created##type##s[var]; \
-        info->bReferencedInTrim = true; \
+        vktrace_enter_critical_section(&trimStateTrackerLock);\
+        TrimObjectInfoMap::iterator iter = s_trimStateTrackerSnapshot.created##type##s.find(var);\
+        if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {\
+            ObjectInfo* info = &iter->second;\
+            if (info != nullptr) {\
+                info->bReferencedInTrim = true; \
+            }\
+        }\
+        vktrace_leave_critical_section(&trimStateTrackerLock);\
     }
 
 #define TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(type) \
     void mark_##type##_reference(Vk##type var) { \
-        ObjectInfo* info = &s_trimStateTrackerSnapshot.created##type##s[var]; \
-        info->bReferencedInTrim = true; \
-        mark_Device_reference((VkDevice)info->belongsToDevice); \
+        vktrace_enter_critical_section(&trimStateTrackerLock);\
+        TrimObjectInfoMap::iterator iter = s_trimStateTrackerSnapshot.created##type##s.find(var);\
+        if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {\
+            ObjectInfo* info = &iter->second;\
+            if (info != nullptr) {\
+                info->bReferencedInTrim = true; \
+                mark_Device_reference((VkDevice)info->belongsToDevice); \
+            }\
+        }\
+        vktrace_leave_critical_section(&trimStateTrackerLock);\
     }
 
     TRIM_MARK_OBJECT_REFERENCE(Instance);
