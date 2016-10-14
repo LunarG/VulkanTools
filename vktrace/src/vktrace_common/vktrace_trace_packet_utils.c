@@ -23,7 +23,6 @@
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_interconnect.h"
 #include "vktrace_filelike.h"
-#include "vktrace_pageguard_memorycopy.h"
 
 #ifdef WIN32
 #include <rpc.h>
@@ -34,8 +33,6 @@
 #include <fcntl.h>
 #include <time.h>
 #endif
-
-#include "vktrace_pageguard_memorycopy.h"
 
 static uint64_t g_packet_index = 0;
 
@@ -184,11 +181,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         assert(((uint64_t)*ptr_address&0x3) == 0);
 
         // copy buffer to the location
-#ifdef WIN32
-        vktrace_pageguard_memcpy(*ptr_address, pBuffer, (size_t)size);
-#else
         memcpy(*ptr_address, pBuffer, (size_t)size);
-#endif
     }
 }
 

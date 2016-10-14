@@ -37,12 +37,6 @@
 #include "vktrace_vk_exts.h"
 #include <stdio.h>
 
-#include "vktrace_pageguard_memorycopy.h"
-#include "vktrace_lib_pagestatusarray.h"
-#include "vktrace_lib_pageguardmappedmemory.h"
-#include "vktrace_lib_pageguardcapture.h"
-#include "vktrace_lib_pageguard.h"
-
 // declared as extern in vktrace_lib_helpers.h
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
 VKMemInfo g_memInfo = {0, NULL, NULL, 0};
@@ -188,11 +182,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     if (size == VK_WHOLE_SIZE) {
         size = entry->totalSize - offset;
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
-    getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
-    pageguardExit();
-#endif
     pPacket = interpret_body_as_vkMapMemory(pHeader);
     pPacket->device = device;
     pPacket->memory = memory;
@@ -218,12 +207,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     packet_vkUnmapMemory* pPacket;
     VKAllocInfo *entry;
     size_t siz = 0;
-#ifdef USE_PAGEGUARD_SPEEDUP
-    void *PageGuardMappedData;
-    pageguardEnter();
-    getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData, &vkFlushMappedMemoryRangesWithoutAPICall);
-    pageguardExit();
-#endif
     uint64_t trace_begin_time = vktrace_get_time();
 
     // insert into packet the data that was written by CPU between the vkMapMemory call and here
@@ -255,14 +238,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     pPacket->device = device;
     pPacket->memory = memory;
     FINISH_TRACE_PACKET();
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
-    if (PageGuardMappedData != nullptr)
-    {
-        pageguardFreeMemory(PageGuardMappedData);
-    }
-    pageguardExit();
-#endif
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
@@ -298,12 +273,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     uint32_t iter;
     packet_vkInvalidateMappedMemoryRanges* pPacket = NULL;
     uint64_t trace_begin_time = vktrace_get_time();
-
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
-    resetAllReadFlagAndPageGuard();
-    pageguardExit();
-#endif
 
     // find out how much memory is in the ranges
     for (iter = 0; iter < memoryRangeCount; iter++)
@@ -375,13 +344,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     size_t dataSize = 0;
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
-    PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
-    getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
-    pageguardExit();
-#endif
-
     uint64_t trace_begin_time = vktrace_get_time();
 
     // find out how much memory is in the ranges
@@ -391,11 +353,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
         dataSize += (size_t)pRange->size;
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
-    dataSize = getPageGuardControlInstance().getALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData);
-    pageguardExit();
-#endif
 
     CREATE_TRACE_PACKET(vkFlushMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
     pHeader->vktrace_begin_time = trace_begin_time;
@@ -423,27 +380,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
             assert(pEntry->totalSize >= (pRange->size + pRange->offset));
             assert(pEntry->totalSize >= pRange->size);
             assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
-#ifdef USE_PAGEGUARD_SPEEDUP
-            pageguardEnter();
-            LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
-            VkDeviceSize OPTPackageSizeTemp = 0;
-            if (pOPTMemoryTemp)
-            {
-                PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                pOPTMemoryTemp->clearChangedDataPackage();
-                pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
-            }
-            else
-            {
-                PBYTE pOPTDataTemp = getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
-            }
-            pageguardExit();
-#else
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
-#endif
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
             pEntry->didFlush = TRUE;
         }
@@ -452,9 +389,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
              vktrace_LogError("Failed to copy app memory into trace packet (idx = %u) on vkFlushedMappedMemoryRanges", pHeader->global_packet_index);
         }
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
-    delete[] ppPackageData;
-#endif
     vktrace_leave_critical_section(&g_memInfoLock);
 
     // now finalize the ppData array since it is done being updated
@@ -656,11 +590,6 @@ VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInf
     return chain_info;
 }
 
-#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
-extern "C" BOOL vktrace_pageguard_init_multi_threads_memcpy();
-extern "C" void vktrace_pageguard_done_multi_threads_memcpy();
-#endif
-
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     const VkInstanceCreateInfo* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
@@ -676,16 +605,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     SEND_ENTRYPOINT_ID(vkCreateInstance);
     startTime = vktrace_get_time();
 
-#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
-    vktrace_pageguard_init_multi_threads_memcpy();
-#endif
-
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     assert(fpGetInstanceProcAddr);
-    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");
+    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(*pInstance, "vkCreateInstance");
     if (fpCreateInstance == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -771,9 +696,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     FINISH_TRACE_PACKET();
     g_instanceDataMap.erase(key);
-#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
-	vktrace_pageguard_done_multi_threads_memcpy();
-#endif
 }
 
 
@@ -1119,12 +1041,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
     const VkSubmitInfo* pSubmits,
     VkFence fence)
 {
-#ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
-    flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
-    resetAllReadFlagAndPageGuard();
-    pageguardExit();
-#endif
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkQueueSubmit* pPacket = NULL;
