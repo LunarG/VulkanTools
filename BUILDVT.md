@@ -217,4 +217,79 @@ ndk-build
 ```
 
 ## Android usage
-See the [test_vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/android_doc_update/build-android/test_vktracereplay.sh) file for an example of how to use vktrace/vkreplay and screenshot layers.  It can be executed after performing the ndk-build step above.  The script requires a rooted device, but this will be updated soon to work on non-rooted devices.
+This documentation is preliminary and needs to be beefed up.
+
+See the [vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/vktracereplay.sh) file for an example of how to use vktrace/vkreplay and screenshot layers.
+
+An example of using the script:
+```
+./build_vktracereplay.sh
+./vktracereplay.sh --serial 12345678 --abi armeabi-v7a --apk ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk --package com.example.CubeWithLayers --frame 50
+```
+### api_dump
+To enable, make the following changes to vk_layer_settings.txt
+```
+-lunarg_api_dump.file = FALSE
++lunarg_api_dump.file = TRUE
+
+-lunarg_api_dump.log_filename = stdout
++lunarg_api_dump.log_filename = /sdcard/Android/vk_apidump.txt
+```
+Then:
+```
+adb push vk_layer_settings.txt /sdcard/Android
+```
+And run your application with the following layer enabled:
+```
+VK_LAYER_LUNARG_api_dump
+```
+### screenshot
+To enable, set a property that contains target frame:
+```
+adb shell setprop debug.vulkan.screenshot <framenumber>
+```
+For production builds, be sure your application has access to read and write to external storage by adding the following to AndroidManifest.xml:
+```
+<!-- This allows writing log files to sdcard -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+You may also need to grant it access with package manager:
+```
+adb shell pm grant com.example.Cube android.permission.READ_EXTERNAL_STORAGE
+adb shell pm grant com.example.Cube android.permission.WRITE_EXTERNAL_STORAGE
+```
+Run your application with the following layer enabled:
+```
+VK_LAYER_LUNARG_screenshot
+```
+Result screenshot will be in:
+```
+/sdcard/Android/<framenumber>.ppm
+```
+### vktrace
+To record a trace on Android, enable port forwarding from the device to the host:
+```
+adb reverse tcp:34201 tcp:34201
+```
+Start up vktrace on the host like normal.
+
+Run your application with the following layer enabled:
+```
+VK_LAYER_LUNARG_vktrace
+```
+The trace will be recorded on the host.
+### vkreplay
+To replay a trace, push the trace to your device
+```
+adb push cube.vktrace /sdcard/cube.vktrace
+```
+Grant vkreplay the ability to read it
+```
+adb shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE
+adb shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE
+```
+And start the native activity
+```
+adb shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/cube.vktrace"
+```
