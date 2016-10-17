@@ -96,6 +96,11 @@ int vkReplay::init(vktrace_replay::ReplayDisplay & disp)
 vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::handle_replay_errors(const char* entrypointName, const VkResult resCall, const VkResult resTrace, const vktrace_replay::VKTRACE_REPLAY_RESULT resIn)
 {
     vktrace_replay::VKTRACE_REPLAY_RESULT res = resIn;
+    if (resCall == VK_ERROR_DEVICE_LOST)
+    {
+        vktrace_LogError("API call %s returned VK_ERROR_DEVICE_LOST. vkreplay cannot continue, exiting.", entrypointName);
+        exit(1);
+    }
     if (resCall != resTrace) {
         vktrace_LogError("Return value %s from API call (%s) does not match return value from trace file %s.",
                 string_VkResult((VkResult)resCall), entrypointName, string_VkResult((VkResult)resTrace));

@@ -58,8 +58,15 @@ set(VKTRACE_VULKAN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(src/vktrace_common)
 add_subdirectory(src/vktrace_trace)
-add_subdirectory(src/vktrace_layer)
-add_subdirectory(src/vktrace_replay)
+
+option(BUILD_VKTRACE_LAYER "Build vktrace_layer" ON)
+if(BUILD_VKTRACE_LAYER)
+    add_subdirectory(src/vktrace_layer)
+endif()
+option(BUILD_VKTRACE_REPLAY "Build vktrace_replay" ON)
+if(BUILD_VKTRACE_REPLAY)
+    add_subdirectory(src/vktrace_replay)
+endif()
 
 # Only build vktraceviewer if Qt5 is available
 if (Qt5_FOUND AND BUILD_VKTRACEVIEWER)

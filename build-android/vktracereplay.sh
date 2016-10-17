@@ -1,14 +1,15 @@
 #!/bin/bash
 
-set -v
+set -vex
 
 script_start_time=$(date +%s)
 
 default_vkreplay_apk=./vkreplay/bin/NativeActivity-debug.apk
 default_vktrace_exe=../build/vktrace/vktrace
 default_vktrace32_exe=../build/vktrace/vktrace32
-default_cube_apk=../demos/android/cube-with-layers/bin/NativeActivity-debug.apk
 default_target_abi=$(adb shell getprop ro.product.cpu.abi)
+default_activity=android.app.NativeActivity
+default_frame=1
 
 #if [[ $(basename "$PWD") != "build-android" ]]
 #then
@@ -22,17 +23,23 @@ default_target_abi=$(adb shell getprop ro.product.cpu.abi)
 
 function printUsage {
    echo "Supported parameters are:"
-   echo "    -s|--serial <target device serial number>"
-   echo "    -a|--abi <abi to install>"
-   echo "    -t|--vktrace <full path to vktrace on host> (optional)"
-   echo "    -r|--vkreplay <full path to vkreplay APK> (optional)"
-   echo "    -c|--cube <full path to cube APK> (optional)"
+   echo "    --serial <target device serial number>"
+   echo "    --abi <abi to install>"
+   echo "    --vktrace <full path to vktrace on host> (optional)"
+   echo "    --vkreplay <full path to vkreplay APK> (optional)"
+   echo "    --apk <full path to APK>"
+   echo "    --package <package name>"
+   echo "    --actvity <launchable-activity name>"
+   echo "    --frame <frame number to capture>"
    echo
-   echo "i.e. ${0##*/} -s 01234567 \\"
-   echo "              -a arm64-v8a \\"
-   echo "              -t ../build/vktrace/vktrace \\"
-   echo "              -r ./vkreplay/bin/NativeActivity-debug.apk \\"
-   echo "              -c ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk"
+   echo "i.e. ${0##*/} --serial 01234567 \\"
+   echo "              --abi arm64-v8a \\"
+   echo "              --vktrace ../build/vktrace/vktrace \\"
+   echo "              --vkreplay ./vkreplay/bin/NativeActivity-debug.apk \\"
+   echo "              --apk ~/Downloads/foo.apk.apk \\"
+   echo "              --package com.example.foo \\"
+   echo "              --actvity android.app.NativeActivity \\"
+   echo "              --frame 1"
    exit 1
 }
 
@@ -48,26 +55,38 @@ fi
 while [[ $# -gt 0 ]]
 do
     case $1 in
-        -s|--serial)
+        --serial)
             # include the flag, because we need to leave it off if not provided
             serial="$2"
             serialFlag="-s $serial"
             shift 2
             ;;
-        -a|--abi)
+        --abi)
             target_abi="$2"
             shift 2
             ;;
-        -t|--vktrace)
+        --vktrace)
             vktrace_exe="$2"
             shift 2
             ;;
-        -r|--vkreplay)
+        --vkreplay)
             vkreplay_apk="$2"
             shift 2
             ;;
-        -c|--cube)
-            cube_apk="$2"
+        --apk)
+            apk="$2"
+            shift 2
+            ;;
+        --package)
+            package="$2"
+            shift 2
+            ;;
+        --activity)
+            activity="$2"
+            shift 2
+            ;;
+        --frame)
+            frame="$2"
             shift 2
             ;;
         -*)
@@ -136,27 +155,39 @@ then
 fi
 echo vkreplay_apk = $vkreplay_apk
 
-if [[ -z $cube_apk ]];
+if [[ -z $apk ]];
 then
-    echo Using default cube_apk
-    cube_apk=$default_cube_apk
+    echo target APK required
+    exit 1
 fi
-echo cube_apk = $cube_apk
+echo apk = $apk
+
+if [[ -z $package ]];
+then
+    echo target package name required
+    exit 1
+fi
+echo package = $package
+
+if [[ -z $activity ]];
+then
+    echo Using default activity
+    activity=$default_activity
+fi
+echo activity = $activity
+
+if [[ -z $frame ]];
+then
+    echo Using default screenshot frame
+    frame=$default_frame
+fi
+echo frame = $frame
 
 function printLayerBuild() {
     echo "To build layers:"
     echo "./update_external_sources_android.sh"
     echo "./android-generate.sh"
     echo "ndk-build -j"
-}
-
-function printCubeWithLayersBuild() {
-    echo "To build CubeWithLayers apk:"
-    echo "pushd ../demos/android"
-    echo "android update project -s -p . -t \"android-23\""
-    echo "ndk-build -j"
-    echo "ant -buildfile cube-with-layers debug"
-    echo "popd"
 }
 
 function printvkreplayBuild() {
@@ -176,54 +207,8 @@ function printvktraceBuild() {
 }
 
 #
-# If using default build, ensure layers have been built
-#
-
-if [[ "$cube_apk" == "$default_cube_apk" ]];
-then
-    vktracelayer_found=0
-    for i in libs/*/libVkLayer_vktrace_layer.so;
-        do test -f "$i" && let "vktracelayer_found++" && continue;
-    done
-    if [ "$vktracelayer_found" -le "0" ]; then
-        echo "libVkLayer_vktrace_layer.so not found!"
-        printLayerBuild
-        exit 1
-    fi
-
-    screenshot_found=0
-    for i in libs/*/libVkLayer_screenshot.so;
-        do test -f "$i" && let "screenshot_found++" && continue;
-    done
-    if [ "$screenshot_found" -le "0" ]; then
-        echo "libVkLayer_screenshot.so not found!"
-        printLayerBuild
-        exit 1
-    fi
-fi
-
-if [[ "$vkreplay_apk" == "$default_vkreplay_apk" ]];
-then
-    vkreplay_found=0
-    for i in libs/*/libvkreplay.so;
-        do test -f "$i" && let "vkreplay_found++" && continue;
-    done
-    if [ "$vkreplay_found" -le "0" ]; then
-        printLayerBuild
-        echo "libvkreplay.so not found!"
-        exit 1
-    fi
-fi
-
-#
 # If any parameter not found, print how to build it
 #
-
-if [ ! -f $cube_apk ]; then
-    echo "$cube_apk not found!"
-    printCubeWithLayersBuild
-    exit 1
-fi
 
 if [ ! -f $vkreplay_apk ]; then
     echo "$vkreplay_apk not found!"
@@ -272,25 +257,26 @@ fi
 # Ensure APKs can be traced
 #
 
-cube_badging=$(aapt dump badging $cube_apk)
-if [[ $cube_badging != *"uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'"* ]] ||
-   [[ $cube_badging != *"uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'"* ]] ||
-   [[ $cube_badging != *"uses-permission: name='android.permission.INTERNET'"* ]];
+apk_badging=$(aapt dump badging $apk)
+if [[ $apk_badging != *"uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'"* ]] ||
+   [[ $apk_badging != *"uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'"* ]] ||
+   [[ $apk_badging != *"uses-permission: name='android.permission.INTERNET'"* ]];
 then
-    echo Please package cube with the following permissions:
+    echo Please package APK with the following permissions:
     echo     android.permission.READ_EXTERNAL_STORAGE
     echo     android.permission.WRITE_EXTERNAL_STORAGE
-    echo     android.permission.INTERNAL_EXTERNAL_STORAGE
+    echo     android.permission.INTERNET_EXTERNAL_STORAGE
     exit 1
 fi
-apk_contents=$(jar tvf $cube_apk)
+apk_contents=$(jar tvf $apk)
 if [[ $apk_contents != *"libVkLayer_screenshot.so"* ]] ||
    [[ $apk_contents != *"libVkLayer_vktrace_layer.so"* ]];
 then
-    echo Please package cube with the following layers:
+    echo Your APK does not contain the following layers:
     echo     libVkLayer_screenshot.so
     echo     libVkLayer_vktrace_layer.so
-    exit 1
+    echo You\'ll need to provide them another way.
+    echo Continuing...
 fi
 
 #
@@ -302,27 +288,28 @@ adb $serialFlag shell input keyevent "KEYCODE_MENU"
 adb $serialFlag shell input keyevent "KEYCODE_HOME"
 
 # clean up anything lingering from previous runs
-adb $serialFlag shell am force-stop com.example.CubeWithLayers
+adb $serialFlag shell am force-stop $package
 adb $serialFlag shell am force-stop com.example.vkreplay
-if [[ $(adb $serialFlag shell pm list packages com.example.CubeWithLayers) == "package:com.example.CubeWithLayers" ]]
+if [[ $(adb $serialFlag shell pm list packages $package) == "package:$package" ]]
 then
-    adb $serialFlag uninstall com.example.CubeWithLayers && echo continuing...
+    adb $serialFlag uninstall $package && echo continuing...
 fi
 if [[ $(adb $serialFlag shell pm list packages com.example.vkreplay) == "package:com.example.vkreplay" ]]
 then
     adb $serialFlag uninstall com.example.vkreplay && echo continuing...
 fi
-adb $serialFlat shell rm -f /sdcard/Android/cube.ppm
-adb $serialFlat shell rm -f /sdcard/Android/vkreplay.ppm
-rm -f cube.ppm
-rm -f vkreplay.ppm
+adb $serialFlat shell rm -f /sdcard/Android/$frame.ppm
+adb $serialFlat shell rm -f /sdcard/Android/$package.$frame.vktrace.ppm
+adb $serialFlat shell rm -f /sdcard/Android/$package.$frame.vkreplay.ppm
+rm -f $package.$frame.vktrace.ppm
+rm -f $package.$frame.vkreplay.ppm
 
 # Ensure vktrace wasn't already running
 let "script_run_time=$(date +%s)-$script_start_time"
 killall --older-than "$script_run_time"s vktrace || echo continuing...
 
-# install the latest CubeWithLayers, packaged with vktrace and screenshot
-adb $serialFlag install --abi $target_abi $cube_apk
+# install the latest APK, possibly packaged with vktrace and screenshot
+adb $serialFlag install --abi $target_abi $apk
 
 # install vkreplay APK
 adb $serialFlag install --abi $target_abi $vkreplay_apk
@@ -330,27 +317,27 @@ adb $serialFlag install --abi $target_abi $vkreplay_apk
 # trace and screenshot
 adb $serialFlag shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_vktrace
 adb $serialFlag shell setprop debug.vulkan.layer.2 VK_LAYER_LUNARG_screenshot
-adb $serialFlag shell pm grant com.example.CubeWithLayers android.permission.READ_EXTERNAL_STORAGE
-adb $serialFlag shell pm grant com.example.CubeWithLayers android.permission.WRITE_EXTERNAL_STORAGE
-adb $serialFlag shell setprop debug.vulkan.screenshot 1
+adb $serialFlag shell pm grant $package android.permission.READ_EXTERNAL_STORAGE
+adb $serialFlag shell pm grant $package android.permission.WRITE_EXTERNAL_STORAGE
+adb $serialFlag shell setprop debug.vulkan.screenshot $frame
 
 # vktrace
 adb $serialFlag reverse tcp:34201 tcp:34201
-$vktrace_exe -v full -o cube.vktrace &
-adb $serialFlag shell am start com.example.CubeWithLayers/android.app.NativeActivity
+$vktrace_exe -v full -o $package.vktrace &
+adb $serialFlag shell am start $package/$activity
 
-# wait until cube screenshot arrives, or a timeout
-cube_seconds=30                                  # Duration in seconds.
-cube_end_time=$(( $(date +%s) + cube_seconds ))  # Calculate end time.
+# wait until trace screenshot arrives, or a timeout
+vktrace_seconds=30                                     # Duration in seconds.
+vktrace_end_time=$(( $(date +%s) + vktrace_seconds ))  # Calculate end time.
 sleep 5 # pause to let the screenshot write finish
-until adb $serialFlag shell ls -la /sdcard/Android/1.ppm
+until adb $serialFlag shell ls -la /sdcard/Android/$frame.ppm
 do
-    echo "Waiting for cube screenshot on $serial"
+    echo "Waiting for $package.vktrace screenshot on $serial"
 
-    if [ $(date +%s) -gt $cube_end_time ]
+    if [ $(date +%s) -gt $vktrace_end_time ]
     then
-        echo "Cube timeout reached: $cube_seconds seconds"
-        echo "No cube screenshot, closing down"
+        echo "vktrace timeout reached: $vktrace_seconds seconds"
+        echo "No vktrace screenshot, closing down"
         exit 1
     fi
 
@@ -361,27 +348,27 @@ done
 kill $!
 
 # set up for vkreplay
-adb $serialFlag shell am force-stop com.example.CubeWithLayers
-adb $serialFlag push cube0.vktrace /sdcard/cube0.vktrace
+adb $serialFlag shell am force-stop $package
+adb $serialFlag push $package\0.vktrace /sdcard/$package.vktrace
 
 # grab the screenshot
-adb $serialFlag pull /sdcard/Android/1.ppm cube.ppm
-adb $serialFlag shell mv /sdcard/Android/1.ppm /sdcard/Android/cube.ppm
+adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vktrace.ppm
+adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$frame.vktrace.ppm
 
 # replay and screenshot
 adb $serialFlag shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_screenshot
 adb $serialFlag shell setprop debug.vulkan.layer.2 '""'
-adb $serialFlag shell setprop debug.vulkan.screenshot 1
+adb $serialFlag shell setprop debug.vulkan.screenshot $frame
 adb $serialFlag shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE
 adb $serialFlag shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE
 sleep 5 # small pause to allow permission to take
-adb $serialFlag shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/cube0.vktrace"
+adb $serialFlag shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/$package.vktrace"
 
 # wait until vkreplay screenshot arrives, or a timeout
 vkreplay_seconds=30                                      # Duration in seconds.
 vkreplay_end_time=$(( $(date +%s) + vkreplay_seconds ))  # Calculate end time.
 sleep 5 # pause to let the screenshot write finish
-until adb $serialFlag shell ls -la /sdcard/Android/1.ppm
+until adb $serialFlag shell ls -la /sdcard/Android/$frame.ppm
 do
     echo "Waiting for vkreplay screenshot on $serial"
 
@@ -395,8 +382,8 @@ do
 done
 
 # grab the screenshot
-adb $serialFlag pull /sdcard/Android/1.ppm vkreplay.ppm
-adb $serialFlag shell mv /sdcard/Android/1.ppm /sdcard/Android/vkreplay.ppm
+adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vkreplay.ppm
+adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$frame.vkreplay.ppm
 
 # clean up
 adb $serialFlag shell am force-stop com.example.vkreplay
@@ -414,15 +401,13 @@ else
     NC=''
 fi
 
-cmp -s cube.ppm vkreplay.ppm
-
-PGM=Cube
+cmp -s $package.$frame.vktrace.ppm $package.$frame.vkreplay.ppm
 
 if [ $? -eq 0 ] ; then
-    printf "$GREEN[  PASSED  ]$NC ${PGM}\n"
+    printf "$GREEN[  PASSED  ]$NC ${$apk-$package}\n"
 else
     printf "$RED[  FAILED  ]$NC screenshot file compare failed\n"
-    printf "$RED[  FAILED  ]$NC ${PGM}\n"
+    printf "$RED[  FAILED  ]$NC ${$apk-$package}\n"
     printf "TEST FAILED\n"
     exit 1
 fi
