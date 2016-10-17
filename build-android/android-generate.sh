@@ -54,9 +54,7 @@ cp -f ../layers/descriptor_sets.cpp   generated/common/
 # 1 to 1 correspondence -- one layer one source file; additional files are copied
 # at fixup step
 declare layers=(core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot)
-declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers generated/include generated/include ../layersvt)
-declare layers=(core_validation image object_tracker parameter_validation swapchain threading unique_objects)
-declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers ../layers)
+declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers ../layers generated/include ../layersvt)
 
 SRC_ROOT=generated/layer-src
 BUILD_ROOT=generated/gradle-build
@@ -80,7 +78,6 @@ cp  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/core_validation/vk_safe_str
 mv  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/unique_objects/vk_safe_struct.cpp
 
 # fixup - remove copied files from generated/include
-rm  generated/include/unique_objects.cpp
 rm  generated/include/api_dump.cpp
 
 exit 0
