@@ -10,7 +10,7 @@ echo "GLSLANG_REVISION=${GLSLANG_REVISION}"
 echo "SPIRV_TOOLS_REVISION=${SPIRV_TOOLS_REVISION}"
 echo "SPIRV_HEADERS_REVISION=${SPIRV_HEADERS_REVISION}"
 
-LUNARGLASS_REVISION=$(cat $PWD/LunarGLASS_revision)
+LUNARGLASS_REVISION=$(cat "${PWD}"/LunarGLASS_revision)
 echo "LUNARGLASS_REVISION=$LUNARGLASS_REVISION"
 
 BUILDDIR=$PWD
@@ -72,28 +72,26 @@ function build_glslang () {
 }
 
 function create_LunarGLASS () {
-   rm -rf $BASEDIR/LunarGLASS
-   echo "Creating local LunarGLASS repository ($BASEDIR/LunarGLASS)."
-   mkdir -p $BASEDIR/LunarGLASS
-   cd $BASEDIR/LunarGLASS
+   rm -rf "${BASEDIR}"/LunarGLASS
+   echo "Creating local LunarGLASS repository (${BASEDIR}/LunarGLASS)."
+   mkdir -p "${BASEDIR}"/LunarGLASS
+   cd "${BASEDIR}"/LunarGLASS
    git clone https://github.com/LunarG/LunarGLASS.git .
    mkdir -p Core/LLVM
    cd Core/LLVM 
    wget http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz
    tar --gzip -xf llvm-3.4.src.tar.gz
-   git checkout -f .  # put back the LunarGLASS versions of some LLVM files
-   git checkout $LUNARGLASS_REVISION
+   git checkout -f $LUNARGLASS_REVISION . # put back the LunarGLASS versions of some LLVM files
    # copy overlay files
-   cd $BASEDIR/LunarGLASS
-   cp -R $BUILDDIR/LunarGLASS/* .
+   cd "${BASEDIR}"/LunarGLASS
+   cp -R "${BUILDDIR}"/LunarGLASS/* .
 }
 
 function update_LunarGLASS () {
-   echo "Updating $BASEDIR/LunarGLASS"
-   cd $BASEDIR/LunarGLASS
+   echo "Updating ${BASEDIR}/LunarGLASS"
+   cd "${BASEDIR}"/LunarGLASS
    git fetch
-   git checkout -f .
-   git checkout $LUNARGLASS_REVISION 
+   git checkout -f $LUNARGLASS_REVISION .
    # Figure out how to do this with git
    #git checkout $LUNARGLASS_REVISION |& tee gitout
    #if grep --quiet LLVM gitout ; then
@@ -102,19 +100,19 @@ function update_LunarGLASS () {
    #rm -rf gitout
  
    # copy overlay files
-   cp -R $BUILDDIR/LunarGLASS/* .
+   cp -R "${BUILDDIR}"/LunarGLASS/* .
 }
 
 function build_LunarGLASS () {
-   echo "Building $BASEDIR/LunarGLASS"
-   cd $BASEDIR/LunarGLASS/Core/LLVM/llvm-3.4
-   if [ ! -d "$BASEDIR/LunarGLASS/Core/LLVM/llvm-3.4/build" ]; then
+   echo "Building ${BASEDIR}/LunarGLASS"
+   cd "${BASEDIR}"/LunarGLASS/Core/LLVM/llvm-3.4
+   if [ ! -d "${BASEDIR}/LunarGLASS/Core/LLVM/llvm-3.4/build" ]; then
       mkdir -p build
       cd build
       ../configure --enable-terminfo=no --enable-curses=no
       REQUIRES_RTTI=1 make -j $(nproc) && make install DESTDIR=`pwd`/install
    fi
-   cd $BASEDIR/LunarGLASS
+   cd "${BASEDIR}"/LunarGLASS
    mkdir -p build
    cd build
    cmake -D CMAKE_BUILD_TYPE=Release ..
@@ -201,7 +199,7 @@ if [ ${INCLUDE_SPIRV_TOOLS} == "true" ]; then
     build_spirv-tools
 fi
 if [ $INCLUDE_LUNARGLASS == "true" ]; then
-    if [ ! -d "$BASEDIR/LunarGLASS" -o ! -d "$BASEDIR/LunarGLASS/.git" ]; then
+    if [ ! -d "${BASEDIR}/LunarGLASS" -o ! -d "${BASEDIR}/LunarGLASS/.git" ]; then
        create_LunarGLASS
     fi
     update_LunarGLASS
