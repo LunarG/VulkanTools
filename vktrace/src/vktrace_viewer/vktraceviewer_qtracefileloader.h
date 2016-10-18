@@ -40,7 +40,7 @@ signals:
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message);
     void OutputMessage(VktraceLogLevel level, const QString& message);
 
-    void TraceFileLoaded(bool bSuccess, vktraceviewer_trace_file_info fileInfo, const QString& controllerFilename);
+    void TraceFileLoaded(bool bSuccess, const vktraceviewer_trace_file_info& fileInfo, const QString& controllerFilename);
 
     void Finished();
 

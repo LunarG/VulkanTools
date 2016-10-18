@@ -597,7 +597,7 @@ void vktraceviewer::GenerateTraceFileStats()
     m_pTraceStatsTabText->setHtml(statText);
 }
 
-void vktraceviewer::onTraceFileLoaded(bool bSuccess, vktraceviewer_trace_file_info fileInfo, const QString& controllerFilename)
+void vktraceviewer::onTraceFileLoaded(bool bSuccess, const vktraceviewer_trace_file_info& fileInfo, const QString& controllerFilename)
 {
     QApplication::restoreOverrideCursor();
 
