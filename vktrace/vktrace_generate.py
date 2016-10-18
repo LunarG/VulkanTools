@@ -500,6 +500,9 @@ class Subcommand(object):
             trim_instructions.append("            trim::remove_CommandBuffer_object(pCommandBuffers[i]);")
             trim_instructions.append("            trim::remove_CommandBuffer_calls(pCommandBuffers[i]);")
             trim_instructions.append("        }")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'QueueBindSparse' is proto.name:
             trim_instructions.append("        if (result == VK_SUCCESS) {")
             trim_instructions.append("            trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(fence);")
@@ -523,6 +526,9 @@ class Subcommand(object):
             trim_instructions.append("                }")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateSemaphore' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Semaphore_object(*pSemaphore);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -534,6 +540,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroySemaphore' is proto.name:
             trim_instructions.append("        trim::remove_Semaphore_object(semaphore);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateFence' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Fence_object(*pFence);")
             trim_instructions.append("        assert(pInfo != NULL);" )
@@ -573,6 +582,9 @@ class Subcommand(object):
             trim_instructions.append("        if (g_trimIsPreTrim) { vktrace_delete_trace_packet(&pHeader); }")
         elif 'DestroyFence' is proto.name:
             trim_instructions.append("        trim::remove_Fence_object(fence);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif ('CmdCopyImage' is proto.name or
               'CmdBlitImage' is proto.name or
               'CmdResolveImage' is proto.name or
@@ -621,7 +633,10 @@ class Subcommand(object):
               'CmdExecuteCommands' is proto.name):
             trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, pHeader); }")
         elif ('ResetCommandBuffer' is proto.name):
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::remove_CommandBuffer_calls(commandBuffer); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { ")
+            trim_instructions.append("            trim::remove_CommandBuffer_calls(commandBuffer);")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateImageView' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_ImageView_object(*pView);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -632,6 +647,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyImageView' is proto.name:
             trim_instructions.append("        trim::remove_ImageView_object(imageView);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateImage' is proto.name:
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
@@ -699,6 +717,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyBufferView' is proto.name:
             trim_instructions.append("        trim::remove_BufferView_object(bufferView);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateBuffer' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Buffer_object(*pBuffer);")
             trim_instructions.append("        if (pInfo != NULL) {")
@@ -715,6 +736,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyBuffer' is proto.name:
             trim_instructions.append("        trim::remove_Buffer_object(buffer);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'BindBufferMemory' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);")
             trim_instructions.append("        if (pInfo != NULL) {")
@@ -733,6 +757,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroySampler' is proto.name:
             trim_instructions.append("        trim::remove_Sampler_object(sampler);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateDescriptorSetLayout' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_DescriptorSetLayout_object(*pSetLayout);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -764,12 +791,17 @@ class Subcommand(object):
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
             trim_instructions.append("        }")
         elif 'DestroyDescriptorSetLayout' is proto.name:
-            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_DescriptorSetLayout_objectInfo(descriptorSetLayout);")
             trim_instructions.append("        trim::remove_DescriptorSetLayout_object(descriptorSetLayout);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'ResetDescriptorPool' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(descriptorPool);")
             trim_instructions.append("        pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
             trim_instructions.append("        trim::reset_DescriptorPool(descriptorPool);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreatePipelineLayout' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_PipelineLayout_object(*pPipelineLayout);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -780,8 +812,14 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyPipelineLayout' is proto.name:
             trim_instructions.append("        trim::remove_PipelineLayout_object(pipelineLayout);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'DestroyRenderPass' is proto.name:
             trim_instructions.append("        trim::remove_RenderPass_object(renderPass);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateShaderModule' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_ShaderModule_object(*pShaderModule);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
@@ -795,12 +833,24 @@ class Subcommand(object):
             trim_instructions.append("        //trim_remove_ShaderModule_object(shaderModule);")
             trim_instructions.append("        //Remove the shadermodule if we've recorded this in-trim, because we don't want to delete it twice.")
             trim_instructions.append("        if (g_trimIsInTrim) { trim::remove_ShaderModule_object(shaderModule); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'DestroyPipeline' is proto.name:
             trim_instructions.append("        trim::remove_Pipeline_object(pipeline);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'DestroyDescriptorPool' is proto.name:
             trim_instructions.append("        trim::remove_DescriptorPool_object(descriptorPool);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'DestroyFramebuffer' is proto.name:
             trim_instructions.append("        trim::remove_Framebuffer_object(framebuffer);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateEvent' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Event_object(*pEvent);")
             trim_instructions.append("        if (pInfo != NULL) {" )
@@ -813,6 +863,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyEvent' is proto.name:
             trim_instructions.append("        trim::remove_Event_object(event);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'CreateQueryPool' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_QueryPool_object(*pQueryPool);")
             trim_instructions.append("        if (pInfo != NULL) {" )
@@ -862,6 +915,9 @@ class Subcommand(object):
             trim_instructions.append("                pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         elif 'GetPhysicalDeviceSurfaceSupportKHR' is proto.name:
             trim_instructions.append("        if (result == VK_SUCCESS && g_trimIsPreTrim)")
             trim_instructions.append("        {")
@@ -882,6 +938,9 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'DestroyDevice' is proto.name:
             trim_instructions.append("        trim::remove_Device_object(device);")
+            trim_instructions.append("        if (g_trimIsPreTrim) {")
+            trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
+            trim_instructions.append("        }")
         else:
             return None
         return "\n".join(trim_instructions)            
