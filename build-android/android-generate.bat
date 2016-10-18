@@ -23,12 +23,13 @@ python ../vk-generate.py Android dispatch-table-ops layer > generated/include/vk
 
 python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated/include
 python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
-python ../vk_helper_api_dump.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
 
 cd generated/include
 python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h
 python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h
 python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h
+
+python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp
 cd ../..
 
 copy /Y ..\layers\vk_layer_config.cpp   generated\common\

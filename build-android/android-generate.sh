@@ -25,13 +25,12 @@ python ../vk-generate.py Android dispatch-table-ops layer > generated/include/vk
 
 python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated/include
 python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
-python ../vk_helper_api_dump.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
-
-python ../vk-vtlayer-generate.py Android api_dump ../include/vulkan/vulkan.h > generated/include/api_dump.cpp
 
 ( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h )
 ( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h )
 ( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h )
+
+( cd generated/include; python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp )
 
 # vktrace
 python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_core > generated/include/vktrace_vk_vk.h
