@@ -859,6 +859,79 @@ namespace trim {
         }
 
         //=====================================================================
+        vktrace_trace_packet_header* vkCmdBeginQuery(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkQueryPool queryPool,
+            uint32_t query,
+            VkQueryControlFlags flags)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCmdBeginQuery* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkCmdBeginQuery, 0);
+            if (makeCall)
+            {
+                mdd(commandBuffer)->devTable.CmdBeginQuery(commandBuffer, queryPool, query, flags);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCmdBeginQuery(pHeader);
+            pPacket->commandBuffer = commandBuffer;
+            pPacket->queryPool = queryPool;
+            pPacket->query = query;
+            pPacket->flags = flags;
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkCmdEndQuery(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkQueryPool queryPool,
+            uint32_t query)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCmdEndQuery* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkCmdEndQuery, 0);
+            if (makeCall)
+            {
+                mdd(commandBuffer)->devTable.CmdEndQuery(commandBuffer, queryPool, query);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCmdEndQuery(pHeader);
+            pPacket->commandBuffer = commandBuffer;
+            pPacket->queryPool = queryPool;
+            pPacket->query = query;
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkCmdResetQueryPool(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkQueryPool queryPool,
+            uint32_t firstQuery,
+            uint32_t queryCount)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCmdResetQueryPool* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkCmdResetQueryPool, 0);
+            if (makeCall)
+            {
+                mdd(commandBuffer)->devTable.CmdResetQueryPool(commandBuffer, queryPool, firstQuery, queryCount);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCmdResetQueryPool(pHeader);
+            pPacket->commandBuffer = commandBuffer;
+            pPacket->queryPool = queryPool;
+            pPacket->firstQuery = firstQuery;
+            pPacket->queryCount = queryCount;
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
         vktrace_trace_packet_header* vkDestroyQueryPool(
             bool makeCall,
             VkDevice device,

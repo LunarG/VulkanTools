@@ -1593,7 +1593,7 @@ namespace trim
             vktrace_write_trace_packet(obj->second.ObjectInfo.Device.pCreatePacket, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Device.pCreatePacket));
         }
-    
+
         // Queue
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdQueues.begin(); obj != stateTracker.createdQueues.end(); obj++)
         {
@@ -1683,13 +1683,13 @@ namespace trim
             }
         }
 
-    #ifdef TRIM_USE_ORDERED_IMAGE_CREATION
+#ifdef TRIM_USE_ORDERED_IMAGE_CREATION
         for (std::list<vktrace_trace_packet_header*>::iterator iter = image_calls.begin(); iter != image_calls.end(); iter++)
         {
             vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(*iter));
         }
-    #else
+#else
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
         {
             // CreateImage
@@ -1713,7 +1713,7 @@ namespace trim
                 vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pBindImageMemoryPacket));
             }
         }
-    #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
 
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
         {
@@ -1790,7 +1790,7 @@ namespace trim
                 pHeader = generate::vkBeginCommandBuffer(false, device, stagingInfo.commandBuffer, &commandBufferBeginInfo);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
-                
+
                 // Transition image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
                 generateTransitionImage(device,
                     stagingInfo.commandBuffer,
@@ -2096,7 +2096,7 @@ namespace trim
                 pHeader = generate::vkBeginCommandBuffer(false, device, stagingInfo.commandBuffer, &commandBufferBeginInfo);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
-                
+
                 // Transition Buffer to be writeable
                 generateTransitionBuffer(device,
                     stagingInfo.commandBuffer,
@@ -2377,6 +2377,75 @@ namespace trim
         {
             vktrace_write_trace_packet(obj->second.ObjectInfo.QueryPool.pCreatePacket, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.QueryPool.pCreatePacket));
+
+            VkQueryPool queryPool = static_cast<VkQueryPool>(obj->first);
+            VkCommandBuffer commandBuffer = obj->second.ObjectInfo.QueryPool.commandBuffer;
+            VkDevice device = obj->second.belongsToDevice;
+
+            vktrace_trace_packet_header* pResetPacket = generate::vkCmdResetQueryPool(false, commandBuffer, queryPool, 0, obj->second.ObjectInfo.QueryPool.size);
+            vktrace_write_trace_packet(pResetPacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pResetPacket);
+
+            bool needToBeginQuery = false;
+            for (uint32_t i = 0; i < obj->second.ObjectInfo.QueryPool.size; i++)
+            {
+                if (obj->second.ObjectInfo.QueryPool.pResultsAvailable[i])
+                {
+                    needToBeginQuery = true;
+                    break;
+                }
+            }
+
+            if (needToBeginQuery)
+            {
+                // Go through each query and start / stop if needed.
+                {
+                    VkCommandBufferBeginInfo beginInfo = {};
+                    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+                    beginInfo.pNext = nullptr;
+                    beginInfo.pInheritanceInfo = nullptr;
+                    beginInfo.flags = 0;
+                    vktrace_trace_packet_header* pBeginCB = generate::vkBeginCommandBuffer(false, device, commandBuffer, &beginInfo);
+                    vktrace_write_trace_packet(pBeginCB, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pBeginCB);
+
+                    for (uint32_t i = 0; i < obj->second.ObjectInfo.QueryPool.size; i++)
+                    {
+                        if (obj->second.ObjectInfo.QueryPool.pResultsAvailable[i])
+                        {
+                            // This query needs to be begin-ended to make a queryable result.
+                            // Note that by doing this, the initial results will be incorrect,
+                            // so the first frame of the replay may be incorrect.
+                            VkQueryControlFlags flags = 0;
+                            vktrace_trace_packet_header* pBeginQuery = generate::vkCmdBeginQuery(false, commandBuffer, queryPool, i, flags);
+                            vktrace_write_trace_packet(pBeginQuery, vktrace_trace_get_trace_file());
+                            vktrace_delete_trace_packet(&pBeginQuery);
+
+                            vktrace_trace_packet_header* pEndQuery = generate::vkCmdEndQuery(false, commandBuffer, queryPool, i);
+                            vktrace_write_trace_packet(pEndQuery, vktrace_trace_get_trace_file());
+                            vktrace_delete_trace_packet(&pEndQuery);
+                        }
+                    }
+
+                    vktrace_trace_packet_header* pEndCB = generate::vkEndCommandBuffer(false, device, commandBuffer);
+                    vktrace_write_trace_packet(pEndCB, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pEndCB);
+                }
+
+                VkQueue queue = VK_NULL_HANDLE;
+                mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
+
+                VkSubmitInfo submitInfo = {};
+                submitInfo.commandBufferCount = 1;
+                submitInfo.pCommandBuffers = &commandBuffer;
+                vktrace_trace_packet_header* pQueueSubmit = generate::vkQueueSubmit(false, device, queue, 1, &submitInfo, VK_NULL_HANDLE);
+                vktrace_write_trace_packet(pQueueSubmit, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pQueueSubmit);
+
+                vktrace_trace_packet_header* pQueueWait = generate::vkQueueWaitIdle(false, device, queue);
+                vktrace_write_trace_packet(pQueueWait, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pQueueWait);
+            }
         }
 
         // write out the packets to recreate the command buffers that were just allocated

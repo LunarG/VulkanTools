@@ -243,6 +243,9 @@ namespace trim
             struct _QueryPool {           // VkQueryPool
                 vktrace_trace_packet_header* pCreatePacket;
                 const VkAllocationCallbacks* pAllocator;
+                VkCommandBuffer commandBuffer;
+                uint32_t size;
+                bool* pResultsAvailable;
             } QueryPool;
         } ObjectInfo;
     } ObjectInfo;

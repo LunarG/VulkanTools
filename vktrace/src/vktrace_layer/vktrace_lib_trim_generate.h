@@ -191,6 +191,26 @@ namespace trim {
             VkDescriptorPool descriptorPool,
             VkDescriptorPoolResetFlags flags);
 
+        vktrace_trace_packet_header* vkCmdBeginQuery(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkQueryPool queryPool,
+            uint32_t query,
+            VkQueryControlFlags flags);
+
+        vktrace_trace_packet_header* vkCmdEndQuery(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkQueryPool queryPool,
+            uint32_t query);
+
+        vktrace_trace_packet_header* vkCmdResetQueryPool(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkQueryPool queryPool,
+            uint32_t firstQuery,
+            uint32_t queryCount);
+
         vktrace_trace_packet_header* vkDestroyQueryPool(
             bool makeCall,
             VkDevice device,
