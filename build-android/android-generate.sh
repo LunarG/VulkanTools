@@ -29,9 +29,9 @@ python ../vk_helper_api_dump.py --gen_struct_wrappers ../include/vulkan/vulkan.h
 
 python ../vk-vtlayer-generate.py Android api_dump ../include/vulkan/vulkan.h > generated/include/api_dump.cpp
 
-( cd generated/include; python ../../../genvk.py threading -registry ../../../vk.xml thread_check.h )
-( cd generated/include; python ../../../genvk.py paramchecker -registry ../../../vk.xml parameter_validation.h )
-( cd generated/include; python ../../../genvk.py unique_objects -registry ../../../vk.xml unique_objects_wrappers.h )
+( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h )
+( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h )
+( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h )
 
 # vktrace
 python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_core > generated/include/vktrace_vk_vk.h

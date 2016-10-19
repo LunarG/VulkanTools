@@ -356,7 +356,6 @@ struct demo {
     VkSwapchainKHR swapchain;
     SwapchainBuffers *buffers;
     VkFence fences[FRAME_LAG];
-    bool fencesInited[FRAME_LAG];
     int frame_index;
 
     VkCommandPool cmd_pool;
@@ -439,7 +438,7 @@ dbgFunc(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType,
         sprintf(message, "WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
         validation_error = 1;
     } else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
-        sprintf(message, "PERFOERMANCE WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
+        sprintf(message, "PERFORMANCE WARNING: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
         validation_error = 1;
     } else if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         sprintf(message, "ERROR: [%s] Code %d : %s", pLayerPrefix, msgCode, pMsg);
@@ -656,25 +655,7 @@ static void demo_draw_build_cmd(struct demo *demo, VkCommandBuffer cmd_buf) {
 
     err = vkBeginCommandBuffer(cmd_buf, &cmd_buf_info);
     assert(!err);
-
-    VkImageMemoryBarrier image_memory_barrier = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .pNext = NULL,
-        .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
-        .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-        .oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-        .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = demo->buffers[demo->current_buffer].image,
-        .subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
-
-    vkCmdPipelineBarrier(cmd_buf, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0,
-                         NULL, 0, NULL, 1, &image_memory_barrier);
-
     vkCmdBeginRenderPass(cmd_buf, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
-
     vkCmdBindPipeline(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS, demo->pipeline);
     vkCmdBindDescriptorSets(cmd_buf, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             demo->pipeline_layout, 0, 1, &demo->desc_set, 0,
@@ -719,7 +700,7 @@ static void demo_draw_build_cmd(struct demo *demo, VkCommandBuffer cmd_buf) {
 
         vkCmdPipelineBarrier(cmd_buf,
                              VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0,
+                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0,
                              0, NULL, 0, NULL, 1, &image_ownership_barrier);
     }
     err = vkEndCommandBuffer(cmd_buf);
@@ -786,18 +767,14 @@ void demo_update_data_buffer(struct demo *demo) {
 static void demo_draw(struct demo *demo) {
     VkResult U_ASSERT_ONLY err;
 
-    if (demo->fencesInited[demo->frame_index])
-    {
-        // Ensure no more than FRAME_LAG presentations are outstanding
-        vkWaitForFences(demo->device, 1, &demo->fences[demo->frame_index], VK_TRUE, UINT64_MAX);
-        vkResetFences(demo->device, 1, &demo->fences[demo->frame_index]);
-    }
+    // Ensure no more than FRAME_LAG presentations are outstanding
+    vkWaitForFences(demo->device, 1, &demo->fences[demo->frame_index], VK_TRUE, UINT64_MAX);
+    vkResetFences(demo->device, 1, &demo->fences[demo->frame_index]);
 
     // Get the index of the next available swapchain image:
     err = demo->fpAcquireNextImageKHR(demo->device, demo->swapchain, UINT64_MAX,
                                       demo->image_acquired_semaphores[demo->frame_index], demo->fences[demo->frame_index],
                                       &demo->current_buffer);
-    demo->fencesInited[demo->frame_index] = true;
 
     if (err == VK_ERROR_OUT_OF_DATE_KHR) {
         // demo->swapchain is out of date (e.g. the window was resized) and
@@ -1082,12 +1059,6 @@ static void demo_prepare_buffers(struct demo *demo) {
                                 &demo->buffers[i].view);
         assert(!err);
 
-        // The draw loop will be expecting the presentable images to be in
-        // LAYOUT_PRESENT_SRC_KHR
-        // since that's how they're left at the end of every frame.
-        demo_set_image_layout(
-            demo, demo->buffers[i].image, VK_IMAGE_ASPECT_COLOR_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 0);
     }
 
     if (NULL != presentModes) {
@@ -1157,11 +1128,6 @@ static void demo_prepare_depth(struct demo *demo) {
     err =
         vkBindImageMemory(demo->device, demo->depth.image, demo->depth.mem, 0);
     assert(!err);
-
-    demo_set_image_layout(demo, demo->depth.image, VK_IMAGE_ASPECT_DEPTH_BIT,
-                          VK_IMAGE_LAYOUT_UNDEFINED,
-                          VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                          0);
 
     /* create image view */
     view.image = demo->depth.image;
@@ -1584,6 +1550,14 @@ static void demo_prepare_descriptor_layout(struct demo *demo) {
 }
 
 static void demo_prepare_render_pass(struct demo *demo) {
+    // The initial layout for the color and depth attachments will be LAYOUT_UNDEFINED
+    // because at the start of the renderpass, we don't care about their contents.
+    // At the start of the subpass, the color attachment's layout will be transitioned
+    // to LAYOUT_COLOR_ATTACHMENT_OPTIMAL and the depth stencil attachment's layout
+    // will be transitioned to LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL.  At the end of
+    // the renderpass, the color attachment's layout will be transitioned to
+    // LAYOUT_PRESENT_SRC_KHR to be ready to present.  This is all done as part of
+    // the renderpass, no barriers are necessary.
     const VkAttachmentDescription attachments[2] = {
             [0] =
                 {
@@ -1593,7 +1567,7 @@ static void demo_prepare_render_pass(struct demo *demo) {
                  .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
                  .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                  .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                 .initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                 .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
                  .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                 },
             [1] =
@@ -1605,7 +1579,7 @@ static void demo_prepare_render_pass(struct demo *demo) {
                  .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                  .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                  .initialLayout =
-                     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                     VK_IMAGE_LAYOUT_UNDEFINED,
                  .finalLayout =
                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                 },
@@ -2043,9 +2017,7 @@ static void demo_cleanup(struct demo *demo) {
 
     // Wait for fences from present operations
     for (i = 0; i < FRAME_LAG; i++) {
-        if (demo->fencesInited[i]) {
-            vkWaitForFences(demo->device, 1, &demo->fences[i], VK_TRUE, UINT64_MAX);
-        }
+        vkWaitForFences(demo->device, 1, &demo->fences[i], VK_TRUE, UINT64_MAX);
         vkDestroyFence(demo->device, demo->fences[i], NULL);
         vkDestroySemaphore(demo->device, demo->image_acquired_semaphores[i], NULL);
         vkDestroySemaphore(demo->device, demo->draw_complete_semaphores[i], NULL);
@@ -3155,11 +3127,10 @@ static void demo_init_vk_swapchain(struct demo *demo) {
     VkFenceCreateInfo fence_ci = {
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
         .pNext = NULL,
-        .flags = 0
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT
     };
     for (uint32_t i = 0; i < FRAME_LAG; i++) {
         vkCreateFence(demo->device, &fence_ci, NULL, &demo->fences[i]);
-        demo->fencesInited[i] = false;
         err = vkCreateSemaphore(demo->device, &semaphoreCreateInfo, NULL,
                                 &demo->image_acquired_semaphores[i]);
         assert(!err);

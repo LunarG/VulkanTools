@@ -297,6 +297,10 @@ if(NOT WIN32)
     endif()
 endif()
 
+if(UNIX)
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/vulkan" DESTINATION include)
+endif()
+
 # loader: Generic VULKAN ICD loader
 # icd: Device dependent (DD) VULKAN components
 # tests: VULKAN tests

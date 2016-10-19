@@ -26,9 +26,9 @@ python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_ou
 python ../vk_helper_api_dump.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
 
 cd generated/include
-python ../../../genvk.py threading -registry ../../../vk.xml thread_check.h
-python ../../../genvk.py paramchecker -registry ../../../vk.xml parameter_validation.h
-python ../../../genvk.py unique_objects -registry ../../../vk.xml unique_objects_wrappers.h
+python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h
+python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h
+python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h
 cd ../..
 
 copy /Y ..\layers\vk_layer_config.cpp   generated\common\
