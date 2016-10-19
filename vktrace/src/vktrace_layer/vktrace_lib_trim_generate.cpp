@@ -907,6 +907,31 @@ namespace trim {
         }
 
         //=====================================================================
+        vktrace_trace_packet_header* vkCmdWriteTimestamp(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkPipelineStageFlagBits pipelineStage,
+            VkQueryPool queryPool,
+            uint32_t query)
+        {
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCmdWriteTimestamp* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkCmdWriteTimestamp, 0);
+            if (makeCall)
+            {
+                mdd(commandBuffer)->devTable.CmdWriteTimestamp(commandBuffer, pipelineStage, queryPool, query);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCmdWriteTimestamp(pHeader);
+            pPacket->commandBuffer = commandBuffer;
+            pPacket->pipelineStage = pipelineStage;
+            pPacket->queryPool = queryPool;
+            pPacket->query = query;
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
         vktrace_trace_packet_header* vkCmdResetQueryPool(
             bool makeCall,
             VkCommandBuffer commandBuffer,

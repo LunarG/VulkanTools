@@ -246,6 +246,7 @@ namespace trim
                 VkCommandBuffer commandBuffer;
                 uint32_t size;
                 bool* pResultsAvailable;
+                VkQueryType queryType;
             } QueryPool;
         } ObjectInfo;
     } ObjectInfo;

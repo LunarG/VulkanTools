@@ -204,6 +204,13 @@ namespace trim {
             VkQueryPool queryPool,
             uint32_t query);
 
+        vktrace_trace_packet_header* vkCmdWriteTimestamp(
+            bool makeCall,
+            VkCommandBuffer commandBuffer,
+            VkPipelineStageFlagBits pipelineStage,
+            VkQueryPool queryPool,
+            uint32_t query);
+
         vktrace_trace_packet_header* vkCmdResetQueryPool(
             bool makeCall,
             VkCommandBuffer commandBuffer,

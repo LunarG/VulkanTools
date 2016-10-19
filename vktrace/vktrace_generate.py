@@ -872,6 +872,7 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->belongsToDevice = device;")
             trim_instructions.append("            pInfo->ObjectInfo.QueryPool.pCreatePacket = pHeader;")
             trim_instructions.append("            if (pCreateInfo != nullptr) {")
+            trim_instructions.append("                pInfo->ObjectInfo.QueryPool.queryType = pCreateInfo->queryType;")
             trim_instructions.append("                pInfo->ObjectInfo.QueryPool.size = pCreateInfo->queryCount;")
             trim_instructions.append("                pInfo->ObjectInfo.QueryPool.pResultsAvailable = new bool[pCreateInfo->queryCount];")
             trim_instructions.append("                for (uint32_t i = 0; i < pCreateInfo->queryCount; i++) {")
@@ -883,17 +884,18 @@ class Subcommand(object):
             trim_instructions.append("                trim::add_Allocator(pAllocator);")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
-        elif 'ResetQueryPool' is proto.name:
+        elif 'CmdResetQueryPool' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_QueryPool_objectInfo(queryPool);")
             trim_instructions.append("        if (pInfo != NULL) {" )
-            trim_instructions.append("            for (uint32_t i = firstQuery; (i < pInfo->ObjectInfo.QueryPool.size) && (i < firstQuery + QueryCount); i++) {")
+            trim_instructions.append("            for (uint32_t i = firstQuery; (i < pInfo->ObjectInfo.QueryPool.size) && (i < firstQuery + queryCount); i++) {")
             trim_instructions.append("                pInfo->ObjectInfo.QueryPool.pResultsAvailable[i] = false;")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
             trim_instructions.append("        if (g_trimIsPreTrim) {")
             trim_instructions.append("            vktrace_delete_trace_packet(&pHeader);")
             trim_instructions.append("        }")
-        elif 'CmdEndQuery' is proto.name:
+        elif ('CmdEndQuery' is proto.name or
+              'CmdWriteTimestamp' is proto.name):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_QueryPool_objectInfo(queryPool);")
             trim_instructions.append("        if (pInfo != NULL) {" )
             trim_instructions.append("            pInfo->ObjectInfo.QueryPool.commandBuffer = commandBuffer;")

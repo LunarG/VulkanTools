@@ -2378,40 +2378,39 @@ namespace trim
             vktrace_write_trace_packet(obj->second.ObjectInfo.QueryPool.pCreatePacket, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.QueryPool.pCreatePacket));
 
-            VkQueryPool queryPool = static_cast<VkQueryPool>(obj->first);
             VkCommandBuffer commandBuffer = obj->second.ObjectInfo.QueryPool.commandBuffer;
-            VkDevice device = obj->second.belongsToDevice;
 
-            vktrace_trace_packet_header* pResetPacket = generate::vkCmdResetQueryPool(false, commandBuffer, queryPool, 0, obj->second.ObjectInfo.QueryPool.size);
-            vktrace_write_trace_packet(pResetPacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pResetPacket);
-
-            bool needToBeginQuery = false;
-            for (uint32_t i = 0; i < obj->second.ObjectInfo.QueryPool.size; i++)
+            if (commandBuffer != VK_NULL_HANDLE)
             {
-                if (obj->second.ObjectInfo.QueryPool.pResultsAvailable[i])
-                {
-                    needToBeginQuery = true;
-                    break;
-                }
-            }
+                VkQueryPool queryPool = static_cast<VkQueryPool>(obj->first);
+                VkDevice device = obj->second.belongsToDevice;
 
-            if (needToBeginQuery)
-            {
+                VkCommandBufferBeginInfo beginInfo = {};
+                beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+                beginInfo.pNext = nullptr;
+                beginInfo.pInheritanceInfo = nullptr;
+                beginInfo.flags = 0;
+                vktrace_trace_packet_header* pBeginCB = generate::vkBeginCommandBuffer(false, device, commandBuffer, &beginInfo);
+                vktrace_write_trace_packet(pBeginCB, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pBeginCB);
+
+                vktrace_trace_packet_header* pResetPacket = generate::vkCmdResetQueryPool(false, commandBuffer, queryPool, 0, obj->second.ObjectInfo.QueryPool.size);
+                vktrace_write_trace_packet(pResetPacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pResetPacket);
+
                 // Go through each query and start / stop if needed.
+                for (uint32_t i = 0; i < obj->second.ObjectInfo.QueryPool.size; i++)
                 {
-                    VkCommandBufferBeginInfo beginInfo = {};
-                    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-                    beginInfo.pNext = nullptr;
-                    beginInfo.pInheritanceInfo = nullptr;
-                    beginInfo.flags = 0;
-                    vktrace_trace_packet_header* pBeginCB = generate::vkBeginCommandBuffer(false, device, commandBuffer, &beginInfo);
-                    vktrace_write_trace_packet(pBeginCB, vktrace_trace_get_trace_file());
-                    vktrace_delete_trace_packet(&pBeginCB);
-
-                    for (uint32_t i = 0; i < obj->second.ObjectInfo.QueryPool.size; i++)
+                    if (obj->second.ObjectInfo.QueryPool.pResultsAvailable[i])
                     {
-                        if (obj->second.ObjectInfo.QueryPool.pResultsAvailable[i])
+                        if (obj->second.ObjectInfo.QueryPool.queryType == VK_QUERY_TYPE_TIMESTAMP)
+                        {
+                            // Since were faking the query result anyway, simply use the TOP_OF_PIPE as we aren't actually drawing anything.
+                            vktrace_trace_packet_header* pWriteTimestamp = generate::vkCmdWriteTimestamp(false, commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, i);
+                            vktrace_write_trace_packet(pWriteTimestamp, vktrace_trace_get_trace_file());
+                            vktrace_delete_trace_packet(&pWriteTimestamp);
+                        }
+                        else
                         {
                             // This query needs to be begin-ended to make a queryable result.
                             // Note that by doing this, the initial results will be incorrect,
@@ -2426,11 +2425,11 @@ namespace trim
                             vktrace_delete_trace_packet(&pEndQuery);
                         }
                     }
-
-                    vktrace_trace_packet_header* pEndCB = generate::vkEndCommandBuffer(false, device, commandBuffer);
-                    vktrace_write_trace_packet(pEndCB, vktrace_trace_get_trace_file());
-                    vktrace_delete_trace_packet(&pEndCB);
                 }
+
+                vktrace_trace_packet_header* pEndCB = generate::vkEndCommandBuffer(false, device, commandBuffer);
+                vktrace_write_trace_packet(pEndCB, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pEndCB);
 
                 VkQueue queue = VK_NULL_HANDLE;
                 mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
