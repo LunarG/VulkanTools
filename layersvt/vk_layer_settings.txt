@@ -37,12 +37,41 @@
 #    FLUSH:
 #    ======
 #    <LayerIdentifier>.flush : Setting this to TRUE causes IO to be flushed
-#    after each line that's written.
+#    each API call that is written
+#
+#   INDENT SIZE
+#   ==============
+#   <LayerIdentifier>.indent_size : Specifies the number of spaces that a tab
+#   is equal to
+#
+#   SHOW TYPES
+#   ==============
+#   <LayerIdentifier>.show_types : Setting this to TRUE causes types to be
+#   dumped in addition to values
+#
+#   NAME SIZE
+#   ==============
+#   <LayerIdentifier>.name_size : The number of characters the name of a
+#   variable should consume, assuming more are not required
+#
+#   TYPE SIZE
+#   ==============
+#   <LayerIdentifier>.type_size : The number of characters the type of a
+#   variable should consume, assuming more are not requires
+#
+#   USE_SPACES
+#   ==============
+#   <LayerIdentifier>.use_spaces : Setting this to TRUE causes all tabs
+#   characters to be replaced with spaces
 
 #  VK_LUNARG_LAYER_api_dump Settings
 lunarg_api_dump.detailed = TRUE
 lunarg_api_dump.no_addr = FALSE
 lunarg_api_dump.file = FALSE
-lunarg_api_dump.log_filename = stdout
-lunarg_api_dump.flush = FALSE
-################################################################################
+lunarg_api_dump.log_filename = vk_apidump.txt
+lunarg_api_dump.flush = TRUE
+lunarg_api_dump.indent_size = 4
+lunarg_api_dump.show_types = TRUE
+lunarg_api_dump.name_size = 32
+lunarg_api_dump.type_size = 0
+lunarg_api_dump.use_spaces = TRUE
