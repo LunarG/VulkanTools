@@ -28,8 +28,19 @@ cd generated/include
 python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h
 python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h
 python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h
-
 python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp
+
+REM vktrace
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_core > vktrace_vk_vk.h
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_core > vktrace_vk_vk.cpp
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_core > vktrace_vk_vk_packets.h
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_core > vktrace_vk_packet_id.h
+
+REM vkreplay
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_core > vkreplay_vk_func_ptrs.h
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_core > vkreplay_vk_replay_gen.cpp
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_core > vkreplay_vk_objmapper.h
+
 cd ../..
 
 copy /Y ..\layers\vk_layer_config.cpp   generated\common\
@@ -41,15 +52,19 @@ copy /Y ..\layers\descriptor_sets.cpp   generated\common\
 REM create build-script root directory
 mkdir generated\gradle-build
 cd generated\gradle-build
-mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects
+mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
 cd ..\..
 mkdir generated\layer-src
 cd generated\layer-src
-mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump
+mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
 cd ..\..
 xcopy /s gradle-templates\*   generated\gradle-build\
-for %%G in (core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump) Do (
+for %%G in (core_validation image object_tracker parameter_validation swapchain threading unique_objects) Do (
     copy ..\layers\%%G.cpp   generated\layer-src\%%G
+    echo apply from: "../common.gradle"  > generated\gradle-build\%%G\build.gradle
+)
+for %%G in (screenshot) Do (
+    copy ..\layersvt\%%G.cpp   generated\layer-src\%%G
     echo apply from: "../common.gradle"  > generated\gradle-build\%%G\build.gradle
 )
 copy generated\include\api_dump.cpp   generated\layer-src\api_dump
