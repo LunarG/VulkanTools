@@ -481,11 +481,11 @@ class Subcommand(object):
         if 'GetDeviceQueue' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Queue_object(*pQueue);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.Queue.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Queue.pCreatePacket = trim::copy_packet(pHeader);")
         elif 'CreateCommandPool' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_CommandPool_object(*pCommandPool);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.CommandPool.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.CommandPool.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.CommandPool.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -532,7 +532,7 @@ class Subcommand(object):
         elif 'CreateSemaphore' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Semaphore_object(*pSemaphore);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.Semaphore.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Semaphore.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.Semaphore.pAllocator = pAllocator;")
@@ -593,14 +593,14 @@ class Subcommand(object):
             trim_instructions.append("        if (pInfo != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.Image.mostRecentLayout = dstImageLayout;")
             trim_instructions.append("        }")
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader)); }")
         elif ('CmdClearColorImage' is proto.name or
               'CmdClearDepthStencilImage' is proto.name):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
             trim_instructions.append("        if (pInfo != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.Image.mostRecentLayout = imageLayout;")
             trim_instructions.append("        }")
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader)); }")
         elif ('EndCommandBuffer' is proto.name or
               'CmdBindPipeline' is proto.name or
               'CmdSetViewport' is proto.name or
@@ -631,7 +631,7 @@ class Subcommand(object):
               'CmdNextSubpass' is proto.name or
               'CmdEndRenderPass' is proto.name or
               'CmdExecuteCommands' is proto.name):
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader)); }")
         elif ('ResetCommandBuffer' is proto.name):
             trim_instructions.append("        if (g_trimIsPreTrim) { ")
             trim_instructions.append("            trim::remove_CommandBuffer_calls(commandBuffer);")
@@ -640,7 +640,7 @@ class Subcommand(object):
         elif 'CreateImageView' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_ImageView_object(*pView);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.ImageView.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.ImageView.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.ImageView.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -652,12 +652,12 @@ class Subcommand(object):
             trim_instructions.append("        }")
         elif 'CreateImage' is proto.name:
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(trim::copy_packet(pHeader)); }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Image_object(*pImage);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("#if !TRIM_USE_ORDERED_IMAGE_CREATION")
-            trim_instructions.append("        pInfo->ObjectInfo.Image.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Image.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("#endif //!TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;")
             trim_instructions.append("        pInfo->ObjectInfo.Image.format = pCreateInfo->format;")
@@ -679,25 +679,25 @@ class Subcommand(object):
             trim_instructions.append("            pInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->size;")
             trim_instructions.append("        }")
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(trim::copy_packet(pHeader)); }")
             trim_instructions.append("#else")
             trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
         elif 'DestroyImage' is proto.name:
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(trim::copy_packet(pHeader)); }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::remove_Image_object(image);")
         elif 'BindImageMemory' is proto.name:
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
-            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(pHeader); }")
+            trim_instructions.append("        if (g_trimIsPreTrim) { trim::add_Image_call(trim::copy_packet(pHeader)); }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
             trim_instructions.append("        if (pInfo != NULL) {")
             trim_instructions.append("#if !TRIM_USE_ORDERED_IMAGE_CREATION")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.pBindImageMemoryPacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pBindImageMemoryPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("#endif //!TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("            pInfo->ObjectInfo.Image.memory = memory;")
             trim_instructions.append("            pInfo->ObjectInfo.Image.memoryOffset = memoryOffset;")
@@ -707,7 +707,7 @@ class Subcommand(object):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_BufferView_object(*pView);")
             trim_instructions.append("        if (pInfo != NULL) {")
             trim_instructions.append("            pInfo->belongsToDevice = device;")
-            trim_instructions.append("            pInfo->ObjectInfo.BufferView.pCreatePacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.BufferView.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            if (pAllocator != NULL) {")
             trim_instructions.append("                pInfo->ObjectInfo.BufferView.pAllocator = pAllocator;")
             trim_instructions.append("            }")
@@ -724,7 +724,7 @@ class Subcommand(object):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Buffer_object(*pBuffer);")
             trim_instructions.append("        if (pInfo != NULL) {")
             trim_instructions.append("            pInfo->belongsToDevice = device;")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pCreatePacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.size = pCreateInfo->size;")
             trim_instructions.append("            if (pCreateInfo->queueFamilyIndexCount > 0) { pInfo->ObjectInfo.Buffer.queueFamilyIndex = pCreateInfo->pQueueFamilyIndices[0]; }")
             trim_instructions.append("            if (pAllocator != NULL) {")
@@ -742,7 +742,7 @@ class Subcommand(object):
         elif 'BindBufferMemory' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);")
             trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.memory = memory;")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
             trim_instructions.append("            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(device, memory);")
@@ -750,7 +750,7 @@ class Subcommand(object):
         elif 'CreateSampler' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Sampler_object(*pSampler);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.Sampler.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.Sampler.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.Sampler.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -763,7 +763,7 @@ class Subcommand(object):
         elif 'CreateDescriptorSetLayout' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_DescriptorSetLayout_object(*pSetLayout);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        pInfo->ObjectInfo.DescriptorSetLayout.bindingCount = pCreateInfo->bindingCount;")
             trim_instructions.append("        pInfo->ObjectInfo.DescriptorSetLayout.pBindings = new VkDescriptorSetLayoutBinding[pCreateInfo->bindingCount];")
             trim_instructions.append("        for (uint32_t i = 0; i < pCreateInfo->bindingCount; i++ ) {")
@@ -805,7 +805,7 @@ class Subcommand(object):
         elif 'CreatePipelineLayout' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_PipelineLayout_object(*pPipelineLayout);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.PipelineLayout.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.PipelineLayout.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.PipelineLayout.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -823,7 +823,7 @@ class Subcommand(object):
         elif 'CreateShaderModule' is proto.name:
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_ShaderModule_object(*pShaderModule);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
-            trim_instructions.append("        pInfo->ObjectInfo.ShaderModule.pCreatePacket = pHeader;")
+            trim_instructions.append("        pInfo->ObjectInfo.ShaderModule.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.ShaderModule.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -855,7 +855,7 @@ class Subcommand(object):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_Event_object(*pEvent);")
             trim_instructions.append("        if (pInfo != NULL) {" )
             trim_instructions.append("            pInfo->belongsToDevice = device;")
-            trim_instructions.append("            pInfo->ObjectInfo.Event.pCreatePacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.Event.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            if (pAllocator != NULL) {")
             trim_instructions.append("                pInfo->ObjectInfo.Event.pAllocator = pAllocator;")
             trim_instructions.append("                trim::add_Allocator(pAllocator);")
@@ -870,7 +870,7 @@ class Subcommand(object):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_QueryPool_object(*pQueryPool);")
             trim_instructions.append("        if (pInfo != NULL) {" )
             trim_instructions.append("            pInfo->belongsToDevice = device;")
-            trim_instructions.append("            pInfo->ObjectInfo.QueryPool.pCreatePacket = pHeader;")
+            trim_instructions.append("            pInfo->ObjectInfo.QueryPool.pCreatePacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            if (pCreateInfo != nullptr) {")
             trim_instructions.append("                pInfo->ObjectInfo.QueryPool.queryType = pCreateInfo->queryType;")
             trim_instructions.append("                pInfo->ObjectInfo.QueryPool.size = pCreateInfo->queryCount;")
@@ -926,7 +926,7 @@ class Subcommand(object):
             trim_instructions.append("            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);")
             trim_instructions.append("            if (pInfo != NULL)")
             trim_instructions.append("            {")
-            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket = pHeader;")
+            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
         elif 'GetPhysicalDeviceMemoryProperties' is proto.name:
@@ -935,7 +935,7 @@ class Subcommand(object):
             trim_instructions.append("            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);")
             trim_instructions.append("            if (pInfo != NULL)")
             trim_instructions.append("            {")
-            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket = pHeader;")
+            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("            }")
             trim_instructions.append("        }")
         elif 'DestroyDevice' is proto.name:

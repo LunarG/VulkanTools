@@ -1082,21 +1082,18 @@ namespace trim
         }
     }
 
-    #define TRIM_DEFINE_ADD_OBJECT_FUNC(type) \
+#define TRIM_DEFINE_ADD_OBJECT_FUNC(type) \
     ObjectInfo* add_##type##_object(Vk##type var) { \
         vktrace_enter_critical_section(&trimStateTrackerLock); \
-        ObjectInfo& info = s_trimGlobalStateTracker.created##type##s[var]; \
-        memset(&info, 0, sizeof(ObjectInfo)); \
-        info.vkObject = (uint64_t)var; \
+        ObjectInfo* info = s_trimGlobalStateTracker.add_##type##(var); \
         vktrace_leave_critical_section(&trimStateTrackerLock); \
-        return &info; \
+        return info; \
     }
 
-    #define TRIM_DEFINE_REMOVE_OBJECT_FUNC(type) \
-    void remove_##type##_objectInfo(Vk##type var) { \
+#define TRIM_DEFINE_REMOVE_OBJECT_FUNC(type) \
+    void remove_##type##_object(Vk##type var) { \
         vktrace_enter_critical_section(&trimStateTrackerLock); \
-        assert(s_trimGlobalStateTracker.created##type##s.find(var) != s_trimGlobalStateTracker.created##type##s.end()); \
-        s_trimGlobalStateTracker.created##type##s.erase(var); \
+        s_trimGlobalStateTracker.remove_##type(var); \
         vktrace_leave_critical_section(&trimStateTrackerLock); \
     }
 
@@ -1112,6 +1109,7 @@ namespace trim
     ObjectInfo* get_##type##_objectInfo(Vk##type var) { \
         vktrace_enter_critical_section(&trimStateTrackerLock); \
         TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
+        assert(iter != s_trimGlobalStateTracker.created##type##s.end()); \
         ObjectInfo* pResult = NULL; \
         if (iter != s_trimGlobalStateTracker.created##type##s.end()) { \
             pResult = &(iter->second); \
@@ -1153,316 +1151,6 @@ namespace trim
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(QueryPool);
     TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSet);
     
-    void remove_Instance_object(VkInstance var)
-    {
-        ObjectInfo* pInfo = get_Instance_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Instance.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket);
-            delete_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
-        }
-        remove_Instance_objectInfo(var);
-    }
-
-    void remove_PhysicalDevice_object(VkPhysicalDevice var)
-    {
-        ObjectInfo* pInfo = get_PhysicalDevice_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
-        }
-        remove_PhysicalDevice_objectInfo(var);
-    }
-
-    void remove_Device_object(VkDevice var)
-    {
-        ObjectInfo* pInfo = get_Device_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
-        }
-        remove_Device_objectInfo(var);
-    }
-
-    void remove_SurfaceKHR_object(VkSurfaceKHR var)
-    {
-        ObjectInfo* pInfo = get_SurfaceKHR_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.SurfaceKHR.pCreatePacket);
-        }
-        remove_SurfaceKHR_objectInfo(var);
-    }
-
-    void remove_Queue_object(VkQueue var)
-    {
-        ObjectInfo* pInfo = get_Queue_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Queue.pCreatePacket);
-        }
-        remove_Queue_objectInfo(var);
-    }
-
-    void remove_CommandPool_object(VkCommandPool var)
-    {
-        ObjectInfo* pInfo = get_CommandPool_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.CommandPool.pCreatePacket);
-        }
-        remove_CommandPool_objectInfo(var);
-    }
-
-    void remove_SwapchainKHR_object(VkSwapchainKHR var)
-    {
-        ObjectInfo* pInfo = get_SwapchainKHR_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.SwapchainKHR.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
-            delete_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
-        }
-        remove_SwapchainKHR_objectInfo(var);
-    }
-
-    void remove_CommandBuffer_object(VkCommandBuffer var)
-    {
-        remove_CommandBuffer_objectInfo(var);
-    }
-
-    void remove_DeviceMemory_object(VkDeviceMemory var)
-    {
-        ObjectInfo* pInfo = get_DeviceMemory_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pMapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pUnmapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
-        }
-        remove_DeviceMemory_objectInfo(var);
-    }
-
-    void remove_Image_object(VkImage var)
-    {
-        ObjectInfo* pInfo = get_Image_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
-#if !TRIM_USE_ORDERED_IMAGE_CREATION
-            delete_packet(&pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
-            delete_packet(&pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
-#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
-            delete_packet(&pInfo->ObjectInfo.Image.pMapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.Image.pUnmapMemoryPacket);
-    }
-        remove_Image_objectInfo(var);
-    }
-
-    void remove_ImageView_object(VkImageView var)
-    {
-        ObjectInfo* pInfo = get_ImageView_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.ImageView.pCreatePacket);
-        }
-        remove_ImageView_objectInfo(var);
-    }
-
-    void remove_Buffer_object(VkBuffer var)
-    {
-        ObjectInfo* pInfo = get_Buffer_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Buffer.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.Buffer.pMapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.Buffer.pUnmapMemoryPacket);
-        }
-        remove_Buffer_objectInfo(var);
-    }
-
-    void remove_BufferView_object(VkBufferView var)
-    {
-        ObjectInfo* pInfo = get_BufferView_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.BufferView.pCreatePacket);
-        }
-        remove_BufferView_objectInfo(var);
-    }
-
-    void remove_Sampler_object(VkSampler var)
-    {
-        ObjectInfo* pInfo = get_Sampler_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Sampler.pCreatePacket);
-        }
-        remove_Sampler_objectInfo(var);
-    }
-
-    void remove_DescriptorSetLayout_object(VkDescriptorSetLayout var)
-    {
-        ObjectInfo* pInfo = get_DescriptorSetLayout_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket);
-
-            if (pInfo->ObjectInfo.DescriptorSetLayout.pBindings != nullptr)
-            {
-                delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings;
-                pInfo->ObjectInfo.DescriptorSetLayout.pBindings = nullptr;
-            }
-        }
-        remove_DescriptorSetLayout_objectInfo(var);
-    }
-
-    void remove_PipelineLayout_object(VkPipelineLayout var)
-    {
-        ObjectInfo* pInfo = get_PipelineLayout_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
-        }
-        remove_PipelineLayout_objectInfo(var);
-    }
-
-    void remove_RenderPass_object(VkRenderPass var)
-    {
-        ObjectInfo* pInfo = get_RenderPass_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.RenderPass.pCreatePacket);
-        }
-        remove_RenderPass_objectInfo(var);
-    }
-
-    void remove_ShaderModule_object(VkShaderModule var)
-    {
-        ObjectInfo* pInfo = get_ShaderModule_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
-        }
-        remove_ShaderModule_objectInfo(var);
-    }
-
-    void remove_PipelineCache_object(VkPipelineCache var)
-    {
-        ObjectInfo* pInfo = get_PipelineCache_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.PipelineCache.pCreatePacket);
-        }
-        remove_PipelineCache_objectInfo(var);
-    }
-
-    void remove_Pipeline_object(VkPipeline var)
-    {
-        ObjectInfo* pInfo = get_Pipeline_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Pipeline.pCreatePacket);
-        }
-        remove_Pipeline_objectInfo(var);
-    }
-
-    void remove_DescriptorPool_object(VkDescriptorPool var)
-    {
-        ObjectInfo* pInfo = get_DescriptorPool_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.DescriptorPool.pCreatePacket);
-        }
-        remove_DescriptorPool_objectInfo(var);
-    }
-
-    void remove_DescriptorSet_object(VkDescriptorSet var)
-    {
-        ObjectInfo* pInfo = get_DescriptorSet_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != nullptr)
-            {
-                delete[] pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets;
-                pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets = nullptr;
-            }
-            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != nullptr)
-            {
-                for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
-                {
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr)
-                    {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
-                    }
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != nullptr)
-                    {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
-                    }
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != nullptr)
-                    {
-                        delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
-                    }
-                }
-
-                delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets;
-                pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets = nullptr;
-            }
-        }
-        remove_DescriptorSet_objectInfo(var);
-    }
-
-    void remove_Framebuffer_object(VkFramebuffer var)
-    {
-        ObjectInfo* pInfo = get_Framebuffer_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Framebuffer.pCreatePacket);
-        }
-        remove_Framebuffer_objectInfo(var);
-    }
-
-    void remove_Semaphore_object(VkSemaphore var)
-    {
-        ObjectInfo* pInfo = get_Semaphore_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Semaphore.pCreatePacket);
-        }
-        remove_Semaphore_objectInfo(var);
-    }
-
-    void remove_Fence_object(VkFence var)
-    {
-        remove_Fence_objectInfo(var);
-    }
-
-    void remove_Event_object(VkEvent var)
-    {
-        ObjectInfo* pInfo = get_Event_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.Event.pCreatePacket);
-        }
-        remove_Event_objectInfo(var);
-    }
-
-    void remove_QueryPool_object(VkQueryPool var)
-    {
-        ObjectInfo* pInfo = get_QueryPool_objectInfo(var);
-        if (pInfo != nullptr)
-        {
-            delete_packet(&pInfo->ObjectInfo.QueryPool.pCreatePacket);
-        }
-        remove_QueryPool_objectInfo(var);
-    }
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \
     void mark_##type##_reference(Vk##type var) { \
@@ -2842,9 +2530,6 @@ namespace trim
     //===============================================
     // Delete all the created packets
     //===============================================
-    #define TRIM_DELETE_ALL_PACKETS(type) \
-        s_trimGlobalStateTracker.created##type##s.clear();
-
     void delete_all_packets()
     {
         // delete all recorded packets
@@ -2854,31 +2539,8 @@ namespace trim
         }
         recorded_packets.clear();
 
-        TRIM_DELETE_ALL_PACKETS(Instance);
-        TRIM_DELETE_ALL_PACKETS(PhysicalDevice);
-        TRIM_DELETE_ALL_PACKETS(Device);
-        TRIM_DELETE_ALL_PACKETS(CommandPool);
-        TRIM_DELETE_ALL_PACKETS(SwapchainKHR);
-        TRIM_DELETE_ALL_PACKETS(Queue);
-        TRIM_DELETE_ALL_PACKETS(DeviceMemory);
-        TRIM_DELETE_ALL_PACKETS(Image);
-        TRIM_DELETE_ALL_PACKETS(ImageView);
-        TRIM_DELETE_ALL_PACKETS(Buffer);
-        TRIM_DELETE_ALL_PACKETS(BufferView);
-        TRIM_DELETE_ALL_PACKETS(ShaderModule);
-        TRIM_DELETE_ALL_PACKETS(Sampler);
-        TRIM_DELETE_ALL_PACKETS(RenderPass);
-        TRIM_DELETE_ALL_PACKETS(Framebuffer);
-        TRIM_DELETE_ALL_PACKETS(DescriptorSetLayout);
-        TRIM_DELETE_ALL_PACKETS(DescriptorPool);
-        TRIM_DELETE_ALL_PACKETS(DescriptorSet);
-        TRIM_DELETE_ALL_PACKETS(PipelineLayout);
-        TRIM_DELETE_ALL_PACKETS(Pipeline);
-        TRIM_DELETE_ALL_PACKETS(Semaphore);
-        TRIM_DELETE_ALL_PACKETS(Fence);
-        TRIM_DELETE_ALL_PACKETS(Event);
-        TRIM_DELETE_ALL_PACKETS(QueryPool);
-        TRIM_DELETE_ALL_PACKETS(CommandBuffer);
+        s_trimStateTrackerSnapshot.clear();
+        s_trimGlobalStateTracker.clear();
 
         vktrace_delete_critical_section(&trimRecordedPacketLock);
         vktrace_delete_critical_section(&trimStateTrackerLock);

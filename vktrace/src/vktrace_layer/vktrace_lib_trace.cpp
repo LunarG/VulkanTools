@@ -167,7 +167,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_DeviceMemory_object(*pMemory);
         pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.DeviceMemory.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.DeviceMemory.pCreatePacket = trim::copy_packet(pHeader);
         pInfo->ObjectInfo.DeviceMemory.memoryTypeIndex = pAllocateInfo->memoryTypeIndex;
         pInfo->ObjectInfo.DeviceMemory.propertyFlags = trim::LookUpMemoryProperties(device, pAllocateInfo->memoryTypeIndex);
         pInfo->ObjectInfo.DeviceMemory.size = pAllocateInfo->allocationSize;
@@ -710,7 +710,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_DescriptorPool_object(*pDescriptorPool);
         pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.DescriptorPool.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.DescriptorPool.pCreatePacket = trim::copy_packet(pHeader);
         pInfo->ObjectInfo.DescriptorPool.createFlags = pCreateInfo->flags;
         pInfo->ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
         pInfo->ObjectInfo.DescriptorPool.numSets = 0;
@@ -812,7 +812,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_Device_object(*pDevice);
         pInfo->belongsToPhysicalDevice = physicalDevice;
-        pInfo->ObjectInfo.Device.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.Device.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.Device.pAllocator = pAllocator;
@@ -867,7 +867,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_Framebuffer_object(*pFramebuffer);
         pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.Framebuffer.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.Framebuffer.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.Framebuffer.pAllocator = pAllocator;
@@ -994,7 +994,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_Instance_object(*pInstance);
-        pInfo->ObjectInfo.Instance.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.Instance.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.Instance.pAllocator = pAllocator;
@@ -1117,7 +1117,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
         if (pInfo != NULL)
         {
             pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.RenderPass.pCreatePacket = pHeader;
+            pInfo->ObjectInfo.RenderPass.pCreatePacket = trim::copy_packet(pHeader);
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.RenderPass.pAllocator = pAllocator;
             }
@@ -2253,7 +2253,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
         {
             trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
             pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.Pipeline.pCreatePacket = pHeader;
+            pInfo->ObjectInfo.Pipeline.pCreatePacket = trim::copy_packet(pHeader);
             pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo = pCreateInfos[i];
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
@@ -2345,7 +2345,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
         {
             trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
             pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.Pipeline.pCreatePacket = pHeader;
+            pInfo->ObjectInfo.Pipeline.pCreatePacket = trim::copy_packet(pHeader);
             pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo = pCreateInfos[i];
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
@@ -2397,7 +2397,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_PipelineCache_object(*pPipelineCache);
         pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.PipelineCache.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.PipelineCache.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL) {
             pInfo->ObjectInfo.PipelineCache.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
@@ -2684,7 +2684,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_SwapchainKHR_object(*pSwapchain);
         pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.SwapchainKHR.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.SwapchainKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.SwapchainKHR.pAllocator = pAllocator;
@@ -2906,7 +2906,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
         pInfo->belongsToInstance = instance;
-        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = pHeader;
+        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
