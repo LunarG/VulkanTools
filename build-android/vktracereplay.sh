@@ -301,9 +301,9 @@ if [[ $(adb $serialFlag shell pm list packages com.example.vkreplay) == "package
 then
     adb $serialFlag uninstall com.example.vkreplay && echo continuing...
 fi
-adb $serialFlat shell rm -f /sdcard/Android/$frame.ppm
-adb $serialFlat shell rm -f /sdcard/Android/$package.$frame.vktrace.ppm
-adb $serialFlat shell rm -f /sdcard/Android/$package.$frame.vkreplay.ppm
+adb $serialFlag shell rm -f /sdcard/Android/$frame.ppm
+adb $serialFlag shell rm -f /sdcard/Android/$package.$frame.vktrace.ppm
+adb $serialFlag shell rm -f /sdcard/Android/$package.$frame.vkreplay.ppm
 rm -f $package.$frame.vktrace.ppm
 rm -f $package.$frame.vkreplay.ppm
 
