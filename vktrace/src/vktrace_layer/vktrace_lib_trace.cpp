@@ -162,7 +162,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_DeviceMemory_object(*pMemory);
@@ -180,10 +180,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 
     // begin custom code
@@ -238,7 +238,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::get_DeviceMemory_objectInfo(memory);
@@ -252,10 +252,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -309,7 +309,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::get_DeviceMemory_objectInfo(memory);
@@ -323,10 +323,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
@@ -358,7 +358,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::remove_DeviceMemory_object(memory);
@@ -366,10 +366,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 
     // begin custom code
@@ -450,7 +450,22 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     pPacket->device = device;
     pPacket->memoryRangeCount = memoryRangeCount;
     pPacket->result = result;
-    FINISH_TRACE_PACKET();
+    if (g_trimEnabled)
+    {
+        FINISH_TRACE_PACKET();
+    }
+    else
+    {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
     return result;
 }
 
@@ -562,19 +577,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -602,7 +616,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
 
@@ -624,10 +638,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -654,23 +668,21 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
 
-        if (g_trimIsPreTrim)
-        {
-            trim::remove_CommandBuffer_calls(commandBuffer);
-            trim::add_CommandBuffer_call(commandBuffer, pHeader);
-        }
+        trim::remove_CommandBuffer_calls(commandBuffer);
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+
         if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -705,7 +717,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_DescriptorPool_object(*pDescriptorPool);
@@ -725,10 +737,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -807,7 +819,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_Device_object(*pDevice);
@@ -823,10 +835,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -862,7 +874,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_Framebuffer_object(*pFramebuffer);
@@ -877,10 +889,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -990,7 +1002,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_Instance_object(*pInstance);
@@ -1005,10 +1017,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 
     if (localCreateInfo.enabledLayerCount > 0)
@@ -1038,7 +1050,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::remove_Instance_object(instance);
@@ -1046,10 +1058,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     g_instanceDataMap.erase(key);
 #if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
@@ -1110,7 +1122,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_RenderPass_object(*pRenderPass);
@@ -1147,16 +1159,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
         //}
 
 
-        if (pAllocator != NULL) {
+        if (pAllocator != NULL)
+        {
             trim::add_Allocator(pAllocator);
         }
-        if (g_trimIsInTrim) {
+        if (g_trimIsInTrim)
+        {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1201,19 +1215,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1248,19 +1260,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerPr
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1294,7 +1304,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
 
@@ -1303,27 +1313,22 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
         {
             if (pQueueFamilyProperties == nullptr)
             {
-                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = pHeader;
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = trim::copy_packet(pHeader);
             }
             else
             {
-                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = pHeader;
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = trim::copy_packet(pHeader);
             }
+        }
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
         }
         else
         {
             vktrace_delete_trace_packet(&pHeader);
         }
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
     }
 }
 
@@ -1359,7 +1364,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         if (result == VK_SUCCESS )
@@ -1367,14 +1372,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
             trim::ObjectInfo* pInfo = trim::get_Instance_objectInfo(instance);
             if (pInfo != NULL && pPhysicalDeviceCount != NULL && pPhysicalDevices == NULL) 
             { 
-                pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket = pHeader; 
+                pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket = trim::copy_packet(pHeader); 
             }
 
             if (pPhysicalDevices != NULL && pPhysicalDeviceCount != NULL)
             {
                 if (pInfo != NULL)
                 {
-                    pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket = pHeader;
+                    pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket = trim::copy_packet(pHeader);
                 }
 
                 for (uint32_t iter = 0; iter < *pPhysicalDeviceCount; iter++)
@@ -1390,10 +1395,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1434,22 +1439,19 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 
     return result;
@@ -1485,10 +1487,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(pAllocateInfo->descriptorPool);
@@ -1584,10 +1585,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1678,7 +1679,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < descriptorWriteCount; i++)
@@ -1714,7 +1715,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
                 }
             }
         }
-        
+
         for (uint32_t i = 0; i < descriptorCopyCount; i++)
         {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
@@ -1740,16 +1741,15 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
                 assert(pCopyDescriptorSet != NULL);
             }
         }
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 }
 
@@ -1798,11 +1798,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         // when we're not trimming, we just need to track the queue
         vktrace_finalize_trace_packet(pHeader);
-        vktrace_delete_trace_packet(&pHeader);
 
         if (result == VK_SUCCESS)
         {
@@ -1839,24 +1838,23 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
                 }
             }
         }
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
 
-        if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL)
+        if (g_trimIsInTrim)
         {
-            for (uint32_t i = 0; i < pSubmits->commandBufferCount; i++)
+            trim::add_recorded_packet(pHeader);
+
+            if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL)
             {
-                trim::mark_CommandBuffer_reference(pSubmits->pCommandBuffers[i]);
+                for (uint32_t i = 0; i < pSubmits->commandBufferCount; i++)
+                {
+                    trim::mark_CommandBuffer_reference(pSubmits->pCommandBuffers[i]);
+                }
             }
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1927,20 +1925,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-        vktrace_delete_trace_packet(&pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -1992,7 +1988,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
@@ -2005,18 +2001,16 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
             }
         }
 
-        if (g_trimIsPreTrim)
-        {
-            trim::add_CommandBuffer_call(commandBuffer, pHeader);
-        }
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+
         if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 }
 
@@ -2058,10 +2052,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pImageMemoryBarriers));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
@@ -2096,18 +2089,15 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
             }
         }
 
-        if (g_trimIsPreTrim)
-        {
-            trim::add_CommandBuffer_call(commandBuffer, pHeader);
-        }
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 }
 
@@ -2137,21 +2127,18 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-        if (g_trimIsPreTrim)
-        {
-            trim::add_CommandBuffer_call(commandBuffer, pHeader);
-        }
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 }
 
@@ -2186,25 +2173,20 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-        if (g_trimIsPreTrim)
-        {
-            // trim doesn't need to do anything with this entrypoint
-            vktrace_delete_trace_packet(&pHeader);
-        }
-        else if (g_trimIsInTrim)
+
+        if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2242,10 +2224,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
 
@@ -2260,13 +2241,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
                 trim::add_Allocator(pAllocator);
             }
         }
-        if (g_trimIsInTrim) {
+
+        if (g_trimIsInTrim)
+        {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2337,7 +2320,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
 
@@ -2352,13 +2335,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
                 trim::add_Allocator(pAllocator);
             }
         }
-        if (g_trimIsInTrim) {
+        if (g_trimIsInTrim)
+        {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2389,10 +2373,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelineCache));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_PipelineCache_object(*pPipelineCache);
@@ -2402,13 +2385,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
             pInfo->ObjectInfo.PipelineCache.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
-        if (g_trimIsInTrim) {
+        if (g_trimIsInTrim)
+        {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2433,24 +2417,22 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRenderPassBegin));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-        if (g_trimIsPreTrim)
-        {
-            trim::add_CommandBuffer_call(commandBuffer, pHeader);
-        }
+
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+
         if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 }
 
@@ -2475,14 +2457,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorSets));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(descriptorPool);
-        if (pPoolInfo != NULL && 
+        if (pPoolInfo != NULL &&
             (pPoolInfo->ObjectInfo.DescriptorPool.createFlags & VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT) != 0)
         {
             pPoolInfo->ObjectInfo.DescriptorPool.numSets -= descriptorSetCount;
@@ -2497,10 +2478,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2523,10 +2504,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurfaceCapabilities));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         if (result == VK_SUCCESS && g_trimIsPreTrim)
@@ -2534,18 +2514,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
             trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
             if (pInfo != NULL)
             {
-                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket = pHeader;
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket = trim::copy_packet(pHeader);
             }
         }
-    }
-    else if (g_trimIsInTrim)
-    {
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2581,22 +2561,20 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurfaceFormats));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2632,22 +2610,20 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPresentModes));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2676,10 +2652,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchain));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_SwapchainKHR_object(*pSwapchain);
@@ -2694,10 +2669,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2733,10 +2708,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSwapchainImages));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::get_SwapchainKHR_objectInfo(swapchain);
@@ -2747,7 +2721,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
                 if (g_trimIsPreTrim)
                 {
                     // only want to replay this call if it was made PRE trim frames.
-                    pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket = pHeader;
+                    pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket = trim::copy_packet(pHeader);
                 }
             }
             else if (pSwapchainImageCount != NULL && pSwapchainImages != NULL)
@@ -2755,7 +2729,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
                 if (g_trimIsPreTrim)
                 {
                     // only want to replay this call if it was made PRE trim frames.
-                    pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket = pHeader;
+                    pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket = trim::copy_packet(pHeader);
                 }
                 for (uint32_t i = 0; i < *pSwapchainImageCount; i++)
                 {
@@ -2769,10 +2743,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2815,10 +2789,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
 
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
 
@@ -2834,12 +2807,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
             }
         }
 
-        if (g_trimIsPreTrim) { vktrace_delete_trace_packet(&pHeader); }
-        if (g_trimIsInTrim) { trim::add_recorded_packet(pHeader); }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 
     if (g_trimEnabled)
@@ -2898,10 +2873,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim || g_trimIsInTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
@@ -2916,10 +2890,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
         {
             trim::add_recorded_packet(pHeader);
         }
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2939,22 +2913,20 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceWin32
     pPacket->result = result;
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
@@ -2983,20 +2955,27 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXcbSurfaceKHR(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else // trim is enabled
+    else
     {
-        if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateXcbSurfaceKHR])
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
+        pInfo->belongsToInstance = instance;
+        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        if (pAllocator != NULL)
         {
-            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-            vktrace_finalize_trace_packet(pHeader);
+            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            trim::add_Allocator(pAllocator);
+        }
+
+        if (g_trimIsInTrim)
+        {
             trim::add_recorded_packet(pHeader);
         }
         else
         {
-            vktrace_finalize_trace_packet(pHeader);
+            vktrace_delete_trace_packet(&pHeader);
         }
     }
     return result;
@@ -3022,20 +3001,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXcbPr
     pPacket->result = result;
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else // trim is enabled
+    else
     {
-        if (g_trimTraceFunc[VKTRACE_TPI_VK_vkGetPhysicalDeviceXcbPresentationSupportKHR])
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim)
         {
-            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-            vktrace_finalize_trace_packet(pHeader);
             trim::add_recorded_packet(pHeader);
         }
         else
         {
-            vktrace_finalize_trace_packet(pHeader);
+            vktrace_delete_trace_packet(&pHeader);
         }
     }
     return result;
@@ -3067,17 +3044,25 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXlibSurfaceKHR(
     {
         FINISH_TRACE_PACKET();
     }
-    else // trim is enabled
+    else
     {
-        if (g_trimTraceFunc[VKTRACE_TPI_VK_vkCreateXlibSurfaceKHR])
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
+        pInfo->belongsToInstance = instance;
+        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        if (pAllocator != NULL)
         {
-            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-            vktrace_finalize_trace_packet(pHeader);
+            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            trim::add_Allocator(pAllocator);
+        }
+
+        if (g_trimIsInTrim)
+        {
             trim::add_recorded_packet(pHeader);
         }
         else
         {
-            vktrace_finalize_trace_packet(pHeader);
+            vktrace_delete_trace_packet(&pHeader);
         }
     }
 
@@ -3104,20 +3089,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     pPacket->result = result;
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else // trim is enabled
+    else
     {
-        if (g_trimTraceFunc[VKTRACE_TPI_VK_vkGetPhysicalDeviceXlibPresentationSupportKHR])
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim)
         {
-            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-            vktrace_finalize_trace_packet(pHeader);
             trim::add_recorded_packet(pHeader);
         }
         else
         {
-            vktrace_finalize_trace_packet(pHeader);
+            vktrace_delete_trace_packet(&pHeader);
         }
     }
 
@@ -3146,7 +3129,31 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
-    FINISH_TRACE_PACKET();
+    if (!g_trimEnabled)
+    {
+        FINISH_TRACE_PACKET();
+    }
+    else
+    {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
+        pInfo->belongsToInstance = instance;
+        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        if (pAllocator != NULL)
+        {
+            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            trim::add_Allocator(pAllocator);
+        }
+
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
     return result;
 }
 #endif
@@ -3176,29 +3183,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSupported));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
-    }
-    else if (g_trimIsInTrim)
-    {
-    }
-    else // g_trimIsPostTrim
-    {
-    }
-    else // trim is enabled
-    {
-        if (g_trimTraceFunc[VKTRACE_TPI_VK_vkGetPhysicalDeviceSurfaceSupportKHR])
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim)
         {
-            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-            vktrace_finalize_trace_packet(pHeader);
             trim::add_recorded_packet(pHeader);
         }
         else
         {
-            vktrace_finalize_trace_packet(pHeader);
+            vktrace_delete_trace_packet(&pHeader);
         }
     }
     return result;
@@ -3515,22 +3511,19 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAdd
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return addr;
 }
@@ -3599,22 +3592,19 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (!g_trimEnabled)
     {
-        // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
     }
-    else if (g_trimIsPreTrim)
+    else
     {
         vktrace_finalize_trace_packet(pHeader);
-    }
-    else if (g_trimIsInTrim)
-    {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::add_recorded_packet(pHeader);
-    }
-    else // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
 
     return addr;

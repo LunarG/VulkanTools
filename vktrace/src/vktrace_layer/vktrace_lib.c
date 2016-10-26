@@ -23,6 +23,7 @@
 #include "vktrace_filelike.h"
 #include "vktrace_interconnect.h"
 #include "vktrace_vk_vk.h"
+#include "vktrace_lib_trim.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -186,6 +187,7 @@ VKTRACER_LEAVE _Unload(void)
             vktrace_free(vktrace_trace_get_trace_file());
             vktrace_trace_set_trace_file(NULL);
             vktrace_deinitialize_trace_packet_utils();
+            trim::deinitialize();
         }
         if (gMessageStream != NULL)
         {

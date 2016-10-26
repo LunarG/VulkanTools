@@ -7,12 +7,6 @@
 #include <list>
 #include "vktrace_trace_packet_identifiers.h"
 
-    // Create / Destroy all image resources in the order performed by the application. 
-    // Enabling this as a pre-processor macro so that we can compare performance and file size costs.
-    // TRUE: Needed on AMD hardware
-    // FALSE: Use normal object tracking to create only the necessary resources
-#define TRIM_USE_ORDERED_IMAGE_CREATION TRUE
-
 #include "vktrace_lib_trim_generate.h"
 #include "vktrace_lib_trim_statetracker.h"
 #include "vulkan.h"
@@ -31,6 +25,7 @@ extern uint64_t g_trimEndFrame;
 namespace trim
 {
     void initialize();
+    void deinitialize();
 
     // Use this to snapshot the global state tracker at the start of the trim frames.
     void snapshot_state_tracker();
@@ -53,8 +48,6 @@ namespace trim
     bool IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
 
     VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
-
-    void delete_packet(vktrace_trace_packet_header** ppHeader);
 
 #if TRIM_USE_ORDERED_IMAGE_CREATION
     void add_Image_call(vktrace_trace_packet_header* pHeader);

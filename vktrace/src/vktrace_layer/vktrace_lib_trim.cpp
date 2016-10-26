@@ -82,6 +82,18 @@ namespace trim
         }
     }
 
+    void deinitialize()
+    {
+        delete_all_packets();
+
+        s_trimStateTrackerSnapshot.clear();
+        s_trimGlobalStateTracker.clear();
+
+        vktrace_delete_critical_section(&trimRecordedPacketLock);
+        vktrace_delete_critical_section(&trimStateTrackerLock);
+        vktrace_delete_critical_section(&trimCommandBufferPacketLock);
+    }
+
     void add_Allocator(const VkAllocationCallbacks* pAllocator)
     {
         if (pAllocator != NULL)
@@ -1097,19 +1109,10 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock); \
     }
 
-    void delete_packet(vktrace_trace_packet_header** ppHeader)
-    {
-        if (ppHeader != nullptr && *ppHeader != nullptr)
-        {
-            vktrace_delete_trace_packet(ppHeader);
-        }
-    }
-
     #define TRIM_DEFINE_GET_OBJECT_FUNC(type) \
     ObjectInfo* get_##type##_objectInfo(Vk##type var) { \
         vktrace_enter_critical_section(&trimStateTrackerLock); \
         TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
-        assert(iter != s_trimGlobalStateTracker.created##type##s.end()); \
         ObjectInfo* pResult = NULL; \
         if (iter != s_trimGlobalStateTracker.created##type##s.end()) { \
             pResult = &(iter->second); \
@@ -2139,6 +2142,7 @@ namespace trim
         vktrace_enter_critical_section(&trimCommandBufferPacketLock);
         for (TrimObjectInfoMap::iterator cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end(); cmdBuffer++)
         {
+            // TODO: need to clean this up somewhere else.
             std::list<vktrace_trace_packet_header*>& packets = s_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
 
             if (cmdBuffer->second.bReferencedInTrim)
@@ -2160,6 +2164,7 @@ namespace trim
                     vktrace_delete_trace_packet(&pHeader);
                 }
             }
+            packets.clear();
         }
         vktrace_leave_critical_section(&trimCommandBufferPacketLock);
 
@@ -2540,10 +2545,5 @@ namespace trim
         recorded_packets.clear();
 
         s_trimStateTrackerSnapshot.clear();
-        s_trimGlobalStateTracker.clear();
-
-        vktrace_delete_critical_section(&trimRecordedPacketLock);
-        vktrace_delete_critical_section(&trimStateTrackerLock);
-        vktrace_delete_critical_section(&trimCommandBufferPacketLock);
     }
 } // namespace trim

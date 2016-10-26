@@ -8,6 +8,12 @@
 #include <unordered_map>
 #include "vktrace_trace_packet_utils.h"
 
+// Create / Destroy all image resources in the order performed by the application. 
+// Enabling this as a pre-processor macro so that we can compare performance and file size costs.
+// TRUE: Needed on AMD hardware
+// FALSE: Use normal object tracking to create only the necessary resources
+#define TRIM_USE_ORDERED_IMAGE_CREATION true
+
 namespace trim
 {
     vktrace_trace_packet_header* copy_packet(vktrace_trace_packet_header* pHeader);

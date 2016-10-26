@@ -172,6 +172,8 @@ namespace trim
         }
     }
 
+    //-------------------------------------------------------------------------
+
     StateTracker& StateTracker::operator= (const StateTracker& other)
     {
         if (this == &other)
@@ -221,6 +223,14 @@ namespace trim
             COPY_PACKET(obj->second.ObjectInfo.DescriptorPool.pCreatePacket);
         }
 
+        createdSwapchainKHRs = other.createdSwapchainKHRs;
+        for (TrimObjectInfoMap::iterator obj = createdSwapchainKHRs.begin(); obj != createdSwapchainKHRs.end(); obj++)
+        {
+            COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pCreatePacket);
+            COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
+            COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
+        }
+
         createdRenderPasss = other.createdRenderPasss;
         for (TrimObjectInfoMap::iterator obj = createdRenderPasss.begin(); obj != createdRenderPasss.end(); obj++)
         {
@@ -237,25 +247,6 @@ namespace trim
         for (TrimObjectInfoMap::iterator obj = createdPipelines.begin(); obj != createdPipelines.end(); obj++)
         {
             COPY_PACKET(obj->second.ObjectInfo.Pipeline.pCreatePacket);
-
-            VkGraphicsPipelineCreateInfo* pCreateInfo = &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
-
-            if (pCreateInfo->pStages != nullptr && pCreateInfo->stageCount > 0)
-            {
-                VkPipelineShaderStageCreateInfo* pTmp = static_cast<VkPipelineShaderStageCreateInfo*>(malloc(sizeof(VkPipelineShaderStageCreateInfo) * pCreateInfo->stageCount));
-                memcpy(pTmp, pCreateInfo->pStages, sizeof(VkPipelineShaderStageCreateInfo) * pCreateInfo->stageCount);
-
-                for (int i = 0; i < pCreateInfo->stageCount; i++)
-                {
-                    pTmp[i].pName = static_cast<const char*>(malloc(strlen(pCreateInfo->pStages[i].pName) + 1));
-                    strcpy(const_cast<char*>(pTmp[i].pName), pCreateInfo->pStages[i].pName);
-                }
-                obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages = pTmp;
-            }
-
-            //===========
-            // TODO: Lots of additional copying to do inside GraphicsPipelineCreateInfo
-            //===========
         }
 
         createdQueues = other.createdQueues;
@@ -280,7 +271,6 @@ namespace trim
         }
 
         createdFences = other.createdFences;
-        createdSwapchainKHRs = other.createdSwapchainKHRs;
 
         createdImages = other.createdImages;
         for (TrimObjectInfoMap::iterator obj = createdImages.begin(); obj != createdImages.end(); obj++)
@@ -339,6 +329,10 @@ namespace trim
                 memcpy(tmp, obj->second.ObjectInfo.QueryPool.pResultsAvailable, queryCount*sizeof(bool));
                 obj->second.ObjectInfo.QueryPool.pResultsAvailable = tmp;
             }
+            else
+            {
+                obj->second.ObjectInfo.QueryPool.pResultsAvailable = nullptr;
+            }
         }
 
         createdShaderModules = other.createdShaderModules;
@@ -371,6 +365,10 @@ namespace trim
                 memcpy(tmp, obj->second.ObjectInfo.DescriptorSetLayout.pBindings, bindingCount*sizeof(VkDescriptorSetLayoutBinding));
                 obj->second.ObjectInfo.DescriptorSetLayout.pBindings = tmp;
             }
+            else
+            {
+                obj->second.ObjectInfo.DescriptorSetLayout.pBindings = nullptr;
+            }
         }
 
         createdDescriptorSets = other.createdDescriptorSets;
@@ -382,6 +380,34 @@ namespace trim
                 VkWriteDescriptorSet* tmp = new VkWriteDescriptorSet[writeDescriptorCount];
                 memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets, writeDescriptorCount*sizeof(VkWriteDescriptorSet));
                 obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = tmp;
+
+                for (uint32_t s = 0; s < obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
+                {
+                    uint32_t count = obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].descriptorCount;
+
+                    if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr)
+                    {
+                        VkDescriptorImageInfo* pTmp = new VkDescriptorImageInfo[count];
+                        memcpy(pTmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo, count * sizeof(VkDescriptorImageInfo));
+                        obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo = pTmp;
+                    }
+                    if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != nullptr)
+                    {
+                        VkDescriptorBufferInfo* pTmp = new VkDescriptorBufferInfo[count];
+                        memcpy(pTmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo, count * sizeof(VkDescriptorBufferInfo));
+                        obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo = pTmp;
+                    }
+                    if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != nullptr)
+                    {
+                        VkBufferView* pTmp = new VkBufferView[count];
+                        memcpy(pTmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView, count * sizeof(VkBufferView));
+                        obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView = pTmp;
+                    }
+                }
+            }
+            else
+            {
+                obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = nullptr;
             }
 
             uint32_t copyDescriptorCount = obj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
@@ -390,6 +416,10 @@ namespace trim
                 VkCopyDescriptorSet* tmp = new VkCopyDescriptorSet[copyDescriptorCount];
                 memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets, copyDescriptorCount*sizeof(VkCopyDescriptorSet));
                 obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets = tmp;
+            }
+            else
+            {
+                obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets = nullptr;
             }
         }
 
@@ -621,9 +651,9 @@ namespace trim
         ObjectInfo* pInfo = get_Instance_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Instance.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket);
-            delete_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
         }
         createdInstances.erase(var);
     }
@@ -633,11 +663,11 @@ namespace trim
         ObjectInfo* pInfo = get_PhysicalDevice_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
-            delete_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
         }
         createdPhysicalDevices.erase(var);
     }
@@ -647,7 +677,7 @@ namespace trim
         ObjectInfo* pInfo = get_Device_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
         }
         createdDevices.erase(var);
     }
@@ -657,7 +687,7 @@ namespace trim
         ObjectInfo* pInfo = get_SurfaceKHR_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.SurfaceKHR.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.SurfaceKHR.pCreatePacket);
         }
         createdSurfaceKHRs.erase(var);
     }
@@ -667,7 +697,7 @@ namespace trim
         ObjectInfo* pInfo = get_Queue_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Queue.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Queue.pCreatePacket);
         }
         createdQueues.erase(var);
     }
@@ -677,7 +707,7 @@ namespace trim
         ObjectInfo* pInfo = get_CommandPool_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.CommandPool.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.CommandPool.pCreatePacket);
         }
         createdCommandPools.erase(var);
     }
@@ -687,9 +717,9 @@ namespace trim
         ObjectInfo* pInfo = get_SwapchainKHR_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.SwapchainKHR.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
-            delete_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
         }
         createdSwapchainKHRs.erase(var);
     }
@@ -704,10 +734,10 @@ namespace trim
         ObjectInfo* pInfo = get_DeviceMemory_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pMapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pUnmapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pMapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pUnmapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
         }
         createdDeviceMemorys.erase(var);
     }
@@ -717,13 +747,13 @@ namespace trim
         ObjectInfo* pInfo = get_Image_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
-            delete_packet(&pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
-            delete_packet(&pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
-            delete_packet(&pInfo->ObjectInfo.Image.pMapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.Image.pUnmapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pMapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pUnmapMemoryPacket);
         }
         createdImages.erase(var);
     }
@@ -733,7 +763,7 @@ namespace trim
         ObjectInfo* pInfo = get_ImageView_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.ImageView.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.ImageView.pCreatePacket);
         }
         createdImageViews.erase(var);
     }
@@ -743,10 +773,10 @@ namespace trim
         ObjectInfo* pInfo = get_Buffer_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Buffer.pCreatePacket);
-            delete_packet(&pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.Buffer.pMapMemoryPacket);
-            delete_packet(&pInfo->ObjectInfo.Buffer.pUnmapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pMapMemoryPacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pUnmapMemoryPacket);
         }
         createdBuffers.erase(var);
     }
@@ -756,7 +786,7 @@ namespace trim
         ObjectInfo* pInfo = get_BufferView_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.BufferView.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.BufferView.pCreatePacket);
         }
         createdBufferViews.erase(var);
     }
@@ -766,7 +796,7 @@ namespace trim
         ObjectInfo* pInfo = get_Sampler_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Sampler.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Sampler.pCreatePacket);
         }
         createdSamplers.erase(var);
     }
@@ -776,12 +806,13 @@ namespace trim
         ObjectInfo* pInfo = get_DescriptorSetLayout_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket);
 
             if (pInfo->ObjectInfo.DescriptorSetLayout.pBindings != nullptr)
             {
                 delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings;
                 pInfo->ObjectInfo.DescriptorSetLayout.pBindings = nullptr;
+                pInfo->ObjectInfo.DescriptorSetLayout.bindingCount = 0;
             }
         }
         createdDescriptorSetLayouts.erase(var);
@@ -792,7 +823,7 @@ namespace trim
         ObjectInfo* pInfo = get_PipelineLayout_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
         }
         createdPipelineLayouts.erase(var);
     }
@@ -802,7 +833,7 @@ namespace trim
         ObjectInfo* pInfo = get_RenderPass_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.RenderPass.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.RenderPass.pCreatePacket);
         }
         createdRenderPasss.erase(var);
     }
@@ -812,7 +843,7 @@ namespace trim
         ObjectInfo* pInfo = get_ShaderModule_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
         }
         createdShaderModules.erase(var);
     }
@@ -822,7 +853,7 @@ namespace trim
         ObjectInfo* pInfo = get_PipelineCache_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.PipelineCache.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineCache.pCreatePacket);
         }
         createdPipelineCaches.erase(var);
     }
@@ -832,7 +863,7 @@ namespace trim
         ObjectInfo* pInfo = get_Pipeline_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Pipeline.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Pipeline.pCreatePacket);
         }
         createdPipelines.erase(var);
     }
@@ -842,7 +873,7 @@ namespace trim
         ObjectInfo* pInfo = get_DescriptorPool_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.DescriptorPool.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorPool.pCreatePacket);
         }
         createdDescriptorPools.erase(var);
     }
@@ -887,7 +918,7 @@ namespace trim
         ObjectInfo* pInfo = get_Framebuffer_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Framebuffer.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Framebuffer.pCreatePacket);
         }
         createdFramebuffers.erase(var);
     }
@@ -897,7 +928,7 @@ namespace trim
         ObjectInfo* pInfo = get_Semaphore_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Semaphore.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Semaphore.pCreatePacket);
         }
         createdSemaphores.erase(var);
     }
@@ -912,7 +943,7 @@ namespace trim
         ObjectInfo* pInfo = get_Event_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.Event.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Event.pCreatePacket);
         }
         createdEvents.erase(var);
     }
@@ -922,7 +953,7 @@ namespace trim
         ObjectInfo* pInfo = get_QueryPool_objectInfo(var);
         if (pInfo != nullptr)
         {
-            delete_packet(&pInfo->ObjectInfo.QueryPool.pCreatePacket);
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.QueryPool.pCreatePacket);
         }
         createdQueryPools.erase(var);
     }
