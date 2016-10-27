@@ -33,15 +33,15 @@ python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_ou
 ( cd generated/include; python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp )
 
 # vktrace
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_core > generated/include/vktrace_vk_vk.h
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_core > generated/include/vktrace_vk_vk.cpp
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_core > generated/include/vktrace_vk_vk_packets.h
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_core > generated/include/vktrace_vk_packet_id.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > generated/include/vktrace_vk_vk.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_version_1_0 > generated/include/vktrace_vk_vk.cpp
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_version_1_0 > generated/include/vktrace_vk_vk_packets.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_version_1_0 > generated/include/vktrace_vk_packet_id.h
 
 # vkreplay
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_core > generated/include/vkreplay_vk_func_ptrs.h
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_core > generated/include/vkreplay_vk_replay_gen.cpp
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_core > generated/include/vkreplay_vk_objmapper.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_version_1_0 > generated/include/vkreplay_vk_func_ptrs.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > generated/include/vkreplay_vk_replay_gen.cpp
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_version_1_0 > generated/include/vkreplay_vk_objmapper.h
 
 cp -f ../layers/vk_layer_config.cpp   generated/common/
 cp -f ../layers/vk_layer_extension_utils.cpp  generated/common/

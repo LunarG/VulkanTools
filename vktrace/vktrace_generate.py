@@ -378,7 +378,7 @@ class Subcommand(object):
                             'VkSwapchainCreateInfoKHR' : 'vk_size_vkswapchaincreateinfokhr(pCreateInfo)',
                             }
         size_func_suffix = ''
-        if extensionName.lower() != "vk_core":
+        if extensionName.lower() != "vk_version_1_0":
             size_func_suffix = '_%s' % extensionName.lower()
         for p in params:
             #First handle custom cases
@@ -508,7 +508,7 @@ class Subcommand(object):
         # process each of the entrypoint prototypes
         approved_ext = ['vk_khr_surface', 'vk_khr_swapchain', 'vk_khr_win32_surface', 'vk_khr_xcb_surface', 'vk_ext_debug_report']
         for ext in vulkan.extensions_all:
-            if (ext.name.lower() == extensionName.lower()) or ((extensionName.lower() == 'vk_core') and (ext.name.lower() in approved_ext)):
+            if (ext.name.lower() == extensionName.lower()) or ((extensionName.lower() == 'vk_version_1_0') and (ext.name.lower() in approved_ext)):
                 for proto in ext.protos:
                     if proto.name in manually_written_hooked_funcs:
                         func_body.append( '// __HOOKED_vk%s is manually written. Look in vktrace_lib_trace.cpp\n' % proto.name)
