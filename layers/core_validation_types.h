@@ -198,13 +198,11 @@ class BUFFER_VIEW_STATE : public BASE_NODE {
     BUFFER_VIEW_STATE(const BUFFER_VIEW_STATE &rh_obj) = delete;
 };
 
-struct SAMPLER_NODE : public BASE_NODE {
+struct SAMPLER_STATE : public BASE_NODE {
     VkSampler sampler;
     VkSamplerCreateInfo createInfo;
 
-    SAMPLER_NODE(const VkSampler *ps, const VkSamplerCreateInfo *pci) : sampler(*ps), createInfo(*pci){
-        in_use.store(0);
-    };
+    SAMPLER_STATE(const VkSampler *ps, const VkSamplerCreateInfo *pci) : sampler(*ps), createInfo(*pci){};
 };
 
 class IMAGE_STATE : public BINDABLE {
@@ -256,7 +254,6 @@ struct DEVICE_MEM_INFO : public BASE_NODE {
     VkDeviceMemory mem;
     VkMemoryAllocateInfo alloc_info;
     std::unordered_set<VK_OBJECT> obj_bindings;         // objects bound to this memory
-    std::unordered_set<VkCommandBuffer> command_buffer_bindings; // cmd buffers referencing this memory
     std::unordered_map<uint64_t, MEMORY_RANGE> bound_ranges;     // Map of object to its binding range
     // Convenience vectors image/buff handles to speed up iterating over images or buffers independently
     std::unordered_set<uint64_t> bound_images;
@@ -401,7 +398,7 @@ enum CBStatusFlagBits {
     CBSTATUS_STENCIL_WRITE_MASK_SET = 0x00000020,   // Stencil write mask has been set
     CBSTATUS_STENCIL_REFERENCE_SET  = 0x00000040,   // Stencil reference has been set
     CBSTATUS_INDEX_BUFFER_BOUND     = 0x00000080,   // Index buffer has been set
-    CBSTATUS_ALL                    = 0x0000007F,   // All dynamic state set (intentionally exclude index buffer)
+    CBSTATUS_ALL_STATE_SET          = 0x0000007F,   // All state set (intentionally exclude index buffer)
     // clang-format on
 };
 
@@ -639,14 +636,14 @@ BUFFER_NODE *getBufferNode(const layer_data *, VkBuffer);
 IMAGE_STATE *getImageState(const layer_data *, VkImage);
 DEVICE_MEM_INFO *getMemObjInfo(const layer_data *, VkDeviceMemory);
 BUFFER_VIEW_STATE *getBufferViewState(const layer_data *, VkBufferView);
-SAMPLER_NODE *getSamplerNode(const layer_data *, VkSampler);
+SAMPLER_STATE *getSamplerState(const layer_data *, VkSampler);
 IMAGE_VIEW_STATE *getImageViewState(const layer_data *, VkImageView);
 VkSwapchainKHR getSwapchainFromImage(const layer_data *, VkImage);
 SWAPCHAIN_NODE *getSwapchainNode(const layer_data *, VkSwapchainKHR);
 void invalidateCommandBuffers(std::unordered_set<GLOBAL_CB_NODE *>, VK_OBJECT);
 bool ValidateMemoryIsBoundToBuffer(const layer_data *, const BUFFER_NODE *, const char *);
 bool ValidateMemoryIsBoundToImage(const layer_data *, const IMAGE_STATE *, const char *);
-void AddCommandBufferBindingSampler(GLOBAL_CB_NODE *, SAMPLER_NODE *);
+void AddCommandBufferBindingSampler(GLOBAL_CB_NODE *, SAMPLER_STATE *);
 void AddCommandBufferBindingImage(const layer_data *, GLOBAL_CB_NODE *, IMAGE_STATE *);
 void AddCommandBufferBindingImageView(const layer_data *, GLOBAL_CB_NODE *, IMAGE_VIEW_STATE *);
 void AddCommandBufferBindingBuffer(const layer_data *, GLOBAL_CB_NODE *, BUFFER_NODE *);

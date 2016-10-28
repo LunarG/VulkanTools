@@ -24,19 +24,13 @@
 #include <sstream>
 
 // Construct DescriptorSetLayout instance from given create info
-cvdescriptorset::DescriptorSetLayout::DescriptorSetLayout(debug_report_data *report_data,
-                                                          const VkDescriptorSetLayoutCreateInfo *p_create_info,
+cvdescriptorset::DescriptorSetLayout::DescriptorSetLayout(const VkDescriptorSetLayoutCreateInfo *p_create_info,
                                                           const VkDescriptorSetLayout layout)
     : layout_(layout), binding_count_(p_create_info->bindingCount), descriptor_count_(0), dynamic_descriptor_count_(0) {
     uint32_t global_index = 0;
     for (uint32_t i = 0; i < binding_count_; ++i) {
         descriptor_count_ += p_create_info->pBindings[i].descriptorCount;
-        if (!binding_to_index_map_.emplace(p_create_info->pBindings[i].binding, i).second) {
-            log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT,
-                    reinterpret_cast<uint64_t &>(layout_), __LINE__, DRAWSTATE_INVALID_LAYOUT, "DS",
-                    "duplicated binding number in "
-                    "VkDescriptorSetLayoutBinding");
-        }
+        binding_to_index_map_[p_create_info->pBindings[i].binding] = i;
         binding_to_global_start_index_map_[p_create_info->pBindings[i].binding] = global_index;
         global_index += p_create_info->pBindings[i].descriptorCount ? p_create_info->pBindings[i].descriptorCount - 1 : 0;
         binding_to_global_end_index_map_[p_create_info->pBindings[i].binding] = global_index;
@@ -54,6 +48,22 @@ cvdescriptorset::DescriptorSetLayout::DescriptorSetLayout(debug_report_data *rep
         }
     }
 }
+
+// Validate descriptor set layout create info
+bool cvdescriptorset::DescriptorSetLayout::ValidateCreateInfo(debug_report_data *report_data,
+                                                              const VkDescriptorSetLayoutCreateInfo *create_info) {
+    bool skip = false;
+    std::unordered_set<uint32_t> bindings;
+    for (uint32_t i = 0; i < create_info->bindingCount; ++i) {
+        if (!bindings.insert(create_info->pBindings[i].binding).second) {
+            skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                            VALIDATION_ERROR_02345, "DS", "duplicated binding number in VkDescriptorSetLayoutBinding. %s",
+                            validation_error_map[VALIDATION_ERROR_02345]);
+        }
+    }
+    return skip;
+}
+
 // put all bindings into the given set
 void cvdescriptorset::DescriptorSetLayout::FillBindingSet(std::unordered_set<uint32_t> *binding_set) const {
     for (auto binding_index_pair : binding_to_index_map_)
@@ -679,7 +689,7 @@ cvdescriptorset::SamplerDescriptor::SamplerDescriptor(const VkSampler *immut) : 
 }
 // Validate given sampler. Currently this only checks to make sure it exists in the samplerMap
 bool cvdescriptorset::ValidateSampler(const VkSampler sampler, const core_validation::layer_data *dev_data) {
-    return (getSamplerNode(dev_data, sampler) != nullptr);
+    return (getSamplerState(dev_data, sampler) != nullptr);
 }
 
 bool cvdescriptorset::ValidateImageUpdate(VkImageView image_view, VkImageLayout image_layout, VkDescriptorType type,
@@ -864,9 +874,9 @@ void cvdescriptorset::SamplerDescriptor::CopyUpdate(const Descriptor *src) {
 
 void cvdescriptorset::SamplerDescriptor::BindCommandBuffer(const core_validation::layer_data *dev_data, GLOBAL_CB_NODE *cb_node) {
     if (!immutable_) {
-        auto sampler_node = getSamplerNode(dev_data, sampler_);
-        if (sampler_node)
-            core_validation::AddCommandBufferBindingSampler(cb_node, sampler_node);
+        auto sampler_state = getSamplerState(dev_data, sampler_);
+        if (sampler_state)
+            core_validation::AddCommandBufferBindingSampler(cb_node, sampler_state);
     }
 }
 
@@ -911,9 +921,9 @@ void cvdescriptorset::ImageSamplerDescriptor::BindCommandBuffer(const core_valid
                                                                 GLOBAL_CB_NODE *cb_node) {
     // First add binding for any non-immutable sampler
     if (!immutable_) {
-        auto sampler_node = getSamplerNode(dev_data, sampler_);
-        if (sampler_node)
-            core_validation::AddCommandBufferBindingSampler(cb_node, sampler_node);
+        auto sampler_state = getSamplerState(dev_data, sampler_);
+        if (sampler_state)
+            core_validation::AddCommandBufferBindingSampler(cb_node, sampler_state);
     }
     // Add binding for image
     auto iv_state = getImageViewState(dev_data, image_view_);

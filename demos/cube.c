@@ -560,7 +560,9 @@ static void demo_set_image_layout(struct demo *demo, VkImage image,
                                   VkImageAspectFlags aspectMask,
                                   VkImageLayout old_image_layout,
                                   VkImageLayout new_image_layout,
-                                  VkAccessFlagBits srcAccessMask) {
+                                  VkAccessFlagBits srcAccessMask,
+                                  VkPipelineStageFlags src_stages,
+                                  VkPipelineStageFlags dest_stages) {
     VkResult U_ASSERT_ONLY err;
 
     if (demo->cmd == VK_NULL_HANDLE) {
@@ -594,35 +596,42 @@ static void demo_set_image_layout(struct demo *demo, VkImage image,
         .image = image,
         .subresourceRange = {aspectMask, 0, 1, 0, 1}};
 
-    if (new_image_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+    switch (new_image_layout) {
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
         /* Make sure anything that was copying from this image has completed */
-        image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-    }
+        image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        break;
 
-    if (new_image_layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
         image_memory_barrier.dstAccessMask =
             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    }
+        break;
 
-    if (new_image_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
         image_memory_barrier.dstAccessMask =
             VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    }
+        break;
 
-    if (new_image_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-        /* Make sure any Copy or CPU writes to image are flushed */
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
         image_memory_barrier.dstAccessMask =
             VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        image_memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        break;
+
+    case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+        image_memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        break;
+
+    default:
+        image_memory_barrier.dstAccessMask = 0;
+        break;
     }
 
-    if (new_image_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
-        image_memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    }
 
     VkImageMemoryBarrier *pmemory_barrier = &image_memory_barrier;
-
-    VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
     vkCmdPipelineBarrier(demo->cmd, src_stages, dest_stages, 0, 0, NULL, 0,
                          NULL, 1, pmemory_barrier);
@@ -1300,11 +1309,6 @@ static void demo_prepare_texture_image(struct demo *demo, const char *filename,
     }
 
     tex_obj->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    demo_set_image_layout(demo, tex_obj->image, VK_IMAGE_ASPECT_COLOR_BIT,
-                          VK_IMAGE_LAYOUT_PREINITIALIZED, tex_obj->imageLayout,
-                          VK_ACCESS_HOST_WRITE_BIT);
-    /* setting the image layout does not reference the actual memory so no need
-     * to add a mem ref */
 }
 
 static void demo_destroy_texture_image(struct demo *demo,
@@ -1333,6 +1337,12 @@ static void demo_prepare_textures(struct demo *demo) {
                 VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            // Nothing in the pipeline needs to be complete to start, and don't allow fragment
+            // shader to run until layout transition completes
+            demo_set_image_layout(demo, demo->textures[i].image, VK_IMAGE_ASPECT_COLOR_BIT,
+                                  VK_IMAGE_LAYOUT_PREINITIALIZED, demo->textures[i].imageLayout,
+                                  VK_ACCESS_HOST_WRITE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
         } else if (props.optimalTilingFeatures &
                    VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
             /* Must use staging buffer to copy linear texture to optimized */
@@ -1352,15 +1362,19 @@ static void demo_prepare_textures(struct demo *demo) {
 
             demo_set_image_layout(demo, staging_texture.image,
                                   VK_IMAGE_ASPECT_COLOR_BIT,
-                                  staging_texture.imageLayout,
+                                  VK_IMAGE_LAYOUT_PREINITIALIZED,
                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                  0);
+                                  VK_ACCESS_HOST_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT);
 
             demo_set_image_layout(demo, demo->textures[i].image,
                                   VK_IMAGE_ASPECT_COLOR_BIT,
-                                  demo->textures[i].imageLayout,
+                                  VK_IMAGE_LAYOUT_PREINITIALIZED,
                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                  0);
+                                  VK_ACCESS_HOST_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT);
 
             VkImageCopy copy_region = {
                 .srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
@@ -1379,7 +1393,9 @@ static void demo_prepare_textures(struct demo *demo) {
                                   VK_IMAGE_ASPECT_COLOR_BIT,
                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                   demo->textures[i].imageLayout,
-                                  0);
+                                  VK_ACCESS_TRANSFER_WRITE_BIT,
+                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
             demo_flush_init_cmd(demo);
 
