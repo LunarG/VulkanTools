@@ -272,8 +272,10 @@ To record a trace on Android, enable port forwarding from the device to the host
 ```
 adb reverse tcp:34201 tcp:34201
 ```
-Start up vktrace on the host like normal.
-
+Start up vktrace on the host in server mode:
+```
+vktrace -v full -o cube.vktrace
+```
 Run your application with the following layer enabled:
 ```
 VK_LAYER_LUNARG_vktrace
