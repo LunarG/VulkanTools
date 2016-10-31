@@ -65,6 +65,7 @@ class ApiDumpSettings {
         name_size = std::max(readIntOption("lunarg_api_dump.name_size", 32), 0);
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
         use_spaces = readBoolOption("lunarg_api_dump.use_spaces", true);
+        show_shader = readBoolOption("lunarg_api_dump.show_shader", false);
     }
 
     ~ApiDumpSettings() {
@@ -104,6 +105,8 @@ class ApiDumpSettings {
     inline bool showAddress() const { return show_address; }
 
     inline bool showParams() const { return show_params; }
+    
+    inline bool showShader() const { return show_shader; }
 
     inline std::ostream &stream() const {
         return use_cout ? std::cout : *(std::ofstream *)&output_stream;
@@ -149,6 +152,7 @@ class ApiDumpSettings {
     int name_size;
     int type_size;
     bool use_spaces;
+    bool show_shader;
 
     static const char *const SPACES;
     static const int MAX_SPACES = 72;
@@ -332,11 +336,11 @@ inline void dump_text_value(
     dump(object, settings, indents);
 }
 
-inline void dump_text_unused(
-    const ApiDumpSettings &settings, const char *type_string, const char *name,
-    int indents) {
+inline void dump_text_special(
+    const char *text, const ApiDumpSettings &settings, const char *type_string,
+    const char *name, int indents) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
-    settings.stream() << "UNUSED\n";
+    settings.stream() << text << "\n";
 }
 
 inline bool dump_text_bitmaskOption(const std::string &option,

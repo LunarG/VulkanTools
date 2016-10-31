@@ -75,3 +75,4 @@ lunarg_api_dump.show_types = TRUE
 lunarg_api_dump.name_size = 32
 lunarg_api_dump.type_size = 0
 lunarg_api_dump.use_spaces = TRUE
+lunarg_api_dump.show_shader = FALSE

@@ -177,7 +177,7 @@ inline ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& set
 
 //========================== Struct Implementations =========================//
 
-@foreach struct
+@foreach struct where('{sctName}' != 'VkShaderModuleCreateInfo')
 ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
@@ -205,7 +205,48 @@ ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& set
     
     @if('{memCondition}' != 'None')
     else
-        dump_text_unused(settings, "{memType}", "{memName}", indents + 1);
+        dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
+    @end if
+    @end member
+    return settings.stream();
+}}
+@end struct
+
+@foreach struct where('{sctName}' == 'VkShaderModuleCreateInfo')
+ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\\n";
+    else
+        settings.stream() << "address:\\n";
+        
+    @foreach member
+    @if('{memCondition}' != 'None')
+    if({memCondition})
+    @end if
+    
+    @if({memPtrLevel} == 0)
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
+    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember} and '{memName}' != 'pCode')
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
+    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if('{memName}' == 'pCode')
+    if(settings.showShader())
+        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    else
+        dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
+    @end if
+    
+    @if('{memCondition}' != 'None')
+    else
+        dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
     @end if
     @end member
     return settings.stream();
