@@ -462,7 +462,23 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
         {{
             "VK_LAYER_LUNARG_api_dump",
             VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), // specVersion
-            VK_MAKE_VERSION(0, 1, 0), // implementationVersion
+            VK_MAKE_VERSION(0, 2, 0), // implementationVersion
+            "layer: api_dump",
+        }}
+    }};
+    
+    return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
+}}
+@end function
+
+@foreach function where('{funcName}' == 'vkEnumerateDeviceLayerProperties')
+VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
+{{
+    static const VkLayerProperties layerProperties[] = {{
+        {{
+            "VK_LAYER_LUNARG_api_dump",
+            VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
+            VK_MAKE_VERSION(0, 2, 0),
             "layer: api_dump",
         }}
     }};
@@ -507,7 +523,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 
 // Autogen instance functions
 
-@foreach function where('{funcType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr'])
+@foreach function where('{funcType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -540,7 +556,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 }}
 @end function
 
-@foreach function where('{funcType}' == 'instance' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr'])
+@foreach function where('{funcType}' == 'instance' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -637,7 +653,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
 {{
-    @foreach function where('{funcType}' == 'instance')
+    @foreach function where('{funcType}' == 'instance'  and '{funcName}' not in [ 'vkEnumerateDeviceExtensionProperties' ])
     if(strcmp(pName, "{funcName}") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>({funcName});
     @end function
