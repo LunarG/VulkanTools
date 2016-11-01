@@ -43,12 +43,6 @@ namespace trim
     // List of all the packets that have been recorded for the frames of interest.
     std::list<vktrace_trace_packet_header*> recorded_packets;
 
-    std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header*>> s_cmdBufferPackets;
-
-    // List of all packets used to create or delete images.
-    // We need to recreate them in the same order to ensure they will have the same size requirements as they had a trace-time.
-    std::list<vktrace_trace_packet_header*> image_calls;
-
     void initialize()
     {
         const char *trimFrames = vktrace_get_global_var("VKTRACE_TRIM_FRAMES");
@@ -1089,7 +1083,7 @@ namespace trim
         if (pHeader != NULL)
         {
             vktrace_enter_critical_section(&trimStateTrackerLock);
-            image_calls.push_back(pHeader);
+            s_trimGlobalStateTracker.add_Image_call(pHeader);
             vktrace_leave_critical_section(&trimStateTrackerLock);
         }
     }
@@ -1375,7 +1369,7 @@ namespace trim
         }
 
 #ifdef TRIM_USE_ORDERED_IMAGE_CREATION
-        for (std::list<vktrace_trace_packet_header*>::iterator iter = image_calls.begin(); iter != image_calls.end(); iter++)
+        for (auto iter = stateTracker.m_image_calls.begin(); iter != stateTracker.m_image_calls.end(); ++iter)
         {
             vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(*iter));
@@ -2143,7 +2137,7 @@ namespace trim
         for (TrimObjectInfoMap::iterator cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end(); cmdBuffer++)
         {
             // TODO: need to clean this up somewhere else.
-            std::list<vktrace_trace_packet_header*>& packets = s_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
+            std::list<vktrace_trace_packet_header*>& packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
 
             if (cmdBuffer->second.bReferencedInTrim)
             {
@@ -2203,30 +2197,20 @@ namespace trim
     //===============================================
     // Object tracking
     //===============================================
-    void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader) {
-        vktrace_enter_critical_section(&trimCommandBufferPacketLock);
+    void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader)
+    {
         if (pHeader != NULL)
         {
-            s_cmdBufferPackets[commandBuffer].push_back(pHeader);
+            vktrace_enter_critical_section(&trimCommandBufferPacketLock);
+            s_trimGlobalStateTracker.add_CommandBuffer_call(commandBuffer, pHeader);
+            vktrace_leave_critical_section(&trimCommandBufferPacketLock);
         }
-        vktrace_leave_critical_section(&trimCommandBufferPacketLock);
     }
 
     void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer)
     {
         vktrace_enter_critical_section(&trimCommandBufferPacketLock);
-        std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header*>>::iterator cmdBufferMap = s_cmdBufferPackets.find(commandBuffer);
-        if (cmdBufferMap != s_cmdBufferPackets.end())
-        {
-            for (std::list<vktrace_trace_packet_header*>::iterator packet = cmdBufferMap->second.begin(); packet != cmdBufferMap->second.end(); packet++)
-            {
-                vktrace_trace_packet_header* pHeader = *packet;
-                vktrace_delete_trace_packet(&pHeader);
-            }
-            cmdBufferMap->second.clear();
-
-            s_cmdBufferPackets.erase(commandBuffer);
-        }
+        s_trimGlobalStateTracker.remove_CommandBuffer_calls(commandBuffer);
         vktrace_leave_critical_section(&trimCommandBufferPacketLock);
     }
 

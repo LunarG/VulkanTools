@@ -222,6 +222,13 @@ namespace trim
 
         void clear();
 
+        void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
+        void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
+
+#if TRIM_USE_ORDERED_IMAGE_CREATION
+        void add_Image_call(vktrace_trace_packet_header* pHeader);
+#endif //TRIM_USE_ORDERED_IMAGE_CREATION
+
         StateTracker& operator= (const StateTracker& other);
 
         ObjectInfo* add_Instance(VkInstance var);
@@ -281,6 +288,15 @@ namespace trim
         void remove_DescriptorSet(VkDescriptorSet var);
 
 //    private:
+
+        // Map relating a command buffer object to all the calls that have been
+        // made on that command buffer since it was started or last reset.
+        std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header*>> m_cmdBufferPackets;
+
+        // List of all packets used to create or delete images.
+        // We need to recreate them in the same order to ensure they will have the same size requirements as they had a trace-time.
+        std::list<vktrace_trace_packet_header*> m_image_calls;
+        
         TrimObjectInfoMap createdInstances;
         TrimObjectInfoMap createdPhysicalDevices;
         TrimObjectInfoMap createdDevices;

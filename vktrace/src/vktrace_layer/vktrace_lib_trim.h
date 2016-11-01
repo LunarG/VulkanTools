@@ -37,8 +37,16 @@ namespace trim
     void write_destroy_packets();
     void delete_all_packets();
 
+    //-----------------------
+    // the follow calls are pass-through to the StateTracker
     void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
     void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
+
+#if TRIM_USE_ORDERED_IMAGE_CREATION
+    void add_Image_call(vktrace_trace_packet_header* pHeader);
+#endif //TRIM_USE_ORDERED_IMAGE_CREATION
+    // The above calls are pass-through to the StateTracker
+    //-----------------------
 
     void reset_DescriptorPool(VkDescriptorPool descriptorPool);
 
@@ -48,10 +56,6 @@ namespace trim
     bool IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
 
     VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
-
-#if TRIM_USE_ORDERED_IMAGE_CREATION
-    void add_Image_call(vktrace_trace_packet_header* pHeader);
-#endif //TRIM_USE_ORDERED_IMAGE_CREATION
 
     // Typically an application will have one VkAllocationCallbacks struct and 
     // will pass in that same address as needed, so we'll keep a map to correlate
