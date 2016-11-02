@@ -72,7 +72,7 @@
 
 #if defined(WIN32) /// page guard solution for windows
 
-
+VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();
