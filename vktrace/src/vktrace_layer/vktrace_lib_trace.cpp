@@ -136,6 +136,69 @@ void *strip_create_extensions(const void *pNext)
     return create_info;
 }
 
+// This function is called when we need to update our list of mapped memory that is dirty.
+// On Linux, we don't use exceptions to find out when a page has changed, we use
+// the /proc filesystem instead.
+#if defined (PLATFORM_LINUX)
+void getMappedDirtyPagesLinux(void)
+{
+    LPPageGuardMappedMemory pMappedMem;
+    PBYTE addr, alignedAddrStart, alignedAddrEnd;
+    VkDeviceMemory mappedMemory;
+    off_t pmOffset;
+    uint64_t index;
+    uint64_t pageEntry;
+    size_t pageSize = getpagesize();
+    size_t readLen;
+    VKAllocInfo *pEntry;
+    static int pmFd = -1;
+
+    // Open pagefile once, and keep it open
+    if (pmFd == -1)
+    {
+        char pageMapFileName[100];
+        snprintf(pageMapFileName, sizeof(pageMapFileName), "/proc/%d/pagemap", getpid());
+        pmFd = open(pageMapFileName, O_RDONLY);
+        if (pmFd < 0) {
+            vktrace_LogError("Failed to open %s. Attempting to continue...", pageMapFileName);
+            return;
+        }
+    }
+
+    for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
+         it != getPageGuardControlInstance().getMapMemory().end();
+         it++)
+    {
+        pMappedMem = &(it->second);
+        mappedMemory = pMappedMem->getMappedMemory();
+        pEntry=find_mem_info_entry(mappedMemory);
+        addr=pEntry->pData+pEntry->rangeOffset;
+        alignedAddrStart = (PBYTE)((uint64_t)addr  & ~(pageSize-1));
+        alignedAddrEnd = addr + pEntry->rangeSize;
+        for (addr = alignedAddrStart; addr < alignedAddrEnd; addr+=pageSize)
+        {
+            // read 64-bit word that contains the diry bit
+            pmOffset = (off_t)((uint64_t)addr/(uint64_t)pageSize);
+            pmOffset = pmOffset * 8;
+            assert(pmOffset >= 0);
+            lseek(pmFd, pmOffset, SEEK_SET);
+            readLen = read(pmFd, &pageEntry, 8);
+            assert(readLen==8);
+            if (readLen != 8) {
+                vktrace_LogError("Failed to read from pagemap file. Attempting to continue...");
+                return;
+            }
+            if ((pageEntry&((uint64_t)1<<55)) != 0)  // TODO : is there a constant to replace 55?
+            {
+                index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+            }
+        }
+    }
+
+}
+#endif
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
     VkDevice device,
     const VkMemoryAllocateInfo* pAllocateInfo,
@@ -188,8 +251,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     if (size == VK_WHOLE_SIZE) {
         size = entry->totalSize - offset;
     }
+
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+    flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
+    resetAllReadFlagAndPageGuard();
+#endif
     getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
     pageguardExit();
 #endif
@@ -221,6 +290,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
 #ifdef USE_PAGEGUARD_SPEEDUP
     void *PageGuardMappedData;
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData, &vkFlushMappedMemoryRangesWithoutAPICall);
     pageguardExit();
 #endif
@@ -369,6 +441,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     uint32_t memoryRangeCount,
     const VkMappedMemoryRange* pMemoryRanges)
 {
+    vktrace_LogError("%s ENTERED", __func__);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     size_t rangesSize = 0;
@@ -377,9 +450,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
     getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
-    pageguardExit();
 #endif
 
     uint64_t trace_begin_time = vktrace_get_time();
@@ -392,9 +467,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
         dataSize += (size_t)pRange->size;
     }
 #ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
     dataSize = getPageGuardControlInstance().getALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData);
-    pageguardExit();
 #endif
 
     CREATE_TRACE_PACKET(vkFlushMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
@@ -424,7 +497,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
             assert(pEntry->totalSize >= pRange->size);
             assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
 #ifdef USE_PAGEGUARD_SPEEDUP
-            pageguardEnter();
             LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
             VkDeviceSize OPTPackageSizeTemp = 0;
             if (pOPTMemoryTemp)
@@ -440,7 +512,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
                 vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                 getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
             }
-            pageguardExit();
 #else
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
 #endif
@@ -454,6 +525,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     }
 #ifdef USE_PAGEGUARD_SPEEDUP
     delete[] ppPackageData;
+    pageguardExit();
 #endif
     vktrace_leave_critical_section(&g_memInfoLock);
 
@@ -1121,6 +1193,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
 {
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
     resetAllReadFlagAndPageGuard();
     pageguardExit();

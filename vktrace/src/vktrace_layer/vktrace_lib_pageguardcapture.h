@@ -30,8 +30,6 @@
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
 
-#if defined(WIN32) /// page guard solution for windows
-
 typedef VkResult(*vkFlushMappedMemoryRangesFunc)(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange*  pMemoryRanges);
 
 typedef class PageGuardCapture
@@ -40,6 +38,9 @@ private:
     PageGuardChangedBlockInfo EmptyChangedInfoArray;
     std::unordered_map< VkDeviceMemory, PageGuardMappedMemory > MapMemory;
     std::unordered_map< VkDeviceMemory, PBYTE > MapMemoryPtr;
+#if defined(PLATFORM_LINUX)
+    int clearRefsFd;
+#endif
 public:
 
     PageGuardCapture();
@@ -92,7 +93,8 @@ public:
         uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
         uint32_t  imageMemoryBarrierCount, const VkImageMemoryBarrier*  pImageMemoryBarriers);
 
-} PageGuardCapture;
-//page guard for windows end
+#if defined(PLATFORM_LINUX)
+    void pageRefsDirtyClear();
+#endif
 
-#endif//page guard solution
+} PageGuardCapture;
