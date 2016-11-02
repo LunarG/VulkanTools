@@ -354,8 +354,8 @@ namespace trim
             COPY_PACKET(obj->second.ObjectInfo.Image.pUnmapMemoryPacket);
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
             COPY_PACKET(obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
-            COPY_PACKET(obj->second.ObjectInfo.Image.pBindImageMemoryPacket);
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+            COPY_PACKET(obj->second.ObjectInfo.Image.pBindImageMemoryPacket);
         }
 
         createdImageViews = other.createdImageViews;
@@ -824,8 +824,8 @@ namespace trim
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
-            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pMapMemoryPacket);
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pUnmapMemoryPacket);
         }

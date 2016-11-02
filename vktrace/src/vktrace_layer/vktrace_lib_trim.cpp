@@ -1374,9 +1374,10 @@ namespace trim
             vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(*iter));
         }
-#else
+#endif //TRIM_USE_ORDERED_IMAGE_CREATION
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
         {
+#ifndef TRIM_USE_ORDERED_IMAGE_CREATION
             // CreateImage
             if (obj->second.ObjectInfo.Image.pCreatePacket != NULL)
             {
@@ -1390,6 +1391,7 @@ namespace trim
                 vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket));
             }
+#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
 
             // BindImageMemory
             if (obj->second.ObjectInfo.Image.pBindImageMemoryPacket != NULL)
@@ -1398,7 +1400,6 @@ namespace trim
                 vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pBindImageMemoryPacket));
             }
         }
-#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
 
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++)
         {

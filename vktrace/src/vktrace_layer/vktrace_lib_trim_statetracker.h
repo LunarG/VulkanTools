@@ -89,8 +89,8 @@ namespace trim
                 bool bIsSwapchainImage;
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
                 vktrace_trace_packet_header* pGetImageMemoryRequirementsPacket;
-                vktrace_trace_packet_header* pBindImageMemoryPacket;
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+                vktrace_trace_packet_header* pBindImageMemoryPacket;
                 vktrace_trace_packet_header* pMapMemoryPacket;
                 vktrace_trace_packet_header* pUnmapMemoryPacket;
                 VkDeviceMemory memory;
