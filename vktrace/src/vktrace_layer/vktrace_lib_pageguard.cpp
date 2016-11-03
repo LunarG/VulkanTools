@@ -174,7 +174,7 @@ void* pageguardAllocateMemory(size_t size)
         pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize(size),
                                       MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
         if (pMemory == nullptr)
-            vktrace_LogError("%s(%d) memory allocation failed", __func__, size);
+            vktrace_LogError("pageguardAllocateMemory(%d) memory allocation failed", size);
     }
 #else
     if (size != 0)

@@ -441,7 +441,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     uint32_t memoryRangeCount,
     const VkMappedMemoryRange* pMemoryRanges)
 {
-    vktrace_LogError("%s ENTERED", __func__);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     size_t rangesSize = 0;
