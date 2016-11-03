@@ -64,7 +64,7 @@ public:
 
     void* getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory);
 
-    VkDeviceSize PageGuardCapture::getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
+    VkDeviceSize getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
 
     /// return: if it's target mapped memory and no change at all;
     /// PBYTE *ppPackageDataforOutOfMap, must be an array include memoryRangeCount elements
