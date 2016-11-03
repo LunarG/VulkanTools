@@ -19,6 +19,42 @@ namespace trim
     vktrace_trace_packet_header* copy_packet(vktrace_trace_packet_header* pHeader);
     void delete_packet(vktrace_trace_packet_header** ppHeader);
 
+    // RenderPasses and VkCmdPipelineBarrier can transition images 
+    // to different layouts, but the change doesn't happen when the API call is made
+    // but rather when the command buffer is executed. Cache these transitions so
+    // that they can be applied when needed.
+    struct ImageTransition
+    {
+        VkImage image;
+        VkImageLayout initialLayout;
+        VkImageLayout finalLayout;
+        VkAccessFlags srcAccessMask;
+        VkAccessFlags dstAccessMask;
+    };
+
+    extern VKTRACE_CRITICAL_SECTION trimTransitionMapLock;
+
+    static std::unordered_map<VkCommandBuffer, std::list<ImageTransition>> m_cmdBufferToImageTransitionsMap;
+    
+    void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
+
+    void ClearImageTransitions(VkCommandBuffer commandBuffer);
+
+    // VkCmdPipelineBarrier can transition memory to a different accessMask, but 
+    // the change doesn't happen when the API call is made but rather when the 
+    // command buffer is executed. Cache these transitions so that they can be 
+    // applied when needed.
+    struct BufferTransition
+    {
+        VkBuffer buffer;
+        VkAccessFlags srcAccessMask;
+        VkAccessFlags dstAccessMask;
+    };
+
+    static std::unordered_map<VkCommandBuffer, std::list<BufferTransition>> m_cmdBufferToBufferTransitionsMap;
+
+    void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
+
     //-------------------------------------------------------------------------
     // Some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).
     //-------------------------------------------------------------------------
@@ -69,6 +105,7 @@ namespace trim
             struct _CommandBuffer {         // VkCommandBuffer
                 VkCommandPool commandPool;
                 VkCommandBufferLevel level;
+                VkRenderPass activeRenderPass;
             } CommandBuffer;
             struct _DeviceMemory {          // VkDeviceMemory
                 vktrace_trace_packet_header* pCreatePacket;
@@ -111,6 +148,7 @@ namespace trim
             struct _ImageView {             // VkImageView
                 vktrace_trace_packet_header* pCreatePacket;
                 const VkAllocationCallbacks* pAllocator;
+                VkImage image;
             } ImageView;
             struct _Buffer {                // VkBuffer
                 vktrace_trace_packet_header* pCreatePacket;
@@ -145,10 +183,14 @@ namespace trim
             struct _PipelineLayout {        // VkPipelineLayout
                 vktrace_trace_packet_header* pCreatePacket;
                 const VkAllocationCallbacks* pAllocator;
+                uint32_t descriptorSetLayoutCount;
+                VkDescriptorSetLayout* pDescriptorSetLayouts;
             } PipelineLayout;
             struct _RenderPass {            // VkRenderPass
                 vktrace_trace_packet_header* pCreatePacket;
                 const VkAllocationCallbacks* pAllocator;
+                uint32_t attachmentCount;
+                ImageTransition* pAttachments;
             } RenderPass;
             struct _ShaderModule {          // VkShaderModule
                 vktrace_trace_packet_header* pCreatePacket;
@@ -184,6 +226,8 @@ namespace trim
             struct _Framebuffer {           // VkFramebuffer
                 vktrace_trace_packet_header* pCreatePacket;
                 const VkAllocationCallbacks* pAllocator;
+                uint32_t attachmentCount;
+                VkImageView* pAttachments;
             } Framebuffer;
             struct _Semaphore {           // VkSemaphore
                 vktrace_trace_packet_header* pCreatePacket;

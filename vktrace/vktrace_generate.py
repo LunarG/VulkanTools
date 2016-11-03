@@ -515,6 +515,7 @@ class Subcommand(object):
             trim_instructions.append("        {")
             trim_instructions.append("            trim::remove_CommandBuffer_object(pCommandBuffers[i]);")
             trim_instructions.append("            trim::remove_CommandBuffer_calls(pCommandBuffers[i]);")
+            trim_instructions.append("            trim::ClearImageTransitions(pCommandBuffers[i]);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
@@ -682,6 +683,29 @@ class Subcommand(object):
             trim_instructions.append('        {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
+        elif 'CmdEndRenderPass' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pCommandBuffer = trim::get_CommandBuffer_objectInfo(commandBuffer);")
+            trim_instructions.append("        if (pCommandBuffer != nullptr)")
+            trim_instructions.append('        {')
+            trim_instructions.append("            trim::ObjectInfo* pRenderPass = trim::get_RenderPass_objectInfo(pCommandBuffer->ObjectInfo.CommandBuffer.activeRenderPass);")
+            trim_instructions.append("            if (pRenderPass != nullptr)")
+            trim_instructions.append('            {')
+            trim_instructions.append('                for (uint32_t i = 0; i < pRenderPass->ObjectInfo.RenderPass.attachmentCount; i++)')
+            trim_instructions.append('                {')
+            trim_instructions.append('                    trim::AddImageTransition(commandBuffer, pRenderPass->ObjectInfo.RenderPass.pAttachments[i]);')
+            trim_instructions.append('                }')
+            trim_instructions.append('            }')
+            trim_instructions.append('        }')
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        
         elif ('EndCommandBuffer' is proto.name or
               'CmdBindPipeline' is proto.name or
               'CmdSetViewport' is proto.name or
@@ -710,7 +734,6 @@ class Subcommand(object):
               'CmdSetEvent' is proto.name or
               'CmdResetEvent' is proto.name or
               'CmdNextSubpass' is proto.name or
-              'CmdEndRenderPass' is proto.name or
               'CmdExecuteCommands' is proto.name):
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim)')
@@ -723,6 +746,7 @@ class Subcommand(object):
             trim_instructions.append('        }')
         elif ('ResetCommandBuffer' is proto.name):
             trim_instructions.append("        trim::remove_CommandBuffer_calls(commandBuffer);")
+            trim_instructions.append("        trim::ClearImageTransitions(commandBuffer);")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
             trim_instructions.append('            trim::add_recorded_packet(pHeader);')
@@ -735,6 +759,7 @@ class Subcommand(object):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_ImageView_object(*pView);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.ImageView.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        pInfo->ObjectInfo.ImageView.image = pCreateInfo->image;")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.ImageView.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -1005,6 +1030,9 @@ class Subcommand(object):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::add_PipelineLayout_object(*pPipelineLayout);")
             trim_instructions.append("        pInfo->belongsToDevice = device;")
             trim_instructions.append("        pInfo->ObjectInfo.PipelineLayout.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        pInfo->ObjectInfo.PipelineLayout.descriptorSetLayoutCount = pCreateInfo->setLayoutCount;")
+            trim_instructions.append("        pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts = new VkDescriptorSetLayout[pCreateInfo->setLayoutCount];")
+            trim_instructions.append("        memcpy(pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts, pCreateInfo->pSetLayouts, pCreateInfo->setLayoutCount * sizeof( VkDescriptorSetLayout ));")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            pInfo->ObjectInfo.PipelineLayout.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")

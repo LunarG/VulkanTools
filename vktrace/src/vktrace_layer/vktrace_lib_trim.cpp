@@ -73,6 +73,7 @@ namespace trim
             vktrace_create_critical_section(&trimStateTrackerLock);
             vktrace_create_critical_section(&trimRecordedPacketLock);
             vktrace_create_critical_section(&trimCommandBufferPacketLock);
+            vktrace_create_critical_section(&trimTransitionMapLock);
         }
     }
 
@@ -86,6 +87,7 @@ namespace trim
         vktrace_delete_critical_section(&trimRecordedPacketLock);
         vktrace_delete_critical_section(&trimStateTrackerLock);
         vktrace_delete_critical_section(&trimCommandBufferPacketLock);
+        vktrace_delete_critical_section(&trimTransitionMapLock);
     }
 
     void add_Allocator(const VkAllocationCallbacks* pAllocator)

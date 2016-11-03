@@ -880,6 +880,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
         trim::ObjectInfo* pInfo = trim::add_Framebuffer_object(*pFramebuffer);
         pInfo->belongsToDevice = device;
         pInfo->ObjectInfo.Framebuffer.pCreatePacket = trim::copy_packet(pHeader);
+        pInfo->ObjectInfo.Framebuffer.attachmentCount = pCreateInfo->attachmentCount;
+        pInfo->ObjectInfo.Framebuffer.pAttachments = new VkImageView[pCreateInfo->attachmentCount];
+        memcpy(pInfo->ObjectInfo.Framebuffer.pAttachments, pCreateInfo->pAttachments, sizeof(VkImageView) * pCreateInfo->attachmentCount);
+
         if (pAllocator != NULL)
         {
             pInfo->ObjectInfo.Framebuffer.pAllocator = pAllocator;
@@ -1130,34 +1134,23 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
         {
             pInfo->belongsToDevice = device;
             pInfo->ObjectInfo.RenderPass.pCreatePacket = trim::copy_packet(pHeader);
+            if (pCreateInfo->attachmentCount > 0)
+            {
+                pInfo->ObjectInfo.RenderPass.attachmentCount = pCreateInfo->attachmentCount;
+                pInfo->ObjectInfo.RenderPass.pAttachments = new trim::ImageTransition[pCreateInfo->attachmentCount];
+                for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++)
+                {
+                    pInfo->ObjectInfo.RenderPass.pAttachments[i].initialLayout = pCreateInfo->pAttachments[i].initialLayout;
+                    pInfo->ObjectInfo.RenderPass.pAttachments[i].finalLayout = pCreateInfo->pAttachments[i].finalLayout;
+
+                    // We don't know which object it is at this time, but we'll find out in VkBindDescriptorSets().
+                    pInfo->ObjectInfo.RenderPass.pAttachments[i].image = VK_NULL_HANDLE;
+                }
+            }
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.RenderPass.pAllocator = pAllocator;
             }
         }
-
-        //// track layouts of attachments
-        ////for (int i = 0; i < pCreateInfo->attachmentCount; i++)
-        ////{
-        ////    // TODO: interesting.... we don't know what object the attachment is just yet...
-        ////    // TODO: oh... right... the actual attachments come from the descriptor sets, which
-        ////    // we don't have access to at this very moment. 
-        ////    pCreateInfo->pAttachments[i].finalLayout;
-        ////}
-
-        //// Go through each subpass and gather attachment info
-        //for (int subpassIndex = 0; subpassIndex < pCreateInfo->subpassCount; subpassIndex++)
-        //{
-        //    const VkSubpassDescription* pSubpass = &pCreateInfo->pSubpasses[subpassIndex];
-        //    for (int input = 0; input < pSubpass->inputAttachmentCount; input++)
-        //    {
-        //        uint32_t attachment = pSubpass->pInputAttachments[input].attachment;
-        //        if (attachment < pCreateInfo->attachmentCount)
-        //        {
-
-        //        }
-        //    }
-        //}
-
 
         if (pAllocator != NULL)
         {
@@ -1813,26 +1806,52 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
 
             if (pSubmits != NULL)
             {
-                if (pSubmits->pWaitSemaphores != NULL)
+                for (uint32_t i = 0; i < submitCount; i++)
                 {
-                    for (uint32_t i = 0; i < pSubmits->waitSemaphoreCount; i++)
+                    // Update attachment objects based on RenderPass transitions
+                    for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++)
                     {
-                        trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits->pWaitSemaphores[i]);
-                        if (pInfo != NULL)
+                        trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
+
+                        // appy image transitions
+                        std::list<trim::ImageTransition> imageTransitions = trim::m_cmdBufferToImageTransitionsMap[pSubmits[i].pCommandBuffers[c]];
+                        for (std::list<trim::ImageTransition>::iterator transition = imageTransitions.begin(); transition != imageTransitions.end(); transition++)
                         {
-                            pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                            trim::ObjectInfo* pImage = trim::get_Image_objectInfo(transition->image);
+                            pImage->ObjectInfo.Image.mostRecentLayout = transition->finalLayout;
+                            pImage->ObjectInfo.Image.accessFlags = transition->dstAccessMask;
+                        }
+
+                        // appy buffer transitions
+                        std::list<trim::BufferTransition> bufferTransitions = trim::m_cmdBufferToBufferTransitionsMap[pSubmits[i].pCommandBuffers[c]];
+                        for (std::list<trim::BufferTransition>::iterator transition = bufferTransitions.begin(); transition != bufferTransitions.end(); transition++)
+                        {
+                            trim::ObjectInfo* pBuffer = trim::get_Buffer_objectInfo(transition->buffer);
+                            pBuffer->ObjectInfo.Buffer.accessFlags = transition->dstAccessMask;
                         }
                     }
-                }
 
-                if (pSubmits->pSignalSemaphores != NULL)
-                {
-                    for (uint32_t i = 0; i < pSubmits->signalSemaphoreCount; i++)
+                    if (pSubmits[i].pWaitSemaphores != NULL)
                     {
-                        trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits->pSignalSemaphores[i]);
-                        if (pInfo != NULL)
+                        for (uint32_t w = 0; w < pSubmits[i].waitSemaphoreCount; w++)
                         {
-                            pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pWaitSemaphores[w]);
+                            if (pInfo != NULL)
+                            {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+
+                    if (pSubmits[i].pSignalSemaphores != NULL)
+                    {
+                        for (uint32_t s = 0; s < pSubmits[i].signalSemaphoreCount; s++)
+                        {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pSignalSemaphores[s]);
+                            if (pInfo != NULL)
+                            {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                            }
                         }
                     }
                 }
@@ -2063,14 +2082,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
             assert(pImageInfo != nullptr);
             if (pImageInfo != nullptr)
             {
-                pImageInfo->ObjectInfo.Image.mostRecentLayout = pImageMemoryBarriers[i].newLayout;
+                trim::ImageTransition transition;
+                transition.image = pImageMemoryBarriers[i].image;
+                transition.initialLayout = pImageMemoryBarriers[i].oldLayout;
+                transition.finalLayout = pImageMemoryBarriers[i].newLayout;
+                transition.srcAccessMask = pImageMemoryBarriers[i].srcAccessMask;
+                transition.dstAccessMask = pImageMemoryBarriers[i].dstAccessMask;
 
-                // assert to warn us if our current accessFlags do not match the provided src access mask
-                // because that would indicate that we've missed an earlier change.
-//                assert(pImageInfo->ObjectInfo.Image.accessFlags == pImageMemoryBarriers[i].srcAccessMask);
-
-                // Now update to keep track of the new destination access mask
-                pImageInfo->ObjectInfo.Image.accessFlags = pImageMemoryBarriers[i].dstAccessMask;
+                trim::AddImageTransition(commandBuffer, transition);
             }
         }
 
@@ -2080,12 +2099,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
             assert(pBufferInfo != nullptr);
             if (pBufferInfo != nullptr)
             {
-                // assert to warn us if our current accessFlags do not match the provided src access mask
-                // because that would indicate that we've missed an earlier change.
-                assert(pBufferInfo->ObjectInfo.Buffer.accessFlags == pBufferMemoryBarriers[i].srcAccessMask);
+                trim::BufferTransition transition;
+                transition.buffer = pBufferMemoryBarriers[i].buffer;
+                transition.srcAccessMask = pBufferMemoryBarriers[i].srcAccessMask;
+                transition.dstAccessMask = pBufferMemoryBarriers[i].dstAccessMask;
 
-                // Now update to keep track of the new destination access mask
-                pBufferInfo->ObjectInfo.Buffer.accessFlags = pBufferMemoryBarriers[i].dstAccessMask;
+                trim::AddBufferTransition(commandBuffer, transition);
             }
         }
 
@@ -2424,6 +2443,28 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(
         vktrace_finalize_trace_packet(pHeader);
 
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+        trim::ObjectInfo* pCommandBuffer = trim::get_CommandBuffer_objectInfo(commandBuffer);
+        if (pCommandBuffer != nullptr)
+        {
+            pCommandBuffer->ObjectInfo.CommandBuffer.activeRenderPass = pRenderPassBegin->renderPass;
+
+            trim::ObjectInfo* pFramebuffer = trim::get_Framebuffer_objectInfo(pRenderPassBegin->framebuffer);
+            trim::ObjectInfo* pRenderPass = trim::get_RenderPass_objectInfo(pRenderPassBegin->renderPass);
+            assert(pRenderPass != nullptr && pFramebuffer != nullptr);
+            if (pRenderPass != nullptr && pFramebuffer != nullptr)
+            {
+                assert(pRenderPass->ObjectInfo.RenderPass.attachmentCount == pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
+                for (uint32_t i = 0; i < pRenderPass->ObjectInfo.RenderPass.attachmentCount && i < pFramebuffer->ObjectInfo.Framebuffer.attachmentCount; i++)
+                {
+                    trim::ObjectInfo* pImageView = trim::get_ImageView_objectInfo(pFramebuffer->ObjectInfo.Framebuffer.pAttachments[i]);
+                    assert(pImageView != nullptr);
+                    if (pImageView != nullptr)
+                    {
+                        pRenderPass->ObjectInfo.RenderPass.pAttachments[i].image = pImageView->ObjectInfo.ImageView.image;
+                    }
+                }
+            }
+        }
 
         if (g_trimIsInTrim)
         {

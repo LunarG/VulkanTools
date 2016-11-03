@@ -9,7 +9,10 @@
 
 namespace trim
 {
+    // declared extern in statetracker.h
+    VKTRACE_CRITICAL_SECTION trimTransitionMapLock;
 
+    //-------------------------------------------------------------------------
 #define COPY_PACKET(packet) packet = copy_packet(packet)
 
     vktrace_trace_packet_header* copy_packet(vktrace_trace_packet_header* pHeader)
@@ -23,6 +26,31 @@ namespace trim
         vktrace_trace_packet_header* pCopy = static_cast<vktrace_trace_packet_header*>(malloc(packetSize));
         memcpy(pCopy, pHeader, packetSize);
         return pCopy;
+    }
+
+    //-------------------------------------------------------------------------
+    void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition)
+    {
+        vktrace_enter_critical_section(&trimTransitionMapLock);
+        m_cmdBufferToImageTransitionsMap[commandBuffer].push_back(transition);
+        vktrace_leave_critical_section(&trimTransitionMapLock);
+    }
+
+    //-------------------------------------------------------------------------
+    void ClearImageTransitions(VkCommandBuffer commandBuffer)
+    {
+        vktrace_enter_critical_section(&trimTransitionMapLock);
+        m_cmdBufferToImageTransitionsMap[commandBuffer].clear();
+        m_cmdBufferToImageTransitionsMap.erase(commandBuffer);
+        vktrace_leave_critical_section(&trimTransitionMapLock);
+    }
+
+    //-------------------------------------------------------------------------
+    void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition)
+    {
+        vktrace_enter_critical_section(&trimTransitionMapLock);
+        m_cmdBufferToBufferTransitionsMap[commandBuffer].push_back(transition);
+        vktrace_leave_critical_section(&trimTransitionMapLock);
     }
 
     //-------------------------------------------------------------------------
@@ -898,6 +926,12 @@ namespace trim
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
+            if (pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts != nullptr)
+            {
+                delete[] pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts;
+                pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts = nullptr;
+                pInfo->ObjectInfo.PipelineLayout.descriptorSetLayoutCount = 0;
+            }
         }
         createdPipelineLayouts.erase(var);
     }
@@ -1028,6 +1062,7 @@ namespace trim
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.QueryPool.pCreatePacket);
+            delete[] pInfo->ObjectInfo.QueryPool.pResultsAvailable;
         }
         createdQueryPools.erase(var);
     }
