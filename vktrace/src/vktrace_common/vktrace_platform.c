@@ -140,7 +140,7 @@ vktrace_thread_id vktrace_platform_get_thread_id()
 {
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     //return (vktrace_thread_id)syscall(SYS_gettid);
-    return pthread_self();
+    return (vktrace_thread_id)pthread_self();
 #elif defined(WIN32)
     return GetCurrentThreadId();
 #endif
