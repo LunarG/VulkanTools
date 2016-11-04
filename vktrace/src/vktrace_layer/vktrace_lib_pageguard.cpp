@@ -275,12 +275,13 @@ void resetAllReadFlagAndPageGuard()
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
 {
     LONG resultCode = EXCEPTION_CONTINUE_SEARCH;
+    pageguardEnter();
     if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_GUARD_PAGE_VIOLATION)
     {
         VkDeviceSize OffsetOfAddr;
         PBYTE pBlock;
         VkDeviceSize BlockSize;
-        PBYTE addr = (PBYTE)ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
+        PBYTE addr = reinterpret_cast<PBYTE>(ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
         bool bWrite = ExceptionInfo->ExceptionRecord->ExceptionInformation[0];
 
         LPPageGuardMappedMemory pMappedMem = getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
@@ -304,6 +305,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
             resultCode = EXCEPTION_CONTINUE_EXECUTION;
         }
     }
+    pageguardExit();
     return resultCode;
 }
 #endif

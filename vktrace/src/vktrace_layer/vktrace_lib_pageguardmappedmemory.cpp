@@ -430,10 +430,7 @@ DWORD PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDev
     {
         CurrentBlockSize = getMappedBlockSize(i);
         offset = getMappedBlockOffset(i);
-        if (isMappedBlockChanged(i, useWhich) &&
-            ((RangeOffset < 0) ||
-            isRangeIncluded(RangeOffset - getMappedOffset(), RangeSize, static_cast<VkDeviceSize>(offset), static_cast<VkDeviceSize>(CurrentBlockSize)) ||
-            isRangeIncluded(static_cast<VkDeviceSize>(offset), static_cast<VkDeviceSize>(CurrentBlockSize), RangeOffset - getMappedOffset(), RangeSize)))
+        if (isMappedBlockChanged(i, useWhich))
         {
             if (pChangedInfoArray)
             {
