@@ -140,6 +140,14 @@ function(add_compiler_flag flag)
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
 endfunction()
 
+function(add_c_compiler_flag flag)
+    set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS}   ${flag}" PARENT_SCOPE)
+endfunction()
+
+function(add_cpp_compiler_flag flag)
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
+endfunction()
+
 function(add_compiler_flag_debug flag)
     set(CMAKE_C_FLAGS_DEBUG    "${CMAKE_C_FLAGS_DEBUG}   ${flag}" PARENT_SCOPE)
     set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${flag}" PARENT_SCOPE)
