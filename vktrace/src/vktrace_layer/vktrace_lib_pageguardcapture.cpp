@@ -71,6 +71,7 @@ void PageGuardCapture::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMem
         MapMemory.erase(memory);
     }
     MapMemoryPtr.erase(memory);
+    MapMemoryOffset.erase(memory);
 }
 
 void* PageGuardCapture::getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory)
