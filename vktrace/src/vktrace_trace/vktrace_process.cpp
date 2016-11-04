@@ -29,6 +29,11 @@
 #include <sys/wait.h>
 #endif
 
+#if defined(PLATFORM_OSX)
+#include <sys/types.h>
+#include <sys/wait.h>
+#endif
+
 extern "C" {
 #include "vktrace_filelike.h"
 #include "vktrace_interconnect.h"
@@ -68,7 +73,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
     PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, 0, 0);
     pProcInfo->serverRequestsTermination = TRUE;
     
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     int status = 0;
     int options = 0;
     while (waitpid(pProcInfo->processId, &status, options) != -1)
