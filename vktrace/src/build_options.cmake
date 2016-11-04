@@ -244,8 +244,11 @@ else()
 endif()
 
 if (NOT MSVC)
-    set(CMAKE_EXE_LINK_FLAGS_LIST "-Wl,--no-undefined")
-
+    if(APPLE)
+        set(CMAKE_EXE_LINK_FLAGS_LIST "-Wl,-undefined,error")
+    else()
+        set(CMAKE_EXE_LINK_FLAGS_LIST "-Wl,--no-undefined")
+    endif()
 endif()
 
 # Compiler flags

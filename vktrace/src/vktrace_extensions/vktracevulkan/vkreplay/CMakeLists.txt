@@ -16,7 +16,8 @@ set(OS_REPLAYER_LIBS
 )
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
+    ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 set(OS_REPLAYER_LIBS  )
 endif()
 

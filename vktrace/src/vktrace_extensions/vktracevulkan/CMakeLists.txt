@@ -38,8 +38,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    endif()
 endif()
 
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR
+    ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
     set(VKTRACE_VULKAN_LIB
         ${CMAKE_BINARY_DIR}/loader/libvulkan.so
     )
