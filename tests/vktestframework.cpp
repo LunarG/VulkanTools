@@ -28,7 +28,6 @@
 #include "SPIRV/SPVRemapper.h"
 #include <limits.h>
 #include <math.h>
-#include <MagickWand.h>
 
 #if defined(PATH_MAX) && !defined(MAX_PATH)
 #define MAX_PATH PATH_MAX
@@ -207,7 +206,6 @@ VkTestFramework::~VkTestFramework() {}
 // Define all the static elements
 bool VkTestFramework::m_show_images       = false;
 bool VkTestFramework::m_save_images       = false;
-bool VkTestFramework::m_compare_images    = false;
 bool VkTestFramework::m_use_glsl          = false;
 bool VkTestFramework::m_canonicalize_spv  = false;
 bool VkTestFramework::m_strip_spv         = false;
@@ -239,9 +237,6 @@ void VkTestFramework::InitArgs(int *argc, char *argv[]) {
              m_strip_spv = true;
         else if (optionMatch("--canonicalize-SPV", argv[i]))
             m_canonicalize_spv = true;
-        else if (optionMatch("--compare-images", argv[i]))
-            m_compare_images = true;
-
         else if (optionMatch("--help", argv[i]) ||
                  optionMatch("-h", argv[i])) {
             printf("\nOther options:\n");
@@ -386,58 +381,7 @@ void VkTestFramework::WritePPM( const char *basename, VkImageObj *image )
     displayImage.UnmapMemory();
 }
 
-void VkTestFramework::Compare(const char *basename, VkImageObj *image )
-{
 
-    MagickWand *magick_wand_1;
-    MagickWand *magick_wand_2;
-    MagickWand *compare_wand;
-    MagickBooleanType status;
-    char testimage[256],golden[MAX_PATH+256],golddir[MAX_PATH] = "./golden";
-    double differenz;
-
-    if (getenv("RENDERTEST_GOLDEN_DIR"))
-    {
-        strcpy(golddir,getenv("RENDERTEST_GOLDEN_DIR"));
-    }
-
-    MagickWandGenesis();
-    magick_wand_1=NewMagickWand();
-    sprintf(testimage,"%s.ppm",basename);
-    status=MagickReadImage(magick_wand_1,testimage);
-    ASSERT_EQ(status, MagickTrue) << "Unable to open file: " << testimage;
-
-
-    MagickWandGenesis();
-    magick_wand_2=NewMagickWand();
-    sprintf(golden,"%s/%s.ppm",golddir,basename);
-    status=MagickReadImage(magick_wand_2,golden);
-    ASSERT_EQ(status, MagickTrue) << "Unable to open file: " << golden;
-
-    compare_wand=MagickCompareImages(magick_wand_1,magick_wand_2, MeanAbsoluteErrorMetric, &differenz);
-    if (differenz != 0.0)
-    {
-        char difference[256];
-
-        sprintf(difference,"%s-diff.ppm",basename);
-        status = MagickWriteImage(compare_wand, difference);
-        ASSERT_TRUE(differenz == 0.0) << "Image comparison failed - diff file written";
-    }
-    DestroyMagickWand(compare_wand);
-
-    DestroyMagickWand(magick_wand_1);
-    DestroyMagickWand(magick_wand_2);
-    MagickWandTerminus();
-
-    if (differenz == 0.0)
-    {
-        /*
-         * If test image and golden image match, we do not need to
-         * keep around the test image.
-         */
-        remove(testimage);
-    }
-}
 
 void VkTestFramework::Show(const char *comment, VkImageObj *image)
 {
@@ -503,11 +447,8 @@ void VkTestFramework::RecordImage(VkImageObj * image)
 
     // ToDo - scrub string for bad characters
 
-    if (m_save_images || m_compare_images) {
+    if (m_save_images) {
         WritePPM(filename.c_str(), image);
-        if (m_compare_images) {
-            Compare(filename.c_str(), image);
-        }
     }
 
     if (m_show_images) {

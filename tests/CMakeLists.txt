@@ -19,15 +19,6 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-find_package(ImageMagick COMPONENTS MagickWand)
-if(NOT ImageMagick_FOUND)
-    if(NOT WIN32)
-        message(FATAL_ERROR "Missing ImageMagick library: sudo apt-get install libmagickwand-dev")
-    else()
-        message(FATAL_ERROR "Missing ImageMagick library: Get from http://www.imagemagick.org/script/binary-releases.php.  Be sure to check box to 'Install development headers and libraries'")
-    endif()
-endif()
-
 if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16")
 
@@ -56,7 +47,6 @@ include_directories(
     ${XCB_INCLUDE_DIRS}
     ${GLSLANG_SPIRV_INCLUDE_DIR}
     ${LIBGLM_INCLUDE_DIR}
-    ${ImageMagick_INCLUDE_DIRS}
     )
 
 if (NOT WIN32)
@@ -94,11 +84,11 @@ else()
 endif()
 
 if(WIN32)
-   set (LIBVK "${API_LOWERCASE}-${MAJOR}")
-   set (TEST_LIBRARIES ${GLSLANG_LIBRARIES} ${ImageMagick_LIBRARIES})
+   set (LIBVK "vulkan-${MAJOR}")
+   set (TEST_LIBRARIES ${GLSLANG_LIBRARIES})
 elseif(UNIX)
-   set (LIBVK "${API_LOWERCASE}")
-   set (TEST_LIBRARIES ${GLSLANG_LIBRARIES} ${ImageMagick_LIBRARIES} ${XCB_LIBRARIES} ${X11_LIBRARIES})
+   set (LIBVK "vulkan")
+   set (TEST_LIBRARIES ${GLSLANG_LIBRARIES} ${XCB_LIBRARIES} ${X11_LIBRARIES})
 else()
 endif()
 
