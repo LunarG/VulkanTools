@@ -70,6 +70,34 @@ typedef CRITICAL_SECTION VKTRACE_CRITICAL_SECTION;
 #if !defined(__cplusplus)
 #define inline _inline
 #endif
+#elif defined(PLATFORM_OSX)
+
+#define _GNU_SOURCE 1
+#include <unistd.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <pthread.h>
+#include <sys/syscall.h>
+#include <sys/time.h>
+//#include <sys/prctl.h>
+#include <dlfcn.h>
+#include <signal.h>
+#include "wintypes.h"
+#define APIENTRY
+#define Sleep(n) usleep(n * 1000)
+#define VKTRACE_WINAPI
+typedef pthread_t vktrace_thread;
+typedef pid_t vktrace_process_handle;
+typedef pid_t vktrace_thread_id;
+typedef pid_t vktrace_process_id;
+typedef unsigned int VKTRACE_THREAD_ROUTINE_RETURN_TYPE;
+typedef pthread_mutex_t VKTRACE_CRITICAL_SECTION;
+#define VKTRACE_NULL_THREAD 0
+#define _MAX_PATH PATH_MAX
+#define VKTRACE_PATH_SEPARATOR "/"
+#define VKTRACE_LIST_SEPARATOR ":"
+#define VKTRACE_THREAD_LOCAL __thread
+
 #endif
 
 #if defined(WIN32)
@@ -124,7 +152,7 @@ vktrace_thread vktrace_platform_create_thread(VKTRACE_THREAD_ROUTINE_RETURN_TYPE
 void vktrace_platform_resume_thread(vktrace_thread* pThread);
 void vktrace_platform_sync_wait_for_thread(vktrace_thread* pThread);
 void vktrace_platform_delete_thread(vktrace_thread* pThread);
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 void vktrace_platform_thread_once(void *ctl, void (* func) (void));
 #elif defined(WIN32)
 void vktrace_platform_thread_once(void *ctl, BOOL (CALLBACK * func) (_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext));
@@ -135,7 +163,7 @@ void vktrace_enter_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 void vktrace_leave_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 #define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4)? "lib"#projname"32.so" : "lib"#projname".so"
 #endif
 #if defined(WIN32)

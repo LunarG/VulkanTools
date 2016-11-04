@@ -332,7 +332,7 @@ int main(int argc, char* argv[])
             if (g_settings.program != NULL)
                 procInfo.watchdogThread = vktrace_platform_create_thread(Process_RunWatchdogThread, &procInfo);
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
             // Sync wait for local threads and remote process to complete.
 
             vktrace_platform_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));

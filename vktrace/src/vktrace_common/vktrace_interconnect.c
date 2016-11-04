@@ -126,7 +126,7 @@ BOOL vktrace_MessageStream_SetupSocket(MessageStream* pStream)
 BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream)
 {
     int hr = 0;
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     int yes = 1;
 #endif
     struct addrinfo hostAddrInfo = { 0 };
@@ -153,7 +153,7 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream)
         return FALSE;
     }
 
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 #endif
     hr = bind(listenSocket, pStream->mHostAddressInfo->ai_addr, (int)pStream->mHostAddressInfo->ai_addrlen);

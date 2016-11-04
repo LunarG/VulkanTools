@@ -21,14 +21,18 @@
  **************************************************************************/
 #include "vktrace_platform.h"
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 #include "vktrace_common.h"
 #include <pthread.h>
 #endif
 
+#if defined(PLATFORM_OSX)
+#include <libproc.h>
+#endif
+
 vktrace_process_id vktrace_get_pid()
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     return getpid();
 #elif defined(WIN32)
     return GetCurrentProcessId();
@@ -42,6 +46,16 @@ char* vktrace_platform_get_current_executable_directory()
     DWORD s = GetModuleFileName(NULL, exePath, MAX_PATH);
 #elif defined(PLATFORM_LINUX)
     ssize_t s = readlink("/proc/self/exe", exePath, _MAX_PATH);
+    if (s >= 0)
+    {
+        exePath[s] = '\0';
+    }
+    else
+    {
+        exePath[0] = '\0';
+    }
+#elif defined(PLATFORM_OSX)
+    ssize_t s = proc_pidpath(getpid(), exePath, _MAX_PATH);
     if (s >= 0)
     {
         exePath[s] = '\0';
@@ -92,13 +106,24 @@ BOOL vktrace_is_loaded_into_vktrace()
     {
         exePath[0] = '\0';
     }
+#elif defined(PLATFORM_OSX)
+    char* substr = ((sizeof(void*) == 4)? "vktrace32" : "vktrace");
+    ssize_t s = proc_pidpath(getpid(), exePath, _MAX_PATH);
+    if (s >= 0)
+    {
+        exePath[s] = '\0';
+    }
+    else
+    {
+        exePath[0] = '\0';
+    }
 #endif
     return (strstr(exePath, substr) != NULL);
 }
 
 BOOL vktrace_platform_get_next_lib_sym(void * *ppFunc, const char * name)
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     if ((*ppFunc = dlsym(RTLD_NEXT, name)) == NULL) {
          vktrace_LogError("dlsym: failed to find symbol %s %s", name, dlerror());
          return FALSE;
@@ -113,7 +138,7 @@ BOOL vktrace_platform_get_next_lib_sym(void * *ppFunc, const char * name)
 
 vktrace_thread_id vktrace_platform_get_thread_id()
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     //return (vktrace_thread_id)syscall(SYS_gettid);
     return pthread_self();
 #elif defined(WIN32)
@@ -123,7 +148,7 @@ vktrace_thread_id vktrace_platform_get_thread_id()
 
 char *vktrace_get_global_var(const char *name)
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     return getenv(name);
 #else
     // TODO: add code for reading from Windows registry
@@ -134,7 +159,7 @@ char *vktrace_get_global_var(const char *name)
 
 void vktrace_set_global_var(const char *name, const char *val)
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     setenv(name, val, 1);
 #else
     // TODO add code for writing to Windows registry
@@ -145,7 +170,7 @@ void vktrace_set_global_var(const char *name, const char *val)
 
 size_t vktrace_platform_rand_s(uint32_t* out_array, size_t out_array_length)
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     static __thread unsigned int s_seed = 0;
     size_t i = 0;
 
@@ -193,7 +218,7 @@ void * vktrace_platform_open_library(const char* libPath)
 {
 #if defined(WIN32)
     return LoadLibrary(libPath);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     return dlopen(libPath, RTLD_LAZY);
 #endif
 }
@@ -216,7 +241,7 @@ void vktrace_platform_close_library(void* pLibrary)
 {
 #if defined(WIN32)
     FreeLibrary((HMODULE)pLibrary);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     dlclose(pLibrary);
 #endif
 }
@@ -226,7 +251,7 @@ void vktrace_platform_full_path(const char* partPath, unsigned long bytes, char*
     assert(buffer != NULL);
 #if defined(WIN32)
     GetFullPathName(partPath, bytes, buffer, NULL);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     char *ptr = realpath(partPath, buffer);
     (void) ptr;
 #endif
@@ -307,7 +332,7 @@ char* vktrace_platform_get_data_path()
 
 vktrace_thread vktrace_platform_create_thread(VKTRACE_THREAD_ROUTINE_RETURN_TYPE(*start_routine)(LPVOID), void* args)
 {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     vktrace_thread thread = 0;
     if(pthread_create(&thread, NULL, (void *(*) (void*)) start_routine, args) != 0)
     {
@@ -324,6 +349,8 @@ void vktrace_platform_resume_thread(vktrace_thread* pThread)
     assert(pThread != NULL);
 #if defined(PLATFORM_LINUX)
     assert(!"Add code to resume threads on Linux");
+#elif defined(PLATFORM_OSX)
+    assert(!"Add code to resume threads on macOS");
 #elif defined(WIN32)
     if (*pThread != NULL)
         ResumeThread(*pThread);
@@ -333,7 +360,7 @@ void vktrace_platform_resume_thread(vktrace_thread* pThread)
 void vktrace_platform_sync_wait_for_thread(vktrace_thread* pThread)
 {
     assert(pThread != NULL);
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     if (pthread_join(*pThread, NULL) != 0)
 #else
     if (WaitForSingleObject(*pThread, INFINITE) != WAIT_OBJECT_0)
@@ -346,7 +373,7 @@ void vktrace_platform_sync_wait_for_thread(vktrace_thread* pThread)
 void vktrace_platform_delete_thread(vktrace_thread* pThread)
 {
     assert(pThread != NULL);
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     // Don't have to do anything!
 #elif defined(WIN32)
     CloseHandle(*pThread);
@@ -374,7 +401,7 @@ void vktrace_create_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 {
 #if defined(WIN32)
     InitializeCriticalSection(pCriticalSection);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     pthread_mutex_init(pCriticalSection, NULL);
 #endif
 }
@@ -383,7 +410,7 @@ void vktrace_enter_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 {
 #if defined(WIN32)
     EnterCriticalSection(pCriticalSection);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     pthread_mutex_lock(pCriticalSection);
 #endif
 }
@@ -392,7 +419,7 @@ void vktrace_leave_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 {
 #if defined(WIN32)
     LeaveCriticalSection(pCriticalSection);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     pthread_mutex_unlock(pCriticalSection);
 #endif
 }
@@ -401,7 +428,7 @@ void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 {
 #if defined(WIN32)
     DeleteCriticalSection(pCriticalSection);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     pthread_mutex_destroy(pCriticalSection);
 #endif
 }
@@ -437,7 +464,7 @@ BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle,
     assert(pTracingThread != NULL);
     *pTracingThread = thread;
 
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     char *tmp;
     if (ldPreload == NULL)
         return TRUE;

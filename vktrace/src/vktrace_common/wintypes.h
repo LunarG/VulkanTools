@@ -20,7 +20,7 @@
  **************************************************************************/
 #pragma once
 
-#if  defined __linux__
+#if  defined(__linux__) || defined(__APPLE__)
 #include <stdint.h>
 #include <stddef.h>
 typedef void * LPVOID;

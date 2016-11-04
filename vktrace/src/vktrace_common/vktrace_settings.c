@@ -78,7 +78,7 @@ BOOL vktrace_SettingInfo_parse_value(vktrace_SettingInfo* pSetting, const char* 
     case VKTRACE_SETTING_BOOL:
         {
             BOOL bTrue = FALSE;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
             bTrue = (strncasecmp(arg, "true", 4) == 0);
 #elif defined(PLATFORM_WINDOWS)
             bTrue = (_strnicmp(arg, "true", 4) == 0);
