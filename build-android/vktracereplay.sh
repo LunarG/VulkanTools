@@ -306,6 +306,8 @@ adb $serialFlag shell rm -f /sdcard/Android/$package.$frame.vktrace.ppm
 adb $serialFlag shell rm -f /sdcard/Android/$package.$frame.vkreplay.ppm
 rm -f $package.$frame.vktrace.ppm
 rm -f $package.$frame.vkreplay.ppm
+rm -f $package.vktrace
+rm -f $package\0.vktrace
 
 # Ensure vktrace wasn't already running
 let "script_run_time=$(date +%s)-$script_start_time"
@@ -361,7 +363,12 @@ set -e
 
 # set up for vkreplay
 adb $serialFlag shell am force-stop $package
-adb $serialFlag push $package\0.vktrace /sdcard/$package.vktrace
+if [ -f $package.vktrace ]; then
+    adb $serialFlag push $package.vktrace /sdcard/$package.vktrace
+fi
+if [ -f $package\0.vktrace ]; then
+    adb $serialFlag push $package\0.vktrace /sdcard/$package.vktrace
+fi
 
 # grab the screenshot
 adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vktrace.ppm
