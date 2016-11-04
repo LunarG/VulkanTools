@@ -69,7 +69,7 @@
 #define PAGEGUARD_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
 #define PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
 
-
+VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
 #if defined(WIN32)
 void setPageGuardExceptionHandler();
