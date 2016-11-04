@@ -219,12 +219,27 @@ ndk-build
 ## Android usage
 This documentation is preliminary and needs to be beefed up.
 
-See the [vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/vktracereplay.sh) file for an example of how to use vktrace/vkreplay and screenshot layers.
+See the [vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/vktracereplay.sh) file for a working example of how to use vktrace/vkreplay and screenshot layers.
 
-An example of using the script:
+An example of using the scripts on Linux and macOS:
 ```
 ./build_vktracereplay.sh
-./vktracereplay.sh --serial 12345678 --abi armeabi-v7a --apk ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk --package com.example.CubeWithLayers --frame 50
+./vktracereplay.sh \
+ --serial 12345678 \
+ --abi armeabi-v7a \
+ --apk ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk \
+ --package com.example.CubeWithLayers \
+ --frame 50
+```
+And on Windows:
+```
+build_vktracereplay.bat ^
+vktracereplay.bat ^
+ --serial 12345678 ^
+ --abi armeabi-v7a ^
+ --apk ..\demos\android\cube-with-layers\bin\NativeActivity-debug.apk ^
+ --package com.example.CubeWithLayers ^
+ --frame 50
 ```
 ### api_dump
 To enable, make the following changes to vk_layer_settings.txt
