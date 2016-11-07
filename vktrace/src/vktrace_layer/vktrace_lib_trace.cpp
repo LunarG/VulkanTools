@@ -294,7 +294,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     getMappedDirtyPagesLinux();
 #endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData, &vkFlushMappedMemoryRangesWithoutAPICall);
-    pageguardExit();
 #endif
     uint64_t trace_begin_time = vktrace_get_time();
 
@@ -328,7 +327,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     pPacket->memory = memory;
     FINISH_TRACE_PACKET();
 #ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
     if (PageGuardMappedData != nullptr)
     {
         pageguardFreeMemory(PageGuardMappedData);
@@ -374,7 +372,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
     resetAllReadFlagAndPageGuard();
-    pageguardExit();
 #endif
 
     // find out how much memory is in the ranges
@@ -432,6 +429,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     pPacket->memoryRangeCount = memoryRangeCount;
     pPacket->result = result;
     FINISH_TRACE_PACKET();
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardExit();
+#endif
     return result;
 }
 
