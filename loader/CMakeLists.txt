@@ -5,8 +5,8 @@ include_directories(
 
 if (WIN32)
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.def
-	    COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/loader/vk-loader-generate.py ${DisplayServer} win-def-file vulkan-${MAJOR}.dll all > ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.def
-	    DEPENDS ${PROJECT_SOURCE_DIR}/loader/vk-loader-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
+        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} win-def-file vulkan-${MAJOR}.dll all > ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.def
+        DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
 endif()
 
 # DEBUG enables runtime loader ICD verification
@@ -83,7 +83,7 @@ else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 
     add_library(vulkan SHARED ${LOADER_SRCS})
-    set_target_properties(vulkan PROPERTIES SOVERSION "1" VERSION "1.0.31")
+    set_target_properties(vulkan PROPERTIES SOVERSION "1" VERSION "1.0.32")
     target_link_libraries(vulkan -ldl -lpthread -lm)
     install(TARGETS vulkan LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()

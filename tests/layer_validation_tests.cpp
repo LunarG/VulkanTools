@@ -34,9 +34,10 @@
 #include "icd-spv.h"
 #include "test_common.h"
 #include "vk_layer_config.h"
-#include "vkrenderframework.h"
-#include <unordered_set>
 #include "vk_validation_error_messages.h"
+#include "vkrenderframework.h"
+#include <limits.h>
+#include <unordered_set>
 
 #define GLM_FORCE_RADIANS
 #include "glm/glm.hpp"
@@ -222,9 +223,11 @@ class ErrorMonitor {
 
     void DumpFailureMsgs(void) {
         vector<string> otherMsgs = GetOtherFailureMsgs();
-        cout << "Other error messages logged for this test were:" << endl;
-        for (auto iter = otherMsgs.begin(); iter != otherMsgs.end(); iter++) {
-            cout << "     " << *iter << endl;
+        if (otherMsgs.size()) {
+            cout << "Other error messages logged for this test were:" << endl;
+            for (auto iter = otherMsgs.begin(); iter != otherMsgs.end(); iter++) {
+                cout << "     " << *iter << endl;
+            }
         }
     }
 
@@ -243,6 +246,9 @@ class ErrorMonitor {
             DumpFailureMsgs();
             for (auto desired_msg : m_desired_message_strings) {
                 FAIL() << "Did not receive expected error '" << desired_msg << "'";
+            }
+            for (auto desired_id : m_desired_message_ids) {
+                FAIL() << "Did not receive expected error '" << desired_id << "'";
             }
         }
     }
@@ -9647,7 +9653,7 @@ TEST_F(VkLayerTest, MissingClearAttachment) {
                      "structure passed to vkCmdClearAttachments");
     ASSERT_NO_FATAL_FAILURE(InitState());
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "vkCmdClearAttachments() color attachment index 1 out of range for active subpass 0; ignored");
+                                         "vkCmdClearAttachments() color attachment index 1 out of range for active subpass 0");
 
     VKTriangleTest(bindStateVertShaderText, bindStateFragShaderText, BsoFailCmdClearAttachments);
     m_errorMonitor->VerifyFound();
@@ -15365,6 +15371,92 @@ TEST_F(VkWsiEnabledLayerTest, TestEnabledWsi) {
 //
 // These tests do not expect to encounter ANY validation errors pass only if this is true
 
+TEST_F(VkPositiveLayerTest, SecondaryCommandBufferImageLayoutTransitions) {
+    TEST_DESCRIPTION("Perform an image layout transition in a secondary command buffer followed "
+                     "by a transition in the primary.");
+    VkResult err;
+    m_errorMonitor->ExpectSuccess();
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+    // Allocate a secondary and primary cmd buffer
+    VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
+    command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    command_buffer_allocate_info.commandPool = m_commandPool;
+    command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+    command_buffer_allocate_info.commandBufferCount = 1;
+
+    VkCommandBuffer secondary_command_buffer;
+    ASSERT_VK_SUCCESS(vkAllocateCommandBuffers(m_device->device(), &command_buffer_allocate_info, &secondary_command_buffer));
+    command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    VkCommandBuffer primary_command_buffer;
+    ASSERT_VK_SUCCESS(vkAllocateCommandBuffers(m_device->device(), &command_buffer_allocate_info, &primary_command_buffer));
+    VkCommandBufferBeginInfo command_buffer_begin_info = {};
+    VkCommandBufferInheritanceInfo command_buffer_inheritance_info = {};
+    command_buffer_inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    command_buffer_begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    command_buffer_begin_info.pInheritanceInfo = &command_buffer_inheritance_info;
+
+    err = vkBeginCommandBuffer(secondary_command_buffer, &command_buffer_begin_info);
+    ASSERT_VK_SUCCESS(err);
+    VkImageObj image(m_device);
+    image.init(128, 128, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    ASSERT_TRUE(image.initialized());
+    VkImageMemoryBarrier img_barrier = {};
+    img_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    img_barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+    img_barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    img_barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    img_barrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    img_barrier.image = image.handle();
+    img_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+    img_barrier.subresourceRange.baseArrayLayer = 0;
+    img_barrier.subresourceRange.baseMipLevel = 0;
+    img_barrier.subresourceRange.layerCount = 1;
+    img_barrier.subresourceRange.levelCount = 1;
+    vkCmdPipelineBarrier(secondary_command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0, nullptr,
+                         0, nullptr, 1, &img_barrier);
+    err = vkEndCommandBuffer(secondary_command_buffer);
+    ASSERT_VK_SUCCESS(err);
+
+    // Now update primary cmd buffer to execute secondary and transitions image
+    command_buffer_begin_info.pInheritanceInfo = nullptr;
+    err = vkBeginCommandBuffer(primary_command_buffer, &command_buffer_begin_info);
+    ASSERT_VK_SUCCESS(err);
+    vkCmdExecuteCommands(primary_command_buffer, 1, &secondary_command_buffer);
+    VkImageMemoryBarrier img_barrier2 = {};
+    img_barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    img_barrier2.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+    img_barrier2.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    img_barrier2.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    img_barrier2.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    img_barrier2.image = image.handle();
+    img_barrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+    img_barrier2.subresourceRange.baseArrayLayer = 0;
+    img_barrier2.subresourceRange.baseMipLevel = 0;
+    img_barrier2.subresourceRange.layerCount = 1;
+    img_barrier2.subresourceRange.levelCount = 1;
+    vkCmdPipelineBarrier(primary_command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0, nullptr, 0,
+                         nullptr, 1, &img_barrier2);
+    err = vkEndCommandBuffer(primary_command_buffer);
+    ASSERT_VK_SUCCESS(err);
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &primary_command_buffer;
+    err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
+    ASSERT_VK_SUCCESS(err);
+    m_errorMonitor->VerifyNotFound();
+    err = vkDeviceWaitIdle(m_device->device());
+    ASSERT_VK_SUCCESS(err);
+    vkFreeCommandBuffers(m_device->device(), m_commandPool, 1, &secondary_command_buffer);
+    vkFreeCommandBuffers(m_device->device(), m_commandPool, 1, &primary_command_buffer);
+}
+
 // This is a positive test. No failures are expected.
 TEST_F(VkPositiveLayerTest, IgnoreUnrelatedDescriptor) {
     TEST_DESCRIPTION("Ensure that the vkUpdateDescriptorSets validation code "
@@ -15763,6 +15855,68 @@ TEST_F(VkLayerTest, DuplicateDescriptorBinding) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_02345);
     vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL, &ds_layout);
     m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkLayerTest, ViewportBoundsChecking) {
+    TEST_DESCRIPTION("Verify errors are detected on misuse of SetViewport and SetScissor.");
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    char const *vsSource = "#version 450\n"
+                           "void main() { gl_Position = vec4(1); }\n";
+    char const *fsSource = "#version 450\n"
+                           "layout(location=0) out vec4 color;\n"
+                           "void main() { color = vec4(1); }\n";
+
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this);
+
+    VkPipelineObj pipe(m_device);
+    pipe.AddShader(&vs);
+    pipe.AddShader(&fs);
+    pipe.AddColorAttachment();
+
+    VkDescriptorSetObj descriptorSet(m_device);
+    descriptorSet.CreateVKDescriptorSet(m_commandBuffer);
+    VkResult err = pipe.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderPass());
+    ASSERT_VK_SUCCESS(err);
+
+    BeginCommandBuffer();
+    m_commandBuffer->BindPipeline(pipe);
+
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01489);
+        VkRect2D scissor = {{-1, 0}, {16, 16}};
+        vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01489);
+        VkRect2D scissor = {{0, -2}, {16, 16}};
+        vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01490);
+        VkRect2D scissor = {{100, 100}, {INT_MAX, 16}};
+        vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01491);
+        VkRect2D scissor = {{100, 100}, {16, INT_MAX}};
+        vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+        m_errorMonitor->VerifyFound();
+    }
+
+    EndCommandBuffer();
 }
 
 // This is a positive test. No failures are expected.
