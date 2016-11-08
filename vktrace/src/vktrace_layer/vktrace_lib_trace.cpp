@@ -388,7 +388,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
-        dataSize += (size_t)pRange->size;
+        dataSize += ROUNDUP_TO_4(((size_t)pRange->size));
     }
 #ifdef USE_PAGEGUARD_SPEEDUP
     dataSize = getPageGuardControlInstance().getALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData);
@@ -437,7 +437,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
                 getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
             }
 #else
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size, pEntry->pData + pRange->offset);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(pRange->size), pEntry->pData + pRange->offset);
 #endif
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
             pEntry->didFlush = TRUE;
