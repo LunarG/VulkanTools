@@ -25,24 +25,23 @@ python ../vk-generate.py Android dispatch-table-ops layer > generated/include/vk
 
 python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated/include
 python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
-python ../vk_helper_api_dump.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
 
-python ../vk-vtlayer-generate.py Android api_dump ../include/vulkan/vulkan.h > generated/include/api_dump.cpp
+( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h )
+( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h )
+( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h )
 
-( cd generated/include; python ../../../genvk.py threading -registry ../../../vk.xml thread_check.h )
-( cd generated/include; python ../../../genvk.py paramchecker -registry ../../../vk.xml parameter_validation.h )
-( cd generated/include; python ../../../genvk.py unique_objects -registry ../../../vk.xml unique_objects_wrappers.h )
+( cd generated/include; python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp )
 
 # vktrace
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_core > generated/include/vktrace_vk_vk.h
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_core > generated/include/vktrace_vk_vk.cpp
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_core > generated/include/vktrace_vk_vk_packets.h
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_core > generated/include/vktrace_vk_packet_id.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > generated/include/vktrace_vk_vk.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_version_1_0 > generated/include/vktrace_vk_vk.cpp
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_version_1_0 > generated/include/vktrace_vk_vk_packets.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_version_1_0 > generated/include/vktrace_vk_packet_id.h
 
 # vkreplay
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_core > generated/include/vkreplay_vk_func_ptrs.h
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_core > generated/include/vkreplay_vk_replay_gen.cpp
-python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_core > generated/include/vkreplay_vk_objmapper.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_version_1_0 > generated/include/vkreplay_vk_func_ptrs.h
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > generated/include/vkreplay_vk_replay_gen.cpp
+python ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_version_1_0 > generated/include/vkreplay_vk_objmapper.h
 
 cp -f ../layers/vk_layer_config.cpp   generated/common/
 cp -f ../layers/vk_layer_extension_utils.cpp  generated/common/
@@ -54,9 +53,7 @@ cp -f ../layers/descriptor_sets.cpp   generated/common/
 # 1 to 1 correspondence -- one layer one source file; additional files are copied
 # at fixup step
 declare layers=(core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot)
-declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers generated/include generated/include ../layersvt)
-declare layers=(core_validation image object_tracker parameter_validation swapchain threading unique_objects)
-declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers ../layers)
+declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers ../layers generated/include ../layersvt)
 
 SRC_ROOT=generated/layer-src
 BUILD_ROOT=generated/gradle-build
@@ -80,7 +77,6 @@ cp  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/core_validation/vk_safe_str
 mv  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/unique_objects/vk_safe_struct.cpp
 
 # fixup - remove copied files from generated/include
-rm  generated/include/unique_objects.cpp
 rm  generated/include/api_dump.cpp
 
 exit 0

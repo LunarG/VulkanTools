@@ -30,9 +30,14 @@
 #pragma comment (lib, "Rpcrt4.lib")
 #endif
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 #include <fcntl.h>
 #include <time.h>
+#endif
+
+#if defined(PLATFORM_OSX)
+#include <mach/clock.h>
+#include <mach/mach.h>
 #endif
 
 #include "vktrace_pageguard_memorycopy.h"
@@ -81,6 +86,17 @@ uint64_t vktrace_get_time()
     struct timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
     return ((uint64_t)time.tv_sec * 1000000000) + time.tv_nsec;
+}
+#elif defined(PLATFORM_OSX)
+uint64_t vktrace_get_time()
+{
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+
+    return ((uint64_t)mts.tv_sec * 1000000000) + mts.tv_nsec;
 }
 #elif defined(PLATFORM_WINDOWS)
 uint64_t vktrace_get_time()

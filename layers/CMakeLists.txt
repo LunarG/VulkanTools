@@ -7,12 +7,13 @@ macro(run_vk_helper subcmd)
     )
 endmacro()
 
-macro(run_vk_layer_xml_generate subcmd output)
+macro(run_vk_layer_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/genvk.py -registry ${PROJECT_SOURCE_DIR}/vk.xml ${output}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk.xml ${PROJECT_SOURCE_DIR}/generator.py ${PROJECT_SOURCE_DIR}/genvk.py ${PROJECT_SOURCE_DIR}/reg.py
+        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/lvl_genvk.py -registry ${PROJECT_SOURCE_DIR}/vk.xml ${output}
+        DEPENDS ${PROJECT_SOURCE_DIR}/vk.xml ${PROJECT_SOURCE_DIR}/generator.py ${PROJECT_SOURCE_DIR}/${dependency} ${PROJECT_SOURCE_DIR}/lvl_genvk.py ${PROJECT_SOURCE_DIR}/reg.py
     )
 endmacro()
+
 set(LAYER_JSON_FILES
     VkLayer_core_validation
     VkLayer_image
@@ -71,7 +72,7 @@ if(UNIX)
             VERBATIM
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
             )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION /etc/vulkan/explicit_layer.d)
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
     endforeach(config_file)
 endif()
 
@@ -91,7 +92,7 @@ else()
     target_link_Libraries(VkLayer_${target} VkLayer_utils)
     add_dependencies(VkLayer_${target} generate_dispatch_table_helper generate_vk_layer_helpers generate_enum_string_helper VkLayer_utils)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
-    install(TARGETS VkLayer_${target} DESTINATION lib)
+    install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
 endif()
 
@@ -127,16 +128,7 @@ run_vk_helper(gen_struct_wrappers
     vk_struct_wrappers.h
     vk_struct_wrappers.cpp
     vk_safe_struct.h
-# Don't list vk_safe_struct.cpp as OUTPUT to avoid duplicate builds.
-# If listed here use of it for add_library will cause it to be created
-# independently of custom target generate_vk_layer_helpers .
-# That breaks parallel builds.
-#   vk_safe_struct.cpp
-)
-
-# Let gen_struct_wrappers really create vk_safe_struct.cpp
-add_custom_command(OUTPUT vk_safe_struct.cpp
-    COMMAND echo defer making vk_safe_struct.cpp
+    vk_safe_struct.cpp
 )
 
 set_source_files_properties(
@@ -173,9 +165,9 @@ add_custom_target(generate_vk_layer_helpers DEPENDS
     vk_safe_struct.cpp
 )
 
-run_vk_layer_xml_generate(Threading thread_check.h)
-run_vk_layer_xml_generate(ParamChecker parameter_validation.h)
-run_vk_layer_xml_generate(UniqueObjects unique_objects_wrappers.h)
+run_vk_layer_xml_generate(threading_generator.py thread_check.h)
+run_vk_layer_xml_generate(parameter_validation_generator.py parameter_validation.h)
+run_vk_layer_xml_generate(unique_objects_generator.py unique_objects_wrappers.h)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -184,16 +176,16 @@ if (WIN32)
     add_library(VkLayer_utils STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
 else()
     add_library(VkLayer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp)
-    install(TARGETS VkLayer_utils DESTINATION lib)
+    install(TARGETS VkLayer_utils DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
-add_vk_layer(core_validation core_validation.cpp vk_layer_table.cpp vk_safe_struct.cpp descriptor_sets.cpp)
+add_vk_layer(core_validation core_validation.cpp vk_layer_table.cpp descriptor_sets.cpp)
 add_vk_layer(object_tracker object_tracker.cpp vk_layer_table.cpp)
 add_vk_layer(image image.cpp vk_layer_table.cpp)
 add_vk_layer(swapchain swapchain.cpp vk_layer_table.cpp)
 # generated
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
-add_vk_layer(unique_objects unique_objects.cpp unique_objects_wrappers.h vk_layer_table.cpp vk_safe_struct.cpp)
+add_vk_layer(unique_objects unique_objects.cpp unique_objects_wrappers.h vk_layer_table.cpp)
 add_vk_layer(parameter_validation parameter_validation.cpp parameter_validation.h vk_layer_table.cpp)
 
 # Core validation has additional dependencies

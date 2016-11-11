@@ -96,7 +96,7 @@ typedef struct {
 } VkIcdSurfaceAndroid;
 #endif
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 typedef void* HINSTANCE;
 typedef void* HWND;
 typedef void* HANDLE;

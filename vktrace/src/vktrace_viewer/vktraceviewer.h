@@ -109,7 +109,7 @@ private slots:
     void on_settingsDialogResized(unsigned int width, unsigned int height);
     void on_settingsSaved(vktrace_SettingGroup* pUpdatedSettings, unsigned int numGroups);
 
-    void onTraceFileLoaded(bool bSuccess, vktraceviewer_trace_file_info fileInfo, const QString &controllerFilename);
+    void onTraceFileLoaded(bool bSuccess, const vktraceviewer_trace_file_info& fileInfo, const QString& controllerFilename);
 
     void on_treeView_clicked(const QModelIndex &index);
     void slot_timeline_clicked(const QModelIndex &index);

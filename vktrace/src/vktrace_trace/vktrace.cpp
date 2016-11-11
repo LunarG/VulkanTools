@@ -40,16 +40,16 @@ vktrace_settings g_default_settings;
 vktrace_SettingInfo g_settings_info[] =
 {
     // common command options
-    { "p", "Program", VKTRACE_SETTING_STRING, &g_settings.program, &g_default_settings.program, TRUE, "The program to trace."},
-    { "a", "Arguments", VKTRACE_SETTING_STRING, &g_settings.arguments, &g_default_settings.arguments, TRUE, "Cmd-line arguments to pass to trace program."},
-    { "w", "WorkingDir", VKTRACE_SETTING_STRING, &g_settings.working_dir, &g_default_settings.working_dir, TRUE, "The program's working directory."},
-    { "o", "OutputTrace", VKTRACE_SETTING_STRING, &g_settings.output_trace, &g_default_settings.output_trace, TRUE, "Path to the generated output trace file."},
-    { "s", "ScreenShot", VKTRACE_SETTING_STRING, &g_settings.screenshotList, &g_default_settings.screenshotList, TRUE, "Comma separated list of frames to take a snapshot of."},
-    { "ptm", "PrintTraceMessages", VKTRACE_SETTING_BOOL, &g_settings.print_trace_messages, &g_default_settings.print_trace_messages, TRUE, "Print trace messages to vktrace console."},
+    { "p", "Program", VKTRACE_SETTING_STRING, { &g_settings.program }, { &g_default_settings.program }, TRUE, "The program to trace."},
+    { "a", "Arguments", VKTRACE_SETTING_STRING, { &g_settings.arguments }, { &g_default_settings.arguments }, TRUE, "Cmd-line arguments to pass to trace program."},
+    { "w", "WorkingDir", VKTRACE_SETTING_STRING, { &g_settings.working_dir }, { &g_default_settings.working_dir }, TRUE, "The program's working directory."},
+    { "o", "OutputTrace", VKTRACE_SETTING_STRING, { &g_settings.output_trace }, { &g_default_settings.output_trace }, TRUE, "Path to the generated output trace file."},
+    { "s", "ScreenShot", VKTRACE_SETTING_STRING, { &g_settings.screenshotList }, { &g_default_settings.screenshotList }, TRUE, "Comma separated list of frames to take a snapshot of."},
+    { "ptm", "PrintTraceMessages", VKTRACE_SETTING_BOOL, { &g_settings.print_trace_messages }, { &g_default_settings.print_trace_messages }, TRUE, "Print trace messages to vktrace console."},
 #if _DEBUG
-    { "v", "Verbosity", VKTRACE_SETTING_STRING, &g_settings.verbosity, &g_default_settings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, { &g_settings.verbosity }, { &g_default_settings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
-    { "v", "Verbosity", VKTRACE_SETTING_STRING, &g_settings.verbosity, &g_default_settings.verbosity, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
+    { "v", "Verbosity", VKTRACE_SETTING_STRING, { &g_settings.verbosity }, { &g_default_settings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\"."},
 #endif
 
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause, &g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger can be attached)" },
@@ -333,7 +333,7 @@ int main(int argc, char* argv[])
             if (g_settings.program != NULL)
                 procInfo.watchdogThread = vktrace_platform_create_thread(Process_RunWatchdogThread, &procInfo);
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
             // Sync wait for local threads and remote process to complete.
 
             vktrace_platform_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));

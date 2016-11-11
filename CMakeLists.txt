@@ -48,6 +48,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if (NOT BUILD_WSI_XCB_SUPPORT AND NOT BUILD_WSI_XLIB_SUPPORT AND NOT BUILD_WSI_WAYLAND_SUPPORT AND NOT BUILD_WSI_MIR_SUPPORT)
         set(DisplayServer Display)
     endif()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Only vktrace is supported on macOS
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
@@ -105,20 +107,41 @@ else()
     endif()
 endif()
 
-option(BUILD_LOADER "Build loader" ON)
-if(WIN32)
-    option(BUILD_ICD "Build LunarG intel icd" OFF)
-else()
-    option(BUILD_ICD "Build LunarG intel icd" ON)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
+    CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+    # These are unchanged from upstream file
+    option(BUILD_LOADER "Build loader" ON)
+    if(WIN32)
+        option(BUILD_ICD "Build LunarG intel icd" OFF)
+    else()
+        option(BUILD_ICD "Build LunarG intel icd" ON)
+    endif()
+    option(BUILD_TESTS "Build tests" ON)
+    option(BUILD_LAYERS "Build layers" ON)
+    option(BUILD_LAYERSVT "Build layersvt" ON)
+    option(BUILD_DEMOS "Build demos" ON)
+    option(BUILD_VKTRACE "Build VkTrace" ON)
+    option(BUILD_VKJSON "Build vkjson" ON)
+    option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
+    option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
+
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+    # Only vktrace enable for macOS
+    option(BUILD_VKTRACE ON)
+    option(BUILD_LOADER OFF)
+    option(BUILD_ICD OFF)
+    option(BUILD_TESTS OFF)
+    option(BUILD_LAYERS OFF)
+    option(BUILD_LAYERSVT OFF)
+    option(BUILD_VKTRACEVIEWER OFF)
+    option(BUILD_DEMOS OFF)
+    option(BUILD_VKJSON OFF)
+    option(BUILD_VKTRACE_LAYER OFF)
+    option(BUILD_VKTRACE_REPLAY OFF)
+
 endif()
-option(BUILD_TESTS "Build tests" ON)
-option(BUILD_LAYERS "Build layers" ON)
-option(BUILD_LAYERSVT "Build layersvt" ON)
-option(BUILD_DEMOS "Build demos" ON)
-option(BUILD_VKTRACE "Build VkTrace" ON)
-option(BUILD_VKJSON "Build vkjson" ON)
-option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
-option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
 
 #Choose natural default paths for glslang and SPIRV-Tools binaries to support custom definition by the user on the CMake command line or in the GUI
 set(GLSLANG_BINARY_ROOT "${CMAKE_BINARY_DIR}/../glslang" CACHE STRING "User defined path to the glslang binaries for this project")
@@ -288,13 +311,23 @@ set (PYTHON_CMD ${PYTHON_EXECUTABLE})
 
 if(NOT WIN32)
     include(GNUInstallDirs)
-    add_definitions(-DSYSCONFDIR="${CMAKE_INSTALL_SYSCONFDIR}")
-    add_definitions(-DDATADIR="${CMAKE_INSTALL_DATADIR}")
-    if (CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
-    elseif (CMAKE_INSTALL_PREFIX STREQUAL "")
-    else()
-        add_definitions(-DLOCALPREFIX="${CMAKE_INSTALL_PREFIX}")
+
+    add_definitions(-DSYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+    add_definitions(-DDATADIR="${CMAKE_INSTALL_FULL_DATADIR}")
+
+    # Make sure /etc is searched by the loader
+    if (NOT (CMAKE_INSTALL_FULL_SYSCONFDIR STREQUAL "/etc"))
+        add_definitions(-DEXTRASYSCONFDIR="/etc")
     endif()
+
+    # Make sure /usr/share is searched by the loader
+    if (NOT (CMAKE_INSTALL_FULL_DATADIR STREQUAL "/usr/share"))
+        add_definitions(-DEXTRADATADIR="/usr/share")
+    endif()
+endif()
+
+if(UNIX)
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 # loader: Generic VULKAN ICD loader

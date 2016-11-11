@@ -45,7 +45,7 @@
 #define VKTRACER_ENTRY void
 #define VKTRACER_LEAVE void
 
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 
 #define VKTRACER_EXPORT __attribute__ ((visibility ("default")))
 #define VKTRACER_STDCALL

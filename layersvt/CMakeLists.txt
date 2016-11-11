@@ -15,10 +15,10 @@ macro(run_vk_vtlayer_generate subcmd output)
     )
 endmacro()
 
-macro(run_vk_api_helper_generate subcmd)
-    add_custom_command(OUTPUT ${ARGN}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper_api_dump.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk_helper_api_dump.py ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
+macro(run_vk_layer_xml_generate subcmd output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vt_genvk.py -registry ${PROJECT_SOURCE_DIR}/vk.xml ${output}
+        DEPENDS ${PROJECT_SOURCE_DIR}/vk.xml ${PROJECT_SOURCE_DIR}/generator.py ${PROJECT_SOURCE_DIR}/vt_genvk.py ${PROJECT_SOURCE_DIR}/reg.py
     )
 endmacro()
 
@@ -174,13 +174,11 @@ add_custom_target(generate_vt_helpers DEPENDS
     vk_struct_wrappers.cpp
     vk_safe_struct.h
     vk_safe_struct.cpp
-    vk_api_dump_helper_cpp.h
 )
 
 #VulkanTools layers
 run_vk_vtlayer_generate(generic generic_layer.cpp)
-run_vk_vtlayer_generate(api_dump api_dump.cpp)
-run_vk_api_helper_generate(gen_struct_wrappers vk_api_dump_helper_cpp.h)
+run_vk_layer_xml_generate(ApiDump api_dump.cpp)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search

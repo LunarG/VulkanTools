@@ -23,12 +23,24 @@ python ../vk-generate.py Android dispatch-table-ops layer > generated/include/vk
 
 python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated/include
 python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
-python ../vk_helper_api_dump.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
 
 cd generated/include
-python ../../../genvk.py threading -registry ../../../vk.xml thread_check.h
-python ../../../genvk.py paramchecker -registry ../../../vk.xml parameter_validation.h
-python ../../../genvk.py unique_objects -registry ../../../vk.xml unique_objects_wrappers.h
+python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h
+python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h
+python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h
+python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp
+
+REM vktrace
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > vktrace_vk_vk.h
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_version_1_0 > vktrace_vk_vk.cpp
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_version_1_0 > vktrace_vk_vk_packets.h
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_version_1_0 > vktrace_vk_packet_id.h
+
+REM vkreplay
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_version_1_0 > vkreplay_vk_func_ptrs.h
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > vkreplay_vk_replay_gen.cpp
+python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_version_1_0 > vkreplay_vk_objmapper.h
+
 cd ../..
 
 copy /Y ..\layers\vk_layer_config.cpp   generated\common\
@@ -40,15 +52,19 @@ copy /Y ..\layers\descriptor_sets.cpp   generated\common\
 REM create build-script root directory
 mkdir generated\gradle-build
 cd generated\gradle-build
-mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects
+mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
 cd ..\..
 mkdir generated\layer-src
 cd generated\layer-src
-mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump
+mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
 cd ..\..
 xcopy /s gradle-templates\*   generated\gradle-build\
-for %%G in (core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump) Do (
+for %%G in (core_validation image object_tracker parameter_validation swapchain threading unique_objects) Do (
     copy ..\layers\%%G.cpp   generated\layer-src\%%G
+    echo apply from: "../common.gradle"  > generated\gradle-build\%%G\build.gradle
+)
+for %%G in (screenshot) Do (
+    copy ..\layersvt\%%G.cpp   generated\layer-src\%%G
     echo apply from: "../common.gradle"  > generated\gradle-build\%%G\build.gradle
 )
 copy generated\include\api_dump.cpp   generated\layer-src\api_dump
