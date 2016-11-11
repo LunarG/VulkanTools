@@ -2697,30 +2697,6 @@ namespace trim
                     vktrace_trace_packet_header* pHeader = generate::vkUpdateDescriptorSets(false, setObj->second.belongsToDevice, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
                     vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pHeader);
-
-                    // need to clean up the structs created by trim
-                    for (uint32_t i = 0; i < descriptorWriteCount; i++)
-                    {
-                        if (pDescriptorWrites[i].pImageInfo != nullptr)
-                        {
-                            free((void*)pDescriptorWrites[i].pImageInfo);
-                            pDescriptorWrites[i].pImageInfo = nullptr;
-                        }
-                        if (pDescriptorWrites[i].pTexelBufferView != nullptr)
-                        {
-                            free((void*)pDescriptorWrites[i].pTexelBufferView);
-                            pDescriptorWrites[i].pTexelBufferView = nullptr;
-                        }
-                        if (pDescriptorWrites[i].pBufferInfo != nullptr)
-                        {
-                            free((void*)pDescriptorWrites[i].pBufferInfo);
-                            pDescriptorWrites[i].pBufferInfo = nullptr;
-                        }
-                    }
-
-                    // special to trim code
-                    free(pDescriptorWrites);
-                    free(pDescriptorCopies);
                 }
             }
         }

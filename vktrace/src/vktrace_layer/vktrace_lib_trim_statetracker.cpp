@@ -447,6 +447,13 @@ namespace trim
         for (TrimObjectInfoMap::iterator obj = createdPipelineLayouts.begin(); obj != createdPipelineLayouts.end(); obj++)
         {
             COPY_PACKET(obj->second.ObjectInfo.PipelineLayout.pCreatePacket);
+
+            if (obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts != nullptr)
+            {
+                VkDescriptorSetLayout* pLayouts = new VkDescriptorSetLayout[obj->second.ObjectInfo.PipelineLayout.descriptorSetLayoutCount];
+                memcpy(pLayouts, obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts, obj->second.ObjectInfo.PipelineLayout.descriptorSetLayoutCount * sizeof(VkDescriptorSetLayout));
+                obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts = pLayouts;
+            }
         }
 
         createdSamplers = other.createdSamplers;
@@ -476,11 +483,11 @@ namespace trim
         createdDescriptorSets = other.createdDescriptorSets;
         for (TrimObjectInfoMap::iterator obj = createdDescriptorSets.begin(); obj != createdDescriptorSets.end(); obj++)
         {
-            uint32_t writeDescriptorCount = obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
-            if (writeDescriptorCount > 0)
+            uint32_t numBindings = obj->second.ObjectInfo.DescriptorSet.numBindings;
+            if (numBindings > 0)
             {
-                VkWriteDescriptorSet* tmp = new VkWriteDescriptorSet[writeDescriptorCount];
-                memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets, writeDescriptorCount*sizeof(VkWriteDescriptorSet));
+                VkWriteDescriptorSet* tmp = new VkWriteDescriptorSet[numBindings];
+                memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets, numBindings*sizeof(VkWriteDescriptorSet));
                 obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = tmp;
 
                 for (uint32_t s = 0; s < obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
@@ -512,11 +519,10 @@ namespace trim
                 obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = nullptr;
             }
 
-            uint32_t copyDescriptorCount = obj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
-            if (copyDescriptorCount > 0)
+            if (numBindings > 0)
             {
-                VkCopyDescriptorSet* tmp = new VkCopyDescriptorSet[copyDescriptorCount];
-                memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets, copyDescriptorCount*sizeof(VkCopyDescriptorSet));
+                VkCopyDescriptorSet* tmp = new VkCopyDescriptorSet[numBindings];
+                memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets, numBindings*sizeof(VkCopyDescriptorSet));
                 obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets = tmp;
             }
             else
@@ -1298,19 +1304,22 @@ namespace trim
             }
             if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != nullptr)
             {
-                for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount; s++)
+                for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.numBindings; s++)
                 {
                     if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr)
                     {
                         delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
+                        pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo = nullptr;
                     }
                     if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != nullptr)
                     {
                         delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
+                        pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo = nullptr;
                     }
                     if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != nullptr)
                     {
                         delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
+                        pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView = nullptr;
                     }
                 }
 

@@ -1691,17 +1691,23 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(
                         pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount++;
 
                         pWriteDescriptorSet->dstArrayElement = pDescriptorWrites[i].dstArrayElement;
-                        if (pWriteDescriptorSet->pImageInfo != NULL)
+                        if (pDescriptorWrites[i].pImageInfo != nullptr)
                         {
-                            memcpy((void*)pWriteDescriptorSet->pImageInfo, pDescriptorWrites[i].pImageInfo, sizeof(VkDescriptorImageInfo) * pWriteDescriptorSet->descriptorCount);
+                            memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo), pDescriptorWrites[i].pImageInfo, sizeof(VkDescriptorImageInfo) * pWriteDescriptorSet->descriptorCount);
+                            pWriteDescriptorSet->pBufferInfo = nullptr;
+                            pWriteDescriptorSet->pTexelBufferView = nullptr;
                         }
-                        if (pWriteDescriptorSet->pBufferInfo != NULL)
+                        if (pDescriptorWrites[i].pBufferInfo != nullptr)
                         {
-                            memcpy((void*)pWriteDescriptorSet->pBufferInfo, pDescriptorWrites[i].pBufferInfo, sizeof(VkDescriptorBufferInfo) * pWriteDescriptorSet->descriptorCount);
+                            memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo), pDescriptorWrites[i].pBufferInfo, sizeof(VkDescriptorBufferInfo) * pWriteDescriptorSet->descriptorCount);
+                            pWriteDescriptorSet->pImageInfo = nullptr;
+                            pWriteDescriptorSet->pTexelBufferView = nullptr;
                         }
-                        if (pWriteDescriptorSet->pTexelBufferView != NULL)
+                        if (pDescriptorWrites[i].pTexelBufferView != nullptr)
                         {
-                            memcpy((void*)pWriteDescriptorSet->pTexelBufferView, pDescriptorWrites[i].pTexelBufferView, sizeof(VkBufferView) * pWriteDescriptorSet->descriptorCount);
+                            memcpy(const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView), pDescriptorWrites[i].pTexelBufferView, sizeof(VkBufferView) * pWriteDescriptorSet->descriptorCount);
+                            pWriteDescriptorSet->pImageInfo = nullptr;
+                            pWriteDescriptorSet->pBufferInfo = nullptr;
                         }
                         break;
                     }
