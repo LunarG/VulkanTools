@@ -349,6 +349,12 @@ namespace trim
         for (TrimObjectInfoMap::iterator obj = createdPipelines.begin(); obj != createdPipelines.end(); obj++)
         {
             COPY_PACKET(obj->second.ObjectInfo.Pipeline.pCreatePacket);
+
+            VkGraphicsPipelineCreateInfo* pCreateInfo = &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
+
+            // note: Using the same memory as both the destination and the source. We're copying what is currently there, which will properly result in new copies of any pointed-to objects and arrays.
+            copy_VkGraphicsPipelineCreateInfo(pCreateInfo, obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo);
+            copy_VkComputePipelineCreateInfo(const_cast<VkComputePipelineCreateInfo*>(&obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo), obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo);
         }
 
         createdQueues = other.createdQueues;
@@ -532,6 +538,204 @@ namespace trim
         }
 
         return *this;
+    }
+
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void StateTracker::copy_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo* pDstStage, const VkPipelineShaderStageCreateInfo& srcStage)
+    {
+        *pDstStage = srcStage;
+
+        if (srcStage.pName != nullptr)
+        {
+            char* pName = new char[strlen(srcStage.pName) + 1]();
+            strcpy(pName, srcStage.pName);
+            pDstStage->pName = pName;
+        }
+
+        if (srcStage.pSpecializationInfo != nullptr)
+        {
+            VkSpecializationInfo* pSI = new VkSpecializationInfo();
+            *pSI = *(srcStage.pSpecializationInfo);
+
+            if (srcStage.pSpecializationInfo->pData != nullptr && srcStage.pSpecializationInfo->dataSize > 0)
+            {
+                void* pData = malloc(srcStage.pSpecializationInfo->dataSize);
+                memcpy(pData, srcStage.pSpecializationInfo->pData, srcStage.pSpecializationInfo->dataSize);
+                pSI->pData = pData;
+            }
+
+            if (pSI->pMapEntries != nullptr)
+            {
+                VkSpecializationMapEntry* pSMEs = new VkSpecializationMapEntry[srcStage.pSpecializationInfo->mapEntryCount];
+                memcpy(pSMEs, srcStage.pSpecializationInfo->pMapEntries, srcStage.pSpecializationInfo->mapEntryCount * sizeof(VkSpecializationMapEntry));
+                pSI->pMapEntries = pSMEs;
+            }
+
+            pDstStage->pSpecializationInfo = pSI;
+        }
+    }
+
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void StateTracker::delete_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo* pStage)
+    {
+        if (pStage->pName != nullptr)
+        {
+            delete[] pStage->pName;
+        }
+
+        if (pStage->pSpecializationInfo != nullptr)
+        {
+            if (pStage->pSpecializationInfo->pData != nullptr)
+            {
+                free(const_cast<void*>(pStage->pSpecializationInfo->pData));
+            }
+            if (pStage->pSpecializationInfo->pMapEntries != nullptr)
+            {
+                delete[] pStage->pSpecializationInfo->pMapEntries;
+            }
+            delete pStage->pSpecializationInfo;
+        }
+    }
+
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void StateTracker::copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo* pDst, const VkGraphicsPipelineCreateInfo& src)
+    {
+        *pDst = src;
+
+        if (src.pStages != nullptr)
+        {
+            VkPipelineShaderStageCreateInfo* pStages = new VkPipelineShaderStageCreateInfo[src.stageCount]();
+            for (uint32_t i = 0; i < src.stageCount; i++)
+            {
+                copy_VkPipelineShaderStageCreateInfo(&pStages[i], src.pStages[i]);
+            }
+
+            pDst->pStages = pStages;
+        }
+
+        if (src.pVertexInputState != nullptr)
+        {
+            VkPipelineVertexInputStateCreateInfo* pVIS = new VkPipelineVertexInputStateCreateInfo();
+            *pVIS = *(src.pVertexInputState);
+            pDst->pVertexInputState = pVIS;
+
+            if (src.pVertexInputState->pVertexAttributeDescriptions != nullptr)
+            {
+                VkVertexInputAttributeDescription* pVIADs = new VkVertexInputAttributeDescription[pVIS->vertexAttributeDescriptionCount]();
+                memcpy(pVIADs, pVIS->pVertexAttributeDescriptions, pVIS->vertexAttributeDescriptionCount * sizeof(VkVertexInputAttributeDescription));
+                pVIS->pVertexAttributeDescriptions = pVIADs;
+            }
+
+            if (src.pVertexInputState->pVertexBindingDescriptions != nullptr)
+            {
+                VkVertexInputBindingDescription* pVIBDs = new VkVertexInputBindingDescription[pVIS->vertexBindingDescriptionCount]();
+                memcpy(pVIBDs, pVIS->pVertexBindingDescriptions, pVIS->vertexBindingDescriptionCount * sizeof(VkVertexInputBindingDescription));
+                pVIS->pVertexBindingDescriptions = pVIBDs;
+            }
+        }
+
+        if (src.pInputAssemblyState != nullptr)
+        {
+            VkPipelineInputAssemblyStateCreateInfo* pIAS = new VkPipelineInputAssemblyStateCreateInfo();
+            *pIAS = *(src.pInputAssemblyState);
+            pDst->pInputAssemblyState = pIAS;
+        }
+
+        if (src.pTessellationState != nullptr)
+        {
+            VkPipelineTessellationStateCreateInfo* pTS = new VkPipelineTessellationStateCreateInfo();
+            *pTS = *(src.pTessellationState);
+            pDst->pTessellationState = pTS;
+        }
+
+        if (src.pViewportState != nullptr)
+        {
+            VkPipelineViewportStateCreateInfo* pVS = new VkPipelineViewportStateCreateInfo();
+            *pVS = *(src.pViewportState);
+            pDst->pViewportState = pVS;
+
+            if (src.pViewportState->pViewports != nullptr)
+            {
+                VkViewport* pViewports = new VkViewport[pVS->viewportCount];
+                memcpy(pViewports, pVS->pViewports, pVS->viewportCount * sizeof(VkViewport));
+                pVS->pViewports = pViewports;
+            }
+
+            if (src.pViewportState->pScissors != nullptr)
+            {
+                VkRect2D* pScissors = new VkRect2D[pVS->scissorCount];
+                memcpy(pScissors, pVS->pScissors, pVS->scissorCount * sizeof(VkRect2D));
+                pVS->pScissors = pScissors;
+            }
+        }
+
+        if (src.pRasterizationState != nullptr)
+        {
+            VkPipelineRasterizationStateCreateInfo* pRS = new VkPipelineRasterizationStateCreateInfo();
+            *pRS = *(src.pRasterizationState);
+            pDst->pRasterizationState = pRS;
+        }
+
+        if (src.pMultisampleState != nullptr)
+        {
+            VkPipelineMultisampleStateCreateInfo* pMS = new VkPipelineMultisampleStateCreateInfo();
+            *pMS = *(src.pMultisampleState);
+            pDst->pMultisampleState = pMS;
+
+            if (src.pMultisampleState->pSampleMask != nullptr)
+            {
+                VkSampleMask* pMask = new VkSampleMask();
+                *pMask = *(pMS->pSampleMask);
+                pMS->pSampleMask = pMask;
+            }
+        }
+
+        if (src.pDepthStencilState != nullptr)
+        {
+            VkPipelineDepthStencilStateCreateInfo* pDSS = new VkPipelineDepthStencilStateCreateInfo();
+            *pDSS = *(src.pDepthStencilState);
+            pDst->pDepthStencilState = pDSS;
+        }
+
+        if (src.pColorBlendState != nullptr)
+        {
+            VkPipelineColorBlendStateCreateInfo* pCBS = new VkPipelineColorBlendStateCreateInfo();
+            *pCBS = *(src.pColorBlendState);
+            pDst->pColorBlendState = pCBS;
+
+            if (src.pColorBlendState->pAttachments != nullptr)
+            {
+                VkPipelineColorBlendAttachmentState* pAttachments = new VkPipelineColorBlendAttachmentState[pCBS->attachmentCount];
+                memcpy(pAttachments, pCBS->pAttachments, pCBS->attachmentCount * sizeof(VkPipelineColorBlendAttachmentState));
+                pCBS->pAttachments = pAttachments;
+            }
+        }
+
+        if (src.pDynamicState != nullptr)
+        {
+            VkPipelineDynamicStateCreateInfo* pDS = new VkPipelineDynamicStateCreateInfo();
+            *pDS = *(src.pDynamicState);
+            pDst->pDynamicState = pDS;
+
+            if (src.pColorBlendState->pAttachments != nullptr)
+            {
+                VkDynamicState* pDynamicStates = new VkDynamicState[pDS->dynamicStateCount];
+                memcpy(pDynamicStates, pDS->pDynamicStates, pDS->dynamicStateCount * sizeof(VkDynamicState));
+                pDS->pDynamicStates = pDynamicStates;
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void StateTracker::copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo* pDst, const VkComputePipelineCreateInfo& src)
+    {
+        *pDst = src;
+
+        copy_VkPipelineShaderStageCreateInfo(&pDst->stage, src.stage);
     }
 
     //---------------------------------------------------------------------
@@ -1278,6 +1482,97 @@ namespace trim
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Pipeline.pCreatePacket);
+
+            delete_VkPipelineShaderStageCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages != nullptr)
+            {
+                for (int i = 0; i < pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.stageCount; ++i)
+                {
+                    delete_VkPipelineShaderStageCreateInfo(const_cast<VkPipelineShaderStageCreateInfo*>(&pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[i]));
+                }
+
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState != nullptr)
+            {
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexAttributeDescriptions != nullptr)
+                {
+                    delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexAttributeDescriptions;
+                }
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexBindingDescriptions != nullptr)
+                {
+                    delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexBindingDescriptions;
+                }
+
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pInputAssemblyState != nullptr)
+            {
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pInputAssemblyState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pTessellationState != nullptr)
+            {
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pTessellationState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState != nullptr)
+            {
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pViewports != nullptr)
+                {
+                    delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pViewports;
+                }
+
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pScissors != nullptr)
+                {
+                    delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pScissors;
+                }
+
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pRasterizationState != nullptr)
+            {
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pRasterizationState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState != nullptr)
+            {
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState->pSampleMask != nullptr)
+                {
+                    delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState->pSampleMask;
+                }
+                
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDepthStencilState != nullptr)
+            {
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDepthStencilState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState != nullptr)
+            {
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState->pAttachments != nullptr)
+                {
+                    delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState->pAttachments;
+                }
+
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState;
+            }
+
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState != nullptr)
+            {
+                if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState->pDynamicStates != nullptr)
+                {
+                    delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState->pDynamicStates;
+                }
+
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState;
+            }
         }
         createdPipelines.erase(var);
     }

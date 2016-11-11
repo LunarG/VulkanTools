@@ -2260,7 +2260,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
             trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
             pInfo->belongsToDevice = device;
             pInfo->ObjectInfo.Pipeline.pCreatePacket = trim::copy_packet(pHeader);
-            pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo = pCreateInfos[i];
+            trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
                 trim::add_Allocator(pAllocator);
@@ -2309,21 +2309,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateComputePipelines* pPacket = NULL;
-    /*uint32_t i;
-    size_t total_size;
-
-    total_size = createInfoCount*sizeof(VkComputePipelineCreateInfo) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline);
-    for (i = 0; i < createInfoCount; i++) {
-        total_size += ROUNDUP_TO_4(strlen(pCreateInfos[i].stage.pName) + 1);
-        if (pCreateInfos[i].stage.pSpecializationInfo) {
-            total_size += sizeof(VkSpecializationInfo);
-            if (pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount > 0 && pCreateInfos[i].stage.pSpecializationInfo->pMapEntries)
-                total_size += pCreateInfos[i].stage.pSpecializationInfo->mapEntryCount * sizeof(VkSpecializationMapEntry);
-            if (pCreateInfos[i].stage.pSpecializationInfo->dataSize > 0 && pCreateInfos[i].stage.pSpecializationInfo->pData)
-                total_size += pCreateInfos[i].stage.pSpecializationInfo->dataSize;
-        }
-    }
-    CREATE_TRACE_PACKET(vkCreateComputePipelines, total_size);*/
     CREATE_TRACE_PACKET(vkCreateComputePipelines, createInfoCount*sizeof(VkComputePipelineCreateInfo) + getVkComputePipelineCreateInfosAdditionalSize( createInfoCount, pCreateInfos) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline));
 
     result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -2354,7 +2339,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
             pInfo->belongsToDevice = device;
             pInfo->ObjectInfo.Pipeline.pCreatePacket = trim::copy_packet(pHeader);
-            pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo = pCreateInfos[i];
+            trim::StateTracker::copy_VkComputePipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
                 trim::add_Allocator(pAllocator);

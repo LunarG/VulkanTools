@@ -359,7 +359,10 @@ namespace trim
         void remove_DescriptorSetLayout(VkDescriptorSetLayout var);
         void remove_DescriptorSet(VkDescriptorSet var);
 
-//    private:
+        static void copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo* pDst, const VkGraphicsPipelineCreateInfo& src);
+        static void copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo* pDst, const VkComputePipelineCreateInfo& src);
+        static void copy_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo* pDstStage, const VkPipelineShaderStageCreateInfo& srcStage);
+        static void delete_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo* pStage);
 
         // Map relating a command buffer object to all the calls that have been
         // made on that command buffer since it was started or last reset.
