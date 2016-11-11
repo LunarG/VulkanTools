@@ -146,7 +146,7 @@ void getMappedDirtyPagesLinux(void)
     PBYTE addr, alignedAddrStart, alignedAddrEnd;
     VkDeviceMemory mappedMemory;
     off_t pmOffset;
-    uint64_t index;
+    int64_t index;
     uint64_t pageEntry;
     size_t pageSize = getpagesize();
     size_t readLen;
@@ -165,36 +165,63 @@ void getMappedDirtyPagesLinux(void)
         }
     }
 
-    for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
-         it != getPageGuardControlInstance().getMapMemory().end();
-         it++)
+    // There's the possibility that a page is not dirty when we query its status,
+    // but it becomes dirty after the query but before we clear the dirty bits.
+    // We try to work around this by reading the dirty bits several times, until
+    // we find no additional dirty pages.
+    uint64_t dirtyCount=2;
+    for (int dirtyLoop=0; dirtyLoop<100; dirtyLoop++)
     {
-        pMappedMem = &(it->second);
-        mappedMemory = pMappedMem->getMappedMemory();
-        pEntry=find_mem_info_entry(mappedMemory);
-        addr=pEntry->pData+pEntry->rangeOffset;
-        alignedAddrStart = (PBYTE)((uint64_t)addr  & ~(pageSize-1));
-        alignedAddrEnd = addr + pEntry->rangeSize;
-        for (addr = alignedAddrStart; addr < alignedAddrEnd; addr+=pageSize)
+        bool foundDirtyPage = false;
+        for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
+             it != getPageGuardControlInstance().getMapMemory().end();
+             it++)
         {
-            // read 64-bit word that contains the diry bit
-            pmOffset = (off_t)((uint64_t)addr/(uint64_t)pageSize);
-            pmOffset = pmOffset * 8;
-            assert(pmOffset >= 0);
-            lseek(pmFd, pmOffset, SEEK_SET);
-            readLen = read(pmFd, &pageEntry, 8);
-            assert(readLen==8);
-            if (readLen != 8) {
-                vktrace_LogError("Failed to read from pagemap file. Attempting to continue...");
-                return;
-            }
-            if ((pageEntry&((uint64_t)1<<55)) != 0)  // TODO : is there a constant to replace 55?
+            pMappedMem = &(it->second);
+            mappedMemory = pMappedMem->getMappedMemory();
+            pEntry=find_mem_info_entry(mappedMemory);
+            addr=pEntry->pData+pEntry->rangeOffset;
+            alignedAddrStart = (PBYTE)((uint64_t)addr  & ~(pageSize-1));
+            alignedAddrEnd = addr + pEntry->rangeSize;
+            for (addr = alignedAddrStart; addr < alignedAddrEnd; addr+=pageSize)
             {
-                index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                // Read 64-bit word that contains the diry bit
+                pmOffset = (off_t)((uint64_t)addr/(uint64_t)pageSize);
+                pmOffset = pmOffset * 8;
+                assert(pmOffset >= 0);
+                lseek(pmFd, pmOffset, SEEK_SET);
+                readLen = read(pmFd, &pageEntry, 8);
+                assert(readLen==8);
+                if (readLen != 8) {
+                    vktrace_LogError("Failed to read from pagemap file. Attempting to continue...");
+                    return;
+                }
+                if ((pageEntry&((uint64_t)1<<55)) != 0)
+                {
+                    index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+                    if (index >= 0)
+                    {
+                        if (!pMappedMem->isMappedBlockChanged(index, BLOCK_FLAG_ARRAY_CHANGED))
+                        {
+                            pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                            foundDirtyPage = true;
+                        }
+                    }
+                }
             }
         }
+
+        if (!foundDirtyPage)
+            dirtyCount--;
+
+        // Exit loop if we have looped twice without finding a dirty page
+        if (dirtyCount == 0)
+            break;
     }
+
+    // Clear all dirty bits 
+    PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
+    pageGuardCapture.pageRefsDirtyClear();
 
 }
 #endif

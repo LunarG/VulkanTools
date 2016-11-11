@@ -185,7 +185,6 @@ bool PageGuardMappedMemory::isMappedBlockChanged(uint64_t index, int which)
 
 uint64_t PageGuardMappedMemory::getMappedBlockSize(uint64_t index)
 {
-#if WIN32
     uint64_t mappedBlockSize = PageGuardSize;
     if ((index + 1) == PageGuardAmount)
     {
@@ -195,9 +194,6 @@ uint64_t PageGuardMappedMemory::getMappedBlockSize(uint64_t index)
         }
     }
     return mappedBlockSize;
-#else
-    return PageGuardSize;
-#endif
 }
 
 uint64_t PageGuardMappedMemory::getMappedBlockOffset(uint64_t index)
@@ -284,8 +280,8 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
     #if defined(PLATFORM_LINUX)
     if (bSetPageGuard)
     {
-        PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
-        pageGuardCapture.pageRefsDirtyClear();
+        extern void getMappedDirtyPagesLinux(void); // Kludge, put this in a header file
+        getMappedDirtyPagesLinux();
     }
     #endif
     return setSuccessfully;
