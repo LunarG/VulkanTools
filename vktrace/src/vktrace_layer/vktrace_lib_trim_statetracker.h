@@ -303,6 +303,34 @@ namespace trim
         ObjectInfo* add_DescriptorSetLayout(VkDescriptorSetLayout var);
         ObjectInfo* add_DescriptorSet(VkDescriptorSet var);
 
+        ObjectInfo* get_Instance(VkInstance var);
+        ObjectInfo* get_PhysicalDevice(VkPhysicalDevice var);
+        ObjectInfo* get_Device(VkDevice var);
+        ObjectInfo* get_SurfaceKHR(VkSurfaceKHR var);
+        ObjectInfo* get_CommandPool(VkCommandPool var);
+        ObjectInfo* get_CommandBuffer(VkCommandBuffer var);
+        ObjectInfo* get_DescriptorPool(VkDescriptorPool var);
+        ObjectInfo* get_RenderPass(VkRenderPass var);
+        ObjectInfo* get_PipelineCache(VkPipelineCache var);
+        ObjectInfo* get_Pipeline(VkPipeline var);
+        ObjectInfo* get_Queue(VkQueue var);
+        ObjectInfo* get_Semaphore(VkSemaphore var);
+        ObjectInfo* get_DeviceMemory(VkDeviceMemory var);
+        ObjectInfo* get_Fence(VkFence var);
+        ObjectInfo* get_SwapchainKHR(VkSwapchainKHR var);
+        ObjectInfo* get_Image(VkImage var);
+        ObjectInfo* get_ImageView(VkImageView var);
+        ObjectInfo* get_Buffer(VkBuffer var);
+        ObjectInfo* get_BufferView(VkBufferView var);
+        ObjectInfo* get_Framebuffer(VkFramebuffer var);
+        ObjectInfo* get_Event(VkEvent var);
+        ObjectInfo* get_QueryPool(VkQueryPool var);
+        ObjectInfo* get_ShaderModule(VkShaderModule var);
+        ObjectInfo* get_PipelineLayout(VkPipelineLayout var);
+        ObjectInfo* get_Sampler(VkSampler var);
+        ObjectInfo* get_DescriptorSetLayout(VkDescriptorSetLayout var);
+        ObjectInfo* get_DescriptorSet(VkDescriptorSet var);
+
         void remove_Instance(VkInstance var);
         void remove_PhysicalDevice(VkPhysicalDevice var);
         void remove_Device(VkDevice var);

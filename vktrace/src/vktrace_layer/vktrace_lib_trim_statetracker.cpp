@@ -748,9 +748,309 @@ namespace trim
 
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
+    ObjectInfo* StateTracker::get_Instance(VkInstance var)
+    {
+        TrimObjectInfoMap::iterator iter = createdInstances.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdInstances.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_PhysicalDevice(VkPhysicalDevice var)
+    {
+        TrimObjectInfoMap::iterator iter = createdPhysicalDevices.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdPhysicalDevices.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Device(VkDevice var)
+    {
+        TrimObjectInfoMap::iterator iter = createdDevices.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdDevices.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_SurfaceKHR(VkSurfaceKHR var)
+    {
+        TrimObjectInfoMap::iterator iter = createdSurfaceKHRs.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdSurfaceKHRs.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Queue(VkQueue var)
+    {
+        TrimObjectInfoMap::iterator iter = createdQueues.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdQueues.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_SwapchainKHR(VkSwapchainKHR var)
+    {
+        TrimObjectInfoMap::iterator iter = createdSwapchainKHRs.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdSwapchainKHRs.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_CommandPool(VkCommandPool var)
+    {
+        TrimObjectInfoMap::iterator iter = createdCommandPools.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdCommandPools.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_CommandBuffer(VkCommandBuffer var)
+    {
+        TrimObjectInfoMap::iterator iter = createdCommandBuffers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdCommandBuffers.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_DeviceMemory(VkDeviceMemory var)
+    {
+        TrimObjectInfoMap::iterator iter = createdDeviceMemorys.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdDeviceMemorys.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_ImageView(VkImageView var)
+    {
+        TrimObjectInfoMap::iterator iter = createdImageViews.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdImageViews.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Image(VkImage var)
+    {
+        TrimObjectInfoMap::iterator iter = createdImages.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdImages.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_BufferView(VkBufferView var)
+    {
+        TrimObjectInfoMap::iterator iter = createdBufferViews.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdBufferViews.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Buffer(VkBuffer var)
+    {
+        TrimObjectInfoMap::iterator iter = createdBuffers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdBuffers.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Sampler(VkSampler var)
+    {
+        TrimObjectInfoMap::iterator iter = createdSamplers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdSamplers.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_DescriptorSetLayout(VkDescriptorSetLayout var)
+    {
+        TrimObjectInfoMap::iterator iter = createdDescriptorSetLayouts.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdDescriptorSetLayouts.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_PipelineLayout(VkPipelineLayout var)
+    {
+        TrimObjectInfoMap::iterator iter = createdPipelineLayouts.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdPipelineLayouts.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_RenderPass(VkRenderPass var)
+    {
+        TrimObjectInfoMap::iterator iter = createdRenderPasss.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdRenderPasss.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_ShaderModule(VkShaderModule var)
+    {
+        TrimObjectInfoMap::iterator iter = createdShaderModules.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdShaderModules.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_PipelineCache(VkPipelineCache var)
+    {
+        TrimObjectInfoMap::iterator iter = createdPipelineCaches.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdPipelineCaches.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_DescriptorPool(VkDescriptorPool var)
+    {
+        TrimObjectInfoMap::iterator iter = createdDescriptorPools.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdDescriptorPools.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Pipeline(VkPipeline var)
+    {
+        TrimObjectInfoMap::iterator iter = createdPipelines.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdPipelines.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Semaphore(VkSemaphore var)
+    {
+        TrimObjectInfoMap::iterator iter = createdSemaphores.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdSemaphores.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Fence(VkFence var)
+    {
+        TrimObjectInfoMap::iterator iter = createdFences.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdFences.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Framebuffer(VkFramebuffer var)
+    {
+        TrimObjectInfoMap::iterator iter = createdFramebuffers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdFramebuffers.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_Event(VkEvent var)
+    {
+        TrimObjectInfoMap::iterator iter = createdEvents.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdEvents.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_QueryPool(VkQueryPool var)
+    {
+        TrimObjectInfoMap::iterator iter = createdQueryPools.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdQueryPools.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+    ObjectInfo* StateTracker::get_DescriptorSet(VkDescriptorSet var)
+    {
+        TrimObjectInfoMap::iterator iter = createdDescriptorSets.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != createdDescriptorSets.end())
+        {
+            pResult = &(iter->second);
+        }
+        return pResult;
+    }
+
+
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
     void StateTracker::remove_Instance(VkInstance var)
     {
-        ObjectInfo* pInfo = get_Instance_objectInfo(var);
+        ObjectInfo* pInfo = get_Instance(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pCreatePacket);
@@ -762,7 +1062,7 @@ namespace trim
 
     void StateTracker::remove_PhysicalDevice(VkPhysicalDevice var)
     {
-        ObjectInfo* pInfo = get_PhysicalDevice_objectInfo(var);
+        ObjectInfo* pInfo = get_PhysicalDevice(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
@@ -776,7 +1076,7 @@ namespace trim
 
     void StateTracker::remove_Device(VkDevice var)
     {
-        ObjectInfo* pInfo = get_Device_objectInfo(var);
+        ObjectInfo* pInfo = get_Device(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
@@ -786,7 +1086,7 @@ namespace trim
 
     void StateTracker::remove_SurfaceKHR(VkSurfaceKHR var)
     {
-        ObjectInfo* pInfo = get_SurfaceKHR_objectInfo(var);
+        ObjectInfo* pInfo = get_SurfaceKHR(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.SurfaceKHR.pCreatePacket);
@@ -796,7 +1096,7 @@ namespace trim
 
     void StateTracker::remove_Queue(VkQueue var)
     {
-        ObjectInfo* pInfo = get_Queue_objectInfo(var);
+        ObjectInfo* pInfo = get_Queue(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Queue.pCreatePacket);
@@ -806,7 +1106,7 @@ namespace trim
 
     void StateTracker::remove_CommandPool(VkCommandPool var)
     {
-        ObjectInfo* pInfo = get_CommandPool_objectInfo(var);
+        ObjectInfo* pInfo = get_CommandPool(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.CommandPool.pCreatePacket);
@@ -816,7 +1116,7 @@ namespace trim
 
     void StateTracker::remove_SwapchainKHR(VkSwapchainKHR var)
     {
-        ObjectInfo* pInfo = get_SwapchainKHR_objectInfo(var);
+        ObjectInfo* pInfo = get_SwapchainKHR(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pCreatePacket);
@@ -833,7 +1133,7 @@ namespace trim
 
     void StateTracker::remove_DeviceMemory(VkDeviceMemory var)
     {
-        ObjectInfo* pInfo = get_DeviceMemory_objectInfo(var);
+        ObjectInfo* pInfo = get_DeviceMemory(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pCreatePacket);
@@ -846,7 +1146,7 @@ namespace trim
 
     void StateTracker::remove_Image(VkImage var)
     {
-        ObjectInfo* pInfo = get_Image_objectInfo(var);
+        ObjectInfo* pInfo = get_Image(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
@@ -862,7 +1162,7 @@ namespace trim
 
     void StateTracker::remove_ImageView(VkImageView var)
     {
-        ObjectInfo* pInfo = get_ImageView_objectInfo(var);
+        ObjectInfo* pInfo = get_ImageView(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.ImageView.pCreatePacket);
@@ -872,7 +1172,7 @@ namespace trim
 
     void StateTracker::remove_Buffer(VkBuffer var)
     {
-        ObjectInfo* pInfo = get_Buffer_objectInfo(var);
+        ObjectInfo* pInfo = get_Buffer(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pCreatePacket);
@@ -885,7 +1185,7 @@ namespace trim
 
     void StateTracker::remove_BufferView(VkBufferView var)
     {
-        ObjectInfo* pInfo = get_BufferView_objectInfo(var);
+        ObjectInfo* pInfo = get_BufferView(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.BufferView.pCreatePacket);
@@ -895,7 +1195,7 @@ namespace trim
 
     void StateTracker::remove_Sampler(VkSampler var)
     {
-        ObjectInfo* pInfo = get_Sampler_objectInfo(var);
+        ObjectInfo* pInfo = get_Sampler(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Sampler.pCreatePacket);
@@ -905,7 +1205,7 @@ namespace trim
 
     void StateTracker::remove_DescriptorSetLayout(VkDescriptorSetLayout var)
     {
-        ObjectInfo* pInfo = get_DescriptorSetLayout_objectInfo(var);
+        ObjectInfo* pInfo = get_DescriptorSetLayout(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket);
@@ -922,7 +1222,7 @@ namespace trim
 
     void StateTracker::remove_PipelineLayout(VkPipelineLayout var)
     {
-        ObjectInfo* pInfo = get_PipelineLayout_objectInfo(var);
+        ObjectInfo* pInfo = get_PipelineLayout(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
@@ -938,7 +1238,7 @@ namespace trim
 
     void StateTracker::remove_RenderPass(VkRenderPass var)
     {
-        ObjectInfo* pInfo = get_RenderPass_objectInfo(var);
+        ObjectInfo* pInfo = get_RenderPass(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.RenderPass.pCreatePacket);
@@ -948,7 +1248,7 @@ namespace trim
 
     void StateTracker::remove_ShaderModule(VkShaderModule var)
     {
-        ObjectInfo* pInfo = get_ShaderModule_objectInfo(var);
+        ObjectInfo* pInfo = get_ShaderModule(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
@@ -958,7 +1258,7 @@ namespace trim
 
     void StateTracker::remove_PipelineCache(VkPipelineCache var)
     {
-        ObjectInfo* pInfo = get_PipelineCache_objectInfo(var);
+        ObjectInfo* pInfo = get_PipelineCache(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineCache.pCreatePacket);
@@ -968,7 +1268,7 @@ namespace trim
 
     void StateTracker::remove_Pipeline(VkPipeline var)
     {
-        ObjectInfo* pInfo = get_Pipeline_objectInfo(var);
+        ObjectInfo* pInfo = get_Pipeline(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Pipeline.pCreatePacket);
@@ -978,7 +1278,7 @@ namespace trim
 
     void StateTracker::remove_DescriptorPool(VkDescriptorPool var)
     {
-        ObjectInfo* pInfo = get_DescriptorPool_objectInfo(var);
+        ObjectInfo* pInfo = get_DescriptorPool(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorPool.pCreatePacket);
@@ -988,7 +1288,7 @@ namespace trim
 
     void StateTracker::remove_DescriptorSet(VkDescriptorSet var)
     {
-        ObjectInfo* pInfo = get_DescriptorSet_objectInfo(var);
+        ObjectInfo* pInfo = get_DescriptorSet(var);
         if (pInfo != nullptr)
         {
             if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != nullptr)
@@ -1023,7 +1323,7 @@ namespace trim
 
     void StateTracker::remove_Framebuffer(VkFramebuffer var)
     {
-        ObjectInfo* pInfo = get_Framebuffer_objectInfo(var);
+        ObjectInfo* pInfo = get_Framebuffer(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Framebuffer.pCreatePacket);
@@ -1033,7 +1333,7 @@ namespace trim
 
     void StateTracker::remove_Semaphore(VkSemaphore var)
     {
-        ObjectInfo* pInfo = get_Semaphore_objectInfo(var);
+        ObjectInfo* pInfo = get_Semaphore(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Semaphore.pCreatePacket);
@@ -1048,7 +1348,7 @@ namespace trim
 
     void StateTracker::remove_Event(VkEvent var)
     {
-        ObjectInfo* pInfo = get_Event_objectInfo(var);
+        ObjectInfo* pInfo = get_Event(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.Event.pCreatePacket);
@@ -1058,11 +1358,16 @@ namespace trim
 
     void StateTracker::remove_QueryPool(VkQueryPool var)
     {
-        ObjectInfo* pInfo = get_QueryPool_objectInfo(var);
+        ObjectInfo* pInfo = get_QueryPool(var);
         if (pInfo != nullptr)
         {
             vktrace_delete_trace_packet(&pInfo->ObjectInfo.QueryPool.pCreatePacket);
-            delete[] pInfo->ObjectInfo.QueryPool.pResultsAvailable;
+            pInfo->ObjectInfo.QueryPool.size = 0;
+            if (pInfo->ObjectInfo.QueryPool.pResultsAvailable != nullptr)
+            {
+                delete[] pInfo->ObjectInfo.QueryPool.pResultsAvailable;
+                pInfo->ObjectInfo.QueryPool.pResultsAvailable = nullptr;
+            }
         }
         createdQueryPools.erase(var);
     }

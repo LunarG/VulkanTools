@@ -1080,6 +1080,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     void add_Image_call(vktrace_trace_packet_header* pHeader)
     {
         if (pHeader != NULL)
@@ -1090,65 +1091,764 @@ namespace trim
         }
     }
 
-#define TRIM_DEFINE_ADD_OBJECT_FUNC(type) \
-    ObjectInfo* add_##type##_object(Vk##type var) { \
-        vktrace_enter_critical_section(&trimStateTrackerLock); \
-        ObjectInfo* info = s_trimGlobalStateTracker.add_##type##(var); \
-        vktrace_leave_critical_section(&trimStateTrackerLock); \
-        return info; \
+    //=========================================================================
+    ObjectInfo* add_Instance_object(VkInstance var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Instance(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
     }
 
-#define TRIM_DEFINE_REMOVE_OBJECT_FUNC(type) \
-    void remove_##type##_object(Vk##type var) { \
-        vktrace_enter_critical_section(&trimStateTrackerLock); \
-        s_trimGlobalStateTracker.remove_##type(var); \
-        vktrace_leave_critical_section(&trimStateTrackerLock); \
+    void remove_Instance_object(VkInstance var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Instance(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
-    #define TRIM_DEFINE_GET_OBJECT_FUNC(type) \
-    ObjectInfo* get_##type##_objectInfo(Vk##type var) { \
-        vktrace_enter_critical_section(&trimStateTrackerLock); \
-        TrimObjectInfoMap::iterator iter  = s_trimGlobalStateTracker.created##type##s.find(var); \
-        ObjectInfo* pResult = NULL; \
-        if (iter != s_trimGlobalStateTracker.created##type##s.end()) { \
-            pResult = &(iter->second); \
-        } \
-        vktrace_leave_critical_section(&trimStateTrackerLock); \
-        return pResult;\
+    ObjectInfo* get_Instance_objectInfo(VkInstance var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdInstances.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdInstances.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
     }
 
-    #define TRIM_DEFINE_OBJECT_TRACKER_FUNCS(type) \
-    TRIM_DEFINE_ADD_OBJECT_FUNC(type) \
-    TRIM_DEFINE_REMOVE_OBJECT_FUNC(type) \
-    TRIM_DEFINE_GET_OBJECT_FUNC(type)
+    ObjectInfo* add_PhysicalDevice_object(VkPhysicalDevice var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_PhysicalDevice(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
 
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Instance);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PhysicalDevice);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Device);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(SurfaceKHR);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Queue);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(SwapchainKHR);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(CommandPool);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(CommandBuffer);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DeviceMemory);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(ImageView);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Image);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(BufferView);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Buffer);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Sampler);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSetLayout);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PipelineLayout);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(RenderPass);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(ShaderModule);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(PipelineCache);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorPool);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Pipeline);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Semaphore);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Fence);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Framebuffer);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(Event);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(QueryPool);
-    TRIM_DEFINE_OBJECT_TRACKER_FUNCS(DescriptorSet);
+    void remove_PhysicalDevice_object(VkPhysicalDevice var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_PhysicalDevice(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_PhysicalDevice_objectInfo(VkPhysicalDevice var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdPhysicalDevices.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdPhysicalDevices.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Device_object(VkDevice var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Device(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Device_object(VkDevice var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Device(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Device_objectInfo(VkDevice var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdDevices.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdDevices.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_SurfaceKHR_object(VkSurfaceKHR var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_SurfaceKHR(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_SurfaceKHR_object(VkSurfaceKHR var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_SurfaceKHR(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_SurfaceKHR_objectInfo(VkSurfaceKHR var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdSurfaceKHRs.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdSurfaceKHRs.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Queue_object(VkQueue var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Queue(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Queue_object(VkQueue var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Queue(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Queue_objectInfo(VkQueue var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdQueues.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdQueues.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_SwapchainKHR_object(VkSwapchainKHR var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_SwapchainKHR(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_SwapchainKHR_object(VkSwapchainKHR var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_SwapchainKHR(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_SwapchainKHR_objectInfo(VkSwapchainKHR var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdSwapchainKHRs.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdSwapchainKHRs.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_CommandPool_object(VkCommandPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_CommandPool(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_CommandPool_object(VkCommandPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_CommandPool(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_CommandPool_objectInfo(VkCommandPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdCommandPools.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdCommandPools.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_CommandBuffer_object(VkCommandBuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_CommandBuffer(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_CommandBuffer_object(VkCommandBuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_CommandBuffer(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_CommandBuffer_objectInfo(VkCommandBuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdCommandBuffers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdCommandBuffers.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_DeviceMemory_object(VkDeviceMemory var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_DeviceMemory(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_DeviceMemory_object(VkDeviceMemory var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_DeviceMemory(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_DeviceMemory_objectInfo(VkDeviceMemory var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdDeviceMemorys.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdDeviceMemorys.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_ImageView_object(VkImageView var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_ImageView(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_ImageView_object(VkImageView var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_ImageView(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_ImageView_objectInfo(VkImageView var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdImageViews.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdImageViews.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Image_object(VkImage var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Image(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Image_object(VkImage var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Image(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Image_objectInfo(VkImage var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdImages.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdImages.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_BufferView_object(VkBufferView var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_BufferView(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_BufferView_object(VkBufferView var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_BufferView(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_BufferView_objectInfo(VkBufferView var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdBufferViews.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdBufferViews.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Buffer_object(VkBuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Buffer(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Buffer_object(VkBuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Buffer(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Buffer_objectInfo(VkBuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdBuffers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdBuffers.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Sampler_object(VkSampler var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Sampler(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Sampler_object(VkSampler var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Sampler(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Sampler_objectInfo(VkSampler var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdSamplers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdSamplers.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_DescriptorSetLayout_object(VkDescriptorSetLayout var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_DescriptorSetLayout(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_DescriptorSetLayout_object(VkDescriptorSetLayout var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_DescriptorSetLayout(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdDescriptorSetLayouts.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdDescriptorSetLayouts.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_PipelineLayout_object(VkPipelineLayout var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_PipelineLayout(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_PipelineLayout_object(VkPipelineLayout var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_PipelineLayout(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_PipelineLayout_objectInfo(VkPipelineLayout var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdPipelineLayouts.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdPipelineLayouts.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_RenderPass_object(VkRenderPass var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_RenderPass(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_RenderPass_object(VkRenderPass var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_RenderPass(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_RenderPass_objectInfo(VkRenderPass var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdRenderPasss.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdRenderPasss.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_ShaderModule_object(VkShaderModule var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_ShaderModule(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_ShaderModule_object(VkShaderModule var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_ShaderModule(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_ShaderModule_objectInfo(VkShaderModule var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdShaderModules.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdShaderModules.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_PipelineCache_object(VkPipelineCache var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_PipelineCache(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_PipelineCache_object(VkPipelineCache var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_PipelineCache(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_PipelineCache_objectInfo(VkPipelineCache var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdPipelineCaches.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdPipelineCaches.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_DescriptorPool_object(VkDescriptorPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_DescriptorPool(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_DescriptorPool_object(VkDescriptorPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_DescriptorPool(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_DescriptorPool_objectInfo(VkDescriptorPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdDescriptorPools.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdDescriptorPools.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Pipeline_object(VkPipeline var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Pipeline(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Pipeline_object(VkPipeline var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Pipeline(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Pipeline_objectInfo(VkPipeline var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdPipelines.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdPipelines.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Semaphore_object(VkSemaphore var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Semaphore(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Semaphore_object(VkSemaphore var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Semaphore(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Semaphore_objectInfo(VkSemaphore var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdSemaphores.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdSemaphores.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Fence_object(VkFence var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Fence(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Fence_object(VkFence var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Fence(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Fence_objectInfo(VkFence var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdFences.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdFences.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Framebuffer_object(VkFramebuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Framebuffer(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Framebuffer_object(VkFramebuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Framebuffer(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Framebuffer_objectInfo(VkFramebuffer var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdFramebuffers.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdFramebuffers.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_Event_object(VkEvent var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_Event(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_Event_object(VkEvent var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_Event(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_Event_objectInfo(VkEvent var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdEvents.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdEvents.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_QueryPool_object(VkQueryPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_QueryPool(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_QueryPool_object(VkQueryPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_QueryPool(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_QueryPool_objectInfo(VkQueryPool var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdQueryPools.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdQueryPools.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    ObjectInfo* add_DescriptorSet_object(VkDescriptorSet var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        ObjectInfo* info = s_trimGlobalStateTracker.add_DescriptorSet(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return info;
+    }
+
+    void remove_DescriptorSet_object(VkDescriptorSet var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.remove_DescriptorSet(var);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    ObjectInfo* get_DescriptorSet_objectInfo(VkDescriptorSet var)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        TrimObjectInfoMap::iterator iter = s_trimGlobalStateTracker.createdDescriptorSets.find(var);
+        ObjectInfo* pResult = NULL;
+        if (iter != s_trimGlobalStateTracker.createdDescriptorSets.end())
+        {
+            pResult = &(iter->second);
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return pResult;
+    }
+
+    //=========================================================================
     
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \
@@ -1211,8 +1911,10 @@ namespace trim
     //=============================================================================
     void write_all_referenced_object_calls()
     {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
         // write the referenced objects from the snapshot
         StateTracker& stateTracker = s_trimStateTrackerSnapshot;
+        vktrace_leave_critical_section(&trimStateTrackerLock);
 
         // Instances (& PhysicalDevices)
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdInstances.begin(); obj != stateTracker.createdInstances.end(); obj++)
@@ -2219,19 +2921,21 @@ namespace trim
 
     void reset_DescriptorPool(VkDescriptorPool descriptorPool)
     {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
         for (TrimObjectInfoMap::iterator dsIter = s_trimGlobalStateTracker.createdDescriptorSets.begin(); dsIter != s_trimGlobalStateTracker.createdDescriptorSets.end(); )
         {
             if (dsIter->second.ObjectInfo.DescriptorSet.descriptorPool == descriptorPool)
             {
                 VkDescriptorSet setToRemove = (VkDescriptorSet)dsIter->first;
                 dsIter++;
-                s_trimGlobalStateTracker.createdDescriptorSets.erase(setToRemove);
+                s_trimGlobalStateTracker.remove_DescriptorSet(setToRemove);
             }
             else
             {
                 dsIter++;
             }
         }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
     //===============================================
@@ -2263,6 +2967,7 @@ namespace trim
     //===============================================
     void write_destroy_packets()
     {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
         // Make sure all queues have completed before trying to delete anything
         for (TrimObjectInfoMap::iterator obj = s_trimGlobalStateTracker.createdQueues.begin(); obj != s_trimGlobalStateTracker.createdQueues.end(); obj++)
         {
@@ -2517,6 +3222,7 @@ namespace trim
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
         }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
     //===============================================
