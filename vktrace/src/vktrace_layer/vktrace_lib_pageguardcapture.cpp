@@ -32,6 +32,9 @@ PageGuardCapture::PageGuardCapture()
     EmptyChangedInfoArray.length = 0;
 
 #if defined(PLATFORM_LINUX)
+    // Open the /proc/<pid>/clear_refs file. We'll write to that file
+    // when we want to clear all dirty bits in the current process'
+    // pagemap.
     char clearRefsPath[100];
     snprintf(clearRefsPath, sizeof(clearRefsPath), "/proc/%d/clear_refs", getpid());
     clearRefsFd = open(clearRefsPath, O_WRONLY);
@@ -58,7 +61,7 @@ void PageGuardCapture::vkMapMemoryPageGuardHandle(
     if (getPageGuardEnableFlag())
     {
 #ifdef PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
-        if ((size >= ref_target_range_size()) && (size != -1))
+        if (size >= ref_target_range_size())
 #endif
         {
             OPTmappedmem.vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
@@ -377,7 +380,10 @@ bool PageGuardCapture::isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkP
 void PageGuardCapture::pageRefsDirtyClear()
 {
     char four='4';
-    lseek(clearRefsFd, 0, SEEK_SET);
-    write(clearRefsFd, &four, 1);
+    if (clearRefsFd >=0)
+    {
+        lseek(clearRefsFd, 0, SEEK_SET);
+        write(clearRefsFd, &four, 1);
+    }
 }
 #endif

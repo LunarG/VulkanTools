@@ -148,35 +148,33 @@ size_t pageguardGetAdjustedSize(size_t size)
 }
 
 #if defined(PLATFORM_LINUX)
-// Keep a map off memory allocations and size.
-// We need the size to do a free on Linux.
+// Keep a map of memory allocations and sizes.
+// We need the size when we want to free the memory on Linux.
 static std::unordered_map<void *, size_t> allocateMemoryMap;
 #endif
 
-// Page guard only works for virtual memory on some devices, so we
-// allocate some virtual memory to return to the app and we'll keep it synced
-// with memory returned from the layer below us.
+// Page guard only works for virtual memory. Real device memory
+// sometimes doesn't have a page concept, so we can't use page guard
+// to track it (or check dirty bits in /proc/<pid>/pagemap).
+// So we allocate virtual memory to return to the app and we
+// keep it sync'ed it with real device memory.
 void* pageguardAllocateMemory(size_t size)
 {
     void* pMemory = nullptr;
-#if defined(WIN32)
     if (size != 0)
     {
+#if defined(WIN32)
         pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize(size),
                                       MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-        if (pMemory == nullptr)
-            vktrace_LogError("pageguardAllocateMemory(%d) memory allocation failed", size);
-    }
 #else
-    if (size != 0)
-    {
         pMemory = mmap(NULL, pageguardGetAdjustedSize(size),
                        PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-        if (pMemory == nullptr)
-            vktrace_LogError("%s(%d) memory allocation failed", __func__, size);
-        allocateMemoryMap[pMemory] = size;
-    }
+        if (pMemory != nullptr)
+            allocateMemoryMap[pMemory] = size;
 #endif
+    }
+    if (pMemory == nullptr)
+        vktrace_LogError("pageguardAllocateMemory(%d) memory allocation failed", size);
     return pMemory;
 }
 
