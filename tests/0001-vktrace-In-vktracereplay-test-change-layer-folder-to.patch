@@ -1,0 +1,33 @@
+From 001884e2c4ac53067a158cc7e014c7eb670a9485 Mon Sep 17 00:00:00 2001
+From: Arda Coskunses <arda@lunarg.com>
+Date: Tue, 27 Sep 2016 17:09:40 -0600
+Subject: [PATCH] vktrace: In vktracereplay test change layer folder to
+ layersvt
+
+Change-Id: Id7736608b7da0bcd61bfe2c1bc3f023b582fbf03
+---
+ tests/_vktracereplay.ps1 | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tests/_vktracereplay.ps1 b/tests/_vktracereplay.ps1
+index ce98bff..fee27d7 100644
+--- a/tests/_vktracereplay.ps1
++++ b/tests/_vktracereplay.ps1
+@@ -29,10 +29,10 @@ cp ..\..\demos\$dPath\cube.exe .
+ cp ..\..\demos\*.ppm .
+ cp ..\..\demos\*.spv .
+ cp ..\..\loader\$dPath\vulkan-1.dll .
+-cp ..\..\layers\$dPath\VkLayer_screenshot.dll .
+-cp ..\..\layers\$dPath\VkLayer_screenshot.json .
+-cp ..\..\layers\$dPath\VkLayer_vktrace_layer.dll .
+-cp ..\..\layers\$dPath\VkLayer_vktrace_layer.json .
++cp ..\..\layersvt\$dPath\VkLayer_screenshot.dll .
++cp ..\..\layersvt\$dPath\VkLayer_screenshot.json .
++cp ..\..\layersvt\$dPath\VkLayer_vktrace_layer.dll .
++cp ..\..\layersvt\$dPath\VkLayer_vktrace_layer.json .
+ 
+ # Change PATH to the temp directory
+ $oldpath = $Env:PATH
+-- 
+2.7.4
+

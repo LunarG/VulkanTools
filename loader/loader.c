@@ -2587,10 +2587,12 @@ loader_add_layer_properties(const struct loader_instance *inst,
  * Linux ICD  | dirs     | files
  * Linux Layer| dirs     | dirs
  */
-static VkResult loader_get_manifest_files(
-    const struct loader_instance *inst, const char *env_override,
-    char *source_override, bool is_layer, const char *location,
-    const char *home_location, struct loader_manifest_files *out_files) {
+static VkResult
+loader_get_manifest_files(const struct loader_instance *inst,
+                          const char *env_override, char *source_override,
+                          bool is_layer, bool warn_if_not_present,
+                          const char *location, const char *home_location,
+                          struct loader_manifest_files *out_files) {
     char * override = NULL;
     char *loc, *orig_loc = NULL;
     char *reg = NULL;
@@ -2660,10 +2662,12 @@ static VkResult loader_get_manifest_files(
                 // if this is for the loader.
                 res = VK_ERROR_OUT_OF_HOST_MEMORY;
             } else {
-                // warning only for layers
-                loader_log(
-                    inst, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
-                    "Registry lookup failed can't get layer manifest files");
+                if (warn_if_not_present) {
+                    // warning only for layers
+                    loader_log(
+                        inst, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                        "Registry lookup failed can't get layer manifest files");
+                }
                 // Return success for now since it's not critical for layers
                 res = VK_SUCCESS;
             }
@@ -2916,7 +2920,7 @@ VkResult loader_icd_scan(const struct loader_instance *inst,
 
     // Get a list of manifest files for ICDs
     res = loader_get_manifest_files(inst, "VK_ICD_FILENAMES", NULL, false,
-                                    DEFAULT_VK_DRIVERS_INFO,
+                                    true, DEFAULT_VK_DRIVERS_INFO,
                                     HOME_VK_DRIVERS_INFO, &manifest_files);
     if (VK_SUCCESS != res || manifest_files.count == 0) {
         goto out;
@@ -3111,7 +3115,7 @@ void loader_layer_scan(const struct loader_instance *inst,
     // Get a list of manifest files for explicit layers
     if (VK_SUCCESS !=
         loader_get_manifest_files(inst, LAYERS_PATH_ENV, LAYERS_SOURCE_PATH,
-                                  true, DEFAULT_VK_ELAYERS_INFO,
+                                  true, true, DEFAULT_VK_ELAYERS_INFO,
                                   HOME_VK_ELAYERS_INFO, &manifest_files[0])) {
         goto out;
     }
@@ -3119,9 +3123,10 @@ void loader_layer_scan(const struct loader_instance *inst,
     // Get a list of manifest files for any implicit layers
     // Pass NULL for environment variable override - implicit layers are not
     // overridden by LAYERS_PATH_ENV
-    if (VK_SUCCESS != loader_get_manifest_files(
-                          inst, NULL, NULL, true, DEFAULT_VK_ILAYERS_INFO,
-                          HOME_VK_ILAYERS_INFO, &manifest_files[1])) {
+    if (VK_SUCCESS != loader_get_manifest_files(inst, NULL, NULL, true, false,
+                                                DEFAULT_VK_ILAYERS_INFO,
+                                                HOME_VK_ILAYERS_INFO,
+                                                &manifest_files[1])) {
         goto out;
     }
 
@@ -3189,8 +3194,8 @@ void loader_implicit_layer_scan(const struct loader_instance *inst,
     // Pass NULL for environment variable override - implicit layers are not
     // overridden by LAYERS_PATH_ENV
     VkResult res = loader_get_manifest_files(
-        inst, NULL, NULL, true, DEFAULT_VK_ILAYERS_INFO, HOME_VK_ILAYERS_INFO,
-        &manifest_files);
+        inst, NULL, NULL, true, false, DEFAULT_VK_ILAYERS_INFO,
+        HOME_VK_ILAYERS_INFO, &manifest_files);
     if (VK_SUCCESS != res || manifest_files.count == 0) {
         return;
     }
@@ -4132,6 +4137,7 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(
     char **filtered_extension_names = NULL;
     VkInstanceCreateInfo icd_create_info;
     VkResult res = VK_SUCCESS;
+    bool one_icd_successful = false;
 
     struct loader_instance *ptr_instance = (struct loader_instance *)*pInstance;
     memcpy(&icd_create_info, pCreateInfo, sizeof(icd_create_info));
@@ -4218,12 +4224,14 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(
         loader_destroy_generic_list(ptr_instance,
                                     (struct loader_generic_list *)&icd_exts);
 
-        res = ptr_instance->icd_tramp_list.scanned_list[i].CreateInstance(
-            &icd_create_info, pAllocator, &(icd_term->instance));
-        if (VK_ERROR_OUT_OF_HOST_MEMORY == res) {
+        VkResult icd_result =
+            ptr_instance->icd_tramp_list.scanned_list[i].CreateInstance(
+                &icd_create_info, pAllocator, &(icd_term->instance));
+        if (VK_ERROR_OUT_OF_HOST_MEMORY == icd_result) {
             // If out of memory, bail immediately.
+            res = VK_ERROR_OUT_OF_HOST_MEMORY;
             goto out;
-        } else if (VK_SUCCESS != res) {
+        } else if (VK_SUCCESS != icd_result) {
             loader_log(ptr_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
                        "ICD ignored: failed to CreateInstance in ICD %d", i);
             ptr_instance->icd_terms = icd_term->next;
@@ -4240,14 +4248,16 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(
                        "entrypoints with ICD");
             continue;
         }
+
+        // If we made it this far, at least one ICD was successful
+        one_icd_successful = true;
     }
 
-    /*
-     * If no ICDs were added to instance list and res is unchanged
-     * from it's initial value, the loader was unable to find
-     * a suitable ICD.
-     */
-    if (VK_SUCCESS == res && ptr_instance->icd_terms == NULL) {
+    // If no ICDs were added to instance list and res is unchanged
+    // from it's initial value, the loader was unable to find
+    // a suitable ICD.
+    if (VK_SUCCESS == res &&
+        (ptr_instance->icd_terms == NULL || !one_icd_successful)) {
         res = VK_ERROR_INCOMPATIBLE_DRIVER;
     }
 

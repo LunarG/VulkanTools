@@ -1512,7 +1512,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // following declaration (which is temporarily being moved below):
     //    VkSurfaceKHR surface = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-    VkSwapchainCreateInfoKHR swapchain_create_info = {};
+    VkSwapchainCreateInfoKHR swapchain_create_info = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
     uint32_t swapchain_image_count = 0;
     //    VkImage swapchain_images[1] = {VK_NULL_HANDLE};
     uint32_t image_index = 0;
@@ -1526,7 +1526,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // enabling that extension:
 
     // Create a surface:
-    VkAndroidSurfaceCreateInfoKHR android_create_info = {};
+    VkAndroidSurfaceCreateInfoKHR android_create_info = {VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
     err = vkCreateAndroidSurfaceKHR(instance(), &android_create_info, NULL, &surface);
     pass = (err != VK_SUCCESS);
@@ -1539,7 +1539,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // that extension:
 
     // Create a surface:
-    VkMirSurfaceCreateInfoKHR mir_create_info = {};
+    VkMirSurfaceCreateInfoKHR mir_create_info = {VK_STRUCTURE_TYPE_MIR_SURFACE_CREATE_INFO_KHR};
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
     err = vkCreateMirSurfaceKHR(instance(), &mir_create_info, NULL, &surface);
     pass = (err != VK_SUCCESS);
@@ -1558,7 +1558,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // enabling that extension:
 
     // Create a surface:
-    VkWaylandSurfaceCreateInfoKHR wayland_create_info = {};
+    VkWaylandSurfaceCreateInfoKHR wayland_create_info = {VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR};
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
     err = vkCreateWaylandSurfaceKHR(instance(), &wayland_create_info, NULL, &surface);
     pass = (err != VK_SUCCESS);
@@ -1581,7 +1581,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // enabling that extension:
 
     // Create a surface:
-    VkWin32SurfaceCreateInfoKHR win32_create_info = {};
+    VkWin32SurfaceCreateInfoKHR win32_create_info = {VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
     err = vkCreateWin32SurfaceKHR(instance(), &win32_create_info, NULL, &surface);
     pass = (err != VK_SUCCESS);
@@ -1604,7 +1604,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // that extension:
 
     // Create a surface:
-    VkXcbSurfaceCreateInfoKHR xcb_create_info = {};
+    VkXcbSurfaceCreateInfoKHR xcb_create_info = {VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
     err = vkCreateXcbSurfaceKHR(instance(), &xcb_create_info, NULL, &surface);
     pass = (err != VK_SUCCESS);
@@ -1626,7 +1626,7 @@ TEST_F(VkLayerTest, EnableWsiBeforeUse) {
     // that extension:
 
     // Create a surface:
-    VkXlibSurfaceCreateInfoKHR xlib_create_info = {};
+    VkXlibSurfaceCreateInfoKHR xlib_create_info = {VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR};
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "extension was not enabled for this");
     err = vkCreateXlibSurfaceKHR(instance(), &xlib_create_info, NULL, &surface);
     pass = (err != VK_SUCCESS);
@@ -3521,10 +3521,12 @@ TEST_F(VkLayerTest, CommandBufferTwoSubmits) {
 
     err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
     ASSERT_VK_SUCCESS(err);
+    vkQueueWaitIdle(m_device->m_queue);
 
     // Cause validation error by re-submitting cmd buffer that should only be
     // submitted once
     err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
+    vkQueueWaitIdle(m_device->m_queue);
 
     m_errorMonitor->VerifyFound();
 }
@@ -15857,36 +15859,56 @@ TEST_F(VkLayerTest, DuplicateDescriptorBinding) {
     m_errorMonitor->VerifyFound();
 }
 
-TEST_F(VkLayerTest, ViewportBoundsChecking) {
+TEST_F(VkLayerTest, ViewportAndScissorBoundsChecking) {
     TEST_DESCRIPTION("Verify errors are detected on misuse of SetViewport and SetScissor.");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
-    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
-
-    char const *vsSource = "#version 450\n"
-                           "void main() { gl_Position = vec4(1); }\n";
-    char const *fsSource = "#version 450\n"
-                           "layout(location=0) out vec4 color;\n"
-                           "void main() { color = vec4(1); }\n";
-
-    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
-    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this);
-
-    VkPipelineObj pipe(m_device);
-    pipe.AddShader(&vs);
-    pipe.AddShader(&fs);
-    pipe.AddColorAttachment();
-
-    VkDescriptorSetObj descriptorSet(m_device);
-    descriptorSet.CreateVKDescriptorSet(m_commandBuffer);
-    VkResult err = pipe.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderPass());
-    ASSERT_VK_SUCCESS(err);
 
     BeginCommandBuffer();
-    m_commandBuffer->BindPipeline(pipe);
 
-    VkViewport viewport = {0, 0, 16, 16, 0, 1};
-    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    const VkPhysicalDeviceLimits &limits = m_device->props.limits;
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01448);
+        VkViewport viewport = {0, 0, static_cast<float>(limits.maxViewportDimensions[0] + 1), 16, 0, 1};
+        vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01449);
+        VkViewport viewport = {0, 0, 16, static_cast<float>(limits.maxViewportDimensions[1] + 1), 0, 1};
+        vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01450);
+        VkViewport viewport = {limits.viewportBoundsRange[0] - 1, 0, 16, 16, 0, 1};
+        vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01450);
+        VkViewport viewport = {0, limits.viewportBoundsRange[0] - 1, 16, 16, 0, 1};
+        vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01451);
+        VkViewport viewport = {limits.viewportBoundsRange[1], 0, 16, 16, 0, 1};
+        vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01452);
+        VkViewport viewport = {0, limits.viewportBoundsRange[1], 16, 16, 0, 1};
+        vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
 
     {
         m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01489);
@@ -17333,10 +17355,8 @@ TEST_F(VkPositiveLayerTest, QueryAndCopyMultipleCommandBuffers) {
     m_errorMonitor->VerifyNotFound();
 }
 
-TEST_F(VkPositiveLayerTest, ResetEventThenSet) {
+TEST_F(VkLayerTest, ResetEventThenSet) {
     TEST_DESCRIPTION("Reset an event then set it after the reset has been submitted.");
-
-    m_errorMonitor->ExpectSuccess();
 
     ASSERT_NO_FATAL_FAILURE(InitState());
     VkEvent event;
@@ -17368,8 +17388,6 @@ TEST_F(VkPositiveLayerTest, ResetEventThenSet) {
         vkBeginCommandBuffer(command_buffer, &begin_info);
 
         vkCmdResetEvent(command_buffer, event, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-        vkCmdWaitEvents(command_buffer, 1, &event, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0,
-            nullptr, 0, nullptr, 0, nullptr);
         vkEndCommandBuffer(command_buffer);
     }
     {

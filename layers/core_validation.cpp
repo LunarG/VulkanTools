@@ -4754,18 +4754,25 @@ static bool RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t
 
         for (auto & wait : submission.waitSemaphores) {
             auto pSemaphore = getSemaphoreNode(dev_data, wait.semaphore);
-            pSemaphore->in_use.fetch_sub(1);
+            if (pSemaphore) {
+                pSemaphore->in_use.fetch_sub(1);
+            }
             auto & lastSeq = otherQueueSeqs[wait.queue];
             lastSeq = std::max(lastSeq, wait.seq);
         }
 
         for (auto & semaphore : submission.signalSemaphores) {
             auto pSemaphore = getSemaphoreNode(dev_data, semaphore);
-            pSemaphore->in_use.fetch_sub(1);
+            if (pSemaphore) {
+                pSemaphore->in_use.fetch_sub(1);
+            }
         }
 
         for (auto cb : submission.cbs) {
             auto cb_node = getCBNode(dev_data, cb);
+            if (!cb_node) {
+                continue;
+            }
             // First perform decrement on general case bound objects
             DecrementBoundResources(dev_data, cb_node);
             for (auto drawDataElement : cb_node->drawData) {
@@ -5076,10 +5083,12 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(VkDevice device, const VkMemoryAll
                                               const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory) {
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     VkResult result = my_data->dispatch_table.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
-    // TODO : Track allocations and overall size here
-    std::lock_guard<std::mutex> lock(global_lock);
-    add_mem_obj_info(my_data, device, *pMemory, pAllocateInfo);
-    print_mem_list(my_data);
+    if (result == VK_SUCCESS) {
+        // TODO : Track allocations and overall size here
+        std::lock_guard<std::mutex> lock(global_lock);
+        add_mem_obj_info(my_data, device, *pMemory, pAllocateInfo);
+        print_mem_list(my_data);
+    }
     return result;
 }
 
