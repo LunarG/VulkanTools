@@ -265,6 +265,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     VkFlags flags,
     void** ppData)
 {
+    static void *d1=getenv("D1");
+    while (d1) d1=d1;
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkMapMemory* pPacket = NULL;
@@ -551,7 +553,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     }
 #ifdef USE_PAGEGUARD_SPEEDUP
     delete[] ppPackageData;
-    pageguardExit();
 #endif
     vktrace_leave_critical_section(&g_memInfoLock);
 
