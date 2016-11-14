@@ -27,7 +27,7 @@
 #include <time.h>
 #include <inttypes.h>
 
-const char APP_VERSION[] = "0.9 - Beta";
+const char APP_VERSION[] = "1.0.0";
 #define MAX_STRING_LENGTH 1024
 
 #ifdef _WIN32
