@@ -205,7 +205,6 @@ namespace trim
                 const VkAllocationCallbacks* pAllocator;
                 VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
                 VkComputePipelineCreateInfo computePipelineCreateInfo;
-                // TODO: Need to build out this structure based on VkGraphicsPipelineCreateInfo
             } Pipeline;
             struct _DescriptorPool {        // VkDescriptorPool
                 vktrace_trace_packet_header* pCreatePacket;
