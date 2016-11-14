@@ -35,6 +35,7 @@
 #include <dlfcn.h>
 #include <signal.h>
 #include "wintypes.h"
+#include <sys/mman.h>
 #define APIENTRY
 #define Sleep(n) usleep(n * 1000)
 #define VKTRACE_WINAPI

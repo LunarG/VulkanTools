@@ -30,8 +30,6 @@
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pagestatusarray.h"
 
-#if defined(WIN32) /// page guard solution for windows
-
 typedef class PageGuardMappedMemory
 {
     friend class PageGuardCapture;
@@ -47,6 +45,11 @@ private:
     VkDeviceSize MappedSize; /// the size of range
 
     VkDeviceSize PageGuardSize; /// size for one block
+
+#if defined(PLATFORM_LINUX)
+    void clearRefs();
+    int clearRefsFd;
+#endif
 
 protected:
     PageStatusArray *pPageStatus;
@@ -129,6 +132,3 @@ public:
     /// get ptr and size of OPTChangedDataPackage;
     PBYTE getChangedDataPackage(VkDeviceSize  *pSize);
 } PageGuardMappedMemory, *LPPageGuardMappedMemory;
-
-//page guard for windows end
-#endif//page guard solution

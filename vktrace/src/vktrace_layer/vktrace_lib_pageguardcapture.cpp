@@ -25,13 +25,23 @@
 #include "vktrace_lib_pageguardcapture.h"
 #include "vktrace_lib_pageguard.h"
 
-#if defined(WIN32) //page guard solution for windows
-
 
 PageGuardCapture::PageGuardCapture()
 {
     EmptyChangedInfoArray.offset = 0;
     EmptyChangedInfoArray.length = 0;
+
+#if defined(PLATFORM_LINUX)
+    // Open the /proc/<pid>/clear_refs file. We'll write to that file
+    // when we want to clear all dirty bits in the current process'
+    // pagemap.
+    char clearRefsPath[100];
+    snprintf(clearRefsPath, sizeof(clearRefsPath), "/proc/%d/clear_refs", getpid());
+    clearRefsFd = open(clearRefsPath, O_WRONLY);
+    if (clearRefsFd < 0)
+        vktrace_LogError("Open of %s failed, attempting to continue...", clearRefsPath);
+#endif
+
 }
 
 std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >& PageGuardCapture::getMapMemory()
@@ -51,7 +61,7 @@ void PageGuardCapture::vkMapMemoryPageGuardHandle(
     if (getPageGuardEnableFlag())
     {
 #ifdef PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
-        if ((size >= ref_target_range_size()) && (size != -1))
+        if (size >= ref_target_range_size())
 #endif
         {
             OPTmappedmem.vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
@@ -97,7 +107,6 @@ bool PageGuardCapture::vkFlushMappedMemoryRangesPageGuardHandle(
     for (uint32_t i = 0; i < memoryRangeCount; i++)
     {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[i];
-        size_t rangesSize = (size_t)pRange->size;
 
         ppPackageDataforOutOfMap[i] = nullptr;
         LPPageGuardMappedMemory lpOPTMemoryTemp = findMappedMemoryObject(device, pRange->memory);
@@ -163,7 +172,6 @@ LPPageGuardMappedMemory PageGuardCapture::findMappedMemoryObject(PBYTE addr, VkD
 {
     LPPageGuardMappedMemory pMappedMemoryObject = nullptr;
     LPPageGuardMappedMemory pMappedMemoryTemp;
-    PBYTE RealMappedMemoryAddr = nullptr;
     PBYTE pBlock = nullptr;
     VkDeviceSize OffsetOfAddr = 0, BlockSize = 0;
 
@@ -189,9 +197,11 @@ LPPageGuardMappedMemory PageGuardCapture::findMappedMemoryObject(PBYTE addr, VkD
             {
                 *pOffsetOfAddr = OffsetOfAddr;
             }
+
+            return pMappedMemoryObject;
         }
     }
-    return pMappedMemoryObject;
+    return NULL;
 }
 
 LPPageGuardMappedMemory PageGuardCapture::findMappedMemoryObject(VkDevice device, const VkMappedMemoryRange* pMemoryRange)
@@ -366,4 +376,15 @@ bool PageGuardCapture::isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkP
     return isReady;
 }
 
-#endif//page guard solution for windows
+#if defined(PLATFORM_LINUX)
+void PageGuardCapture::pageRefsDirtyClear()
+{
+    char four='4';
+    if (clearRefsFd >=0)
+    {
+        lseek(clearRefsFd, 0, SEEK_SET);
+        if (1 != write(clearRefsFd, &four, 1))
+            vktrace_LogError("Write to clear_refs file failed, attempting to continue");
+    }
+}
+#endif

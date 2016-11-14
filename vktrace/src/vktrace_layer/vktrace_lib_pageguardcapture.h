@@ -30,7 +30,15 @@
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
 
-#if defined(WIN32) /// page guard solution for windows
+#define PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
+
+//PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY is a compile flag for add page guard on real mapped memory.
+//If comment this flag, pageguard will be added on a copy of mapped memory, with the flag, page guard will be added to
+//real mapped memory.
+//for some hareware, add to mapped memory not the copy of it may not be allowed, so turn on this flag just for you are already sure page guard can work on that hardware.
+//If add page guard to the copy of mapped memory, it's always allowed but need to do synchonization between the mapped memory and its copy.
+
+//#define PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
 
 #define PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
 
@@ -51,6 +59,10 @@ private:
     std::unordered_map< VkDeviceMemory, PageGuardMappedMemory > MapMemory;
     std::unordered_map< VkDeviceMemory, PBYTE > MapMemoryPtr;
     std::unordered_map< VkDeviceMemory, VkDeviceSize > MapMemoryOffset;
+#if defined(PLATFORM_LINUX)
+    int clearRefsFd;
+#endif
+
 public:
 
     PageGuardCapture();
@@ -63,7 +75,7 @@ public:
 
     void* getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory);
 
-    VkDeviceSize PageGuardCapture::getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
+    VkDeviceSize getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
 
     /// return: if it's target mapped memory and no change at all;
     /// PBYTE *ppPackageDataforOutOfMap, must be an array include memoryRangeCount elements
@@ -105,7 +117,8 @@ public:
         uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
         uint32_t  imageMemoryBarrierCount, const VkImageMemoryBarrier*  pImageMemoryBarriers);
 
-} PageGuardCapture;
-//page guard for windows end
+#if defined(PLATFORM_LINUX)
+    void pageRefsDirtyClear();
+#endif
 
-#endif//page guard solution
+} PageGuardCapture;

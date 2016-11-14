@@ -136,6 +136,96 @@ void *strip_create_extensions(const void *pNext)
     return create_info;
 }
 
+// This function is called when we need to update our list of mapped memory that is dirty.
+// On Linux, we don't use exceptions to find out when a page has changed, we use
+// the /proc filesystem instead.
+#if defined (PLATFORM_LINUX)
+void getMappedDirtyPagesLinux(void)
+{
+    LPPageGuardMappedMemory pMappedMem;
+    PBYTE addr, alignedAddrStart, alignedAddrEnd;
+    VkDeviceMemory mappedMemory;
+    off_t pmOffset;
+    int64_t index;
+    uint64_t pageEntry;
+    size_t pageSize = getpagesize();
+    size_t readLen;
+    VKAllocInfo *pEntry;
+    static int pmFd = -1;
+
+    // Open pagefile once, and keep it open
+    if (pmFd == -1)
+    {
+        char pageMapFileName[100];
+        snprintf(pageMapFileName, sizeof(pageMapFileName), "/proc/%d/pagemap", getpid());
+        pmFd = open(pageMapFileName, O_RDONLY);
+        if (pmFd < 0) {
+            vktrace_LogError("Failed to open %s. Attempting to continue...", pageMapFileName);
+            return;
+        }
+    }
+
+    // There's the possibility that a page is not dirty when we query its status,
+    // but it becomes dirty after the query but before we clear the dirty bits.
+    // We try to work around this by reading the dirty bits several times, until
+    // we find no additional dirty pages.
+    uint64_t dirtyCount=2;
+    for (int dirtyLoop=0; dirtyLoop<100; dirtyLoop++)
+    {
+        bool foundDirtyPage = false;
+        for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
+             it != getPageGuardControlInstance().getMapMemory().end();
+             it++)
+        {
+            pMappedMem = &(it->second);
+            mappedMemory = pMappedMem->getMappedMemory();
+            pEntry=find_mem_info_entry(mappedMemory);
+            addr=pEntry->pData+pEntry->rangeOffset;
+            alignedAddrStart = (PBYTE)((uint64_t)addr  & ~(pageSize-1));
+            alignedAddrEnd = addr + pEntry->rangeSize;
+            for (addr = alignedAddrStart; addr < alignedAddrEnd; addr+=pageSize)
+            {
+                // Read 64-bit word that contains the diry bit
+                pmOffset = (off_t)((uint64_t)addr/(uint64_t)pageSize);
+                pmOffset = pmOffset * 8;
+                assert(pmOffset >= 0);
+                lseek(pmFd, pmOffset, SEEK_SET);
+                readLen = read(pmFd, &pageEntry, 8);
+                assert(readLen==8);
+                if (readLen != 8) {
+                    vktrace_LogError("Failed to read from pagemap file. Attempting to continue...");
+                    return;
+                }
+                if ((pageEntry&((uint64_t)1<<55)) != 0)
+                {
+                    index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+                    if (index >= 0)
+                    {
+                        if (!pMappedMem->isMappedBlockChanged(index, BLOCK_FLAG_ARRAY_CHANGED))
+                        {
+                            pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                            foundDirtyPage = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!foundDirtyPage)
+            dirtyCount--;
+
+        // Exit loop if we have looped twice without finding a dirty page
+        if (dirtyCount == 0)
+            break;
+    }
+
+    // Clear all dirty bits 
+    PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
+    pageGuardCapture.pageRefsDirtyClear();
+
+}
+#endif
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
     VkDevice device,
     const VkMemoryAllocateInfo* pAllocateInfo,
@@ -188,8 +278,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     if (size == VK_WHOLE_SIZE) {
         size = entry->totalSize - offset;
     }
+
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+    flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
+    resetAllReadFlagAndPageGuard();
+#endif
     getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
     pageguardExit();
 #endif
@@ -221,8 +317,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
 #ifdef USE_PAGEGUARD_SPEEDUP
     void *PageGuardMappedData;
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData, &vkFlushMappedMemoryRangesWithoutAPICall);
-    pageguardExit();
 #endif
     uint64_t trace_begin_time = vktrace_get_time();
 
@@ -256,7 +354,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     pPacket->memory = memory;
     FINISH_TRACE_PACKET();
 #ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
     if (PageGuardMappedData != nullptr)
     {
         pageguardFreeMemory(PageGuardMappedData);
@@ -302,7 +399,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
     resetAllReadFlagAndPageGuard();
-    pageguardExit();
 #endif
 
     // find out how much memory is in the ranges
@@ -360,6 +456,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     pPacket->memoryRangeCount = memoryRangeCount;
     pPacket->result = result;
     FINISH_TRACE_PACKET();
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardExit();
+#endif
     return result;
 }
 
@@ -377,6 +476,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
     getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
 #endif
@@ -449,6 +551,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     }
 #ifdef USE_PAGEGUARD_SPEEDUP
     delete[] ppPackageData;
+    pageguardExit();
 #endif
     vktrace_leave_critical_section(&g_memInfoLock);
 
@@ -1119,6 +1222,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
 {
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
     resetAllReadFlagAndPageGuard();
     pageguardExit();
