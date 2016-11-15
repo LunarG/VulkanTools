@@ -24,12 +24,14 @@ To run VIA, simply call the executable.
 via
 ```
 
-Ideally, if you are having a problem running a particular Vulkan application, change to the directory of that application, and run VIA
-from where it is installed on your system.  That will make sure VIA sees exactly what the Vulkan application sees.
+If you are having a problem running a particular Vulkan application, then on Windows you can run VIA
+from the start menu (in which case it will output to the desktop), or on any OS you can change to
+the directory of the application and run VIA from where it is installed on your system. The latter
+choise will make sure VIA sees exactly what the Vulkan application sees.
 
 This will output two things:
  - A command-line ouptut indicating the overall status
- - An HTML file (called lunarg_via.html) containing the details which will be output to one of two locations:
+ - An HTML file (called via.html) containing the details which will be output to one of two locations:
   1. If the current directory is writeable, the HTML will be placed in that location.
   2. Otherwise, it will be saved to your home folder.
 
@@ -48,6 +50,11 @@ multiple state captures on your system without accidentally erasing previous res
 _via_YYYY_MM_DD_HH_MM.html_
 
 Where each component stands for the numeric values for year (YYYY), month (MM), day (DD), hour (HH), and minute (MM).
+
+#### --output_path
+The --output_path arument allows the user to specify a location for the output html file. For
+example, if the user runs `via --output_path /home/me/Documents`, then the output file will be
+`/home/me/Documents/via.html`.
 
 <BR />
 

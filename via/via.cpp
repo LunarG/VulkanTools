@@ -117,6 +117,7 @@ int main(int argc, char **argv) {
         char html_file_name[MAX_STRING_LENGTH];
         char full_file[MAX_STRING_LENGTH];
         char temp[MAX_STRING_LENGTH];
+        const char* output_path = NULL;
         bool generate_unique_file = false;
 
         // Check and handle command-line arguments
@@ -124,20 +125,41 @@ int main(int argc, char **argv) {
             for (int iii = 1; iii < argc; iii++) {
                 if (0 == strcmp("--unique_output", argv[iii])) {
                     generate_unique_file = true;
+                } else if (0 == strcmp("--output_path", argv[iii]) &&
+                           argc > (iii + 1)) {
+                    output_path = argv[iii + 1];
+                    ++iii;
                 } else {
                     std::cout << "Usage of via.exe:" << std::endl
-                              << "    via.exe [--unique_output]"
-                              << std::endl
+                              << "    via.exe [--unique_output] "
+                              "[--output_path <path>]" << std::endl
                               << "          [--unique_output] Optional "
-                                 "parameter to generate a unique html"
-                              << std::endl
-                              << "                            output file"
-                                 "in the form of "
-                                 "\'via_YYYY_MM_DD_HH_MM.html\'"
-                              << std::endl;
+                              "parameter to generate a unique html"
+                              << std::endl << "                            "
+                              "output file in the form "
+                              "\'via_YYYY_MM_DD_HH_MM.html\'"
+                              << std::endl << "          [--output_path <path>"
+                              "] Optional parameter to generate the output at"
+                              << std::endl << "                               "
+                              "  a given path" << std::endl;
                     throw(-1);
                 }
             }
+        }
+        
+        // If the user wants a specific output path, write it to the buffer
+        // and then continue writing the rest of the name below
+        size_t file_name_offset = 0;
+        if (output_path != NULL) {
+            file_name_offset = strlen(output_path) + 1;
+            strncpy(html_file_name, output_path, MAX_STRING_LENGTH - 1);
+#ifdef _WIN32
+            strncpy(html_file_name + file_name_offset - 1, "\\",
+                    MAX_STRING_LENGTH - file_name_offset);
+#else
+            strncpy(html_file_name + file_name_offset - 1, "/",
+                    MAX_STRING_LENGTH - file_name_offset);
+#endif
         }
 
         // If the user wants a unique file, generate a file with the current
@@ -145,13 +167,15 @@ int main(int argc, char **argv) {
         if (generate_unique_file) {
             time(&time_raw_format);
             ptr_time = localtime(&time_raw_format);
-            if (strftime(html_file_name, MAX_STRING_LENGTH - 1,
+            if (strftime(html_file_name + file_name_offset,
+                         MAX_STRING_LENGTH - 1,
                          "via_%Y_%m_%d_%H_%M.html", ptr_time) == 0) {
                 std::cerr << "Couldn't prepare formatted string" << std::endl;
                 throw(-1);
             }
         } else {
-            strncpy(html_file_name, "via.html", MAX_STRING_LENGTH - 1);
+            strncpy(html_file_name + file_name_offset, "via.html",
+                    MAX_STRING_LENGTH - 1 - file_name_offset);
         }
 
         // Write the output file to the current executing directory, or, if
