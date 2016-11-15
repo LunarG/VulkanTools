@@ -72,7 +72,6 @@ else()
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RUN_ALL} _run_all_tests.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKTRACEREPLAY} _vktracereplay.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKVALIDATELAYERDOC} _vkvalidatelayerdoc.ps1
-            COMMAND IF NOT EXIST golden mklink /J golden ${GOLDEN}
             VERBATIM
             )
     endif()
