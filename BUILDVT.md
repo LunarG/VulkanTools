@@ -260,7 +260,7 @@ Result screenshot will be in:
 ### vktrace
 To record a trace on Android, enable port forwarding from the device to the host:
 ```
-adb reverse tcp:34201 tcp:34201
+adb reverse localabstract:vktrace tcp:34201
 ```
 Start up vktrace on the host in server mode:
 ```
