@@ -27,7 +27,7 @@ via
 If you are having a problem running a particular Vulkan application, then on Windows you can run VIA
 from the start menu (in which case it will output to the desktop), or on any OS you can change to
 the directory of the application and run VIA from where it is installed on your system. The latter
-choise will make sure VIA sees exactly what the Vulkan application sees.
+choice will make sure VIA sees exactly what the Vulkan application sees.
 
 This will output two things:
  - A command-line ouptut indicating the overall status
