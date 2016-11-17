@@ -28,6 +28,9 @@ cvdescriptorset::DescriptorSetLayout::DescriptorSetLayout(const VkDescriptorSetL
                                                           const VkDescriptorSetLayout layout)
     : layout_(layout), binding_count_(p_create_info->bindingCount), descriptor_count_(0), dynamic_descriptor_count_(0) {
     uint32_t global_index = 0;
+    // Dyn array indicies are ordered by binding # and array index of any array within the binding
+    //  so we store up bindings w/ count in ordered map in order to create dyn array mappings below
+    std::map<uint32_t, uint32_t> binding_to_dyn_count;
     for (uint32_t i = 0; i < binding_count_; ++i) {
         descriptor_count_ += p_create_info->pBindings[i].descriptorCount;
         binding_to_index_map_[p_create_info->pBindings[i].binding] = i;
@@ -44,8 +47,15 @@ cvdescriptorset::DescriptorSetLayout::DescriptorSetLayout(const VkDescriptorSetL
         }
         if (p_create_info->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
             p_create_info->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {
+            binding_to_dyn_count[p_create_info->pBindings[i].binding] = p_create_info->pBindings[i].descriptorCount;
             dynamic_descriptor_count_ += p_create_info->pBindings[i].descriptorCount;
         }
+    }
+    // Now create dyn offset array mapping for any dynamic descriptors
+    uint32_t dyn_array_idx = 0;
+    for (const auto &bc_pair : binding_to_dyn_count) {
+        binding_to_dynamic_array_idx_map_[bc_pair.first] = dyn_array_idx;
+        dyn_array_idx += bc_pair.second;
     }
 }
 
@@ -361,7 +371,6 @@ bool cvdescriptorset::DescriptorSet::IsCompatible(const DescriptorSetLayout *lay
 // Return true if state is acceptable, or false and write an error message into error string
 bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, descriptor_req> &bindings,
                                                        const std::vector<uint32_t> &dynamic_offsets, std::string *error) const {
-    auto dyn_offset_index = 0;
     for (auto binding_pair : bindings) {
         auto binding = binding_pair.first;
         if (!p_layout_->HasBinding(binding)) {
@@ -376,7 +385,8 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
             // Nothing to do for strictly immutable sampler
         } else {
             auto end_idx = p_layout_->GetGlobalEndIndexFromBinding(binding);
-            for (uint32_t i = start_idx; i <= end_idx; ++i) {
+            auto array_idx = 0; // Track array idx if we're dealing with array descriptors
+            for (uint32_t i = start_idx; i <= end_idx; ++i, ++array_idx) {
                 if (!descriptors_[i]->updated) {
                     std::stringstream error_str;
                     error_str << "Descriptor in binding #" << binding << " at global descriptor index " << i
@@ -388,7 +398,7 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                     if (descriptor_class == GeneralBuffer) {
                         // Verify that buffers are valid
                         auto buffer = static_cast<BufferDescriptor *>(descriptors_[i].get())->GetBuffer();
-                        auto buffer_node = getBufferNode(device_data_, buffer);
+                        auto buffer_node = getBufferState(device_data_, buffer);
                         if (!buffer_node) {
                             std::stringstream error_str;
                             error_str << "Descriptor in binding #" << binding << " at global descriptor index " << i
@@ -396,14 +406,15 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                             *error = error_str.str();
                             return false;
                         } else {
-                            auto mem_entry = getMemObjInfo(device_data_, buffer_node->binding.mem);
-                            if (!mem_entry) {
-                                std::stringstream error_str;
-                                error_str << "Descriptor in binding #" << binding << " at global descriptor index " << i
-                                          << " uses buffer " << buffer << " that references invalid memory "
-                                          << buffer_node->binding.mem << ".";
-                                *error = error_str.str();
-                                return false;
+                            for (auto mem_binding : buffer_node->GetBoundMemory()) {
+                                if (!getMemObjInfo(device_data_, mem_binding)) {
+                                    std::stringstream error_str;
+                                    error_str << "Descriptor in binding #" << binding << " at global descriptor index " << i
+                                              << " uses buffer " << buffer << " that references invalid memory " << mem_binding
+                                              << ".";
+                                    *error = error_str.str();
+                                    return false;
+                                }
                             }
                         }
                         if (descriptors_[i]->IsDynamic()) {
@@ -411,7 +422,7 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                             auto buffer_size = buffer_node->createInfo.size;
                             auto range = static_cast<BufferDescriptor *>(descriptors_[i].get())->GetRange();
                             auto desc_offset = static_cast<BufferDescriptor *>(descriptors_[i].get())->GetOffset();
-                            auto dyn_offset = dynamic_offsets[dyn_offset_index++];
+                            auto dyn_offset = dynamic_offsets[GetDynamicOffsetIndexFromBinding(binding) + array_idx];
                             if (VK_WHOLE_SIZE == range) {
                                 if ((dyn_offset + desc_offset) > buffer_size) {
                                     std::stringstream error_str;
@@ -993,7 +1004,7 @@ void cvdescriptorset::BufferDescriptor::CopyUpdate(const Descriptor *src) {
 }
 
 void cvdescriptorset::BufferDescriptor::BindCommandBuffer(const core_validation::layer_data *dev_data, GLOBAL_CB_NODE *cb_node) {
-    auto buffer_node = getBufferNode(dev_data, buffer_);
+    auto buffer_node = getBufferState(dev_data, buffer_);
     if (buffer_node)
         core_validation::AddCommandBufferBindingBuffer(dev_data, cb_node, buffer_node);
 }
@@ -1179,7 +1190,7 @@ bool cvdescriptorset::DescriptorSet::ValidateWriteUpdate(const debug_report_data
 }
 // For the given buffer, verify that its creation parameters are appropriate for the given type
 //  If there's an error, update the error_msg string with details and return false, else return true
-bool cvdescriptorset::DescriptorSet::ValidateBufferUsage(BUFFER_NODE const *buffer_node, VkDescriptorType type,
+bool cvdescriptorset::DescriptorSet::ValidateBufferUsage(BUFFER_STATE const *buffer_node, VkDescriptorType type,
                                                          UNIQUE_VALIDATION_ERROR_CODE *error_code, std::string *error_msg) const {
     // Verify that usage bits set correctly for given type
     auto usage = buffer_node->createInfo.usage;
@@ -1235,7 +1246,7 @@ bool cvdescriptorset::DescriptorSet::ValidateBufferUpdate(VkDescriptorBufferInfo
     // TODO : Defaulting to 00962 for all cases here. Need to create new error codes for a few cases below.
     *error_code = VALIDATION_ERROR_00962;
     // First make sure that buffer is valid
-    auto buffer_node = getBufferNode(device_data_, buffer_info->buffer);
+    auto buffer_node = getBufferState(device_data_, buffer_info->buffer);
     if (!buffer_node) {
         std::stringstream error_str;
         error_str << "Invalid VkBuffer: " << buffer_info->buffer;
@@ -1349,7 +1360,7 @@ bool cvdescriptorset::DescriptorSet::VerifyWriteUpdateContents(const VkWriteDesc
                 return false;
             }
             auto buffer = bv_state->create_info.buffer;
-            if (!ValidateBufferUsage(getBufferNode(device_data_, buffer), update->descriptorType, error_code, error_msg)) {
+            if (!ValidateBufferUsage(getBufferState(device_data_, buffer), update->descriptorType, error_code, error_msg)) {
                 std::stringstream error_str;
                 error_str << "Attempted write update to texel buffer descriptor failed due to: " << error_msg->c_str();
                 *error_msg = error_str.str();
@@ -1458,7 +1469,7 @@ bool cvdescriptorset::DescriptorSet::VerifyCopyUpdateContents(const VkCopyDescri
                 return false;
             }
             auto buffer = bv_state->create_info.buffer;
-            if (!ValidateBufferUsage(getBufferNode(device_data_, buffer), type, error_code, error_msg)) {
+            if (!ValidateBufferUsage(getBufferState(device_data_, buffer), type, error_code, error_msg)) {
                 std::stringstream error_str;
                 error_str << "Attempted copy update to texel buffer descriptor failed due to: " << error_msg->c_str();
                 *error_msg = error_str.str();
@@ -1470,7 +1481,7 @@ bool cvdescriptorset::DescriptorSet::VerifyCopyUpdateContents(const VkCopyDescri
     case GeneralBuffer: {
         for (uint32_t di = 0; di < update->descriptorCount; ++di) {
             auto buffer = static_cast<BufferDescriptor *>(src_set->descriptors_[index + di].get())->GetBuffer();
-            if (!ValidateBufferUsage(getBufferNode(device_data_, buffer), type, error_code, error_msg)) {
+            if (!ValidateBufferUsage(getBufferState(device_data_, buffer), type, error_code, error_msg)) {
                 std::stringstream error_str;
                 error_str << "Attempted copy update to buffer descriptor failed due to: " << error_msg->c_str();
                 *error_msg = error_str.str();
