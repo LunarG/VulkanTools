@@ -54,6 +54,15 @@ namespace trim
     }
 
     //-------------------------------------------------------------------------
+    void ClearBufferTransitions(VkCommandBuffer commandBuffer)
+    {
+        vktrace_enter_critical_section(&trimTransitionMapLock);
+        m_cmdBufferToBufferTransitionsMap[commandBuffer].clear();
+        m_cmdBufferToBufferTransitionsMap.erase(commandBuffer);
+        vktrace_leave_critical_section(&trimTransitionMapLock);
+    }
+
+    //-------------------------------------------------------------------------
     StateTracker::StateTracker()
     {
     }

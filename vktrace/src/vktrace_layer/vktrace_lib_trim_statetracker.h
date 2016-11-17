@@ -54,6 +54,7 @@ namespace trim
     static std::unordered_map<VkCommandBuffer, std::list<BufferTransition>> m_cmdBufferToBufferTransitionsMap;
 
     void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
+    void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 
     //-------------------------------------------------------------------------
     // Some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).

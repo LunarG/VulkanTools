@@ -516,6 +516,7 @@ class Subcommand(object):
             trim_instructions.append("            trim::remove_CommandBuffer_object(pCommandBuffers[i]);")
             trim_instructions.append("            trim::remove_CommandBuffer_calls(pCommandBuffers[i]);")
             trim_instructions.append("            trim::ClearImageTransitions(pCommandBuffers[i]);")
+            trim_instructions.append("            trim::ClearBufferTransitions(pCommandBuffers[i]);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
@@ -747,6 +748,7 @@ class Subcommand(object):
         elif ('ResetCommandBuffer' is proto.name):
             trim_instructions.append("        trim::remove_CommandBuffer_calls(commandBuffer);")
             trim_instructions.append("        trim::ClearImageTransitions(commandBuffer);")
+            trim_instructions.append("        trim::ClearBufferTransitions(commandBuffer);")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
             trim_instructions.append('            trim::add_recorded_packet(pHeader);')
