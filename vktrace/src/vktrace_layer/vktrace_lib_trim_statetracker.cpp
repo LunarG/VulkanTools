@@ -729,7 +729,7 @@ namespace trim
             *pDS = *(src.pDynamicState);
             pDst->pDynamicState = pDS;
 
-            if (src.pColorBlendState->pAttachments != nullptr)
+            if (src.pDynamicState->pDynamicStates != nullptr)
             {
                 VkDynamicState* pDynamicStates = new VkDynamicState[pDS->dynamicStateCount];
                 memcpy(pDynamicStates, pDS->pDynamicStates, pDS->dynamicStateCount * sizeof(VkDynamicState));
