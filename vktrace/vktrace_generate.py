@@ -1197,6 +1197,16 @@ class Subcommand(object):
             trim_instructions.append('        {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
+        elif 'CmdBeginQuery' is proto.name:
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
         elif ('CmdEndQuery' is proto.name or
               'CmdWriteTimestamp' is proto.name):
             trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_QueryPool_objectInfo(queryPool);")
