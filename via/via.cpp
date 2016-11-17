@@ -27,7 +27,7 @@
 #include <time.h>
 #include <inttypes.h>
 
-const char APP_VERSION[] = "1.0.0";
+const char APP_VERSION[] = "Version 1.0";
 #define MAX_STRING_LENGTH 1024
 
 #ifdef _WIN32
@@ -397,27 +397,15 @@ void StartOutput(std::string output) {
         << "</HEAD>" << std::endl
         << std::endl
         << "<BODY>" << std::endl
-        << std::endl
-        // We need the following space so the text from the title doesn't
-        // overlap the body.
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        << "    <BR />" << std::endl
-        // All the silly "&nbsp;" are to make sure the version lines up directly
-        // under the  VIA portion of the log.
-        << "    <H1 class=\"version\"><center>";
-    for (uint32_t space = 0; space < 70; space++) {
+        << std::endl;
+    // We need space from the top for the VIA texture
+    for (uint32_t space = 0; space < 15; space++) {
+        global_items.html_file_stream << "    <BR />" << std::endl;
+    }
+    // All the silly "&nbsp;" are to make sure the version lines up directly
+    // under the  VIA portion of the log.
+    global_items.html_file_stream << "    <H1 class=\"version\"><center>";
+    for (uint32_t space = 0; space < 65; space++) {
         global_items.html_file_stream << "&nbsp;";
     }
     global_items.html_file_stream << APP_VERSION << "</center></h1>"
@@ -1429,6 +1417,7 @@ void PrintDriverInfo(void) {
     char cur_vulkan_driver_json[MAX_STRING_LENGTH];
     char generic_string[MAX_STRING_LENGTH];
     char full_driver_path[MAX_STRING_LENGTH];
+    char system_path[MAX_STRING_LENGTH];
     char count_str[64];
     uint32_t i = 0;
     uint32_t j = 0;
@@ -1437,14 +1426,21 @@ void PrintDriverInfo(void) {
     bool found_json = false;
     bool found_lib = false;
 
+    GetEnvironmentVariableA("SYSTEMROOT", generic_string, MAX_STRING_LENGTH);
 #if _WIN64 || __x86_64__ || __ppc64__
+    snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
+        generic_string);
     snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\Drivers",
              vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
+        snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\",
+            generic_string);
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\Drivers",
                  vulkan_reg_base_wow64);
     } else {
+        snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
+            generic_string);
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\Drivers",
                  vulkan_reg_base);
     }
@@ -1527,25 +1523,55 @@ void PrintDriverInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Library Path");
                     if (!root["ICD"]["library_path"].isNull()) {
-                        PrintTableElement(
-                            root["ICD"]["library_path"].asString());
+                        std::string driver_name = root["ICD"]["library_path"].asString();
+                        std::string system_name = system_path;
+                        system_name += "\\";
+                        system_name += driver_name;
+                        PrintTableElement(driver_name);
                         PrintEndTableRow();
 
                         if (GenerateLibraryPath(
                                 cur_vulkan_driver_json,
-                                root["ICD"]["library_path"].asString().c_str(),
-                                MAX_STRING_LENGTH - 1, full_driver_path) &&
-                            GetFileVersion(full_driver_path,
-                                           MAX_STRING_LENGTH - 1,
-                                           generic_string)) {
+                                driver_name.c_str(),
+                                MAX_STRING_LENGTH - 1, full_driver_path)) {
 
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("Library File Version");
-                            PrintTableElement(generic_string);
-                            PrintEndTableRow();
+                            if (GetFileVersion(full_driver_path,
+                                               MAX_STRING_LENGTH - 1,
+                                               generic_string)) {
 
-                            found_lib = true;
+                                PrintBeginTableRow();
+                                PrintTableElement("");
+                                PrintTableElement("Library File Version");
+                                PrintTableElement(generic_string);
+                                PrintEndTableRow();
+
+                                found_lib = true;
+                            } else if (GetFileVersion(system_name.c_str(),
+                                MAX_STRING_LENGTH - 1,
+                                generic_string)) {
+
+                                    PrintBeginTableRow();
+                                    PrintTableElement("");
+                                    PrintTableElement("Library File Version");
+                                    PrintTableElement(generic_string);
+                                    PrintEndTableRow();
+
+                                    found_lib = true;
+                            } else {
+                                snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                                         "Failed to find driver %s "
+                                         " or %sreferenced by JSON %s",
+                                         root["ICD"]["library_path"]
+                                             .asString()
+                                             .c_str(),
+                                         full_driver_path,
+                                         cur_vulkan_driver_json);
+                                PrintBeginTableRow();
+                                PrintTableElement("");
+                                PrintTableElement("");
+                                PrintTableElement(generic_string);
+                                PrintEndTableRow();
+                            }
                         } else {
                             snprintf(generic_string, MAX_STRING_LENGTH - 1,
                                      "Failed to find driver %s "
@@ -2113,6 +2139,89 @@ void PrintLayerInfo(void) {
 
 #elif __GNUC__
 
+// Utility function to determine if a driver may exist in the folder.
+bool CheckDriver(std::string &folder_loc, std::string &object_name) {
+    bool success = false;
+    std::string full_name = folder_loc;
+    if (folder_loc.c_str()[folder_loc.size() - 1] != '/') {
+        full_name += "/";
+    }
+    full_name += object_name;
+    if (access(full_name.c_str(), R_OK) != -1) {
+        success = true;
+    }
+    return success;
+}
+
+// Pointer to a function sed to validate if the system object is found
+typedef bool (*PFN_CheckIfValid)(std::string &folder_loc,
+                                 std::string &object_name);
+
+bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func,
+                           bool break_on_first) {
+    bool found_one = false;
+    std::string path_to_check;
+    char *env_value = getenv("LD_LIBRARY_PATH");
+
+    for (uint32_t iii = 0; iii < 5; iii++) {
+        switch (iii) {
+        case 0:
+            path_to_check = "/usr/lib";
+            break;
+        case 1:
+#if __x86_64__ || __ppc64__
+            path_to_check = "/usr/lib/x86_64-linux-gnu";
+#else
+            path_to_check = "/usr/lib/i386-linux-gnu";
+#endif
+            break;
+        case 2:
+#if __x86_64__ || __ppc64__
+            path_to_check = "/usr/lib64";
+#else
+            path_to_check = "/usr/lib32";
+#endif
+            break;
+        case 3:
+            path_to_check = "/usr/local/lib";
+            break;
+        case 4:
+#if __x86_64__ || __ppc64__
+            path_to_check = "/usr/local/lib64";
+#else
+            path_to_check = "/usr/local/lib32";
+#endif
+            break;
+        default:
+            continue;
+        }
+
+        if (func(path_to_check, object_name)) {
+            // We found one runtime, clear any failures
+            found_one = true;
+            if (break_on_first) {
+                goto out;
+            }
+        }
+    }
+
+    // LD_LIBRARY_PATH may have multiple folders listed in it (colon
+    // ':' delimited)
+    if (env_value != NULL) {
+        char *tok = strtok(env_value, ":");
+        while (tok != NULL) {
+            path_to_check = tok;
+            if (func(path_to_check, object_name)) {
+                // We found one runtime, clear any failures
+                found_one = true;
+            }
+        }
+    }
+
+out:
+    return found_one;
+}
+
 // Print out any information about the current system that we can
 // capture to ease in debugging/investigation at a later time.
 void PrintSystemInfo(void) {
@@ -2373,7 +2482,7 @@ void PrintSystemInfo(void) {
 
     PrintBeginTableRow();
     PrintTableElement("Byte Format");
-#if _WIN64 || __x86_64__ || __ppc64__
+#if __x86_64__ || __ppc64__
     PrintTableElement("64-bit");
 #else
     PrintTableElement("32-bit");
@@ -2435,7 +2544,6 @@ void PrintDriverInfo(void) {
             break;
         }
         default:
-            failed = true;
             continue;
         }
 
@@ -2466,6 +2574,7 @@ void PrintDriverInfo(void) {
                 PrintTableElement("");
                 PrintEndTableRow();
 
+                bool found_lib_this_time = false;
                 std::ifstream *stream = NULL;
                 stream = new std::ifstream(cur_driver_json.c_str(),
                                            std::ifstream::in);
@@ -2522,18 +2631,34 @@ void PrintDriverInfo(void) {
                             PrintTableElement("");
                             PrintTableElement("Library Path");
                             if (!root["ICD"]["library_path"].isNull()) {
-                                PrintTableElement(
-                                    root["ICD"]["library_path"].asString());
+                                std::string driver_name = root["ICD"]["library_path"].asString();
+                                PrintTableElement(driver_name);
                                 PrintEndTableRow();
 
                                 if (GenerateLibraryPath(
                                         cur_driver_json.c_str(),
-                                        root["ICD"]["library_path"]
-                                            .asString()
-                                            .c_str(),
-                                        MAX_STRING_LENGTH, full_driver_path) &&
-                                    access(full_driver_path, R_OK) != -1) {
-                                    found_lib = true;
+                                        driver_name.c_str(),
+                                        MAX_STRING_LENGTH, full_driver_path)) {
+                                    // First try the generated path.
+                                    if (access(full_driver_path, R_OK) != -1) {
+                                        found_lib_this_time = true;
+                                    } else if (driver_name.find("/") == std::string::npos) {
+                                        if (FindLinuxSystemObject(driver_name,
+                                                                  CheckDriver,
+                                                                  true)) {
+                                            found_lib_this_time = true;
+                                        }
+                                    }
+                                    if (!found_lib_this_time) {
+                                        snprintf(generic_string,
+                                                 MAX_STRING_LENGTH - 1,
+                                                 "Failed to find driver %s "
+                                                 "referenced by JSON %s",
+                                                 full_driver_path,
+                                                 cur_driver_json.c_str());
+                                    } else {
+                                        found_lib = true;
+                                    }
                                 } else {
                                     snprintf(generic_string,
                                              MAX_STRING_LENGTH - 1,
@@ -2654,11 +2779,10 @@ void PrintDriverInfo(void) {
 
 // Print out all the runtime files found in a given location.  This way we
 // capture the full state of the system.
-bool PrintRuntimesInFolder(std::string &folder_loc, bool print_header = true) {
+bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header = true) {
     DIR *runtime_dir;
     bool success = false;
     bool failed = false;
-    const char vulkan_so_prefix[] = "libvulkan.so.";
 
     runtime_dir = opendir(folder_loc.c_str());
     if (NULL != runtime_dir) {
@@ -2679,7 +2803,7 @@ bool PrintRuntimesInFolder(std::string &folder_loc, bool print_header = true) {
         }
 
         while ((cur_ent = readdir(runtime_dir)) != NULL) {
-            if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) &&
+            if (NULL != strstr(cur_ent->d_name, object_name.c_str()) &&
                 strlen(cur_ent->d_name) == 14) {
 
                 // Get the source of this symbolic link
@@ -2753,6 +2877,11 @@ bool PrintRuntimesInFolder(std::string &folder_loc, bool print_header = true) {
     return success;
 }
 
+// Utility function to determine if a runtime exists in the folder
+bool CheckRuntime(std::string &folder_loc, std::string &object_name) {
+    return PrintRuntimesInFolder(folder_loc, object_name);
+}
+
 // Print out whatever Vulkan runtime information we can gather from the
 // standard system paths, etc.
 void PrintRunTimeInfo(void) {
@@ -2763,7 +2892,6 @@ void PrintRunTimeInfo(void) {
     std::string runtime_dir_name;
     FILE *pfp;
     bool failed = false;
-
     PrintBeginTable("Vulkan Runtimes", 3);
 
     PrintBeginTableRow();
@@ -2772,36 +2900,8 @@ void PrintRunTimeInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    for (uint32_t iii = 0; iii < 4; iii++) {
-        switch (iii) {
-        case 0:
-            runtime_dir_name = "/usr/lib";
-            break;
-        case 1:
-#if _WIN64 || __x86_64__ || __ppc64__
-            runtime_dir_name = "/usr/lib64";
-#else
-            runtime_dir_name = "/usr/lib32";
-#endif
-            break;
-        case 2:
-            runtime_dir_name = "/usr/local/lib";
-            break;
-        case 3:
-#if _WIN64 || __x86_64__ || __ppc64__
-            runtime_dir_name = "/usr/local/lib64";
-#else
-            runtime_dir_name = "/usr/local/lib32";
-#endif
-            break;
-        default:
-            failed = true;
-            continue;
-        }
-
-        if (!PrintRuntimesInFolder(runtime_dir_name)) {
-            failed = true;
-        }
+    if (!FindLinuxSystemObject(vulkan_so_prefix, CheckRuntime, false)) {
+        failed = true;
     }
 
     ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff) - 1);
@@ -2845,11 +2945,17 @@ void PrintRunTimeInfo(void) {
                         PrintTableElement("");
                         PrintEndTableRow();
 
-                        if (!PrintRuntimesInFolder(trimmed, false)) {
+                        std::string find_so = vulkan_so_prefix;
+                        if (!PrintRuntimesInFolder(trimmed, find_so, false)) {
                             failed = true;
+                        } else {
+                            // We found one runtime, clear any failures
+                            if (failed) {
+                                failed = false;
+                            }
                         }
                     }
-                    found = true;
+                    found = !failed;
                     break;
                 }
             }
@@ -2959,6 +3065,9 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
         PrintTableElement(folder_loc);
         PrintTableElement("No such folder");
         PrintEndTableRow();
+
+        // This isn't a failure, just an attempt to read information
+        success = true;
     }
 
     return success;
@@ -4415,7 +4524,7 @@ void PrintTestResults(void) {
 
         PrintEndTable();
     } else {
-        PrintStandardText("No SDK Installed.  Skipping Tests");
+        PrintStandardText("No SDK found by VIA, skipping test section");
     }
     EndSection();
 
