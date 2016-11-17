@@ -2397,6 +2397,7 @@ fail:
 VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory* pPacket)
 {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    gpuMemObj local_mem;
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE)
@@ -2405,7 +2406,16 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory* pPa
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    gpuMemObj local_mem;
+    if (pPacket->pAllocateInfo->pNext)
+    {
+		VkDedicatedAllocationMemoryAllocateInfoNV* x = (VkDedicatedAllocationMemoryAllocateInfoNV*)(pPacket->pAllocateInfo->pNext);
+
+		if (x->sType == VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV)
+       {
+            x->image = m_objMapper.remap_images(x->image);
+            x->buffer = m_objMapper.remap_buffers(x->buffer);
+       }
+    }
 
     if (!m_objMapper.m_adjustForGPU)
     {
