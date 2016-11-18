@@ -31,6 +31,7 @@ python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_ou
 ( cd generated/include; python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h )
 
 ( cd generated/include; python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp )
+( cd generated/include; python ../../../vt_genvk.py -registry ../../../vk.xml api_dump_text.h )
 
 # vktrace
 python ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > generated/include/vktrace_vk_vk.h

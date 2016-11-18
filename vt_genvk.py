@@ -20,7 +20,7 @@ from generator import write
 
 #
 # VulkanTools Generator Additions
-from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator
+from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN
 
 # Simple timer functions
 startTime = None
@@ -100,6 +100,7 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
     genOpts['api_dump.cpp'] = [
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
+            input             = COMMON_CODEGEN,
             filename          = 'api_dump.cpp',
             apiname           = 'vulkan',
             profile           = None,
@@ -119,6 +120,29 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48)
         ]
+    genOpts['api_dump_text.h'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            input             = TEXT_CODEGEN,
+            filename          = 'api_dump_text.h',
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = None,
+            removeExtensions  = None,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protectFile,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+    ]
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.

@@ -1,6 +1,5 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2016 The Khronos Group Inc.
 # Copyright (c) 2015-2016 Valve Corporation
 # Copyright (c) 2015-2016 LunarG, Inc.
 # Copyright (c) 2015-2016 Google Inc.
@@ -19,17 +18,34 @@
 #
 # Author: Lenny Komow <lenny@lunarg.com>
 #
+# The API dump layer works by passing custom format strings to the ApiDumpGenerator. These format
+# strings are C++ code, with 3-ish exceptions:
+#   * Anything beginning with @ will be expanded by the ApiDumpGenerator. These are used to allow
+#       iteration over various items within the Vulkan spec, usch as functions, enums, etc.
+#   * Anything surrounded by { and } will be substituted when the ApiDumpGenerator expands the @
+#       directives. This gives a way to get things like data types or names for anything that can
+#       be iterated over in an @ directive.
+#   * Curly braces must be doubled like {{ for a single curly brace to appear in the output code.
+#
+# The API dump uses separate format strings for each output file, but passes them to a common
+# generator. This allows greater flexibility, as changing the output codegen means just changing
+# the corresponding format string.
+#
+# Currently, the API dump layer generates the following files from the following strings:
+#   * api_dump.cpp: COMMON_CODEGEN - Provides all entrypoints for functions and dispatches the calls
+#       to the proper back end
+#   * api_dump_text.h: TEXT_CODEGEN - Provides the back end for dumping to a text file
+#
 
 import generator as gen
 import re
 import sys
 import xml.etree;
 
-outFormat = """
-/* Copyright (c) 2015-2016 The Khronos Group Inc.
- * Copyright (c) 2015-2016 Valve Corporation
+COMMON_CODEGEN = """
+/* Copyright (c) 2015-2016 Valve Corporation
  * Copyright (c) 2015-2016 LunarG, Inc.
- * Copyright (C) 2015-2016 Google Inc.
+ * Copyright (c) 2015-2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,233 +66,37 @@ outFormat = """
  * This file is generated from the Khronos Vulkan XML API Registry.
  */
  
-#include "api_dump.h"
-#include "vulkan/vulkan.h"
+#include "api_dump_text.h"
 
-#include "vk_layer_table.h"
-#include "vk_layer_extension_utils.h"
-#include "vk_layer_utils.h"
+//============================= Dump Functions ==============================//
 
-using std::ostream;
-using std::string;
-
-@foreach struct
-ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
-@foreach union
-ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//=========================== Type Implementations ==========================//
-
-@foreach type where('{etyName}' != 'void')
-inline ostream& dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
+@foreach function where('{funcReturn}' != 'void')
+inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
-    @if('{etyName}' != 'uint8_t')
-    return settings.stream() << object;
-    @end if
-    @if('{etyName}' == 'uint8_t')
-    return settings.stream() << (uint32_t) object;
-    @end if
-}}
-@end type
-
-//========================= Basetype Implementations ========================//
-
-@foreach basetype
-inline ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
-{{
-    return settings.stream() << object;
-}}
-@end basetype
-
-//======================= System Type Implementations =======================//
-
-@foreach systype
-inline ostream& dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
-{{
-    return settings.stream() << object;
-}}
-@end systype
-
-//========================== Handle Implementations =========================//
-
-@foreach handle
-inline ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        return settings.stream() << object;
-    else
-        return settings.stream() << "address";
-}}
-@end handle
-
-//=========================== Enum Implementations ==========================//
-
-@foreach enum
-ostream& dump_text_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
-{{
-    switch((int64_t) object)
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    switch(dump_inst.settings().format())
     {{
-    @foreach option
-    case {optValue}:
-        settings.stream() << "{optName} (";
+    case ApiDumpFormat::Text:
+        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
         break;
-    @end option
-    default:
-        settings.stream() << "UNKNOWN (";
     }}
-    return settings.stream() << object << ")";
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
-@end enum
+@end function
 
-//========================= Bitmask Implementations =========================//
-
-@foreach bitmask
-ostream& dump_text_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
+@foreach function where('{funcReturn}' == 'void')
+inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
-    bool is_first = true;
-    //settings.formatNameType(stream, indents, name, type_string) << object;
-    settings.stream() << object;
-    @foreach option
-    if(object & {optValue})
-        is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
-    @end option
-    if(!is_first)
-        settings.stream() << ")";
-    return settings.stream();
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    switch(dump_inst.settings().format())
+    {{
+    case ApiDumpFormat::Text:
+        dump_text_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    }}
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
-@end bitmask
-
-//=========================== Flag Implementations ==========================//
-
-@foreach flag where('{flagEnum}' != 'None')
-inline ostream& dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
-{{
-    return dump_text_{flagEnum}(({flagEnum}) object, settings, indents);
-}}
-@end flag
-@foreach flag where('{flagEnum}' == 'None')
-inline ostream& dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
-{{
-    return settings.stream() << object;
-}}
-@end flag
-
-//======================= Func Pointer Implementations ======================//
-
-@foreach funcpointer
-inline ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        return settings.stream() << object;
-    else
-        return settings.stream() << "address";
-}}
-@end funcpointer
-
-//========================== Struct Implementations =========================//
-
-@foreach struct where('{sctName}' != 'VkShaderModuleCreateInfo')
-ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        settings.stream() << &object << ":\\n";
-    else
-        settings.stream() << "address:\\n";
-    
-    @foreach member
-    @if('{memCondition}' != 'None')
-    if({memCondition})
-    @end if
-    
-    @if({memPtrLevel} == 0)
-    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
-    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    
-    @if('{memCondition}' != 'None')
-    else
-        dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
-    @end if
-    @end member
-    return settings.stream();
-}}
-@end struct
-
-@foreach struct where('{sctName}' == 'VkShaderModuleCreateInfo')
-ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        settings.stream() << &object << ":\\n";
-    else
-        settings.stream() << "address:\\n";
-        
-    @foreach member
-    @if('{memCondition}' != 'None')
-    if({memCondition})
-    @end if
-    
-    @if({memPtrLevel} == 0)
-    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if('{memName}' == 'pCode')
-    if(settings.showShader())
-        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    else
-        dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
-    @end if
-    
-    @if('{memCondition}' != 'None')
-    else
-        dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
-    @end if
-    @end member
-    return settings.stream();
-}}
-@end struct
-
-//========================== Union Implementations ==========================//
-
-@foreach union
-ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        settings.stream() << &object << " (Union):\\n";
-    else
-        settings.stream() << "address (Union):\\n";
-        
-    @foreach choice
-    @if({chcPtrLevel} == 0)
-    dump_text_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
-    @end if
-    @if({chcPtrLevel} == 1 and '{chcLength}' == 'None')
-    dump_text_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
-    @end if
-    @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
-    dump_text_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
-    @end if
-    @end choice
-    return settings.stream();
-}}
-@end union
+@end function
 
 //============================= API EntryPoints =============================//
 
@@ -303,30 +123,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     }}
 
     // Output the API dump
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
-    dump_text_{funcReturn}(result, settings, 0) << "\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
-    
+    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -340,28 +137,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     destroy_instance_dispatch_table(key);
     
     // Output the API dump
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
@@ -386,30 +162,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     }}
     
     // Output the API dump
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
-    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
-    
+    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -423,28 +176,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     destroy_device_dispatch_table(key);
     
     // Output the API dump
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
@@ -491,32 +223,8 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
-    
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
-    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    dump_inst.nextFrame();
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
-    
+    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+    ApiDumpInstance::current().nextFrame();
     return result;
 }}
 @end function
@@ -527,31 +235,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
-
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
-    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
-    
+    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -560,29 +244,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
-
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
@@ -592,31 +254,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
-
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
-    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
-    
+    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -625,29 +263,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
-
-    ApiDumpInstance& dump_inst(ApiDumpInstance::current());
-    const ApiDumpSettings& settings(dump_inst.settings());
-    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
-    
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
@@ -674,6 +290,310 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         return NULL;
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
 }}
+"""
+
+TEXT_CODEGEN = """
+/* Copyright (c) 2015-2016 Valve Corporation
+ * Copyright (c) 2015-2016 LunarG, Inc.
+ * Copyright (c) 2015-2016 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Lenny Komow <lenny@lunarg.com>
+ */
+ 
+/*
+ * This file is generated from the Khronos Vulkan XML API Registry.
+ */
+ 
+#pragma once
+ 
+#include "api_dump.h"
+
+@foreach struct
+std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
+@end struct
+@foreach union
+std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+@end union
+
+//=========================== Type Implementations ==========================//
+
+@foreach type where('{etyName}' != 'void')
+inline std::ostream& dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
+{{
+    @if('{etyName}' != 'uint8_t')
+    return settings.stream() << object;
+    @end if
+    @if('{etyName}' == 'uint8_t')
+    return settings.stream() << (uint32_t) object;
+    @end if
+}}
+@end type
+
+//========================= Basetype Implementations ========================//
+
+@foreach basetype
+inline std::ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << object;
+}}
+@end basetype
+
+//======================= System Type Implementations =======================//
+
+@foreach systype
+inline std::ostream& dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << object;
+}}
+@end systype
+
+//========================== Handle Implementations =========================//
+
+@foreach handle
+inline std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        return settings.stream() << object;
+    else
+        return settings.stream() << "address";
+}}
+@end handle
+
+//=========================== Enum Implementations ==========================//
+
+@foreach enum
+std::ostream& dump_text_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
+{{
+    switch((int64_t) object)
+    {{
+    @foreach option
+    case {optValue}:
+        settings.stream() << "{optName} (";
+        break;
+    @end option
+    default:
+        settings.stream() << "UNKNOWN (";
+    }}
+    return settings.stream() << object << ")";
+}}
+@end enum
+
+//========================= Bitmask Implementations =========================//
+
+@foreach bitmask
+std::ostream& dump_text_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
+{{
+    bool is_first = true;
+    //settings.formatNameType(stream, indents, name, type_string) << object;
+    settings.stream() << object;
+    @foreach option
+    if(object & {optValue})
+        is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
+    @end option
+    if(!is_first)
+        settings.stream() << ")";
+    return settings.stream();
+}}
+@end bitmask
+
+//=========================== Flag Implementations ==========================//
+
+@foreach flag where('{flagEnum}' != 'None')
+inline std::ostream& dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+{{
+    return dump_text_{flagEnum}(({flagEnum}) object, settings, indents);
+}}
+@end flag
+@foreach flag where('{flagEnum}' == 'None')
+inline std::ostream& dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+{{
+    return settings.stream() << object;
+}}
+@end flag
+
+//======================= Func Pointer Implementations ======================//
+
+@foreach funcpointer
+inline std::ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        return settings.stream() << object;
+    else
+        return settings.stream() << "address";
+}}
+@end funcpointer
+
+//========================== Struct Implementations =========================//
+
+@foreach struct where('{sctName}' != 'VkShaderModuleCreateInfo')
+std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\\n";
+    else
+        settings.stream() << "address:\\n";
+    
+    @foreach member
+    @if('{memCondition}' != 'None')
+    if({memCondition})
+    @end if
+    
+    @if({memPtrLevel} == 0)
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
+    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
+    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    
+    @if('{memCondition}' != 'None')
+    else
+        dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
+    @end if
+    @end member
+    return settings.stream();
+}}
+@end struct
+
+@foreach struct where('{sctName}' == 'VkShaderModuleCreateInfo')
+std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\\n";
+    else
+        settings.stream() << "address:\\n";
+        
+    @foreach member
+    @if('{memCondition}' != 'None')
+    if({memCondition})
+    @end if
+    
+    @if({memPtrLevel} == 0)
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
+    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember} and '{memName}' != 'pCode')
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
+    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    @end if
+    @if('{memName}' == 'pCode')
+    if(settings.showShader())
+        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    else
+        dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
+    @end if
+    
+    @if('{memCondition}' != 'None')
+    else
+        dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
+    @end if
+    @end member
+    return settings.stream();
+}}
+@end struct
+
+//========================== Union Implementations ==========================//
+
+@foreach union
+std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        settings.stream() << &object << " (Union):\\n";
+    else
+        settings.stream() << "address (Union):\\n";
+        
+    @foreach choice
+    @if({chcPtrLevel} == 0)
+    dump_text_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
+    @end if
+    @if({chcPtrLevel} == 1 and '{chcLength}' == 'None')
+    dump_text_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
+    @end if
+    @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
+    dump_text_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
+    @end if
+    @end choice
+    return settings.stream();
+}}
+@end union
+
+//========================= Function Implementations ========================//
+
+@foreach function where('{funcReturn}' != 'void')
+std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
+    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
+    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
+    
+    if(settings.showParams())
+    {{
+        @foreach parameter
+        @if({prmPtrLevel} == 0)
+        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
+        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
+        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
+        @end if
+        @end parameter
+    }}
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
+    
+    return settings.stream();
+}}
+@end function
+
+@foreach function where('{funcReturn}' == 'void')
+std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
+    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
+    
+    if(settings.showParams())
+    {{
+        @foreach parameter
+        @if({prmPtrLevel} == 0)
+        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
+        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
+        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
+        @end if
+        @end parameter
+    }}
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
+    
+    return settings.stream();
+}}
+@end function
 """
 
 POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow']
@@ -719,6 +639,7 @@ VALIDITY_CHECKS = {
 class ApiDumpGeneratorOptions(gen.GeneratorOptions):
     
     def __init__(self,
+                 input = None,
                  filename = None,
                  directory = '.',
                  apiname = None,
@@ -744,6 +665,7 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
         gen.GeneratorOptions.__init__(self, filename, directory, apiname, profile,
             versions, emitversions, defaultExtensions,
             addExtensions, removeExtensions, sortProcedure)
+        self.input           = input
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
         self.protectFile     = protectFile
@@ -766,7 +688,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                  diagFile = sys.stdout,
                  registryFile = None):
         gen.OutputGenerator.__init__(self, errFile, warnFile, diagFile)
-        self.format = outFormat
+        self.format = None
         
         self.constants = {}
         self.extensions = set()
@@ -789,6 +711,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
         
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
+        self.format = genOpts.input
 
         if self.registryFile != None:
             root = xml.etree.ElementTree.parse(self.registryFile)
@@ -840,7 +763,18 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
         forIter = re.finditer('(^\\s*\\@foreach\\s+[a-z]+(\\s+where\\(.*\\))?\\s*^)|(\\@foreach [a-z]+(\\s+where\\(.*\\))?\\b)', self.format, flags=re.MULTILINE)
         ifIter = re.finditer('(^\\s*\\@if\\(.*\\)\\s*^)|(\\@if\\(.*\\))', self.format, flags=re.MULTILINE)
         endIter = re.finditer('(^\\s*\\@end\\s+[a-z]+\\s*^)|(\\@end [a-z]+\\b)', self.format, flags=re.MULTILINE)
-        nextFor, nextIf, nextEnd = next(forIter), next(ifIter), next(endIter)
+        try:
+            nextFor = next(forIter)
+        except StopIteration:
+            nextFor = None
+        try:
+            nextIf = next(ifIter)
+        except StopIteration:
+            nextIf = None
+        try:
+            nextEnd = next(endIter)
+        except StopIteration:
+            nextEnd = None
         
         # Match the beginnings to the ends
         loops = []

@@ -29,6 +29,7 @@ python ../../../lvl_genvk.py -registry ../../../vk.xml thread_check.h
 python ../../../lvl_genvk.py -registry ../../../vk.xml parameter_validation.h
 python ../../../lvl_genvk.py -registry ../../../vk.xml unique_objects_wrappers.h
 python ../../../vt_genvk.py -registry ../../../vk.xml api_dump.cpp
+python ../../../vt_genvk.py -registry ../../../vk.xml api_dump_text.h
 
 REM vktrace
 python ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > vktrace_vk_vk.h

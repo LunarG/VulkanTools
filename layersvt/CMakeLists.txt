@@ -179,6 +179,7 @@ add_custom_target(generate_vt_helpers DEPENDS
 #VulkanTools layers
 run_vk_vtlayer_generate(generic generic_layer.cpp)
 run_vk_layer_xml_generate(ApiDump api_dump.cpp)
+run_vk_layer_xml_generate(ApiDump api_dump_text.h)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -195,6 +196,6 @@ add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(generic generic_layer.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
+add_vk_layer(api_dump api_dump.cpp api_dump_text.h ../layers/vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
 
