@@ -1,43 +1,99 @@
 #![LunarG's Vulkan Installation Analyzer (VIA)](images/lunarg_via_title.png)
-This document is an overview of how to use the LunarG Vulkan Installation Analyzer (VIA).
+This document is an overview of how to use the [LunarG Vulkan Installation Analyzer (VIA)](https://vulkan.lunarg.com/doc/sdk/latest/windows/via.html).
 VIA is a tool that can:
  1. Determine the state of Vulkan components on your system
  2. Validate that your Vulkan Loader and drivers are installed properly
  3. Capture your system state in a a form that can be used as an attachment when submitting bugs
 
- This document describes how to run it, and how to understand the resulting command line output that is generated.
+ This document describes where to find the source for VIA, building it, runnning it, and how to understand the resulting command line output that is generated.
 
 <BR />
 
+
 ## Building
-VIA is part of the LunarG [VulkanTools](https://github.com/LunarG/VulkanTools) GitHub respository.
-Since it is one of many tools in this repository, it is built with all the other
-tools by following the instructions in the [BuilidVT.md](https://github.com/LunarG/VulkanTools/blob/master/BUILDVT.md) file at the top of the
-source tree.
+Many components of the LunarG Vulkan SDK are Open Source, including VIA.  VIA is currently part of the LunarG
+[VulkanTools](https://github.com/LunarG/VulkanTools) GitHub respository.
+
+**Windows Note:** VIA is already pre-built as part of the LunarG Windows Vulkan SDK, but should you wish to build a
+debug version or find the source, this section should provide you with the information you need.  Otherwise, simply
+skip down to the "Running" section below.
+
+#### Building VIA in VulkanTools
+Because it is part of a group of tools, you build it from the top folder by
+following the instructions in the [BuilidVT.md](https://github.com/LunarG/VulkanTools/blob/master/BUILDVT.md)
+file at the top of the source tree.
+
+#### Building VIA in the Linux Vulkan SDK
+The source for VIA can also be found in the LunarG Linux [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) in the "source/via" directory.
+ 1. Download and install the Linux SDK
+ 2. Run "source setup-env.sh" in the SDK root directory
+ 3. Run "./build_tools.sh"
 
 <BR />
 
 ## Running
-To run VIA, simply call the executable.
+You will find the VIA binary in a different location depending on which OS you are using and whether you have built it, or installed it as part of the SDK.  The following information states where to find the proper executable.
+
+Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the via executable).
+
+#### In the Windows Vulkan SDK
+VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "via".  This will ouptut the resulting via.html directly to your desktop.
+
+If you need to run via from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
+```
+via.exe
+```
+
+#### In the Linux Vulkan SDK
+Once built, VIA can be found in the x86_64/bin directory.  You can simply execute it from there using:
 
 ```
 via
 ```
 
-If you are having a problem running a particular Vulkan application, then on Windows you can run VIA
-from the start menu (in which case it will output to the desktop), or on any OS you can change to
-the directory of the application and run VIA from where it is installed on your system. The latter
-choice will make sure VIA sees exactly what the Vulkan application sees.
+<BR />
 
-This will output two things:
+
+#### If Built from VulkanTools
+Go into the folder where you generated the build items from the above building step.
+
+**Linux**
+
+Simply run:
+```
+via
+```
+
+
+**Windows**
+
+Windows has an additional required step to perform if you are building from VulkanTools before you can run VIA in the proper way.  This is because the CMake scripts have an important folder being copied one level too low.  To run, the first time you will have to copy this folder into the appropriate location.
+
+Steps to run the first time:
+ 1. Go into the folder you built, and then go into the "via" sub-folder.
+ 2. In this folder you should see an "images" folder.  Copy this into either or both of your "Debug" or "Release" folders.
+ 3. Go into the "Debug" or "Release" folder (whichever you are desiring to work with) 
+ 4. Run 
+```
+via.exe
+```
+
+After the first time, you just need to go into the folder and re-run "via.exe".
+
+<BR />
+
+### Resulting Output
+VIA outputs two things:
  - A command-line ouptut indicating the overall status
  - An HTML file (called via.html) containing the details which will be output to one of two locations:
   1. If the current directory is writeable, the HTML will be placed in that location.
-  2. Otherwise, it will be saved to your home folder.
+  2. Otherwise, it will be saved to your home folder, except for the Windows Start Menu short-cut which writes the file to your desktop.
 
 Your home folder is the following location (based on your OS):
  - Windows: Wherever your environment variables %HOMEDRIVE%\%HOMEPATH% point to.
  - Linux: It will be placed in your home folder ("~/.").
+
+<BR />
 
 #### Additional command-line arguments
 There are additional command-line parameters which can be used.  These simply augment existing behavior and do not capture any more information.
