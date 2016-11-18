@@ -696,7 +696,7 @@ bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
 
 bool FindNextRegValue(HKEY regFolder, const char *keyPath,
                       const char *valueSearch, const int startIndex,
-                      const int maxLength, char *retString) {
+                      const int maxLength, char *retString, uint32_t *retValue) {
     bool retVal = false;
     DWORD bufLen = MAX_STRING_LENGTH - 1;
     DWORD keyFlags = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
@@ -707,6 +707,7 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
         keyFlags |= KEY_WOW64_64KEY;
     }
 
+    *retValue = 0;
     *retString = '\0';
     lret = RegOpenKeyExA(regFolder, keyPath, 0, keyFlags, &hKey);
     if (lret == ERROR_SUCCESS) {
@@ -714,10 +715,16 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
         char valueName[MAX_STRING_LENGTH];
 
         do {
-            lret = RegEnumValueA(hKey, index, valueName, &bufLen, NULL, NULL,
-                                 NULL, NULL);
+            DWORD type;
+            DWORD value;
+            DWORD len;
+            lret = RegEnumValueA(hKey, index, valueName, &bufLen, NULL, &type,
+                                 (LPBYTE)&value, &len);
             if (ERROR_SUCCESS != lret) {
                 break;
+            }
+            if (type == REG_DWORD) {
+                *retValue = value;
             }
             if (strlen(valueSearch) == 0 ||
                 NULL != strstr(valueName, valueSearch)) {
@@ -743,7 +750,7 @@ bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
                     const int startIndex, const int maxLength, char *retString);
 bool FindNextRegValue(HKEY regFolder, const char *keyPath,
                       const char *valueSearch, const int startIndex,
-                      const int maxLength, char *retString);
+                      const int maxLength, char *retString, uint32_t *retValue);
 bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName,
                        char *valueValue);
 bool DeleteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName);
@@ -817,11 +824,7 @@ void PrintSystemInfo(void) {
 #if _WIN64
     strncpy(os_size, " 64-bit", 31);
 #else
-    if (global_items.is_wow64) {
-        strncpy(os_size, " 32-bit", 31);
-    } else {
-        strncpy(os_size, " 64-bit", 31);
-    }
+    strncpy(os_size, " 32-bit", 31);
 #endif
 
     BeginSection("System Info");
@@ -1414,6 +1417,7 @@ void PrintDriverInfo(void) {
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
     const char vulkan_reg_base_wow64[] =
         "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
+    char reg_key_loc[MAX_STRING_LENGTH];
     char cur_vulkan_driver_json[MAX_STRING_LENGTH];
     char generic_string[MAX_STRING_LENGTH];
     char full_driver_path[MAX_STRING_LENGTH];
@@ -1430,18 +1434,18 @@ void PrintDriverInfo(void) {
 #if _WIN64 || __x86_64__ || __ppc64__
     snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
         generic_string);
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\Drivers",
+    snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
              vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
         snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\",
             generic_string);
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\Drivers",
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
                  vulkan_reg_base_wow64);
     } else {
         snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
             generic_string);
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\Drivers",
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
                  vulkan_reg_base);
     }
 #endif
@@ -1455,8 +1459,10 @@ void PrintDriverInfo(void) {
 
     // Find the registry settings indicating the location of the driver
     // JSON files.
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, generic_string, "", i,
-                            MAX_STRING_LENGTH - 1, cur_vulkan_driver_json)) {
+    uint32_t returned_value = 0;
+    while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i,
+                            MAX_STRING_LENGTH - 1, cur_vulkan_driver_json,
+                            &returned_value)) {
 
         found_registry = true;
 
@@ -1465,7 +1471,10 @@ void PrintDriverInfo(void) {
         PrintBeginTableRow();
         PrintTableElement(generic_string, ALIGN_RIGHT);
         PrintTableElement(cur_vulkan_driver_json);
-        PrintTableElement("");
+
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x",
+                 returned_value);
+        PrintTableElement(generic_string);
         PrintEndTableRow();
 
         // Parse the driver JSON file.
@@ -1826,6 +1835,7 @@ void PrintSDKInfo(void) {
     char output_string[MAX_STRING_LENGTH];
     char cur_vulkan_layer_json[MAX_STRING_LENGTH];
     char sdk_env_dir[MAX_STRING_LENGTH];
+    char reg_key_loc[MAX_STRING_LENGTH];
     uint32_t i = 0;
     uint32_t j = 0;
     FILE *fp = NULL;
@@ -1890,14 +1900,14 @@ void PrintSDKInfo(void) {
     }
 
 #if _WIN64 || __x86_64__ || __ppc64__
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
+    snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
              vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
                  vulkan_reg_base_wow64);
     } else {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
                  vulkan_reg_base);
     }
 #endif
@@ -1910,8 +1920,10 @@ void PrintSDKInfo(void) {
 
     found = false;
     i = 0;
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, generic_string, "", i,
-                            MAX_STRING_LENGTH, cur_vulkan_layer_json)) {
+    uint32_t returned_value = 0;
+    while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i,
+                            MAX_STRING_LENGTH, cur_vulkan_layer_json,
+                            &returned_value)) {
         found = true;
 
         // Create a short json file name so we don't use up too much space
@@ -1922,7 +1934,9 @@ void PrintSDKInfo(void) {
         PrintBeginTableRow();
         PrintTableElement(count_string, ALIGN_RIGHT);
         PrintTableElement(output_string);
-        PrintTableElement("");
+
+        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
+        PrintTableElement(output_string);
         PrintEndTableRow();
 
         std::ifstream *stream = NULL;
@@ -2011,8 +2025,10 @@ void PrintLayerInfo(void) {
 
     // For each implicit layer listed in the registry, find its JSON and
     // print out the useful information stored in it.
+    uint32_t returned_value = 0;
     while (FindNextRegValue(HKEY_LOCAL_MACHINE, vulkan_impl_layer_reg_key, "",
-                            i, MAX_STRING_LENGTH, cur_vulkan_layer_json)) {
+                            i, MAX_STRING_LENGTH, cur_vulkan_layer_json,
+                            &returned_value)) {
 
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
 
@@ -2020,7 +2036,8 @@ void PrintLayerInfo(void) {
         PrintTableElement(generic_string, ALIGN_RIGHT);
         PrintTableElement(cur_vulkan_layer_json);
         PrintTableElement("");
-        PrintTableElement("");
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
+        PrintTableElement(generic_string);
         PrintEndTableRow();
 
         std::ifstream *stream = NULL;
@@ -4479,11 +4496,7 @@ void PrintTestResults(void) {
 #if _WIN64
         path += "\\Bin";
 #else
-        if (global_items.is_wow64) {
-            path += "\\Bin32";
-        } else {
-            path += "\\Bin";
-        }
+        path += "\\Bin32";
 #endif
 #else // gcc
         cube_exe = "./cube";
