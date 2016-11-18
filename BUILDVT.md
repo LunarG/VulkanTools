@@ -196,6 +196,12 @@ This documentation is preliminary and needs to be beefed up.
 
 See the [vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/vktracereplay.sh) file for a working example of how to use vktrace/vkreplay and screenshot layers.
 
+Two additional scripts have been added to facilitate tracing and replaying any APK.  Note that these two scripts do not install anything for you, so make sure your target APK, vktrace, vktrace_layer, and vkreplay all use the same ABI.
+```
+./create_trace.sh --serial 0123456789 --abi armeabi-v7a --package com.example.CubeWithLayers  --activity android.app.NativeActivity
+adb install --abi armeabi-v7a
+./replay_trace.sh --serial 0123456789 --tracefile com.example.CubeWithLayers0.vktrace
+```
 An example of using the scripts on Linux and macOS:
 ```
 ./build_vktracereplay.sh
