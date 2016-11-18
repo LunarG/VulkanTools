@@ -2232,6 +2232,7 @@ bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func,
                 // We found one runtime, clear any failures
                 found_one = true;
             }
+            tok = strtok(NULL, ":");
         }
     }
 
