@@ -27,7 +27,7 @@ import os, sys
 
 # add main repo directory so vulkan.py can be imported. This needs to be a complete path.
 vktrace_scripts_path = os.path.dirname(os.path.abspath(__file__))
-main_path = os.path.abspath(vktrace_scripts_path + "/../")
+main_path = os.path.abspath(vktrace_scripts_path + "/../scripts/")
 sys.path.append(main_path)
 from source_line_info import sourcelineinfo
 

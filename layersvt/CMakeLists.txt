@@ -2,23 +2,23 @@ cmake_minimum_required (VERSION 2.8.11)
 
 macro(run_vk_helper subcmd)
     add_custom_command(OUTPUT ${ARGN}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk_helper.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${SCRIPTS_DIR}/vk_helper.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
     )
 endmacro()
 
 ## VulkanTools has its own layer generator script
 macro(run_vk_vtlayer_generate subcmd output)
     add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${PROJECT_SOURCE_DIR}/vk_helper_api_dump.py
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
+        DEPENDS ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${SCRIPTS_DIR}/vk_helper_api_dump.py
     )
 endmacro()
 
 macro(run_vk_layer_xml_generate subcmd output)
     add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vt_genvk.py -registry ${PROJECT_SOURCE_DIR}/vk.xml ${output}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk.xml ${PROJECT_SOURCE_DIR}/generator.py ${PROJECT_SOURCE_DIR}/vt_genvk.py ${PROJECT_SOURCE_DIR}/reg.py
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vt_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
+        DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/vt_genvk.py ${SCRIPTS_DIR}/reg.py
     )
 endmacro()
 
@@ -73,8 +73,8 @@ endif()
 if (WIN32)
     macro(add_vk_layer target)
     add_custom_command(OUTPUT VkLayer_${target}.def
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} win-def-file VkLayer_${target} layer > VkLayer_${target}.def
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-generate.py ${DisplayServer} win-def-file VkLayer_${target} layer > VkLayer_${target}.def
+        DEPENDS ${SCRIPTS_DIR}/vk-generate.py ${SCRIPTS_DIR}/vulkan.py
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
@@ -122,8 +122,8 @@ else()
 endif()
 
 add_custom_command(OUTPUT vk_dispatch_table_helper.h
-    COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
-    DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
+    COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
+    DEPENDS ${SCRIPTS_DIR}/vk-generate.py ${SCRIPTS_DIR}/vulkan.py)
 
 run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers
@@ -178,7 +178,6 @@ add_custom_target(generate_vt_helpers DEPENDS
 
 #VulkanTools layers
 run_vk_vtlayer_generate(generic generic_layer.cpp)
-run_vk_layer_xml_generate(ApiDump api_dump.cpp)
 run_vk_layer_xml_generate(ApiDump api_dump_text.h)
 
 # Layer Utils Library
@@ -196,6 +195,6 @@ add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(generic generic_layer.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(api_dump api_dump.cpp api_dump_text.h ../layers/vk_layer_table.cpp)
+add_vk_layer(api_dump api_dump_text.h ../layers/vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
 
