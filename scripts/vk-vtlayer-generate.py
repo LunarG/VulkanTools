@@ -30,7 +30,7 @@ import os
 import re
 
 import vulkan
-import vk_helper_api_dump
+import vk_helper
 from source_line_info import sourcelineinfo
 from collections import defaultdict
 
@@ -97,13 +97,13 @@ def generate_get_proc_addr_check(name):
 # Parse complete struct chain and add any new ndo_uses to the dict
 def gather_object_uses_in_struct(obj_list, struct_type):
     struct_uses = {}
-    if vk_helper_api_dump.typedef_rev_dict[struct_type] in vk_helper_api_dump.struct_dict:
-        struct_type = vk_helper_api_dump.typedef_rev_dict[struct_type]
+    if vk_helper.typedef_rev_dict[struct_type] in vk_helper.struct_dict:
+        struct_type = vk_helper.typedef_rev_dict[struct_type]
         # Parse elements of this struct param to identify objects and/or arrays of objects
-        for m in sorted(vk_helper_api_dump.struct_dict[struct_type]):
-            array_len = "%s" % (str(vk_helper_api_dump.struct_dict[struct_type][m]['array_size']))
-            base_type = vk_helper_api_dump.struct_dict[struct_type][m]['type']
-            mem_name = vk_helper_api_dump.struct_dict[struct_type][m]['name']
+        for m in sorted(vk_helper.struct_dict[struct_type]):
+            array_len = "%s" % (str(vk_helper.struct_dict[struct_type][m]['array_size']))
+            base_type = vk_helper.struct_dict[struct_type][m]['type']
+            mem_name = vk_helper.struct_dict[struct_type][m]['name']
             if array_len != '0':
                 mem_name = "%s[%s]" % (mem_name, array_len)
             if base_type in obj_list:
@@ -111,7 +111,7 @@ def gather_object_uses_in_struct(obj_list, struct_type):
                 #    struct_uses[array_len] = []
                 #struct_uses[array_len].append("%s%s,%s" % (name_prefix, struct_name, base_type))
                 struct_uses[mem_name] = base_type
-            elif vk_helper_api_dump.is_type(base_type, 'struct'):
+            elif vk_helper.is_type(base_type, 'struct'):
                 sub_uses = gather_object_uses_in_struct(obj_list, base_type)
                 if len(sub_uses) > 0:
                     struct_uses[mem_name] = sub_uses
@@ -185,18 +185,17 @@ class Subcommand(object):
         pass
 
     # Return set of printf '%' qualifier and input to that qualifier
-    def _get_printf_params(self, vk_type, name, output_param, count):
+    def _get_printf_params(self, vk_type, name, output_param, cpp=False):
         # TODO : Need ENUM and STRUCT checks here
-        if vk_helper_api_dump.is_type(vk_type, 'enum'):#"_TYPE" in vk_type: # TODO : This should be generic ENUM check
-            return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), '')
+        if vk_helper.is_type(vk_type, 'enum'):#"_TYPE" in vk_type: # TODO : This should be generic ENUM check
+            return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name))
         if "char*" == vk_type:
-            return ("%s", name, '')
+            return ("%s", name)
         if "uint64" in vk_type:
             if '*' in vk_type:
-                return ("0x%p", "*%s" % name, '*')
-            return ("0x%p", name, '')
-        if vk_type.strip('*').replace('const ', '') in vulkan.object_non_dispatch_list:
-            #TODO : cast these types differently for 32 bit windows builds
+                return ("%lu", "*%s" % name)
+            return ("%lu", name)
+        if vk_type.strip('*') in vulkan.object_non_dispatch_list:
             if '*' in vk_type:
                 return ("0x%p", "HandleCast(*%s)" % name, '*')
             return ("0x%p", "HandleCast(%s)" % name, '')
@@ -210,16 +209,24 @@ class Subcommand(object):
             return ("0x%p", "%s" % name, '')
         if "float" in vk_type:
             if '[' in vk_type: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
-                return ("[%i, %i, %i, %i]", '"[" << %s[0] << "," << %s[1] << "," << %s[2] << "," << %s[3] << "]"' % (name, name, name, name), '')
-            return ("%f", name, '')
+                if cpp:
+                    return ("[%i, %i, %i, %i]", '"[" << %s[0] << "," << %s[1] << "," << %s[2] << "," << %s[3] << "]"' % (name, name, name, name))
+                return ("[%f, %f, %f, %f]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name))
+            return ("%f", name)
         if "bool" in vk_type.lower() or 'xcb_randr_crtc_t' in vk_type:
-            return ("%u", name, '')
+            return ("%u", name)
         if True in [t in vk_type.lower() for t in ["int", "flags", "mask", "xcb_window_t"]]:
             if '[' in vk_type: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
-                return ("[%i, %i, %i, %i]", "%s[0] << %s[1] << %s[2] << %s[3]" % (name, name, name, name), '')
+                if cpp:
+                    return ("[%i, %i, %i, %i]", "%s[0] << %s[1] << %s[2] << %s[3]" % (name, name, name, name))
+                return ("[%i, %i, %i, %i]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name))
             if '*' in vk_type:
-                return ("0x%p", "*%s" % name, '*')
-            return ("0x%p", name, '')
+                if 'pUserData' == name:
+                    return ("%i", "((pUserData == 0) ? 0 : *(pUserData))")
+                if 'const' in vk_type.lower():
+                    return ("%p", "(void*)(%s)" % name)
+                return ("%i", "*(%s)" % name)
+            return ("%i", name)
         # TODO : This is special-cased as there's only one "format" param currently and it's nice to expand it
         if "VkFormat" == vk_type:
             return ("0x%p", "HandleCast(&%s)" % name, '&')
@@ -859,7 +866,7 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('')
         header_txt.append('#include "vk_loader_platform.h"')
         header_txt.append('#include "vulkan/vk_layer.h"')
-        header_txt.append('#include "vk_api_dump_helper_cpp.h"')
+        header_txt.append('#include "vk_struct_string_helper_cpp.h"')
         header_txt.append('#include "vk_layer_table.h"')
         header_txt.append('#include "vk_layer_extension_utils.h"')
         header_txt.append('#include "vk_layer_config.h"')
@@ -907,7 +914,6 @@ class ApiDumpSubcommand(Subcommand):
         header_txt.append('    {')
         header_txt.append('        outputStream->sync_with_stdio(false);')
         header_txt.append('    }')
-        header_txt.append('')
         header_txt.append('}')
         header_txt.append('')
         header_txt.append('%s' % self.lineinfo.get())
@@ -951,7 +957,6 @@ class ApiDumpSubcommand(Subcommand):
         func_body.append('static void init%s(void)' % self.layer_name)
         func_body.append('{')
         func_body.append('    using namespace StreamControl;')
-        func_body.append('    using namespace std;')
         func_body.append('')
         func_body.append('    char const*const logName = getLayerOption("lunarg_api_dump.log_filename");')
         func_body.append('    if(logName != NULL)')
@@ -1058,8 +1063,7 @@ class ApiDumpSubcommand(Subcommand):
                 for y in range(-1, create_params-1, -1):
                     if p.name == proto.params[y].name:
                         cp = True
-            (pft, pfi, cast) = self._get_printf_params(p.ty, p.name, cp, count=4)
-
+            (pft, pfi) = self._get_printf_params(p.ty, p.name, cp, cpp=True)
             if p.name == "pSwapchain" or p.name == "pSwapchainImages":
                 log_func += '%s = 0x" << nouppercase <<  hex << HandleCast(%s) << dec << ", ' % (p.name, p.name)
             elif p.name == "swapchain":
@@ -1072,15 +1076,15 @@ class ApiDumpSubcommand(Subcommand):
                 else:
                     log_func += '%s%s = 0x" << nouppercase <<  hex << %s << dec << ", ' % (cast, p.name, pfi)
             else:
-                log_func += '%s%s = " << %s << ", ' % (cast, p.name, pfi)
-            if "%p" in pft:
+                log_func += '%s = " << %s << ", ' % (p.name, pfi)
+            if "%p" == pft:
                 log_func_no_addr += '%s = address, ' % (p.name)
             else:
-                log_func_no_addr += '%s%s = " << %s << ", ' % (cast, p.name, pfi)
+                log_func_no_addr += '%s = " << %s << ", ' % (p.name, pfi)
             if prev_count_name != '' and (prev_count_name.replace('Count', '')[1:] in p.name):
                 sp_param_dict[pindex] = prev_count_name
                 prev_count_name = ''
-            elif vk_helper_api_dump.is_type(p.ty.strip('*').replace('const ', ''), 'struct'):
+            elif vk_helper.is_type(p.ty.strip('*').replace('const ', ''), 'struct'):
                 sp_param_dict[pindex] = 'index'
             if p.name.endswith('Count'):
                 if '*' in p.ty:
@@ -1093,8 +1097,8 @@ class ApiDumpSubcommand(Subcommand):
         log_func = log_func.strip(', ')
         log_func_no_addr = log_func_no_addr.strip(', ')
         if proto.ret == "VkResult":
-            log_func += ') = " << string_VkResult((VkResult)result) << endl'
-            log_func_no_addr += ') = " << string_VkResult((VkResult)result) << endl'
+            log_func += ') = " << string_VkResult((VkResult)result) << std::endl'
+            log_func_no_addr += ') = " << string_VkResult((VkResult)result) << std::endl'
         elif proto.ret == "void*":
             log_func += ') = " << HandleCast(result) << endl'
             log_func_no_addr += ') = " << HandleCast(result) << endl'
@@ -1112,26 +1116,25 @@ class ApiDumpSubcommand(Subcommand):
             indent += '    '
             i_decl = False
             log_func += '\n%s' % self.lineinfo.get()
+            log_func += '\n%sstd::string tmp_str;' % indent
             for sp_index in sp_param_dict:
                 # log_func += '\n// sp_index: %s' % str(sp_index)
                 if 'index' == sp_param_dict[sp_index]:
-                    if proto.params[sp_index].ty.strip('*').replace('const ', '') in vk_helper_api_dump.opaque_types:
-                        continue;
+                    cis_print_func = 'vk_print_%s' % (proto.params[sp_index].ty.replace('const ', '').strip('*').lower())
                     local_name = proto.params[sp_index].name
                     if '*' not in proto.params[sp_index].ty:
                         local_name = '&%s' % proto.params[sp_index].name
                     log_func += '\n%s' % self.lineinfo.get()
-                    cis_print_func = 'vk_print_%s' % (proto.params[sp_index].ty.replace('const ', '').strip('*').lower())
                     log_func += '\n%sif (%s) {' % (indent, local_name)
                     indent += '    '
-                    log_func += '\n%sstring tmp_str = %s(%s, "    ");' % (indent, cis_print_func, local_name)
-                    log_func += '\n%s(*outputStream) << "   %s:\\n" << tmp_str << endl;' % (indent, local_name)
+                    log_func += '\n%stmp_str = %s(%s, "    ");' % (indent, cis_print_func, local_name)
+                    log_func += '\n%s(*outputStream) << "   %s (" << %s << ")" << std::endl << tmp_str << std::endl;' % (indent, local_name, local_name)
                     indent = indent[4:]
                     log_func += '\n%s}' % (indent)
                 else: # We have a count value stored to iterate over an array
                     print_cast = ''
                     print_func = ''
-                    if vk_helper_api_dump.is_type(proto.params[sp_index].ty.strip('*').replace('const ', ''), 'struct'):
+                    if vk_helper.is_type(proto.params[sp_index].ty.strip('*').replace('const ', ''), 'struct'):
                         print_cast = '&'
                         print_func = 'vk_print_%s' % proto.params[sp_index].ty.replace('const ', '').strip('*').lower()
                     else:
@@ -1176,7 +1179,6 @@ class ApiDumpSubcommand(Subcommand):
             funcs.append('%s%s\n'
                      '{\n'
                      '    using namespace StreamControl;\n'
-                     '    using namespace std;\n'
                      '    loader_platform_thread_once(&initOnce, initapi_dump);\n'
                      '    VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);\n'
                      '    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;\n'
@@ -1202,7 +1204,6 @@ class ApiDumpSubcommand(Subcommand):
             funcs.append('%s%s\n'
                      '{\n'
                      '    using namespace StreamControl;\n'
-                     '    using namespace std;\n'
                      '    %sexplicit_CreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);\n'
                      '    %s%s%s\n'
                      '%s'
@@ -1211,7 +1212,6 @@ class ApiDumpSubcommand(Subcommand):
             funcs.append('%s%s\n'
                  '{\n'
                  '    using namespace StreamControl;\n'
-                 '    using namespace std;\n'
                  '    dispatch_key key = get_dispatch_key(device);\n'
                  '    VkLayerDispatchTable *pDisp  = %s_dispatch_table(%s);\n'
                  '    %spDisp->%s;\n'
@@ -1224,7 +1224,6 @@ class ApiDumpSubcommand(Subcommand):
             funcs.append('%s%s\n'
                  '{\n'
                  '    using namespace StreamControl;\n'
-                 '    using namespace std;\n'
                  '    dispatch_key key = get_dispatch_key(instance);\n'
                  '    VkLayerInstanceDispatchTable *pDisp  = %s_dispatch_table(%s);\n'
                  '    %spDisp->%s;\n'
@@ -1250,7 +1249,6 @@ class ApiDumpSubcommand(Subcommand):
             funcs.append('%s%s\n'
                      '{\n'
                      '    using namespace StreamControl;\n'
-                     '    using namespace std;\n'
                      '    %s%s_dispatch_table(%s)->%s;\n'
                      '    %s%s%s\n'
                      '%s'
@@ -1350,15 +1348,14 @@ def main():
         print("Available wsi (displayservers) are: %s" % " ".join(wsi))
         exit(1)
 
-    hfp = vk_helper_api_dump.HeaderFileParser(sys.argv[3])
+    hfp = vk_helper.HeaderFileParser(sys.argv[3])
     hfp.parse()
-    vk_helper_api_dump.enum_val_dict = hfp.get_enum_val_dict()
-    vk_helper_api_dump.enum_type_dict = hfp.get_enum_type_dict()
-    vk_helper_api_dump.struct_dict = hfp.get_struct_dict()
-    vk_helper_api_dump.opaque_types = hfp.get_opaque_types()
-    vk_helper_api_dump.typedef_fwd_dict = hfp.get_typedef_fwd_dict()
-    vk_helper_api_dump.typedef_rev_dict = hfp.get_typedef_rev_dict()
-    vk_helper_api_dump.types_dict = hfp.get_types_dict()
+    vk_helper.enum_val_dict = hfp.get_enum_val_dict()
+    vk_helper.enum_type_dict = hfp.get_enum_type_dict()
+    vk_helper.struct_dict = hfp.get_struct_dict()
+    vk_helper.typedef_fwd_dict = hfp.get_typedef_fwd_dict()
+    vk_helper.typedef_rev_dict = hfp.get_typedef_rev_dict()
+    vk_helper.types_dict = hfp.get_types_dict()
 
     subcmd = subcommands[sys.argv[2]](sys.argv[3:])
     subcmd.run()

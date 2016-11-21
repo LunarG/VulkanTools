@@ -14,7 +14,7 @@ endmacro()
 macro(run_vk_vtlayer_generate subcmd output)
     add_custom_command(OUTPUT ${output}
         COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
-        DEPENDS ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${SCRIPTS_DIR}/vk_helper_api_dump.py
+        DEPENDS ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${SCRIPTS_DIR}/vulkan.py
     )
 endmacro()
 
