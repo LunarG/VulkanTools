@@ -700,7 +700,7 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
     bool retVal = false;
     DWORD bufLen = MAX_STRING_LENGTH - 1;
     DWORD keyFlags = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
-    HKEY hKey;
+    HKEY hKey = 0;
     LONG lret;
 
     if (global_items.is_wow64) {
@@ -715,9 +715,11 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
         char valueName[MAX_STRING_LENGTH];
 
         do {
-            DWORD type;
-            DWORD value;
-            DWORD len;
+            DWORD type = REG_DWORD;
+            DWORD value = 0;
+            DWORD len = 4;
+            valueName[0] = '\0';
+
             lret = RegEnumValueA(hKey, index, valueName, &bufLen, NULL, &type,
                                  (LPBYTE)&value, &len);
             if (ERROR_SUCCESS != lret) {
@@ -732,6 +734,7 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
                 retVal = true;
                 break;
             }
+
             bufLen = MAX_STRING_LENGTH - 1;
             ++index;
         } while (true);
@@ -1453,7 +1456,7 @@ void PrintDriverInfo(void) {
     PrintBeginTable("Vulkan Driver Info", 3);
     PrintBeginTableRow();
     PrintTableElement("Registry Location");
-    PrintTableElement(generic_string);
+    PrintTableElement(reg_key_loc);
     PrintTableElement("");
     PrintEndTableRow();
 
@@ -1463,7 +1466,6 @@ void PrintDriverInfo(void) {
     while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i,
                             MAX_STRING_LENGTH - 1, cur_vulkan_driver_json,
                             &returned_value)) {
-
         found_registry = true;
 
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
