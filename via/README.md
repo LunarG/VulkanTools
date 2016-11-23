@@ -3,7 +3,7 @@ This document is an overview of how to use the [LunarG Vulkan Installation Analy
 VIA is a tool that can:
  1. Determine the state of Vulkan components on your system
  2. Validate that your Vulkan Loader and drivers are installed properly
- 3. Capture your system state in a a form that can be used as an attachment when submitting bugs
+ 3. Capture your system state in a form that can be used as an attachment when submitting bugs
 
  This document describes where to find the source for VIA, building it, runnning it, and how to understand the resulting command line output that is generated.
 
