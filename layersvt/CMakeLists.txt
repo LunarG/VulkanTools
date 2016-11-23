@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 2.8.11)
 
+add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
+add_custom_target( generate_api_h DEPENDS api_dump_text.h )
+
 macro(run_vk_helper subcmd)
     add_custom_command(OUTPUT ${ARGN}
         COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
@@ -74,7 +77,7 @@ if (WIN32)
     macro(add_vk_layer target)
     add_custom_command(OUTPUT VkLayer_${target}.def
         COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-generate.py ${DisplayServer} win-def-file VkLayer_${target} layer > VkLayer_${target}.def
-        DEPENDS ${SCRIPTS_DIR}/vk-generate.py ${SCRIPTS_DIR}/vulkan.py
+        DEPENDS ${SCRIPTS_DIR}/vk-generate.py ${SCRIPTS_DIR}/vulkan.py generate_api_cpp generate_api_h
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
@@ -84,7 +87,7 @@ else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_vt_helpers)
+    add_dependencies(VkLayer_${target} generate_vt_helpers generate_api_cpp generate_api_h)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
     endmacro()
@@ -178,6 +181,7 @@ add_custom_target(generate_vt_helpers DEPENDS
 
 #VulkanTools layers
 run_vk_vtlayer_generate(generic generic_layer.cpp)
+run_vk_layer_xml_generate(ApiDump api_dump.cpp)
 run_vk_layer_xml_generate(ApiDump api_dump_text.h)
 
 # Layer Utils Library
@@ -195,6 +199,6 @@ add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(generic generic_layer.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(api_dump api_dump_text.h ../layers/vk_layer_table.cpp)
+add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
 
