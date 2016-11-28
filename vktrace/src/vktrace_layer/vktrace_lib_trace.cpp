@@ -2265,7 +2265,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
         {
             trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
             pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.Pipeline.pCreatePacket = trim::copy_packet(pHeader);
+            pInfo->ObjectInfo.Pipeline.isGraphicsPipeline = true;
+            pInfo->ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+
             trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
@@ -2344,7 +2346,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
         {
             trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
             pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.Pipeline.pCreatePacket = trim::copy_packet(pHeader);
+            pInfo->ObjectInfo.Pipeline.isGraphicsPipeline = false;
+            pInfo->ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+
             trim::StateTracker::copy_VkComputePipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {
                 pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;

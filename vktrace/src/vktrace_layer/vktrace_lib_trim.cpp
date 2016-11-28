@@ -2454,6 +2454,7 @@ namespace trim
             VkDevice device = obj->second.belongsToDevice;
 
             // CreateBuffer
+            assert(obj->second.ObjectInfo.Buffer.pCreatePacket != NULL);
             if (obj->second.ObjectInfo.Buffer.pCreatePacket != NULL)
             {
                 vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pCreatePacket, vktrace_trace_get_trace_file());
@@ -2665,8 +2666,21 @@ namespace trim
         // Pipeline
         for (TrimObjectInfoMap::iterator obj = stateTracker.createdPipelines.begin(); obj != stateTracker.createdPipelines.end(); obj++)
         {
-            vktrace_write_trace_packet(obj->second.ObjectInfo.Pipeline.pCreatePacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Pipeline.pCreatePacket));
+            VkPipeline pipeline = static_cast<VkPipeline>(obj->first);
+            VkDevice device = obj->second.belongsToDevice;
+            VkPipelineCache pipelineCache = obj->second.ObjectInfo.Pipeline.pipelineCache;
+            vktrace_trace_packet_header* pHeader = nullptr;
+            if (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline)
+            {
+                pHeader = trim::generate::vkCreateGraphicsPipelines(false, device, pipelineCache, 1, &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo, nullptr, &pipeline);
+            }
+            else
+            {
+                pHeader = trim::generate::vkCreateComputePipelines(false, device, pipelineCache, 1, &obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo, nullptr, &pipeline);
+            }
+
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
         }
 
         // DescriptorPool

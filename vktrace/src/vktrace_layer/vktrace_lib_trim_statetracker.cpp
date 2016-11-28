@@ -356,8 +356,6 @@ namespace trim
         createdPipelines = other.createdPipelines;
         for (TrimObjectInfoMap::iterator obj = createdPipelines.begin(); obj != createdPipelines.end(); obj++)
         {
-            COPY_PACKET(obj->second.ObjectInfo.Pipeline.pCreatePacket);
-
             VkGraphicsPipelineCreateInfo* pCreateInfo = &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
 
             // note: Using the same memory as both the destination and the source. We're copying what is currently there, which will properly result in new copies of any pointed-to objects and arrays.
@@ -1489,13 +1487,11 @@ namespace trim
         ObjectInfo* pInfo = get_Pipeline(var);
         if (pInfo != nullptr)
         {
-            vktrace_delete_trace_packet(&pInfo->ObjectInfo.Pipeline.pCreatePacket);
-
             delete_VkPipelineShaderStageCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
 
             if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages != nullptr)
             {
-                for (int i = 0; i < pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.stageCount; ++i)
+                for (uint32_t i = 0; i < pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.stageCount; ++i)
                 {
                     delete_VkPipelineShaderStageCreateInfo(const_cast<VkPipelineShaderStageCreateInfo*>(&pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[i]));
                 }

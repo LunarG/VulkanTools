@@ -191,8 +191,9 @@ namespace trim
                 const VkAllocationCallbacks* pAllocator;
             } PipelineCache;
             struct _Pipeline {              // VkPipeline
-                vktrace_trace_packet_header* pCreatePacket;
+                bool isGraphicsPipeline;
                 const VkAllocationCallbacks* pAllocator;
+                VkPipelineCache pipelineCache;
                 VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
                 VkComputePipelineCreateInfo computePipelineCreateInfo;
             } Pipeline;

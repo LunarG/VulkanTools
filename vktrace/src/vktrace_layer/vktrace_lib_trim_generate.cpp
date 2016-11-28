@@ -1095,6 +1095,82 @@ namespace trim {
         }
 
         //=====================================================================
+        vktrace_trace_packet_header* vkCreateGraphicsPipelines(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineCache pipelineCache,
+            uint32_t createInfoCount,
+            const VkGraphicsPipelineCreateInfo* pCreateInfos,
+            const VkAllocationCallbacks* pAllocator,
+            VkPipeline* pPipelines)
+        {
+            VkResult result = VK_SUCCESS;
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCreateGraphicsPipelines* pPacket = NULL;
+            size_t total_size = 0;
+            uint32_t i;
+            for (i = 0; i < createInfoCount; i++) {
+                total_size += get_struct_chain_size((void*)&pCreateInfos[i]);
+            }
+            CREATE_TRACE_PACKET(vkCreateGraphicsPipelines, total_size + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline));
+            if (makeCall)
+            {
+                result = mdd(device)->devTable.CreateGraphicsPipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCreateGraphicsPipelines(pHeader);
+            pPacket->device = device;
+            pPacket->pipelineCache = pipelineCache;
+            pPacket->createInfoCount = createInfoCount;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfos), createInfoCount*sizeof(VkGraphicsPipelineCreateInfo), pCreateInfos);
+            add_VkGraphicsPipelineCreateInfos_to_trace_packet(pHeader, (VkGraphicsPipelineCreateInfo*)pPacket->pCreateInfos, pCreateInfos, createInfoCount);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelines), createInfoCount*sizeof(VkPipeline), pPipelines);
+            pPacket->result = result;
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfos));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
+        vktrace_trace_packet_header* vkCreateComputePipelines(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineCache pipelineCache,
+            uint32_t createInfoCount,
+            const VkComputePipelineCreateInfo* pCreateInfos,
+            const VkAllocationCallbacks* pAllocator,
+            VkPipeline* pPipelines)
+        {
+            VkResult result = VK_SUCCESS;
+            vktrace_trace_packet_header* pHeader;
+            packet_vkCreateComputePipelines* pPacket = NULL;
+            CREATE_TRACE_PACKET(vkCreateComputePipelines, createInfoCount*sizeof(VkComputePipelineCreateInfo) + getVkComputePipelineCreateInfosAdditionalSize(createInfoCount, pCreateInfos) + sizeof(VkAllocationCallbacks) + createInfoCount*sizeof(VkPipeline));
+
+            if (makeCall)
+            {
+                result = mdd(device)->devTable.CreateComputePipelines(device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+            }
+            vktrace_set_packet_entrypoint_end_time(pHeader);
+            pPacket = interpret_body_as_vkCreateComputePipelines(pHeader);
+            pPacket->device = device;
+            pPacket->pipelineCache = pipelineCache;
+            pPacket->createInfoCount = createInfoCount;
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfos), createInfoCount*sizeof(VkComputePipelineCreateInfo), pCreateInfos);
+            add_VkComputePipelineCreateInfos_to_trace_packet(pHeader, (VkComputePipelineCreateInfo*)pPacket->pCreateInfos, pCreateInfos, createInfoCount);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelines), createInfoCount*sizeof(VkPipeline), pPipelines);
+            pPacket->result = result;
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfos));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+            vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPipelines));
+            vktrace_finalize_trace_packet(pHeader);
+            return pHeader;
+        }
+
+        //=====================================================================
         vktrace_trace_packet_header* vkDestroyPipeline(
             bool makeCall,
             VkDevice device,

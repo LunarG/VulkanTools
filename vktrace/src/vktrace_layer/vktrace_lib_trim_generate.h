@@ -251,6 +251,25 @@ namespace trim {
             VkDescriptorPool descriptorPool,
             const VkAllocationCallbacks* pAllocator);
 
+        vktrace_trace_packet_header* vkCreateGraphicsPipelines(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineCache pipelineCache,
+            uint32_t createInfoCount,
+            const VkGraphicsPipelineCreateInfo* pCreateInfos,
+            const VkAllocationCallbacks* pAllocator,
+            VkPipeline* pPipelines);
+
+        vktrace_trace_packet_header* vkCreateComputePipelines(
+            bool makeCall,
+            VkDevice device,
+            VkPipelineCache pipelineCache,
+            uint32_t createInfoCount,
+            const VkComputePipelineCreateInfo* pCreateInfos,
+            const VkAllocationCallbacks* pAllocator,
+            VkPipeline* pPipelines);
+
+
         vktrace_trace_packet_header* vkDestroyPipeline(
             bool makeCall,
             VkDevice device,
