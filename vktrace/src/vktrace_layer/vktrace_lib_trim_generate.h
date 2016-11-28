@@ -25,13 +25,11 @@ namespace trim {
 
         vktrace_trace_packet_header* vkBeginCommandBuffer(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             const VkCommandBufferBeginInfo* pBeginInfo);
 
         vktrace_trace_packet_header* vkCmdPipelineBarrier(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             VkPipelineStageFlags srcStageMask,
             VkPipelineStageFlags dstStageMask,
@@ -45,12 +43,10 @@ namespace trim {
 
         vktrace_trace_packet_header* vkEndCommandBuffer(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer);
 
         vktrace_trace_packet_header* vkQueueSubmit(
             bool makeCall,
-            VkDevice device,
             VkQueue queue,
             uint32_t submitCount,
             const VkSubmitInfo* pSubmits,
@@ -58,7 +54,6 @@ namespace trim {
 
         vktrace_trace_packet_header* vkQueueWaitIdle(
             bool makeCall,
-            VkDevice device,
             VkQueue queue);
 
         vktrace_trace_packet_header* vkResetCommandPool(
@@ -125,7 +120,6 @@ namespace trim {
 
         vktrace_trace_packet_header* vkCmdCopyBuffer(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             VkBuffer srcBuffer,
             VkBuffer dstBuffer,
@@ -335,7 +329,6 @@ namespace trim {
 
         vktrace_trace_packet_header* vkCmdCopyBufferToImage(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             VkBuffer srcBuffer,
             VkImage dstImage,

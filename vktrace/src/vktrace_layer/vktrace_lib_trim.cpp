@@ -417,7 +417,7 @@ namespace trim
         imageMemoryBarrier.srcQueueFamilyIndex = queueFamilyIndex;
         imageMemoryBarrier.dstQueueFamilyIndex = queueFamilyIndex;
 
-        vktrace_trace_packet_header* pHeader = generate::vkCmdPipelineBarrier(false, device, commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+        vktrace_trace_packet_header* pHeader = generate::vkCmdPipelineBarrier(false, commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
         vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&pHeader);
     };
@@ -455,7 +455,7 @@ namespace trim
         bufferMemoryBarrier.offset = offset;
         bufferMemoryBarrier.size = size;
 
-        vktrace_trace_packet_header* pHeader = generate::vkCmdPipelineBarrier(false, device, commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
+        vktrace_trace_packet_header* pHeader = generate::vkCmdPipelineBarrier(false, commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
         vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&pHeader);
     };
@@ -2177,7 +2177,7 @@ namespace trim
                 commandBufferBeginInfo.flags = 0;
                 commandBufferBeginInfo.pInheritanceInfo = NULL;
 
-                pHeader = generate::vkBeginCommandBuffer(false, device, stagingInfo.commandBuffer, &commandBufferBeginInfo);
+                pHeader = generate::vkBeginCommandBuffer(false, stagingInfo.commandBuffer, &commandBufferBeginInfo);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2195,7 +2195,7 @@ namespace trim
                     obj->second.ObjectInfo.Image.mipLevels);
 
                 // issue call to copy buffer
-                pHeader = generate::vkCmdCopyBufferToImage(false, device, stagingInfo.commandBuffer, stagingInfo.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()), stagingInfo.imageCopyRegions.data());
+                pHeader = generate::vkCmdCopyBufferToImage(false, stagingInfo.commandBuffer, stagingInfo.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()), stagingInfo.imageCopyRegions.data());
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2212,7 +2212,7 @@ namespace trim
                     obj->second.ObjectInfo.Image.arrayLayers,
                     obj->second.ObjectInfo.Image.mipLevels);
 
-                pHeader = generate::vkEndCommandBuffer(false, device, stagingInfo.commandBuffer);
+                pHeader = generate::vkEndCommandBuffer(false, stagingInfo.commandBuffer);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2228,12 +2228,12 @@ namespace trim
                 submitInfo.pWaitSemaphores = NULL;
                 submitInfo.waitSemaphoreCount = 0;
 
-                pHeader = generate::vkQueueSubmit(false, device, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
+                pHeader = generate::vkQueueSubmit(false, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
                 // wait for queue to finish
-                pHeader = generate::vkQueueWaitIdle(false, device, stagingInfo.queue);
+                pHeader = generate::vkQueueWaitIdle(false, stagingInfo.queue);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2313,7 +2313,7 @@ namespace trim
                         NULL,
                     };
 
-                    vktrace_trace_packet_header* pBeginCommandBufferPacket = generate::vkBeginCommandBuffer(false, device, tmpCommandBuffer, &cmdBufferBeginInfo);
+                    vktrace_trace_packet_header* pBeginCommandBufferPacket = generate::vkBeginCommandBuffer(false, tmpCommandBuffer, &cmdBufferBeginInfo);
                     vktrace_write_trace_packet(pBeginCommandBufferPacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pBeginCommandBufferPacket);
 
@@ -2357,12 +2357,12 @@ namespace trim
                     VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
                     // 3) Use VkCmdPipelineBarrier to transition the images
-                    vktrace_trace_packet_header* pCmdPipelineBarrierPacket = generate::vkCmdPipelineBarrier(false, device, tmpCommandBuffer, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+                    vktrace_trace_packet_header* pCmdPipelineBarrierPacket = generate::vkCmdPipelineBarrier(false, tmpCommandBuffer, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
                     vktrace_write_trace_packet(pCmdPipelineBarrierPacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pCmdPipelineBarrierPacket);
 
                     // 4) VkEndCommandBuffer()
-                    vktrace_trace_packet_header* pEndCommandBufferPacket = generate::vkEndCommandBuffer(false, device, tmpCommandBuffer);
+                    vktrace_trace_packet_header* pEndCommandBufferPacket = generate::vkEndCommandBuffer(false, tmpCommandBuffer);
                     vktrace_write_trace_packet(pEndCommandBufferPacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pEndCommandBufferPacket);
 
@@ -2382,12 +2382,12 @@ namespace trim
                         0,
                         NULL };
                     VkFence nullFence = VK_NULL_HANDLE;
-                    vktrace_trace_packet_header* pQueueSubmitPacket = generate::vkQueueSubmit(false, device, trimQueue, 1, &submitInfo, nullFence);
+                    vktrace_trace_packet_header* pQueueSubmitPacket = generate::vkQueueSubmit(false, trimQueue, 1, &submitInfo, nullFence);
                     vktrace_write_trace_packet(pQueueSubmitPacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pQueueSubmitPacket);
 
                     // 5a) vkWaitQueueIdle()
-                    vktrace_trace_packet_header* pQueueWaitIdlePacket = generate::vkQueueWaitIdle(false, device, trimQueue);
+                    vktrace_trace_packet_header* pQueueWaitIdlePacket = generate::vkQueueWaitIdle(false, trimQueue);
                     vktrace_write_trace_packet(pQueueWaitIdlePacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pQueueWaitIdlePacket);
 
@@ -2483,7 +2483,7 @@ namespace trim
                 commandBufferBeginInfo.flags = 0;
                 commandBufferBeginInfo.pInheritanceInfo = NULL;
 
-                pHeader = generate::vkBeginCommandBuffer(false, device, stagingInfo.commandBuffer, &commandBufferBeginInfo);
+                pHeader = generate::vkBeginCommandBuffer(false, stagingInfo.commandBuffer, &commandBufferBeginInfo);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2499,7 +2499,7 @@ namespace trim
                 // issue call to copy buffer
                 stagingInfo.copyRegion.dstOffset = 0;
                 stagingInfo.copyRegion.srcOffset = 0;
-                pHeader = generate::vkCmdCopyBuffer(false, device, stagingInfo.commandBuffer, stagingInfo.buffer, buffer, 1, &stagingInfo.copyRegion);
+                pHeader = generate::vkCmdCopyBuffer(false, stagingInfo.commandBuffer, stagingInfo.buffer, buffer, 1, &stagingInfo.copyRegion);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2512,7 +2512,7 @@ namespace trim
                     0,
                     obj->second.ObjectInfo.Buffer.size);
 
-                pHeader = generate::vkEndCommandBuffer(false, device, stagingInfo.commandBuffer);
+                pHeader = generate::vkEndCommandBuffer(false, stagingInfo.commandBuffer);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2528,12 +2528,12 @@ namespace trim
                 submitInfo.pWaitSemaphores = NULL;
                 submitInfo.waitSemaphoreCount = 0;
 
-                pHeader = generate::vkQueueSubmit(false, device, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
+                pHeader = generate::vkQueueSubmit(false, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
                 // wait for queue to finish
-                pHeader = generate::vkQueueWaitIdle(false, device, stagingInfo.queue);
+                pHeader = generate::vkQueueWaitIdle(false, stagingInfo.queue);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
 
@@ -2756,7 +2756,7 @@ namespace trim
                 beginInfo.pNext = nullptr;
                 beginInfo.pInheritanceInfo = nullptr;
                 beginInfo.flags = 0;
-                vktrace_trace_packet_header* pBeginCB = generate::vkBeginCommandBuffer(false, device, commandBuffer, &beginInfo);
+                vktrace_trace_packet_header* pBeginCB = generate::vkBeginCommandBuffer(false, commandBuffer, &beginInfo);
                 vktrace_write_trace_packet(pBeginCB, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pBeginCB);
 
@@ -2793,7 +2793,7 @@ namespace trim
                     }
                 }
 
-                vktrace_trace_packet_header* pEndCB = generate::vkEndCommandBuffer(false, device, commandBuffer);
+                vktrace_trace_packet_header* pEndCB = generate::vkEndCommandBuffer(false, commandBuffer);
                 vktrace_write_trace_packet(pEndCB, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pEndCB);
 
@@ -2803,11 +2803,11 @@ namespace trim
                 VkSubmitInfo submitInfo = {};
                 submitInfo.commandBufferCount = 1;
                 submitInfo.pCommandBuffers = &commandBuffer;
-                vktrace_trace_packet_header* pQueueSubmit = generate::vkQueueSubmit(false, device, queue, 1, &submitInfo, VK_NULL_HANDLE);
+                vktrace_trace_packet_header* pQueueSubmit = generate::vkQueueSubmit(false, queue, 1, &submitInfo, VK_NULL_HANDLE);
                 vktrace_write_trace_packet(pQueueSubmit, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pQueueSubmit);
 
-                vktrace_trace_packet_header* pQueueWait = generate::vkQueueWaitIdle(false, device, queue);
+                vktrace_trace_packet_header* pQueueWait = generate::vkQueueWaitIdle(false, queue);
                 vktrace_write_trace_packet(pQueueWait, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pQueueWait);
             }
@@ -2815,7 +2815,7 @@ namespace trim
 
         // write out the packets to recreate the command buffers that were just allocated
         vktrace_enter_critical_section(&trimCommandBufferPacketLock);
-        for (TrimObjectInfoMap::iterator cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end(); cmdBuffer++)
+        for (TrimObjectInfoMap::iterator cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end(); ++cmdBuffer)
         {
             // TODO: need to clean this up somewhere else.
             std::list<vktrace_trace_packet_header*>& packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
@@ -2823,7 +2823,7 @@ namespace trim
             if (cmdBuffer->second.bReferencedInTrim)
             {
                 // write the packets
-                for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); packet++)
+                for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); ++packet)
                 {
                     vktrace_trace_packet_header* pHeader = *packet;
                     vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
@@ -2833,7 +2833,7 @@ namespace trim
             else
             {
                 // just delete the packets
-                for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); packet++)
+                for (std::list<vktrace_trace_packet_header*>::iterator packet = packets.begin(); packet != packets.end(); ++packet)
                 {
                     vktrace_trace_packet_header* pHeader = *packet;
                     vktrace_delete_trace_packet(&pHeader);
@@ -2866,7 +2866,7 @@ namespace trim
                 submit_info.signalSemaphoreCount = 1;
                 submit_info.pSignalSemaphores = &semaphore;
 
-                vktrace_trace_packet_header* pHeader = generate::vkQueueSubmit(false, obj->second.belongsToDevice, queue, 1, &submit_info, VK_NULL_HANDLE);
+                vktrace_trace_packet_header* pHeader = generate::vkQueueSubmit(false, queue, 1, &submit_info, VK_NULL_HANDLE);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
             }
@@ -2949,7 +2949,7 @@ namespace trim
         {
             VkQueue queue = static_cast<VkQueue>(obj->first);
             VkDevice device = obj->second.belongsToDevice;
-            vktrace_trace_packet_header* pHeader = generate::vkQueueWaitIdle(false, device, queue);
+            vktrace_trace_packet_header* pHeader = generate::vkQueueWaitIdle(false, queue);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
         }

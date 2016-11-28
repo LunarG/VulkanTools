@@ -86,7 +86,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkBeginCommandBuffer(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             const VkCommandBufferBeginInfo* pBeginInfo)
         {
@@ -97,7 +96,7 @@ namespace trim {
 
             if (makeCall)
             {
-                mdd(device)->devTable.BeginCommandBuffer(commandBuffer, pBeginInfo);
+                mdd(commandBuffer)->devTable.BeginCommandBuffer(commandBuffer, pBeginInfo);
             }
 
             vktrace_set_packet_entrypoint_end_time(pHeader);
@@ -115,7 +114,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkCmdPipelineBarrier(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             VkPipelineStageFlags srcStageMask,
             VkPipelineStageFlags dstStageMask,
@@ -137,7 +135,7 @@ namespace trim {
 
             if (makeCall)
             {
-                mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+                mdd(commandBuffer)->devTable.CmdPipelineBarrier(commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
             }
 
             vktrace_set_packet_entrypoint_end_time(pHeader);
@@ -163,7 +161,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkEndCommandBuffer(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer)
         {
             VkResult result = VK_SUCCESS;
@@ -173,7 +170,7 @@ namespace trim {
 
             if (makeCall)
             {
-                mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+                mdd(commandBuffer)->devTable.EndCommandBuffer(commandBuffer);
             }
 
             vktrace_set_packet_entrypoint_end_time(pHeader);
@@ -187,7 +184,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkQueueSubmit(
             bool makeCall,
-            VkDevice device,
             VkQueue queue,
             uint32_t submitCount,
             const VkSubmitInfo* pSubmits,
@@ -205,7 +201,7 @@ namespace trim {
 
             if (makeCall)
             {
-                mdd(device)->devTable.QueueSubmit(queue, submitCount, pSubmits, fence);
+                mdd(queue)->devTable.QueueSubmit(queue, submitCount, pSubmits, fence);
             }
 
             vktrace_set_packet_entrypoint_end_time(pHeader);
@@ -233,7 +229,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkQueueWaitIdle(
             bool makeCall,
-            VkDevice device,
             VkQueue queue)
         {
             VkResult result = VK_SUCCESS;
@@ -243,7 +238,7 @@ namespace trim {
 
             if (makeCall)
             {
-                mdd(device)->devTable.QueueWaitIdle(queue);
+                mdd(queue)->devTable.QueueWaitIdle(queue);
             }
 
             vktrace_set_packet_entrypoint_end_time(pHeader);
@@ -522,7 +517,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkCmdCopyBuffer(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             VkBuffer srcBuffer,
             VkBuffer dstBuffer,
@@ -534,7 +528,7 @@ namespace trim {
             CREATE_TRACE_PACKET(vkCmdCopyBuffer, regionCount*sizeof(VkBufferCopy));
             if (makeCall)
             {
-                mdd(device)->devTable.CmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
+                mdd(commandBuffer)->devTable.CmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
             }
             vktrace_set_packet_entrypoint_end_time(pHeader);
             pPacket = interpret_body_as_vkCmdCopyBuffer(pHeader);
@@ -1411,7 +1405,6 @@ namespace trim {
         //=====================================================================
         vktrace_trace_packet_header* vkCmdCopyBufferToImage(
             bool makeCall,
-            VkDevice device,
             VkCommandBuffer commandBuffer,
             VkBuffer srcBuffer,
             VkImage dstImage,
