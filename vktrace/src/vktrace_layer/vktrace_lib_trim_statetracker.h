@@ -34,12 +34,6 @@ namespace trim
 
     extern VKTRACE_CRITICAL_SECTION trimTransitionMapLock;
 
-    static std::unordered_map<VkCommandBuffer, std::list<ImageTransition>> m_cmdBufferToImageTransitionsMap;
-    
-    void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
-
-    void ClearImageTransitions(VkCommandBuffer commandBuffer);
-
     // VkCmdPipelineBarrier can transition memory to a different accessMask, but 
     // the change doesn't happen when the API call is made but rather when the 
     // command buffer is executed. Cache these transitions so that they can be 
@@ -50,11 +44,6 @@ namespace trim
         VkAccessFlags srcAccessMask;
         VkAccessFlags dstAccessMask;
     };
-
-    static std::unordered_map<VkCommandBuffer, std::list<BufferTransition>> m_cmdBufferToBufferTransitionsMap;
-
-    void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
-    void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 
     //-------------------------------------------------------------------------
     // Some of the items in this struct are based on what is tracked in the 'VkLayer_object_tracker' (struct _OBJTRACK_NODE).
@@ -265,6 +254,14 @@ namespace trim
         ~StateTracker();
 
         void clear();
+
+        std::unordered_map<VkCommandBuffer, std::list<ImageTransition>> m_cmdBufferToImageTransitionsMap;
+        void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
+        void ClearImageTransitions(VkCommandBuffer commandBuffer);
+
+        std::unordered_map<VkCommandBuffer, std::list<BufferTransition>> m_cmdBufferToBufferTransitionsMap;
+        void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
+        void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 
         void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
         void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);

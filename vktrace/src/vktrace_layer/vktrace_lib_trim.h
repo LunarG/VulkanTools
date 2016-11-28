@@ -45,6 +45,14 @@ namespace trim
 #if TRIM_USE_ORDERED_IMAGE_CREATION
     void add_Image_call(vktrace_trace_packet_header* pHeader);
 #endif //TRIM_USE_ORDERED_IMAGE_CREATION
+
+    void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
+    std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer);
+    void ClearImageTransitions(VkCommandBuffer commandBuffer);
+
+    void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
+    std::list<BufferTransition> GetBufferTransitions(VkCommandBuffer commandBuffer);
+    void ClearBufferTransitions(VkCommandBuffer commandBuffer);
     // The above calls are pass-through to the StateTracker
     //-----------------------
 

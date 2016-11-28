@@ -43,6 +43,42 @@ namespace trim
     // List of all the packets that have been recorded for the frames of interest.
     std::list<vktrace_trace_packet_header*> recorded_packets;
 
+    //-------------------------------------------------------------------------
+    void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition)
+    {
+        s_trimGlobalStateTracker.AddImageTransition(commandBuffer, transition);
+    }
+
+    //-------------------------------------------------------------------------
+    std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer)
+    {
+        return s_trimGlobalStateTracker.m_cmdBufferToImageTransitionsMap[commandBuffer];
+    }
+
+    //-------------------------------------------------------------------------
+    void ClearImageTransitions(VkCommandBuffer commandBuffer)
+    {
+        s_trimGlobalStateTracker.ClearImageTransitions(commandBuffer);
+    }
+
+    //-------------------------------------------------------------------------
+    void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition)
+    {
+        s_trimGlobalStateTracker.AddBufferTransition(commandBuffer, transition);
+    }
+
+    //-------------------------------------------------------------------------
+    std::list<BufferTransition> GetBufferTransitions(VkCommandBuffer commandBuffer)
+    {
+        return s_trimGlobalStateTracker.m_cmdBufferToBufferTransitionsMap[commandBuffer];
+    }
+
+    //-------------------------------------------------------------------------
+    void ClearBufferTransitions(VkCommandBuffer commandBuffer)
+    {
+        s_trimGlobalStateTracker.ClearBufferTransitions(commandBuffer);
+    }
+
     void initialize()
     {
         const char *trimFrames = vktrace_get_global_var("VKTRACE_TRIM_FRAMES");

@@ -29,7 +29,7 @@ namespace trim
     }
 
     //-------------------------------------------------------------------------
-    void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition)
+    void StateTracker::AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition)
     {
         vktrace_enter_critical_section(&trimTransitionMapLock);
         m_cmdBufferToImageTransitionsMap[commandBuffer].push_back(transition);
@@ -37,7 +37,7 @@ namespace trim
     }
 
     //-------------------------------------------------------------------------
-    void ClearImageTransitions(VkCommandBuffer commandBuffer)
+    void StateTracker::ClearImageTransitions(VkCommandBuffer commandBuffer)
     {
         vktrace_enter_critical_section(&trimTransitionMapLock);
         m_cmdBufferToImageTransitionsMap[commandBuffer].clear();
@@ -46,15 +46,14 @@ namespace trim
     }
 
     //-------------------------------------------------------------------------
-    void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition)
+    void StateTracker::AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition)
     {
         vktrace_enter_critical_section(&trimTransitionMapLock);
         m_cmdBufferToBufferTransitionsMap[commandBuffer].push_back(transition);
         vktrace_leave_critical_section(&trimTransitionMapLock);
     }
 
-    //-------------------------------------------------------------------------
-    void ClearBufferTransitions(VkCommandBuffer commandBuffer)
+    void StateTracker::ClearBufferTransitions(VkCommandBuffer commandBuffer)
     {
         vktrace_enter_critical_section(&trimTransitionMapLock);
         m_cmdBufferToBufferTransitionsMap[commandBuffer].clear();

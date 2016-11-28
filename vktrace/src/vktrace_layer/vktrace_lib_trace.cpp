@@ -672,6 +672,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(
 
         trim::remove_CommandBuffer_calls(commandBuffer);
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+        trim::ClearImageTransitions(commandBuffer);
+        trim::ClearBufferTransitions(commandBuffer);
 
         if (g_trimIsInTrim)
         {
@@ -1817,21 +1819,27 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
                     {
                         trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
 
-                        // appy image transitions
-                        std::list<trim::ImageTransition> imageTransitions = trim::m_cmdBufferToImageTransitionsMap[pSubmits[i].pCommandBuffers[c]];
+                        // apply image transitions
+                        std::list<trim::ImageTransition> imageTransitions = trim::GetImageTransitions(pSubmits[i].pCommandBuffers[c]);
                         for (std::list<trim::ImageTransition>::iterator transition = imageTransitions.begin(); transition != imageTransitions.end(); transition++)
                         {
                             trim::ObjectInfo* pImage = trim::get_Image_objectInfo(transition->image);
-                            pImage->ObjectInfo.Image.mostRecentLayout = transition->finalLayout;
-                            pImage->ObjectInfo.Image.accessFlags = transition->dstAccessMask;
+                            if (pImage != nullptr)
+                            {
+                                pImage->ObjectInfo.Image.mostRecentLayout = transition->finalLayout;
+                                pImage->ObjectInfo.Image.accessFlags = transition->dstAccessMask;
+                            }
                         }
 
-                        // appy buffer transitions
-                        std::list<trim::BufferTransition> bufferTransitions = trim::m_cmdBufferToBufferTransitionsMap[pSubmits[i].pCommandBuffers[c]];
+                        // apply buffer transitions
+                        std::list<trim::BufferTransition> bufferTransitions = trim::GetBufferTransitions(pSubmits[i].pCommandBuffers[c]);
                         for (std::list<trim::BufferTransition>::iterator transition = bufferTransitions.begin(); transition != bufferTransitions.end(); transition++)
                         {
                             trim::ObjectInfo* pBuffer = trim::get_Buffer_objectInfo(transition->buffer);
-                            pBuffer->ObjectInfo.Buffer.accessFlags = transition->dstAccessMask;
+                            if (pBuffer != nullptr)
+                            {
+                                pBuffer->ObjectInfo.Buffer.accessFlags = transition->dstAccessMask;
+                            }
                         }
                     }
 
