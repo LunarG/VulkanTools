@@ -27,7 +27,7 @@
 #include <time.h>
 #include <inttypes.h>
 
-const char APP_VERSION[] = "Version 1.0";
+const char APP_VERSION[] = "Version 1.1";
 #define MAX_STRING_LENGTH 1024
 
 #ifdef _WIN32
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
         char html_file_name[MAX_STRING_LENGTH];
         char full_file[MAX_STRING_LENGTH];
         char temp[MAX_STRING_LENGTH];
-        const char* output_path = NULL;
+        const char *output_path = NULL;
         bool generate_unique_file = false;
 
         // Check and handle command-line arguments
@@ -130,23 +130,29 @@ int main(int argc, char **argv) {
                     output_path = argv[iii + 1];
                     ++iii;
                 } else {
-                    std::cout << "Usage of via.exe:" << std::endl
-                              << "    via.exe [--unique_output] "
-                              "[--output_path <path>]" << std::endl
-                              << "          [--unique_output] Optional "
-                              "parameter to generate a unique html"
-                              << std::endl << "                            "
-                              "output file in the form "
-                              "\'via_YYYY_MM_DD_HH_MM.html\'"
-                              << std::endl << "          [--output_path <path>"
-                              "] Optional parameter to generate the output at"
-                              << std::endl << "                               "
-                              "  a given path" << std::endl;
+                    std::cout
+                        << "Usage of via.exe:" << std::endl
+                        << "    via.exe [--unique_output] "
+                           "[--output_path <path>]"
+                        << std::endl
+                        << "          [--unique_output] Optional "
+                           "parameter to generate a unique html"
+                        << std::endl
+                        << "                            "
+                           "output file in the form "
+                           "\'via_YYYY_MM_DD_HH_MM.html\'"
+                        << std::endl
+                        << "          [--output_path <path>"
+                           "] Optional parameter to generate the output at"
+                        << std::endl
+                        << "                               "
+                           "  a given path"
+                        << std::endl;
                     throw(-1);
                 }
             }
         }
-        
+
         // If the user wants a specific output path, write it to the buffer
         // and then continue writing the rest of the name below
         size_t file_name_offset = 0;
@@ -168,8 +174,8 @@ int main(int argc, char **argv) {
             time(&time_raw_format);
             ptr_time = localtime(&time_raw_format);
             if (strftime(html_file_name + file_name_offset,
-                         MAX_STRING_LENGTH - 1,
-                         "via_%Y_%m_%d_%H_%M.html", ptr_time) == 0) {
+                         MAX_STRING_LENGTH - 1, "via_%Y_%m_%d_%H_%M.html",
+                         ptr_time) == 0) {
                 std::cerr << "Couldn't prepare formatted string" << std::endl;
                 throw(-1);
             }
@@ -417,7 +423,9 @@ void StartOutput(std::string output) {
                                   << std::endl
                                   << "    <BR />" << std::endl;
 
-    global_items.html_file_stream << APP_VERSION << "<center><h2 class=\"note\">< NOTE: Click on section name to expand table ></h2></center>"
+    global_items.html_file_stream
+        << "<center><h2 class=\"note\">< NOTE: Click on section name to expand "
+           "table ></h2></center>"
         << std::endl
         << "    <BR />" << std::endl;
 }
@@ -473,6 +481,8 @@ void PrintTableElement(std::string element, ElementAlign align = ALIGN_LEFT) {
     std::string class_str = "";
     if (align == ALIGN_RIGHT) {
         align_str = " align=\"right\"";
+    } else if (align == ALIGN_CENTER) {
+        align_str = " align=\"center\"";
     }
     if (global_items.is_odd_row) {
         class_str = " class=\"odd\"";
@@ -704,7 +714,8 @@ bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
 
 bool FindNextRegValue(HKEY regFolder, const char *keyPath,
                       const char *valueSearch, const int startIndex,
-                      const int maxLength, char *retString, uint32_t *retValue) {
+                      const int maxLength, char *retString,
+                      uint32_t *retValue) {
     bool retVal = false;
     DWORD bufLen = MAX_STRING_LENGTH - 1;
     DWORD keyFlags = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
@@ -1425,6 +1436,196 @@ bool GetFileVersion(const char *filename, const uint32_t max_len,
     return success;
 }
 
+bool ReadDriverJson(std::string cur_driver_json, std::string system_path,
+                    bool &found_lib) {
+    bool found_json = false;
+    std::ifstream *stream = NULL;
+    Json::Value root = Json::nullValue;
+    Json::Value dev_exts = Json::nullValue;
+    Json::Value inst_exts = Json::nullValue;
+    Json::Reader reader;
+    char full_driver_path[MAX_STRING_LENGTH];
+    char generic_string[MAX_STRING_LENGTH];
+    uint32_t j = 0;
+
+    stream = new std::ifstream(cur_driver_json.c_str(), std::ifstream::in);
+    if (nullptr == stream || stream->fail()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Error reading JSON file");
+        PrintTableElement(cur_driver_json);
+        PrintEndTableRow();
+        goto out;
+    }
+
+    if (!reader.parse(*stream, root, false) || root.isNull()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Error reading JSON file");
+        PrintTableElement(reader.getFormattedErrorMessages());
+        PrintEndTableRow();
+        goto out;
+    }
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("JSON File Version");
+    if (!root["file_format_version"].isNull()) {
+        PrintTableElement(root["file_format_version"].asString());
+    } else {
+        PrintTableElement("MISSING!");
+    }
+    PrintEndTableRow();
+
+    if (root["ICD"].isNull()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("ICD Section");
+        PrintTableElement("MISSING!");
+        PrintEndTableRow();
+        goto out;
+    }
+
+    found_json = true;
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("API Version");
+    if (!root["ICD"]["api_version"].isNull()) {
+        PrintTableElement(root["ICD"]["api_version"].asString());
+    } else {
+        PrintTableElement("MISSING!");
+    }
+    PrintEndTableRow();
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("Library Path");
+    if (!root["ICD"]["library_path"].isNull()) {
+        std::string driver_name = root["ICD"]["library_path"].asString();
+        PrintTableElement(driver_name);
+        PrintEndTableRow();
+
+        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(),
+                                MAX_STRING_LENGTH, full_driver_path)) {
+            std::string driver_name = root["ICD"]["library_path"].asString();
+            std::string system_name = system_path;
+            system_name += "\\";
+            system_name += driver_name;
+
+            if (GetFileVersion(full_driver_path, MAX_STRING_LENGTH - 1,
+                               generic_string)) {
+
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Library File Version");
+                PrintTableElement(generic_string);
+                PrintEndTableRow();
+
+                found_lib = true;
+            } else if (GetFileVersion(system_name.c_str(),
+                                      MAX_STRING_LENGTH - 1, generic_string)) {
+
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Library File Version");
+                PrintTableElement(generic_string);
+                PrintEndTableRow();
+
+                found_lib = true;
+            } else {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                         "Failed to find driver %s "
+                         " or %sreferenced by JSON %s",
+                         root["ICD"]["library_path"].asString().c_str(),
+                         full_driver_path, cur_driver_json.c_str());
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("");
+                PrintTableElement(generic_string);
+                PrintEndTableRow();
+            }
+        } else {
+            snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                     "Failed to find driver %s "
+                     "referenced by JSON %s",
+                     full_driver_path, cur_driver_json.c_str());
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
+        }
+    } else {
+        PrintTableElement("MISSING!");
+        PrintEndTableRow();
+    }
+
+    char count_str[MAX_STRING_LENGTH];
+    j = 0;
+    dev_exts = root["ICD"]["device_extensions"];
+    if (!dev_exts.isNull() && dev_exts.isArray()) {
+        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", dev_exts.size());
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Device Extensions");
+        PrintTableElement(count_str);
+        PrintEndTableRow();
+
+        for (Json::ValueIterator dev_ext_it = dev_exts.begin();
+             dev_ext_it != dev_exts.end(); dev_ext_it++) {
+            Json::Value dev_ext = (*dev_ext_it);
+            Json::Value dev_ext_name = dev_ext["name"];
+            if (!dev_ext_name.isNull()) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
+
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement(generic_string, ALIGN_RIGHT);
+                PrintTableElement(dev_ext_name.asString());
+                PrintEndTableRow();
+            }
+        }
+    }
+    inst_exts = root["ICD"]["instance_extensions"];
+    j = 0;
+    if (!inst_exts.isNull() && inst_exts.isArray()) {
+        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", inst_exts.size());
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Instance Extensions");
+        PrintTableElement(count_str);
+        PrintEndTableRow();
+
+        for (Json::ValueIterator inst_ext_it =
+
+                 inst_exts.begin();
+             inst_ext_it != inst_exts.end(); inst_ext_it++) {
+            Json::Value inst_ext = (*inst_ext_it);
+            Json::Value inst_ext_name = inst_ext["name"];
+            if (!inst_ext_name.isNull()) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
+
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement(generic_string, ALIGN_RIGHT);
+                PrintTableElement(inst_ext_name.asString());
+                PrintEndTableRow();
+            }
+        }
+    }
+
+out:
+
+    if (nullptr != stream) {
+        stream->close();
+        delete stream;
+        stream = NULL;
+    }
+
+    return found_json;
+}
+
 // Print out the information for every driver in the appropriate
 // Windows registry location and its corresponding JSON file.
 void PrintDriverInfo(void) {
@@ -1435,31 +1636,30 @@ void PrintDriverInfo(void) {
     char reg_key_loc[MAX_STRING_LENGTH];
     char cur_vulkan_driver_json[MAX_STRING_LENGTH];
     char generic_string[MAX_STRING_LENGTH];
-    char full_driver_path[MAX_STRING_LENGTH];
     char system_path[MAX_STRING_LENGTH];
-    char count_str[64];
+    char env_value[MAX_STRING_LENGTH];
     uint32_t i = 0;
-    uint32_t j = 0;
     std::ifstream *stream = NULL;
     bool found_registry = false;
     bool found_json = false;
     bool found_lib = false;
+    bool found_this_lib = false;
 
     GetEnvironmentVariableA("SYSTEMROOT", generic_string, MAX_STRING_LENGTH);
 #if _WIN64 || __x86_64__ || __ppc64__
     snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
-        generic_string);
+             generic_string);
     snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
              vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
         snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\",
-            generic_string);
+                 generic_string);
         snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
                  vulkan_reg_base_wow64);
     } else {
         snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
-            generic_string);
+                 generic_string);
         snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
                  vulkan_reg_base);
     }
@@ -1467,7 +1667,7 @@ void PrintDriverInfo(void) {
 
     PrintBeginTable("Vulkan Driver Info", 3);
     PrintBeginTableRow();
-    PrintTableElement("Registry Location");
+    PrintTableElement("Drivers in Registry");
     PrintTableElement(reg_key_loc);
     PrintTableElement("");
     PrintEndTableRow();
@@ -1486,200 +1686,155 @@ void PrintDriverInfo(void) {
         PrintTableElement(generic_string, ALIGN_RIGHT);
         PrintTableElement(cur_vulkan_driver_json);
 
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x",
-                 returned_value);
-        PrintTableElement(generic_string);
+        if (returned_value != 0) {
+            PrintTableElement("DISABLED");
+        } else {
+            PrintTableElement("ENABLED");
+        }
         PrintEndTableRow();
 
         // Parse the driver JSON file.
-        std::ifstream *stream = NULL;
-        stream = new std::ifstream(cur_vulkan_driver_json, std::ifstream::in);
-        if (nullptr == stream || stream->fail()) {
+        if (ReadDriverJson(cur_vulkan_driver_json, system_path,
+                           found_this_lib)) {
+            found_json = true;
+            found_lib |= found_this_lib;
+        }
+    }
+
+    // The user can override the drivers path manually
+    if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value,
+                                     MAX_STRING_LENGTH - 1) &&
+        0 != strlen(env_value)) {
+        WIN32_FIND_DATAA ffd;
+        HANDLE hFind;
+        char *tok = NULL;
+        bool keep_looping = false;
+        char full_driver_path[MAX_STRING_LENGTH];
+        char cur_driver_path[MAX_STRING_LENGTH];
+        uint32_t path = 0;
+
+        PrintBeginTableRow();
+        PrintTableElement("VK_DRIVERS_PATH");
+        PrintTableElement(env_value);
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        tok = strtok(env_value, ";");
+        if (NULL != tok) {
+            keep_looping = true;
+            strncpy(cur_driver_path, tok, MAX_STRING_LENGTH - 1);
+        } else {
+            strncpy(cur_driver_path, env_value, MAX_STRING_LENGTH - 1);
+        }
+
+        do {
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "Path %d", path++);
             PrintBeginTableRow();
+            PrintTableElement(generic_string, ALIGN_CENTER);
+            PrintTableElement(cur_driver_path);
             PrintTableElement("");
-            PrintTableElement("Error reading JSON file");
-            PrintTableElement(cur_vulkan_driver_json);
             PrintEndTableRow();
 
-            failed = true;
-            continue;
-        } else {
-            Json::Value root = Json::nullValue;
-            Json::Reader reader;
-            if (!reader.parse(*stream, root, false) || root.isNull()) {
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("Error reading JSON file");
-                PrintTableElement(reader.getFormattedErrorMessages());
-                PrintEndTableRow();
+            // Look for any JSON files in that folder.
+            snprintf(full_driver_path, MAX_STRING_LENGTH - 1, "%s\\*.json",
+                     cur_driver_path);
+            hFind = FindFirstFileA(full_driver_path, &ffd);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                do {
+                    if (0 ==
+                        (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                                 "Driver %d", i++);
+                        snprintf(cur_vulkan_driver_json, MAX_STRING_LENGTH - 1,
+                                 "%s\\%s", cur_driver_path, ffd.cFileName);
 
-                failed = true;
-                stream->close();
-                delete stream;
-                continue;
+                        PrintBeginTableRow();
+                        PrintTableElement(generic_string, ALIGN_RIGHT);
+                        PrintTableElement(ffd.cFileName);
+                        PrintTableElement("");
+                        PrintEndTableRow();
+
+                        // Parse the driver JSON file.
+                        if (ReadDriverJson(cur_vulkan_driver_json, system_path,
+                                           found_this_lib)) {
+                            found_json = true;
+                            found_lib |= found_this_lib;
+                        }
+                    }
+                } while (FindNextFileA(hFind, &ffd) != 0);
+                FindClose(hFind);
+            }
+
+            tok = strtok(NULL, ";");
+            if (NULL == tok) {
+                keep_looping = false;
+            } else {
+                strncpy(cur_driver_path, tok, MAX_STRING_LENGTH - 1);
+            }
+        } while (keep_looping);
+    }
+
+    // The user can override the driver file manually
+    if (0 != GetEnvironmentVariableA("VK_ICD_FILENAMES", env_value,
+                                     MAX_STRING_LENGTH - 1) &&
+        0 != strlen(env_value)) {
+        WIN32_FIND_DATAA ffd;
+        HANDLE hFind;
+        char *tok = NULL;
+        bool keep_looping = false;
+        char full_driver_path[MAX_STRING_LENGTH];
+
+        PrintBeginTableRow();
+        PrintTableElement("VK_ICD_FILENAMES");
+        PrintTableElement(env_value);
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        tok = strtok(env_value, ";");
+        if (NULL != tok) {
+            keep_looping = true;
+            strncpy(full_driver_path, tok, MAX_STRING_LENGTH - 1);
+        } else {
+            strncpy(full_driver_path, env_value, MAX_STRING_LENGTH - 1);
+        }
+
+        do {
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
+            PrintBeginTableRow();
+            PrintTableElement(generic_string, ALIGN_RIGHT);
+            PrintTableElement(full_driver_path);
+            PrintTableElement("");
+            PrintEndTableRow();
+
+            hFind = FindFirstFileA(full_driver_path, &ffd);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                    strcpy(cur_vulkan_driver_json, full_driver_path);
+                    // Parse the driver JSON file.
+                    if (ReadDriverJson(cur_vulkan_driver_json, system_path,
+                                       found_this_lib)) {
+                        found_json = true;
+                        found_lib |= found_this_lib;
+                    }
+                }
+                FindClose(hFind);
             } else {
                 PrintBeginTableRow();
                 PrintTableElement("");
-                PrintTableElement("JSON File Version");
-                if (!root["file_format_version"].isNull()) {
-                    PrintTableElement(root["file_format_version"].asString());
-                } else {
-                    PrintTableElement("MISSING!");
-                }
+                PrintTableElement("Driver Not Found");
+                PrintTableElement("");
                 PrintEndTableRow();
-
-                if (!root["ICD"].isNull()) {
-                    found_json = true;
-
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("API Version");
-                    if (!root["ICD"]["api_version"].isNull()) {
-                        PrintTableElement(
-                            root["ICD"]["api_version"].asString());
-                    } else {
-                        PrintTableElement("MISSING!");
-                    }
-                    PrintEndTableRow();
-
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("Library Path");
-                    if (!root["ICD"]["library_path"].isNull()) {
-                        std::string driver_name = root["ICD"]["library_path"].asString();
-                        std::string system_name = system_path;
-                        system_name += "\\";
-                        system_name += driver_name;
-                        PrintTableElement(driver_name);
-                        PrintEndTableRow();
-
-                        if (GenerateLibraryPath(
-                                cur_vulkan_driver_json,
-                                driver_name.c_str(),
-                                MAX_STRING_LENGTH - 1, full_driver_path)) {
-
-                            if (GetFileVersion(full_driver_path,
-                                               MAX_STRING_LENGTH - 1,
-                                               generic_string)) {
-
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement("Library File Version");
-                                PrintTableElement(generic_string);
-                                PrintEndTableRow();
-
-                                found_lib = true;
-                            } else if (GetFileVersion(system_name.c_str(),
-                                MAX_STRING_LENGTH - 1,
-                                generic_string)) {
-
-                                    PrintBeginTableRow();
-                                    PrintTableElement("");
-                                    PrintTableElement("Library File Version");
-                                    PrintTableElement(generic_string);
-                                    PrintEndTableRow();
-
-                                    found_lib = true;
-                            } else {
-                                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                                         "Failed to find driver %s "
-                                         " or %sreferenced by JSON %s",
-                                         root["ICD"]["library_path"]
-                                             .asString()
-                                             .c_str(),
-                                         full_driver_path,
-                                         cur_vulkan_driver_json);
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement("");
-                                PrintTableElement(generic_string);
-                                PrintEndTableRow();
-                            }
-                        } else {
-                            snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                                     "Failed to find driver %s "
-                                     "referenced by JSON %s",
-                                     full_driver_path, cur_vulkan_driver_json);
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("");
-                            PrintTableElement(generic_string);
-                            PrintEndTableRow();
-                        }
-                    } else {
-                        PrintTableElement("MISSING!");
-                        PrintEndTableRow();
-                    }
-
-                    j = 0;
-                    Json::Value dev_exts = root["ICD"]["device_extensions"];
-                    if (!dev_exts.isNull() && dev_exts.isArray()) {
-                        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d",
-                                 dev_exts.size());
-                        PrintBeginTableRow();
-                        PrintTableElement("");
-                        PrintTableElement("Device Extensions");
-                        PrintTableElement(count_str);
-                        PrintEndTableRow();
-
-                        for (Json::ValueIterator dev_ext_it = dev_exts.begin();
-                             dev_ext_it != dev_exts.end(); dev_ext_it++) {
-                            Json::Value dev_ext = (*dev_ext_it);
-                            Json::Value dev_ext_name = dev_ext["name"];
-                            if (!dev_ext_name.isNull()) {
-                                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                                         "[%d]", j);
-
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement(generic_string, ALIGN_RIGHT);
-                                PrintTableElement(dev_ext_name.asString());
-                                PrintEndTableRow();
-                            }
-                        }
-                    }
-                    Json::Value inst_exts = root["ICD"]["instance_extensions"];
-                    j = 0;
-                    if (!inst_exts.isNull() && inst_exts.isArray()) {
-                        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d",
-                                 inst_exts.size());
-                        PrintBeginTableRow();
-                        PrintTableElement("");
-                        PrintTableElement("Instance Extensions");
-                        PrintTableElement(count_str);
-                        PrintEndTableRow();
-
-                        for (Json::ValueIterator inst_ext_it =
-                                 inst_exts.begin();
-                             inst_ext_it != inst_exts.end(); inst_ext_it++) {
-                            Json::Value inst_ext = (*inst_ext_it);
-                            Json::Value inst_ext_name = inst_ext["name"];
-                            if (!inst_ext_name.isNull()) {
-                                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                                         "[%d]", j);
-
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement(generic_string, ALIGN_RIGHT);
-                                PrintTableElement(inst_ext_name.asString());
-                                PrintEndTableRow();
-                            }
-                        }
-                    }
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("ICD Section");
-                    PrintTableElement("MISSING!");
-                    PrintEndTableRow();
-                }
             }
 
-            stream->close();
-            delete stream;
-            stream = NULL;
-        }
+            tok = strtok(NULL, ";");
+            if (NULL == tok) {
+                keep_looping = false;
+            } else {
+                strncpy(full_driver_path, tok, MAX_STRING_LENGTH - 1);
+            }
+        } while (keep_looping);
     }
+
     if (!found_registry || !found_json || !found_lib) {
         failed = true;
     }
@@ -1949,7 +2104,8 @@ void PrintSDKInfo(void) {
         PrintTableElement(count_string, ALIGN_RIGHT);
         PrintTableElement(output_string);
 
-        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
+        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x",
+                 returned_value);
         PrintTableElement(output_string);
         PrintEndTableRow();
 
@@ -2031,7 +2187,7 @@ void PrintLayerInfo(void) {
 
     PrintBeginTable("Implicit Layers", 4);
     PrintBeginTableRow();
-    PrintTableElement("Registry");
+    PrintTableElement("Layers in Registry");
     PrintTableElement(vulkan_impl_layer_reg_key);
     PrintTableElement("");
     PrintTableElement("");
@@ -2050,7 +2206,8 @@ void PrintLayerInfo(void) {
         PrintTableElement(generic_string, ALIGN_RIGHT);
         PrintTableElement(cur_vulkan_layer_json);
         PrintTableElement("");
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x",
+                 returned_value);
         PrintTableElement(generic_string);
         PrintEndTableRow();
 
@@ -2094,6 +2251,9 @@ void PrintLayerInfo(void) {
                                      MAX_STRING_LENGTH - 1)) {
         WIN32_FIND_DATAA ffd;
         HANDLE hFind;
+        std::string cur_layer_path;
+        bool keep_looping = false;
+        uint32_t path = 0;
 
         PrintBeginTable("VK_LAYER_PATH Explicit Layers", 3);
         PrintBeginTableRow();
@@ -2102,63 +2262,93 @@ void PrintLayerInfo(void) {
         PrintTableElement("");
         PrintEndTableRow();
 
-        // Look for any JSON files in that folder.
-        snprintf(full_layer_path, MAX_STRING_LENGTH - 1, "%s\\*.json",
-                 env_value);
-        i = 0;
-        hFind = FindFirstFileA(full_layer_path, &ffd);
-        if (hFind != INVALID_HANDLE_VALUE) {
-            do {
-                if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                             i++);
-                    snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1,
-                             "%s\\%s", env_value, ffd.cFileName);
+        // VK_LAYER_PATH may have multiple folders listed in it (colon
+        // ';' delimited)
+        char *tok = strtok(env_value, ";");
+        if (tok != NULL) {
+            cur_layer_path = tok;
+            keep_looping = true;
+        } else {
+            cur_layer_path = env_value;
+        }
 
-                    PrintBeginTableRow();
-                    PrintTableElement(generic_string, ALIGN_RIGHT);
-                    PrintTableElement(ffd.cFileName);
-                    PrintTableElement("");
-                    PrintEndTableRow();
+        do {
+            if (keep_looping) {
+                PrintBeginTableRow();
+                sprintf(generic_string, "Path %d", path++);
+                PrintTableElement(generic_string, ALIGN_CENTER);
+                PrintTableElement(cur_layer_path);
+                PrintTableElement("");
+                PrintEndTableRow();
+            }
 
-                    std::ifstream *stream = NULL;
-                    stream = new std::ifstream(cur_vulkan_layer_json,
-                                               std::ifstream::in);
-                    if (nullptr == stream || stream->fail()) {
+            // Look for any JSON files in that folder.
+            snprintf(full_layer_path, MAX_STRING_LENGTH - 1, "%s\\*.json",
+                     cur_layer_path.c_str());
+            i = 0;
+            hFind = FindFirstFileA(full_layer_path, &ffd);
+            if (hFind != INVALID_HANDLE_VALUE) {
+                do {
+                    if (0 ==
+                        (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
+                                 i++);
+                        snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1,
+                                 "%s\\%s", cur_layer_path.c_str(),
+                                 ffd.cFileName);
+
                         PrintBeginTableRow();
-                        PrintTableElement("");
-                        PrintTableElement("ERROR reading JSON file!");
+                        PrintTableElement(generic_string, ALIGN_RIGHT);
+                        PrintTableElement(ffd.cFileName);
                         PrintTableElement("");
                         PrintEndTableRow();
-                        failed = true;
-                    } else {
-                        Json::Value root = Json::nullValue;
-                        Json::Reader reader;
-                        if (!reader.parse(*stream, root, false) ||
-                            root.isNull()) {
-                            // Report to the user the failure and their
-                            // locations in the document.
+
+                        std::ifstream *stream = NULL;
+                        stream = new std::ifstream(cur_vulkan_layer_json,
+                                                   std::ifstream::in);
+                        if (nullptr == stream || stream->fail()) {
                             PrintBeginTableRow();
                             PrintTableElement("");
-                            PrintTableElement("ERROR parsing JSON file!");
-                            PrintTableElement(
-                                reader.getFormattedErrorMessages());
+                            PrintTableElement("ERROR reading JSON file!");
+                            PrintTableElement("");
                             PrintEndTableRow();
                             failed = true;
                         } else {
-                            PrintExplicitLayerJsonInfo(cur_vulkan_layer_json,
-                                                       root, 3);
+                            Json::Value root = Json::nullValue;
+                            Json::Reader reader;
+                            if (!reader.parse(*stream, root, false) ||
+                                root.isNull()) {
+                                // Report to the user the failure and their
+                                // locations in the document.
+                                PrintBeginTableRow();
+                                PrintTableElement("");
+                                PrintTableElement("ERROR parsing JSON file!");
+                                PrintTableElement(
+                                    reader.getFormattedErrorMessages());
+                                PrintEndTableRow();
+                                failed = true;
+                            } else {
+                                PrintExplicitLayerJsonInfo(
+                                    cur_vulkan_layer_json, root, 3);
+                            }
+
+                            stream->close();
+                            delete stream;
+                            stream = NULL;
                         }
-
-                        stream->close();
-                        delete stream;
-                        stream = NULL;
                     }
-                }
-            } while (FindNextFileA(hFind, &ffd) != 0);
+                } while (FindNextFileA(hFind, &ffd) != 0);
 
-            FindClose(hFind);
-        }
+                FindClose(hFind);
+            }
+
+            tok = strtok(NULL, ";");
+            if (tok == NULL) {
+                keep_looping = false;
+            } else {
+                cur_layer_path = tok;
+            }
+        } while (keep_looping);
 
         PrintEndTable();
     }
@@ -2241,10 +2431,12 @@ bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func,
     if (env_value != NULL) {
         char *tok = strtok(env_value, ":");
         while (tok != NULL) {
-            path_to_check = tok;
-            if (func(path_to_check, object_name)) {
-                // We found one runtime, clear any failures
-                found_one = true;
+            if (strlen(tok) > 0) {
+                path_to_check = tok;
+                if (func(path_to_check, object_name)) {
+                    // We found one runtime, clear any failures
+                    found_one = true;
+                }
             }
             tok = strtok(NULL, ":");
         }
@@ -2536,78 +2728,274 @@ void PrintSystemInfo(void) {
     }
 }
 
+bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
+    bool found_json = false;
+    std::ifstream *stream = NULL;
+    Json::Value root = Json::nullValue;
+    Json::Value inst_exts = Json::nullValue;
+    Json::Value dev_exts = Json::nullValue;
+    Json::Reader reader;
+    char full_driver_path[MAX_STRING_LENGTH];
+    char generic_string[MAX_STRING_LENGTH];
+    uint32_t j = 0;
+
+    stream = new std::ifstream(cur_driver_json.c_str(), std::ifstream::in);
+    if (nullptr == stream || stream->fail()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Error reading JSON file");
+        PrintTableElement(cur_driver_json);
+        PrintEndTableRow();
+        goto out;
+    }
+
+    if (!reader.parse(*stream, root, false) || root.isNull()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Error reading JSON file");
+        PrintTableElement(reader.getFormattedErrorMessages());
+        PrintEndTableRow();
+        goto out;
+    }
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("JSON File Version");
+    if (!root["file_format_version"].isNull()) {
+        PrintTableElement(root["file_format_version"].asString());
+    } else {
+        PrintTableElement("MISSING!");
+    }
+    PrintEndTableRow();
+
+    if (root["ICD"].isNull()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("ICD Section");
+        PrintTableElement("MISSING!");
+        PrintEndTableRow();
+        goto out;
+    }
+
+    found_json = true;
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("API Version");
+    if (!root["ICD"]["api_version"].isNull()) {
+        PrintTableElement(root["ICD"]["api_version"].asString());
+    } else {
+        PrintTableElement("MISSING!");
+    }
+    PrintEndTableRow();
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("Library Path");
+    if (!root["ICD"]["library_path"].isNull()) {
+        std::string driver_name = root["ICD"]["library_path"].asString();
+        PrintTableElement(driver_name);
+        PrintEndTableRow();
+
+        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(),
+                                MAX_STRING_LENGTH, full_driver_path)) {
+            // First try the generated path.
+            if (access(full_driver_path, R_OK) != -1) {
+                found_lib = true;
+            } else if (driver_name.find("/") == std::string::npos) {
+                if (FindLinuxSystemObject(driver_name, CheckDriver, true)) {
+                    found_lib = true;
+                }
+            }
+            if (!found_lib) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                         "Failed to find driver %s "
+                         "referenced by JSON %s",
+                         full_driver_path, cur_driver_json.c_str());
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("");
+                PrintTableElement(generic_string);
+                PrintEndTableRow();
+            }
+        } else {
+            snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                     "Failed to find driver %s "
+                     "referenced by JSON %s",
+                     full_driver_path, cur_driver_json.c_str());
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement(generic_string);
+            PrintEndTableRow();
+        }
+    } else {
+        PrintTableElement("MISSING!");
+        PrintEndTableRow();
+    }
+
+    char count_str[MAX_STRING_LENGTH];
+    j = 0;
+    dev_exts = root["ICD"]["device_extensions"];
+    if (!dev_exts.isNull() && dev_exts.isArray()) {
+        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", dev_exts.size());
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Device Extensions");
+        PrintTableElement(count_str);
+        PrintEndTableRow();
+
+        for (Json::ValueIterator dev_ext_it = dev_exts.begin();
+             dev_ext_it != dev_exts.end(); dev_ext_it++) {
+            Json::Value dev_ext = (*dev_ext_it);
+            Json::Value dev_ext_name = dev_ext["name"];
+            if (!dev_ext_name.isNull()) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
+
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement(generic_string, ALIGN_RIGHT);
+                PrintTableElement(dev_ext_name.asString());
+                PrintEndTableRow();
+            }
+        }
+    }
+    inst_exts = root["ICD"]["instance_extensions"];
+    j = 0;
+    if (!inst_exts.isNull() && inst_exts.isArray()) {
+        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", inst_exts.size());
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("Instance Extensions");
+        PrintTableElement(count_str);
+        PrintEndTableRow();
+
+        for (Json::ValueIterator inst_ext_it =
+
+                 inst_exts.begin();
+             inst_ext_it != inst_exts.end(); inst_ext_it++) {
+            Json::Value inst_ext = (*inst_ext_it);
+            Json::Value inst_ext_name = inst_ext["name"];
+            if (!inst_ext_name.isNull()) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
+
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement(generic_string, ALIGN_RIGHT);
+                PrintTableElement(inst_ext_name.asString());
+                PrintEndTableRow();
+            }
+        }
+    }
+
+out:
+
+    if (nullptr != stream) {
+        stream->close();
+        delete stream;
+        stream = NULL;
+    }
+
+    return found_json;
+}
+
 // Print out the information for every driver JSON in the appropriate
 // system folders.
 void PrintDriverInfo(void) {
     bool failed = false;
-    char generic_string[MAX_STRING_LENGTH];
-    char full_driver_path[MAX_STRING_LENGTH];
-    uint32_t i = 0;
-    uint32_t j = 0;
     bool found_json = false;
     bool found_lib = false;
-    char *env_value = NULL;
+    bool found_this_lib = false;
+    uint32_t i = 0;
+    char generic_string[MAX_STRING_LENGTH];
+    char cur_vulkan_driver_json[MAX_STRING_LENGTH];
+    char *home_env_value = NULL;
+    char *drivers_env_value = NULL;
+    char *icd_env_value = NULL;
+    std::vector<std::string> driver_paths;
+    int drivers_path_index = -1;
 
     PrintBeginTable("Vulkan Driver Info", 3);
 
     // There are several folders ICD JSONs could be in.  So,
     // try all of them.
-    for (uint32_t dir = 0; dir < 6; dir++) {
-        std::string cur_driver_path;
-        std::string cur_driver_json;
-        switch (dir) {
-        case 0:
-            cur_driver_path = "/etc/vulkan/icd.d";
-            break;
-        case 1:
-            cur_driver_path = "/usr/share/vulkan/icd.d";
-            break;
-        case 2:
-            cur_driver_path = "/usr/local/etc/vulkan/icd.d";
-            break;
-        case 3:
-            cur_driver_path = "/usr/local/share/vulkan/icd.d";
-            break;
-        case 4:
-            env_value = getenv("HOME");
-            if (NULL == env_value) {
-                cur_driver_path = "~/.local/share/vulkan/icd.d";
-            } else {
-                cur_driver_path = env_value;
-                cur_driver_path += "/.local/share/vulkan/icd.d";
+    driver_paths.push_back("/etc/vulkan/icd.d");
+    driver_paths.push_back("/usr/share/vulkan/icd.d");
+    driver_paths.push_back("/usr/local/etc/vulkan/icd.d");
+    driver_paths.push_back("/usr/local/share/vulkan/icd.d");
+
+    home_env_value = getenv("HOME");
+    if (NULL == home_env_value) {
+        driver_paths.push_back("~/.local/share/vulkan/icd.d");
+    } else {
+        std::string home_icd_dir = home_env_value;
+        home_icd_dir += "/.local/share/vulkan/icd.d";
+        driver_paths.push_back(home_icd_dir);
+    }
+
+    // The user can override the drivers path manually
+    drivers_env_value = getenv("VK_DRIVERS_PATH");
+    if (NULL != drivers_env_value) {
+        drivers_path_index = driver_paths.size();
+        // VK_DRIVERS_PATH may have multiple folders listed in it (colon
+        // ':' delimited)
+        char *tok = strtok(drivers_env_value, ":");
+        if (tok != NULL) {
+            while (tok != NULL) {
+                driver_paths.push_back(tok);
+                tok = strtok(NULL, ":");
             }
-            break;
-        case 5:
-            env_value = getenv("VK_DRIVERS_PATH");
-            if (NULL == env_value) {
-                continue;
-            }
-            cur_driver_path = env_value;
-            break;
-        default:
+        } else {
+            driver_paths.push_back(drivers_env_value);
+        }
+    }
+
+    // Loop through all folders discovered above.
+    for (size_t dir = 0; dir < driver_paths.size(); dir++) {
+
+        // Just to make things clear, make sure to add a
+        // identifier before the drivers path results.
+        if (dir == 0) {
+            PrintBeginTableRow();
+            PrintTableElement("Standard Paths");
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+        } else if (drivers_path_index >= 0 &&
+                   dir == static_cast<size_t>(drivers_path_index)) {
+            PrintBeginTableRow();
+            PrintTableElement("VK_DRIVERS_PATH");
+            PrintTableElement(drivers_env_value);
+            PrintTableElement("");
+            PrintEndTableRow();
+        }
+
+        // Make sure the directory exists.
+        DIR *driver_dir = opendir(driver_paths[dir].c_str());
+        if (NULL == driver_dir) {
+
+            PrintBeginTableRow();
+            PrintTableElement(driver_paths[dir], ALIGN_RIGHT);
+            PrintTableElement("No such folder");
+            PrintTableElement("");
+            PrintEndTableRow();
+
             continue;
         }
 
         PrintBeginTableRow();
-        PrintTableElement(cur_driver_path.c_str());
+        PrintTableElement(driver_paths[dir], ALIGN_RIGHT);
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
 
-        // Loop through each JSON file found in the current
-        // location.
-        DIR *layer_dir = opendir(cur_driver_path.c_str());
-        if (NULL == layer_dir) {
-            continue;
-        }
         dirent *cur_ent;
         i = 0;
-        while ((cur_ent = readdir(layer_dir)) != NULL) {
+        while ((cur_ent = readdir(driver_dir)) != NULL) {
             if (NULL != strstr(cur_ent->d_name, ".json")) {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-                cur_driver_json = cur_driver_path;
-                cur_driver_json += "/";
-                cur_driver_json += cur_ent->d_name;
+                snprintf(cur_vulkan_driver_json, MAX_STRING_LENGTH - 1, "%s/%s",
+                         driver_paths[dir].c_str(), cur_ent->d_name);
 
                 PrintBeginTableRow();
                 PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -2615,198 +3003,74 @@ void PrintDriverInfo(void) {
                 PrintTableElement("");
                 PrintEndTableRow();
 
-                bool found_lib_this_time = false;
-                std::ifstream *stream = NULL;
-                stream = new std::ifstream(cur_driver_json.c_str(),
-                                           std::ifstream::in);
-                if (nullptr == stream || stream->fail()) {
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("Error reading JSON file");
-                    PrintTableElement(cur_driver_json);
-                    PrintEndTableRow();
-
-                    failed = true;
-                    continue;
-                } else {
-                    Json::Value root = Json::nullValue;
-                    Json::Reader reader;
-                    if (!reader.parse(*stream, root, false) || root.isNull()) {
-                        PrintBeginTableRow();
-                        PrintTableElement("");
-                        PrintTableElement("Error reading JSON file");
-                        PrintTableElement(reader.getFormattedErrorMessages());
-                        PrintEndTableRow();
-
-                        failed = true;
-                        stream->close();
-                        delete stream;
-                        continue;
-                    } else {
-                        PrintBeginTableRow();
-                        PrintTableElement("");
-                        PrintTableElement("JSON File Version");
-                        if (!root["file_format_version"].isNull()) {
-                            PrintTableElement(
-                                root["file_format_version"].asString());
-                        } else {
-                            PrintTableElement("MISSING!");
-                        }
-                        PrintEndTableRow();
-
-                        if (!root["ICD"].isNull()) {
-                            found_json = true;
-
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("API Version");
-                            if (!root["ICD"]["api_version"].isNull()) {
-                                PrintTableElement(
-                                    root["ICD"]["api_version"].asString());
-                            } else {
-                                PrintTableElement("MISSING!");
-                            }
-                            PrintEndTableRow();
-
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("Library Path");
-                            if (!root["ICD"]["library_path"].isNull()) {
-                                std::string driver_name = root["ICD"]["library_path"].asString();
-                                PrintTableElement(driver_name);
-                                PrintEndTableRow();
-
-                                if (GenerateLibraryPath(
-                                        cur_driver_json.c_str(),
-                                        driver_name.c_str(),
-                                        MAX_STRING_LENGTH, full_driver_path)) {
-                                    // First try the generated path.
-                                    if (access(full_driver_path, R_OK) != -1) {
-                                        found_lib_this_time = true;
-                                    } else if (driver_name.find("/") == std::string::npos) {
-                                        if (FindLinuxSystemObject(driver_name,
-                                                                  CheckDriver,
-                                                                  true)) {
-                                            found_lib_this_time = true;
-                                        }
-                                    }
-                                    if (!found_lib_this_time) {
-                                        snprintf(generic_string,
-                                                 MAX_STRING_LENGTH - 1,
-                                                 "Failed to find driver %s "
-                                                 "referenced by JSON %s",
-                                                 full_driver_path,
-                                                 cur_driver_json.c_str());
-                                    } else {
-                                        found_lib = true;
-                                    }
-                                } else {
-                                    snprintf(generic_string,
-                                             MAX_STRING_LENGTH - 1,
-                                             "Failed to find driver %s "
-                                             "referenced by JSON %s",
-                                             full_driver_path,
-                                             cur_driver_json.c_str());
-                                    PrintBeginTableRow();
-                                    PrintTableElement("");
-                                    PrintTableElement("");
-                                    PrintTableElement(generic_string);
-                                    PrintEndTableRow();
-                                }
-                            } else {
-                                PrintTableElement("MISSING!");
-                                PrintEndTableRow();
-                            }
-
-                            char count_str[MAX_STRING_LENGTH];
-                            j = 0;
-                            Json::Value dev_exts =
-                                root["ICD"]["device_extensions"];
-                            if (!dev_exts.isNull() && dev_exts.isArray()) {
-                                snprintf(count_str, MAX_STRING_LENGTH - 1, "%d",
-                                         dev_exts.size());
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement("Device Extensions");
-                                PrintTableElement(count_str);
-                                PrintEndTableRow();
-
-                                for (Json::ValueIterator dev_ext_it =
-                                         dev_exts.begin();
-                                     dev_ext_it != dev_exts.end();
-                                     dev_ext_it++) {
-                                    Json::Value dev_ext = (*dev_ext_it);
-                                    Json::Value dev_ext_name = dev_ext["name"];
-                                    if (!dev_ext_name.isNull()) {
-                                        snprintf(generic_string,
-                                                 MAX_STRING_LENGTH - 1, "[%d]",
-                                                 j);
-
-                                        PrintBeginTableRow();
-                                        PrintTableElement("");
-                                        PrintTableElement(generic_string,
-                                                          ALIGN_RIGHT);
-                                        PrintTableElement(
-                                            dev_ext_name.asString());
-                                        PrintEndTableRow();
-                                    }
-                                }
-                            }
-                            Json::Value inst_exts =
-                                root["ICD"]["instance_extensions"];
-                            j = 0;
-                            if (!inst_exts.isNull() && inst_exts.isArray()) {
-                                snprintf(count_str, MAX_STRING_LENGTH - 1, "%d",
-                                         inst_exts.size());
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement("Instance Extensions");
-                                PrintTableElement(count_str);
-                                PrintEndTableRow();
-
-                                for (Json::ValueIterator inst_ext_it =
-
-                                         inst_exts.begin();
-                                     inst_ext_it != inst_exts.end();
-                                     inst_ext_it++) {
-                                    Json::Value inst_ext = (*inst_ext_it);
-                                    Json::Value inst_ext_name =
-                                        inst_ext["name"];
-                                    if (!inst_ext_name.isNull()) {
-                                        snprintf(generic_string,
-                                                 MAX_STRING_LENGTH - 1, "[%d]",
-                                                 j);
-
-                                        PrintBeginTableRow();
-                                        PrintTableElement("");
-                                        PrintTableElement(generic_string,
-                                                          ALIGN_RIGHT);
-                                        PrintTableElement(
-                                            inst_ext_name.asString());
-                                        PrintEndTableRow();
-                                    }
-                                }
-                            }
-                        } else {
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("ICD Section");
-                            PrintTableElement("MISSING!");
-                            PrintEndTableRow();
-                        }
-                    }
-
-                    stream->close();
-                    delete stream;
-                    stream = NULL;
+                if (ReadDriverJson(cur_vulkan_driver_json, found_this_lib)) {
+                    found_json = true;
+                    found_lib |= found_this_lib;
                 }
             }
         }
     }
+
+    // The user can specify particularly what driver files to use
+    icd_env_value = getenv("VK_ICD_FILENAMES");
+    if (NULL != icd_env_value) {
+        PrintBeginTableRow();
+        PrintTableElement("VK_ICD_FILENAMES");
+        PrintTableElement(icd_env_value);
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        // VK_ICD_FILENAMES may have multiple folders listed in it (colon
+        // ':' delimited)
+        char *tok = strtok(icd_env_value, ":");
+        if (tok != NULL) {
+            while (tok != NULL) {
+                if (access(tok, R_OK) != -1) {
+                    PrintBeginTableRow();
+                    PrintTableElement(tok, ALIGN_RIGHT);
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintEndTableRow();
+                    if (ReadDriverJson(tok, found_this_lib)) {
+                        found_json = true;
+                        found_lib |= found_this_lib;
+                    }
+                } else {
+                    PrintBeginTableRow();
+                    PrintTableElement(tok, ALIGN_RIGHT);
+                    PrintTableElement("No such file");
+                    PrintTableElement("");
+                    PrintEndTableRow();
+                }
+                tok = strtok(NULL, ":");
+            }
+        } else {
+            if (access(icd_env_value, R_OK) != -1) {
+                PrintBeginTableRow();
+                PrintTableElement(icd_env_value, ALIGN_RIGHT);
+                PrintTableElement("");
+                PrintTableElement("");
+                PrintEndTableRow();
+                if (ReadDriverJson(icd_env_value, found_this_lib)) {
+                    found_json = true;
+                    found_lib |= found_this_lib;
+                }
+            } else {
+                PrintBeginTableRow();
+                PrintTableElement(icd_env_value, ALIGN_RIGHT);
+                PrintTableElement("No such file");
+                PrintTableElement("");
+                PrintEndTableRow();
+            }
+        }
+    }
+
     if (!found_json || !found_lib) {
         failed = true;
     }
+
     PrintEndTable();
+
     if (failed) {
         if (!found_json) {
             throw MISSING_DRIVER_JSON;
@@ -2820,7 +3084,8 @@ void PrintDriverInfo(void) {
 
 // Print out all the runtime files found in a given location.  This way we
 // capture the full state of the system.
-bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header = true) {
+bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
+                           bool print_header = true) {
     DIR *runtime_dir;
     bool success = false;
     bool failed = false;
@@ -3003,8 +3268,7 @@ void PrintRunTimeInfo(void) {
             if (!found) {
                 PrintBeginTableRow();
                 PrintTableElement(runtime_dir_id);
-                PrintTableElement(
-                    "Failed to find Vulkan SO used for via");
+                PrintTableElement("Failed to find Vulkan SO used for via");
                 PrintTableElement("");
                 PrintEndTableRow();
             }
@@ -3036,7 +3300,7 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
         bool found_json = false;
 
         PrintBeginTableRow();
-        PrintTableElement(id);
+        PrintTableElement(id, ALIGN_RIGHT);
         PrintTableElement(folder_loc);
         PrintTableElement("");
         PrintEndTableRow();
@@ -3092,7 +3356,7 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
         }
         if (!found_json) {
             PrintBeginTableRow();
-            PrintTableElement(id);
+            PrintTableElement(id, ALIGN_RIGHT);
             PrintTableElement(folder_loc);
             PrintTableElement("No JSON files found");
             PrintEndTableRow();
@@ -3102,7 +3366,7 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
         success = !failed;
     } else {
         PrintBeginTableRow();
-        PrintTableElement(id);
+        PrintTableElement(id, ALIGN_RIGHT);
         PrintTableElement(folder_loc);
         PrintTableElement("No such folder");
         PrintEndTableRow();
@@ -3235,19 +3499,19 @@ void PrintLayerInfo(void) {
             continue;
         }
 
-        PrintBeginTableRow();
-        PrintTableElement(cur_layer_path);
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintEndTableRow();
-
         layer_dir = opendir(cur_layer_path.c_str());
         if (NULL != layer_dir) {
+            PrintBeginTableRow();
+            PrintTableElement(cur_layer_path, ALIGN_RIGHT);
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
             while ((cur_ent = readdir(layer_dir)) != NULL) {
                 if (NULL != strstr(cur_ent->d_name, ".json")) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-                    snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1, "%s/%s",
-                             cur_layer_path.c_str(), cur_ent->d_name);
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
+                             i++);
+                    snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1,
+                             "%s/%s", cur_layer_path.c_str(), cur_ent->d_name);
 
                     PrintBeginTableRow();
                     PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -3256,8 +3520,8 @@ void PrintLayerInfo(void) {
                     PrintEndTableRow();
 
                     std::ifstream *stream = NULL;
-                    stream =
-                        new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
+                    stream = new std::ifstream(cur_vulkan_layer_json,
+                                               std::ifstream::in);
                     if (nullptr == stream || stream->fail()) {
                         PrintBeginTableRow();
                         PrintTableElement("");
@@ -3268,18 +3532,20 @@ void PrintLayerInfo(void) {
                     } else {
                         Json::Value root = Json::nullValue;
                         Json::Reader reader;
-                        if (!reader.parse(*stream, root, false) || root.isNull()) {
+                        if (!reader.parse(*stream, root, false) ||
+                            root.isNull()) {
                             // Report to the user the failure and their
                             // locations in the document.
                             PrintBeginTableRow();
                             PrintTableElement("");
                             PrintTableElement("ERROR parsing JSON file!");
-                            PrintTableElement(reader.getFormattedErrorMessages());
+                            PrintTableElement(
+                                reader.getFormattedErrorMessages());
                             PrintEndTableRow();
                             failed = true;
                         } else {
-                            PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root,
-                                                       3);
+                            PrintExplicitLayerJsonInfo(cur_vulkan_layer_json,
+                                                       root, 3);
                         }
 
                         stream->close();
@@ -3291,7 +3557,7 @@ void PrintLayerInfo(void) {
             closedir(layer_dir);
         } else {
             PrintBeginTableRow();
-            PrintTableElement("");
+            PrintTableElement(cur_layer_path, ALIGN_RIGHT);
             PrintTableElement("Directory does not exist");
             PrintTableElement("");
             PrintEndTableRow();
@@ -3302,9 +3568,15 @@ void PrintLayerInfo(void) {
     // Dump out any explicit layer information.
     PrintBeginTable("Explicit Layers", 3);
 
+    PrintBeginTableRow();
+    PrintTableElement("Standard Paths");
+    PrintTableElement("");
+    PrintTableElement("");
+    PrintEndTableRow();
+
     // There are several folders explicit layers could be in.  So,
     // try all of them.
-    for (uint32_t dir = 0; dir < 6; dir++) {
+    for (uint32_t dir = 0; dir < 5; dir++) {
         std::string cur_layer_path;
         std::string explicit_layer_id;
         std::string explicit_layer_path = cur_layer_path;
@@ -3336,19 +3608,41 @@ void PrintLayerInfo(void) {
                 cur_layer_path += "/.local/share/vulkan/explicit_layer.d";
             }
             break;
-        case 5:
-            explicit_layer_id = "VK_LAYER_PATH";
-            env_value = getenv("VK_LAYER_PATH");
-            if (NULL == env_value) {
-                continue;
-            }
-            cur_layer_path = env_value;
-            break;
         default:
             continue;
         }
 
         PrintExplicitLayersInFolder(explicit_layer_id, cur_layer_path);
+    }
+
+    // Look at the VK_LAYER_PATH environment variable paths if it is set.
+    env_value = getenv("VK_LAYER_PATH");
+    std::string cur_json;
+    if (NULL != env_value) {
+        char *tok = strtok(env_value, ":");
+        std::string explicit_layer_id = "VK_LAYER_PATH";
+
+        PrintBeginTableRow();
+        PrintTableElement("VK_LAYER_PATH");
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        if (NULL != tok) {
+            uint32_t offset = 0;
+            std::stringstream cur_name;
+            while (NULL != tok) {
+                cur_json = tok;
+                cur_name.str("");
+                cur_name << "Path " << offset++;
+                explicit_layer_id = cur_name.str();
+                PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
+                tok = strtok(NULL, ":");
+            }
+        } else {
+            cur_json = env_value;
+            PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
+        }
     }
 
     PrintEndTable();
