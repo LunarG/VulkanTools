@@ -85,7 +85,7 @@ bool getPageGuardEnableFlag()
                     if (env_target_range_size)
                     {
                         VkDeviceSize rangesize;
-                        if (sscanf(env_target_range_size, "%lu", &rangesize) == 1)
+                        if (sscanf(env_target_range_size, "%" PRIx64, &rangesize) == 1)
                         {
                             if (rangesize > PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN)
                             {
