@@ -32,14 +32,11 @@ PageGuardCapture::PageGuardCapture()
     EmptyChangedInfoArray.length = 0;
 
 #if defined(PLATFORM_LINUX)
-    // Open the /proc/<pid>/clear_refs file. We'll write to that file
-    // when we want to clear all dirty bits in the current process'
-    // pagemap.
-    char clearRefsPath[100];
-    snprintf(clearRefsPath, sizeof(clearRefsPath), "/proc/%d/clear_refs", getpid());
-    clearRefsFd = open(clearRefsPath, O_WRONLY);
+    // Open the /proc/self/clear_refs file. We'll write to that file
+    // when we want to clear all the page dirty bits in /proc/self/pagemap.
+    clearRefsFd = open("/proc/self/clear_refs", O_WRONLY);
     if (clearRefsFd < 0)
-        vktrace_LogError("Open of %s failed, attempting to continue...", clearRefsPath);
+        VKTRACE_FATAL_ERROR("Open of /proc/self/clear_refs failed.");
 #endif
 
 }
@@ -384,7 +381,7 @@ void PageGuardCapture::pageRefsDirtyClear()
     {
         lseek(clearRefsFd, 0, SEEK_SET);
         if (1 != write(clearRefsFd, &four, 1))
-            vktrace_LogError("Write to clear_refs file failed, attempting to continue");
+            VKTRACE_FATAL_ERROR("Write to /proc/self/clear_refs failed.");
     }
 }
 #endif

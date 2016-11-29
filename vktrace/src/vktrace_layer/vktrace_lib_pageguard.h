@@ -69,6 +69,14 @@
 #define PAGEGUARD_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
 #define PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
 
+// Usefull macro for handling fatal errors during tracing
+#define VKTRACE_FATAL_ERROR(_m) \
+    do { \
+        vktrace_LogError(_m " Fatal error."); \
+        exit(1); \
+    } while (0)
+
+
 VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
 #if defined(WIN32)
