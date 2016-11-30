@@ -37,6 +37,11 @@ PageGuardCapture::PageGuardCapture()
     clearRefsFd = open("/proc/self/clear_refs", O_WRONLY);
     if (clearRefsFd < 0)
         VKTRACE_FATAL_ERROR("Open of /proc/self/clear_refs failed.");
+
+    // Clear the dirty bits, i.e. write a '4' to clear_refs. Some older
+    // kernels may require that '4' be written to it in order
+    // for /proc/self/pagemap to work as we we expect it to.
+    pageRefsDirtyClear();
 #endif
 
 }

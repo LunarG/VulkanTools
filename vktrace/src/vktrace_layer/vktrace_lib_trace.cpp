@@ -166,7 +166,12 @@ static void segvHandler(int sig, siginfo_t *si, void *ununsed)
     vktrace_sem_post(sighAddrListSem);
 
     // Change protection of this page to allow the write to proceed
-    mprotect((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE);
+    if (0 != mprotect((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE))
+        // If we're calling VKTRACE_FATAL_ERROR here, there's a bug in the trace layer.
+        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc, writing to the
+        // trace file, and writing to stdout -- operations that may not work from a
+        // signal handler.  But we're about to exit anyway.
+        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
 }
 
 
@@ -196,7 +201,6 @@ void getMappedDirtyPagesLinux(void)
         return;
 
     // Open pagefile, initialize sighAddrList semaphore, and set the SIGSEGV signal handler
-    // Also clear all dirty bits because some older kernels may require it.
     if (pmFd == -1)
     {
         pmFd = open("/proc/self/pagemap", O_RDONLY);
@@ -211,7 +215,6 @@ void getMappedDirtyPagesLinux(void)
         sigAction.sa_flags = SA_SIGINFO;
         if (0 != sigaction(SIGSEGV, &sigAction, NULL))
             VKTRACE_FATAL_ERROR("sigaction sys call failed.");
-        getPageGuardControlInstance().pageRefsDirtyClear();
     }
 
     // Iterate through all mapped memory allocations.
