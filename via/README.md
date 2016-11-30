@@ -37,7 +37,7 @@ You will find the VIA binary in a different location depending on which OS you a
 Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the via executable).
 
 #### In the Windows Vulkan SDK
-VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "via".  This will ouptut the resulting via.html directly to your desktop.
+VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "via".  This will output the resulting via.html directly to your desktop.
 
 If you need to run via from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
 ```
@@ -84,7 +84,7 @@ After the first time, you just need to go into the folder and re-run "via.exe".
 
 ### Resulting Output
 VIA outputs two things:
- - A command-line ouptut indicating the overall status
+ - A command-line output indicating the overall status
  - An HTML file (called via.html) containing the details which will be output to one of two locations:
   1. If the current directory is writeable, the HTML will be placed in that location.
   2. Otherwise, it will be saved to your home folder, except for the Windows Start Menu short-cut which writes the file to your desktop.
