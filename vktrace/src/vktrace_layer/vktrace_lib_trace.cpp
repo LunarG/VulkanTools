@@ -158,7 +158,9 @@ static void segvHandler(int sig, siginfo_t *si, void *ununsed)
     // Note: we use sem_wait and mprotect inside a signal handler.
     // This is not POSIX compliant, but works on Linux.
 
-    // Add the addr that caused the segv to sighAddrList
+    // Add the addr that caused the segv to sighAddrList.
+    // It may not be in a mapped page we are tracking. If it
+    // isn't, we'll detect it later and generate an error then.
     vktrace_sem_wait(sighAddrListSem);
     sighAddrList.emplace_front(si->si_addr);
     vktrace_sem_post(sighAddrListSem);
@@ -194,6 +196,7 @@ void getMappedDirtyPagesLinux(void)
         return;
 
     // Open pagefile, initialize sighAddrList semaphore, and set the SIGSEGV signal handler
+    // Also clear all dirty bits because some older kernels may require it.
     if (pmFd == -1)
     {
         pmFd = open("/proc/self/pagemap", O_RDONLY);
@@ -208,6 +211,7 @@ void getMappedDirtyPagesLinux(void)
         sigAction.sa_flags = SA_SIGINFO;
         if (0 != sigaction(SIGSEGV, &sigAction, NULL))
             VKTRACE_FATAL_ERROR("sigaction sys call failed.");
+        getPageGuardControlInstance().pageRefsDirtyClear();
     }
 
     // Iterate through all mapped memory allocations.
@@ -219,9 +223,9 @@ void getMappedDirtyPagesLinux(void)
         pMappedMem = &(it->second);
         mappedMemory = pMappedMem->getMappedMemory();
         pEntry=find_mem_info_entry(mappedMemory);
-        addr=pEntry->pData+pEntry->rangeOffset;
+        addr=pEntry->pData;
         alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
-        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize) & ~(pageSize-1));
+        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
         nPages = (alignedAddrEnd - alignedAddrStart ) / pageSize;
 
         // Make pages in this memory allocation non-writable so we get a SIGSEGV
@@ -255,8 +259,7 @@ void getMappedDirtyPagesLinux(void)
     }
 
     // Clear all dirty bits for this process
-    PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
-    pageGuardCapture.pageRefsDirtyClear();
+    getPageGuardControlInstance().pageRefsDirtyClear();
 
     // Re-enable write permission for all mapped memory
     for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
@@ -266,9 +269,9 @@ void getMappedDirtyPagesLinux(void)
         pMappedMem = &(it->second);
         mappedMemory = pMappedMem->getMappedMemory();
         pEntry=find_mem_info_entry(mappedMemory);
-        addr=pEntry->pData+pEntry->rangeOffset;
+        addr=pEntry->pData;
         alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
-        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize) & ~(pageSize-1));
+        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
         if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE))
             VKTRACE_FATAL_ERROR("mprotect sys call failed.");
     }
@@ -286,6 +289,8 @@ void getMappedDirtyPagesLinux(void)
             index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
             if (index >= 0)
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+            else
+                VKTRACE_FATAL_ERROR("Received signal SIGSEGV on non-mapped memory.");
         }
         sighAddrList.pop_front();
     }
