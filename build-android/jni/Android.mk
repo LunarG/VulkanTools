@@ -267,18 +267,29 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_platform.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_process.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_settings.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_pageguard_memorycopy.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_trace.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_vk_exts.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pagestatusarray.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardmappedmemory.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardcapture.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguard.cpp
+
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
 		    $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/vktrace/src/vktrace_common \
                     $(SRC_DIR)/vktrace/src/vktrace_layer \
-                    $(SRC_DIR)/loader
+                    $(SRC_DIR)/loader \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardmappedmemory.h \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardcapture.h \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguard.h \
+                    $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_pageguard_memorycopy.h
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
+LOCAL_CPPFLAGS += -DPAGEGUARD_MEMCPY_USE_PPL_LIB
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
 LOCAL_LDLIBS    := -llog

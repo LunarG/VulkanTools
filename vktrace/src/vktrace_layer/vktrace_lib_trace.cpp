@@ -23,6 +23,8 @@
  */
 #include <stdbool.h>
 #include <unordered_map>
+#include <vector>
+#include <list>
 #include "vktrace_vk_vk.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vk_layer.h"
@@ -136,6 +138,169 @@ void *strip_create_extensions(const void *pNext)
     return create_info;
 }
 
+#if defined (PLATFORM_LINUX)
+
+// When quering dirty pages from /proc/self/pagemap, there is a
+// small window between the reading of this file and when the dirty bits
+// are cleared in which some other thread might modify mapped memory.
+// We trap these memory writes by setting mapped memory pages to read-only and
+// setting the signal handler for SIGSEGV. The signal handler creates a list
+// of the addresses that caused a SIGSEGV. We keep the list in sighAddrList.
+// We used the semaphore sighAddrListSem to protect access to this list.
+
+static std::list<void *> sighAddrList;
+static vktrace_sem_id sighAddrListSem = NULL;
+
+static void segvHandler(int sig, siginfo_t *si, void *ununsed)
+{
+    size_t pageSize = getpagesize();
+
+    // Note: we use sem_wait and mprotect inside a signal handler.
+    // This is not POSIX compliant, but works on Linux.
+
+    // Add the addr that caused the segv to sighAddrList.
+    // It may not be in a mapped page we are tracking. If it
+    // isn't, we'll detect it later and generate an error then.
+    vktrace_sem_wait(sighAddrListSem);
+    sighAddrList.emplace_front(si->si_addr);
+    vktrace_sem_post(sighAddrListSem);
+
+    // Change protection of this page to allow the write to proceed
+    if (0 != mprotect((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE))
+        // If we're calling VKTRACE_FATAL_ERROR here, there's a bug in the trace layer.
+        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc, writing to the
+        // trace file, and writing to stdout -- operations that may not work from a
+        // signal handler.  But we're about to exit anyway.
+        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+}
+
+
+// This function is called when we need to update our list of mapped memory
+// that is dirty.  On Linux, we use the /proc/self/pagemap to detect which pages
+// changed. But we also use mprotect with a signal handler for the rare case
+// in which mapped memory is written to between when we read the dirty bits
+// from /proc/self/pagemap dirty and clear the dirty bits.
+
+void getMappedDirtyPagesLinux(void)
+{
+    LPPageGuardMappedMemory pMappedMem;
+    PBYTE addr, alignedAddrStart, alignedAddrEnd;
+    uint64_t nPages;
+    VkDeviceMemory mappedMemory;
+    off_t pmOffset;
+    int64_t index;
+    size_t pageSize = getpagesize();
+    size_t readLen;
+    VKAllocInfo *pEntry;
+    struct sigaction sigAction;
+    static int pmFd = -1;
+    static std::vector<uint64_t> pageEntries;
+    
+    // If pageguard isn't enabled, we don't need to do anythhing
+    if (!getPageGuardEnableFlag())
+        return;
+
+    // Open pagefile, initialize sighAddrList semaphore, and set the SIGSEGV signal handler
+    if (pmFd == -1)
+    {
+        pmFd = open("/proc/self/pagemap", O_RDONLY);
+        if (pmFd < 0)
+            VKTRACE_FATAL_ERROR("Failed to open pagemap file.");
+
+        if (!vktrace_sem_create(&sighAddrListSem, 1))
+            VKTRACE_FATAL_ERROR("Failed to create sighAddrListSem.");
+
+        sigAction.sa_sigaction = segvHandler;
+        sigfillset(&sigAction.sa_mask);
+        sigAction.sa_flags = SA_SIGINFO;
+        if (0 != sigaction(SIGSEGV, &sigAction, NULL))
+            VKTRACE_FATAL_ERROR("sigaction sys call failed.");
+    }
+
+    // Iterate through all mapped memory allocations.
+    // Check dirty bits of each page in each mapped memory allocation.
+    for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
+         it != getPageGuardControlInstance().getMapMemory().end();
+         it++)
+    {
+        pMappedMem = &(it->second);
+        mappedMemory = pMappedMem->getMappedMemory();
+        pEntry=find_mem_info_entry(mappedMemory);
+        addr=pEntry->pData;
+        alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
+        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
+        nPages = (alignedAddrEnd - alignedAddrStart ) / pageSize;
+
+        // Make pages in this memory allocation non-writable so we get a SIGSEGV
+        // if some other thread writes to this memory while we are examining
+        // and clearing its dirty bit.
+        if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ))
+            VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+
+        // Read all the pagemap entries for this mapped memory allocation
+        if (pageEntries.size() < nPages)
+            pageEntries.resize(nPages);
+        pmOffset = (off_t)((uint64_t)alignedAddrStart/(uint64_t)pageSize) * 8;
+        lseek(pmFd, pmOffset, SEEK_SET);
+        readLen = read(pmFd, &pageEntries[0], 8*nPages);
+        assert(readLen==8*nPages);
+        if (readLen != 8*nPages)
+            VKTRACE_FATAL_ERROR("Failed to read from pagemap file.");
+
+        // Examine the dirty bits in each pagemap entry
+        addr = alignedAddrStart;
+        for (uint64_t i=0; i<nPages; i++)
+        {
+            if ((pageEntries[i]&((uint64_t)1<<55)) != 0)
+            {
+                index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+                if (index >= 0)
+                    pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+            }
+            addr += pageSize;
+        }
+    }
+
+    // Clear all dirty bits for this process
+    getPageGuardControlInstance().pageRefsDirtyClear();
+
+    // Re-enable write permission for all mapped memory
+    for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
+         it != getPageGuardControlInstance().getMapMemory().end();
+         it++)
+    {
+        pMappedMem = &(it->second);
+        mappedMemory = pMappedMem->getMappedMemory();
+        pEntry=find_mem_info_entry(mappedMemory);
+        addr=pEntry->pData;
+        alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
+        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
+        if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE))
+            VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+    }
+
+    // Loop through addresses that caused a segv and mark those pages dirty
+    vktrace_sem_wait(sighAddrListSem);
+    while (!sighAddrList.empty())
+    {
+        addr = (PBYTE)sighAddrList.front();
+        for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
+             it != getPageGuardControlInstance().getMapMemory().end();
+             it++)
+        {
+            pMappedMem = &(it->second);
+            index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+            if (index >= 0)
+                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+            else
+                VKTRACE_FATAL_ERROR("Received signal SIGSEGV on non-mapped memory.");
+        }
+        sighAddrList.pop_front();
+    }
+    vktrace_sem_post(sighAddrListSem);
+}
+#endif
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
     VkDevice device,
     const VkMemoryAllocateInfo* pAllocateInfo,
@@ -188,6 +353,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
     if (size == VK_WHOLE_SIZE) {
         size = entry->totalSize - offset;
     }
+
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
     getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
@@ -221,8 +387,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
 #ifdef USE_PAGEGUARD_SPEEDUP
     void *PageGuardMappedData;
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData, &vkFlushMappedMemoryRangesWithoutAPICall);
-    pageguardExit();
 #endif
     uint64_t trace_begin_time = vktrace_get_time();
 
@@ -256,7 +424,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     pPacket->memory = memory;
     FINISH_TRACE_PACKET();
 #ifdef USE_PAGEGUARD_SPEEDUP
-    pageguardEnter();
     if (PageGuardMappedData != nullptr)
     {
         pageguardFreeMemory(PageGuardMappedData);
@@ -302,7 +469,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
     resetAllReadFlagAndPageGuard();
-    pageguardExit();
 #endif
 
     // find out how much memory is in the ranges
@@ -360,6 +526,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     pPacket->memoryRangeCount = memoryRangeCount;
     pPacket->result = result;
     FINISH_TRACE_PACKET();
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardExit();
+#endif
     return result;
 }
 
@@ -377,6 +546,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
     getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
 #endif
@@ -1119,6 +1291,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
 {
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
+#if defined (PLATFORM_LINUX)
+    getMappedDirtyPagesLinux();
+#endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
     resetAllReadFlagAndPageGuard();
     pageguardExit();

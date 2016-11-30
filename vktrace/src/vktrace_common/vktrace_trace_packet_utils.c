@@ -200,11 +200,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         assert(((uint64_t)*ptr_address&0x3) == 0);
 
         // copy buffer to the location
-#ifdef WIN32
         vktrace_pageguard_memcpy(*ptr_address, pBuffer, (size_t)size);
-#else
-        memcpy(*ptr_address, pBuffer, (size_t)size);
-#endif
     }
 }
 

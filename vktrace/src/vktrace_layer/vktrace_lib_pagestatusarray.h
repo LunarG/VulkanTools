@@ -29,8 +29,6 @@
 
 
 
-#if defined(WIN32) /// page guard solution for windows
-
 static const int BLOCK_FLAG_ARRAY_CHANGED = 0;
 static const int  BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT = 1;
 static const int  BLOCK_FLAG_ARRAY_READ = 2;
@@ -67,5 +65,3 @@ private:
     uint8_t *pChangedArray[2]; /// include two array, one for page guard handler to record which block has been changed from vkMap.. or last time vkFlush..., the other one for flush data and reset pageguard
     uint8_t *pReadArray[2]; /// include two array, one for page guard handler to record which block has been read by host from vkMap.. or last time vkinvalidate or vkpipelinebarrier with specific para..., the other one for reset page guard
 } PageStatusArray;
-
-#endif//page guard solution

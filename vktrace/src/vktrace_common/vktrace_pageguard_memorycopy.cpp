@@ -22,8 +22,6 @@
 #define OPTIMIZATION_FUNCTION_IMPLEMENTATION
 
 
-using namespace std;
-
 static const size_t SIZE_LIMIT_TO_USE_OPTIMIZATION = 1*1024*1024; //turn off optimization of memcpy if size < this limit.
                                                                   //for multithread memcopy, there is system cost on multiple threads include switch control from different threads,
                                                                   //synchronization and communication like semaphore wait and post and other process which system don't need to handle

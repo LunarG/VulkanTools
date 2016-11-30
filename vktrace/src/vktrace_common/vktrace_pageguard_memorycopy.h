@@ -23,11 +23,18 @@
 //#define PAGEGUARD_MEMCPY_USE_PPL_LIB
 #include "vktrace_platform.h"
 
-//page guard method is only available on windows now. but most source code of page guard terget cross-platform except pageguard handler and its set/reset/clear method.
-//so, once we have more platforms to provide pageguard handler(include we implement it), the condition for #define USE_PAGEGUARD_SPEEDUP can be changed to enable pageguard.
+// Pageguard is only used on Windows, but we use lots of the pageguard code
+// to implement support for persistently mapped buffers on Linux, so we set
+// USE_PAGEGUARD_SPEEDUP.
+//
+// The pmb implementation on Windows involves setting a page guard on a pmb
+// and an exception handler getting called when the pmb is modified by the
+// user program. On Linux, instead of using an exception handler, the
+// file /proc/<pid>/pagemap is read to determine what pages have been
+// modified in the pmb.
 
+#define USE_PAGEGUARD_SPEEDUP
 #if defined(WIN32)
-    #define USE_PAGEGUARD_SPEEDUP
     #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
         #include <ppl.h>
         using namespace concurrency;

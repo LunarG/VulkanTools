@@ -14,9 +14,6 @@
 * limitations under the License.
 */
 
-
-
-
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pagestatusarray.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
@@ -29,9 +26,10 @@ static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 2; //cover all r
                                                                    //other value: 32 * 1024 * 1024 (32M),  64M, this is the size which cause DOOM4 capture very slow.
 static const VkDeviceSize  PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN = 1; // already tested: 2,2M,4M,32M,64M, because commonly page size is 4k, so only range size=2 can cover small size mapped memory.
 
+#if defined(WIN32)
 static vktrace_sem_id ref_amount_sem_id;// TODO if vktrace implement cross platform lib or dll load or unload function, this sem can be putted in those functions, but now we leave it to process quit.
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
-
+#endif
 static vktrace_sem_id map_lock_sem_id;
 static bool map_lock_sem_id_create_success = vktrace_sem_create(&map_lock_sem_id, 1);
 
@@ -43,7 +41,6 @@ void pageguardExit()
 {
     vktrace_sem_post(map_lock_sem_id);
 }
-#if defined(WIN32) //page guard solution for windows
 
 
 VkDeviceSize& ref_target_range_size()
@@ -59,7 +56,10 @@ void set_pageguard_target_range_size(VkDeviceSize newrangesize)
     refTargetRangeSize = newrangesize;
 }
 
+#if defined(WIN32)
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
+#endif
+
 PVOID OPTHandler = nullptr; //use to remove page guard handler
 uint32_t OPTHandlerRefAmount = 0; //for persistent map and multi-threading environment, map and unmap maybe overlap, we need to make sure remove handler after all persistent map has been unmapped.
 
@@ -85,7 +85,7 @@ bool getPageGuardEnableFlag()
                     if (env_target_range_size)
                     {
                         VkDeviceSize rangesize;
-                        if (sscanf(env_target_range_size, "%llu", &rangesize) == 1)
+                        if (sscanf(env_target_range_size, "%" PRIx64, &rangesize) == 1)
                         {
                             if (rangesize > PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN)
                             {
@@ -104,6 +104,7 @@ bool getPageGuardEnableFlag()
     return EnablePageGuard;
 }
 
+#if defined(WIN32)
 void setPageGuardExceptionHandler()
 {
     vktrace_sem_wait(ref_amount_sem_id);
@@ -136,6 +137,7 @@ void removePageGuardExceptionHandler()
     }
     vktrace_sem_post(ref_amount_sem_id);
 }
+#endif
 
 size_t pageguardGetAdjustedSize(size_t size)
 {
@@ -147,16 +149,34 @@ size_t pageguardGetAdjustedSize(size_t size)
     return size;
 }
 
-//page guard only work for virtual memory, real memory no page concept.
+#if defined(PLATFORM_LINUX)
+// Keep a map of memory allocations and sizes.
+// We need the size when we want to free the memory on Linux.
+static std::unordered_map<void *, size_t> allocateMemoryMap;
+#endif
+
+// Page guard only works for virtual memory. Real device memory
+// sometimes doesn't have a page concept, so we can't use page guard
+// to track it (or check dirty bits in /proc/<pid>/pagemap).
+// So we allocate virtual memory to return to the app and we
+// keep it sync'ed it with real device memory.
 void* pageguardAllocateMemory(size_t size)
 {
     void* pMemory = nullptr;
-
     if (size != 0)
     {
-        pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize( size), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+#if defined(WIN32)
+        pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize(size),
+                                      MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+#else
+        pMemory = mmap(NULL, pageguardGetAdjustedSize(size),
+                       PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+        if (pMemory != nullptr)
+            allocateMemoryMap[pMemory] = size;
+#endif
     }
-
+    if (pMemory == nullptr)
+        vktrace_LogError("pageguardAllocateMemory(%d) memory allocation failed", size);
     return pMemory;
 }
 
@@ -164,14 +184,19 @@ void pageguardFreeMemory(void* pMemory)
 {
     if (pMemory)
     {
+#if defined(WIN32)
         VirtualFree(pMemory, 0, MEM_RELEASE);
+#else
+        munmap(pMemory, allocateMemoryMap[pMemory]);
+        allocateMemoryMap.erase(pMemory);
+#endif
     }
 }
 
 DWORD pageguardGetSystemPageSize()
 {
 #if defined(PLATFORM_LINUX)
-    return 0x1000;
+    return getpagesize();
 #elif defined(WIN32)
     SYSTEM_INFO sSysInfo;
     GetSystemInfo(&sSysInfo);
@@ -245,7 +270,7 @@ void resetAllReadFlagAndPageGuard()
     }
 }
 
-//page guard handler
+#ifdef WIN32
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
 {
     LONG resultCode = EXCEPTION_CONTINUE_SEARCH;
@@ -257,6 +282,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
         VkDeviceSize BlockSize;
         PBYTE addr = reinterpret_cast<PBYTE>(ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
         bool bWrite = ExceptionInfo->ExceptionRecord->ExceptionInformation[0];
+
         LPPageGuardMappedMemory pMappedMem = getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
         if (pMappedMem)
         {
@@ -264,7 +290,6 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
             if (bWrite)
             {
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-                resultCode = EXCEPTION_CONTINUE_EXECUTION;
             }
             else
             {
@@ -273,17 +298,17 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
                 vktrace_pageguard_memcpy(pBlock, pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize, pMappedMem->getMappedBlockSize(index));
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
 
-                resultCode = EXCEPTION_CONTINUE_EXECUTION;
 #else
                 pMappedMem->setMappedBlockChanged(index, true);
-                resultCode = EXCEPTION_CONTINUE_EXECUTION;
 #endif
             }
+            resultCode = EXCEPTION_CONTINUE_EXECUTION;
         }
     }
     pageguardExit();
     return resultCode;
 }
+#endif
 
 //The function source code is modified from __HOOKED_vkFlushMappedMemoryRanges
 //for coherent map, need this function to dump data so simulate target application write data when playback.
@@ -389,9 +414,3 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(
     FINISH_TRACE_PACKET();
     return result;
 }
-//OPT end
-#else
-
-#undef USE_PAGEGUARD_SPEEDUP
-
-#endif//page guard solution for windows
