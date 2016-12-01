@@ -223,7 +223,6 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/libs \
                     $(SRC_DIR)/common \
-                    $(SRC_DIR)/icd/common \
                     $(ANDROID_DIR)/external/shaderc/libshaderc/include
 
 LOCAL_STATIC_LIBRARIES := googletest_main layer_utils
@@ -246,7 +245,6 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/libs \
                     $(SRC_DIR)/common \
-                    $(SRC_DIR)/icd/common \
                     $(ANDROID_DIR)/external/shaderc/libshaderc/include
 
 LOCAL_STATIC_LIBRARIES := googletest_main layer_utils
