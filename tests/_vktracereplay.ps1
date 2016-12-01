@@ -95,12 +95,12 @@ if ($exitstatus -eq 0) {
         write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
         $exitstatus = 1
     }
-    #fc.exe /b 1-smoketrace.ppm 1-smokereplay.ppm > $null
-    #if (!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or $LastExitCode -eq 1) {
-    #    echo 'Smoke trace files do not match'
-    #    write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-    #    $exitstatus = 1
-    #}
+    fc.exe /b 1-smoketrace.ppm 1-smokereplay.ppm > $null
+    if (!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or $LastExitCode -eq 1) {
+        echo 'Smoke trace files do not match'
+        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+        $exitstatus = 1
+    }
     if ($Replay) {
         # check old trace
         fc.exe /b "$Replay.ppm" 1-replayold.ppm > $null
