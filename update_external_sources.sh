@@ -1,5 +1,5 @@
 #!/bin/bash
-# Update source for glslang, LunarGLASS, spirv-tools
+# Update source for glslang, spirv-tools
 
 set -e
 
@@ -14,9 +14,6 @@ echo "GLSLANG_REVISION=${GLSLANG_REVISION}"
 echo "SPIRV_TOOLS_REVISION=${SPIRV_TOOLS_REVISION}"
 echo "SPIRV_HEADERS_REVISION=${SPIRV_HEADERS_REVISION}"
 echo "JSONCPP_REVISION=${JSONCPP_REVISION}"
-
-LUNARGLASS_REVISION=$(cat "${PWD}"/LunarGLASS_revision)
-echo "LUNARGLASS_REVISION=$LUNARGLASS_REVISION"
 
 BUILDDIR=${CURRENT_DIR}
 BASEDIR="$BUILDDIR/external"
@@ -76,55 +73,6 @@ function build_glslang () {
    make install
 }
 
-function create_LunarGLASS () {
-   rm -rf "${BASEDIR}"/LunarGLASS
-   echo "Creating local LunarGLASS repository (${BASEDIR}/LunarGLASS)."
-   mkdir -p "${BASEDIR}"/LunarGLASS
-   cd "${BASEDIR}"/LunarGLASS
-   git clone https://github.com/LunarG/LunarGLASS.git .
-   mkdir -p Core/LLVM
-   cd Core/LLVM 
-   wget http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz
-   tar --gzip -xf llvm-3.4.src.tar.gz
-   git checkout -f $LUNARGLASS_REVISION . # put back the LunarGLASS versions of some LLVM files
-   # copy overlay files
-   cd "${BASEDIR}"/LunarGLASS
-   cp -R "${BUILDDIR}"/LunarGLASS/* .
-}
-
-function update_LunarGLASS () {
-   echo "Updating ${BASEDIR}/LunarGLASS"
-   cd "${BASEDIR}"/LunarGLASS
-   git fetch
-   git checkout -f $LUNARGLASS_REVISION .
-   # Figure out how to do this with git
-   #git checkout $LUNARGLASS_REVISION |& tee gitout
-   #if grep --quiet LLVM gitout ; then
-   #   rm -rf $BASEDIR/LunarGLASS/Core/LLVM/llvm-3.4/build
-   #fi
-   #rm -rf gitout
- 
-   # copy overlay files
-   cp -R "${BUILDDIR}"/LunarGLASS/* .
-}
-
-function build_LunarGLASS () {
-   echo "Building ${BASEDIR}/LunarGLASS"
-   cd "${BASEDIR}"/LunarGLASS/Core/LLVM/llvm-3.4
-   if [ ! -d "${BASEDIR}/LunarGLASS/Core/LLVM/llvm-3.4/build" ]; then
-      mkdir -p build
-      cd build
-      ../configure --enable-terminfo=no --enable-curses=no
-      REQUIRES_RTTI=1 make -j $(nproc) && make install DESTDIR=`pwd`/install
-   fi
-   cd "${BASEDIR}"/LunarGLASS
-   mkdir -p build
-   cd build
-   cmake -D CMAKE_BUILD_TYPE=Release ..
-   make
-   make install
-}
-
 function build_spirv-tools () {
    echo "Building ${BASEDIR}/spirv-tools"
    cd "${BASEDIR}"/spirv-tools
@@ -158,15 +106,13 @@ function build_jsoncpp () {
 
 INCLUDE_GLSLANG=false
 INCLUDE_SPIRV_TOOLS=false
-INCLUDE_LUNARGLASS=false
 INCLUDE_JSONCPP=false
 
 if [ "$#" == 0 ]; then
   # If no options are provided, build everything
-  echo "Building glslang, spirv-tools, LunarGLASS, and jsoncpp"
+  echo "Building glslang, spirv-tools, and jsoncpp"
   INCLUDE_GLSLANG=true
   INCLUDE_SPIRV_TOOLS=true
-  INCLUDE_LUNARGLASS=true
   INCLUDE_JSONCPP=true
 else
   # If any options are provided, just compile those tools
@@ -187,12 +133,6 @@ else
         echo "Building spirv-tools ($option)"
         ;;
 
-        # options to specify build of LunarGLASS components
-        -l|--LunarGLASS)
-        INCLUDE_LUNARGLASS=true
-        echo "Building LunarGLASS ($option)"
-        ;;
-
         # options to specify build of jsoncpp components
         -j|--jsoncpp)
         INCLUDE_JSONCPP=true
@@ -204,7 +144,6 @@ else
         echo "Try the following:"
         echo " -g | --glslang      # enable glslang"
         echo " -s | --spirv-tools  # enable spirv-tools"
-        echo " -l | --LunarGLASS   # enable LunarGLASS"
         echo " -j | --jsoncpp      # enable jsoncpp"
         exit 1
         ;;
@@ -227,14 +166,6 @@ if [ ${INCLUDE_SPIRV_TOOLS} == "true" ]; then
     fi
     update_spirv-tools
     build_spirv-tools
-fi
-
-if [ $INCLUDE_LUNARGLASS == "true" ]; then
-    if [ ! -d "${BASEDIR}/LunarGLASS" -o ! -d "${BASEDIR}/LunarGLASS/.git" ]; then
-       create_LunarGLASS
-    fi
-    update_LunarGLASS
-    build_LunarGLASS
 fi
 
 if [ ${INCLUDE_JSONCPP} == "true" ]; then

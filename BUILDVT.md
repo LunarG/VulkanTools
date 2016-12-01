@@ -43,7 +43,6 @@ cd YOUR_DEV_DIRECTORY
 git clone git@github.com:LunarG/VulkanTools.git
 cd VulkanTools
 # This will fetch and build glslang and spriv-tools
-# On Linux, it will also fetch and build LunarGLASS
 ./update_external_sources.sh         # linux
 ./update_external_sources.bat --all  # windows
 ```

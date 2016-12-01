@@ -31,7 +31,7 @@ REM // ======== Parameter parsing ======== //
       echo   --build-glslang     pulls glslang_revision, configures CMake, builds Release and Debug
       echo   --build-spirv-tools pulls spirv-tools_revision, configures CMake, builds Release and Debug
       echo   --build-jsoncpp     pulls jsoncpp HEAD, configures CMake, builds Release and Debug
-      echo   --all               sync and build glslang, LunarGLASS, spirv-tools, and jsoncpp
+      echo   --all               sync and build glslang, spirv-tools, and jsoncpp
       goto:finish
    )
 
