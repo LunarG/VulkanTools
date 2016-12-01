@@ -158,11 +158,25 @@ static void segvHandler(int sig, siginfo_t *si, void *ununsed)
     // Note: we use sem_wait and mprotect inside a signal handler.
     // This is not POSIX compliant, but works on Linux.
 
+    vktrace_sem_wait(sighAddrListSem);
+
+    if (!sighAddrList.empty() && sighAddrList.front() == si->si_addr)
+    {
+        // SIGSEGV was generated on the same address twice in a row.
+        // This could happen if an attempt is made to execute an
+        // instruction at an address without execute permission, i.e. a
+        // bad function pointer. This could also happen if two threads
+        // attempt to write to the same mapped address at the same
+        // time. This is a race condition that an app should avoid,
+        // so we'll consider it a fatal error.
+        VKTRACE_FATAL_ERROR("SIGSEGV repeated on identical addresses.");
+    }
+
     // Add the addr that caused the segv to sighAddrList.
     // It may not be in a mapped page we are tracking. If it
     // isn't, we'll detect it later and generate an error then.
-    vktrace_sem_wait(sighAddrListSem);
     sighAddrList.emplace_front(si->si_addr);
+
     vktrace_sem_post(sighAddrListSem);
 
     // Change protection of this page to allow the write to proceed
