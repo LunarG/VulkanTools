@@ -63,7 +63,7 @@ else()
             COMMAND ${GLSLANG_VALIDATOR} -s -V -o cube-frag.spv ${PROJECT_SOURCE_DIR}/demos/cube.frag
             DEPENDS cube.frag ${GLSLANG_VALIDATOR}
             )
-    endif()         
+    endif()
 endif()
 
 if(NOT WIN32)
@@ -80,14 +80,9 @@ if(NOT WIN32)
         link_libraries(${WAYLAND_CLIENT_LIBRARIES})
     endif()
 
-    include_directories ("${PROJECT_SOURCE_DIR}/icd/common")
     link_libraries(${API_LOWERCASE} m)
 endif()
 if(WIN32)
-    include_directories (
-       "${PROJECT_SOURCE_DIR}/icd/common"
-       )
-
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES")
 endif()
