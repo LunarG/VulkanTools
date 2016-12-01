@@ -240,7 +240,7 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard()
             #endif
         }
     }
-    #if defined(PLATFORM_LINUX)
+    #if defined(PLATFORM_LINUX) && !defined(ANDROID)
     PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
     pageGuardCapture.pageRefsDirtyClear();
     #endif
