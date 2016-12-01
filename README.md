@@ -1,6 +1,6 @@
 # Vulkan Ecosystem Components
 
-This project provides vktrace capture/replay tool, Intel Ilo sample driver and other layer tools and driver tests.
+This project provides vktrace capture/replay tool and other layer tools and driver tests.
 
 ## Introduction
 
@@ -10,8 +10,7 @@ These pieces are required to enable this repository to be built standalone; that
 
 The following components are available in this repository over and above what is mirrored from Vulkan-LoaderAndValidationLayers repository
 - Api_dump, screenshot and example layers (layersvt/)
-- Intel sample driver and null driver (icd/)
-- tests for the Intel Ilo sample driver (tests/)
+- tests for the vktrace and vkreplay (tests/)
 - vktrace and vkreplay, API capture and replay  (vktrace/)
 
 ## Contributing

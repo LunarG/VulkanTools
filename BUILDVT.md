@@ -4,9 +4,9 @@ This document contains the instructions for building this repository on Linux an
 This repository contains additional layers and the VkTrace trace/replay tools, supplementing the
 loader and validation layer core components found at https://github.com/KhronosGroup.
 
-For Linux, this repository also contains a sample Intel Vulkan driver that is being deprecated.
-Instead of using this driver, it is suggested that you contact your graphics device manufacturer
-to obtain a Vulkan driver for your GPU hardware.
+This repository previously contained a sample Intel Vulkan driver that has since been deprecated.
+The final stable version of that source code is available from this repo by checking out the git
+tag "Vulkan-ICD-Snapshot". This source code is no longer supported.
 
 ## Git the Bits
 
@@ -24,14 +24,8 @@ These additional packages are needed for building the components in this repo.
 # Dependencies from the LoaderAndValidationLayers repo:
 sudo apt-get install git cmake build-essential bison libx11-dev libxcb1-dev
 # Additional dependencies for this repo:
-sudo apt-get install libudev-dev libpciaccess-dev libxcb-dri3-dev libxcb-present-dev libgl1-mesa-dev wget autotools-dev
+sudo apt-get install wget autotools-dev
 ```
-
-If you are using the sample Intel Vulkan driver in this repo, you will have to ensure that
-the DRI3 extension is active in your X Server.
-Follow the
-[DRI3 Instructions](dri3.md)
-to prepare your X Server.
 
 ## Clone the Repository
 
@@ -49,7 +43,7 @@ cd VulkanTools
 
 ## Linux Build
 
-This build process builds the icd, vktrace and the LVL tests.
+This build process builds vktrace and the LVL tests.
 
 Example debug build:
 ```
