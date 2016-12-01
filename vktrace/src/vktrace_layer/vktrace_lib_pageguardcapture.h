@@ -49,7 +49,7 @@ private:
     std::unordered_map< VkDeviceMemory, PageGuardMappedMemory > MapMemory;
     std::unordered_map< VkDeviceMemory, PBYTE > MapMemoryPtr;
     std::unordered_map< VkDeviceMemory, VkDeviceSize > MapMemoryOffset;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     int clearRefsFd;
 #endif
 
@@ -107,7 +107,7 @@ public:
         uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
         uint32_t  imageMemoryBarrierCount, const VkImageMemoryBarrier*  pImageMemoryBarriers);
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     void pageRefsDirtyClear();
 #endif
 

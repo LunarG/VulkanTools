@@ -276,7 +276,9 @@ void getMappedDirtyPagesLinux(void)
     }
 
     // Clear all dirty bits for this process
+#if !defined(ANDROID)
     getPageGuardControlInstance().pageRefsDirtyClear();
+#endif
 
     // Re-enable write permission for all mapped memory
     for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();

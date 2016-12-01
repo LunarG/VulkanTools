@@ -31,7 +31,7 @@ PageGuardCapture::PageGuardCapture()
     EmptyChangedInfoArray.offset = 0;
     EmptyChangedInfoArray.length = 0;
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     // Open the /proc/self/clear_refs file. We'll write to that file
     // when we want to clear all the page dirty bits in /proc/self/pagemap.
     clearRefsFd = open("/proc/self/clear_refs", O_WRONLY);
@@ -378,7 +378,7 @@ bool PageGuardCapture::isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkP
     return isReady;
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
 void PageGuardCapture::pageRefsDirtyClear()
 {
     char four='4';

@@ -326,7 +326,7 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(
 
 #ifdef USE_PAGEGUARD_SPEEDUP
     PBYTE *ppPackageData = new PBYTE[memoryRangeCount];
-    bool bOPTTargetWithoutChange = getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
+    getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(device, memoryRangeCount, pMemoryRanges, ppPackageData);//the packet is not needed if no any change on data of all ranges
 #endif
 
     // find out how much memory is in the ranges
