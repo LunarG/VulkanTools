@@ -66,7 +66,7 @@
 #include "vktrace_pageguard_memorycopy.h"
 
 
-#define PAGEGUARD_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
+#define PAGEGUARD_PAGEGUARD_ENABLE_ENV "_VKTRACE_OPTIMIZE_PMB"
 #define PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
 
 // Usefull macro for handling fatal errors during tracing

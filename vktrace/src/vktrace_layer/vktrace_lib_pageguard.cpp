@@ -20,7 +20,7 @@
 #include "vktrace_lib_pageguardcapture.h"
 #include "vktrace_lib_pageguard.h"
 
-static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = false;  //set the default value to false, if capture target app with enable pageguard, need run "set VKTRACE_PAGEGUARD=1" commandline.
+static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = true;
 
 static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 2; //cover all reasonal mapped memory size, the mapped memory size may be less than 1 page, so processing for mapped memory size<1 page is already added,
                                                                    //other value: 32 * 1024 * 1024 (32M),  64M, this is the size which cause DOOM4 capture very slow.
