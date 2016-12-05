@@ -56,11 +56,10 @@ rename-item -path 1.ppm -newname 1-cubetrace.ppm
 rename-item -path 1.ppm -newname 1-cubereplay.ppm
 
 # Do a trace and replay for smoketest
-# NEED to add when Trunk merge
-#& vktrace -o s01.vktrace -s 1 -p smoketest -a "--c 10" > trace.sout 2> trace.serr
-#rename-item -path 1.ppm -newname 1-smoketrace.ppm
-#& vkreplay  -s 1 -t  s01.vktrace > replay.sout 2> replay.serr
-#rename-item -path 1.ppm -newname 1-smokereplay.ppm
+& vktrace -o s01.vktrace -s 1 -p smoketest -a "--c 10" > trace.sout 2> trace.serr
+rename-item -path 1.ppm -newname 1-smoketrace.ppm
+& vkreplay  -s 1 -t  s01.vktrace > replay.sout 2> replay.serr
+rename-item -path 1.ppm -newname 1-smokereplay.ppm
 
 # Replay old trace if specified
 if ($Replay) {
