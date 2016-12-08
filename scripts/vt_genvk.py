@@ -145,7 +145,6 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
             alignFuncParam    = 48)
     ]
 
-
     # Options for dispatch table helper generator
     genOpts['vk_dispatch_table_helper.h'] = [
           DispatchTableOutputGenerator,
@@ -193,8 +192,7 @@ def genTarget(args):
         startTimer(args.time)
         gen = createGenerator(errFile=errWarn,
                               warnFile=errWarn,
-                              diagFile=diag,
-                              registryFile=args.registry)
+                              diagFile=diag)
         reg.setGenerator(gen)
         reg.apiGen(options)
         write('* Generated', options.filename, file=sys.stderr)
