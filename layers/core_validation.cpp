@@ -4582,26 +4582,52 @@ static bool validateAndIncrementResources(layer_data *dev_data, GLOBAL_CB_NODE *
     return skip_call;
 }
 
-// Note: This function assumes that the global lock is held by the calling
-// thread.
-// TODO: untangle this.
-static bool cleanInFlightCmdBuffer(layer_data *my_data, VkCommandBuffer cmdBuffer) {
-    bool skip_call = false;
-    GLOBAL_CB_NODE *pCB = getCBNode(my_data, cmdBuffer);
-    if (pCB) {
-        for (auto queryEventsPair : pCB->waitedEventsBeforeQueryReset) {
-            for (auto event : queryEventsPair.second) {
-                if (my_data->eventMap[event].needsSignaled) {
-                    skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, 0, DRAWSTATE_INVALID_QUERY, "DS",
-                                         "Cannot get query results on queryPool 0x%" PRIx64
-                                         " with index %d which was guarded by unsignaled event 0x%" PRIx64 ".",
-                                         (uint64_t)(queryEventsPair.first.pool), queryEventsPair.first.index, (uint64_t)(event));
+// Note: This function assumes that the global lock is held by the calling thread.
+// For the given queue, verify the queue state up to the given seq number.
+// Currently the only check is to make sure that if there are events to be waited on prior to
+//  a QueryReset, make sure that all such events have been signalled.
+static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_NODE *queue, uint64_t seq) {
+    bool skip = false;
+    auto queue_seq = queue->seq;
+    std::unordered_map<VkQueue, uint64_t> other_queue_seqs;
+    auto sub_it = queue->submissions.begin();
+    while (queue_seq < seq) {
+        for (auto &wait : sub_it->waitSemaphores) {
+            auto &last_seq = other_queue_seqs[wait.queue];
+            last_seq = std::max(last_seq, wait.seq);
+        }
+        for (auto cb : sub_it->cbs) {
+            auto cb_node = getCBNode(dev_data, cb);
+            if (cb_node) {
+                for (auto queryEventsPair : cb_node->waitedEventsBeforeQueryReset) {
+                    for (auto event : queryEventsPair.second) {
+                        if (dev_data->eventMap[event].needsSignaled) {
+                            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                            VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, 0, DRAWSTATE_INVALID_QUERY, "DS",
+                                            "Cannot get query results on queryPool 0x%" PRIx64
+                                            " with index %d which was guarded by unsignaled event 0x%" PRIx64 ".",
+                                            (uint64_t)(queryEventsPair.first.pool), queryEventsPair.first.index, (uint64_t)(event));
+                        }
+                    }
                 }
             }
         }
+        sub_it++;
+        queue_seq++;
     }
-    return skip_call;
+    for (auto qs : other_queue_seqs) {
+        skip |= VerifyQueueStateToSeq(dev_data, getQueueNode(dev_data, qs.first), qs.second);
+    }
+    return skip;
+}
+
+// When the given fence is retired, verify outstanding queue operations through the point of the fence
+static bool VerifyQueueStateToFence(layer_data *dev_data, VkFence fence) {
+    auto fence_state = getFenceNode(dev_data, fence);
+    if (VK_NULL_HANDLE != fence_state->signaler.first) {
+        return VerifyQueueStateToSeq(dev_data, getQueueNode(dev_data, fence_state->signaler.first), fence_state->signaler.second);
+    }
+    return false;
 }
 
 // TODO: nuke this completely.
@@ -4626,9 +4652,7 @@ static void DecrementBoundResources(layer_data *dev_data, GLOBAL_CB_NODE const *
     }
 }
 
-static bool RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t seq)
-{
-    bool skip_call = false; // TODO: extract everything that might fail to precheck
+static void RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t seq) {
     std::unordered_map<VkQueue, uint64_t> otherQueueSeqs;
 
     // Roll this queue forward, one submission at a time.
@@ -4679,7 +4703,6 @@ static bool RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t
                 dev_data->eventMap[eventStagePair.first].stageMask = eventStagePair.second;
             }
 
-            skip_call |= cleanInFlightCmdBuffer(dev_data, cb);
             removeInFlightCmdBuffer(dev_data, cb);
         }
 
@@ -4694,10 +4717,8 @@ static bool RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t
 
     // Roll other queues forward to the highest seq we saw a wait for
     for (auto qs : otherQueueSeqs) {
-        skip_call |= RetireWorkOnQueue(dev_data, getQueueNode(dev_data, qs.first), qs.second);
+        RetireWorkOnQueue(dev_data, getQueueNode(dev_data, qs.first), qs.second);
     }
-
-    return skip_call;
 }
 
 
@@ -5191,76 +5212,87 @@ static inline bool verifyWaitFenceState(layer_data *dev_data, VkFence fence, con
     return skip_call;
 }
 
-static bool RetireFence(layer_data *dev_data, VkFence fence) {
+static void RetireFence(layer_data *dev_data, VkFence fence) {
     auto pFence = getFenceNode(dev_data, fence);
     if (pFence->signaler.first != VK_NULL_HANDLE) {
         /* Fence signaller is a queue -- use this as proof that prior operations
          * on that queue have completed.
          */
-        return RetireWorkOnQueue(dev_data,
-                                 getQueueNode(dev_data, pFence->signaler.first),
-                                 pFence->signaler.second);
+        RetireWorkOnQueue(dev_data, getQueueNode(dev_data, pFence->signaler.first), pFence->signaler.second);
     }
     else {
         /* Fence signaller is the WSI. We're not tracking what the WSI op
          * actually /was/ in CV yet, but we need to mark the fence as retired.
          */
         pFence->state = FENCE_RETIRED;
-        return false;
     }
+}
+
+static bool PreCallValidateWaitForFences(layer_data *dev_data, uint32_t fence_count, const VkFence *fences) {
+    if (dev_data->instance_data->disabled.wait_for_fences)
+        return false;
+    bool skip = false;
+    for (uint32_t i = 0; i < fence_count; i++) {
+        skip |= verifyWaitFenceState(dev_data, fences[i], "vkWaitForFences");
+        skip |= VerifyQueueStateToFence(dev_data, fences[i]);
+    }
+    return skip;
+}
+
+static void PostCallRecordWaitForFences(layer_data *dev_data, uint32_t fence_count, const VkFence *fences, VkBool32 wait_all) {
+    // When we know that all fences are complete we can clean/remove their CBs
+    if ((VK_TRUE == wait_all) || (1 == fence_count)) {
+        for (uint32_t i = 0; i < fence_count; i++) {
+            RetireFence(dev_data, fences[i]);
+        }
+    }
+    // NOTE : Alternate case not handled here is when some fences have completed. In
+    //  this case for app to guarantee which fences completed it will have to call
+    //  vkGetFenceStatus() at which point we'll clean/remove their CBs if complete.
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 WaitForFences(VkDevice device, uint32_t fenceCount, const VkFence *pFences, VkBool32 waitAll, uint64_t timeout) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skip_call = false;
     // Verify fence status of submitted fences
     std::unique_lock<std::mutex> lock(global_lock);
-    for (uint32_t i = 0; i < fenceCount; i++) {
-        skip_call |= verifyWaitFenceState(dev_data, pFences[i], "vkWaitForFences");
-    }
+    bool skip = PreCallValidateWaitForFences(dev_data, fenceCount, pFences);
     lock.unlock();
-    if (skip_call)
+    if (skip)
         return VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkResult result = dev_data->dispatch_table.WaitForFences(device, fenceCount, pFences, waitAll, timeout);
 
     if (result == VK_SUCCESS) {
         lock.lock();
-        // When we know that all fences are complete we can clean/remove their CBs
-        if (waitAll || fenceCount == 1) {
-            for (uint32_t i = 0; i < fenceCount; i++) {
-                skip_call |= RetireFence(dev_data, pFences[i]);
-            }
-        }
-        // NOTE : Alternate case not handled here is when some fences have completed. In
-        //  this case for app to guarantee which fences completed it will have to call
-        //  vkGetFenceStatus() at which point we'll clean/remove their CBs if complete.
+        PostCallRecordWaitForFences(dev_data, fenceCount, pFences, waitAll);
         lock.unlock();
     }
-    if (skip_call)
-        return VK_ERROR_VALIDATION_FAILED_EXT;
     return result;
 }
 
+static bool PreCallValidateGetFenceStatus(layer_data *dev_data, VkFence fence) {
+    if (dev_data->instance_data->disabled.get_fence_state)
+        return false;
+    return verifyWaitFenceState(dev_data, fence, "vkGetFenceStatus");
+}
+
+static void PostCallRecordGetFenceStatus(layer_data *dev_data, VkFence fence) { RetireFence(dev_data, fence); }
+
 VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(VkDevice device, VkFence fence) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skip_call = false;
     std::unique_lock<std::mutex> lock(global_lock);
-    skip_call = verifyWaitFenceState(dev_data, fence, "vkGetFenceStatus");
+    bool skip = PreCallValidateGetFenceStatus(dev_data, fence);
     lock.unlock();
-
-    if (skip_call)
+    if (skip)
         return VK_ERROR_VALIDATION_FAILED_EXT;
 
     VkResult result = dev_data->dispatch_table.GetFenceStatus(device, fence);
-    lock.lock();
     if (result == VK_SUCCESS) {
-        skip_call |= RetireFence(dev_data, fence);
+        lock.lock();
+        PostCallRecordGetFenceStatus(dev_data, fence);
+        lock.unlock();
     }
-    lock.unlock();
-    if (skip_call)
-        return VK_ERROR_VALIDATION_FAILED_EXT;
     return result;
 }
 
@@ -5280,30 +5312,63 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
     }
 }
 
+static bool PreCallValidateQueueWaitIdle(layer_data *dev_data, VkQueue queue, QUEUE_NODE **queue_state) {
+    *queue_state = getQueueNode(dev_data, queue);
+    if (dev_data->instance_data->disabled.queue_wait_idle)
+        return false;
+    return VerifyQueueStateToSeq(dev_data, *queue_state, (*queue_state)->seq + (*queue_state)->submissions.size());
+}
+
+static void PostCallRecordQueueWaitIdle(layer_data *dev_data, QUEUE_NODE *queue_state) {
+    RetireWorkOnQueue(dev_data, queue_state, queue_state->seq + queue_state->submissions.size());
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(VkQueue queue) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
-    bool skip_call = false;
+    QUEUE_NODE *queue_state = nullptr;
     std::unique_lock<std::mutex> lock(global_lock);
-    auto pQueue = getQueueNode(dev_data, queue);
-    skip_call |= RetireWorkOnQueue(dev_data, pQueue, pQueue->seq + pQueue->submissions.size());
+    bool skip = PreCallValidateQueueWaitIdle(dev_data, queue, &queue_state);
     lock.unlock();
-    if (skip_call)
+    if (skip)
         return VK_ERROR_VALIDATION_FAILED_EXT;
     VkResult result = dev_data->dispatch_table.QueueWaitIdle(queue);
+    if (VK_SUCCESS == result) {
+        lock.lock();
+        PostCallRecordQueueWaitIdle(dev_data, queue_state);
+        lock.unlock();
+    }
     return result;
 }
 
+static bool PreCallValidateDeviceWaitIdle(layer_data *dev_data) {
+    if (dev_data->instance_data->disabled.device_wait_idle)
+        return false;
+    bool skip = false;
+    for (auto &queue : dev_data->queueMap) {
+        skip |= VerifyQueueStateToSeq(dev_data, &queue.second, queue.second.seq + queue.second.submissions.size());
+    }
+    return skip;
+}
+
+static void PostCallRecordDeviceWaitIdle(layer_data *dev_data) {
+    for (auto &queue : dev_data->queueMap) {
+        RetireWorkOnQueue(dev_data, &queue.second, queue.second.seq + queue.second.submissions.size());
+    }
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(VkDevice device) {
-    bool skip_call = false;
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     std::unique_lock<std::mutex> lock(global_lock);
-    for (auto & queue : dev_data->queueMap) {
-        skip_call |= RetireWorkOnQueue(dev_data, &queue.second, queue.second.seq + queue.second.submissions.size());
-    }
+    bool skip = PreCallValidateDeviceWaitIdle(dev_data);
     lock.unlock();
-    if (skip_call)
+    if (skip)
         return VK_ERROR_VALIDATION_FAILED_EXT;
     VkResult result = dev_data->dispatch_table.DeviceWaitIdle(device);
+    if (VK_SUCCESS == result) {
+        lock.lock();
+        PostCallRecordDeviceWaitIdle(dev_data);
+        lock.unlock();
+    }
     return result;
 }
 
@@ -10923,24 +10988,25 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
             if (!pSubCB) {
                 skip_call |=
                     log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                            DRAWSTATE_INVALID_SECONDARY_COMMAND_BUFFER, "DS",
-                            "vkCmdExecuteCommands() called w/ invalid Cmd Buffer 0x%p in element %u of pCommandBuffers array.",
-                            (void *)pCommandBuffers[i], i);
+                            VALIDATION_ERROR_00160, "DS",
+                            "vkCmdExecuteCommands() called w/ invalid Cmd Buffer 0x%p in element %u of pCommandBuffers array. %s",
+                            (void *)pCommandBuffers[i], i, validation_error_map[VALIDATION_ERROR_00160]);
             } else if (VK_COMMAND_BUFFER_LEVEL_PRIMARY == pSubCB->createInfo.level) {
                 skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
-                                     __LINE__, DRAWSTATE_INVALID_SECONDARY_COMMAND_BUFFER, "DS",
+                                     __LINE__, VALIDATION_ERROR_00153, "DS",
                                      "vkCmdExecuteCommands() called w/ Primary Cmd Buffer 0x%p in element %u of pCommandBuffers "
-                                     "array. All cmd buffers in pCommandBuffers array must be secondary.",
-                                     (void *)pCommandBuffers[i], i);
+                                     "array. All cmd buffers in pCommandBuffers array must be secondary. %s",
+                                     (void *)pCommandBuffers[i], i, validation_error_map[VALIDATION_ERROR_00153]);
             } else if (pCB->activeRenderPass) { // Secondary CB w/i RenderPass must have *CONTINUE_BIT set
                 auto secondary_rp_state = getRenderPassState(dev_data, pSubCB->beginInfo.pInheritanceInfo->renderPass);
                 if (!(pSubCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT)) {
                     skip_call |= log_msg(
                         dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)pCommandBuffers[i], __LINE__, DRAWSTATE_BEGIN_CB_INVALID_STATE, "DS",
+                        (uint64_t)pCommandBuffers[i], __LINE__, VALIDATION_ERROR_02057, "DS",
                         "vkCmdExecuteCommands(): Secondary Command Buffer (0x%p) executed within render pass (0x%" PRIxLEAST64
-                        ") must have had vkBeginCommandBuffer() called w/ VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT set.",
-                        (void *)pCommandBuffers[i], (uint64_t)pCB->activeRenderPass->renderPass);
+                        ") must have had vkBeginCommandBuffer() called w/ VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT set. %s",
+                        (void *)pCommandBuffers[i], (uint64_t)pCB->activeRenderPass->renderPass,
+                        validation_error_map[VALIDATION_ERROR_02057]);
                 } else {
                     // Make sure render pass is compatible with parent command buffer pass if has continue
                     if (pCB->activeRenderPass->renderPass != secondary_rp_state->renderPass) {
@@ -10972,12 +11038,12 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
             // being recorded
             if (!(pSubCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT)) {
                 if (dev_data->globalInFlightCmdBuffers.find(pSubCB->commandBuffer) != dev_data->globalInFlightCmdBuffers.end()) {
-                    skip_call |= log_msg(
-                        dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)(pCB->commandBuffer), __LINE__, DRAWSTATE_INVALID_CB_SIMULTANEOUS_USE, "DS",
-                        "Attempt to simultaneously execute command buffer 0x%" PRIxLEAST64
-                        " without VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT set!",
-                        (uint64_t)(pCB->commandBuffer));
+                    skip_call |=
+                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)(pCB->commandBuffer), __LINE__,
+                                VALIDATION_ERROR_00154, "DS", "Attempt to simultaneously execute command buffer 0x%" PRIxLEAST64
+                                                              " without VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT set! %s",
+                                (uint64_t)(pCB->commandBuffer), validation_error_map[VALIDATION_ERROR_00154]);
                 }
                 if (pCB->beginInfo.flags & VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT) {
                     // Warn that non-simultaneous secondary cmd buffer renders primary non-simultaneous
@@ -10995,12 +11061,12 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
             if (!pCB->activeQueries.empty() && !dev_data->enabled_features.inheritedQueries) {
                 skip_call |=
                     log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t>(pCommandBuffers[i]), __LINE__, DRAWSTATE_INVALID_COMMAND_BUFFER, "DS",
+                            reinterpret_cast<uint64_t>(pCommandBuffers[i]), __LINE__, VALIDATION_ERROR_02062, "DS",
                             "vkCmdExecuteCommands(): Secondary Command Buffer "
                             "(0x%" PRIxLEAST64 ") cannot be submitted with a query in "
                             "flight and inherited queries not "
-                            "supported on this device.",
-                            reinterpret_cast<uint64_t>(pCommandBuffers[i]));
+                            "supported on this device. %s",
+                            reinterpret_cast<uint64_t>(pCommandBuffers[i]), validation_error_map[VALIDATION_ERROR_02062]);
             }
             // Propagate layout transitions to the primary cmd buffer
             for (auto ilm_entry : pSubCB->imageLayoutMap) {
