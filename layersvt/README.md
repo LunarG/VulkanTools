@@ -27,7 +27,8 @@ Note that some layers are code-generated and will therefore exist in the directo
 (build dir)/layers/api_dump.cpp (name=VK_LAYER_LUNARG_api_dump) - print out API calls along with parameter values
 
 ### Capture Screenshots
-layersvt/screenshot.cpp - utility layer used to capture and save screenshots of running applications
+layersvt/screenshot.cpp (name='VK_LAYER_LUNARG_screenshot') - utility layer used to capture and save screenshots of running applications. 
+To specify frames to be captured, the environment variable 'VK_SCREENSHOT_FRAMES' can be set to a comma-separated list of frame numbers (ex: 4,8,15,16,23,42).
 
 ### View Frames Per Second
 layersvt/monitor.cpp - utility layer that will display an applications FPS in the title bar of a windowed application.
