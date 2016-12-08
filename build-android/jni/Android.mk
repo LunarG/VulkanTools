@@ -161,7 +161,6 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_WHOLE_STATIC_LIBRARIES += libcutils
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
