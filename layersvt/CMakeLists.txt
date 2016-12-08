@@ -18,7 +18,7 @@ macro(run_vk_vtlayer_generate subcmd output)
     )
 endmacro()
 
-macro(run_vk_layer_xml_generate subcmd output)
+macro(run_vk_xml_generate subcmd output)
     add_custom_command(OUTPUT ${output}
         COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vt_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
         DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/vt_genvk.py ${SCRIPTS_DIR}/reg.py
@@ -178,9 +178,9 @@ add_custom_target(generate_vt_helpers DEPENDS
 
 #VulkanTools layers
 run_vk_vtlayer_generate(generic generic_layer.cpp)
-run_vk_layer_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
-run_vk_layer_xml_generate(ApiDump api_dump.cpp)
-run_vk_layer_xml_generate(ApiDump api_dump_text.h)
+run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
+run_vk_xml_generate(ApiDump api_dump.cpp)
+run_vk_xml_generate(ApiDump api_dump_text.h)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
