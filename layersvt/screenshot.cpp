@@ -49,6 +49,7 @@ using namespace std;
 
 static char android_env[64] = {};
 const char* env_var = "debug.vulkan.screenshot";
+const char *env_var_old = env_var;
 
 char* android_exec(const char* cmd) {
     FILE* pipe = popen(cmd, "r");
@@ -81,7 +82,8 @@ static inline void local_free_getenv(const char *val) {}
 
 #elif defined(__linux__)
 
-const char* env_var = "_VK_SCREENSHOT";
+const char *env_var_old = "_VK_SCREENSHOT";
+const char *env_var = "VK_SCREENSHOT_FRAMES";
 
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
@@ -89,7 +91,8 @@ static inline void local_free_getenv(const char *val) {}
 
 #elif defined(_WIN32)
 
-const char* env_var = "_VK_SCREENSHOT";
+const char *env_var_old = "_VK_SCREENSHOT";
+const char *env_var = "VK_SCREENSHOT_FRAMES";
 
 static inline char *local_getenv(const char *name) {
     char *retVal;
@@ -155,8 +158,35 @@ static unordered_map<VkPhysicalDevice, PhysDeviceMapStruct *> physDeviceMap;
 // set: list of frames to take screenshots without duplication.
 static set<int> screenshotFrames;
 
-// Flag indicating we have queried env_var
-static bool screenshotEnvQueried = false;
+// Flag indicating we have received the frame list
+static bool screenshotFramesReceived = false;
+
+// Parse comma-separated frame list string into the set
+static void populate_frame_list(const char *vk_screenshot_frames) {
+    string spec(vk_screenshot_frames), word;
+    size_t start = 0, comma = 0;
+
+    while (start < spec.size()) {
+        int frameToAdd;
+        comma = spec.find(',', start);
+        if (comma == string::npos)
+            word = string(spec, start);
+        else
+            word = string(spec, start, comma - start);
+        frameToAdd = atoi(word.c_str());
+        // Add the frame number to set, but only do it if the word
+        // started with a digit and if
+        // it's not already in the list
+        if (*(word.c_str()) >= '0' && *(word.c_str()) <= '9') {
+            screenshotFrames.insert(frameToAdd);
+        }
+        if (comma == string::npos)
+            break;
+        start = comma + 1;
+    }
+
+    screenshotFramesReceived = true;
+}
 
 static bool
 memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory_properties,
@@ -863,7 +893,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device,
 
     // Save the device queue in a map if we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty()) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return;
@@ -888,7 +918,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
 
     // Save the command pool on a map if we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty()) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return result;
@@ -917,7 +947,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
 
     // Save the swapchain in a map of we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty()) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return result;
@@ -952,7 +982,7 @@ GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
 
     // Save the swapchain images in a map if we are taking screenshots
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty()) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return result;
@@ -1003,33 +1033,21 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     loader_platform_thread_lock_mutex(&globalLock);
 
-    if (!screenshotEnvQueried) {
-        const char *_vk_screenshot = local_getenv(env_var);
-        if (_vk_screenshot && *_vk_screenshot) {
-            string spec(_vk_screenshot), word;
-            size_t start = 0, comma = 0;
-
-            while (start < spec.size()) {
-                int frameToAdd;
-                comma = spec.find(',', start);
-                if (comma == string::npos)
-                    word = string(spec, start);
-                else
-                    word = string(spec, start, comma - start);
-                frameToAdd = atoi(word.c_str());
-                // Add the frame number to set, but only do it if the word
-                // started with a digit and if
-                // it's not already in the list
-                if (*(word.c_str()) >= '0' && *(word.c_str()) <= '9') {
-                    screenshotFrames.insert(frameToAdd);
-                }
-                if (comma == string::npos)
-                    break;
-                start = comma + 1;
-            }
+    if (!screenshotFramesReceived) {
+        const char *vk_screenshot_frames = local_getenv(env_var);
+        if (vk_screenshot_frames && *vk_screenshot_frames) {
+            populate_frame_list(vk_screenshot_frames);
         }
-        local_free_getenv(_vk_screenshot);
-        screenshotEnvQueried = true;
+        // Backwards compatibility
+        else {
+            const char *_vk_screenshot = local_getenv(env_var_old);
+            if (_vk_screenshot && *_vk_screenshot) {
+                populate_frame_list(_vk_screenshot);
+            }
+            local_free_getenv(_vk_screenshot);
+        }
+
+        local_free_getenv(vk_screenshot_frames);
     }
 
     if (result == VK_SUCCESS && !screenshotFrames.empty()) {
@@ -1082,6 +1100,13 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     frameNumber++;
     loader_platform_thread_unlock_mutex(&globalLock);
     return result;
+}
+
+// Unused, but this could be provided as an extension or utility to the
+// application in the future.
+VKAPI_ATTR VkResult VKAPI_CALL SpecifyScreenshotFrames(const char *frameList) {
+    populate_frame_list(frameList);
+    return VK_SUCCESS;
 }
 
 static const VkLayerProperties global_layer = {
