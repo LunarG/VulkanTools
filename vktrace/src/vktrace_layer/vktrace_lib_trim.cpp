@@ -2672,15 +2672,42 @@ namespace trim
             vktrace_trace_packet_header* pHeader = nullptr;
             if (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline)
             {
+                // Sometimes the original RenderPass is deleted, and a new one is created that has the same handle, even if it has different
+                // properties (rendertargets, etc). I call each of these a different "version" of the RenderPass. If the Pipeline wasn't deleted
+                // when the RenderPass was deleted, then we may have pipelines that were created based on an older "version" of the RenderPass.
+                VkRenderPass originalRenderPass = obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.renderPass;
+                uint32_t thisRenderPassVersion = obj->second.ObjectInfo.Pipeline.renderPassVersion;
+                uint32_t latestVersion = stateTracker.get_RenderPassVersion(originalRenderPass);
+
+                trim::ObjectInfo* pRenderPass = stateTracker.get_RenderPass(originalRenderPass);
+                if (thisRenderPassVersion < latestVersion ||
+                    pRenderPass == nullptr)
+                {
+                    // Actually recreate the old RenderPass to get a new handle to supply to the pipeline creation call
+                    VkRenderPassCreateInfo* pRPCreateInfo = stateTracker.get_RenderPassCreateInfo(originalRenderPass, thisRenderPassVersion);
+                    vktrace_trace_packet_header* pCreateRenderPass = trim::generate::vkCreateRenderPass(true, device, pRPCreateInfo, nullptr, &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.renderPass);
+                    vktrace_write_trace_packet(pCreateRenderPass, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pCreateRenderPass);
+                }
+                
                 pHeader = trim::generate::vkCreateGraphicsPipelines(false, device, pipelineCache, 1, &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo, nullptr, &pipeline);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                if (thisRenderPassVersion < latestVersion ||
+                    pRenderPass == nullptr)
+                {
+                    vktrace_trace_packet_header* pDestroyRenderPass = generate::vkDestroyRenderPass(true, device, obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.renderPass, nullptr);
+                    vktrace_write_trace_packet(pDestroyRenderPass, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pDestroyRenderPass);
+                }
             }
             else
             {
                 pHeader = trim::generate::vkCreateComputePipelines(false, device, pipelineCache, 1, &obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo, nullptr, &pipeline);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
             }
-
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
         }
 
         // DescriptorPool
@@ -2928,6 +2955,22 @@ namespace trim
     //===============================================
     // Object tracking
     //===============================================
+    void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo* pCreateInfo)
+    {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.add_RenderPassCreateInfo(renderPass, pCreateInfo);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
+    uint32_t get_RenderPassVersion(VkRenderPass renderPass)
+    {
+        uint32_t version = 0;
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        version = s_trimGlobalStateTracker.get_RenderPassVersion(renderPass);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+        return version;
+    }
+    
     void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader)
     {
         if (pHeader != NULL)

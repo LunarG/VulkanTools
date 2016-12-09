@@ -5,6 +5,7 @@
 */
 #pragma once
 #include <list>
+#include <map>
 #include "vktrace_trace_packet_identifiers.h"
 
 #include "vktrace_lib_trim_generate.h"
@@ -36,6 +37,9 @@ namespace trim
     void write_recorded_packets();
     void write_destroy_packets();
     void delete_all_packets();
+
+    void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo* pCreateInfo);
+    uint32_t get_RenderPassVersion(VkRenderPass renderPass);
 
     //-----------------------
     // the follow calls are pass-through to the StateTracker

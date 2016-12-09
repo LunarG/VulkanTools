@@ -1130,10 +1130,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
     {
         vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::add_RenderPass_object(*pRenderPass);
+        trim::add_RenderPassCreateInfo(*pRenderPass, pCreateInfo);
         if (pInfo != NULL)
         {
             pInfo->belongsToDevice = device;
             pInfo->ObjectInfo.RenderPass.pCreatePacket = trim::copy_packet(pHeader);
+            
             if (pCreateInfo->attachmentCount > 0)
             {
                 pInfo->ObjectInfo.RenderPass.attachmentCount = pCreateInfo->attachmentCount;
@@ -2270,6 +2272,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
             pInfo->belongsToDevice = device;
             pInfo->ObjectInfo.Pipeline.isGraphicsPipeline = true;
             pInfo->ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+            pInfo->ObjectInfo.Pipeline.renderPassVersion = trim::get_RenderPassVersion(pCreateInfos[i].renderPass);
 
             trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {

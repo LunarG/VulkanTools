@@ -6,6 +6,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <vector>
 #include "vktrace_trace_packet_utils.h"
 
 // Create / Destroy all image resources in the order performed by the application. 
@@ -196,6 +197,7 @@ namespace trim
                 VkPipelineCache pipelineCache;
                 VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
                 VkComputePipelineCreateInfo computePipelineCreateInfo;
+                uint32_t renderPassVersion;
             } Pipeline;
             struct _DescriptorPool {        // VkDescriptorPool
                 vktrace_trace_packet_header* pCreatePacket;
@@ -266,6 +268,10 @@ namespace trim
 
         void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
         void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
+
+        void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo* pCreateInfo);
+        VkRenderPassCreateInfo* get_RenderPassCreateInfo(VkRenderPass renderPass, uint32_t version);
+        uint32_t get_RenderPassVersion(VkRenderPass renderPass);
 
 #if TRIM_USE_ORDERED_IMAGE_CREATION
         void add_Image_call(vktrace_trace_packet_header* pHeader);
@@ -365,6 +371,9 @@ namespace trim
         // Map relating a command buffer object to all the calls that have been
         // made on that command buffer since it was started or last reset.
         std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header*>> m_cmdBufferPackets;
+
+        // Map to keep track of older RenderPass versions so that we can recreate pipelines.
+        std::unordered_map<VkRenderPass, std::vector<VkRenderPassCreateInfo*>> m_renderPassVersions;
 
         // List of all packets used to create or delete images.
         // We need to recreate them in the same order to ensure they will have the same size requirements as they had a trace-time.

@@ -265,14 +265,151 @@ namespace trim
             vktrace_delete_trace_packet(&pHeader);
         }
         m_image_calls.clear();
+
+        for (auto renderPassIter = m_renderPassVersions.begin(); renderPassIter != m_renderPassVersions.end(); ++renderPassIter)
+        {
+            std::vector<VkRenderPassCreateInfo*> versions = renderPassIter->second;
+
+            for (uint32_t i = 0; i < versions.size(); i++)
+            {
+                VkRenderPassCreateInfo* pCreateInfo = versions[i];
+
+                VkSubpassDescription* pSubPasses = const_cast<VkSubpassDescription*>(pCreateInfo->pSubpasses);
+                for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++)
+                {
+                    if (pCreateInfo->pSubpasses[i].pInputAttachments != nullptr)
+                    {
+                        delete[] pCreateInfo->pSubpasses[i].pInputAttachments;
+                    }
+
+                    if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr)
+                    {
+                        delete[] pCreateInfo->pSubpasses[i].pColorAttachments;
+                    }
+
+                    if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr)
+                    {
+                        delete[] pCreateInfo->pSubpasses[i].pResolveAttachments;
+                    }
+
+                    if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr)
+                    {
+                        delete[] pCreateInfo->pSubpasses[i].pDepthStencilAttachment;
+                    }
+
+                    if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0)
+                    {
+                        delete[] pCreateInfo->pSubpasses[i].pPreserveAttachments;
+                    }
+                }
+
+                if (pCreateInfo->pAttachments != nullptr)
+                {
+                    delete [] pCreateInfo->pAttachments;
+                }
+
+                delete pCreateInfo;
+            }
+            versions.clear();
+        }
+        m_renderPassVersions.clear();
     }
 
     //-------------------------------------------------------------------------
+    void StateTracker::add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo* pCreateInfo)
+    {
+        VkRenderPassCreateInfo* pCopyCreateInfo = new VkRenderPassCreateInfo();
+        *pCopyCreateInfo = *pCreateInfo;
 
+        VkSubpassDescription* pSubPasses = new VkSubpassDescription[pCreateInfo->subpassCount];
+        for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++)
+        {
+            pSubPasses[i] = pCreateInfo->pSubpasses[i];
+
+            if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0)
+            {
+                VkAttachmentReference* pInputAttachments = new VkAttachmentReference[pCopyCreateInfo->pSubpasses[i].inputAttachmentCount];
+                for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].inputAttachmentCount; j++)
+                {
+                    pInputAttachments[j] = pCreateInfo->pSubpasses[i].pInputAttachments[j];
+                }
+                pSubPasses[i].pInputAttachments = pInputAttachments;
+            }
+
+            if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0)
+            {
+                VkAttachmentReference* pColorAttachments = new VkAttachmentReference[pCreateInfo->pSubpasses[i].colorAttachmentCount];
+                for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++)
+                {
+                    pColorAttachments[j] = pCreateInfo->pSubpasses[i].pColorAttachments[j];
+                }
+                pSubPasses[i].pColorAttachments = pColorAttachments;
+
+                if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr)
+                {
+                    VkAttachmentReference* pResolveAttachments = new VkAttachmentReference[pCreateInfo->pSubpasses[i].colorAttachmentCount];
+                    for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++)
+                    {
+                        pResolveAttachments[j] = pCreateInfo->pSubpasses[i].pResolveAttachments[j];
+                    }
+                    pSubPasses[i].pResolveAttachments = pResolveAttachments;
+                }
+            }
+
+            if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr)
+            {
+                VkAttachmentReference* pDepthStencilAttachment = new VkAttachmentReference();
+                *pDepthStencilAttachment = *pCreateInfo->pSubpasses[i].pDepthStencilAttachment;
+                pSubPasses[i].pDepthStencilAttachment = pDepthStencilAttachment;
+            }
+
+            if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0)
+            {
+                uint32_t* pPreserveAttachments = new uint32_t[pCreateInfo->pSubpasses[i].preserveAttachmentCount];
+                for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].preserveAttachmentCount; j++)
+                {
+                    pPreserveAttachments[j] = pCreateInfo->pSubpasses[i].pPreserveAttachments[j];
+                }
+                pSubPasses[i].pPreserveAttachments = pPreserveAttachments;
+            }
+        }
+
+        pCopyCreateInfo->pSubpasses = pSubPasses;
+
+        if (pCreateInfo->attachmentCount > 0)
+        {
+            VkAttachmentDescription* pAttachments = new VkAttachmentDescription[pCreateInfo->attachmentCount];
+            for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++)
+            {
+                pAttachments[i] = pCreateInfo->pAttachments[i];
+            }
+
+            pCopyCreateInfo->pAttachments = pAttachments;
+        }
+
+
+        m_renderPassVersions[renderPass].push_back(pCopyCreateInfo);
+    }
+
+    //-------------------------------------------------------------------------
+    uint32_t StateTracker::get_RenderPassVersion(VkRenderPass renderPass)
+    {
+        return m_renderPassVersions[renderPass].size() - 1;
+    }
+
+    //-------------------------------------------------------------------------
+    VkRenderPassCreateInfo* StateTracker::get_RenderPassCreateInfo(VkRenderPass renderPass, uint32_t version)
+    {
+        return m_renderPassVersions[renderPass][version];
+    }
+
+    //-------------------------------------------------------------------------
     StateTracker& StateTracker::operator= (const StateTracker& other)
     {
         if (this == &other)
             return *this;
+
+        m_renderPassVersions = other.m_renderPassVersions;
 
         for (auto iter = other.m_cmdBufferPackets.cbegin(); iter != other.m_cmdBufferPackets.cend(); ++iter)
         {

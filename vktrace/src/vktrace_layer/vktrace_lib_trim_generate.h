@@ -251,6 +251,13 @@ namespace trim {
             VkDescriptorPool descriptorPool,
             const VkAllocationCallbacks* pAllocator);
 
+        vktrace_trace_packet_header* vkCreateRenderPass(
+            bool makeCall,
+            VkDevice device,
+            const VkRenderPassCreateInfo* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator,
+            VkRenderPass* pRenderPass);
+
         vktrace_trace_packet_header* vkCreateGraphicsPipelines(
             bool makeCall,
             VkDevice device,

@@ -1058,8 +1058,7 @@ class Subcommand(object):
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
         elif 'DestroyRenderPass' is proto.name:
-            trim_instructions.append("        // TODO: Need to understand the usage pattern that causes these to get deleted when they are still being referenced.")
-            trim_instructions.append("        //trim::remove_RenderPass_object(renderPass);")
+            trim_instructions.append("        trim::remove_RenderPass_object(renderPass);")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
             trim_instructions.append('            trim::add_recorded_packet(pHeader);')
