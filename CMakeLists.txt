@@ -38,10 +38,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if (BUILD_WSI_MIR_SUPPORT)
         find_package(Mir REQUIRED)
     endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    # Only vktrace is supported on macOS
-else()
-    message(FATAL_ERROR "Unsupported Platform!")
 endif()
 
 set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")

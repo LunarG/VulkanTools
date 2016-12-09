@@ -24,7 +24,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
        # add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
        # include_directories(${MIR_INCLUDE_DIR})
     endif()
-
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Only vktrace is supported on macOS
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
