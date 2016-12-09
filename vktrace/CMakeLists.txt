@@ -1,5 +1,34 @@
 PROJECT(vktrace_project)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
+    set(DisplayServer Win32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if (BUILD_WSI_XCB_SUPPORT)
+        add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
+    endif()
+
+    if (BUILD_WSI_XLIB_SUPPORT)
+       add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+    endif()
+
+    if (BUILD_WSI_WAYLAND_SUPPORT)
+       # TODO Add Wayland Support
+       # add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
+    endif()
+
+    if (BUILD_WSI_MIR_SUPPORT)
+       # TODO Add Mir Support
+       # add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
+       # include_directories(${MIR_INCLUDE_DIR})
+    endif()
+
+else()
+    message(FATAL_ERROR "Unsupported Platform!")
+endif()
+
 option(BUILD_VKTRACEVIEWER "Build VkTraceViewer" ON)
 
 if (BUILD_VKTRACEVIEWER)
