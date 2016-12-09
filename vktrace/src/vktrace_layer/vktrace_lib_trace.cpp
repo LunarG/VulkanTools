@@ -1876,9 +1876,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
 
             if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL)
             {
-                for (uint32_t i = 0; i < pSubmits->commandBufferCount; i++)
+                for (uint32_t s = 0; s < submitCount; s++)
                 {
-                    trim::mark_CommandBuffer_reference(pSubmits->pCommandBuffers[i]);
+                    for (uint32_t i = 0; i < pSubmits[s].commandBufferCount; i++)
+                    {
+                        trim::mark_CommandBuffer_reference(pSubmits[s].pCommandBuffers[i]);
+                    }
                 }
             }
         }
