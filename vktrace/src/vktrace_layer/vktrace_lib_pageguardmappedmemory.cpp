@@ -25,10 +25,6 @@
 #include "vktrace_lib_pageguardcapture.h"
 #include "vktrace_lib_pageguard.h"
 
-#if defined(PLATFORM_LINUX)
-extern void getMappedDirtyPagesLinux(void);
-#endif
-
 VkDevice& PageGuardMappedMemory::getMappedDevice()
 {
     return MappedDevice;
@@ -126,10 +122,6 @@ uint64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr)
     if ((addrOffset >= 0) && ((VkDeviceSize)addrOffset < MappedSize))
     {
         indexOfChangedBlockByAddr = addrOffset / PageGuardSize;
-    }
-    else
-    {
-        assert(false);
     }
     return indexOfChangedBlockByAddr;
 }
@@ -284,12 +276,6 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
         }
         #endif
     }
-    #if defined(PLATFORM_LINUX)
-    if (bSetPageGuard)
-    {
-        getMappedDirtyPagesLinux();
-    }
-    #endif
     return setSuccessfully;
 }
 

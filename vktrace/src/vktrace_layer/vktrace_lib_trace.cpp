@@ -214,6 +214,8 @@ void getMappedDirtyPagesLinux(void)
     if (!getPageGuardEnableFlag())
         return;
 
+    vktrace_enter_critical_section(&g_memInfoLock);
+
     // Open pagefile, initialize sighAddrList semaphore, and set the SIGSEGV signal handler
     if (pmFd == -1)
     {
@@ -241,6 +243,8 @@ void getMappedDirtyPagesLinux(void)
         mappedMemory = pMappedMem->getMappedMemory();
         pEntry=find_mem_info_entry(mappedMemory);
         addr=pEntry->pData;
+        if (!addr)
+            continue;
         alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
         alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
         nPages = (alignedAddrEnd - alignedAddrStart ) / pageSize;
@@ -289,6 +293,8 @@ void getMappedDirtyPagesLinux(void)
         mappedMemory = pMappedMem->getMappedMemory();
         pEntry=find_mem_info_entry(mappedMemory);
         addr=pEntry->pData;
+        if (!addr)
+            continue;
         alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
         alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
         if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE))
@@ -314,6 +320,7 @@ void getMappedDirtyPagesLinux(void)
         sighAddrList.pop_front();
     }
     vktrace_sem_post(sighAddrListSem);
+    vktrace_leave_critical_section(&g_memInfoLock);
 }
 #endif
 
@@ -401,7 +408,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
     VKAllocInfo *entry;
     size_t siz = 0;
 #ifdef USE_PAGEGUARD_SPEEDUP
-    void *PageGuardMappedData;
+    void *PageGuardMappedData=NULL;
     pageguardEnter();
 #if defined (PLATFORM_LINUX)
     getMappedDirtyPagesLinux();
@@ -430,8 +437,8 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(
         assert(entry->handle == memory);
         vktrace_add_buffer_to_trace_packet(pHeader, (void**) &(pPacket->pData), siz, entry->pData);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
-        entry->pData = NULL;
     }
+    entry->pData = NULL;
     vktrace_leave_critical_section(&g_memInfoLock);
     pHeader->entrypoint_begin_time = vktrace_get_time();
     mdd(device)->devTable.UnmapMemory(device, memory);
