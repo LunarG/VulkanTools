@@ -49,8 +49,8 @@ for ext in vulkan.extensions_all:
     protos.extend(ext.protos)
 
 # Add parameters we need to remap, along with their type, in pairs
-additional_remap_dict = {}
-additional_remap_dict['pImageIndex'] = "uint32_t"
+additional_remap_fifo = {}
+additional_remap_fifo['pImageIndex'] = "uint32_t"
 
 class Subcommand(object):
     def __init__(self, argv):
@@ -2415,7 +2415,7 @@ class Subcommand(object):
         rc_body.append('    void clear_all_map_handles()\n    {')
         for var in sorted(obj_map_dict):
             rc_body.append('        %s.clear();' % var)
-        for var in additional_remap_dict:
+        for var in additional_remap_fifo:
             rc_body.append('        m_%s.clear();' %var)
         rc_body.append('    }\n')
         disp_obj_types = [obj for obj in vulkan.object_dispatch_list]
@@ -2461,23 +2461,23 @@ class Subcommand(object):
                 rc_body.append(self._add_to_map_decl(obj_map_dict[var], obj_map_dict[var], var))
                 rc_body.append(self._rm_from_map_decl(obj_map_dict[var], var))
                 rc_body.append(self._remap_decl(obj_map_dict[var], var))
-        for var in additional_remap_dict:
-            rc_body.append('        std::map<%s, %s> m_%s;' % (additional_remap_dict[var], additional_remap_dict[var], var))
-            rc_body.append('        void add_to_%s_map(%s traceVal, %s replayVal)' % (var, additional_remap_dict[var], additional_remap_dict[var]))
+        for var in additional_remap_fifo:
+            rc_body.append('        std::list<%s> m_%s;' % (additional_remap_fifo[var], var))
+            rc_body.append('        void add_to_%s_map(%s traceVal, %s replayVal)' % (var, additional_remap_fifo[var], additional_remap_fifo[var]))
             rc_body.append('        {')
-            rc_body.append('            m_%s[traceVal] = replayVal;' % var)
+            rc_body.append('            m_%s.push_back(replayVal);' % var)
             rc_body.append('        }')
             rc_body.append('')
-            rc_body.append('        void rm_from_%s_map(const %s& key)' % (var, additional_remap_dict[var]))
+            rc_body.append('        %s remap_%s(const %s& value)' % (additional_remap_fifo[var], var, additional_remap_fifo[var]))
             rc_body.append('        {')
-            rc_body.append('            m_%s.erase(key);' % var)
-            rc_body.append('        }')
-            rc_body.append('')
-            rc_body.append('        %s remap_%s(const %s& value)' % (additional_remap_dict[var], var, additional_remap_dict[var]))
-            rc_body.append('        {')
-            rc_body.append('            std::map<%s, %s>::const_iterator q = m_%s.find(value);' % (additional_remap_dict[var], additional_remap_dict[var], var))
-            rc_body.append('            if (q == m_%s.end()) { vktrace_LogError("Failed to remap %s."); return UINT32_MAX; }' % (var, var))
-            rc_body.append('            return q->second;')
+            rc_body.append('            if (m_%s.size() == 0)' % (var))
+            rc_body.append('            {')
+            rc_body.append('                vktrace_LogError("Failed to remap %s.");' % (var))
+            rc_body.append('                return UINT32_MAX;')
+            rc_body.append('            }')
+            rc_body.append('            %s result = m_%s.front();' % (additional_remap_fifo[var], var))
+            rc_body.append('            m_%s.pop_front();' % (var))
+            rc_body.append('            return result;')
             rc_body.append('        }')
 
         # VkDynamicStateObject code
