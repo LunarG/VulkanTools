@@ -61,6 +61,7 @@ set(LAYER_JSON_FILES
     VkLayer_api_dump
     VkLayer_basic
     VkLayer_generic
+    VkLayer_monitor
     VkLayer_multi
     VkLayer_screenshot
     )
@@ -227,6 +228,7 @@ endif()
 # VulkanTools layers
 add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
+add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(generic generic_layer.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
