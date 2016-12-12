@@ -25,6 +25,7 @@ function trace_replay {
 			--Arguments "--c 100" \
 			--WorkingDir ${APPDIR} \
 			--OutputTrace ${PGM}.vktrace \
+			--PMB false \
 			-s 1
 	printf "$GREEN[ REPLAY   ]$NC ${PGM}\n"
 	${VKREPLAY}	--TraceFile ${PGM}.vktrace \

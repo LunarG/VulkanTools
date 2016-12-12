@@ -70,6 +70,7 @@ The Draw State portion of the core validation layer tracks state leading into Dr
 | Correct use of RenderPass | Validates that the following rendering commands are issued inside an active RenderPass: vkCmdDraw, vkCmdDrawIndexed, vkCmdDrawIndirect, vkCmdDrawIndexedIndirect, vkCmdClearAttachments, vkCmdNextSubpass, vkCmdEndRenderPass | NO_ACTIVE_RENDERPASS | vkCmdBindPipeline vkCmdBindDescriptorSets  vkCmdDraw vkCmdDrawIndexed vkCmdDrawIndirect vkCmdDrawIndexedIndirect vkCmdClearAttachments vkCmdNextSubpass vkCmdEndRenderPass | ClearColorAttachmentsOutsideRenderPass | NA |
 | Valid RenderPass | Flag error if attempt made to Begin/End/Continue a NULL or otherwise invalid RenderPass object | INVALID_RENDERPASS | vkCmdBeginRenderPass vkCmdEndRenderPass vkBeginCommandBuffer | NullRenderPass | NA |
 | RenderPass Compatibility | Verify that active renderpass is compatible with renderpass specified in secondary command buffer, and that renderpass specified for a framebuffer is compatible with renderpass specified in secondary command buffer. Also that parameters for BeginRenderpass are compatible with actual renderpass. | RENDERPASS_INCOMPATIBLE | vkCmdExecuteCommands vkBeginCommandBuffer vkCmdBeginRenderPass vkCmdDraw vkCmdDrawIndexed vkCmdDrawIndirect vkCmdDrawIndexedIndirect | RenderPassClearOpMismatch RenderPassIncompatible FramebufferCreateErrors | Need to write some more tests to cover all of these cases. |
+| RenderPass bad clear value count| Verify that the number of clear values specified when creating a render pass is within reason | RENDERPASS_TOO_MANY_CLEAR_VALUES | vkCmdBeginRenderPass | RenderPassClearOpTooManyValues | NA |
 | Framebuffer Compatibility | If a framebuffer is passed to secondary command buffer in vkBeginCommandBuffer, then it must match active renderpass (if any) at time of vkCmdExecuteCommands | FRAMEBUFFER_INCOMPATIBLE | vkCmdExecuteCommands | FramebufferIncompatible | None |
 | Framebuffer Creation | If a CreateFramebuffer is called with invalide CreateInfo such as attachments with bad mip levelCount or dimensions | INVALID_FRAMEBUFFER_CREATE_INFO | vkCreateFramebuffer | FramebufferCreateErrors | None |
 | DescriptorSet Updated | Warn user if DescriptorSet bound that was never updated and is not empty. Trigger error at draw time if a set being used was never updated. | DESCRIPTOR_SET_NOT_UPDATED | vkCmdBindDescriptorSets vkCmdDraw vkCmdDrawIndexed vkCmdDrawIndirect vkCmdDrawIndexedIndirect | DescriptorSetCompatibility | NA |
@@ -124,6 +125,17 @@ The Draw State portion of the core validation layer tracks state leading into Dr
 | Can't present a non-owned image | Validates that application only presents images that it owns | SWAPCHAIN_IMAGE_NOT_ACQUIRED | vkQueuePresentKHR | TODO | None |
 | Surface already has swapchain | Cannot create a swapchain for a surface that already has one [other than the swapchain being replaced] | SWAPCHAIN_ALREADY_EXISTS | vkCreateSwapchainKHR | TODO | None |
 | Swapchain replacement | pCreateInfo->surface must match pCreateInfo->oldSwapchain's surface | SWAPCHAIN_WRONG_SURFACE | vkCreateSwapchainKHR | TODO | None |
+| Swapchain created without queries | Application must query capabilities etc before creating a swapchain | SWAPCHAIN_CREATE_BEFORE_QUERY | vkCreateSwapchainKHR | TODO | None |
+| Queue supports present | Present swapchain image on queue that does not support present | SWAPCHAIN_UNSUPPORTED_QUEUE | vkQueuePresentKHR | TODO | None |
+| Swapchain image count | Image count outside of physical device range | SWAPCHAIN_BAD_IMAGE_COUNT | vkCreateSwapchainKHR | TODO | None |
+| Swapchain image extent | Image extents outside of physical device range | SWAPCHAIN_BAD_EXTENTS | vkCreateSwapchainKHR | TODO | None |
+| Swapchain pre-transform | Bad pre-transform | SWAPCHAIN_BAD_PRE_TRANSFORM | vkCreateSwapchainKHR | TODO | None |
+| Swapchain composite alpha | Bad composite alpha | SWAPCHAIN_BAD_COMPOSITE_ALPHA | vkCreateSwapchainKHR | TODO | None |
+| Swapchain layer count | Layer count beyond capabilities | SWAPCHAIN_BAD_LAYER_COUNT | vkCreateSwapchainKHR | TODO | None |
+| Swapchain usage flags | Unsupported usage flags | SWAPCHAIN_BAD_USAGE_FLAGS | vkCreateSwapchainKHR | TODO | None |
+| Swapchain image acquisition | Acquiring too many images | SWAPCHAIN_TOO_MANY_IMAGES | vkAcquireNextImageKHR | TODO | None |
+| Swapchain creation | Bad Present Mode | SWAPCHAIN_BAD_PRESENT_MODE | vkCreateSwapchainKHR | TODO | None |
+| Swapchain creation | Bad Format | SWAPCHAIN_BAD_FORMAT | vkCreateSwapchainKHR | TODO | None |
 
 ### VK_LAYER_LUNARG_core_validation Draw State Pending Work
 
@@ -221,6 +233,7 @@ The VK_LAYER_LUNARG_parameter_validation layer validates parameter values and fl
 | Device Limit Violation | Verifies that a parameter is within the limits advertised by the gpu | DEVICE_LIMIT | vkUpdateDescriptorSets vkCreateRenderPass | TODO | NA |
 | Device Feature Violation | Verifies that a requested feature is supported by the gpu | DEVICE_FEATURE | vkBeginCommandBuffer vkCreateGraphicsPipelines | PSOPolygonModeInvalid | NA |
 | Failed Call Return Code | Provides a description of a failure code returned by a Vulkan API call | FAILURE_RETURN_CODE | | FailedReturnValue | NA |
+| Extension Not Enabled | Verifies that extension entrypoints are only used when the appropriate extension is enabled | EXTENSION_NOT_ENABLED | | VkLayerTest.EnableWsiBeforeUse | NA |
 | NA | Enum used for informational messages | NONE | | TODO | None |
 
 ### VK_LAYER_LUNARG_parameter_validation Pending Work
@@ -337,7 +350,6 @@ This layer is a work in progress. VK_LAYER_LUNARG_swapchain layer is intended to
 | Swapchains destroyed before devices | Validates that  vkDestroySwapchainKHR() is called for all swapchains associated with a device before vkDestroyDevice() is called | DEL_OBJECT_BEFORE_CHILDREN | vkDestroyDevice vkDestroySurfaceKHR | TODO | None |
 | Surface seen to support presentation | Validates that pCreateInfo->surface was seen by vkGetPhysicalDeviceSurfaceSupportKHR() to support presentation | CREATE_UNSUPPORTED_SURFACE | vkCreateSwapchainKHR | TODO | None |
 | Queries occur before swapchain creation | Validates that vkGetPhysicalDeviceSurfaceCapabilitiesKHR(), vkGetPhysicalDeviceSurfaceFormatsKHR() and vkGetPhysicalDeviceSurfacePresentModesKHR() are called before vkCreateSwapchainKHR() | CREATE_SWAP_WITHOUT_QUERY | vkCreateSwapchainKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
-| vkCreateSwapchainKHR(pCreateInfo->minImageCount) | Validates vkCreateSwapchainKHR(pCreateInfo->minImageCount) | CREATE_SWAP_BAD_MIN_IMG_COUNT | vkCreateSwapchainKHR | TODO | None |
 | vkCreateSwapchainKHR(pCreateInfo->imageExtent) | Validates vkCreateSwapchainKHR(pCreateInfo->imageExtent) when window has no fixed size | CREATE_SWAP_OUT_OF_BOUNDS_EXTENTS | vkCreateSwapchainKHR | TODO | None |
 | vkCreateSwapchainKHR(pCreateInfo->imageExtent) | Validates vkCreateSwapchainKHR(pCreateInfo->imageExtent) when window has a fixed size | CREATE_SWAP_EXTENTS_NO_MATCH_WIN | vkCreateSwapchainKHR | TODO | None |
 | vkCreateSwapchainKHR(pCreateInfo->preTransform) | Validates vkCreateSwapchainKHR(pCreateInfo->preTransform) | CREATE_SWAP_BAD_PRE_TRANSFORM | vkCreateSwapchainKHR | TODO | None |
@@ -350,7 +362,6 @@ This layer is a work in progress. VK_LAYER_LUNARG_swapchain layer is intended to
 | vkCreateSwapchainKHR(pCreateInfo->presentMode) | Validates vkCreateSwapchainKHR(pCreateInfo->presentMode) | CREATE_SWAP_BAD_PRESENT_MODE | vkCreateSwapchainKHR | TODO | None |
 | vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | Validates vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | CREATE_SWAP_BAD_SHARING_MODE | vkCreateSwapchainKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | Validates vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | CREATE_SWAP_BAD_SHARING_VALUES | vkCreateSwapchainKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
-| Don't acquire too many images | Validates that app never tries to acquire too many swapchain images at a time | APP_ACQUIRES_TOO_MANY_IMAGES | vkAcquireNextImageKHR | TODO | None |
 | A VkBool32 must have values of VK_TRUE or VK_FALSE | Validates that a VkBool32 must have values of VK_TRUE or VK_FALSE | BAD_BOOL | vkCreateSwapchainKHR | TODO | None |
 | pCount must be set by the API before the other pointer is non-NULL | Validates that app queries for the value of pCount before trying to set it | PRIOR_COUNT | vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfacePresentModesKHR vkGetSwapchainImagesKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | pCount must point to same value regardless of whether other pointer is NULL | Validates that app doesn't change value of pCount returned by a query | INVALID_COUNT | vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfacePresentModesKHR vkGetSwapchainImagesKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |

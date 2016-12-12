@@ -16,6 +16,7 @@
 LOCAL_PATH := $(abspath $(call my-dir))
 SRC_DIR := $(LOCAL_PATH)/../../
 LAYER_DIR := $(LOCAL_PATH)/../generated
+ANDROID_DIR := $(SRC_DIR)/build-android
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := layer_utils
@@ -37,8 +38,8 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/loader \
-                    $(SRC_DIR)/external/glslang \
-                    $(SRC_DIR)/external/spirv-tools/include
+                    $(ANDROID_DIR)/external/glslang \
+                    $(ANDROID_DIR)/external/spirv-tools/include
 LOCAL_STATIC_LIBRARIES += layer_utils SPIRV-Tools-prebuilt
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden
 LOCAL_LDLIBS    := -llog
@@ -160,7 +161,6 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_WHOLE_STATIC_LIBRARIES += libcutils
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
@@ -168,42 +168,47 @@ include $(BUILD_SHARED_LIBRARY)
 # Pull in prebuilt shaderc
 include $(CLEAR_VARS)
 LOCAL_MODULE := shaderc-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libshaderc.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libshaderc.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := glslang-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libglslang.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libglslang.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := OGLCompiler-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libOGLCompiler.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libOGLCompiler.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := OSDependent-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libOSDependent.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libOSDependent.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := HLSL-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libHLSL.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libHLSL.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := shaderc_util-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libshaderc_util.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libshaderc_util.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SPIRV-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libSPIRV.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libSPIRV.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SPIRV-Tools-prebuilt
-LOCAL_SRC_FILES := $(SRC_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libSPIRV-Tools.a
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libSPIRV-Tools.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := SPIRV-Tools-opt-prebuilt
+LOCAL_SRC_FILES := $(ANDROID_DIR)/external/shaderc/android_test/obj/local/$(TARGET_ARCH_ABI)/libSPIRV-Tools-opt.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -217,11 +222,10 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/libs \
                     $(SRC_DIR)/common \
-                    $(SRC_DIR)/icd/common \
-                    $(SRC_DIR)/external/shaderc/libshaderc/include
+                    $(ANDROID_DIR)/external/shaderc/libshaderc/include
 
 LOCAL_STATIC_LIBRARIES := googletest_main layer_utils
-LOCAL_SHARED_LIBRARIES += shaderc-prebuilt glslang-prebuilt OGLCompiler-prebuilt OSDependent-prebuilt HLSL-prebuilt shaderc_util-prebuilt SPIRV-prebuilt SPIRV-Tools-prebuilt
+LOCAL_SHARED_LIBRARIES += shaderc-prebuilt glslang-prebuilt OGLCompiler-prebuilt OSDependent-prebuilt HLSL-prebuilt shaderc_util-prebuilt SPIRV-prebuilt SPIRV-Tools-prebuilt SPIRV-Tools-opt-prebuilt
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden --include=$(SRC_DIR)/common/vulkan_wrapper.h
 LOCAL_LDLIBS := -llog
 LOCAL_LDFLAGS   += -Wl,-Bsymbolic
@@ -240,11 +244,10 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/libs \
                     $(SRC_DIR)/common \
-                    $(SRC_DIR)/icd/common \
-                    $(SRC_DIR)/external/shaderc/libshaderc/include
+                    $(ANDROID_DIR)/external/shaderc/libshaderc/include
 
 LOCAL_STATIC_LIBRARIES := googletest_main layer_utils
-LOCAL_SHARED_LIBRARIES += shaderc-prebuilt glslang-prebuilt OGLCompiler-prebuilt OSDependent-prebuilt HLSL-prebuilt shaderc_util-prebuilt SPIRV-prebuilt SPIRV-Tools-prebuilt
+LOCAL_SHARED_LIBRARIES += shaderc-prebuilt glslang-prebuilt OGLCompiler-prebuilt OSDependent-prebuilt HLSL-prebuilt shaderc_util-prebuilt SPIRV-prebuilt SPIRV-Tools-prebuilt SPIRV-Tools-opt-prebuilt
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden -DVALIDATION_APK --include=$(SRC_DIR)/common/vulkan_wrapper.h
 LOCAL_WHOLE_STATIC_LIBRARIES += android_native_app_glue
 LOCAL_LDLIBS := -llog -landroid
@@ -261,18 +264,29 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_platform.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_process.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_settings.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_pageguard_memorycopy.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_trace.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_vk_exts.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pagestatusarray.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardmappedmemory.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardcapture.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguard.cpp
+
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
 		    $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/vktrace/src/vktrace_common \
                     $(SRC_DIR)/vktrace/src/vktrace_layer \
-                    $(SRC_DIR)/loader
+                    $(SRC_DIR)/loader \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardmappedmemory.h \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardcapture.h \
+                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguard.h \
+                    $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_pageguard_memorycopy.h
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
+LOCAL_CPPFLAGS += -DPAGEGUARD_MEMCPY_USE_PPL_LIB
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
 LOCAL_LDLIBS    := -llog

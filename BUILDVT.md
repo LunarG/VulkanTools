@@ -1,12 +1,12 @@
 # Build Instructions
 This document contains the instructions for building this repository on Linux and Windows.
 
-This repository contains additional layers, tests, and the VkTrace trace/replay tools, supplementing the
+This repository contains additional layers and the VkTrace trace/replay tools, supplementing the
 loader and validation layer core components found at https://github.com/KhronosGroup.
 
-For Linux, this repository also contains a sample Intel Vulkan driver that is being deprecated.
-Instead of using this driver, it is suggested that you contact your graphics device manufacturer
-to obtain a Vulkan driver for your GPU hardware.
+This repository previously contained a sample Intel Vulkan driver that has since been deprecated.
+The final stable version of that source code is available from this repo by checking out the git
+tag "Vulkan-ICD-Snapshot". This source code is no longer supported.
 
 ## Git the Bits
 
@@ -24,14 +24,8 @@ These additional packages are needed for building the components in this repo.
 # Dependencies from the LoaderAndValidationLayers repo:
 sudo apt-get install git cmake build-essential bison libx11-dev libxcb1-dev
 # Additional dependencies for this repo:
-sudo apt-get install libudev-dev libpciaccess-dev libxcb-dri3-dev libxcb-present-dev libmagickwand-dev libgl1-mesa-dev wget autotools-dev
+sudo apt-get install wget autotools-dev
 ```
-
-If you are using the sample Intel Vulkan driver in this repo, you will have to ensure that
-the DRI3 extension is active in your X Server.
-Follow the
-[DRI3 Instructions](dri3.md)
-to prepare your X Server.
 
 ## Clone the Repository
 
@@ -43,14 +37,13 @@ cd YOUR_DEV_DIRECTORY
 git clone git@github.com:LunarG/VulkanTools.git
 cd VulkanTools
 # This will fetch and build glslang and spriv-tools
-# On Linux, it will also fetch and build LunarGLASS
 ./update_external_sources.sh         # linux
 ./update_external_sources.bat --all  # windows
 ```
 
 ## Linux Build
 
-This build process builds the icd, vktrace and the tests.
+This build process builds vktrace and the LVL tests.
 
 Example debug build:
 ```
@@ -59,20 +52,6 @@ cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
 cd dbuild
 make
 ```
-
-## Linux Test
-
-The test executables can be found in the dbuild/tests directory. The tests use the Google
-gtest infrastructure. Tests available so far:
-- vkbase: Test basic entry points
-- vk_blit_tests: Test VK Blits (copy, clear, and resolve)
-- vk_image_tests: Test VK image related calls needed by render_test
-- vk_render_tests: Render a single triangle with VK. Triangle will be in a .ppm in
-the current directory at the end of the test.
-
-There are also a few shell and Python scripts that run test collections (eg,
-`run_all_tests.sh`).
-
 
 ## Windows System Requirements
 
@@ -89,17 +68,6 @@ Windows 7+ with additional required software packages:
   - Note: If you use Cygwin, you can normally use Cygwin's "git.exe".  However, in order to use the "update_external_sources.bat" script, you must have this version.
   - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
   - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
-- Image Magick is used by the tests to compare images (from http://www.imagemagick.org/script/binary-releases.php)
-  - You may use ImageMagick-6 or ImageMagick-7 releases
-  - Install each a 32-bit and a 64-bit version, as the 64-bit installer does not install the 32-bit libraries and tools.
-    - Here are some helpful links (warning they may go out of date with a newer ImageMagick).
-      - 64-bit: http://www.imagemagick.org/download/binaries/ImageMagick-7.0.3-1-Q16-x64-dll.exe
-      - 32-bit: http://www.imagemagick.org/download/binaries/ImageMagick-7.0.3-1-Q16-x86-dll.exe
-  - For each of the installs, be sure to **check** the following boxes:
-      - "Install legacy utilities (e.g. convert)"
-      - "Install development headers and libraries for C and C++"
-  - Make sure to **un-check** the option to add ImageMagick to your PATH
-      - If you fail to do so, CMake will always return the first ImageMagick it encounters
 - glslang is required for tests.
   - You can download and configure it (in a peer directory) here: https://github.com/KhronosGroup/glslang/blob/master/README.md
   - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2013 like so:
@@ -221,6 +189,12 @@ This documentation is preliminary and needs to be beefed up.
 
 See the [vktracereplay.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/vktracereplay.sh) file for a working example of how to use vktrace/vkreplay and screenshot layers.
 
+Two additional scripts have been added to facilitate tracing and replaying any APK.  Note that these two scripts do not install anything for you, so make sure your target APK, vktrace, vktrace_layer, and vkreplay all use the same ABI.
+```
+./create_trace.sh --serial 0123456789 --abi armeabi-v7a --package com.example.CubeWithLayers  --activity android.app.NativeActivity
+adb install --abi armeabi-v7a
+./replay_trace.sh --serial 0123456789 --tracefile com.example.CubeWithLayers0.vktrace
+```
 An example of using the scripts on Linux and macOS:
 ```
 ./build_vktracereplay.sh
@@ -285,7 +259,7 @@ Result screenshot will be in:
 ### vktrace
 To record a trace on Android, enable port forwarding from the device to the host:
 ```
-adb reverse tcp:34201 tcp:34201
+adb reverse localabstract:vktrace tcp:34201
 ```
 Start up vktrace on the host in server mode:
 ```

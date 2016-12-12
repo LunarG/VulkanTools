@@ -4,8 +4,6 @@ cmake_install.cmake
 Makefile
 __pycache__
 VKConfig.h
-icd/common/libicd.a
-icd/intel/intel_gpa.c
 _out64
 out32/*
 out64/*

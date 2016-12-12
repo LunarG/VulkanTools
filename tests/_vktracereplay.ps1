@@ -1,10 +1,17 @@
 # Powershell script for running the vktrace trace/replay auto test
 # To run this test:
 #    cd <this-dir>
-#    powershell C:\src\LoaderAndValidationLayers\vktracereplay.ps1 [-Debug]
+#    powershell C:\src\LoaderAndValidationLayers\vktracereplay.ps1 [-Replay <tracepath>] [-Debug]
+#
+#    <tracepath> example: "C:\trace" would result in the script testing against "C:\trace.vktrace" and "C:\trace.ppm"
+param (
+    [switch]$Debug,
+    [string]$Replay
+)
+
 $exitstatus = 0
 
-if ($args[0] -eq "-Debug") {
+if ($Debug) {
     $dPath = "Debug"
 } else {
     $dPath = "Release"
@@ -26,6 +33,7 @@ cd vktracereplay_tmp
 cp ..\..\vktrace\$dPath\vkreplay.exe .
 cp ..\..\vktrace\$dPath\vktrace.exe .
 cp ..\..\demos\$dPath\cube.exe .
+cp ..\..\demos\$dPath\smoketest.exe .
 cp ..\..\demos\*.ppm .
 cp ..\..\demos\*.spv .
 cp ..\..\loader\$dPath\vulkan-1.dll .
@@ -41,23 +49,37 @@ $Env:PATH = $pwd
 # Set up some modified env vars
 $Env:VK_LAYER_PATH = $pwd
 
-# Do a trace and replay
+# Do a trace and replay for cube
 & vktrace -o c01.vktrace -s 1 -p cube -a "--c 10" > trace.sout 2> trace.serr
-rename-item -path 1.ppm -newname 1-trace.ppm
+rename-item -path 1.ppm -newname 1-cubetrace.ppm
 & vkreplay  -s 1 -t  c01.vktrace > replay.sout 2> replay.serr
-rename-item -path 1.ppm -newname 1-replay.ppm
+rename-item -path 1.ppm -newname 1-cubereplay.ppm
+
+# Do a trace and replay for smoketest
+& vktrace -o s01.vktrace -s 1 -p smoketest -a "--c 10" > trace.sout 2> trace.serr
+rename-item -path 1.ppm -newname 1-smoketrace.ppm
+& vkreplay  -s 1 -t  s01.vktrace > replay.sout 2> replay.serr
+rename-item -path 1.ppm -newname 1-smokereplay.ppm
+
+# Replay old trace if specified
+if ($Replay) {
+    & vkreplay -s 1 -t "$Replay.vktrace" > replayold.sout 2> replayold.serr
+    rename-item -path 1.ppm -newname 1-replayold.ppm
+}
 
 # Force a failure - for testing this script
-#cp vulkan.dll 1-replay.ppm
-#rm 1-trace.ppm
-#rm 1-replay.ppm
+#cp vulkan.dll 1-cubereplay.ppm
+#rm 1-cubetrace.ppm
+#rm 1-cubereplay.ppm
 
 # Restore PATH
 $Env:PATH = $oldpath
 
 if ($exitstatus -eq 0) {
-   # Check that two screenshots were created
-   if (!(Test-Path 1-trace.ppm) -or !(Test-Path 1-replay.ppm)) {
+   # Check that two screenshots were created, and the third if replaying an old trace
+   if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or
+       #!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or
+        ($Replay -and !(Test-Path 1-replayold.ppm))) {
            echo 'Trace file does not exist'
            write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
            $exitstatus = 1
@@ -66,18 +88,33 @@ if ($exitstatus -eq 0) {
 
 if ($exitstatus -eq 0) {
     # ensure the trace and replay snapshots are identical
-    fc.exe /b 1-trace.ppm 1-replay.ppm > $null
-    if (!(Test-Path 1-trace.ppm) -or !(Test-Path 1-replay.ppm) -or $LastExitCode -eq 1) {
-         echo 'Trace files do not match'
-         write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-         $exitstatus = 1
+    fc.exe /b 1-cubetrace.ppm 1-cubereplay.ppm > $null
+    if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or $LastExitCode -eq 1) {
+        echo 'Cube trace files do not match'
+        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+        $exitstatus = 1
+    }
+    fc.exe /b 1-smoketrace.ppm 1-smokereplay.ppm > $null
+    if (!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or $LastExitCode -eq 1) {
+        echo 'Smoke trace files do not match'
+        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+        $exitstatus = 1
+    }
+    if ($Replay) {
+        # check old trace
+        fc.exe /b "$Replay.ppm" 1-replayold.ppm > $null
+        if (!(Test-Path "$Replay.ppm") -or !(Test-Path 1-replayold.ppm) -or $LastExitCode -eq 1) {
+            echo 'Old trace does not match'
+            write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+            $exitstatus = 1
+        }
     }
 }
 
 # check the average pixel value of each screenshot to ensure something plausible was written
 #if ($exitstatus -eq 0) {
-#    $trace_mean = (convert 1-trace.ppm -format "%[mean]" info:)
-#    $replay_mean = (convert 1-replay.ppm -format "%[mean]" info:)
+#    $trace_mean = (convert 1-cubetrace.ppm -format "%[mean]" info:)
+#    $replay_mean = (convert 1-cubereplay.ppm -format "%[mean]" info:)
 #    $version = (identify -version)
 #
 #    # normalize the values so we can support Q8 and Q16 imagemagick installations

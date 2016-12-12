@@ -22,8 +22,6 @@
 #define OPTIMIZATION_FUNCTION_IMPLEMENTATION
 
 
-using namespace std;
-
 static const size_t SIZE_LIMIT_TO_USE_OPTIMIZATION = 1*1024*1024; //turn off optimization of memcpy if size < this limit.
                                                                   //for multithread memcopy, there is system cost on multiple threads include switch control from different threads,
                                                                   //synchronization and communication like semaphore wait and post and other process which system don't need to handle
@@ -212,16 +210,6 @@ bool vktrace_pageguard_create_thread(vktrace_pageguard_thread_id *ptid, vktrace_
     return create_thread_ok;
 }
 
-
-void vktrace_pageguard_join_thread(vktrace_pageguard_thread_id tid)
-{
-#if defined(WIN32)
-    WaitForSingleObject((HANDLE)tid, INFINITE);
-#else
-    pthread_join((pthread_t)tid, NULL);
-#endif
-}
-
 void vktrace_pageguard_delete_thread(vktrace_pageguard_thread_id tid)
 {
 #if defined(WIN32)
@@ -229,6 +217,7 @@ void vktrace_pageguard_delete_thread(vktrace_pageguard_thread_id tid)
     TerminateThread((HANDLE)tid, dwExitCode);
 #else
     pthread_cancel((pthread_t)tid);
+    pthread_join((pthread_t)tid, NULL);
 #endif
 }
 
@@ -287,7 +276,7 @@ uint32_t vktrace_pageguard_thread_function(void *ptcbpara)
 {
     vktrace_pageguard_task_control_block * ptasktcb = reinterpret_cast<vktrace_pageguard_task_control_block *>(ptcbpara);
     vktrace_pageguard_task_unit_parameters *parameters;
-    bool stop_loop = false;
+    bool stop_loop;
     while (1)
     {
         vktrace_sem_wait(ptasktcb->sem_id_task_start);
@@ -391,9 +380,9 @@ extern "C" void vktrace_pageguard_done_multi_threads_memcpy()
 
             for (int i = 0; i < thread_number; i++)
             {
+                vktrace_pageguard_delete_thread(task_control_block[i].thread_id);
                 vktrace_sem_delete(task_control_block[i].sem_id_task_start);
                 vktrace_sem_delete(task_control_block[i].sem_id_task_end);
-                vktrace_pageguard_delete_thread(task_control_block[i].thread_id);
             }
             vktrace_pageguard_delete_task_control_block();
             vktrace_sem_delete(vktrace_pageguard_get_task_queue()->sem_id_access);

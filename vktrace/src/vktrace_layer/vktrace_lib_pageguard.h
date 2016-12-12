@@ -66,16 +66,23 @@
 #include "vktrace_pageguard_memorycopy.h"
 
 
-#define PAGEGUARD_PAGEGUARD_ENABLE_ENV "VKTRACE_PAGEGUARD"
+#define PAGEGUARD_PAGEGUARD_ENABLE_ENV "_VKTRACE_OPTIMIZE_PMB"
 #define PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
 
+// Usefull macro for handling fatal errors during tracing
+#define VKTRACE_FATAL_ERROR(_m) \
+    do { \
+        vktrace_LogError(_m " Fatal error."); \
+        exit(1); \
+    } while (0)
 
-#if defined(WIN32) /// page guard solution for windows
 
 VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
+#if defined(WIN32)
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();
+#endif
 size_t pageguardGetAdjustedSize(size_t size);
 void* pageguardAllocateMemory(size_t size);
 void pageguardFreeMemory(void* pMemory);
@@ -94,15 +101,10 @@ void flushTargetChangedMappedMemory(LPPageGuardMappedMemory TargetMappedMemory, 
 
 void resetAllReadFlagAndPageGuard();
 
+#if defined(WIN32)
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
+#endif
 
 VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges);
 
 PageGuardCapture& getPageGuardControlInstance();
-
-//page guard for windows end
-#else
-
-#undef USE_PAGEGUARD_SPEEDUP
-
-#endif//page guard solution

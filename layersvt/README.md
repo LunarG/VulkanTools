@@ -38,7 +38,7 @@ layers/multi.cpp (name=VK_LAYER_LUNARG_multi1:VK_LAYER_LUNARG_multi2) simple exa
 
 ## Using Layers
 
-1. Build VK loader and i965 icd driver using normal steps (cmake and make)
+1. Build VK loader using normal steps (cmake and make)
 2. Place libVkLayer_<name>.so in the same directory as your VK test or app:
 
     cp build/layer/libVkLayer_basic.so build/layer/libVkLayer_generic.so build/tests

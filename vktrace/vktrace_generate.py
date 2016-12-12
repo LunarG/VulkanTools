@@ -27,7 +27,7 @@ import os, sys
 
 # add main repo directory so vulkan.py can be imported. This needs to be a complete path.
 vktrace_scripts_path = os.path.dirname(os.path.abspath(__file__))
-main_path = os.path.abspath(vktrace_scripts_path + "/../")
+main_path = os.path.abspath(vktrace_scripts_path + "/../scripts/")
 sys.path.append(main_path)
 from source_line_info import sourcelineinfo
 
@@ -254,10 +254,17 @@ class Subcommand(object):
         init_tracer.append('#elif defined(PLATFORM_LINUX)\n')
         init_tracer.append('void InitTracer(void)\n{')
         init_tracer.append('#endif\n')
+        init_tracer.append('#if defined(ANDROID)')
+        init_tracer.append('    // On Android, we can use an abstract socket to fit permissions model')
+        init_tracer.append('    const char *ipAddr = "localabstract";')
+        init_tracer.append('    const char *ipPort = "vktrace";')
+        init_tracer.append('    gMessageStream = vktrace_MessageStream_create_port_string(FALSE, ipAddr, ipPort);')
+        init_tracer.append('#else')
         init_tracer.append('    const char *ipAddr = vktrace_get_global_var("VKTRACE_LIB_IPADDR");')
         init_tracer.append('    if (ipAddr == NULL)')
         init_tracer.append('        ipAddr = "127.0.0.1";')
         init_tracer.append('    gMessageStream = vktrace_MessageStream_create(FALSE, ipAddr, VKTRACE_BASE_PORT + VKTRACE_TID_VULKAN);')
+        init_tracer.append('#endif')
         init_tracer.append('    vktrace_trace_set_trace_file(vktrace_FileLike_create_msg(gMessageStream));')
         init_tracer.append('    vktrace_tracelog_set_tracer_id(VKTRACE_TID_VULKAN);')
         init_tracer.append('    trim::initialize();')

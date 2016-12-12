@@ -5,63 +5,45 @@ cmake_minimum_required(VERSION 2.8.11)
 project (VULKAN_TOOLS)
 # set (CMAKE_VERBOSE_MAKEFILE 1)
 
+# The API_NAME allows renaming builds to avoid conflicts with installed SDKs
 # The MAJOR number of the version we're building, used in naming
-# vulkan-<major>.dll (and other files).
+# <api-name>-<major>.dll (and other files).
+set(API_NAME "Vulkan" CACHE STRING "API name to use when building")
 set(MAJOR "1")
+string(TOLOWER ${API_NAME} API_LOWERCASE)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(PythonInterp 3 REQUIRED)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
-    set(DisplayServer Win32)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
-    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
-    set(DisplayServer Android)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    #   Note: Supported configurations are XCB, XCB + Xlib, Wayland.
-    #         MIR is stubbed and untested
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    include(FindPkgConfig)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" OFF)
-    option(BUILD_WSI_MIR_SUPPORT "Build Mir WSI support" OFF)
+    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+    option(BUILD_WSI_MIR_SUPPORT "Build Mir WSI support" ON)
+    option(DEMOS_WSI_SELECTION "Select WSI to use to build demos" XCB)
 
     if (BUILD_WSI_XCB_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
-        set(DisplayServer Xcb)
+        find_package(XCB REQUIRED)
     endif()
 
     if (BUILD_WSI_XLIB_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
-        set(DisplayServer Xlib)
+        find_package(X11 REQUIRED)
     endif()
 
     if (BUILD_WSI_WAYLAND_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
-        set(DisplayServer Wayland)
+        find_package(Wayland REQUIRED)
     endif()
 
     if (BUILD_WSI_MIR_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
-        set(DisplayServer Mir)
+        find_package(Mir REQUIRED)
     endif()
-
-    if (NOT BUILD_WSI_XCB_SUPPORT AND NOT BUILD_WSI_XLIB_SUPPORT AND NOT BUILD_WSI_WAYLAND_SUPPORT AND NOT BUILD_WSI_MIR_SUPPORT)
-        set(DisplayServer Display)
-    endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    # Only vktrace is supported on macOS
-else()
-    message(FATAL_ERROR "Unsupported Platform!")
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 
 # Header file for CMake settings
 include_directories("${PROJECT_SOURCE_DIR}/include")
-
-if(NOT WIN32)
-    include(FindPkgConfig)
-endif()
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(COMMON_COMPILE_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
@@ -80,9 +62,6 @@ if(WIN32)
 endif()
 
 if(NOT WIN32)
-    if (BUILD_WSI_XCB_SUPPORT)
-        find_package(XCB REQUIRED)
-    endif()
     set (BUILDTGT_DIR build)
     set (BINDATA_DIR Bin)
     set (LIBSOURCE_DIR Lib)
@@ -112,11 +91,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
 
     # These are unchanged from upstream file
     option(BUILD_LOADER "Build loader" ON)
-    if(WIN32)
-        option(BUILD_ICD "Build LunarG intel icd" OFF)
-    else()
-        option(BUILD_ICD "Build LunarG intel icd" ON)
-    endif()
     option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERS "Build layers" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
@@ -132,7 +106,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Only vktrace enable for macOS
     option(BUILD_VKTRACE ON)
     option(BUILD_LOADER OFF)
-    option(BUILD_ICD OFF)
     option(BUILD_TESTS OFF)
     option(BUILD_LAYERS OFF)
     option(BUILD_LAYERSVT OFF)
@@ -323,15 +296,6 @@ else ()
     set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_LIB})
 endif()
 
-if (BUILD_ICD)
-    # Hard code our LunarGLASS path for now
-    get_filename_component(LUNARGLASS_PREFIX external/LunarGLASS ABSOLUTE)
-
-    if(NOT EXISTS ${LUNARGLASS_PREFIX})
-        message(FATAL_ERROR "Necessary LunarGLASS components do not exist: " ${LUNARGLASS_PREFIX})
-    endif()
-endif()
-
 set (PYTHON_CMD ${PYTHON_EXECUTABLE})
 
 if(NOT WIN32)
@@ -353,17 +317,18 @@ endif()
 
 if(UNIX)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    if(NOT BUILD_WSI_XCB_SUPPORT)
+        set(BUILD_VKTRACE OFF)
+        if (NOT BUILD_WSI_XLIB_SUPPORT)
+            set(BUILD_LAYERSVT OFF)
+        endif()
+    endif()
 endif()
 
 # loader: Generic VULKAN ICD loader
-# icd: Device dependent (DD) VULKAN components
 # tests: VULKAN tests
 if(BUILD_LOADER)
     add_subdirectory(loader)
-endif()
-
-if(BUILD_ICD)
-    add_subdirectory(icd)
 endif()
 
 if(BUILD_TESTS)
