@@ -30,7 +30,8 @@ static vkreplayer_settings s_defaultVkReplaySettings = { NULL, 1, -1, -1, NULL, 
 
 vktrace_SettingInfo g_vk_settings_info[] =
 {
-    { "t", "TraceFile", VKTRACE_SETTING_STRING, { &g_vkReplaySettings.pTraceFilePath }, { &s_defaultVkReplaySettings.pTraceFilePath }, TRUE, "The trace file to replay." },
+    { "o", "Open", VKTRACE_SETTING_STRING, { &g_vkReplaySettings.pTraceFilePath }, { &s_defaultVkReplaySettings.pTraceFilePath }, TRUE, "The trace file to open and replay." },
+    { "t", "TraceFile", VKTRACE_SETTING_STRING, { &g_vkReplaySettings.pTraceFilePath }, { &s_defaultVkReplaySettings.pTraceFilePath }, TRUE, "(Deprecated, use -o or --Open instead) The trace file to replay." },
     { "l", "NumLoops", VKTRACE_SETTING_UINT, { &g_vkReplaySettings.numLoops }, { &s_defaultVkReplaySettings.numLoops }, TRUE, "The number of times to replay the trace file or loop range." },
     { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, { &g_vkReplaySettings.loopStartFrame }, { &s_defaultVkReplaySettings.loopStartFrame }, TRUE, "The start frame number of the loop range." },
     { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, { &g_vkReplaySettings.loopEndFrame }, { &s_defaultVkReplaySettings.loopEndFrame }, TRUE, "The end frame number of the loop range." },
