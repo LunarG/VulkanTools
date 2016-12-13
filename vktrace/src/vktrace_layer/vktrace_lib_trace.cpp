@@ -306,6 +306,7 @@ void getMappedDirtyPagesLinux(void)
     while (!sighAddrList.empty())
     {
         addr = (PBYTE)sighAddrList.front();
+        bool foundIt=false;
         for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
              it != getPageGuardControlInstance().getMapMemory().end();
              it++)
@@ -313,10 +314,14 @@ void getMappedDirtyPagesLinux(void)
             pMappedMem = &(it->second);
             index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
             if (index >= 0)
+            {
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-            else
-                VKTRACE_FATAL_ERROR("Received signal SIGSEGV on non-mapped memory.");
+                foundIt=true;
+                break;
+            }
         }
+        if (!foundIt)
+            VKTRACE_FATAL_ERROR("Received signal SIGSEGV on non-mapped memory.");
         sighAddrList.pop_front();
     }
     vktrace_sem_post(sighAddrListSem);
