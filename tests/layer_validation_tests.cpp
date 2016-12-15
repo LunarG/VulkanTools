@@ -1550,6 +1550,7 @@ TEST_F(VkLayerTest, InvalidMemoryMapping) {
     vkFlushMappedMemoryRanges(m_device->device(), 1, &mmr);
     m_errorMonitor->VerifyFound();
 
+#if 0 // Planning discussion with working group on this validation check.
     // Some platforms have an atomsize of 1 which makes the test meaningless
     if (atom_size > 3) {
         // Now with an offset NOT a multiple of the device limit
@@ -1572,7 +1573,7 @@ TEST_F(VkLayerTest, InvalidMemoryMapping) {
         vkFlushMappedMemoryRanges(m_device->device(), 1, &mmr);
         m_errorMonitor->VerifyFound();
     }
-
+#endif
     pass = m_device->phy().set_memory_type(mem_reqs.memoryTypeBits, &alloc_info, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
                                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     if (!pass) {
