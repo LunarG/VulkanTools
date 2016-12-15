@@ -144,6 +144,60 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
 }
 
 // ------------------------------------------------------------------------------------------------
+char* append_index_to_filename(const char* base, uint32_t index, const char* extension)
+{
+    char num[17];
+#ifdef PLATFORM_LINUX
+    snprintf(num, 17, "-%u", serverIndex);
+#elif defined(WIN32)
+    _snprintf_s(num, 17, _TRUNCATE, "-%u", index);
+#endif
+    return vktrace_copy_and_append(base, num, extension);
+}
+
+// ------------------------------------------------------------------------------------------------
+static uint32_t s_fileIndex = 0;
+char* find_available_filename(const char* originalFilename, bool bForceOverwrite)
+{
+    char* pOutputFilename = nullptr;
+
+    if (bForceOverwrite)
+    {
+        if (s_fileIndex == 0)
+        {
+            pOutputFilename = vktrace_allocate_and_copy(g_settings.output_trace);
+        }
+        else
+        {
+            const char *pExtension = strrchr(g_settings.output_trace, '.');
+            char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
+            pOutputFilename = append_index_to_filename(basename, s_fileIndex, pExtension);
+            vktrace_free(basename);
+        }
+    }
+    else // don't overwrite
+    {
+        const char *pExtension = strrchr(g_settings.output_trace, '.');
+        char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
+        pOutputFilename = vktrace_allocate_and_copy(g_settings.output_trace);
+        FILE* pFile = nullptr;
+        while ((pFile = fopen(pOutputFilename, "rb")) != nullptr)
+        {
+            fclose(pFile);
+            ++s_fileIndex;
+
+            vktrace_free(pOutputFilename);
+            pOutputFilename = append_index_to_filename(basename, s_fileIndex, pExtension);
+        }
+        vktrace_free(basename);
+    }
+
+    // increment to the next available fileIndex to prep for the next trace file
+    ++s_fileIndex;
+    return pOutputFilename;
+}
+
+// ------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
     memset(&g_settings, 0, sizeof(vktrace_settings));
@@ -252,18 +306,11 @@ int main(int argc, char* argv[])
             procInfo.fullProcessCmdLine = vktrace_copy_and_append(g_settings.program, " ", g_settings.arguments);
             procInfo.workingDirectory = vktrace_allocate_and_copy(g_settings.working_dir);
             procInfo.traceFilename = vktrace_allocate_and_copy(g_settings.output_trace);
-        } else
+        }
+        else
         {
-            const char *pExtension = strrchr(g_settings.output_trace, '.');
-            char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int) ((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
-            char num[16];
-#ifdef PLATFORM_LINUX
-            snprintf(num, 16, "%u", serverIndex);
-#elif defined(WIN32)
-            _snprintf_s(num, 16, _TRUNCATE, "%u", serverIndex);
-#endif
-            procInfo.traceFilename = vktrace_copy_and_append(basename, num, pExtension);
-         }
+            procInfo.traceFilename = find_available_filename(g_settings.output_trace, true);
+        }
 
         procInfo.parentThreadId = vktrace_platform_get_thread_id();
 
