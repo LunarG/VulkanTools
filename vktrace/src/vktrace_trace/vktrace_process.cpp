@@ -214,6 +214,8 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         vktrace_delete_trace_packet(&pHeader);
     }
 
+    PostThreadMessage(pInfo->pProcessInfo->parentThreadId, VKTRACE_WM_COMPLETE, 0, 0);
+
     VKTRACE_DELETE(fileLikeSocket);
     vktrace_MessageStream_destroy(&pMessageStream);
 
