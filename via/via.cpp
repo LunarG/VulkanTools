@@ -850,7 +850,12 @@ void PrintSystemInfo(void) {
 #if _WIN64
     strncpy(os_size, " 64-bit", 31);
 #else
-    strncpy(os_size, " 32-bit", 31);
+    // If WOW64 support is present, then it's a 64-bit Windows
+    if (global_items.is_wow64) {
+        strncpy(os_size, " 64-bit", 31);
+    } else {
+        strncpy(os_size, " 32-bit", 31);
+    }
 #endif
 
     BeginSection("System Info");
