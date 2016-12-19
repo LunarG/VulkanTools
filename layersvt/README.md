@@ -29,8 +29,6 @@ layers/basic.cpp (name=VK_LAYER_LUNARG_basic) simple example wrapping a few entr
 - Example layer extension function shown.
 - Layer extension advertised by vkGetXXXExtension().
 
-layers/multi.cpp (name=VK_LAYER_LUNARG_multi1:VK_LAYER_LUNARG_multi2) simple example showing multiple layers per library
-
 ### Print API Calls and Parameter Values
 (build dir)/layers/api_dump.cpp (name=VK_LAYER_LUNARG_api_dump) - print out API calls along with parameter values
 
