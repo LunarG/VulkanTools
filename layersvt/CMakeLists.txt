@@ -42,14 +42,6 @@ macro(run_vk_helper subcmd)
     )
 endmacro()
 
-## VulkanTools has its own layer generator script
-macro(run_vk_vtlayer_generate subcmd output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
-        DEPENDS ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${SCRIPTS_DIR}/vulkan.py
-    )
-endmacro()
-
 macro(run_vk_xml_generate subcmd output)
     add_custom_command(OUTPUT ${output}
         COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vt_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
@@ -60,7 +52,6 @@ endmacro()
 set(LAYER_JSON_FILES
     VkLayer_api_dump
     VkLayer_basic
-    VkLayer_generic
     VkLayer_monitor
     VkLayer_multi
     VkLayer_screenshot
@@ -210,7 +201,6 @@ add_custom_target(generate_vt_helpers DEPENDS
 )
 
 #VulkanTools layers
-run_vk_vtlayer_generate(generic generic_layer.cpp)
 run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(ApiDump api_dump.cpp)
 run_vk_xml_generate(ApiDump api_dump_text.h)
@@ -230,7 +220,6 @@ add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
 # generated
-add_vk_layer(generic generic_layer.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
 
