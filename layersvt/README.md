@@ -31,8 +31,6 @@ layers/basic.cpp (name=VK_LAYER_LUNARG_basic) simple example wrapping a few entr
 
 layers/multi.cpp (name=VK_LAYER_LUNARG_multi1:VK_LAYER_LUNARG_multi2) simple example showing multiple layers per library
 
-(build dir)/layer/generic_layer.cpp (name=VK_LAYER_LUNARG_generic) - auto generated example wrapping all VK entrypoints.
-
 ### Print API Calls and Parameter Values
 (build dir)/layers/api_dump.cpp (name=VK_LAYER_LUNARG_api_dump) - print out API calls along with parameter values
 
@@ -41,7 +39,7 @@ layers/multi.cpp (name=VK_LAYER_LUNARG_multi1:VK_LAYER_LUNARG_multi2) simple exa
 1. Build VK loader using normal steps (cmake and make)
 2. Place libVkLayer_<name>.so in the same directory as your VK test or app:
 
-    cp build/layer/libVkLayer_basic.so build/layer/libVkLayer_generic.so build/tests
+    cp build/layer/libVkLayer_basic.so build/layer/libVkLayer_basic.so build/tests
 
     This is required for the Loader to be able to scan and enumerate your library.
     Alternatively, use the VK\_LAYER\_PATH environment variable to specify where the layer libraries reside.
@@ -53,8 +51,8 @@ layers/multi.cpp (name=VK_LAYER_LUNARG_multi1:VK_LAYER_LUNARG_multi2) simple exa
 4. Specify which Layers to activate by using
 vkCreateDevice and/or vkCreateInstance or environment variables.
 
-    export VK\_INSTANCE\_LAYERS=VK_LAYER_LUNARG_basic:VK_LAYER_LUNARG_generic
-    export VK\_DEVICE\_LAYERS=VK_LAYER_LUNARG_basic:VK_LAYER_LUNARG_generic
+    export VK\_INSTANCE\_LAYERS=VK_LAYER_LUNARG_basic
+    export VK\_DEVICE\_LAYERS=VK_LAYER_LUNARG_basic
     cd build/tests; ./vkinfo
 
 ## Tips for writing new layers
