@@ -850,7 +850,12 @@ void PrintSystemInfo(void) {
 #if _WIN64
     strncpy(os_size, " 64-bit", 31);
 #else
-    strncpy(os_size, " 32-bit", 31);
+    // If WOW64 support is present, then it's a 64-bit Windows
+    if (global_items.is_wow64) {
+        strncpy(os_size, " 64-bit", 31);
+    } else {
+        strncpy(os_size, " 32-bit", 31);
+    }
 #endif
 
     BeginSection("System Info");
@@ -2588,6 +2593,12 @@ void PrintSystemInfo(void) {
 
     PrintEndTable();
 
+    if (getcwd(generic_string, MAX_STRING_LENGTH - 1) != NULL) {
+        cur_directory = generic_string;
+    } else {
+        cur_directory = "";
+    }
+
     // Output whatever generic hardware information we can find out about the
     // system.  Including how much memory and disk space is available.
     PrintBeginTable("Hardware", 3);
@@ -2624,6 +2635,7 @@ void PrintSystemInfo(void) {
     PrintTableElement(generic_string);
     PrintEndTableRow();
 
+    // Print system disk space usage
     if (0 == statvfs("/etc/os-release", &fs_stats)) {
         uint64_t bytes_total =
             (uint64_t)fs_stats.f_bsize * (uint64_t)fs_stats.f_bavail;
@@ -2631,7 +2643,7 @@ void PrintSystemInfo(void) {
             snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB",
                      static_cast<uint32_t>(bytes_total >> 40));
             PrintBeginTableRow();
-            PrintTableElement("Disk Space");
+            PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
@@ -2639,14 +2651,14 @@ void PrintSystemInfo(void) {
             snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB",
                      static_cast<uint32_t>(bytes_total >> 30));
             PrintBeginTableRow();
-            PrintTableElement("Disk Space");
+            PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
         } else if ((bytes_total >> 20) > 0x0ULL) {
             snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB",
                      static_cast<uint32_t>(bytes_total >> 20));
             PrintBeginTableRow();
-            PrintTableElement("Disk Space");
+            PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
@@ -2654,7 +2666,7 @@ void PrintSystemInfo(void) {
             snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB",
                      static_cast<uint32_t>(bytes_total >> 10));
             PrintBeginTableRow();
-            PrintTableElement("Disk Space");
+            PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
@@ -2662,11 +2674,37 @@ void PrintSystemInfo(void) {
             snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u bytes",
                      static_cast<uint32_t>(bytes_total));
             PrintBeginTableRow();
-            PrintTableElement("Disk Space");
+            PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         }
+    }
+
+    // Print current directory disk space info
+    sprintf(generic_string,
+            "df -h %s | awk \'{ print $4 } \' | tail -n 1",
+            cur_directory.c_str());
+    fp = popen(generic_string, "r");
+    if (fp == NULL) {
+        PrintBeginTableRow();
+        PrintTableElement("Current Dir Disk Space");
+        PrintTableElement("WARNING");
+        PrintTableElement(
+            "Failed to determine current directory disk space");
+        PrintEndTableRow();
+    } else {
+        PrintBeginTableRow();
+        PrintTableElement("Current Dir Disk Space");
+        PrintTableElement("Free");
+        if (fgets(path, sizeof(path) - 1, fp) != NULL) {
+            PrintTableElement(path);
+        } else {
+            PrintTableElement(
+                "Failed to determine current directory disk space");
+        }
+        PrintEndTableRow();
+        pclose(fp);
     }
     PrintEndTable();
 
@@ -2678,15 +2716,10 @@ void PrintSystemInfo(void) {
     PrintTableElement(global_items.exe_directory);
     PrintEndTableRow();
 
-    if (getcwd(generic_string, MAX_STRING_LENGTH - 1) != NULL) {
-        cur_directory = generic_string;
-        PrintBeginTableRow();
-        PrintTableElement("Current Directory");
-        PrintTableElement(cur_directory);
-        PrintEndTableRow();
-    } else {
-        cur_directory = "";
-    }
+    PrintBeginTableRow();
+    PrintTableElement("Current Directory");
+    PrintTableElement(cur_directory);
+    PrintEndTableRow();
 
     PrintBeginTableRow();
     PrintTableElement("App Version");
