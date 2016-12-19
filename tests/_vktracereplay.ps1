@@ -52,18 +52,18 @@ $Env:VK_LAYER_PATH = $pwd
 # Do a trace and replay for cube
 & vktrace -o c01.vktrace -s 1 -p cube -a "--c 10" --PMB true > trace.sout 2> trace.serr
 rename-item -path 1.ppm -newname 1-cubetrace.ppm
-& vkreplay  -s 1 -t  c01.vktrace > replay.sout 2> replay.serr
+& vkreplay  -s 1 -o  c01.vktrace > replay.sout 2> replay.serr
 rename-item -path 1.ppm -newname 1-cubereplay.ppm
 
 # Do a trace and replay for smoketest
 & vktrace -o s01.vktrace -s 1 -p smoketest -a "--c 10" --PMB true > trace.sout 2> trace.serr
 rename-item -path 1.ppm -newname 1-smoketrace.ppm
-& vkreplay  -s 1 -t  s01.vktrace > replay.sout 2> replay.serr
+& vkreplay  -s 1 -o  s01.vktrace > replay.sout 2> replay.serr
 rename-item -path 1.ppm -newname 1-smokereplay.ppm
 
 # Replay old trace if specified
 if ($Replay) {
-    & vkreplay -s 1 -t "$Replay.vktrace" > replayold.sout 2> replayold.serr
+    & vkreplay -s 1 -o "$Replay.vktrace" > replayold.sout 2> replayold.serr
     rename-item -path 1.ppm -newname 1-replayold.ppm
 }
 

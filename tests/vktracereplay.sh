@@ -28,7 +28,7 @@ function trace_replay {
 			--PMB false \
 			-s 1
 	printf "$GREEN[ REPLAY   ]$NC ${PGM}\n"
-	${VKREPLAY}	--TraceFile ${PGM}.vktrace \
+	${VKREPLAY}	--Open ${PGM}.vktrace \
 			-s 1
 	rm -f ${PGM}.vktrace
 	cmp -s 1.ppm ${APPDIR}/1.ppm
