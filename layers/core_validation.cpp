@@ -145,7 +145,7 @@ struct layer_data {
     unordered_map<VkPipelineLayout, PIPELINE_LAYOUT_NODE> pipelineLayoutMap;
     unordered_map<VkDeviceMemory, unique_ptr<DEVICE_MEM_INFO>> memObjMap;
     unordered_map<VkFence, FENCE_NODE> fenceMap;
-    unordered_map<VkQueue, QUEUE_NODE> queueMap;
+    unordered_map<VkQueue, QUEUE_STATE> queueMap;
     unordered_map<VkEvent, EVENT_STATE> eventMap;
     unordered_map<QueryObject, bool> queryToStateMap;
     unordered_map<VkQueryPool, QUERY_POOL_NODE> queryPoolMap;
@@ -353,7 +353,7 @@ QUERY_POOL_NODE *getQueryPoolNode(layer_data *dev_data, VkQueryPool query_pool) 
     return &it->second;
 }
 
-QUEUE_NODE *getQueueNode(layer_data *dev_data, VkQueue queue) {
+QUEUE_STATE *getQueueState(layer_data *dev_data, VkQueue queue) {
     auto it = dev_data->queueMap.find(queue);
     if (it == dev_data->queueMap.end()) {
         return nullptr;
@@ -3311,54 +3311,11 @@ static bool verifyPipelineCreateState(layer_data *my_data, std::vector<PIPELINE_
                                          pPipeline->graphicsPipelineCI.pRasterizationState->lineWidth);
         }
     }
-    // Viewport state must be included if rasterization is enabled.
-    // If the viewport state is included, the viewport and scissor counts should always match.
-    // NOTE : Even if these are flagged as dynamic, counts need to be set correctly for shader compiler
-    if (!pPipeline->graphicsPipelineCI.pRasterizationState ||
-        (pPipeline->graphicsPipelineCI.pRasterizationState->rasterizerDiscardEnable == VK_FALSE)) {
-        if (!pPipeline->graphicsPipelineCI.pViewportState) {
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 DRAWSTATE_VIEWPORT_SCISSOR_MISMATCH, "DS", "Gfx Pipeline pViewportState is null. Even if viewport "
-                                                                            "and scissors are dynamic PSO must include "
-                                                                            "viewportCount and scissorCount in pViewportState.");
-        } else if (pPipeline->graphicsPipelineCI.pViewportState->scissorCount !=
-                   pPipeline->graphicsPipelineCI.pViewportState->viewportCount) {
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 DRAWSTATE_VIEWPORT_SCISSOR_MISMATCH, "DS",
-                                 "Gfx Pipeline viewport count (%u) must match scissor count (%u).",
-                                 pPipeline->graphicsPipelineCI.pViewportState->viewportCount,
-                                 pPipeline->graphicsPipelineCI.pViewportState->scissorCount);
-        } else {
-            // If viewport or scissor are not dynamic, then verify that data is appropriate for count
-            bool dynViewport = isDynamic(pPipeline, VK_DYNAMIC_STATE_VIEWPORT);
-            bool dynScissor = isDynamic(pPipeline, VK_DYNAMIC_STATE_SCISSOR);
-            if (!dynViewport) {
-                if (pPipeline->graphicsPipelineCI.pViewportState->viewportCount &&
-                    !pPipeline->graphicsPipelineCI.pViewportState->pViewports) {
-                    skip_call |=
-                        log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                DRAWSTATE_VIEWPORT_SCISSOR_MISMATCH, "DS",
-                                "Gfx Pipeline viewportCount is %u, but pViewports is NULL. For non-zero viewportCount, you "
-                                "must either include pViewports data, or include viewport in pDynamicState and set it with "
-                                "vkCmdSetViewport().",
-                                pPipeline->graphicsPipelineCI.pViewportState->viewportCount);
-                }
-            }
-            if (!dynScissor) {
-                if (pPipeline->graphicsPipelineCI.pViewportState->scissorCount &&
-                    !pPipeline->graphicsPipelineCI.pViewportState->pScissors) {
-                    skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
-                                         __LINE__, DRAWSTATE_VIEWPORT_SCISSOR_MISMATCH, "DS",
-                                         "Gfx Pipeline scissorCount is %u, but pScissors is NULL. For non-zero scissorCount, you "
-                                         "must either include pScissors data, or include scissor in pDynamicState and set it with "
-                                         "vkCmdSetScissor().",
-                                         pPipeline->graphicsPipelineCI.pViewportState->scissorCount);
-                }
-            }
-        }
 
-        // If rasterization is not disabled, and subpass uses a depth/stencil
-        // attachment, pDepthStencilState must be a pointer to a valid structure
+    // If rasterization is not disabled and subpass uses a depth/stencil attachment, pDepthStencilState must be a pointer to a
+    // valid structure
+    if (pPipeline->graphicsPipelineCI.pRasterizationState &&
+        (pPipeline->graphicsPipelineCI.pRasterizationState->rasterizerDiscardEnable == VK_FALSE)) {
         auto subpass_desc = renderPass ? &renderPass->createInfo.pSubpasses[pPipeline->graphicsPipelineCI.subpass] : nullptr;
         if (subpass_desc && subpass_desc->pDepthStencilAttachment &&
             subpass_desc->pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED) {
@@ -3864,11 +3821,7 @@ static bool addCmd(layer_data *my_data, GLOBAL_CB_NODE *pCB, const CMD_TYPE cmd,
         skip_call |= report_error_no_cb_begin(my_data, pCB->commandBuffer, caller_name);
     } else {
         skip_call |= validateCmdsInCmdBuffer(my_data, pCB, cmd);
-        CMD_NODE cmdNode = {};
-        // init cmd node and append to end of cmd LL
-        cmdNode.cmdNumber = ++pCB->numCmds;
-        cmdNode.type = cmd;
-        pCB->cmds.push_back(cmdNode);
+        pCB->last_cmd = cmd;    // TODO: replace this with better ->state tracking.
     }
     return skip_call;
 }
@@ -3959,7 +3912,7 @@ static void resetCB(layer_data *dev_data, const VkCommandBuffer cb) {
     GLOBAL_CB_NODE *pCB = dev_data->commandBufferMap[cb];
     if (pCB) {
         pCB->in_use.store(0);
-        pCB->cmds.clear();
+        pCB->last_cmd = CMD_NONE;
         // Reset CB state (note that createInfo is not cleared)
         pCB->commandBuffer = cb;
         memset(&pCB->beginInfo, 0, sizeof(VkCommandBufferBeginInfo));
@@ -4592,7 +4545,7 @@ static bool validateAndIncrementResources(layer_data *dev_data, GLOBAL_CB_NODE *
 // For the given queue, verify the queue state up to the given seq number.
 // Currently the only check is to make sure that if there are events to be waited on prior to
 //  a QueryReset, make sure that all such events have been signalled.
-static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_NODE *queue, uint64_t seq) {
+static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_STATE *queue, uint64_t seq) {
     bool skip = false;
     auto queue_seq = queue->seq;
     std::unordered_map<VkQueue, uint64_t> other_queue_seqs;
@@ -4622,7 +4575,7 @@ static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_NODE *queue, uint6
         queue_seq++;
     }
     for (auto qs : other_queue_seqs) {
-        skip |= VerifyQueueStateToSeq(dev_data, getQueueNode(dev_data, qs.first), qs.second);
+        skip |= VerifyQueueStateToSeq(dev_data, getQueueState(dev_data, qs.first), qs.second);
     }
     return skip;
 }
@@ -4631,7 +4584,7 @@ static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_NODE *queue, uint6
 static bool VerifyQueueStateToFence(layer_data *dev_data, VkFence fence) {
     auto fence_state = getFenceNode(dev_data, fence);
     if (VK_NULL_HANDLE != fence_state->signaler.first) {
-        return VerifyQueueStateToSeq(dev_data, getQueueNode(dev_data, fence_state->signaler.first), fence_state->signaler.second);
+        return VerifyQueueStateToSeq(dev_data, getQueueState(dev_data, fence_state->signaler.first), fence_state->signaler.second);
     }
     return false;
 }
@@ -4658,7 +4611,7 @@ static void DecrementBoundResources(layer_data *dev_data, GLOBAL_CB_NODE const *
     }
 }
 
-static void RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t seq) {
+static void RetireWorkOnQueue(layer_data *dev_data, QUEUE_STATE *pQueue, uint64_t seq) {
     std::unordered_map<VkQueue, uint64_t> otherQueueSeqs;
 
     // Roll this queue forward, one submission at a time.
@@ -4723,16 +4676,14 @@ static void RetireWorkOnQueue(layer_data *dev_data, QUEUE_NODE *pQueue, uint64_t
 
     // Roll other queues forward to the highest seq we saw a wait for
     for (auto qs : otherQueueSeqs) {
-        RetireWorkOnQueue(dev_data, getQueueNode(dev_data, qs.first), qs.second);
+        RetireWorkOnQueue(dev_data, getQueueState(dev_data, qs.first), qs.second);
     }
 }
 
 
 // Submit a fence to a queue, delimiting previous fences and previous untracked
 // work by it.
-static void
-SubmitFence(QUEUE_NODE *pQueue, FENCE_NODE *pFence, uint64_t submitCount)
-{
+static void SubmitFence(QUEUE_STATE *pQueue, FENCE_NODE *pFence, uint64_t submitCount) {
     pFence->state = FENCE_INFLIGHT;
     pFence->signaler.first = pQueue->queue;
     pFence->signaler.second = pQueue->seq + pQueue->submissions.size() + submitCount;
@@ -4795,15 +4746,15 @@ static bool validateCommandBufferState(layer_data *dev_data, GLOBAL_CB_NODE *pCB
 static bool validateQueueFamilyIndices(layer_data *dev_data, GLOBAL_CB_NODE *pCB, VkQueue queue) {
     bool skip_call = false;
     auto pPool = getCommandPoolNode(dev_data, pCB->createInfo.commandPool);
-    auto queue_node = getQueueNode(dev_data, queue);
+    auto queue_state = getQueueState(dev_data, queue);
 
-    if (pPool && queue_node && (pPool->queueFamilyIndex != queue_node->queueFamilyIndex)) {
+    if (pPool && queue_state && (pPool->queueFamilyIndex != queue_state->queueFamilyIndex)) {
         skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-            reinterpret_cast<uint64_t>(pCB->commandBuffer), __LINE__, DRAWSTATE_INVALID_QUEUE_FAMILY, "DS",
-            "vkQueueSubmit: Primary command buffer 0x%" PRIxLEAST64
-            " created in queue family %d is being submitted on queue 0x%" PRIxLEAST64 " from queue family %d.",
-            reinterpret_cast<uint64_t>(pCB->commandBuffer), pPool->queueFamilyIndex,
-            reinterpret_cast<uint64_t>(queue), queue_node->queueFamilyIndex);
+                             reinterpret_cast<uint64_t>(pCB->commandBuffer), __LINE__, DRAWSTATE_INVALID_QUEUE_FAMILY, "DS",
+                             "vkQueueSubmit: Primary command buffer 0x%" PRIxLEAST64
+                             " created in queue family %d is being submitted on queue 0x%" PRIxLEAST64 " from queue family %d.",
+                             reinterpret_cast<uint64_t>(pCB->commandBuffer), pPool->queueFamilyIndex,
+                             reinterpret_cast<uint64_t>(queue), queue_state->queueFamilyIndex);
     }
 
     return skip_call;
@@ -4874,7 +4825,7 @@ QueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo *pSubmits, V
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     std::unique_lock<std::mutex> lock(global_lock);
 
-    auto pQueue = getQueueNode(dev_data, queue);
+    auto pQueue = getQueueState(dev_data, queue);
     auto pFence = getFenceNode(dev_data, fence);
     skip_call |= ValidateFenceForSubmit(dev_data, pFence);
 
@@ -5224,7 +5175,7 @@ static void RetireFence(layer_data *dev_data, VkFence fence) {
         /* Fence signaller is a queue -- use this as proof that prior operations
          * on that queue have completed.
          */
-        RetireWorkOnQueue(dev_data, getQueueNode(dev_data, pFence->signaler.first), pFence->signaler.second);
+        RetireWorkOnQueue(dev_data, getQueueState(dev_data, pFence->signaler.first), pFence->signaler.second);
     }
     else {
         /* Fence signaller is the WSI. We're not tracking what the WSI op
@@ -5302,36 +5253,40 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(VkDevice device, VkFence fence) {
     return result;
 }
 
+static void PostCallRecordGetDeviceQueue(layer_data *dev_data, uint32_t q_family_index, VkQueue queue) {
+    // Add queue to tracking set only if it is new
+    auto result = dev_data->queues.emplace(queue);
+    if (result.second == true) {
+        QUEUE_STATE *queue_state = &dev_data->queueMap[queue];
+        queue_state->queue = queue;
+        queue_state->queueFamilyIndex = q_family_index;
+        queue_state->seq = 0;
+    }
+}
+
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex,
                                                             VkQueue *pQueue) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
     dev_data->dispatch_table.GetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
     std::lock_guard<std::mutex> lock(global_lock);
 
-    // Add queue to tracking set only if it is new
-    auto result = dev_data->queues.emplace(*pQueue);
-    if (result.second == true) {
-        QUEUE_NODE *pQNode = &dev_data->queueMap[*pQueue];
-        pQNode->queue = *pQueue;
-        pQNode->queueFamilyIndex = queueFamilyIndex;
-        pQNode->seq = 0;
-    }
+    PostCallRecordGetDeviceQueue(dev_data, queueFamilyIndex, *pQueue);
 }
 
-static bool PreCallValidateQueueWaitIdle(layer_data *dev_data, VkQueue queue, QUEUE_NODE **queue_state) {
-    *queue_state = getQueueNode(dev_data, queue);
+static bool PreCallValidateQueueWaitIdle(layer_data *dev_data, VkQueue queue, QUEUE_STATE **queue_state) {
+    *queue_state = getQueueState(dev_data, queue);
     if (dev_data->instance_data->disabled.queue_wait_idle)
         return false;
     return VerifyQueueStateToSeq(dev_data, *queue_state, (*queue_state)->seq + (*queue_state)->submissions.size());
 }
 
-static void PostCallRecordQueueWaitIdle(layer_data *dev_data, QUEUE_NODE *queue_state) {
+static void PostCallRecordQueueWaitIdle(layer_data *dev_data, QUEUE_STATE *queue_state) {
     RetireWorkOnQueue(dev_data, queue_state, queue_state->seq + queue_state->submissions.size());
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(VkQueue queue) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
-    QUEUE_NODE *queue_state = nullptr;
+    QUEUE_STATE *queue_state = nullptr;
     std::unique_lock<std::mutex> lock(global_lock);
     bool skip = PreCallValidateQueueWaitIdle(dev_data, queue, &queue_state);
     lock.unlock();
@@ -5378,40 +5333,67 @@ VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(VkDevice device) {
     return result;
 }
 
+static bool PreCallValidateDestroyFence(layer_data *dev_data, VkFence fence, FENCE_NODE **fence_node, VK_OBJECT *obj_struct) {
+    *fence_node = getFenceNode(dev_data, fence);
+    *obj_struct = {reinterpret_cast<uint64_t &>(fence), VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT};
+    if (dev_data->instance_data->disabled.destroy_fence)
+        return false;
+    bool skip = false;
+    if (*fence_node) {
+        if ((*fence_node)->state == FENCE_INFLIGHT) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
+                            (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS", "Fence 0x%" PRIx64 " is in use.",
+                            (uint64_t)(fence));
+        }
+    }
+    return skip;
+}
+
+static void PostCallRecordDestroyFence(layer_data *dev_data, VkFence fence) { dev_data->fenceMap.erase(fence); }
+
 VKAPI_ATTR void VKAPI_CALL DestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skip_call = false;
+    // Common data objects used pre & post call
+    FENCE_NODE *fence_node = nullptr;
+    VK_OBJECT obj_struct;
     std::unique_lock<std::mutex> lock(global_lock);
-    auto fence_pair = dev_data->fenceMap.find(fence);
-    if (fence_pair != dev_data->fenceMap.end()) {
-        if (fence_pair->second.state == FENCE_INFLIGHT) {
-            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT,
-                                 (uint64_t)(fence), __LINE__, DRAWSTATE_INVALID_FENCE, "DS", "Fence 0x%" PRIx64 " is in use.",
-                                 (uint64_t)(fence));
-        }
-        dev_data->fenceMap.erase(fence_pair);
-    }
-    lock.unlock();
+    bool skip = PreCallValidateDestroyFence(dev_data, fence, &fence_node, &obj_struct);
 
-    if (!skip_call)
+    if (!skip) {
+        lock.unlock();
         dev_data->dispatch_table.DestroyFence(device, fence, pAllocator);
+        lock.lock();
+        PostCallRecordDestroyFence(dev_data, fence);
+    }
 }
+
+static bool PreCallValidateDestroySemaphore(layer_data *dev_data, VkSemaphore semaphore, SEMAPHORE_NODE **sema_node,
+                                            VK_OBJECT *obj_struct) {
+    *sema_node = getSemaphoreNode(dev_data, semaphore);
+    *obj_struct = {reinterpret_cast<uint64_t &>(semaphore), VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT};
+    if (dev_data->instance_data->disabled.destroy_semaphore)
+        return false;
+    bool skip = false;
+    if (*sema_node) {
+        skip |= ValidateObjectNotInUse(dev_data, *sema_node, *obj_struct, VALIDATION_ERROR_00199);
+    }
+    return skip;
+}
+
+static void PostCallRecordDestroySemaphore(layer_data *dev_data, VkSemaphore sema) { dev_data->semaphoreMap.erase(sema); }
 
 VKAPI_ATTR void VKAPI_CALL
 DestroySemaphore(VkDevice device, VkSemaphore semaphore, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skip = false;
+    SEMAPHORE_NODE *sema_node;
+    VK_OBJECT obj_struct;
     std::unique_lock<std::mutex> lock(global_lock);
-    auto sema_node = getSemaphoreNode(dev_data, semaphore);
-    if (sema_node) {
-        skip |= ValidateObjectNotInUse(dev_data, sema_node,
-                                       {reinterpret_cast<uint64_t &>(semaphore), VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT},
-                                       VALIDATION_ERROR_00199);
-    }
+    bool skip = PreCallValidateDestroySemaphore(dev_data, semaphore, &sema_node, &obj_struct);
     if (!skip) {
-        dev_data->semaphoreMap.erase(semaphore);
         lock.unlock();
         dev_data->dispatch_table.DestroySemaphore(device, semaphore, pAllocator);
+        lock.lock();
+        PostCallRecordDestroySemaphore(dev_data, semaphore);
     }
 }
 
@@ -5446,95 +5428,142 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(VkDevice device, VkEvent event, const Vk
     }
 }
 
+static bool PreCallValidateDestroyQueryPool(layer_data *dev_data, VkQueryPool query_pool, QUERY_POOL_NODE **qp_state,
+                                            VK_OBJECT *obj_struct) {
+    *qp_state = getQueryPoolNode(dev_data, query_pool);
+    *obj_struct = {reinterpret_cast<uint64_t &>(query_pool), VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT};
+    if (dev_data->instance_data->disabled.destroy_query_pool)
+        return false;
+    bool skip = false;
+    if (*qp_state) {
+        skip |= ValidateObjectNotInUse(dev_data, *qp_state, *obj_struct, VALIDATION_ERROR_01012);
+    }
+    return skip;
+}
+
+static void PostCallRecordDestroyQueryPool(layer_data *dev_data, VkQueryPool query_pool, QUERY_POOL_NODE *qp_state, VK_OBJECT obj_struct) {
+    invalidateCommandBuffers(dev_data, qp_state->cb_bindings, obj_struct);
+    dev_data->queryPoolMap.erase(query_pool);
+}
+
 VKAPI_ATTR void VKAPI_CALL
 DestroyQueryPool(VkDevice device, VkQueryPool queryPool, const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skip = false;
+    QUERY_POOL_NODE *qp_state = nullptr;
+    VK_OBJECT obj_struct;
     std::unique_lock<std::mutex> lock(global_lock);
-    auto qp_node = getQueryPoolNode(dev_data, queryPool);
-    if (qp_node) {
-        VK_OBJECT obj_struct = {reinterpret_cast<uint64_t &>(queryPool), VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT};
-        skip |= ValidateObjectNotInUse(dev_data, qp_node, obj_struct, VALIDATION_ERROR_01012);
-        // Any bound cmd buffers are now invalid
-        invalidateCommandBuffers(dev_data, qp_node->cb_bindings, obj_struct);
-    }
+    bool skip = PreCallValidateDestroyQueryPool(dev_data, queryPool, &qp_state, &obj_struct);
     if (!skip) {
-        dev_data->queryPoolMap.erase(queryPool);
         lock.unlock();
         dev_data->dispatch_table.DestroyQueryPool(device, queryPool, pAllocator);
+        lock.lock();
+        PostCallRecordDestroyQueryPool(dev_data, queryPool, qp_state, obj_struct);
     }
 }
-
-VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery,
-                                                   uint32_t queryCount, size_t dataSize, void *pData, VkDeviceSize stride,
-                                                   VkQueryResultFlags flags) {
-    layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    unordered_map<QueryObject, vector<VkCommandBuffer>> queriesInFlight;
-    std::unique_lock<std::mutex> lock(global_lock);
-    for (auto cmdBuffer : dev_data->globalInFlightCmdBuffers) {
-        auto pCB = getCBNode(dev_data, cmdBuffer);
-        for (auto queryStatePair : pCB->queryToStateMap) {
-            queriesInFlight[queryStatePair.first].push_back(cmdBuffer);
+static bool PreCallValidateGetQueryPoolResults(layer_data *dev_data, VkQueryPool query_pool, uint32_t first_query,
+                                               uint32_t query_count, VkQueryResultFlags flags,
+                                               unordered_map<QueryObject, vector<VkCommandBuffer>> *queries_in_flight) {
+    for (auto cmd_buffer : dev_data->globalInFlightCmdBuffers) {
+        auto cb = getCBNode(dev_data, cmd_buffer);
+        for (auto query_state_pair : cb->queryToStateMap) {
+            (*queries_in_flight)[query_state_pair.first].push_back(cmd_buffer);
         }
     }
-    bool skip_call = false;
-    for (uint32_t i = 0; i < queryCount; ++i) {
-        QueryObject query = {queryPool, firstQuery + i};
-        auto queryElement = queriesInFlight.find(query);
-        auto queryToStateElement = dev_data->queryToStateMap.find(query);
-        if (queryToStateElement != dev_data->queryToStateMap.end()) {
+    if (dev_data->instance_data->disabled.get_query_pool_results)
+        return false;
+    bool skip = false;
+    for (uint32_t i = 0; i < query_count; ++i) {
+        QueryObject query = {query_pool, first_query + i};
+        auto qif_pair = queries_in_flight->find(query);
+        auto query_state_pair = dev_data->queryToStateMap.find(query);
+        if (query_state_pair != dev_data->queryToStateMap.end()) {
             // Available and in flight
-            if (queryElement != queriesInFlight.end() && queryToStateElement != dev_data->queryToStateMap.end() &&
-                queryToStateElement->second) {
-                for (auto cmdBuffer : queryElement->second) {
-                    auto pCB = getCBNode(dev_data, cmdBuffer);
-                    auto queryEventElement = pCB->waitedEventsBeforeQueryReset.find(query);
-                    if (queryEventElement == pCB->waitedEventsBeforeQueryReset.end()) {
-                        skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                             VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                             "Cannot get query results on queryPool 0x%" PRIx64 " with index %d which is in flight.",
-                                             (uint64_t)(queryPool), firstQuery + i);
-                    } else {
-                        for (auto event : queryEventElement->second) {
+            if (qif_pair != queries_in_flight->end() && query_state_pair != dev_data->queryToStateMap.end() &&
+                query_state_pair->second) {
+                for (auto cmd_buffer : qif_pair->second) {
+                    auto cb = getCBNode(dev_data, cmd_buffer);
+                    auto query_event_pair = cb->waitedEventsBeforeQueryReset.find(query);
+                    if (query_event_pair == cb->waitedEventsBeforeQueryReset.end()) {
+                        skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                        VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                        "Cannot get query results on queryPool 0x%" PRIx64 " with index %d which is in flight.",
+                                        (uint64_t)(query_pool), first_query + i);
+                    }
+                }
+                // Unavailable and in flight
+            } else if (qif_pair != queries_in_flight->end() && query_state_pair != dev_data->queryToStateMap.end() &&
+                       !query_state_pair->second) {
+                // TODO : Can there be the same query in use by multiple command buffers in flight?
+                bool make_available = false;
+                for (auto cmd_buffer : qif_pair->second) {
+                    auto cb = getCBNode(dev_data, cmd_buffer);
+                    make_available |= cb->queryToStateMap[query];
+                }
+                if (!(((flags & VK_QUERY_RESULT_PARTIAL_BIT) || (flags & VK_QUERY_RESULT_WAIT_BIT)) && make_available)) {
+                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                    VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                    "Cannot get query results on queryPool 0x%" PRIx64 " with index %d which is unavailable.",
+                                    (uint64_t)(query_pool), first_query + i);
+                }
+                // Unavailable
+            } else if (query_state_pair != dev_data->queryToStateMap.end() && !query_state_pair->second) {
+                skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0,
+                                __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                "Cannot get query results on queryPool 0x%" PRIx64 " with index %d which is unavailable.",
+                                (uint64_t)(query_pool), first_query + i);
+                // Uninitialized
+            } else if (query_state_pair == dev_data->queryToStateMap.end()) {
+                skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0,
+                                __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
+                                "Cannot get query results on queryPool 0x%" PRIx64
+                                " with index %d as data has not been collected for this index.",
+                                (uint64_t)(query_pool), first_query + i);
+            }
+        }
+    }
+    return skip;
+}
+
+static void PostCallRecordGetQueryPoolResults(layer_data *dev_data, VkQueryPool query_pool, uint32_t first_query,
+                                              uint32_t query_count,
+                                              unordered_map<QueryObject, vector<VkCommandBuffer>> *queries_in_flight) {
+    for (uint32_t i = 0; i < query_count; ++i) {
+        QueryObject query = {query_pool, first_query + i};
+        auto qif_pair = queries_in_flight->find(query);
+        auto query_state_pair = dev_data->queryToStateMap.find(query);
+        if (query_state_pair != dev_data->queryToStateMap.end()) {
+            // Available and in flight
+            if (qif_pair != queries_in_flight->end() && query_state_pair != dev_data->queryToStateMap.end() &&
+                query_state_pair->second) {
+                for (auto cmd_buffer : qif_pair->second) {
+                    auto cb = getCBNode(dev_data, cmd_buffer);
+                    auto query_event_pair = cb->waitedEventsBeforeQueryReset.find(query);
+                    if (query_event_pair != cb->waitedEventsBeforeQueryReset.end()) {
+                        for (auto event : query_event_pair->second) {
                             dev_data->eventMap[event].needsSignaled = true;
                         }
                     }
                 }
-                // Unavailable and in flight
-            } else if (queryElement != queriesInFlight.end() && queryToStateElement != dev_data->queryToStateMap.end() &&
-                       !queryToStateElement->second) {
-                // TODO : Can there be the same query in use by multiple command buffers in flight?
-                bool make_available = false;
-                for (auto cmdBuffer : queryElement->second) {
-                    auto pCB = getCBNode(dev_data, cmdBuffer);
-                    make_available |= pCB->queryToStateMap[query];
-                }
-                if (!(((flags & VK_QUERY_RESULT_PARTIAL_BIT) || (flags & VK_QUERY_RESULT_WAIT_BIT)) && make_available)) {
-                    skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                         "Cannot get query results on queryPool 0x%" PRIx64 " with index %d which is unavailable.",
-                                         (uint64_t)(queryPool), firstQuery + i);
-                }
-                // Unavailable
-            } else if (queryToStateElement != dev_data->queryToStateMap.end() && !queryToStateElement->second) {
-                skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                     "Cannot get query results on queryPool 0x%" PRIx64 " with index %d which is unavailable.",
-                                     (uint64_t)(queryPool), firstQuery + i);
-                // Unitialized
-            } else if (queryToStateElement == dev_data->queryToStateMap.end()) {
-                skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, __LINE__, DRAWSTATE_INVALID_QUERY, "DS",
-                                     "Cannot get query results on queryPool 0x%" PRIx64
-                                     " with index %d as data has not been collected for this index.",
-                                     (uint64_t)(queryPool), firstQuery + i);
             }
         }
     }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount,
+                                                   size_t dataSize, void *pData, VkDeviceSize stride, VkQueryResultFlags flags) {
+    layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    unordered_map<QueryObject, vector<VkCommandBuffer>> queries_in_flight;
+    std::unique_lock<std::mutex> lock(global_lock);
+    bool skip = PreCallValidateGetQueryPoolResults(dev_data, queryPool, firstQuery, queryCount, flags, &queries_in_flight);
     lock.unlock();
-    if (skip_call)
+    if (skip)
         return VK_ERROR_VALIDATION_FAILED_EXT;
-    return dev_data->dispatch_table.GetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    VkResult result =
+        dev_data->dispatch_table.GetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    lock.lock();
+    PostCallRecordGetQueryPoolResults(dev_data, queryPool, firstQuery, queryCount, &queries_in_flight);
+    lock.unlock();
+    return result;
 }
 
 static bool validateIdleBuffer(const layer_data *my_data, VkBuffer buffer) {
@@ -5697,28 +5726,43 @@ static void RemoveBufferMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info) 
 
 static void RemoveImageMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info) { RemoveMemoryRange(handle, mem_info, true); }
 
+static bool PreCallValidateDestroyBuffer(layer_data *dev_data, VkBuffer buffer, BUFFER_STATE **buffer_state,
+                                         VK_OBJECT *obj_struct) {
+    *buffer_state = getBufferState(dev_data, buffer);
+    *obj_struct = {reinterpret_cast<uint64_t &>(buffer), VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT};
+    if (dev_data->instance_data->disabled.destroy_buffer)
+        return false;
+    bool skip = false;
+    if (*buffer_state) {
+        skip |= validateIdleBuffer(dev_data, buffer);
+    }
+    return skip;
+}
+
+static void PostCallRecordDestroyBuffer(layer_data *dev_data, VkBuffer buffer, BUFFER_STATE *buffer_state, VK_OBJECT obj_struct) {
+    invalidateCommandBuffers(dev_data, buffer_state->cb_bindings, obj_struct);
+    for (auto mem_binding : buffer_state->GetBoundMemory()) {
+        auto mem_info = getMemObjInfo(dev_data, mem_binding);
+        if (mem_info) {
+            RemoveBufferMemoryRange(reinterpret_cast<uint64_t &>(buffer), mem_info);
+        }
+    }
+    ClearMemoryObjectBindings(dev_data, reinterpret_cast<uint64_t &>(buffer), VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT);
+    dev_data->bufferMap.erase(buffer_state->buffer);
+}
+
 VKAPI_ATTR void VKAPI_CALL DestroyBuffer(VkDevice device, VkBuffer buffer,
                                          const VkAllocationCallbacks *pAllocator) {
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    BUFFER_STATE *buffer_state = nullptr;
+    VK_OBJECT obj_struct;
     std::unique_lock<std::mutex> lock(global_lock);
-    if (!validateIdleBuffer(dev_data, buffer)) {
-        // Clean up memory binding and range information for buffer
-        auto buffer_state = getBufferState(dev_data, buffer);
-        if (buffer_state) {
-            // Any bound cmd buffers are now invalid
-            invalidateCommandBuffers(dev_data, buffer_state->cb_bindings,
-                                     {reinterpret_cast<uint64_t &>(buffer_state->buffer), VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT});
-            for (auto mem_binding : buffer_state->GetBoundMemory()) {
-                auto mem_info = getMemObjInfo(dev_data, mem_binding);
-                if (mem_info) {
-                    RemoveBufferMemoryRange(reinterpret_cast<uint64_t &>(buffer), mem_info);
-                }
-            }
-            ClearMemoryObjectBindings(dev_data, reinterpret_cast<uint64_t &>(buffer), VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT);
-            dev_data->bufferMap.erase(buffer_state->buffer);
-        }
+    bool skip = PreCallValidateDestroyBuffer(dev_data, buffer, &buffer_state, &obj_struct);
+    if (!skip) {
         lock.unlock();
         dev_data->dispatch_table.DestroyBuffer(device, buffer, pAllocator);
+        lock.lock();
+        PostCallRecordDestroyBuffer(dev_data, buffer, buffer_state, obj_struct);
     }
 }
 
@@ -6059,11 +6103,16 @@ DestroySampler(VkDevice device, VkSampler sampler, const VkAllocationCallbacks *
     }
 }
 
+static void PostCallRecordDestroyDescriptorSetLayout(layer_data *dev_data, VkDescriptorSetLayout ds_layout) {
+    dev_data->descriptorSetLayoutMap.erase(ds_layout);
+}
+
 VKAPI_ATTR void VKAPI_CALL
 DestroyDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout descriptorSetLayout, const VkAllocationCallbacks *pAllocator) {
-    // TODO : Clean up any internal data structures using this obj.
-    get_my_data_ptr(get_dispatch_key(device), layer_data_map)
-        ->dispatch_table.DestroyDescriptorSetLayout(device, descriptorSetLayout, pAllocator);
+    layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    dev_data->dispatch_table.DestroyDescriptorSetLayout(device, descriptorSetLayout, pAllocator);
+    std::unique_lock<std::mutex> lock(global_lock);
+    PostCallRecordDestroyDescriptorSetLayout(dev_data, descriptorSetLayout);
 }
 
 static bool PreCallValidateDestroyDescriptorPool(layer_data *dev_data, VkDescriptorPool pool,
@@ -7391,7 +7440,7 @@ BeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo
                         "vkBeginCommandBuffer(): Cannot call Begin on command buffer (0x%" PRIxLEAST64
                         ") in the RECORDING state. Must first call vkEndCommandBuffer().",
                         (uint64_t)commandBuffer);
-        } else if (CB_RECORDED == cb_node->state || (CB_INVALID == cb_node->state && CMD_END == cb_node->cmds.back().type)) {
+        } else if (CB_RECORDED == cb_node->state || (CB_INVALID == cb_node->state && CMD_END == cb_node->last_cmd)) {
             VkCommandPool cmdPool = cb_node->createInfo.commandPool;
             auto pPool = getCommandPoolNode(dev_data, cmdPool);
             if (!(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT & pPool->createFlags)) {
@@ -11594,7 +11643,7 @@ QueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo *p
     bool skip_call = false;
     std::unique_lock<std::mutex> lock(global_lock);
     auto pFence = getFenceNode(dev_data, fence);
-    auto pQueue = getQueueNode(dev_data, queue);
+    auto pQueue = getQueueState(dev_data, queue);
 
     // First verify that fence is not in use
     skip_call |= ValidateFenceForSubmit(dev_data, pFence);
@@ -12095,7 +12144,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     bool skip_call = false;
 
     std::lock_guard<std::mutex> lock(global_lock);
-    auto queue_state = getQueueNode(dev_data, queue);
+    auto queue_state = getQueueState(dev_data, queue);
 
     for (uint32_t i = 0; i < pPresentInfo->waitSemaphoreCount; ++i) {
         auto pSemaphore = getSemaphoreNode(dev_data, pPresentInfo->pWaitSemaphores[i]);
