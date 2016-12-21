@@ -47,7 +47,7 @@ vktrace_SettingInfo g_settings_info[] =
     { "l", "NumLoops", VKTRACE_SETTING_UINT, { &replaySettings.numLoops }, { &replaySettings.numLoops }, TRUE, "The number of times to replay the trace file or loop range." },
     { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, { &replaySettings.loopStartFrame }, { &replaySettings.loopStartFrame }, TRUE, "The start frame number of the loop range." },
     { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, { &replaySettings.loopEndFrame }, { &replaySettings.loopEndFrame }, TRUE, "The end frame number of the loop range." },
-    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &replaySettings.screenshotList }, { &replaySettings.screenshotList }, TRUE, "Comma separated list of frames to take a snapshot of."},
+    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &replaySettings.screenshotList }, { &replaySettings.screenshotList }, TRUE, "Generate screenshots with specified frames, the frames are comma separated list of frames or a range like <start_frame>-<frame_count>-<interval>."},
 #if _DEBUG
     { "v", "Verbosity", VKTRACE_SETTING_STRING, { &replaySettings.verbosity }, { &replaySettings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
@@ -252,8 +252,12 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
     {
         // Set env var that communicates list to ScreenShot layer
         vktrace_set_global_var("_VK_SCREENSHOT", replaySettings.screenshotList);
-
     }
+    else
+    {
+        vktrace_set_global_var("_VK_SCREENSHOT", "");
+    }
+
 
     // open trace file and read in header
     const char* pTraceFile = replaySettings.pTraceFilePath;
