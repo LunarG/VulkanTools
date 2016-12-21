@@ -2997,6 +2997,7 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
     VkResult *pResults = localResults;
     VkPresentInfoKHR present;
     uint32_t i;
+    uint32_t remappedImageIndex = UINT32_MAX;
 
     if (pPacket->pPresentInfo->swapchainCount > 5) {
         pRemappedSwapchains = VKTRACE_NEW_ARRAY(VkSwapchainKHR, pPacket->pPresentInfo->swapchainCount);
@@ -3021,25 +3022,24 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             if (pRemappedSwapchains[i] == VK_NULL_HANDLE)
             {
                 vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped VkSwapchainKHR.");
-                if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
-                    VKTRACE_DELETE(pRemappedWaitSems);
-                }
-                if (pResults != NULL && pResults != localResults) {
-                    VKTRACE_DELETE(pResults);
-                }
-                if (pRemappedSwapchains != NULL && pRemappedSwapchains != localSwapchains) {
-                    VKTRACE_DELETE(pRemappedSwapchains);
-                }
-                return VK_ERROR_VALIDATION_FAILED_EXT;
+                replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+                goto out;
             }
         }
 
         assert(pPacket->pPresentInfo->swapchainCount == 1 && "Multiple swapchain images not supported yet");
-        uint32_t remappedImageIndex = m_objMapper.remap_pImageIndex(*pPacket->pPresentInfo->pImageIndices);
+
+        if(pPacket->pPresentInfo->pImageIndices)
+        {
+            auto imageIndice = *pPacket->pPresentInfo->pImageIndices;
+            remappedImageIndex = m_objMapper.remap_pImageIndex(imageIndice);
+        }
+
         if (remappedImageIndex == UINT32_MAX)
         {
             vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped pImageIndices.");
-            return VK_ERROR_VALIDATION_FAILED_EXT;
+            replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+            goto out;
         }
 
         present.sType = pPacket->pPresentInfo->sType;
@@ -3056,16 +3056,8 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
                 if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE)
                 {
                     vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped wait VkSemaphore.");
-                    if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
-                        VKTRACE_DELETE(pRemappedWaitSems);
-                    }
-                    if (pResults != NULL && pResults != localResults) {
-                        VKTRACE_DELETE(pResults);
-                    }
-                    if (pRemappedSwapchains != NULL && pRemappedSwapchains != localSwapchains) {
-                        VKTRACE_DELETE(pRemappedSwapchains);
-                    }
-                    return VK_ERROR_VALIDATION_FAILED_EXT;
+                    replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+                    goto out;
                 }
             }
         }
@@ -3092,6 +3084,8 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             }
         }
     }
+
+out:
 
     if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
         VKTRACE_DELETE(pRemappedWaitSems);
