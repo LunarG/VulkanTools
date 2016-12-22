@@ -367,7 +367,6 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(
             assert(pEntry->handle == pRange->memory);
             assert(pEntry->totalSize >= (pRange->size + pRange->offset));
             assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
 #ifdef USE_PAGEGUARD_SPEEDUP
             LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
             VkDeviceSize OPTPackageSizeTemp = 0;

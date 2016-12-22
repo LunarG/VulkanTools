@@ -232,10 +232,6 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard()
             #endif
         }
     }
-    #if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
-    pageGuardCapture.pageRefsDirtyClear();
-    #endif
 }
 
 void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard()
@@ -252,9 +248,6 @@ void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard()
             #endif
         }
     }
-    #if defined(PLATFORM_LINUX)
-    // We do not call pageRefsDirtyClear here, counting on caller to call pageRefsDirtyClear.
-    #endif
 }
 
 bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSetBlockChanged)
