@@ -1915,6 +1915,8 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
             *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdWaitEvents failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveEvent);
+            VKTRACE_DELETE(saveBuf);
             return;
         }
     }
@@ -1947,6 +1949,9 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
             *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdWaitEvents failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveEvent);
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
             return;
         }
     }
@@ -2014,6 +2019,8 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier*
             *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdPipelineBarrier failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
             return;
         }
     }
@@ -2046,6 +2053,8 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier*
             *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkPipelineBarrier failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
             return;
         }
     }
