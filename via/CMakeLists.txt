@@ -5,7 +5,7 @@ file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/via/images)
 
 
 if(WIN32)
-    set (LIBRARIES "vulkan-${MAJOR}")
+    set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
 
     # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
     # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
@@ -30,7 +30,7 @@ if(WIN32)
 else()
 
     if(UNIX)
-        set (LIBRARIES "vulkan")
+        set (LIBRARIES "${API_LOWERCASE}")
     endif()
 
     if (BUILD_WSI_XCB_SUPPORT)
@@ -52,7 +52,7 @@ else()
         link_libraries(${WAYLAND_CLIENT_LIBRARIES})
     endif()
 
-    link_libraries(vulkan m)
+    link_libraries(${API_LOWERCASE} m)
 
 endif()
 

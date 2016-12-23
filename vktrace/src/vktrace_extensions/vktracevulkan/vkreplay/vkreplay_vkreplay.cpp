@@ -60,9 +60,9 @@ int vkReplay::init(vktrace_replay::ReplayDisplay & disp)
 {
     int err;
 #if defined(PLATFORM_LINUX)
-    void * handle = dlopen("libvulkan.so", RTLD_LAZY);
+    void * handle = dlopen("lib" API_LOWERCASE ".so", RTLD_LAZY);
 #else
-    HMODULE handle = LoadLibrary("vulkan-1.dll" );
+    HMODULE handle = LoadLibrary(API_LOWERCASE "-1.dll");
 #endif
 
     if (handle == NULL) {
@@ -3268,7 +3268,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateAndroidSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface); 
+    replayResult = m_vkFuncs.real_vkCreateAndroidSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #endif // ANDROID
 #else
     vktrace_LogError("manually_replay_vkCreateAndroidSurfaceKHR not implemented on this playback platform");
@@ -3441,4 +3441,3 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKH
     return VK_FALSE;
 #endif
 }
-
