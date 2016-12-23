@@ -4162,6 +4162,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferBufferDestroyed) {
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
 
     m_errorMonitor->VerifyFound();
+    vkQueueWaitIdle(m_device->m_queue);
     vkFreeMemory(m_device->handle(), mem, NULL);
 }
 
