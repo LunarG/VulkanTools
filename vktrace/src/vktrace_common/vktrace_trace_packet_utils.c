@@ -237,7 +237,7 @@ void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, File
     {
         // We don't retry on failure because vktrace_FileLike_WriteRaw already retried and gave up.
         vktrace_LogWarning("Failed to write trace packet.");
-        exit(0);
+        exit(1);
     }
 }
 
