@@ -29,11 +29,11 @@ endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
       set(VKTRACE_VULKAN_LIB
-         ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-1.lib
+         ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/${API_LOWERCASE}-1.lib
          )
    else()
       set(VKTRACE_VULKAN_LIB
-         ${CMAKE_BINARY_DIR}/loader/vulkan-1.lib
+         ${CMAKE_BINARY_DIR}/loader/${API_LOWERCASE}-1.lib
          )
    endif()
 endif()
@@ -41,7 +41,7 @@ endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR
     ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
     set(VKTRACE_VULKAN_LIB
-        ${CMAKE_BINARY_DIR}/loader/libvulkan.so
+        ${CMAKE_BINARY_DIR}/loader/lib${API_LOWERCASE}.so
     )
 
 endif()
@@ -76,4 +76,3 @@ add_subdirectory(vkreplay/)
 if (Qt5_FOUND AND BUILD_VKTRACEVIEWER)
     add_subdirectory(vktraceviewer/)
 endif()
-
