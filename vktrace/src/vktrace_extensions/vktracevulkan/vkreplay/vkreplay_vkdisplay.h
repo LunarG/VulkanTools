@@ -37,6 +37,10 @@ public:
     int create_window(const unsigned int width, const unsigned int height);
     void resize_window(const unsigned int width, const unsigned int height);
     void process_event();
+    bool get_pause_status() { return m_pause; }
+    void set_pause_status(bool pause) { m_pause = pause; }
+    bool get_quit_status() { return m_quit; }
+    void set_quit_status(bool quit) { m_quit = quit; }
     VkSurfaceKHR get_surface() { return (VkSurfaceKHR) &m_surface; };
     // VK_DEVICE get_device() { return m_dev[m_gpuIdx];}
 #if defined(PLATFORM_LINUX)
@@ -63,6 +67,7 @@ private:
     xcb_connection_t *m_pXcbConnection;
     xcb_screen_t *m_pXcbScreen;
     xcb_window_t m_XcbWindow;
+    xcb_intern_atom_reply_t *atom_wm_delete_window;
     //VkPlatformHandleXcbKHR m_XcbPlatformHandle;
 #endif
 #elif defined(WIN32)
@@ -85,4 +90,6 @@ private:
     VK_PHYSICAL_GPU_PROPERTIES m_gpuProps[VK_MAX_PHYSICAL_GPUS];
 #endif
     std::vector<char *>m_extensions;
+    bool m_pause = false;
+    bool m_quit = false;
 };

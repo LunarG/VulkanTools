@@ -63,8 +63,9 @@ vktrace_SettingGroup g_replaySettingGroup =
 };
 
 namespace vktrace_replay {
-int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray[], vkreplayer_settings settings)
-{
+int main_loop(vktrace_replay::ReplayDisplay display, Sequencer &seq,
+              vktrace_trace_packet_replay_library *replayerArray[],
+              vkreplayer_settings settings) {
     int err = 0;
     vktrace_trace_packet_header *packet;
     unsigned int res;
@@ -80,8 +81,18 @@ int main_loop(Sequencer &seq, vktrace_trace_packet_replay_library *replayerArray
     seq.get_bookmark(startingPacket);
     while (settings.numLoops > 0)
     {
-        while ((packet = seq.get_next_packet()) != NULL && trace_running)
-        {
+        while (trace_running) {
+            display.process_event();
+            if (display.get_quit_status())
+                return -1;
+            if (display.get_pause_status()) {
+                continue;
+            } else {
+                packet = seq.get_next_packet();
+                if (!packet)
+                    break;
+            }
+
             switch (packet->packet_id) {
                 case VKTRACE_TPI_MESSAGE:
                     msgPacket = vktrace_interpret_body_as_trace_packet_message(packet);
@@ -379,10 +390,10 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         }
         return -1;
     }
- 
+
     // main loop
     Sequencer sequencer(traceFile);
-    err = vktrace_replay::main_loop(sequencer, replayer, replaySettings);
+    err = vktrace_replay::main_loop(disp, sequencer, replayer, replaySettings);
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++)
     {
