@@ -2176,7 +2176,6 @@ class VktracePacketID(Subcommand):
         header_txt.append('#ifndef _WIN32')
         header_txt.append(' #pragma GCC diagnostic ignored "-Wwrite-strings"')
         header_txt.append('#endif')
-        #header_txt.append('#include "vk_struct_string_helper.h"')
         header_txt.append('#ifndef _WIN32')
         header_txt.append(' #pragma GCC diagnostic warning "-Wwrite-strings"')
         header_txt.append('#endif')
