@@ -147,7 +147,6 @@ else()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
 
-run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers
     vk_struct_size_helper.h
     vk_struct_size_helper.c
@@ -181,6 +180,7 @@ add_custom_target(generate_vt_helpers DEPENDS
 )
 
 #VulkanTools layers
+run_vk_xml_generate(helper_file_generator.py vk_enum_string_helper.h)
 run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(ApiDump api_dump.cpp)
 run_vk_xml_generate(ApiDump api_dump_text.h)
