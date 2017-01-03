@@ -22,6 +22,7 @@ bool g_trimIsPostTrim = false;
 uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
+bool g_trimAlreadyFinished = false;
 
 namespace trim
 {
@@ -79,9 +80,219 @@ namespace trim
         s_trimGlobalStateTracker.ClearBufferTransitions(commandBuffer);
     }
 
+
+    static const int MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH = 32;
+
+    //  if specified trigger enabled
+    bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType)
+    {
+        //only one type of trigger is allowed at same time
+        return getTraceTriggerOptionString(triggerType) != nullptr;
+    }
+
+    //get user defined hotkey string.
+    //the user defined hotkey string can be one of F1-F12,TAB,CONTROL
+    //return:
+    //  char* value pointer to user defined hotkey string.
+    char * get_hotkey_string()
+    {
+        return getTraceTriggerOptionString(enum_trim_trigger::hotKey);
+    }
+
+
+#if defined(PLATFORM_LINUX)
+
+    static xcb_connection_t* keyboardConnection=nullptr;
+    //on Linux paltform, xcb calls need Connection which is connected to target server, because hotkey process is supposed to insert into target application,
+    //so we need to capture the connection that target app use. the function is used to insert into Vulakn call to capture and save the connection.
+    void set_keyboard_connection(xcb_connection_t* pConnection)
+    {
+        keyboardConnection = pConnection;
+    }
+
+    //Get connection which is used by target application.
+    xcb_connection_t* get_keyboard_connection( )
+    {
+        return keyboardConnection;
+    }
+
+    //Get specified key's real time state: it's released or pressed now. 
+    //the function is platform specific.
+    enum_trim_state_change GetAsyncKeyState(int keyCode)
+    {
+        enum_trim_state_change keyState=enum_trim_state_change::Released;
+        xcb_connection_t* connection = get_keyboard_connection( );
+        xcb_key_symbols_t *hotKeySymbols = xcb_key_symbols_alloc(connection);
+        if(hotKeySymbols)
+        {
+            xcb_keycode_t *keyLoc = xcb_key_symbols_get_keycode(hotKeySymbols, keyCode);
+            if(keyLoc)
+            {
+                xcb_query_keymap_cookie_t cookie = xcb_query_keymap(connection);
+                xcb_query_keymap_reply_t *keysBitMap = xcb_query_keymap_reply(connection, cookie, NULL);
+                if(( keysBitMap->keys[(*keyLoc/8)] & (1 << (*keyLoc%8)) )!=0)
+                {
+                    keyState=enum_trim_state_change::Pressed;
+                }
+                free(keysBitMap);
+                free(keyLoc);
+            }
+            xcb_key_symbols_free(hotKeySymbols);
+        }
+
+        return keyState;
+    }
+
+    //Get specified key's real time state: it's released or pressed now. 
+    //the function is "semi"cross-platform: the interface is cross-platform, the implementation is platform specific.
+    //Input:
+    //      char *pHotkeyString, the string of target key
+    //Output:
+    //      return specified key's real time state: it's released or pressed now. 
+    enum_trim_state_change key_state_platform_specific(char *pHotkeyString)
+    {
+        enum_trim_state_change KeyState = enum_trim_state_change::Released;
+        static std::unordered_map<std::string, int> KeyCodeMap = {
+            { "F1", XK_F1 }, { "F2", XK_F2 }, { "F3", XK_F3 }, { "F4", XK_F4 },
+            { "F5", XK_F5 }, { "F6", XK_F6 }, { "F7", XK_F7 }, { "F8", XK_F8 },
+            { "F9", XK_F9 }, { "F10", XK_F10 }, { "F11", XK_F11 }, { "F12", XK_F12 },
+            { "Tab", XK_Tab }, { "ControlLeft", XK_Control_L }, { "ControlRight", XK_Control_R }
+        };
+
+        std::string targetKeyString(pHotkeyString);
+        std::unordered_map<std::string, int>::iterator iteratorKeyCode = KeyCodeMap.find(targetKeyString);
+        if (iteratorKeyCode != KeyCodeMap.end())
+        {
+            int keyCode = iteratorKeyCode->second;
+            KeyState = GetAsyncKeyState(keyCode);
+        }
+        return KeyState;
+    }
+
+#elif defined(WIN32)
+
+    //Get specified key's real time state: it's released or pressed now. 
+    //the function is "semi"cross-platform: the interface is cross-platform, the implementation is platform specific.
+    //Input:
+    //      char *pHotkeyString, the string of target key, the input cannot be nullptr.
+    //Output:
+    //      return specified key's real time state: it's released or pressed now. 
+    enum_key_state key_state_platform_specific(char *pHotkeyString)
+    {
+        enum_key_state KeyState = enum_key_state::Released;
+        static std::unordered_map<std::string, int> KeyCodeMap = {
+            { "F1", VK_F1 }, { "F2", VK_F2 }, { "F3", VK_F3 }, { "F4", VK_F4 },
+            { "F5", VK_F5 }, { "F6", VK_F6 }, { "F7", VK_F7 }, { "F8", VK_F8 },
+            { "F9", VK_F9 }, { "F10", VK_F10 }, { "F11", VK_F11 }, { "F12", VK_F12 },
+            { "TAB", VK_TAB }, { "CONTROL", VK_CONTROL }
+        };
+
+        std::string targetKeyString(pHotkeyString);
+        std::unordered_map<std::string, int>::iterator iteratorKeyCode = KeyCodeMap.find(targetKeyString);
+        if (iteratorKeyCode != KeyCodeMap.end())
+        {
+            int keyCode = iteratorKeyCode->second;
+            if (GetAsyncKeyState(keyCode) != 0)
+            {// the key is down or was down after the previous call to GetAsyncKeyState 
+                KeyState = enum_key_state::Pressed;
+            }
+        }
+        return KeyState;
+    }
+#endif
+
+    //Get specified key's real time state, if the input is null pointer, return key released.
+    enum_key_state key_state(char *pHotkeyString)
+    {
+        enum_key_state KeyState = enum_key_state::Released;
+        if (pHotkeyString)
+        {
+            KeyState = key_state_platform_specific(pHotkeyString);
+        }
+        return KeyState;
+    }
+
+    //fresh hotkey current state and detect it's triggered or not. 
+    bool is_hotkey_trim_triggered()
+    {
+        bool hotkeyTriggered = false;
+        static enum_key_state currentHotKeyState = enum_key_state::Released;
+
+        static char* trimHotkeyString = get_hotkey_string();
+
+        enum_key_state hotKeyState = key_state(trimHotkeyString);
+
+        if (hotKeyState != currentHotKeyState)
+        {
+            switch (hotKeyState)
+            {
+                case enum_key_state::Pressed:
+                    hotkeyTriggered = true;
+                break;
+                case enum_key_state::Released:
+                break;
+            }
+        }
+        currentHotKeyState = hotKeyState;
+        return hotkeyTriggered;
+    }
+
+    static const int MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH = 16;
+    static const int TRACE_TRIGGER_STRING_LENGTH = MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH + MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH;
+
+    char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType)
+    {
+        static const char TRIM_TRIGGER_ENV_NAME[] = "VKTRACE_TRIM_TRIGGER";
+        static const char TRIM_TRIGGER_HOTKEY_TYPE_STRING[] = "hotkey";
+        static const char TRIM_TRIGGER_FRAMES_TYPE_STRING[] = "frames";
+        static const char TRIM_TRIGGER_FRAMES_DEFAULT_HOTKEY_STRING[] = "F12";
+
+        static bool firstTimeRunning = true;
+        static enum enum_trim_trigger trimTriggerType = enum_trim_trigger::none;
+        static char trim_trigger_option[MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH] = "";
+
+        char typeString[MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH];
+
+        if (firstTimeRunning)
+        {
+            firstTimeRunning = false;
+            const char *trim_trigger_string = vktrace_get_global_var(TRIM_TRIGGER_ENV_NAME);
+            if (trim_trigger_string)
+            {
+                assert(strlen(trim_trigger_string) < TRACE_TRIGGER_STRING_LENGTH);
+
+                //only one type of trigger is allowed at same time
+                if (sscanf(trim_trigger_string, "%[^-]-%s", typeString, trim_trigger_option) == 2)
+                {
+                    if (strcmp(typeString, TRIM_TRIGGER_HOTKEY_TYPE_STRING) == 0)
+                    {
+                        trimTriggerType = enum_trim_trigger::hotKey;
+                    }
+                    else
+                    {
+                        if (strcmp(typeString, TRIM_TRIGGER_FRAMES_TYPE_STRING) == 0)
+                        {
+                            trimTriggerType = enum_trim_trigger::frameCounter;
+                        }
+                    }
+                }
+                else
+                {
+                    if (strcmp(trim_trigger_string, TRIM_TRIGGER_HOTKEY_TYPE_STRING) == 0)
+                    {
+                        //default hotkey
+                        trimTriggerType = enum_trim_trigger::hotKey;
+                        strcpy(trim_trigger_option, TRIM_TRIGGER_FRAMES_DEFAULT_HOTKEY_STRING);
+                    }
+                }
+            }
+        }
+        return (trimTriggerType != enum_trim_trigger::none) && (trimTriggerType == triggerType) ? trim_trigger_option : nullptr;
+    }
+
     void initialize()
     {
-        const char *trimFrames = vktrace_get_global_var("VKTRACE_TRIM_FRAMES");
+        const char *trimFrames = getTraceTriggerOptionString(enum_trim_trigger::frameCounter);
         if (trimFrames != nullptr)
         {
             uint32_t numFrames = 0;
@@ -102,6 +313,12 @@ namespace trim
                 g_trimIsPreTrim = (g_trimStartFrame > 0);
                 g_trimIsInTrim = (g_trimStartFrame == 0);
             }
+        }
+        if ((!g_trimEnabled) && (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey)))
+        {
+            g_trimEnabled = true;
+            g_trimIsPreTrim = true;
+            g_trimIsInTrim = false;
         }
 
         if (g_trimEnabled)

@@ -402,7 +402,18 @@ void vktrace_create_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 #if defined(WIN32)
     InitializeCriticalSection(pCriticalSection);
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
-    pthread_mutex_init(pCriticalSection, NULL);
+    pthread_mutexattr_t thread_mutexattr_t;
+    if(pthread_mutexattr_init(&thread_mutexattr_t) == 0)
+    {
+        pthread_mutexattr_settype(&thread_mutexattr_t, PTHREAD_MUTEX_RECURSIVE_NP);
+        pthread_mutex_init(pCriticalSection, &thread_mutexattr_t);
+        pthread_mutexattr_destroy(&thread_mutexattr_t);
+    }
+    else
+    {
+        vktrace_LogError("Failed to call pthread_mutexattr_init, call pthread_mutex_init with default mutex attribute, this may cause deadlock for application that expect no blocking for additional pthread_mutex_lock calls from same thread.");
+        pthread_mutex_init(pCriticalSection, NULL);
+    }
 #endif
 }
 

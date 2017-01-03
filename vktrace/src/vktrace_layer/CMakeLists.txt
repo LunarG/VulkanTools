@@ -141,11 +141,21 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(OS_TRACER_LIBS)
 endif()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 target_link_libraries(${PROJECT_NAME}
     vktrace_common
     ${VKTRACE_VULKAN_LIB}
     ${OS_TRACER_LIBS}
 )
+else()
+target_link_libraries(${PROJECT_NAME}
+    vktrace_common
+    xcb
+    xcb-keysyms
+    ${VKTRACE_VULKAN_LIB}
+    ${OS_TRACER_LIBS}
+)
+endif()
 
 build_options_finalize()
 

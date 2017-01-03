@@ -12,6 +12,15 @@
 #include "vktrace_lib_trim_statetracker.h"
 #include "vulkan.h"
 
+#ifdef PLATFORM_LINUX//VK_USE_PLATFORM_XCB_KHR
+ #include <xcb/xcb.h>
+ #include <X11/Xlib.h>
+ #include <X11/keysym.h>
+ #include <xcb/xcb_keysyms.h>
+ #include <vector>
+#endif
+
+
 // Trim support
 // Indicates whether trim support will be utilized during this instance of vktrace.
 // Only set once based on the VKTRACE_TRIM_FRAMES env var.
@@ -22,11 +31,42 @@ extern bool g_trimIsPostTrim;
 extern uint64_t g_trimFrameCounter;
 extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
+extern bool g_trimAlreadyFinished;
 
 namespace trim
 {
     void initialize();
     void deinitialize();
+
+    enum enum_trim_trigger {
+        none = 0,
+        frameCounter, // trim trigger base on startFrame and endFrame
+        hotKey // trim trigger base on hotKey
+    };
+
+    // when the funtion first time run, it Check ENV viarable VKTRACE_TRIM_TRIGGER to find out user defined trim trigger string and save the result,
+    // after first time run, the function directly get the saved result without checking ENV viarable.
+    // the feature disabled if return is nullptr, for any other value which should specify user defined option for that type of trigger, the feature ia enabled.
+    char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType);
+
+    // check if specified trim trigger enabled
+    // return:
+    //  if specified trigger enabled
+    bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType);
+
+#ifdef PLATFORM_LINUX
+    // on Linux paltform, xcb calls need Connection which is connected to target server, because hotkey process is supposed to insert into target application,
+    // so we need to capture the connection that target app use. the function is used to insert into Vulakn call to capture and save the connection.
+    void set_keyboard_connection(xcb_connection_t* pConnection);
+#endif
+
+    enum enum_key_state {
+        Pressed,
+        Released,
+    };
+
+    // return if hotkey triggered;
+    bool is_hotkey_trim_triggered();
 
     // Use this to snapshot the global state tracker at the start of the trim frames.
     void snapshot_state_tracker();

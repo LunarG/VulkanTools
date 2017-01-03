@@ -41,6 +41,8 @@ typedef struct vktrace_settings
     BOOL print_trace_messages;
     const char* screenshotList;
     const char *verbosity;
+    const char *traceTrigger;
+
 } vktrace_settings;
 
 extern vktrace_settings g_settings;

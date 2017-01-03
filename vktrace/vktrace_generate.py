@@ -3227,6 +3227,7 @@ class VktraceReplayObjMapperHeader(Subcommand):
         header_txt.append('#pragma once\n')
         header_txt.append('#include <set>')
         header_txt.append('#include <map>')
+        header_txt.append('#include <list>')
         header_txt.append('#include <vector>')
         header_txt.append('#include <string>')
         header_txt.append('#include "vulkan/vulkan.h"')

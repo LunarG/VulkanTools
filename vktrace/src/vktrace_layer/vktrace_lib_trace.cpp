@@ -2799,6 +2799,33 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
     return result;
 }
 
+void trim_Start()
+{
+    g_trimIsPreTrim = false;
+    g_trimIsInTrim = true;
+    trim::snapshot_state_tracker();
+}
+
+void trim_Stop()
+{
+    g_trimIsInTrim = false;
+    g_trimIsPostTrim = true;
+
+    // This will write packets to recreate ONLY THE REFERENCED objects.
+    trim::write_all_referenced_object_calls();
+
+    // write the packets that were recorded during the trim frames
+    trim::write_recorded_packets();
+
+    // write packets to destroy all created objects
+    trim::write_destroy_packets();
+
+    // clean up
+    trim::delete_all_packets();
+
+    g_trimAlreadyFinished = true;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
     VkQueue queue,
     const VkPresentInfoKHR* pPresentInfo)
@@ -2867,30 +2894,32 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
 
     if (g_trimEnabled)
     {
-        g_trimFrameCounter++;
-        if (g_trimFrameCounter == g_trimStartFrame)
+        if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey))
         {
-            g_trimIsPreTrim = false;
-            g_trimIsInTrim = true;
-            trim::snapshot_state_tracker();
+            if (trim::is_hotkey_trim_triggered() && (!g_trimAlreadyFinished))
+            {
+                if (g_trimIsInTrim)
+                {//stop trim
+                    trim_Stop();
+                }
+                else
+                {//start trim
+                    trim_Start();
+                }
+            }
         }
-        if (g_trimEndFrame < UINT64_MAX &&
-            g_trimFrameCounter == g_trimEndFrame + 1)
+        else if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::frameCounter))
         {
-            g_trimIsInTrim = false;
-            g_trimIsPostTrim = true;
-
-            // This will write packets to recreate ONLY THE REFERENCED objects.
-            trim::write_all_referenced_object_calls();
-
-            // write the packets that were recorded during the trim frames
-            trim::write_recorded_packets();
-
-            // write packets to destroy all created objects
-            trim::write_destroy_packets();
-
-            // clean up
-            trim::delete_all_packets();
+            g_trimFrameCounter++;
+            if (g_trimFrameCounter == g_trimStartFrame)
+            {
+                trim_Start();
+            }
+            if (g_trimEndFrame < UINT64_MAX &&
+                g_trimFrameCounter == g_trimEndFrame + 1)
+            {
+                trim_Stop();
+            }
         }
     }
     return result;
@@ -2989,6 +3018,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXcbSurfaceKHR(
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateXcbSurfaceKHR* pPacket = NULL;
+    trim::set_keyboard_connection(pCreateInfo->connection);
     // don't bother with copying the actual xcb window and connection into the trace packet, vkreplay has to use it's own anyway
     CREATE_TRACE_PACKET(vkCreateXcbSurfaceKHR, sizeof(VkSurfaceKHR) + sizeof(VkAllocationCallbacks) + sizeof(VkXcbSurfaceCreateInfoKHR));
     result = mid(instance)->instTable.CreateXcbSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
@@ -3151,7 +3181,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
             vktrace_delete_trace_packet(&pHeader);
         }
     }
-
     return result;
 }
 #endif

@@ -6,6 +6,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <list>
 #include <vector>
 #include "vktrace_trace_packet_utils.h"
 
@@ -13,7 +14,7 @@
 // Enabling this as a pre-processor macro so that we can compare performance and file size costs.
 // TRUE: Needed on AMD hardware
 // FALSE: Use normal object tracking to create only the necessary resources
-#define TRIM_USE_ORDERED_IMAGE_CREATION true
+#define TRIM_USE_ORDERED_IMAGE_CREATION 1
 
 namespace trim
 {
