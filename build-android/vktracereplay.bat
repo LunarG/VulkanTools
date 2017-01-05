@@ -17,7 +17,7 @@ REM # limitations under the License.
 setlocal EnableDelayedExpansion
 
 set vktrace_exe=..\build\vktrace\Debug\vktrace.exe
-set vktrace32_exe=..\build32\vktrace\Debug\vktrace32.exe
+set vktrace32_exe=..\build32\vktrace\Debug\vktrace.exe
 set vkreplay_apk=.\vkreplay\bin\NativeActivity-debug.apk
 set activity=android.app.NativeActivity
 set frame=1
@@ -122,6 +122,12 @@ REM // ======== Parameter parsing ======== //
    :parameterContinue
 
 REM // ======== end Parameter parsing ======== //
+
+REM Match 32-bit and 64-bit ABIs between host and target
+if "%target_abi%" == "armeabi-v7a" ( set vktrace_exe=%vktrace32_exe% )
+if "%target_abi%" == "x86"         ( set vktrace_exe=%vktrace32_exe% )
+if "%target_abi%" == "mips"        ( set vktrace_exe=%vktrace32_exe% )
+
 
 echo serial = %serial%
 echo target_abi = %target_abi%
