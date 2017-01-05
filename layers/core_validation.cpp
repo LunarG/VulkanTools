@@ -6512,8 +6512,7 @@ static bool ValidateImageAspectMask(layer_data *dev_data, VkImage image, VkForma
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Color image formats must have the VK_IMAGE_ASPECT_COLOR_BIT set. %s", func_name,
                             validation_error_map[VALIDATION_ERROR_00741]);
-        }
-        if ((aspect_mask & VK_IMAGE_ASPECT_COLOR_BIT) != aspect_mask) {
+        } else if ((aspect_mask & VK_IMAGE_ASPECT_COLOR_BIT) != aspect_mask) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Color image formats must have ONLY the VK_IMAGE_ASPECT_COLOR_BIT set. %s", func_name,
@@ -6526,8 +6525,7 @@ static bool ValidateImageAspectMask(layer_data *dev_data, VkImage image, VkForma
                                                                                         "at least one of VK_IMAGE_ASPECT_DEPTH_BIT "
                                                                                         "and VK_IMAGE_ASPECT_STENCIL_BIT set. %s",
                             func_name, validation_error_map[VALIDATION_ERROR_00741]);
-        }
-        if ((aspect_mask & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) != aspect_mask) {
+        } else if ((aspect_mask & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) != aspect_mask) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Combination depth/stencil image formats can have only the VK_IMAGE_ASPECT_DEPTH_BIT and "
@@ -6540,8 +6538,7 @@ static bool ValidateImageAspectMask(layer_data *dev_data, VkImage image, VkForma
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Depth-only image formats must have the VK_IMAGE_ASPECT_DEPTH_BIT set. %s", func_name,
                             validation_error_map[VALIDATION_ERROR_00741]);
-        }
-        if ((aspect_mask & VK_IMAGE_ASPECT_DEPTH_BIT) != aspect_mask) {
+        } else if ((aspect_mask & VK_IMAGE_ASPECT_DEPTH_BIT) != aspect_mask) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Depth-only image formats can have only the VK_IMAGE_ASPECT_DEPTH_BIT set. %s", func_name,
@@ -6553,8 +6550,7 @@ static bool ValidateImageAspectMask(layer_data *dev_data, VkImage image, VkForma
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Stencil-only image formats must have the VK_IMAGE_ASPECT_STENCIL_BIT set. %s", func_name,
                             validation_error_map[VALIDATION_ERROR_00741]);
-        }
-        if ((aspect_mask & VK_IMAGE_ASPECT_STENCIL_BIT) != aspect_mask) {
+        } else if ((aspect_mask & VK_IMAGE_ASPECT_STENCIL_BIT) != aspect_mask) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                             (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE",
                             "%s: Stencil-only image formats can have only the VK_IMAGE_ASPECT_STENCIL_BIT set. %s", func_name,
@@ -6641,18 +6637,6 @@ static bool PreCallValidateCreateImageView(layer_data *dev_data, const VkImageVi
 
         // Validate correct image aspect bits for desired formats and format consistency
         skip |= ValidateImageAspectMask(dev_data, image_state->image, image_format, aspect_mask, "vkCreateImageView()");
-        if (vk_format_is_color(image_format) && !vk_format_is_color(view_format)) {
-            std::stringstream ss;
-            ss << "vkCreateImageView: The image view's format can differ from the parent image's format, but both must be "
-               << "color formats.  ImageFormat is " << string_VkFormat(image_format) << " ImageViewFormat is "
-               << string_VkFormat(view_format);
-            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                            (uint64_t)create_info->image, __LINE__, VALIDATION_ERROR_02171, "IMAGE", "%s %s", ss.str().c_str(),
-                            validation_error_map[VALIDATION_ERROR_02171]);
-            // TODO:  Uncompressed formats are compatible if they occupy they same number of bits per pixel.
-            //        Compressed formats are compatible if the only difference between them is the numerical type of
-            //        the uncompressed pixels (e.g. signed vs. unsigned, or sRGB vs. UNORM encoding).
-        }
     }
     return skip;
 }
@@ -7321,45 +7305,30 @@ BeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo
                             commandBuffer, validation_error_map[VALIDATION_ERROR_00106]);
             } else {
                 if (pBeginInfo->flags & VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT) {
-                    if (!pInfo->renderPass) { // renderpass should NOT be null for a Secondary CB
-                        skip_call |=
-                            log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, reinterpret_cast<uint64_t>(commandBuffer),
-                                    __LINE__, VALIDATION_ERROR_00110, "DS", "vkBeginCommandBuffer(): Secondary Command Buffers "
-                                                                            "(0x%p) must specify a valid renderpass parameter. %s",
-                                    commandBuffer, validation_error_map[VALIDATION_ERROR_00110]);
-                    } 
-                    if (!pInfo->framebuffer) { // framebuffer may be null for a Secondary CB, but this affects perf
-                        skip_call |= log_msg(
-                            dev_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t>(commandBuffer), __LINE__, DRAWSTATE_BEGIN_CB_INVALID_STATE, "DS",
-                            "vkBeginCommandBuffer(): Secondary Command Buffers (0x%p) may perform better if a "
-                            "valid framebuffer parameter is specified.",
-                            commandBuffer);
-                    } else {
-                        string errorString = "";
-                        auto framebuffer = getFramebufferState(dev_data, pInfo->framebuffer);
-                        if (framebuffer) {
-                            if ((framebuffer->createInfo.renderPass != pInfo->renderPass) &&
-                                !verify_renderpass_compatibility(dev_data, framebuffer->renderPassCreateInfo.ptr(),
-                                                                 getRenderPassState(dev_data, pInfo->renderPass)->createInfo.ptr(),
-                                                                 errorString)) {
-                                // renderPass that framebuffer was created with must be compatible with local renderPass
-                                skip_call |= log_msg(
-                                    dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, reinterpret_cast<uint64_t>(commandBuffer),
-                                    __LINE__, VALIDATION_ERROR_00112, "DS",
-                                    "vkBeginCommandBuffer(): Secondary Command "
-                                    "Buffer (0x%p) renderPass (0x%" PRIxLEAST64 ") is incompatible w/ framebuffer "
-                                    "(0x%" PRIxLEAST64 ") w/ render pass (0x%" PRIxLEAST64 ") due to: %s. %s",
-                                    commandBuffer, reinterpret_cast<const uint64_t &>(pInfo->renderPass),
-                                    reinterpret_cast<const uint64_t &>(pInfo->framebuffer),
-                                    reinterpret_cast<uint64_t &>(framebuffer->createInfo.renderPass), errorString.c_str(),
-                                    validation_error_map[VALIDATION_ERROR_00112]);
-                            }
-                            // Connect this framebuffer and its children to this cmdBuffer
-                            AddFramebufferBinding(dev_data, cb_node, framebuffer);
+                    // Object_tracker makes sure these objects are valid
+                    assert(pInfo->renderPass);
+                    assert(pInfo->framebuffer);
+                    string errorString = "";
+                    auto framebuffer = getFramebufferState(dev_data, pInfo->framebuffer);
+                    if (framebuffer) {
+                        if ((framebuffer->createInfo.renderPass != pInfo->renderPass) &&
+                            !verify_renderpass_compatibility(dev_data, framebuffer->renderPassCreateInfo.ptr(),
+                                                             getRenderPassState(dev_data, pInfo->renderPass)->createInfo.ptr(),
+                                                             errorString)) {
+                            // renderPass that framebuffer was created with must be compatible with local renderPass
+                            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                                 VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                                                 reinterpret_cast<uint64_t>(commandBuffer), __LINE__, VALIDATION_ERROR_00112, "DS",
+                                                 "vkBeginCommandBuffer(): Secondary Command "
+                                                 "Buffer (0x%p) renderPass (0x%" PRIxLEAST64 ") is incompatible w/ framebuffer "
+                                                 "(0x%" PRIxLEAST64 ") w/ render pass (0x%" PRIxLEAST64 ") due to: %s. %s",
+                                                 commandBuffer, reinterpret_cast<const uint64_t &>(pInfo->renderPass),
+                                                 reinterpret_cast<const uint64_t &>(pInfo->framebuffer),
+                                                 reinterpret_cast<uint64_t &>(framebuffer->createInfo.renderPass),
+                                                 errorString.c_str(), validation_error_map[VALIDATION_ERROR_00112]);
                         }
+                        // Connect this framebuffer and its children to this cmdBuffer
+                        AddFramebufferBinding(dev_data, cb_node, framebuffer);
                     }
                 }
                 if ((pInfo->occlusionQueryEnable == VK_FALSE || dev_data->enabled_features.occlusionQueryPrecise == VK_FALSE) &&
@@ -8908,7 +8877,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(VkCommandBuffer commandBuffer, ui
                 auto image_view_state = getImageViewState(dev_data, image_view);
                 auto aspects_present = image_view_state->create_info.subresourceRange.aspectMask;
                 auto extra_aspects = clear_desc->aspectMask & ~aspects_present;
-
+                // TODO: This is a different check than 01125. Need a new valid usage statement for this case, or should kill check.
                 if (extra_aspects) {
                     skip_call |= log_msg(
                             dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT,
@@ -11256,13 +11225,8 @@ CmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBuffersCount, 
         GLOBAL_CB_NODE *pSubCB = NULL;
         for (uint32_t i = 0; i < commandBuffersCount; i++) {
             pSubCB = getCBNode(dev_data, pCommandBuffers[i]);
-            if (!pSubCB) {
-                skip_call |=
-                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                            VALIDATION_ERROR_00160, "DS",
-                            "vkCmdExecuteCommands() called w/ invalid Cmd Buffer 0x%p in element %u of pCommandBuffers array. %s",
-                            pCommandBuffers[i], i, validation_error_map[VALIDATION_ERROR_00160]);
-            } else if (VK_COMMAND_BUFFER_LEVEL_PRIMARY == pSubCB->createInfo.level) {
+            assert(pSubCB);
+            if (VK_COMMAND_BUFFER_LEVEL_PRIMARY == pSubCB->createInfo.level) {
                 skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
                                      __LINE__, VALIDATION_ERROR_00153, "DS",
                                      "vkCmdExecuteCommands() called w/ Primary Cmd Buffer 0x%p in element %u of pCommandBuffers "
@@ -12392,52 +12356,45 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                                                         VkPhysicalDevice *pPhysicalDevices) {
     bool skip_call = false;
     instance_layer_data *instance_data = get_my_data_ptr(get_dispatch_key(instance), instance_layer_data_map);
+    assert(instance_data);
 
-    if (instance_data) {
-        // For this instance, flag when vkEnumeratePhysicalDevices goes to QUERY_COUNT and then QUERY_DETAILS
-        if (NULL == pPhysicalDevices) {
-            instance_data->vkEnumeratePhysicalDevicesState = QUERY_COUNT;
-        } else {
-            if (UNCALLED == instance_data->vkEnumeratePhysicalDevicesState) {
-                // Flag warning here. You can call this without having queried the count, but it may not be
-                // robust on platforms with multiple physical devices.
-                skip_call |= log_msg(instance_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT,
-                                     0, __LINE__, DEVLIMITS_MISSING_QUERY_COUNT, "DL",
-                                     "Call sequence has vkEnumeratePhysicalDevices() w/ non-NULL pPhysicalDevices. You should first "
-                                     "call vkEnumeratePhysicalDevices() w/ NULL pPhysicalDevices to query pPhysicalDeviceCount.");
-            } // TODO : Could also flag a warning if re-calling this function in QUERY_DETAILS state
-            else if (instance_data->physical_devices_count != *pPhysicalDeviceCount) {
-                // Having actual count match count from app is not a requirement, so this can be a warning
-                skip_call |= log_msg(instance_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, 0, __LINE__, DEVLIMITS_COUNT_MISMATCH, "DL",
-                                     "Call to vkEnumeratePhysicalDevices() w/ pPhysicalDeviceCount value %u, but actual count "
-                                     "supported by this instance is %u.",
-                                     *pPhysicalDeviceCount, instance_data->physical_devices_count);
-            }
-            instance_data->vkEnumeratePhysicalDevicesState = QUERY_DETAILS;
-        }
-        if (skip_call) {
-            return VK_ERROR_VALIDATION_FAILED_EXT;
-        }
-        VkResult result = instance_data->dispatch_table.EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
-        if (NULL == pPhysicalDevices) {
-            instance_data->physical_devices_count = *pPhysicalDeviceCount;
-        } else if (result == VK_SUCCESS){ // Save physical devices
-            for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
-                auto & phys_device_state = instance_data->physical_device_map[pPhysicalDevices[i]];
-                phys_device_state.phys_device = pPhysicalDevices[i];
-                // Init actual features for each physical device
-                instance_data->dispatch_table.GetPhysicalDeviceFeatures(pPhysicalDevices[i], &phys_device_state.features);
-            }
-        }
-        return result;
+    // For this instance, flag when vkEnumeratePhysicalDevices goes to QUERY_COUNT and then QUERY_DETAILS
+    if (NULL == pPhysicalDevices) {
+        instance_data->vkEnumeratePhysicalDevicesState = QUERY_COUNT;
     } else {
-        // This seems redundant with object_tracker
-        log_msg(instance_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, 0, __LINE__,
-                VALIDATION_ERROR_00023, "DL", "Invalid instance (0x%p) passed into vkEnumeratePhysicalDevices(). %s", instance,
-                validation_error_map[VALIDATION_ERROR_00023]);
+        if (UNCALLED == instance_data->vkEnumeratePhysicalDevicesState) {
+            // Flag warning here. You can call this without having queried the count, but it may not be
+            // robust on platforms with multiple physical devices.
+            skip_call |= log_msg(instance_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
+                                 VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT, 0, __LINE__, DEVLIMITS_MISSING_QUERY_COUNT, "DL",
+                                 "Call sequence has vkEnumeratePhysicalDevices() w/ non-NULL pPhysicalDevices. You should first "
+                                 "call vkEnumeratePhysicalDevices() w/ NULL pPhysicalDevices to query pPhysicalDeviceCount.");
+        } // TODO : Could also flag a warning if re-calling this function in QUERY_DETAILS state
+        else if (instance_data->physical_devices_count != *pPhysicalDeviceCount) {
+            // Having actual count match count from app is not a requirement, so this can be a warning
+            skip_call |= log_msg(instance_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
+                                 VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, 0, __LINE__, DEVLIMITS_COUNT_MISMATCH, "DL",
+                                 "Call to vkEnumeratePhysicalDevices() w/ pPhysicalDeviceCount value %u, but actual count "
+                                 "supported by this instance is %u.",
+                                 *pPhysicalDeviceCount, instance_data->physical_devices_count);
+        }
+        instance_data->vkEnumeratePhysicalDevicesState = QUERY_DETAILS;
     }
-    return VK_ERROR_VALIDATION_FAILED_EXT;
+    if (skip_call) {
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    VkResult result = instance_data->dispatch_table.EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+    if (NULL == pPhysicalDevices) {
+        instance_data->physical_devices_count = *pPhysicalDeviceCount;
+    } else if (result == VK_SUCCESS) { // Save physical devices
+        for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
+            auto &phys_device_state = instance_data->physical_device_map[pPhysicalDevices[i]];
+            phys_device_state.phys_device = pPhysicalDevices[i];
+            // Init actual features for each physical device
+            instance_data->dispatch_table.GetPhysicalDeviceFeatures(pPhysicalDevices[i], &phys_device_state.features);
+        }
+    }
+    return result;
 }
 
 VKAPI_ATTR void VKAPI_CALL
