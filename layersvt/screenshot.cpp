@@ -156,7 +156,7 @@ static unordered_map<VkPhysicalDevice, PhysDeviceMapStruct *> physDeviceMap;
 // set: list of frames to take screenshots without duplication.
 static set<int> screenshotFrames;
 
-static const int SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT = 100;
+static const int SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT = 1;
 static const int SCREEN_SHOT_FRAMES_UNLIMITED = -1;
 typedef struct {
     bool valid;
@@ -1041,12 +1041,24 @@ static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrame
             }
             else
             {
-                //must include every parameter
                 int frameCount = 0;
                 int itemCount = sscanf(parameter.c_str(), "%d-%d-%d", &pFrameRange->startFrame, &frameCount, &pFrameRange->interval);
-                if (itemCount == 3)
+                if (itemCount >= 2)
                 {
-                    pFrameRange->valid = true;
+                    if (itemCount == 2)
+                    {
+                        pFrameRange->interval = SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT;
+                    }
+
+                    if ((pFrameRange->startFrame < 0) || (frameCount < 0) || (pFrameRange->interval < 0))
+                    {
+                        assert(0);
+                    }
+                    else
+                    {
+                        pFrameRange->valid = true;
+                    }
+
                     if (frameCount == 0)
                     {
                         pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
@@ -1062,7 +1074,7 @@ static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrame
                 }
                 else
                 {
-                    // TODO vktrace_LogError("Failed to parse frame range: %s", parameter.c_str());
+                    assert(0);
                 }
             }
         }

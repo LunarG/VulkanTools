@@ -44,7 +44,7 @@ vktrace_SettingInfo g_settings_info[] =
     { "a", "Arguments", VKTRACE_SETTING_STRING, { &g_settings.arguments }, { &g_default_settings.arguments }, TRUE, "Command line arguments to pass to trace program."},
     { "w", "WorkingDir", VKTRACE_SETTING_STRING, { &g_settings.working_dir }, { &g_default_settings.working_dir }, TRUE, "The program's working directory."},
     { "o", "OutputTrace", VKTRACE_SETTING_STRING, { &g_settings.output_trace }, { &g_default_settings.output_trace }, TRUE, "Path to the generated output trace file."},
-    { "s", "ScreenShot", VKTRACE_SETTING_STRING, { &g_settings.screenshotList }, { &g_default_settings.screenshotList }, TRUE, "Generate screenshots with specified frames, the frames are comma separated list of frames or a range like <start_frame>-<frame_count>-<interval>."},
+    { "s", "ScreenShot", VKTRACE_SETTING_STRING, { &g_settings.screenshotList }, { &g_default_settings.screenshotList }, TRUE, "Generate screenshots with specified frames, the frames are comma separated list of frames or a range like <start_frame>-<frame_count>-<interval>. The range also can be 'all' to generate screenshots for all frames or like <start_frame>-<frame_count> for default interval value 1. It means unlimited if frame_count is 0."},
     { "ptm", "PrintTraceMessages", VKTRACE_SETTING_BOOL, { &g_settings.print_trace_messages }, { &g_default_settings.print_trace_messages }, TRUE, "Print trace messages to vktrace console."},
     { "P", "PMB", VKTRACE_SETTING_BOOL, { &g_settings.enable_pmb }, { &g_default_settings.enable_pmb }, TRUE, "Optimize tracing of persistently mapped buffers, default is FALSE."},
 #if _DEBUG
