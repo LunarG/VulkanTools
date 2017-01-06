@@ -53,12 +53,19 @@ class Sequencer: public AbstractSequencer
 public:
     Sequencer(FileLike* pFile) : m_lastPacket(NULL), m_pFile(pFile) {}
     ~Sequencer() {
-        if (m_lastPacket)
-            delete m_lastPacket;
+        this->clean_up();
+    }
+
+    void clean_up() {
+        if (m_lastPacket){
+            free(m_lastPacket);
+            m_lastPacket = NULL;
+        }
 
         if (m_pFile) {
             fclose(m_pFile->mFile);
-            delete m_pFile;
+            free(m_pFile);
+            m_pFile = NULL;
         }
     }
 

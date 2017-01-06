@@ -83,8 +83,10 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer &seq,
     {
         while (trace_running) {
             display.process_event();
-            if (display.get_quit_status())
-                return -1;
+            if (display.get_quit_status()) {
+                err = -1;
+                goto out;
+            }
             if (display.get_pause_status()) {
                 continue;
             } else {
@@ -120,42 +122,38 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer &seq,
                         vktrace_LogWarning("Tracer_id %d has no valid replayer.", packet->tracer_id);
                         continue;
                     }
-                    if (packet->packet_id >= VKTRACE_TPI_BEGIN_API_HERE)
-                    {
+                    if (packet->packet_id >= VKTRACE_TPI_BEGIN_API_HERE) {
                         // replay the API packet
                         res = replayer->Replay(replayer->Interpret(packet));
-                        if (res != VKTRACE_REPLAY_SUCCESS)
-                        {
+                        if (res != VKTRACE_REPLAY_SUCCESS) {
                            vktrace_LogError("Failed to replay packet_id %d, with global_packet_index %d.", packet->packet_id, packet->global_packet_index);
                            static BOOL QuitOnAnyError=FALSE;
-                           if(QuitOnAnyError)
-                           {
-                              return -1;
+                           if(QuitOnAnyError) {
+                              err = -1;
+                              goto out;
                            }
                         }
 
                         // frame control logic
                         int frameNumber = replayer->GetFrameNumber();
-                        if (prevFrameNumber != frameNumber)
-                        {
+                        if (prevFrameNumber != frameNumber) {
                             prevFrameNumber = frameNumber;
 
-                            if (frameNumber == settings.loopStartFrame)
-                            {
+                            if (frameNumber == settings.loopStartFrame) {
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
                             }
 
-                            if (frameNumber == settings.loopEndFrame)
-                            {
+                            if (frameNumber == settings.loopEndFrame) {
                                 trace_running = false;
                             }
                         }
 
                     } else {
                         vktrace_LogError("Bad packet type id=%d, index=%d.", packet->packet_id, packet->global_packet_index);
-                        return -1;
+                        err = -1;
+                        goto out;
                     }
                 }
             }
@@ -163,16 +161,22 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer &seq,
         settings.numLoops--;
         //if screenshot is enabled run it for one cycle only
         //as all consecutive cycles must generate same screen
-        if (replaySettings.screenshotList != NULL)
-        {
+        if (replaySettings.screenshotList != NULL) {
             vktrace_free((char*)replaySettings.screenshotList);
+            replaySettings.screenshotList = NULL;
         }
         seq.set_bookmark(startingPacket);
         trace_running = true;
-        if (replayer != NULL)
-        {
+        if (replayer != NULL) {
             replayer->ResetFrameNumber();
         }
+    }
+
+out:
+    seq.clean_up();
+    if (replaySettings.screenshotList != NULL) {
+        vktrace_free((char*)replaySettings.screenshotList);
+        replaySettings.screenshotList = NULL;
     }
     return err;
 }
