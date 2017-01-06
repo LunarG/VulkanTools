@@ -225,11 +225,11 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard()
     {
         if (isMappedBlockChanged(i, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT))
         {
-            setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
             #if defined(WIN32)
             DWORD oldProt;
             VirtualProtect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
             #endif
+            setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
         }
     }
 }
@@ -241,11 +241,11 @@ void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard()
     {
         if (isMappedBlockChanged(i, BLOCK_FLAG_ARRAY_READ_SNAPSHOT))
         {
-            setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ_SNAPSHOT);
             #if defined(WIN32)
             DWORD oldProt;
             VirtualProtect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
             #endif
+            setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ_SNAPSHOT);
         }
     }
 }
@@ -259,7 +259,6 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
 
     for (uint64_t i = 0; i < PageGuardAmount; i++)
     {
-        setMappedBlockChanged(i, bSetBlockChanged, BLOCK_FLAG_ARRAY_CHANGED);
         #if defined(WIN32)
         DWORD oldProt, dwErr;
         if (!VirtualProtect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt))
@@ -268,6 +267,7 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
             setSuccessfully = false;
         }
         #endif
+        setMappedBlockChanged(i, bSetBlockChanged, BLOCK_FLAG_ARRAY_CHANGED);
     }
     return setSuccessfully;
 }

@@ -140,6 +140,21 @@ void *strip_create_extensions(const void *pNext)
 
 #if defined (PLATFORM_LINUX)
 
+static void mprotectWithErrorCheck(void *addr, size_t size, int prot)
+{
+    while (0 != mprotect(addr, size, prot))
+    {
+        if (errno == EAGAIN)
+            continue;
+
+        // Something bad happened, and it's fatal.
+        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc,
+        // writing to the trace file, and writing to stdout -- operations that
+        // may not work from a signal handler.  But we're about to exit anyway.
+        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+    }
+}
+
 // When quering dirty pages from /proc/self/pagemap, there is a
 // small window between the reading of this file and when the dirty bits
 // are cleared in which some other thread might modify mapped memory.
@@ -165,12 +180,7 @@ static void segvHandler(int sig, siginfo_t *si, void *ununsed)
         VKTRACE_FATAL_ERROR("Write to pipe failed in PMB signal hander.");
 
     // Change protection of this page to allow the write to proceed
-    if (0 != mprotect((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE))
-        // If we're calling VKTRACE_FATAL_ERROR here, there's a bug in the trace layer.
-        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc, writing to the
-        // trace file, and writing to stdout -- operations that may not work from a
-        // signal handler.  But we're about to exit anyway.
-        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+    mprotectWithErrorCheck((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE);
 }
 
 
@@ -238,8 +248,7 @@ void getMappedDirtyPagesLinux(void)
         // Make pages in this memory allocation non-writable so we get a SIGSEGV
         // if some other thread writes to this memory while we are examining
         // and clearing its dirty bit.
-        if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ))
-            VKTRACE_FATAL_ERROR("mprotect system call failed.");
+        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ);
 
         // Read all the pagemap entries for this mapped memory allocation
         if (pageEntries.size() < nPages)
@@ -283,8 +292,7 @@ void getMappedDirtyPagesLinux(void)
             continue;
         alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
         alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
-        if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE))
-            VKTRACE_FATAL_ERROR("mprotect sys call failure.");
+        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE);
     }
 
     // Read all the addresses that caused a segv and mark those pages dirty
