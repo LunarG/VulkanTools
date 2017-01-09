@@ -56,11 +56,11 @@ set(VKTRACE_VULKAN_CODEGEN_UTILS "vulkan/codegen_utils")
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
 
 # generate files for vulkan.h
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_struct_sizes ${VKTRACE_VULKAN_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS} vk_struct_size_helper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS} vk_struct_size_helper.c)
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS} vk_enum_string_helper.h)
 
 # generate files for vk_lunarg_debug_marker.h
-#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_struct_sizes ${VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
 #execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_enum_string_helper ${VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
 
 # Run a codegen script to generate vktrace-specific vulkan utils
