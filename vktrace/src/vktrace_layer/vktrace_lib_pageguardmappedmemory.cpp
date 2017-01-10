@@ -25,8 +25,6 @@
 #include "vktrace_lib_pageguardcapture.h"
 #include "vktrace_lib_pageguard.h"
 
-#if defined(WIN32) //page guard solution for windows
-
 VkDevice& PageGuardMappedMemory::getMappedDevice()
 {
     return MappedDevice;
@@ -55,13 +53,16 @@ VkDeviceSize& PageGuardMappedMemory::getMappedSize()
 PageGuardMappedMemory::PageGuardMappedMemory()
     :MappedDevice(nullptr),
     MappedMemory((VkDeviceMemory)nullptr),
+    pMappedData(nullptr),
     pRealMappedData(nullptr),
     pChangedDataPackage(nullptr),
-    pMappedData(nullptr),
     MappedSize(0),
+    PageGuardSize(pageguardGetSystemPageSize()),
+    #if defined(PLATFORM_LINUX)
+    clearRefsFd(-1),
+    #endif
     pPageStatus(nullptr),
     BlockConflictError(false),
-    PageGuardSize(pageguardGetSystemPageSize()),
     PageSizeLeft(0),
     PageGuardAmount(0)
 {
@@ -118,13 +119,9 @@ uint64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr)
 {
     int64_t addrOffset = addr - pMappedData;
     uint64_t indexOfChangedBlockByAddr = -1;
-    if ((addrOffset >= 0) && (addrOffset < MappedSize))
+    if ((addrOffset >= 0) && ((VkDeviceSize)addrOffset < MappedSize))
     {
         indexOfChangedBlockByAddr = addrOffset / PageGuardSize;
-    }
-    else
-    {
-        assert(false);
     }
     return indexOfChangedBlockByAddr;
 }
@@ -224,49 +221,60 @@ bool PageGuardMappedMemory::isNoMappedBlockChanged()
 
 void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard()
 {
-    DWORD oldProt;
     for (uint64_t i = 0; i < PageGuardAmount; i++)
     {
         if (isMappedBlockChanged(i, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT))
         {
             setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
+            #if defined(WIN32)
+            DWORD oldProt;
             VirtualProtect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
+            #endif
         }
     }
+    #if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    PageGuardCapture pageGuardCapture = getPageGuardControlInstance();
+    pageGuardCapture.pageRefsDirtyClear();
+    #endif
 }
 
 void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard()
 {
-    DWORD oldProt;
     backupBlockReadArraySnapshot();
     for (uint64_t i = 0; i < PageGuardAmount; i++)
     {
         if (isMappedBlockChanged(i, BLOCK_FLAG_ARRAY_READ_SNAPSHOT))
         {
             setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ_SNAPSHOT);
+            #if defined(WIN32)
+            DWORD oldProt;
             VirtualProtect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
+            #endif
         }
     }
+    #if defined(PLATFORM_LINUX)
+    // We do not call pageRefsDirtyClear here, counting on caller to call pageRefsDirtyClear.
+    #endif
 }
 
 bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSetBlockChanged)
 {
     bool setSuccessfully = true;
-    DWORD oldProt, dwErr;
+    #if defined(WIN32)
     DWORD dwMemSetting = bSetPageGuard ? (PAGE_READWRITE | PAGE_GUARD) : PAGE_READWRITE;
+    #endif
 
     for (uint64_t i = 0; i < PageGuardAmount; i++)
     {
         setMappedBlockChanged(i, bSetBlockChanged, BLOCK_FLAG_ARRAY_CHANGED);
+        #if defined(WIN32)
+        DWORD oldProt, dwErr;
         if (!VirtualProtect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt))
         {
             dwErr = GetLastError();
             setSuccessfully = false;
         }
-        else
-        {
-            dwErr = GetLastError();
-        }
+        #endif
     }
     return setSuccessfully;
 }
@@ -287,7 +295,9 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 #endif
     MappedSize = size;
 
+#ifdef WIN32
     setPageGuardExceptionHandler();
+#endif
 
     PageSizeLeft = size % PageGuardSize;
     PageGuardAmount = size / PageGuardSize;
@@ -309,7 +319,9 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
     if ((memory == MappedMemory) && (device == MappedDevice))
     {
         setAllPageGuardAndFlag(false, false);
+#ifdef WIN32
         removePageGuardExceptionHandler();
+#endif
         clearChangedDataPackage();
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
         if (MappedData == nullptr)
@@ -351,7 +363,7 @@ void PageGuardMappedMemory::backupBlockReadArraySnapshot()
 DWORD PageGuardMappedMemory::getChangedBlockAmount(int useWhich)
 {
     DWORD dwAmount = 0;
-    for (int i = 0; i < PageGuardAmount; i++)
+    for (uint64_t i = 0; i < PageGuardAmount; i++)
     {
         if (isMappedBlockChanged(i, useWhich))
         {
@@ -402,7 +414,7 @@ DWORD PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDev
     {
         *pInfoSize = infosize;
     }
-    for (int i = 0; i < PageGuardAmount; i++)
+    for (uint64_t i = 0; i < PageGuardAmount; i++)
     {
         CurrentBlockSize = getMappedBlockSize(i);
         offset = getMappedBlockOffset(i);
@@ -450,8 +462,9 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(
 {
     bool handleSuccessfully = false;
     DWORD dwSaveSize, InfoSize;
+
     backupBlockChangedArraySnapshot();
-    DWORD dwAmount = getChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, nullptr, 0, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT); //get the info size and size of changed blocks
+    getChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, nullptr, 0, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT); //get the info size and size of changed blocks
     if ((dwSaveSize != 0))
     {
         handleSuccessfully = true;
@@ -514,5 +527,3 @@ PBYTE PageGuardMappedMemory::getChangedDataPackage(VkDeviceSize  *pSize)
     }
     return pResultDataPackage;
 }
-
-#endif//page guard solution for windows

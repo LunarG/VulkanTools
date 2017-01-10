@@ -24,6 +24,10 @@
 
 #include "vktrace_filelike.h"
 
+#if defined(ANDROID)
+#include <sys/un.h>
+#endif
+
 const size_t kSendBufferSize = 1024 * 1024;
 
 MessageStream* gMessageStream = NULL;
@@ -211,6 +215,30 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
     struct addrinfo hostAddrInfo = { 0 },
         *currentAttempt = NULL;
     vktrace_create_critical_section(&gSendLock);
+
+#if defined(ANDROID)
+
+    struct sockaddr_un addr;
+    socklen_t namelen;
+
+    // Copy the string such that a null character precedes it, i.e. "0\vktrace"
+    memset(&addr, 0, sizeof(addr));
+    strcpy(addr.sun_path + 1, pStream->mPort);
+    addr.sun_family = AF_UNIX;
+    namelen = sizeof(addr.sun_family) + strlen(pStream->mPort) + 1;
+
+    pStream->mSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    hr = connect(pStream->mSocket, (struct sockaddr *) &addr, namelen);
+
+    if (hr == SOCKET_ERROR)
+    {
+        vktrace_LogError("Client: Failed connect to abstract socket.");
+        closesocket(pStream->mSocket);
+        pStream->mSocket = INVALID_SOCKET;
+    }
+
+#else
+
     hostAddrInfo.ai_family = AF_UNSPEC;
     hostAddrInfo.ai_socktype = SOCK_STREAM;
     hostAddrInfo.ai_protocol = IPPROTO_TCP;
@@ -254,6 +282,8 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
 
     freeaddrinfo(pStream->mHostAddressInfo);
     pStream->mHostAddressInfo = NULL;
+
+#endif
 
     if (pStream->mSocket == INVALID_SOCKET) {
         vktrace_LogError("Client: Couldn't find any connections.");

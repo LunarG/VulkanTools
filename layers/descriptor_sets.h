@@ -96,6 +96,8 @@ class DescriptorSetLayout {
     VkDescriptorSetLayout GetDescriptorSetLayout() const { return layout_; };
     uint32_t GetTotalDescriptorCount() const { return descriptor_count_; };
     uint32_t GetDynamicDescriptorCount() const { return dynamic_descriptor_count_; };
+    // For a given binding, return the number of descriptors in that binding and all successive bindings
+    uint32_t GetConsecutiveDescriptorCountFromBinding(uint32_t) const;
     uint32_t GetBindingCount() const { return binding_count_; };
     // Fill passed-in set with bindings
     void FillBindingSet(std::unordered_set<uint32_t> *) const;
@@ -119,6 +121,15 @@ class DescriptorSetLayout {
     VkShaderStageFlags GetStageFlagsFromBinding(const uint32_t) const;
     VkSampler const *GetImmutableSamplerPtrFromBinding(const uint32_t) const;
     VkSampler const *GetImmutableSamplerPtrFromIndex(const uint32_t) const;
+    // For a given binding and array index, return the corresponding index into the dynamic offset array
+    int32_t GetDynamicOffsetIndexFromBinding(uint32_t binding) const {
+        auto dyn_off = binding_to_dynamic_array_idx_map_.find(binding);
+        if (dyn_off == binding_to_dynamic_array_idx_map_.end()) {
+            assert(0); // Requesting dyn offset for invalid binding/array idx pair
+            return -1;
+        }
+        return dyn_off->second;
+    }
     // For a particular binding, get the global index
     //  These calls should be guarded by a call to "HasBinding(binding)" to verify that the given binding exists
     uint32_t GetGlobalStartIndexFromBinding(const uint32_t) const;
@@ -129,9 +140,11 @@ class DescriptorSetLayout {
 
   private:
     VkDescriptorSetLayout layout_;
-    std::unordered_map<uint32_t, uint32_t> binding_to_index_map_;
+    std::map<uint32_t, uint32_t> binding_to_index_map_;
     std::unordered_map<uint32_t, uint32_t> binding_to_global_start_index_map_;
     std::unordered_map<uint32_t, uint32_t> binding_to_global_end_index_map_;
+    // For a given binding map to associated index in the dynamic offset array
+    std::unordered_map<uint32_t, uint32_t> binding_to_dynamic_array_idx_map_;
     // VkDescriptorSetLayoutCreateFlags flags_;
     uint32_t binding_count_; // # of bindings in this layout
     std::vector<safe_VkDescriptorSetLayoutBinding> bindings_;
@@ -319,6 +332,10 @@ class DescriptorSet : public BASE_NODE {
     uint32_t GetDescriptorCountFromBinding(const uint32_t binding) const {
         return p_layout_ ? p_layout_->GetDescriptorCountFromBinding(binding) : 0;
     };
+    // Return index into dynamic offset array for given binding
+    int32_t GetDynamicOffsetIndexFromBinding(uint32_t binding) const {
+        return p_layout_ ? p_layout_->GetDynamicOffsetIndexFromBinding(binding) : -1;
+    }
     // Return true if given binding is present in this set
     bool HasBinding(const uint32_t binding) const { return p_layout_->HasBinding(binding); };
     // Is this set compatible with the given layout?
@@ -368,7 +385,7 @@ class DescriptorSet : public BASE_NODE {
                                    std::string *) const;
     bool VerifyCopyUpdateContents(const VkCopyDescriptorSet *, const DescriptorSet *, VkDescriptorType, uint32_t,
                                   UNIQUE_VALIDATION_ERROR_CODE *, std::string *) const;
-    bool ValidateBufferUsage(BUFFER_NODE const *, VkDescriptorType, UNIQUE_VALIDATION_ERROR_CODE *, std::string *) const;
+    bool ValidateBufferUsage(BUFFER_STATE const *, VkDescriptorType, UNIQUE_VALIDATION_ERROR_CODE *, std::string *) const;
     bool ValidateBufferUpdate(VkDescriptorBufferInfo const *, VkDescriptorType, UNIQUE_VALIDATION_ERROR_CODE *,
                               std::string *) const;
     // Private helper to set all bound cmd buffers to INVALID state

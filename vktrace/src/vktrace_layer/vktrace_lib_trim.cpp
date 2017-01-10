@@ -118,9 +118,9 @@ namespace trim
 
     //Get specified key's real time state: it's released or pressed now. 
     //the function is platform specific.
-    enum_trim_state_change GetAsyncKeyState(int keyCode)
+    enum_key_state GetAsyncKeyState(int keyCode)
     {
-        enum_trim_state_change keyState=enum_trim_state_change::Released;
+        enum_key_state keyState=enum_key_state::Released;
         xcb_connection_t* connection = get_keyboard_connection( );
         xcb_key_symbols_t *hotKeySymbols = xcb_key_symbols_alloc(connection);
         if(hotKeySymbols)
@@ -132,7 +132,7 @@ namespace trim
                 xcb_query_keymap_reply_t *keysBitMap = xcb_query_keymap_reply(connection, cookie, NULL);
                 if(( keysBitMap->keys[(*keyLoc/8)] & (1 << (*keyLoc%8)) )!=0)
                 {
-                    keyState=enum_trim_state_change::Pressed;
+                    keyState=enum_key_state::Pressed;
                 }
                 free(keysBitMap);
                 free(keyLoc);
@@ -149,9 +149,9 @@ namespace trim
     //      char *pHotkeyString, the string of target key
     //Output:
     //      return specified key's real time state: it's released or pressed now. 
-    enum_trim_state_change key_state_platform_specific(char *pHotkeyString)
+    enum_key_state key_state_platform_specific(char *pHotkeyString)
     {
-        enum_trim_state_change KeyState = enum_trim_state_change::Released;
+        enum_key_state KeyState = enum_key_state::Released;
         static std::unordered_map<std::string, int> KeyCodeMap = {
             { "F1", XK_F1 }, { "F2", XK_F2 }, { "F3", XK_F3 }, { "F4", XK_F4 },
             { "F5", XK_F5 }, { "F6", XK_F6 }, { "F7", XK_F7 }, { "F8", XK_F8 },

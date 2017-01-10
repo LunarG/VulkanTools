@@ -259,13 +259,11 @@ fi
 
 apk_badging=$(aapt dump badging $apk)
 if [[ $apk_badging != *"uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'"* ]] ||
-   [[ $apk_badging != *"uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'"* ]] ||
-   [[ $apk_badging != *"uses-permission: name='android.permission.INTERNET'"* ]];
+   [[ $apk_badging != *"uses-permission: name='android.permission.WRITE_EXTERNAL_STORAGE'"* ]];
 then
     echo Please package APK with the following permissions:
     echo     android.permission.READ_EXTERNAL_STORAGE
     echo     android.permission.WRITE_EXTERNAL_STORAGE
-    echo     android.permission.INTERNET
     exit 1
 fi
 apk_contents=$(jar tvf $apk)
@@ -327,7 +325,7 @@ adb $serialFlag shell pm grant $package android.permission.WRITE_EXTERNAL_STORAG
 adb $serialFlag shell setprop debug.vulkan.screenshot $frame
 
 # vktrace
-adb $serialFlag reverse tcp:34201 tcp:34201
+adb $serialFlag reverse localabstract:vktrace tcp:34201
 $vktrace_exe -v full -o $package.vktrace &
 adb $serialFlag shell am start $package/$activity
 

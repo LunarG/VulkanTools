@@ -1,24 +1,59 @@
 cmake_minimum_required (VERSION 2.8.11)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
+    set(DisplayServer Win32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if (BUILD_WSI_XCB_SUPPORT)
+        add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
+        set(DisplayServer Xcb)
+    endif()
+
+    if (BUILD_WSI_XLIB_SUPPORT)
+        if (NOT DisplayServer)
+            set(DisplayServer Xlib)
+        endif()
+        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+    endif()
+
+    if (BUILD_WSI_WAYLAND_SUPPORT)
+       # TODO Add Wayland Support
+       # add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
+    endif()
+
+    if (BUILD_WSI_MIR_SUPPORT)
+       # TODO Add Mir Support
+       # add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
+       # include_directories(${MIR_INCLUDE_DIR})
+    endif()
+else()
+    message(FATAL_ERROR "Unsupported Platform!")
+endif()
+
+add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
+add_custom_target( generate_api_h DEPENDS api_dump_text.h )
+
 macro(run_vk_helper subcmd)
     add_custom_command(OUTPUT ${ARGN}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk_helper.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk_helper.py --${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h --abs_out_dir ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${SCRIPTS_DIR}/vk_helper.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h
     )
 endmacro()
 
 ## VulkanTools has its own layer generator script
 macro(run_vk_vtlayer_generate subcmd output)
     add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${PROJECT_SOURCE_DIR}/vk_helper_api_dump.py
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${DisplayServer} ${subcmd} ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h > ${output}
+        DEPENDS ${SCRIPTS_DIR}/vk-vtlayer-generate.py ${PROJECT_SOURCE_DIR}/include/vulkan/vulkan.h ${SCRIPTS_DIR}/vulkan.py
     )
 endmacro()
 
-macro(run_vk_layer_xml_generate subcmd output)
+macro(run_vk_xml_generate subcmd output)
     add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vt_genvk.py -registry ${PROJECT_SOURCE_DIR}/vk.xml ${output}
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk.xml ${PROJECT_SOURCE_DIR}/generator.py ${PROJECT_SOURCE_DIR}/vt_genvk.py ${PROJECT_SOURCE_DIR}/reg.py
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vt_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
+        DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/vt_genvk.py ${SCRIPTS_DIR}/reg.py
     )
 endmacro()
 
@@ -72,19 +107,20 @@ endif()
 
 if (WIN32)
     macro(add_vk_layer target)
-    add_custom_command(OUTPUT VkLayer_${target}.def
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} win-def-file VkLayer_${target} layer > VkLayer_${target}.def
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py
+    FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
+    add_custom_target(copy-${target}-def-file ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} VkLayer_${target}.def
+        VERBATIM
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_vt_helpers)
+    add_dependencies(VkLayer_${target} generate_vt_helpers generate_api_cpp generate_api_h)
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_vt_helpers)
+    add_dependencies(VkLayer_${target} generate_vt_helpers generate_api_cpp generate_api_h)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
     endmacro()
@@ -120,10 +156,6 @@ else()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
-
-add_custom_command(OUTPUT vk_dispatch_table_helper.h
-    COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
-    DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
 
 run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers
@@ -178,7 +210,9 @@ add_custom_target(generate_vt_helpers DEPENDS
 
 #VulkanTools layers
 run_vk_vtlayer_generate(generic generic_layer.cpp)
-run_vk_layer_xml_generate(ApiDump api_dump.cpp)
+run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
+run_vk_xml_generate(ApiDump api_dump.cpp)
+run_vk_xml_generate(ApiDump api_dump_text.h)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search

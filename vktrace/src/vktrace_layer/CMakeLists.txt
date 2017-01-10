@@ -81,9 +81,14 @@ endif()
 #    ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_lunarg_debug_marker_packets.h
 #    ${CODEGEN_UTILS_DIR}/vk_lunarg_debug_marker_struct_size_helper.h
 
-add_custom_command(OUTPUT vk_dispatch_table_helper.h
-    COMMAND ${PYTHON_CMD} ${CMAKE_SOURCE_DIR}/vk-generate.py ${DisplayServer} dispatch-table-ops layer > vk_dispatch_table_helper.h
-    DEPENDS ${CMAKE_SOURCE_DIR}/vk-generate.py ${CMAKE_SOURCE_DIR}/vulkan.py)
+macro(run_vk_xml_generate dependency output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
+        DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/${dependency} ${SCRIPTS_DIR}/lvl_genvk.py ${SCRIPTS_DIR}/reg.py
+    )
+endmacro()
+
+run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
 add_custom_target(generate_vktrace_layer_helpers DEPENDS
     vk_dispatch_table_helper.h)
 

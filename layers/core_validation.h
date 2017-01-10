@@ -86,6 +86,10 @@ struct CHECK_DISABLED {
     bool free_descriptor_sets; // Skip validation prior to vkFreeDescriptorSets()
     bool allocate_descriptor_sets; // Skip validation prior to vkAllocateDescriptorSets()
     bool update_descriptor_sets;   // Skip validation prior to vkUpdateDescriptorSets()
+    bool wait_for_fences;
+    bool get_fence_state;
+    bool queue_wait_idle;
+    bool device_wait_idle;
 };
 
 /*
@@ -216,15 +220,39 @@ struct PHYSICAL_DEVICE_STATE {
     CALL_STATE vkGetPhysicalDeviceLayerPropertiesState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceSurfaceCapabilitiesKHRState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceSurfacePresentModesKHRState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceSurfaceFormatsKHRState = UNCALLED;
     VkPhysicalDeviceFeatures features = {};
     VkPhysicalDevice phys_device = VK_NULL_HANDLE;
     std::vector<VkQueueFamilyProperties> queue_family_properties;
+    VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
+    std::vector<VkPresentModeKHR> present_modes;
+    std::vector<VkSurfaceFormatKHR> surface_formats;
 };
+
+struct GpuQueue {
+    VkPhysicalDevice gpu;
+    uint32_t queue_family_index;
+};
+
+inline bool operator==(GpuQueue const & lhs, GpuQueue const & rhs) {
+    return (lhs.gpu == rhs.gpu && lhs.queue_family_index == rhs.queue_family_index);
+}
+
+namespace std {
+template <> struct hash<GpuQueue> {
+    size_t operator()(GpuQueue gq) const throw() {
+        return hash<uint64_t>()((uint64_t)(gq.gpu)) ^ hash<uint32_t>()(gq.queue_family_index);
+    }
+};
+}
 
 struct SURFACE_STATE {
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     SWAPCHAIN_NODE *swapchain = nullptr;
     SWAPCHAIN_NODE *old_swapchain = nullptr;
+    std::unordered_map<GpuQueue, bool> gpu_queue_support;
 
     SURFACE_STATE() {}
     SURFACE_STATE(VkSurfaceKHR surface)

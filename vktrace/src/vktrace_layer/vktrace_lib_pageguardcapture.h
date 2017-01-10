@@ -30,8 +30,6 @@
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
 
-#if defined(WIN32) /// page guard solution for windows
-
 #define PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
 
 //PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY is a compile flag for add page guard on real mapped memory.
@@ -51,6 +49,10 @@ private:
     std::unordered_map< VkDeviceMemory, PageGuardMappedMemory > MapMemory;
     std::unordered_map< VkDeviceMemory, PBYTE > MapMemoryPtr;
     std::unordered_map< VkDeviceMemory, VkDeviceSize > MapMemoryOffset;
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    int clearRefsFd;
+#endif
+
 public:
 
     PageGuardCapture();
@@ -63,7 +65,7 @@ public:
 
     void* getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory);
 
-    VkDeviceSize PageGuardCapture::getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
+    VkDeviceSize getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
 
     /// return: if it's target mapped memory and no change at all;
     /// PBYTE *ppPackageDataforOutOfMap, must be an array include memoryRangeCount elements
@@ -105,7 +107,8 @@ public:
         uint32_t  bufferMemoryBarrierCount, const VkBufferMemoryBarrier*  pBufferMemoryBarriers,
         uint32_t  imageMemoryBarrierCount, const VkImageMemoryBarrier*  pImageMemoryBarriers);
 
-} PageGuardCapture;
-//page guard for windows end
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    void pageRefsDirtyClear();
+#endif
 
-#endif//page guard solution
+} PageGuardCapture;

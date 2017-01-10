@@ -25,6 +25,9 @@
 #include "vk_loader_platform.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_config.h"
+#include "vk_layer_table.h"
+#include "vk_layer_extension_utils.h"
+#include "vk_layer_utils.h"
 
 #include <algorithm>
 #include <fstream>
@@ -35,6 +38,10 @@
 #include <string.h>
 #include <string>
 #include <type_traits>
+
+enum class ApiDumpFormat {
+    Text,
+};
 
 class ApiDumpSettings {
   public:
@@ -54,6 +61,8 @@ class ApiDumpSettings {
         } else {
             use_cout = true;
         }
+        
+        output_format = ApiDumpFormat::Text;
 
         // Get the remaining settings
         show_params = readBoolOption("lunarg_api_dump.detailed", true);
@@ -72,6 +81,8 @@ class ApiDumpSettings {
         if (!use_cout)
             output_stream.close();
     }
+    
+    inline ApiDumpFormat format() const { return output_format; }
 
     std::ostream &formatNameType(std::ostream &stream, int indents,
                                  const char *name, const char *type) const {
@@ -143,6 +154,7 @@ class ApiDumpSettings {
 
     bool use_cout;
     std::ofstream output_stream;
+    ApiDumpFormat output_format;
     bool show_params;
     bool show_address;
     bool should_flush;
@@ -240,7 +252,7 @@ class ApiDumpInstance {
 
 ApiDumpInstance ApiDumpInstance::current_instance;
 
-// Text dump helpers
+//==================================== Text Backend Helpers ======================================//
 
 template <typename T>
 inline void

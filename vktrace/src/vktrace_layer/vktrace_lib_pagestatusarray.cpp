@@ -21,8 +21,6 @@
 #include <atomic>
 #include "vktrace_lib_pagestatusarray.h"
 
-#if defined(WIN32) //page guard solution for windows
-
 const uint64_t PageStatusArray::PAGE_FLAG_AMOUNT_PER_BYTE = 1;
 const uint64_t PageStatusArray::PAGE_NUMBER_FROM_BIT_SHIFT = 0;
 
@@ -159,5 +157,3 @@ void PageStatusArray::clearAll()
     memset(activeReadArray, 0, ByteCount);
     memset(capturedReadArray, 0, ByteCount);
 }
-
-#endif//page guard solution for windows

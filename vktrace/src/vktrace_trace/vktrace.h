@@ -40,6 +40,7 @@ typedef struct vktrace_settings
     char* output_trace;
     BOOL print_trace_messages;
     const char* screenshotList;
+    BOOL enable_pmb;
     const char *verbosity;
     const char *traceTrigger;
 

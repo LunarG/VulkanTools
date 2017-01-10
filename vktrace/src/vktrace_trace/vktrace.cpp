@@ -41,11 +41,12 @@ vktrace_SettingInfo g_settings_info[] =
 {
     // common command options
     { "p", "Program", VKTRACE_SETTING_STRING, { &g_settings.program }, { &g_default_settings.program }, TRUE, "The program to trace."},
-    { "a", "Arguments", VKTRACE_SETTING_STRING, { &g_settings.arguments }, { &g_default_settings.arguments }, TRUE, "Cmd-line arguments to pass to trace program."},
+    { "a", "Arguments", VKTRACE_SETTING_STRING, { &g_settings.arguments }, { &g_default_settings.arguments }, TRUE, "Command line arguments to pass to trace program."},
     { "w", "WorkingDir", VKTRACE_SETTING_STRING, { &g_settings.working_dir }, { &g_default_settings.working_dir }, TRUE, "The program's working directory."},
     { "o", "OutputTrace", VKTRACE_SETTING_STRING, { &g_settings.output_trace }, { &g_default_settings.output_trace }, TRUE, "Path to the generated output trace file."},
     { "s", "ScreenShot", VKTRACE_SETTING_STRING, { &g_settings.screenshotList }, { &g_default_settings.screenshotList }, TRUE, "Comma separated list of frames to take a snapshot of."},
     { "ptm", "PrintTraceMessages", VKTRACE_SETTING_BOOL, { &g_settings.print_trace_messages }, { &g_default_settings.print_trace_messages }, TRUE, "Print trace messages to vktrace console."},
+    { "P", "PMB", VKTRACE_SETTING_BOOL, { &g_settings.enable_pmb }, { &g_default_settings.enable_pmb }, TRUE, "Optimize tracing of persistently mapped buffers, default is TRUE."},
 #if _DEBUG
     { "v", "Verbosity", VKTRACE_SETTING_STRING, { &g_settings.verbosity }, { &g_default_settings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
@@ -156,6 +157,7 @@ int main(int argc, char* argv[])
     g_default_settings.output_trace = vktrace_allocate_and_copy("vktrace_out.vktrace");
     g_default_settings.verbosity = "errors";
     g_default_settings.screenshotList = NULL;
+    g_default_settings.enable_pmb = true;;
 
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0)
     {
@@ -235,6 +237,7 @@ int main(int argc, char* argv[])
         vktrace_set_global_var("_VK_SCREENSHOT","");
     }
 
+    vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb?"1":"0");
     if (g_settings.traceTrigger)
     {
         // Export list to screenshot layer

@@ -2,11 +2,38 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 )
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
+    set(DisplayServer Win32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if (BUILD_WSI_XCB_SUPPORT)
+        add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
+    endif()
+
+    if (BUILD_WSI_XLIB_SUPPORT)
+       add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+    endif()
+
+    if (BUILD_WSI_WAYLAND_SUPPORT)
+       add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
+    endif()
+
+    if (BUILD_WSI_MIR_SUPPORT)
+        add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
+        include_directories(${MIR_INCLUDE_DIR})
+    endif()
+else()
+    message(FATAL_ERROR "Unsupported Platform!")
+endif()
 
 if (WIN32)
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.def
-        COMMAND ${PYTHON_CMD} ${PROJECT_SOURCE_DIR}/vk-generate.py ${DisplayServer} win-def-file vulkan-${MAJOR}.dll all > ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.def
-        DEPENDS ${PROJECT_SOURCE_DIR}/vk-generate.py ${PROJECT_SOURCE_DIR}/vulkan.py)
+    FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${API_LOWERCASE}-${MAJOR}.def DEF_FILE)
+    add_custom_target(copy-def-file ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${API_LOWERCASE}-${MAJOR}.def
+        VERBATIM
+    )
 endif()
 
 # DEBUG enables runtime loader ICD verification
@@ -38,6 +65,7 @@ set (OPT_LOADER_SRCS
 )
 
 set (LOADER_SRCS ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
+add_definitions(-DAPI_NAME="${API_NAME}")
 
 if (WIN32)
     # Use static MSVCRT libraries
@@ -60,30 +88,30 @@ if (WIN32)
     target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
     add_library(loader-opt OBJECT ${OPT_LOADER_SRCS})
     target_compile_options(loader-opt PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_REL}>")
-    add_library(vulkan-${MAJOR} SHARED $<TARGET_OBJECTS:loader-opt> $<TARGET_OBJECTS:loader-norm> ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.def ${CMAKE_CURRENT_SOURCE_DIR}/loader.rc)
+    add_library(${API_LOWERCASE}-${MAJOR} SHARED $<TARGET_OBJECTS:loader-opt> $<TARGET_OBJECTS:loader-norm> ${CMAKE_CURRENT_SOURCE_DIR}/${API_LOWERCASE}-${MAJOR}.def ${CMAKE_CURRENT_SOURCE_DIR}/loader.rc)
     add_library(VKstatic.${MAJOR} STATIC $<TARGET_OBJECTS:loader-opt> $<TARGET_OBJECTS:loader-norm>)
     set_target_properties(VKstatic.${MAJOR} PROPERTIES OUTPUT_NAME VKstatic.${MAJOR})
-    target_link_libraries(vulkan-${MAJOR} shlwapi)
+    target_link_libraries(${API_LOWERCASE}-${MAJOR} shlwapi)
     target_link_libraries(VKstatic.${MAJOR} shlwapi)
     if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
-        file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/vulkan-${MAJOR}.dll COPY_SRC_PATH)
+        file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${API_LOWERCASE}-${MAJOR}.dll COPY_SRC_PATH)
         file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/../demos/$<CONFIGURATION>/ COPY_DST_PATH)
         file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/../tests/$<CONFIGURATION>/ COPY_DST_TEST_PATH)
     else()
-        file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/vulkan-${MAJOR}.dll COPY_SRC_PATH)
+        file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${API_LOWERCASE}-${MAJOR}.dll COPY_SRC_PATH)
         file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/../demos/ COPY_DST_PATH)
         file(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/../tests/ COPY_DST_TEST_PATH)
     endif()
-    add_custom_command(TARGET vulkan-${MAJOR} POST_BUILD
+    add_custom_command(TARGET ${API_LOWERCASE}-${MAJOR} POST_BUILD
       COMMAND xcopy /Y /I ${COPY_SRC_PATH} ${COPY_DST_PATH})
-    add_custom_command(TARGET vulkan-${MAJOR} POST_BUILD
+    add_custom_command(TARGET ${API_LOWERCASE}-${MAJOR} POST_BUILD
       COMMAND xcopy /Y /I ${COPY_SRC_PATH} ${COPY_DST_TEST_PATH})
 
 else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 
-    add_library(vulkan SHARED ${LOADER_SRCS})
-    set_target_properties(vulkan PROPERTIES SOVERSION "1" VERSION "1.0.32")
-    target_link_libraries(vulkan -ldl -lpthread -lm)
-    install(TARGETS vulkan LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    add_library(${API_LOWERCASE} SHARED ${LOADER_SRCS})
+    set_target_properties(${API_LOWERCASE} PROPERTIES SOVERSION "1" VERSION "1.0.34")
+    target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
+    install(TARGETS ${API_LOWERCASE} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()

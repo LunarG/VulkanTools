@@ -23,7 +23,6 @@ export LD_LIBRARY_PATH=/home/jon/LoaderAndValidationLayers/dbuild/loader
 In a separate terminal run your app, the cube demo in this example:
 ```
 cd /home/jon/LoaderAndValidationLayers/dbuild/demos
-export VK_ICD_FILENAMES=/home/jon/LoaderAndValidationLayers/dbuild/icd/intel/intel_icd.json
 export LD_LIBRARY_PATH=/home/jon/LoaderAndValidationLayers/dbuild/loader
 VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_vktrace VK_DEVICE_LAYERS=VK_LAYER_LUNARG_vktrace ./cube
 ```

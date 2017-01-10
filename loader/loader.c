@@ -302,7 +302,7 @@ static inline char *loader_getenv(const char *name,
     (void)inst;
     return getenv(name);
 }
-static inline void loader_free_getenv(const char *val,
+static inline void loader_free_getenv(char *val,
                                       const struct loader_instance *inst) {
     // No freeing of memory necessary for Linux, but we should at least touch
     // the val and inst pointers to get rid of compiler warnings.
@@ -358,7 +358,7 @@ static inline char *loader_getenv(const char *name,
     (void)name;
     return NULL;
 }
-static inline void loader_free_getenv(const char *val,
+static inline void loader_free_getenv(char *val,
                                       const struct loader_instance *inst) {
     // stub func
     (void)val;
@@ -381,9 +381,9 @@ void loader_log(const struct loader_instance *inst, VkFlags msg_type,
     va_end(ap);
 
     if (inst) {
-        util_DebugReportMessage(inst, msg_type,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT,
-                                (uint64_t)inst, 0, msg_code, "loader", msg);
+        util_DebugReportMessage(
+            inst, msg_type, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT,
+            (uint64_t)(uintptr_t)inst, 0, msg_code, "loader", msg);
     }
 
     if (!(msg_type & g_loader_log_msgs)) {
@@ -496,7 +496,7 @@ static char *loader_get_registry_files(const struct loader_instance *inst,
                     snprintf(out, name_size + 1, "%s", name);
                 else
                     snprintf(out + strlen(out), name_size + 2, "%c%s",
-                             PATH_SEPERATOR, name);
+                             PATH_SEPARATOR, name);
             }
             name_size = 2048;
         }
@@ -1262,9 +1262,10 @@ loader_get_icd_and_device(const VkDevice device,
              icd_term = icd_term->next) {
             for (struct loader_device *dev = icd_term->logical_device_list; dev;
                  dev = dev->next)
-                /* Value comparison of device prevents object wrapping by layers
-                 */
-                if (loader_get_dispatch(dev->device) ==
+                // Value comparison of device prevents object wrapping by layers
+                if (loader_get_dispatch(dev->icd_device) ==
+                    loader_get_dispatch(device) ||
+                    loader_get_dispatch(dev->chain_device) ==
                     loader_get_dispatch(device)) {
                     *found_dev = dev;
                     if (NULL != icd_index) {
@@ -1644,6 +1645,8 @@ static bool loader_icd_init_entrys(struct loader_icd_term *icd_term,
     LOOKUP_GIPA(GetPhysicalDeviceSparseImageFormatProperties, true);
     LOOKUP_GIPA(CreateDebugReportCallbackEXT, false);
     LOOKUP_GIPA(DestroyDebugReportCallbackEXT, false);
+    LOOKUP_GIPA(DebugMarkerSetObjectTagEXT, false);
+    LOOKUP_GIPA(DebugMarkerSetObjectNameEXT, false);
     LOOKUP_GIPA(GetPhysicalDeviceSurfaceSupportKHR, false);
     LOOKUP_GIPA(GetPhysicalDeviceSurfaceCapabilitiesKHR, false);
     LOOKUP_GIPA(GetPhysicalDeviceSurfaceFormatsKHR, false);
@@ -1770,7 +1773,7 @@ static char *loader_get_next_path(char *path) {
 
     if (path == NULL)
         return NULL;
-    next = strchr(path, PATH_SEPERATOR);
+    next = strchr(path, PATH_SEPARATOR);
     if (next == NULL) {
         len = (uint32_t)strlen(path);
         next = path + len;
@@ -2587,11 +2590,14 @@ loader_add_layer_properties(const struct loader_instance *inst,
  * Linux ICD  | dirs     | files
  * Linux Layer| dirs     | dirs
  */
-static VkResult loader_get_manifest_files(
-    const struct loader_instance *inst, const char *env_override,
-    char *source_override, bool is_layer, const char *location,
-    const char *home_location, struct loader_manifest_files *out_files) {
-    char * override = NULL;
+static VkResult
+loader_get_manifest_files(const struct loader_instance *inst,
+                          const char *env_override, const char *source_override,
+                          bool is_layer, bool warn_if_not_present,
+                          const char *location, const char *home_location,
+                          struct loader_manifest_files *out_files) {
+    const char *override = NULL;
+    char *override_getenv = NULL;
     char *loc, *orig_loc = NULL;
     char *reg = NULL;
     char *file, *next_file, *name;
@@ -2607,15 +2613,16 @@ static VkResult loader_get_manifest_files(
 
     if (source_override != NULL) {
         override = source_override;
-    } else if (env_override != NULL &&
-               (override = loader_getenv(env_override, inst))) {
+    } else if (env_override != NULL) {
 #if !defined(_WIN32)
         if (geteuid() != getuid() || getegid() != getgid()) {
             /* Don't allow setuid apps to use the env var: */
-            loader_free_getenv(override, inst);
-            override = NULL;
+            env_override = NULL;
         }
 #endif
+        if (env_override != NULL) {
+            override = override_getenv = loader_getenv(env_override, inst);
+        }
     }
 
 #if !defined(_WIN32)
@@ -2627,7 +2634,7 @@ static VkResult loader_get_manifest_files(
         loader_log(
             inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
             "Can't get manifest files with NULL location, env_override=%s",
-            env_override);
+            (env_override != NULL) ? env_override : "");
         res = VK_ERROR_INITIALIZATION_FAILED;
         goto out;
     }
@@ -2660,10 +2667,12 @@ static VkResult loader_get_manifest_files(
                 // if this is for the loader.
                 res = VK_ERROR_OUT_OF_HOST_MEMORY;
             } else {
-                // warning only for layers
-                loader_log(
-                    inst, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
-                    "Registry lookup failed can't get layer manifest files");
+                if (warn_if_not_present) {
+                    // warning only for layers
+                    loader_log(
+                        inst, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                        "Registry lookup failed can't get layer manifest files");
+                }
                 // Return success for now since it's not critical for layers
                 res = VK_SUCCESS;
             }
@@ -2681,9 +2690,6 @@ static VkResult loader_get_manifest_files(
             goto out;
         }
         strcpy(loc, override);
-        if (source_override == NULL) {
-            loader_free_getenv(override, inst);
-        }
     }
 
     // Print out the paths being searched if debugging is enabled
@@ -2873,6 +2879,10 @@ out:
         closedir(sysdir);
     }
 
+    if (override_getenv != NULL) {
+        loader_free_getenv(override_getenv, inst);
+    }
+
     if (NULL != reg && reg != orig_loc) {
         loader_instance_heap_free(inst, reg);
     }
@@ -2916,7 +2926,7 @@ VkResult loader_icd_scan(const struct loader_instance *inst,
 
     // Get a list of manifest files for ICDs
     res = loader_get_manifest_files(inst, "VK_ICD_FILENAMES", NULL, false,
-                                    DEFAULT_VK_DRIVERS_INFO,
+                                    true, DEFAULT_VK_DRIVERS_INFO,
                                     HOME_VK_DRIVERS_INFO, &manifest_files);
     if (VK_SUCCESS != res || manifest_files.count == 0) {
         goto out;
@@ -3111,7 +3121,7 @@ void loader_layer_scan(const struct loader_instance *inst,
     // Get a list of manifest files for explicit layers
     if (VK_SUCCESS !=
         loader_get_manifest_files(inst, LAYERS_PATH_ENV, LAYERS_SOURCE_PATH,
-                                  true, DEFAULT_VK_ELAYERS_INFO,
+                                  true, true, DEFAULT_VK_ELAYERS_INFO,
                                   HOME_VK_ELAYERS_INFO, &manifest_files[0])) {
         goto out;
     }
@@ -3119,9 +3129,10 @@ void loader_layer_scan(const struct loader_instance *inst,
     // Get a list of manifest files for any implicit layers
     // Pass NULL for environment variable override - implicit layers are not
     // overridden by LAYERS_PATH_ENV
-    if (VK_SUCCESS != loader_get_manifest_files(
-                          inst, NULL, NULL, true, DEFAULT_VK_ILAYERS_INFO,
-                          HOME_VK_ILAYERS_INFO, &manifest_files[1])) {
+    if (VK_SUCCESS != loader_get_manifest_files(inst, NULL, NULL, true, false,
+                                                DEFAULT_VK_ILAYERS_INFO,
+                                                HOME_VK_ILAYERS_INFO,
+                                                &manifest_files[1])) {
         goto out;
     }
 
@@ -3189,8 +3200,8 @@ void loader_implicit_layer_scan(const struct loader_instance *inst,
     // Pass NULL for environment variable override - implicit layers are not
     // overridden by LAYERS_PATH_ENV
     VkResult res = loader_get_manifest_files(
-        inst, NULL, NULL, true, DEFAULT_VK_ILAYERS_INFO, HOME_VK_ILAYERS_INFO,
-        &manifest_files);
+        inst, NULL, NULL, true, false, DEFAULT_VK_ILAYERS_INFO,
+        HOME_VK_ILAYERS_INFO, &manifest_files);
     if (VK_SUCCESS != res || manifest_files.count == 0) {
         return;
     }
@@ -3263,36 +3274,28 @@ loader_gpa_instance_internal(VkInstance inst, const char *pName) {
     return NULL;
 }
 
-void loader_override_terminating_device_proc(
-    VkDevice device, struct loader_dev_dispatch_table *disp_table) {
-    struct loader_device *dev;
-    struct loader_icd_term *icd_term =
-        loader_get_icd_and_device(device, &dev, NULL);
-
-    // Certain device entry-points still need to go through a terminator before
-    // hitting the ICD.  This could be for several reasons, but the main one
-    // is currently unwrapping an object before passing the appropriate info
-    // along to the ICD.
-    if ((PFN_vkVoidFunction)disp_table->core_dispatch.CreateSwapchainKHR ==
-        (PFN_vkVoidFunction)icd_term->GetDeviceProcAddr(
-            device, "vkCreateSwapchainKHR")) {
-        disp_table->core_dispatch.CreateSwapchainKHR =
-            terminator_vkCreateSwapchainKHR;
-    }
-}
-
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
 loader_gpa_device_internal(VkDevice device, const char *pName) {
     struct loader_device *dev;
     struct loader_icd_term *icd_term =
         loader_get_icd_and_device(device, &dev, NULL);
 
-    // Certain device entry-points still need to go through a terminator before
-    // hitting the ICD.  This could be for several reasons, but the main one
-    // is currently unwrapping an object before passing the appropriate info
-    // along to the ICD.
-    if (!strcmp(pName, "vkCreateSwapchainKHR")) {
+    // NOTE: Device Funcs needing Trampoline/Terminator.
+    // Overrides for device functions needing a trampoline and
+    // a terminator because certain device entry-points still need to go
+    // through a terminator before hitting the ICD.  This could be for
+    // several reasons, but the main one is currently unwrapping an
+    // object before passing the appropriate info along to the ICD.
+    // This is why we also have to override the direct ICD call to
+    // vkGetDeviceProcAddr to intercept those calls.
+    if (!strcmp(pName, "vkGetDeviceProcAddr")) {
+        return (PFN_vkVoidFunction)loader_gpa_device_internal;
+    } else if (!strcmp(pName, "vkCreateSwapchainKHR")) {
         return (PFN_vkVoidFunction)terminator_vkCreateSwapchainKHR;
+    } else if (!strcmp(pName, "vkDebugMarkerSetObjectTagEXT")) {
+        return (PFN_vkVoidFunction)terminator_DebugMarkerSetObjectTagEXT;
+    } else if (!strcmp(pName, "vkDebugMarkerSetObjectNameEXT")) {
+        return (PFN_vkVoidFunction)terminator_DebugMarkerSetObjectNameEXT;
     }
 
     return icd_term->GetDeviceProcAddr(device, pName);
@@ -3316,7 +3319,7 @@ static void loader_init_dispatch_dev_ext_entry(struct loader_instance *inst,
     void *gdpa_value;
     if (dev != NULL) {
         gdpa_value = dev->loader_dispatch.core_dispatch.GetDeviceProcAddr(
-            dev->device, funcName);
+            dev->chain_device, funcName);
         if (gdpa_value != NULL)
             dev->loader_dispatch.ext_dispatch.dev_ext[idx] =
                 (PFN_vkDevExt)gdpa_value;
@@ -3327,7 +3330,7 @@ static void loader_init_dispatch_dev_ext_entry(struct loader_instance *inst,
             while (ldev) {
                 gdpa_value =
                     ldev->loader_dispatch.core_dispatch.GetDeviceProcAddr(
-                        ldev->device, funcName);
+                        ldev->chain_device, funcName);
                 if (gdpa_value != NULL)
                     ldev->loader_dispatch.ext_dispatch.dev_ext[idx] =
                         (PFN_vkDevExt)gdpa_value;
@@ -3977,15 +3980,15 @@ loader_create_device_chain(const struct loader_physical_device_tramp *pd,
         if (res != VK_SUCCESS) {
             return res;
         }
-        dev->device = created_device;
+        dev->chain_device = created_device;
     } else {
         // Couldn't find CreateDevice function!
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    /* Initialize device dispatch table */
+    // Initialize device dispatch table
     loader_init_device_dispatch_table(&dev->loader_dispatch, nextGDPA,
-                                      dev->device);
+                                      dev->chain_device);
 
     return res;
 }
@@ -4132,6 +4135,7 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(
     char **filtered_extension_names = NULL;
     VkInstanceCreateInfo icd_create_info;
     VkResult res = VK_SUCCESS;
+    bool one_icd_successful = false;
 
     struct loader_instance *ptr_instance = (struct loader_instance *)*pInstance;
     memcpy(&icd_create_info, pCreateInfo, sizeof(icd_create_info));
@@ -4218,12 +4222,14 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(
         loader_destroy_generic_list(ptr_instance,
                                     (struct loader_generic_list *)&icd_exts);
 
-        res = ptr_instance->icd_tramp_list.scanned_list[i].CreateInstance(
-            &icd_create_info, pAllocator, &(icd_term->instance));
-        if (VK_ERROR_OUT_OF_HOST_MEMORY == res) {
+        VkResult icd_result =
+            ptr_instance->icd_tramp_list.scanned_list[i].CreateInstance(
+                &icd_create_info, pAllocator, &(icd_term->instance));
+        if (VK_ERROR_OUT_OF_HOST_MEMORY == icd_result) {
             // If out of memory, bail immediately.
+            res = VK_ERROR_OUT_OF_HOST_MEMORY;
             goto out;
-        } else if (VK_SUCCESS != res) {
+        } else if (VK_SUCCESS != icd_result) {
             loader_log(ptr_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
                        "ICD ignored: failed to CreateInstance in ICD %d", i);
             ptr_instance->icd_terms = icd_term->next;
@@ -4240,14 +4246,16 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(
                        "entrypoints with ICD");
             continue;
         }
+
+        // If we made it this far, at least one ICD was successful
+        one_icd_successful = true;
     }
 
-    /*
-     * If no ICDs were added to instance list and res is unchanged
-     * from it's initial value, the loader was unable to find
-     * a suitable ICD.
-     */
-    if (VK_SUCCESS == res && ptr_instance->icd_terms == NULL) {
+    // If no ICDs were added to instance list and res is unchanged
+    // from it's initial value, the loader was unable to find
+    // a suitable ICD.
+    if (VK_SUCCESS == res &&
+        (ptr_instance->icd_terms == NULL || !one_icd_successful)) {
         res = VK_ERROR_INCOMPATIBLE_DRIVER;
     }
 
@@ -4322,6 +4330,8 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateDevice(
     PFN_vkCreateDevice fpCreateDevice = icd_term->CreateDevice;
     struct loader_extension_list icd_exts;
 
+    dev->phys_dev_term = phys_dev_term;
+
     icd_exts.list = NULL;
 
     if (fpCreateDevice == NULL) {
@@ -4388,7 +4398,7 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateDevice(
     }
 
     res = fpCreateDevice(phys_dev_term->phys_dev, &localCreateInfo, pAllocator,
-                         &dev->device);
+                         &dev->icd_device);
     if (res != VK_SUCCESS) {
         loader_log(icd_term->this_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
                    "vkCreateDevice call failed in ICD %s",
@@ -4396,7 +4406,7 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateDevice(
         goto out;
     }
 
-    *pDevice = dev->device;
+    *pDevice = dev->icd_device;
     loader_add_logical_device(icd_term->this_instance, icd_term, dev);
 
     /* Init dispatch pointer in new device object */
