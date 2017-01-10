@@ -148,8 +148,6 @@ else()
 endif()
 
 run_vk_helper(gen_struct_wrappers
-    vk_struct_size_helper.h
-    vk_struct_size_helper.c
     vk_safe_struct.h
 # Don't list vk_safe_struct.cpp as OUTPUT to avoid duplicate builds.
 # If listed here use of it for add_library will cause it to be created
@@ -164,8 +162,6 @@ add_custom_command(OUTPUT vk_safe_struct.cpp
 )
 
 set_source_files_properties(
-    vk_struct_size_helper.h
-    vk_struct_size_helper.c
     vk_safe_struct.h
     vk_safe_struct.cpp
     PROPERTIES GENERATED TRUE)
@@ -180,6 +176,8 @@ add_custom_target(generate_vt_helpers DEPENDS
 )
 
 #VulkanTools layers
+run_vk_xml_generate(helper_file_generator.py vk_struct_size_helper.h)
+run_vk_xml_generate(helper_file_generator.py vk_struct_size_helper.c)
 run_vk_xml_generate(helper_file_generator.py vk_enum_string_helper.h)
 run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(ApiDump api_dump.cpp)
