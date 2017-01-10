@@ -26,7 +26,7 @@ sudo apt-get install git cmake build-essential bison libx11-dev libxcb1-dev libx
 # Additional dependencies for this repo:
 sudo apt-get install wget autotools-dev
 # If performing 32-bit builds, you'll also need:
-sudo apt-get install libc6-dev-i386
+sudo apt-get install libc6-dev-i386 g++-multilib
 ```
 
 ## Clone the Repository
