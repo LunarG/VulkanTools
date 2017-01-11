@@ -2,10 +2,11 @@
 
 This project provides vktrace capture/replay tool and other layer tools and driver tests.
 
-## Travis-CI Build Status
+## CI Build Status
 | Platform | Build Status |
 |:--------:|:------------:|
-| Linux    | [![Linux Build Status](https://travis-ci.org/KhronosGroup/Vulkan-LoaderAndValidationLayers.svg)](https://travis-ci.org/KhronosGroup/Vulkan-LoaderAndValidationLayers "Linux Build Status") |
+| Linux/Android | [![Build Status](https://travis-ci.org/LunarG/VulkanTools.svg?branch=master)](https://travis-ci.org/LunarG/VulkanTools) |
+| Windows | [![Build status](https://ci.appveyor.com/api/projects/status/2ncmy766ufb2hnh2/branch/master?svg=true)](https://ci.appveyor.com/project/karl-lunarg/vulkantools/branch/master) |
 
 ## Introduction
 

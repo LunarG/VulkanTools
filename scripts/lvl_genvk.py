@@ -24,6 +24,7 @@ from threading_generator import  ThreadGeneratorOptions, ThreadOutputGenerator
 from parameter_validation_generator import ParamCheckerGeneratorOptions, ParamCheckerOutputGenerator
 from unique_objects_generator import UniqueObjectsGeneratorOptions, UniqueObjectsOutputGenerator
 from dispatch_table_generator import DispatchTableOutputGenerator, DispatchTableOutputGeneratorOptions
+from helper_file_generator import HelperFileOutputGenerator, HelperFileOutputGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -181,6 +182,72 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48)
+        ]
+
+    # Helper file generator options for vk_enum_string_helper.h
+    genOpts['vk_enum_string_helper.h'] = [
+          HelperFileOutputGenerator,
+          HelperFileOutputGeneratorOptions(
+            filename          = 'vk_enum_string_helper.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'enum_string_header')
+        ]
+
+    # Helper file generator options for vk_struct_size_helper.h
+    genOpts['vk_struct_size_helper.h'] = [
+          HelperFileOutputGenerator,
+          HelperFileOutputGeneratorOptions(
+            filename          = 'vk_struct_size_helper.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'struct_size_header')
+        ]
+
+    # Helper file generator options for vk_struct_size_helper.c
+    genOpts['vk_struct_size_helper.c'] = [
+          HelperFileOutputGenerator,
+          HelperFileOutputGeneratorOptions(
+            filename          = 'vk_struct_size_helper.c',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'struct_size_source')
         ]
 
 

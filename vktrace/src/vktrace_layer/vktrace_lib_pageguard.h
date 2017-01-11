@@ -69,6 +69,10 @@
 #define PAGEGUARD_PAGEGUARD_ENABLE_ENV "_VKTRACE_OPTIMIZE_PMB"
 #define PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PAGEGUARDTARGETSIZE"
 
+// VKTRACE_PAGEGUARD_ENABLE_READ_PMB env var enables read PMB support. Only
+// supported on Windows. Not yet tested.
+#define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB"
+
 // Usefull macro for handling fatal errors during tracing
 #define VKTRACE_FATAL_ERROR(_m) \
     do { \
@@ -79,6 +83,7 @@
 
 VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
+bool getEnableReadPMBFlag();
 #if defined(WIN32)
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();

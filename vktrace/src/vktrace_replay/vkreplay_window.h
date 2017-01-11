@@ -49,6 +49,10 @@ public:
     virtual int set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) = 0;
     virtual int create_window(const unsigned int width, const unsigned int height) = 0;
     virtual void process_event() = 0;
+    virtual bool get_pause_status() = 0;
+    virtual void set_pause_status(bool pause) = 0;
+    virtual bool get_quit_status() = 0;
+    virtual void set_quit_status(bool quit) = 0;
 };
 
 class ReplayDisplay {
@@ -128,8 +132,28 @@ public:
     {
         return m_hWindow;
     }
+    bool get_pause_status() {
+        if (m_imp) {
+            return m_imp->get_pause_status();
+        }
+        return false;
+    }
+    void set_pause_status(bool pause) {
+        if (m_imp)
+            m_imp->set_pause_status(pause);
+    }
+    bool get_quit_status() {
+        if (m_imp) {
+            return m_imp->get_quit_status();
+        }
+        return false;
+    }
+    void set_quit_status(bool quit) {
+        if (m_imp)
+            m_imp->set_quit_status(quit);
+    }
 
-private:
+  private:
     ReplayDisplayImp *m_imp;
     unsigned int m_width;
     unsigned int m_height;

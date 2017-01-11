@@ -37,7 +37,6 @@
 using namespace std;
 
 #include "vk_dispatch_table_helper.h"
-#include "vk_struct_string_helper_cpp.h"
 #include "vk_layer_config.h"
 #include "vk_layer_table.h"
 #include "vk_layer_extension_utils.h"
@@ -50,6 +49,7 @@ using namespace std;
 
 static char android_env[64] = {};
 const char* env_var = "debug.vulkan.screenshot";
+const char *env_var_old = env_var;
 
 char* android_exec(const char* cmd) {
     FILE* pipe = popen(cmd, "r");
@@ -82,7 +82,8 @@ static inline void local_free_getenv(const char *val) {}
 
 #elif defined(__linux__)
 
-const char* env_var = "_VK_SCREENSHOT";
+const char *env_var_old = "_VK_SCREENSHOT";
+const char *env_var = "VK_SCREENSHOT_FRAMES";
 
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
@@ -90,7 +91,8 @@ static inline void local_free_getenv(const char *val) {}
 
 #elif defined(_WIN32)
 
-const char* env_var = "_VK_SCREENSHOT";
+const char *env_var_old = "_VK_SCREENSHOT";
+const char *env_var = "VK_SCREENSHOT_FRAMES";
 
 static inline char *local_getenv(const char *name) {
     char *retVal;
@@ -156,6 +158,9 @@ static unordered_map<VkPhysicalDevice, PhysDeviceMapStruct *> physDeviceMap;
 // set: list of frames to take screenshots without duplication.
 static set<int> screenshotFrames;
 
+// Flag indicating we have received the frame list
+static bool screenshotFramesReceived = false;
+
 static const int SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT = 1;
 static const int SCREEN_SHOT_FRAMES_UNLIMITED = -1;
 typedef struct {
@@ -168,8 +173,189 @@ typedef struct {
 //Screenshots will be generated from screenShotFrameRange's startFrame to startFrame+count-1 with skipped Interval in between.
 static FrameRange screenShotFrameRange = { false, 0, SCREEN_SHOT_FRAMES_UNLIMITED, SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT };
 
-// Flag indicating we have queried env_var
-static bool screenshotEnvQueried = false;
+//Get maximum frame number of the frame range
+//FrameRange* pFrameRange, the specified frame rang
+//return:
+//  maximum frame number of the frame range,
+//  if it's unlimited range, the return will be SCREEN_SHOT_FRAMES_UNLIMITED
+static int getEndFrameOfRange(FrameRange* pFrameRange)
+{
+    int endFrameOfRange = SCREEN_SHOT_FRAMES_UNLIMITED;
+    if (pFrameRange->count != SCREEN_SHOT_FRAMES_UNLIMITED)
+    {
+        endFrameOfRange = pFrameRange->startFrame + (pFrameRange->count - 1) * pFrameRange->interval;
+    }
+    return endFrameOfRange;
+}
+
+//initialize pFrameRange, parse rangeString and set value to members of *pFrameRange.
+//the string of rangeString can be and must be one of the following values:
+// 1. all
+// 2. <startFrame>-<frameCount>-<interval>
+//    if frameCount is 0, it means the range is unlimited range or all frames from startFrame.
+static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrameRange)
+{
+    if (rangeString && *rangeString)
+    {
+        string parameter(rangeString);
+        pFrameRange->valid = false;
+        if (!parameter.empty())
+        {
+            if (parameter.compare("all") == 0)
+            {
+                pFrameRange->valid = true;
+                pFrameRange->startFrame = 0;
+                pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
+                pFrameRange->interval = SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT;
+            }
+            else
+            {
+                int frameCount = 0;
+                int itemCount = sscanf(parameter.c_str(), "%d-%d-%d", &pFrameRange->startFrame, &frameCount, &pFrameRange->interval);
+                if (itemCount >= 2)
+                {
+                    if (itemCount == 2)
+                    {
+                        pFrameRange->interval = SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT;
+                    }
+
+                    if ((pFrameRange->startFrame < 0) || (frameCount < 0) || (pFrameRange->interval < 0))
+                    {
+                        assert(0);
+                    }
+                    else
+                    {
+                        pFrameRange->valid = true;
+                    }
+
+                    if (frameCount == 0)
+                    {
+                        pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
+                    }
+                    else
+                    {
+                        pFrameRange->count = frameCount / pFrameRange->interval;
+                        if ((frameCount % pFrameRange->interval) != 0)
+                        {
+                            pFrameRange->count++;
+                        }
+                    }
+                }
+                else
+                {
+                    assert(0);
+                }
+            }
+        }
+    }
+}
+
+//detect if frameNumber is in the range of pFrameRange, also detect if frameNumber is a frame on which a screenshot should be generated.
+//int frameNumber, the frame number.
+//FrameRange* pFrameRange, the specified frame range.
+//bool *pScreenShotFrame, if pScreenShotFrame is not nullptr, indicate(return) if frameNumber is a frame on which a screenshot should be generated.
+//return:
+//  if frameNumber is in the range of pFrameRange.
+static bool isInScreenShotFrameRange(int frameNumber, FrameRange* pFrameRange, bool *pScreenShotFrame)
+{
+    bool inRange = false, screenShotFrame = false;
+    if (pFrameRange->valid)
+    {
+        if (pFrameRange->count != SCREEN_SHOT_FRAMES_UNLIMITED)
+        {
+            int endFrame = getEndFrameOfRange(pFrameRange);
+            if ((frameNumber >= pFrameRange->startFrame) &&
+                ((frameNumber <= endFrame) || (endFrame == SCREEN_SHOT_FRAMES_UNLIMITED)))
+            {
+                inRange = true;
+            }
+        }
+        else
+        {
+            inRange = true;
+        }
+        if (inRange)
+        {
+            screenShotFrame = (((frameNumber - pFrameRange->startFrame) % pFrameRange->interval) == 0);
+        }
+    }
+    if (pScreenShotFrame != nullptr)
+    {
+        *pScreenShotFrame = screenShotFrame;
+    }
+    return inRange;
+}
+
+//detect if frameNumber reach or beyond the right edge for screenshot in the range.
+//return:
+//       if frameNumber is already the last screenshot frame of the range(mean no another screenshot frame number >frameNumber and just in the range) 
+//       if the range is invalid, return true.
+static bool isEndOfScreenShotFrameRange(int frameNumber, FrameRange* pFrameRange)
+{
+    bool endOfScreenShotFrameRange = false, screenShotFrame = false;
+    if (!pFrameRange->valid)
+    {
+        endOfScreenShotFrameRange = true;
+    }
+    else
+    {
+        int endFrame = getEndFrameOfRange(pFrameRange);
+        if (endFrame != SCREEN_SHOT_FRAMES_UNLIMITED)
+        {
+            if (isInScreenShotFrameRange(frameNumber, pFrameRange, &screenShotFrame))
+            {
+                if ((frameNumber >= endFrame) && screenShotFrame)
+                {
+                    endOfScreenShotFrameRange = true;
+                }
+            }
+        }
+    }
+    return endOfScreenShotFrameRange;
+}
+
+//detect if the input command option _vk_screenshot is defination of frame range or a frame list. 
+static bool isOptionBelongToScreenShotRange(const char *_vk_screenshot)
+{
+    bool belongToScreenShotRange = false;
+    if ((strstr(_vk_screenshot, "-") != nullptr) || (strcmp(_vk_screenshot, "all") == 0))
+    {
+        belongToScreenShotRange = true;
+    }
+    return belongToScreenShotRange;
+}
+
+// Parse comma-separated frame list string into the set
+static void populate_frame_list(const char *vk_screenshot_frames) {
+    string spec(vk_screenshot_frames), word;
+    size_t start = 0, comma = 0;
+
+    if (!isOptionBelongToScreenShotRange(vk_screenshot_frames)) {
+        while (start < spec.size()) {
+            int frameToAdd;
+            comma = spec.find(',', start);
+            if (comma == string::npos)
+                word = string(spec, start);
+            else
+                word = string(spec, start, comma - start);
+            frameToAdd = atoi(word.c_str());
+            // Add the frame number to set, but only do it if the word
+            // started with a digit and if
+            // it's not already in the list
+            if (*(word.c_str()) >= '0' && *(word.c_str()) <= '9') {
+                screenshotFrames.insert(frameToAdd);
+            }
+            if (comma == string::npos)
+                break;
+            start = comma + 1;
+        }
+    }
+    else {
+        initScreenShotFrameRange(vk_screenshot_frames, &screenShotFrameRange);
+    }
+
+    screenshotFramesReceived = true;
+}
 
 static bool
 memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory_properties,
@@ -876,7 +1062,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device,
 
     // Save the device queue in a map if we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return;
@@ -901,7 +1087,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
 
     // Save the command pool on a map if we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return result;
@@ -930,7 +1116,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
 
     // Save the swapchain in a map of we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return result;
@@ -965,7 +1151,7 @@ GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
 
     // Save the swapchain images in a map if we are taking screenshots
     loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotEnvQueried && screenshotFrames.empty()) {
+    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
         // No screenshots in the list to take
         loader_platform_thread_unlock_mutex(&globalLock);
         return result;
@@ -1004,158 +1190,6 @@ GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
     return result;
 }
 
-//Get maximum frame number of the frame range
-//FrameRange* pFrameRange, the specified frame rang
-//return:
-//  maximum frame number of the frame range,
-//  if it's unlimited range, the return will be SCREEN_SHOT_FRAMES_UNLIMITED
-static int getEndFrameOfRange(FrameRange* pFrameRange)
-{
-    int endFrameOfRange = SCREEN_SHOT_FRAMES_UNLIMITED;
-    if (pFrameRange->count != SCREEN_SHOT_FRAMES_UNLIMITED)
-    {
-        endFrameOfRange = pFrameRange->startFrame + (pFrameRange->count-1) * pFrameRange->interval;
-    }
-    return endFrameOfRange;
-}
-
-//initialize pFrameRange, parse rangeString and set value to members of *pFrameRange.
-//the string of rangeString can be and must be one of the following values:
-// 1. all
-// 2. <startFrame>-<frameCount>-<interval>
-//    if frameCount is 0, it means the range is unlimited range or all frames from startFrame.
-static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrameRange)
-{
-    if (rangeString && *rangeString)
-    {
-        string parameter(rangeString);
-        pFrameRange->valid = false;
-        if (!parameter.empty())
-        {
-            if (parameter.compare("all") == 0)
-            {
-                pFrameRange->valid = true;
-                pFrameRange->startFrame = 0;
-                pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
-                pFrameRange->interval = SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT;
-            }
-            else
-            {
-                int frameCount = 0;
-                int itemCount = sscanf(parameter.c_str(), "%d-%d-%d", &pFrameRange->startFrame, &frameCount, &pFrameRange->interval);
-                if (itemCount >= 2)
-                {
-                    if (itemCount == 2)
-                    {
-                        pFrameRange->interval = SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT;
-                    }
-
-                    if ((pFrameRange->startFrame < 0) || (frameCount < 0) || (pFrameRange->interval < 0))
-                    {
-                        assert(0);
-                    }
-                    else
-                    {
-                        pFrameRange->valid = true;
-                    }
-
-                    if (frameCount == 0)
-                    {
-                        pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
-                    }
-                    else
-                    {
-                        pFrameRange->count = frameCount / pFrameRange->interval;
-                        if ((frameCount % pFrameRange->interval) != 0)
-                        {
-                            pFrameRange->count++;
-                        }
-                    }
-                }
-                else
-                {
-                    assert(0);
-                }
-            }
-        }
-    }
-}
-
-//detect if frameNumber is in the range of pFrameRange, also detect if frameNumber is a frame on which a screenshot should be generated.
-//int frameNumber, the frame number.
-//FrameRange* pFrameRange, the specified frame range.
-//bool *pScreenShotFrame, if pScreenShotFrame is not nullptr, indicate(return) if frameNumber is a frame on which a screenshot should be generated.
-//return:
-//  if frameNumber is in the range of pFrameRange.
-static bool isInScreenShotFrameRange(int frameNumber, FrameRange* pFrameRange, bool *pScreenShotFrame)
-{
-    bool inRange = false, screenShotFrame = false;
-    if (pFrameRange->valid)
-    {
-        if (pFrameRange->count != SCREEN_SHOT_FRAMES_UNLIMITED)
-        {
-            int endFrame = getEndFrameOfRange(pFrameRange);
-            if ( (frameNumber >= pFrameRange->startFrame) && 
-                ((frameNumber <= endFrame) || (endFrame == SCREEN_SHOT_FRAMES_UNLIMITED)))
-            {
-                inRange = true;
-            }
-        }
-        else
-        {
-            inRange = true;
-        }
-        if (inRange)
-        {
-            screenShotFrame = (((frameNumber - pFrameRange->startFrame) % pFrameRange->interval) == 0);
-        }
-    }
-    if (pScreenShotFrame != nullptr)
-    {
-        *pScreenShotFrame = screenShotFrame;
-    }
-    return inRange;
-}
-
-//detect if frameNumber reach or beyond the right edge for screenshot in the range.
-//return:
-//       if frameNumber is already the last screenshot frame of the range(mean no another screenshot frame number >frameNumber and just in the range) 
-//       if the range is invalid, return true.
-static bool isEndOfScreenShotFrameRange(int frameNumber, FrameRange* pFrameRange)
-{
-    bool endOfScreenShotFrameRange = false, screenShotFrame = false;
-    if (!pFrameRange->valid)
-    {
-        endOfScreenShotFrameRange = true;
-    }
-    else
-    {
-        int endFrame = getEndFrameOfRange(pFrameRange);
-        if (endFrame != SCREEN_SHOT_FRAMES_UNLIMITED)
-        {
-            if (isInScreenShotFrameRange(frameNumber, pFrameRange, &screenShotFrame))
-            {
-                if ((frameNumber >= endFrame) && screenShotFrame)
-                {
-                    endOfScreenShotFrameRange = true;
-                }
-            }
-        }
-    }
-    return endOfScreenShotFrameRange;
-}
-
-//detect if the input command option _vk_screenshot is defination of frame range or a frame list. 
-static bool isOptionBelongToScreenShotRange(const char *_vk_screenshot)
-{
-    bool belongToScreenShotRange = false;
-    if ((strstr(_vk_screenshot, "-") != nullptr) || (strcmp(_vk_screenshot,"all") == 0))
-    {
-        belongToScreenShotRange = true;
-    }
-    return belongToScreenShotRange;
-}
-
 VKAPI_ATTR VkResult VKAPI_CALL
 QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     static int frameNumber = 0;
@@ -1168,38 +1202,21 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     loader_platform_thread_lock_mutex(&globalLock);
 
-    if (!screenshotEnvQueried) {
-        const char *_vk_screenshot = local_getenv(env_var);
-        if (_vk_screenshot && *_vk_screenshot) {
-            if (!isOptionBelongToScreenShotRange(_vk_screenshot)) {
-                string spec(_vk_screenshot), word;
-                size_t start = 0, comma = 0;
-
-                while (start < spec.size()) {
-                    int frameToAdd;
-                    comma = spec.find(',', start);
-                    if (comma == string::npos)
-                        word = string(spec, start);
-                    else
-                        word = string(spec, start, comma - start);
-                    frameToAdd = atoi(word.c_str());
-                    // Add the frame number to set, but only do it if the word
-                    // started with a digit and if
-                    // it's not already in the list
-                    if (*(word.c_str()) >= '0' && *(word.c_str()) <= '9') {
-                        screenshotFrames.insert(frameToAdd);
-                    }
-                    if (comma == string::npos)
-                        break;
-                    start = comma + 1;
-                }
-            }
-            else {
-                initScreenShotFrameRange(_vk_screenshot, &screenShotFrameRange);
-            }
+    if (!screenshotFramesReceived) {
+        const char *vk_screenshot_frames = local_getenv(env_var);
+        if (vk_screenshot_frames && *vk_screenshot_frames) {
+            populate_frame_list(vk_screenshot_frames);
         }
-        local_free_getenv(_vk_screenshot);
-        screenshotEnvQueried = true;
+        // Backwards compatibility
+        else {
+            const char *_vk_screenshot = local_getenv(env_var_old);
+            if (_vk_screenshot && *_vk_screenshot) {
+                populate_frame_list(_vk_screenshot);
+            }
+            local_free_getenv(_vk_screenshot);
+        }
+
+        local_free_getenv(vk_screenshot_frames);
     }
 
     if (result == VK_SUCCESS && (!screenshotFrames.empty() || screenShotFrameRange.valid)) {
@@ -1254,12 +1271,20 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
                 swapchainMap.clear();
                 imageMap.clear();
                 physDeviceMap.clear();
+                screenShotFrameRange.valid = false;
             }
         }
     }
     frameNumber++;
     loader_platform_thread_unlock_mutex(&globalLock);
     return result;
+}
+
+// Unused, but this could be provided as an extension or utility to the
+// application in the future.
+VKAPI_ATTR VkResult VKAPI_CALL SpecifyScreenshotFrames(const char *frameList) {
+    populate_frame_list(frameList);
+    return VK_SUCCESS;
 }
 
 static const VkLayerProperties global_layer = {

@@ -51,9 +51,7 @@ endmacro()
 
 set(LAYER_JSON_FILES
     VkLayer_api_dump
-    VkLayer_basic
     VkLayer_monitor
-    VkLayer_multi
     VkLayer_screenshot
     )
 
@@ -149,16 +147,9 @@ else()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
 
-run_vk_helper(gen_enum_string_helper vk_enum_string_helper.h)
 run_vk_helper(gen_struct_wrappers
-    vk_struct_string_helper.h
-    vk_struct_string_helper_cpp.h
-    vk_struct_string_helper_no_addr.h
-    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-    vk_struct_wrappers.h
-    vk_struct_wrappers.cpp
     vk_safe_struct.h
 # Don't list vk_safe_struct.cpp as OUTPUT to avoid duplicate builds.
 # If listed here use of it for add_library will cause it to be created
@@ -173,14 +164,8 @@ add_custom_command(OUTPUT vk_safe_struct.cpp
 )
 
 set_source_files_properties(
-    vk_struct_string_helper.h
-    vk_struct_string_helper_cpp.h
-    vk_struct_string_helper_no_addr.h
-    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-    vk_struct_wrappers.h
-    vk_struct_wrappers.cpp
     vk_safe_struct.h
     vk_safe_struct.cpp
     PROPERTIES GENERATED TRUE)
@@ -188,19 +173,14 @@ set_source_files_properties(
 add_custom_target(generate_vt_helpers DEPENDS
     vk_dispatch_table_helper.h
     vk_enum_string_helper.h
-    vk_struct_string_helper.h
-    vk_struct_string_helper_no_addr.h
-    vk_struct_string_helper_cpp.h
-    vk_struct_string_helper_no_addr_cpp.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
-    vk_struct_wrappers.h
-    vk_struct_wrappers.cpp
     vk_safe_struct.h
     vk_safe_struct.cpp
 )
 
 #VulkanTools layers
+run_vk_xml_generate(helper_file_generator.py vk_enum_string_helper.h)
 run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(ApiDump api_dump.cpp)
 run_vk_xml_generate(ApiDump api_dump_text.h)
@@ -216,8 +196,6 @@ else()
 endif()
 
 # VulkanTools layers
-add_vk_layer(basic basic.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(multi multi.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)

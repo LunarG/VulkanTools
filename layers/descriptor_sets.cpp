@@ -596,7 +596,7 @@ bool cvdescriptorset::DescriptorSet::ValidateCopyUpdate(const debug_report_data 
                                                         std::string *error_msg) {
     // Verify idle ds
     if (in_use.load()) {
-        // TODO : Re-using Allocate Idle error code, need copy update idle error code
+        // TODO : Re-using Free Idle error code, need copy update idle error code
         *error_code = VALIDATION_ERROR_00919;
         std::stringstream error_str;
         error_str << "Cannot call vkUpdateDescriptorSets() to perform copy update on descriptor set " << set_
@@ -699,7 +699,8 @@ void cvdescriptorset::DescriptorSet::PerformCopyUpdate(const VkCopyDescriptorSet
 // Bind cb_node to this set and this set to cb_node.
 // Prereq: This should be called for a set that has been confirmed to be active for the given cb_node, meaning it's going
 //   to be used in a draw by the given cb_node
-void cvdescriptorset::DescriptorSet::BindCommandBuffer(GLOBAL_CB_NODE *cb_node, const std::unordered_set<uint32_t> &bindings) {
+void cvdescriptorset::DescriptorSet::BindCommandBuffer(GLOBAL_CB_NODE *cb_node,
+                                                       const std::map<uint32_t, descriptor_req> &binding_req_map) {
     // bind cb to this descriptor set
     cb_bindings.insert(cb_node);
     // Add bindings for descriptor set, the set's pool, and individual objects in the set
@@ -709,7 +710,8 @@ void cvdescriptorset::DescriptorSet::BindCommandBuffer(GLOBAL_CB_NODE *cb_node, 
         {reinterpret_cast<uint64_t &>(pool_state_->pool), VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT});
     // For the active slots, use set# to look up descriptorSet from boundDescriptorSets, and bind all of that descriptor set's
     // resources
-    for (auto binding : bindings) {
+    for (auto binding_req_pair : binding_req_map) {
+        auto binding = binding_req_pair.first;
         auto start_idx = p_layout_->GetGlobalStartIndexFromBinding(binding);
         auto end_idx = p_layout_->GetGlobalEndIndexFromBinding(binding);
         for (uint32_t i = start_idx; i <= end_idx; ++i) {
@@ -761,8 +763,10 @@ bool cvdescriptorset::ValidateImageUpdate(VkImageView image_view, VkImageLayout 
         format = image_node->createInfo.format;
         usage = image_node->createInfo.usage;
         // Validate that memory is bound to image
-        if (ValidateMemoryIsBoundToImage(dev_data, image_node, "vkUpdateDescriptorSets()")) {
-            // TODO : Need new code(s) for language in 11.6 Memory Association
+        // TODO: This should have its own valid usage id apart from 2524 which is from CreateImageView case. The only
+        //  the error here occurs is if memory bound to a created imageView has been freed.
+        if (ValidateMemoryIsBoundToImage(dev_data, image_node, "vkUpdateDescriptorSets()", VALIDATION_ERROR_02524)) {
+            *error_code = VALIDATION_ERROR_02524;
             *error_msg = "No memory bound to image.";
             return false;
         }
@@ -1105,29 +1109,18 @@ bool cvdescriptorset::ValidateUpdateDescriptorSets(const debug_report_data *repo
         auto src_set = p_cds[i].srcSet;
         auto src_node = core_validation::getSetNode(dev_data, src_set);
         auto dst_node = core_validation::getSetNode(dev_data, dst_set);
-        if (!src_node) {
+        // Object_tracker verifies that src & dest descriptor set are valid
+        assert(src_node);
+        assert(dst_node);
+        UNIQUE_VALIDATION_ERROR_CODE error_code;
+        std::string error_str;
+        if (!dst_node->ValidateCopyUpdate(report_data, &p_cds[i], src_node, &error_code, &error_str)) {
             skip_call |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                                 reinterpret_cast<uint64_t &>(src_set), __LINE__, VALIDATION_ERROR_00971, "DS",
-                                 "Cannot call vkUpdateDescriptorSets() to copy from descriptor set 0x%" PRIxLEAST64
-                                 " that has not been allocated. %s",
-                                 reinterpret_cast<uint64_t &>(src_set), validation_error_map[VALIDATION_ERROR_00971]);
-        } else if (!dst_node) {
-            skip_call |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                                 reinterpret_cast<uint64_t &>(dst_set), __LINE__, VALIDATION_ERROR_00972, "DS",
-                                 "Cannot call vkUpdateDescriptorSets() to copy to descriptor set 0x%" PRIxLEAST64
-                                 " that has not been allocated. %s",
-                                 reinterpret_cast<uint64_t &>(dst_set), validation_error_map[VALIDATION_ERROR_00972]);
-        } else {
-            UNIQUE_VALIDATION_ERROR_CODE error_code;
-            std::string error_str;
-            if (!dst_node->ValidateCopyUpdate(report_data, &p_cds[i], src_node, &error_code, &error_str)) {
-                skip_call |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                                     reinterpret_cast<uint64_t &>(dst_set), __LINE__, error_code, "DS",
-                                     "vkUpdateDescriptorsSets() failed copy update from Descriptor Set 0x%" PRIx64
-                                     " to Descriptor Set 0x%" PRIx64 " with error: %s. %s",
-                                     reinterpret_cast<uint64_t &>(src_set), reinterpret_cast<uint64_t &>(dst_set),
-                                     error_str.c_str(), validation_error_map[error_code]);
-            }
+                                 reinterpret_cast<uint64_t &>(dst_set), __LINE__, error_code, "DS",
+                                 "vkUpdateDescriptorsSets() failed copy update from Descriptor Set 0x%" PRIx64
+                                 " to Descriptor Set 0x%" PRIx64 " with error: %s. %s",
+                                 reinterpret_cast<uint64_t &>(src_set), reinterpret_cast<uint64_t &>(dst_set), error_str.c_str(),
+                                 validation_error_map[error_code]);
         }
     }
     return skip_call;
@@ -1167,7 +1160,7 @@ bool cvdescriptorset::DescriptorSet::ValidateWriteUpdate(const debug_report_data
                                                          UNIQUE_VALIDATION_ERROR_CODE *error_code, std::string *error_msg) {
     // Verify idle ds
     if (in_use.load()) {
-        // TODO : Re-using Allocate Idle error code, need write update idle error code
+        // TODO : Re-using Free Idle error code, need write update idle error code
         *error_code = VALIDATION_ERROR_00919;
         std::stringstream error_str;
         error_str << "Cannot call vkUpdateDescriptorSets() to perform write update on descriptor set " << set_
@@ -1217,6 +1210,7 @@ bool cvdescriptorset::DescriptorSet::ValidateWriteUpdate(const debug_report_data
     // Verify consecutive bindings match (if needed)
     if (!p_layout_->VerifyUpdateConsistency(update->dstBinding, update->dstArrayElement, update->descriptorCount, "write update to",
                                             set_, error_msg)) {
+        // TODO : Should break out "consecutive binding updates" language into valid usage statements
         *error_code = VALIDATION_ERROR_00938;
         return false;
     }
@@ -1286,18 +1280,12 @@ bool cvdescriptorset::DescriptorSet::ValidateBufferUsage(BUFFER_STATE const *buf
 // If there's an error, update the error_msg string with details and return false, else return true
 bool cvdescriptorset::DescriptorSet::ValidateBufferUpdate(VkDescriptorBufferInfo const *buffer_info, VkDescriptorType type,
                                                           UNIQUE_VALIDATION_ERROR_CODE *error_code, std::string *error_msg) const {
-    // TODO : Defaulting to 00962 for all cases here. Need to create new error codes for a few cases below.
-    *error_code = VALIDATION_ERROR_00962;
     // First make sure that buffer is valid
     auto buffer_node = getBufferState(device_data_, buffer_info->buffer);
-    if (!buffer_node) {
-        std::stringstream error_str;
-        error_str << "Invalid VkBuffer: " << buffer_info->buffer;
-        *error_msg = error_str.str();
-        return false;
-    }
-    if (ValidateMemoryIsBoundToBuffer(device_data_, buffer_node, "vkUpdateDescriptorSets()")) {
-        // TODO : This is a repeat code, need new code(s) for language in 11.6 Memory Association
+    // Any invalid buffer should already be caught by object_tracker
+    assert(buffer_node);
+    if (ValidateMemoryIsBoundToBuffer(device_data_, buffer_node, "vkUpdateDescriptorSets()", VALIDATION_ERROR_02525)) {
+        *error_code = VALIDATION_ERROR_02525;
         *error_msg = "No memory bound to buffer.";
         return false;
     }

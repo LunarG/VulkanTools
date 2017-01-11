@@ -60,9 +60,9 @@ int vkReplay::init(vktrace_replay::ReplayDisplay & disp)
 {
     int err;
 #if defined(PLATFORM_LINUX)
-    void * handle = dlopen("libvulkan.so", RTLD_LAZY);
+    void * handle = dlopen("lib" API_LOWERCASE ".so", RTLD_LAZY);
 #else
-    HMODULE handle = LoadLibrary("vulkan-1.dll" );
+    HMODULE handle = LoadLibrary(API_LOWERCASE "-1.dll");
 #endif
 
     if (handle == NULL) {
@@ -1915,6 +1915,8 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
             *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdWaitEvents failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveEvent);
+            VKTRACE_DELETE(saveBuf);
             return;
         }
     }
@@ -1947,6 +1949,9 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents* pPacket)
             *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdWaitEvents failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveEvent);
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
             return;
         }
     }
@@ -2014,6 +2019,8 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier*
             *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdPipelineBarrier failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
             return;
         }
     }
@@ -2046,6 +2053,8 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier*
             *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkPipelineBarrier failed, bad srcQueueFamilyIndex");
+            VKTRACE_DELETE(saveBuf);
+            VKTRACE_DELETE(saveImg);
             return;
         }
     }
@@ -2997,6 +3006,7 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
     VkResult *pResults = localResults;
     VkPresentInfoKHR present;
     uint32_t i;
+    uint32_t remappedImageIndex = UINT32_MAX;
 
     if (pPacket->pPresentInfo->swapchainCount > 5) {
         pRemappedSwapchains = VKTRACE_NEW_ARRAY(VkSwapchainKHR, pPacket->pPresentInfo->swapchainCount);
@@ -3021,25 +3031,24 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             if (pRemappedSwapchains[i] == VK_NULL_HANDLE)
             {
                 vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped VkSwapchainKHR.");
-                if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
-                    VKTRACE_DELETE(pRemappedWaitSems);
-                }
-                if (pResults != NULL && pResults != localResults) {
-                    VKTRACE_DELETE(pResults);
-                }
-                if (pRemappedSwapchains != NULL && pRemappedSwapchains != localSwapchains) {
-                    VKTRACE_DELETE(pRemappedSwapchains);
-                }
-                return VK_ERROR_VALIDATION_FAILED_EXT;
+                replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+                goto out;
             }
         }
 
         assert(pPacket->pPresentInfo->swapchainCount == 1 && "Multiple swapchain images not supported yet");
-        uint32_t remappedImageIndex = m_objMapper.remap_pImageIndex(*pPacket->pPresentInfo->pImageIndices);
+
+        if(pPacket->pPresentInfo->pImageIndices)
+        {
+            auto imageIndice = *pPacket->pPresentInfo->pImageIndices;
+            remappedImageIndex = m_objMapper.remap_pImageIndex(imageIndice);
+        }
+
         if (remappedImageIndex == UINT32_MAX)
         {
             vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped pImageIndices.");
-            return VK_ERROR_VALIDATION_FAILED_EXT;
+            replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+            goto out;
         }
 
         present.sType = pPacket->pPresentInfo->sType;
@@ -3056,16 +3065,8 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
                 if (*(pRemappedWaitSems + i) == VK_NULL_HANDLE)
                 {
                     vktrace_LogError("Skipping vkQueuePresentKHR() due to invalid remapped wait VkSemaphore.");
-                    if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
-                        VKTRACE_DELETE(pRemappedWaitSems);
-                    }
-                    if (pResults != NULL && pResults != localResults) {
-                        VKTRACE_DELETE(pResults);
-                    }
-                    if (pRemappedSwapchains != NULL && pRemappedSwapchains != localSwapchains) {
-                        VKTRACE_DELETE(pRemappedSwapchains);
-                    }
-                    return VK_ERROR_VALIDATION_FAILED_EXT;
+                    replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+                    goto out;
                 }
             }
         }
@@ -3092,6 +3093,8 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* p
             }
         }
     }
+
+out:
 
     if (pRemappedWaitSems != NULL && pRemappedWaitSems != localSemaphores) {
         VKTRACE_DELETE(pRemappedWaitSems);
@@ -3274,7 +3277,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateAndroidSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface); 
+    replayResult = m_vkFuncs.real_vkCreateAndroidSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #endif // ANDROID
 #else
     vktrace_LogError("manually_replay_vkCreateAndroidSurfaceKHR not implemented on this playback platform");
@@ -3447,4 +3450,3 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKH
     return VK_FALSE;
 #endif
 }
-
