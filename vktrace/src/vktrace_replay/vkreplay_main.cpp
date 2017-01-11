@@ -84,7 +84,6 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer &seq,
         while (trace_running) {
             display.process_event();
             if (display.get_quit_status()) {
-                err = -1;
                 goto out;
             }
             if (display.get_pause_status()) {
@@ -237,7 +236,7 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
         }
-        return 1;
+        return -1;
     }
 
     // merge settings so that new settings will get written into the settings file
@@ -259,7 +258,12 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
     else
     {
         vktrace_SettingGroup_print(&g_replaySettingGroup);
-        return 1;
+        // invalid options specified
+        if (pAllSettings != NULL)
+        {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        return -1;
     }
 
     // Set up environment for screenshot
@@ -271,7 +275,7 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
     }
 
     // open trace file and read in header
-    const char* pTraceFile = replaySettings.pTraceFilePath;
+    char* pTraceFile = replaySettings.pTraceFilePath;
     vktrace_trace_file_header fileHeader;
     FILE *tracefp;
 
@@ -281,7 +285,13 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         if (tracefp == NULL)
         {
             vktrace_LogError("Cannot open trace file: '%s'.", pTraceFile);
-            return 1;
+            // invalid options specified
+            if (pAllSettings != NULL)
+            {
+                vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+            }
+            vktrace_free(pTraceFile);
+            return -1;
         }
     }
     else
@@ -292,7 +302,7 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
         }
-        return 1;
+        return -1;
     }
 
     FileLike* traceFile = vktrace_FileLike_create_file(tracefp);
@@ -303,8 +313,10 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
         }
-        VKTRACE_DELETE(traceFile);
-        return 1;
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
     }
 
     //set global version num
@@ -364,7 +376,10 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
                 {
                     vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
                 }
-                return 1;
+                fclose(tracefp);
+                vktrace_free(pTraceFile);
+                vktrace_free(traceFile);
+                return -1;
             }
 
             // merge the replayer's settings into the list of all settings so that we can output a comprehensive settings file later on.
@@ -381,6 +396,9 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
                 {
                     vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
                 }
+                fclose(tracefp);
+                vktrace_free(pTraceFile);
+                vktrace_free(traceFile);
                 return err;
             }
         }
@@ -392,6 +410,9 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
         }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
         return -1;
     }
 
@@ -408,10 +429,13 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         }
     }
 
-    if (pAllSettings != NULL)
-    {
+    if (pAllSettings != NULL) {
         vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
     }
+
+    vktrace_free(pTraceFile);
+    vktrace_free(traceFile);
+
     return err;
 }
 
