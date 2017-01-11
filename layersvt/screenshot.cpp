@@ -193,8 +193,17 @@ static int getEndFrameOfRange(FrameRange* pFrameRange)
 // 1. all
 // 2. <startFrame>-<frameCount>-<interval>
 //    if frameCount is 0, it means the range is unlimited range or all frames from startFrame.
-static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrameRange)
+//return:
+// return 0 if parsing rangeString successfully, other value is a status value indicating a specified error was encountered, currently support the following values:
+//        1, parsing error or input parameters less than two.
+//        2, start frame number < 0.
+//        3, frameCount < 0.
+//        4, interval <= 0
+//        .......
+static int initScreenShotFrameRange(const char *rangeString, FrameRange* pFrameRange)
 {
+    int parsingStatus = 0;
+
     if (rangeString && *rangeString)
     {
         string parameter(rangeString);
@@ -219,9 +228,20 @@ static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrame
                         pFrameRange->interval = SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT;
                     }
 
-                    if ((pFrameRange->startFrame < 0) || (frameCount < 0) || (pFrameRange->interval < 0))
+                    if ((pFrameRange->startFrame < 0) || (frameCount < 0) || (pFrameRange->interval <= 0))
                     {
-                        assert(0);
+                        if (pFrameRange->startFrame < 0)
+                        {
+                            parsingStatus = 2;
+                        }
+                        else if (frameCount < 0)
+                        {
+                            parsingStatus = 3;
+                        }
+                        else
+                        {
+                            parsingStatus = 4;
+                        }
                     }
                     else
                     {
@@ -243,11 +263,12 @@ static void initScreenShotFrameRange(const char *rangeString, FrameRange* pFrame
                 }
                 else
                 {
-                    assert(0);
+                    parsingStatus = 1;
                 }
             }
         }
     }
+    return parsingStatus;
 }
 
 //detect if frameNumber is in the range of pFrameRange, also detect if frameNumber is a frame on which a screenshot should be generated.
