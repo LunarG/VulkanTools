@@ -357,18 +357,18 @@ void vktrace_platform_resume_thread(vktrace_thread* pThread)
 #endif
 }
 
-void vktrace_platform_sync_wait_for_thread(vktrace_thread* pThread)
-{
-    assert(pThread != NULL);
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
-    if (pthread_join(*pThread, NULL) != 0)
-#else
-    if (WaitForSingleObject(*pThread, INFINITE) != WAIT_OBJECT_0)
-#endif
+int64_t vktrace_linux_sync_wait_for_thread(vktrace_thread* pThread)
+{
+    void *retval;
+    assert(pThread != NULL);
+    if (pthread_join(*pThread, &retval) != 0)
     {
         vktrace_LogError("Error occurred while waiting for thread to end.");
     }
+    return retval ? *((int64_t*)retval): 0;
 }
+#endif
 
 void vktrace_platform_delete_thread(vktrace_thread* pThread)
 {

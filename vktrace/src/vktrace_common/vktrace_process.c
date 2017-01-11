@@ -40,13 +40,17 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo)
     fullExePath[0] = 0;
 
     SetLastError(0);
-    SearchPath(NULL, pInfo->exeName, ".exe", ARRAYSIZE(fullExePath), fullExePath, NULL);
+    if (0==SearchPath(NULL, pInfo->exeName, ".exe", ARRAYSIZE(fullExePath), fullExePath, NULL))
+    {
+        vktrace_LogVerbose("Failed to spawn '%s'.", pInfo->exeName);
+        return FALSE;
+    }
 
     if (!CreateProcess(fullExePath, pInfo->fullProcessCmdLine, NULL, NULL, TRUE,
         processCreateFlags, NULL, pInfo->workingDirectory,
         &si, &processInformation))
     {
-        vktrace_LogError("Failed to inject ourselves into target process--couldn't spawn '%s'.", fullExePath);
+        vktrace_LogVerbose("Failed to spawn '%s'.", fullExePath);
         return FALSE;
     }
 
@@ -104,7 +108,7 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo)
         if (execv(pInfo->exeName, args) < 0)
         {
             vktrace_LogError("Failed to spawn process.");
-            return FALSE;
+            exit(1);
         }
     }
 #endif

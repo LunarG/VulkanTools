@@ -65,7 +65,7 @@ vktrace_SettingGroup g_settingGroup =
 
 // ------------------------------------------------------------------------------------------------
 #if defined(WIN32)
-void MessageLoop()
+uint64_t MessageLoop()
 {
     MSG msg = { 0 };
     bool quit = false;
@@ -80,6 +80,7 @@ void MessageLoop()
             quit = (msg.message == VKTRACE_WM_COMPLETE);
         }
     }
+    return msg.wParam;
 }
 #endif
 
@@ -146,6 +147,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
 // ------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+    uint64_t exitval=0;
     memset(&g_settings, 0, sizeof(vktrace_settings));
 
     vktrace_LogSetCallback(loggingCallback);
@@ -321,14 +323,15 @@ int main(int argc, char* argv[])
         }
         if (procStarted == FALSE)
         {
-            vktrace_LogError("Failed to setup remote process.");
+            vktrace_LogError("Failed to set up remote process.");
+            exit(1);
         }
         else
         {
             if (InjectTracersIntoProcess(&procInfo) == FALSE)
             {
-                vktrace_LogError("Failed to setup tracer communication threads.");
-                return -1;
+                vktrace_LogError("Failed to set up tracer communication threads.");
+                exit(1);
             }
 
             // create watchdog thread to monitor existence of remote process
@@ -336,17 +339,22 @@ int main(int argc, char* argv[])
                 procInfo.watchdogThread = vktrace_platform_create_thread(Process_RunWatchdogThread, &procInfo);
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+
             // Sync wait for local threads and remote process to complete.
-
-            vktrace_platform_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));
-
             if (g_settings.program != NULL)
-                vktrace_platform_sync_wait_for_thread(&procInfo.watchdogThread);
+            {
+                exitval=vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
+                if (exitval != 0)
+                    exit(exitval);
+            }
+
+            vktrace_linux_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));
+
 #else
             vktrace_platform_resume_thread(&procInfo.hThread);
 
             // Now into the main message loop, listen for hotkeys to send over.
-            MessageLoop();
+            exitval = MessageLoop();
 #endif
         }
 
@@ -357,6 +365,6 @@ int main(int argc, char* argv[])
     vktrace_SettingGroup_delete(&g_settingGroup);
     vktrace_free(g_default_settings.output_trace);
 
-    return 0;
+    exit (exitval);
 }
 

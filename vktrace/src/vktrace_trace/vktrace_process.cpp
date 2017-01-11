@@ -52,6 +52,11 @@ void SafeCloseHandle(HANDLE& _handle)
 }
 #endif
 
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+// Needs to be static because Process_RunWatchdogThread passes the address of rval to pthread_exit
+static int rval;
+#endif
+
 // ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr)
 {
@@ -59,6 +64,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
 
 #if defined(WIN32)
 
+    DWORD rv;
     while (WaitForSingleObject(pProcInfo->hProcess, kWatchDogPollTime) == WAIT_TIMEOUT)
     {
         if (pProcInfo->serverRequestsTermination)
@@ -69,18 +75,31 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
     }
 
     vktrace_LogVerbose("Child process has terminated.");
-
-    PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, 0, 0);
+    GetExitCodeProcess(pProcInfo->hProcess,  &rv);
+    PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, rv, 0);
     pProcInfo->serverRequestsTermination = TRUE;
+    return 0;
     
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     int status = 0;
     int options = 0;
+
+    // Check to see if process exists
+    rval=waitpid(pProcInfo->processId, &status, WNOHANG);
+    if (rval == pProcInfo->processId)
+    {
+        vktrace_LogVerbose("Child process was terminated.");
+        rval=1;
+        pthread_exit(&rval);
+    }
+
+    rval=1;
     while (waitpid(pProcInfo->processId, &status, options) != -1)
     {
         if (WIFEXITED(status))
         {
             vktrace_LogVerbose("Child process exited.");
+            rval = WEXITSTATUS(status);
             break;
         }
         else if (WCOREDUMP(status))
@@ -89,14 +108,18 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
             break;
         }
         else if (WIFSIGNALED(status))
+        {
             vktrace_LogVerbose("Child process was signaled.");
+        }
         else if (WIFSTOPPED(status))
+        {
             vktrace_LogVerbose("Child process was stopped.");
+        }
         else if (WIFCONTINUED(status))
             vktrace_LogVerbose("Child process was continued.");
     }
+    pthread_exit(&rval);
 #endif
-    return 0;
 }
 
 // ------------------------------------------------------------------------------------------------
