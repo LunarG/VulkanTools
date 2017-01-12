@@ -10,12 +10,15 @@ set(SRC_LIST
     vktrace.cpp
     vktrace_process.h
     vktrace_process.cpp
+    ../../../layersvt/screenshot_parsing.h
+    ../../../layersvt/screenshot_parsing.cpp
 )
 
 include_directories(
     ${SRC_DIR}
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/vktrace_trace
+    ${PROJECT_SOURCE_DIR}/layersvt
 )
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})

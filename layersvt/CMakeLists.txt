@@ -199,5 +199,5 @@ endif()
 add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp ../layers/vk_layer_table.cpp)
 
