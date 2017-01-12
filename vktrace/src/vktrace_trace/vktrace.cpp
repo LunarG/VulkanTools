@@ -149,7 +149,7 @@ char* append_index_to_filename(const char* base, uint32_t index, const char* ext
 {
     char num[17];
 #ifdef PLATFORM_LINUX
-    snprintf(num, 17, "-%u", serverIndex);
+    snprintf(num, 17, "-%u", index);
 #elif defined(WIN32)
     _snprintf_s(num, 17, _TRUNCATE, "-%u", index);
 #endif
@@ -160,7 +160,7 @@ char* append_index_to_filename(const char* base, uint32_t index, const char* ext
 static uint32_t s_fileIndex = 0;
 char* find_available_filename(const char* originalFilename, bool bForceOverwrite)
 {
-    char* pOutputFilename = nullptr;
+    char* pOutputFilename = NULL;
 
     if (bForceOverwrite)
     {
@@ -181,8 +181,8 @@ char* find_available_filename(const char* originalFilename, bool bForceOverwrite
         const char *pExtension = strrchr(g_settings.output_trace, '.');
         char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
         pOutputFilename = vktrace_allocate_and_copy(g_settings.output_trace);
-        FILE* pFile = nullptr;
-        while ((pFile = fopen(pOutputFilename, "rb")) != nullptr)
+        FILE* pFile = NULL;
+        while ((pFile = fopen(pOutputFilename, "rb")) != NULL)
         {
             fclose(pFile);
             ++s_fileIndex;
