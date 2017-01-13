@@ -137,7 +137,7 @@ This is a Windows-specific error that indicates that no Vulkan Driver JSON files
 This can indicate that a Vulkan driver failed to install properly.
 
 ##### Next Step:
-You should follow up with your Graphics Driver.  See more details below.
+See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) section for more info.
 
 
 #### "ERROR: Failed to find Vulkan Driver JSON"
@@ -149,7 +149,19 @@ The Vulkan loader on your system failed to find any Vulkan Driver JSON files in 
 This can indicate that a Vulkan driver failed to install properly.
 
 ##### Next Step:
-You should follow up with your Graphics Driver.  See more details below.
+See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) section for more info.
+
+
+#### "ERROR: Failed to properly parse Vulkan Driver JSON"
+
+##### Problem:
+The Vulkan loader on your system found at least one Vulkan Driver JSON file, but it contained invalid data.
+
+##### Possible Reason:
+This can indicate that a Vulkan driver failed to install properly.
+
+##### Next Step:
+See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) section for more info.
 
 
 #### "ERROR: Failed to find Vulkan Driver Lib"
@@ -161,7 +173,55 @@ The Vulkan loader on your system found at least one Vulkan Driver JSON file, but
 This can indicate that a Vulkan driver failed to install properly.
 
 ##### Next Step:
-You should follow up with your Graphics Driver.  See more details below.
+See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) section for more info.
+
+
+#### "ERROR: Failed to find Vulkan Layer JSON"
+
+##### Problem:
+Normally a layer isn't a requirement, but in this case a layer was attempted to be used by VIA, which should have existed, and did not exist
+in the appropriate location.
+
+##### Possible Reason:
+If the layer is associated with a driver vendor (for example Nvidia), it likely failed during the driver install.  If the layer is associated
+with an application (for example RenderDoc), then it likely failed during application install.  Otherwise, it could be an invalid runtime
+or SDK install.
+
+##### Next Step:
+Look at the HTML file to determine which layer caused the problem, and then contact the appropriate person.  If it's an SDK layer, or you
+are having a hard time figuring out exactly what the problem is, follow the instructions in the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
+
+#### "ERROR: Failed to properly parse Vulkan Layer JSON"
+
+##### Problem:
+Normally a layer isn't a requirement, but in this case a layer was attempted to be used by VIA, and the JSON file was found to be invalid.
+
+##### Possible Reason:
+If the layer is associated with a driver vendor (for example Nvidia), it likely failed during the driver install.  If the layer is associated
+with an application (for example RenderDoc), then it likely failed during application install.  Otherwise, it could be an invalid runtime
+or SDK install.
+
+##### Next Step:
+Look at the HTML file to determine which layer caused the problem, and then contact the appropriate person.  If it's an SDK layer, or you
+are having a hard time figuring out exactly what the problem is, follow the instructions in the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
+
+#### "ERROR: Failed to find Vulkan Layer Lib"
+
+##### Problem:
+Normally a layer isn't a requirement, but in this case a layer was attempted to be used by VIA, and the JSON file was found to point to an
+invalid layer library file.
+
+##### Possible Reason:
+If the layer is associated with a driver vendor (for example Nvidia), it likely failed during the driver install.  If the layer is associated
+with an application (for example RenderDoc), then it likely failed during application install.  Otherwise, it could be an invalid runtime
+or SDK install.
+
+##### Next Step:
+Look at the HTML file to determine which layer caused the problem, and then contact the appropriate person.  If it's an SDK layer, or you
+are having a hard time figuring out exactly what the problem is, follow the instructions in the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
 
 
 #### "ERROR: Vulkan failed to find a compatible driver"
@@ -174,9 +234,86 @@ a Vulkan compatible driver.
 This can indicate that either a Vulkan driver failed to install properly, or the run-time is failing for some reason.
 
 ##### Next Step:
-First, attempt to re-install the run-time by visiting [LunarXchange](https://vulkan.lunarg.com/), and install the latest Vulkan SDK.
-If that does not work, try to see if there is a newer Vulkan driver available and install that.  If that still fails, file an issue on
-LunarXchange.
+See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) section for more info.
+
+
+#### "ERROR: Vulkan failed to find a Vulkan Runtime to use"
+
+##### Problem:
+The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
+some Vulkan-capable games, or the LunarG Vulkan SDK.
+
+##### Possible Reason:
+The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
+on your system.
+
+##### Next Step:
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
+
+#### "ERROR: Unknown error while attempting to create Vulkan Instance"
+
+##### Problem:
+Some error occurred when trying to call Vulkan's vkCreateInstance function.
+
+##### Possible Reason:
+This can usually indicate that there's something about the installed driver that the Vulkan Loader does not like.
+
+##### Next Step:
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
+
+#### "ERROR: Unknown error while attempting to create Vulkan Device"
+
+##### Problem:
+Some error occurred when trying to call Vulkan's vkCreateDevice function.
+
+##### Possible Reason:
+This can usually indicate that there's something about the installed driver that the Vulkan Loader does not like.
+
+##### Next Step:
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
+
+#### "ERROR: Failed to find expected Vulkan Extensions"
+
+##### Problem:
+Some error occurred when trying to query the available drivers for the Vulkan Extensions that are supported.
+
+##### Possible Reason:
+This can usually indicate that there's something about the installed driver that the Vulkan Loader does not like.
+
+##### Next Step:
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
+
+#### "ERROR: Vulkan Loader, Layer, or Driver ran out of memory"
+
+##### Problem:
+The Vulkan Loader, a Layer, or a Vulkan Driver failed to be able to allocate memory for a required item.
+
+##### Possible Reason:
+Check to see how much memory is available on your system.  It could also be caused by low hard-drive space.
+
+##### Next Step:
+Attempt to free up some hard-drive space if you're currently using more that 90% of your hard-drive.
+
+Other things to try:
+ * Follow the instructions in [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+ * If that doesn't help, try [installing a new Vulkan Driver](#vulkan-graphics-driver-problems)
+
+ 
+#### "ERROR: Unknown Test failure occurred"
+
+##### Problem:
+One of the Vulkan tests failed for some reason.
+
+##### Possible Reason:
+This could just indicate an error in setting up the test environment.  Currently, the only tests used are in the SDK, so
+it's possible the SDK did not install properly.
+
+##### Next Step:
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
 #### [WINDOWS] Dialog box pop's up indicating "vulkan-1.dll is missing from your computer."
@@ -190,8 +327,7 @@ The last Vulkan Runtime install that executed on your system failed to behave pr
 on your system.
 
 ##### Next Step:
-To rememdy this, visit [LunarXchange](https://vulkan.lunarg.com/), and install the latest Vulkan SDK.  If that does not work, file an
-Issue to have one of their engineers assist you.
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
 #### [LINUX] Message indicating "error while loading shared libraries: libvulkan.so.1"
@@ -203,7 +339,20 @@ some Vulkan-capable games, or the LunarG Vulkan SDK.
 ##### Possible Reason:
 The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
 
+##### Next Step:
+See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
+
 <BR />
+
+
+## Vulkan SDK Issues
+If the problem you've encountered is possibly related to an SDK issue.  Visit [LunarXchange](https://vulkan.lunarg.com/), and install
+the latest Vulkan SDK.  If that does not help, attempt to install a new [Vulkan Driver](#vulkan-graphics-driver-problems).  If that still
+fails, file an issue on [LunarXchange](https://vulkan.lunarg.com/).  To file an issue, you may be required to create a free account
+(only requires an email address).
+
+<BR />
+
 
 ## Vulkan Graphics Driver Problems
 If the problem is possibly related to your Graphics Driver, it could be for several reasons:
