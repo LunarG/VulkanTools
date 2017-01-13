@@ -46,7 +46,7 @@ vktrace_SettingInfo g_settings_info[] =
     { "o", "OutputTrace", VKTRACE_SETTING_STRING, { &g_settings.output_trace }, { &g_default_settings.output_trace }, TRUE, "Path to the generated output trace file."},
     { "s", "ScreenShot", VKTRACE_SETTING_STRING, { &g_settings.screenshotList }, { &g_default_settings.screenshotList }, TRUE, "Comma separated list of frames to take a snapshot of."},
     { "ptm", "PrintTraceMessages", VKTRACE_SETTING_BOOL, { &g_settings.print_trace_messages }, { &g_default_settings.print_trace_messages }, TRUE, "Print trace messages to vktrace console."},
-    { "P", "PMB", VKTRACE_SETTING_BOOL, { &g_settings.enable_pmb }, { &g_default_settings.enable_pmb }, TRUE, "Optimize tracing of persistently mapped buffers, default is FALSE."},
+    { "P", "PMB", VKTRACE_SETTING_BOOL, { &g_settings.enable_pmb }, { &g_default_settings.enable_pmb }, TRUE, "Optimize tracing of persistently mapped buffers, default is TRUE."},
 #if _DEBUG
     { "v", "Verbosity", VKTRACE_SETTING_STRING, { &g_settings.verbosity }, { &g_default_settings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
     g_default_settings.output_trace = vktrace_allocate_and_copy("vktrace_out.vktrace");
     g_default_settings.verbosity = "errors";
     g_default_settings.screenshotList = NULL;
-    g_default_settings.enable_pmb = false;;
+    g_default_settings.enable_pmb = true;
 
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0)
     {
