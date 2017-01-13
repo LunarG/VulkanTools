@@ -433,6 +433,7 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
         vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
     }
 
+    fclose(tracefp);
     vktrace_free(pTraceFile);
     vktrace_free(traceFile);
 

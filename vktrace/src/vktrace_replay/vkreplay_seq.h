@@ -61,12 +61,6 @@ public:
             free(m_lastPacket);
             m_lastPacket = NULL;
         }
-
-        if (m_pFile) {
-            fclose(m_pFile->mFile);
-            free(m_pFile);
-            m_pFile = NULL;
-        }
     }
 
     vktrace_trace_packet_header *get_next_packet();
