@@ -291,6 +291,7 @@ out:
         std::cout << "SUCCESS: Validation completed properly." << std::endl;
         break;
     case SYSTEM_CALL_FAILURE:
+        std::cout << "ERROR: Failure occurred during system call." << std::endl;
         break;
     case MISSING_DRIVER_REGISTRY:
         std::cout << "ERROR: Failed to find Vulkan Driver JSON in registry."
@@ -345,7 +346,6 @@ out:
     case TEST_FAILED:
         std::cout << "ERROR: Unknown Test failure occurred." << std::endl;
         break;
-
     case UNKNOWN_ERROR:
     default:
         std::cout << "ERROR: Uknown failure occurred.  Refer to HTML for "
