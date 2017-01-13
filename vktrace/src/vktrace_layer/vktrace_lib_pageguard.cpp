@@ -109,6 +109,18 @@ bool getPageGuardEnableFlag()
     return EnablePageGuard;
 }
 
+bool getEnableReadPMBFlag()
+{
+    static bool EnableReadPMB;
+    static bool FirstTimeRun = true;
+    if (FirstTimeRun)
+    {
+        EnableReadPMB = (vktrace_get_global_var(PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV) != NULL);
+        FirstTimeRun = false;
+    }
+    return EnableReadPMB;
+}
+
 #if defined(WIN32)
 void setPageGuardExceptionHandler()
 {
@@ -177,7 +189,7 @@ void* pageguardAllocateMemory(size_t size)
         pMemory = mmap(NULL, pageguardGetAdjustedSize(size),
                        PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
         if (pMemory != nullptr)
-            allocateMemoryMap[pMemory] = size;
+            allocateMemoryMap[pMemory] = pageguardGetAdjustedSize(size);
 #endif
     }
     if (pMemory == nullptr)
@@ -292,7 +304,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
         if (pMappedMem)
         {
             uint64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-            if (bWrite)
+            if (!getEnableReadPMBFlag() || bWrite)
             {
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
             }
@@ -368,7 +380,6 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(
             assert(pEntry->handle == pRange->memory);
             assert(pEntry->totalSize >= (pRange->size + pRange->offset));
             assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
 #ifdef USE_PAGEGUARD_SPEEDUP
             LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
             VkDeviceSize OPTPackageSizeTemp = 0;

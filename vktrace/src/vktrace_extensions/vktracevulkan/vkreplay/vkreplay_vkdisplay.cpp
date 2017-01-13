@@ -157,6 +157,8 @@ int vkDisplay::init(const unsigned int gpu_idx)
         xcb_screen_next(&iter);
     m_pXcbScreen = iter.data;
 #endif
+    set_pause_status(false);
+    set_quit_status(false);
     return 0;
 }
 
@@ -216,6 +218,22 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
             XCB_WINDOW_CLASS_INPUT_OUTPUT,
             m_pXcbScreen->root_visual,
             value_mask, value_list);
+
+    // Magic code that will send notification when window is destroyed
+    xcb_intern_atom_cookie_t cookie =
+        xcb_intern_atom(m_pXcbConnection, 1, 12, "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t *reply =
+        xcb_intern_atom_reply(m_pXcbConnection, cookie, 0);
+
+    xcb_intern_atom_cookie_t cookie2 =
+        xcb_intern_atom(m_pXcbConnection, 0, 16, "WM_DELETE_WINDOW");
+    this->atom_wm_delete_window =
+        xcb_intern_atom_reply(m_pXcbConnection, cookie2, 0);
+
+    xcb_change_property(m_pXcbConnection, XCB_PROP_MODE_REPLACE, m_XcbWindow,
+                        (*reply).atom, 4, 32, 1,
+                        &(*this->atom_wm_delete_window).atom);
+    free(reply);
 
     xcb_map_window(m_pXcbConnection, m_XcbWindow);
     xcb_flush(m_pXcbConnection);
@@ -305,4 +323,49 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 
 void vkDisplay::process_event()
 {
+#if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+// TODO
+#else
+    xcb_connection_t *xcb_conn = this->get_connection_handle();
+    xcb_generic_event_t *event = xcb_poll_for_event(xcb_conn);
+    xcb_flush(xcb_conn);
+    uint8_t event_code = 0;
+
+    while (event) {
+        event_code = event->response_type & 0x7f;
+        switch (event_code) {
+        case XCB_EXPOSE:
+            // TODO: Resize window
+            break;
+        case XCB_CLIENT_MESSAGE:
+            if ((*(xcb_client_message_event_t *)event).data.data32[0] ==
+                (*this->atom_wm_delete_window).atom) {
+                this->set_quit_status(true);
+            }
+            break;
+        case XCB_KEY_RELEASE: {
+            const xcb_key_release_event_t *key =
+                (const xcb_key_release_event_t *)event;
+
+            switch (key->detail) {
+            case 0x9: // Escape
+                this->set_quit_status(true);
+                break;
+            case 0x41:
+                this->set_pause_status(!(this->get_pause_status()));
+                break;
+            }
+        } break;
+        case XCB_CONFIGURE_NOTIFY: {
+            // TODO resize here too
+        } break;
+        }
+        free(event);
+        event = xcb_poll_for_event(xcb_conn);
+    }
+#endif
+#elif defined(WIN32)
+// TODO: handle win events
+#endif
 }

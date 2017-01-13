@@ -457,6 +457,10 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
 BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, size_t _len)
 {
     while (!vktrace_MessageStream_Recv(pStream, _outBuffer, _len)) {
+        if (pStream->mErrorNum == WSAECONNRESET)
+        {
+            return FALSE;
+        }
         Sleep(1);
     }
     return TRUE;

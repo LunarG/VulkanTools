@@ -139,52 +139,47 @@ void *strip_create_extensions(const void *pNext)
 
 #if defined (PLATFORM_LINUX)
 
+static void mprotectWithErrorCheck(void *addr, size_t size, int prot)
+{
+    while (0 != mprotect(addr, size, prot))
+    {
+        if (errno == EAGAIN)
+            continue;
+
+        // Something bad happened, and it's fatal.
+        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc,
+        // writing to the trace file, and writing to stdout -- operations that
+        // may not work from a signal handler.  But we're about to exit anyway.
+        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+    }
+}
+
 // When quering dirty pages from /proc/self/pagemap, there is a
 // small window between the reading of this file and when the dirty bits
 // are cleared in which some other thread might modify mapped memory.
 // We trap these memory writes by setting mapped memory pages to read-only and
-// setting the signal handler for SIGSEGV. The signal handler creates a list
-// of the addresses that caused a SIGSEGV. We keep the list in sighAddrList.
-// We used the semaphore sighAddrListSem to protect access to this list.
+// setting the signal handler for SIGSEGV. The signal handler writes the
+// addresses that caused a SIGSEGV to a pipe, which are read and handled
+// by getMappedDirtyPagesLinux.
 
-static std::list<void *> sighAddrList;
-static vktrace_sem_id sighAddrListSem = NULL;
+// Note that we call mprotect(2) and write(2) in this signal handler.
+// Calling mprotect(2) in a signal hander is not POSIX compliant, but
+// is known to work on Linux. Calling write(2) in a signal hander is
+// allowed by POSIX.
+
+static int pipefd[2];
 
 static void segvHandler(int sig, siginfo_t *si, void *ununsed)
 {
     size_t pageSize = getpagesize();
+    void *addr;
 
-    // Note: we use sem_wait and mprotect inside a signal handler.
-    // This is not POSIX compliant, but works on Linux.
-
-    vktrace_sem_wait(sighAddrListSem);
-
-    if (!sighAddrList.empty() && sighAddrList.front() == si->si_addr)
-    {
-        // SIGSEGV was generated on the same address twice in a row.
-        // This could happen if an attempt is made to execute an
-        // instruction at an address without execute permission, i.e. a
-        // bad function pointer. This could also happen if two threads
-        // attempt to write to the same mapped address at the same
-        // time. This is a race condition that an app should avoid,
-        // so we'll consider it a fatal error.
-        VKTRACE_FATAL_ERROR("SIGSEGV repeated on identical addresses.");
-    }
-
-    // Add the addr that caused the segv to sighAddrList.
-    // It may not be in a mapped page we are tracking. If it
-    // isn't, we'll detect it later and generate an error then.
-    sighAddrList.emplace_front(si->si_addr);
-
-    vktrace_sem_post(sighAddrListSem);
+    addr = si->si_addr;
+    if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr)))
+        VKTRACE_FATAL_ERROR("Write to pipe failed in PMB signal hander.");
 
     // Change protection of this page to allow the write to proceed
-    if (0 != mprotect((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE))
-        // If we're calling VKTRACE_FATAL_ERROR here, there's a bug in the trace layer.
-        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc, writing to the
-        // trace file, and writing to stdout -- operations that may not work from a
-        // signal handler.  But we're about to exit anyway.
-        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+    mprotectWithErrorCheck((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE);
 }
 
 
@@ -197,7 +192,7 @@ static void segvHandler(int sig, siginfo_t *si, void *ununsed)
 void getMappedDirtyPagesLinux(void)
 {
     LPPageGuardMappedMemory pMappedMem;
-    PBYTE addr, alignedAddrStart, alignedAddrEnd;
+    PBYTE addr, alignedAddrStart, alignedAddrEnd, previousAddr;
     uint64_t nPages;
     VkDeviceMemory mappedMemory;
     off_t pmOffset;
@@ -208,23 +203,24 @@ void getMappedDirtyPagesLinux(void)
     struct sigaction sigAction;
     static int pmFd = -1;
     static std::vector<uint64_t> pageEntries;
-    
+
     // If pageguard isn't enabled, we don't need to do anythhing
     if (!getPageGuardEnableFlag())
         return;
 
     vktrace_enter_critical_section(&g_memInfoLock);
 
-    // Open pagefile, initialize sighAddrList semaphore, and set the SIGSEGV signal handler
+    // Open pagefile, open the pipe, and set a SIGSEGV handler
     if (pmFd == -1)
     {
         pmFd = open("/proc/self/pagemap", O_RDONLY);
         if (pmFd < 0)
             VKTRACE_FATAL_ERROR("Failed to open pagemap file.");
 
-        if (!vktrace_sem_create(&sighAddrListSem, 1))
-            VKTRACE_FATAL_ERROR("Failed to create sighAddrListSem.");
+        if (0 != pipe2(pipefd, O_NONBLOCK))
+            VKTRACE_FATAL_ERROR("Failed to create pipe.");
 
+        // Set the SIGSEGV signal handler
         sigAction.sa_sigaction = segvHandler;
         sigfillset(&sigAction.sa_mask);
         sigAction.sa_flags = SA_SIGINFO;
@@ -251,8 +247,7 @@ void getMappedDirtyPagesLinux(void)
         // Make pages in this memory allocation non-writable so we get a SIGSEGV
         // if some other thread writes to this memory while we are examining
         // and clearing its dirty bit.
-        if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ))
-            VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ);
 
         // Read all the pagemap entries for this mapped memory allocation
         if (pageEntries.size() < nPages)
@@ -296,15 +291,28 @@ void getMappedDirtyPagesLinux(void)
             continue;
         alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize-1));
         alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize-1));
-        if (0 != mprotect(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE))
-            VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ|PROT_WRITE);
     }
 
-    // Loop through addresses that caused a segv and mark those pages dirty
-    vktrace_sem_wait(sighAddrListSem);
-    while (!sighAddrList.empty())
+    // Read all the addresses that caused a segv and mark those pages dirty
+
+    previousAddr=0;
+    while ((sizeof(addr) == read(pipefd[0], &addr, sizeof(addr))))
     {
-        addr = (PBYTE)sighAddrList.front();
+        // If we get consecutive identical addresses, the sig handler is getting
+        // called repeatedly with the same address (or an app is doing something crazy).
+        // To avoid infinitely calling the sighandler, generate an error and exit.
+
+        // We can't give an error here if we didn't find the address
+        // in mapped memory. The arrival of a signal might be delayed
+        // due to process scheduling, and thus might arrive after the
+        // mapped memory has been unmapped.
+        if (previousAddr == addr)
+        {
+            VKTRACE_FATAL_ERROR("SIGSEGV received on the same address.");
+        }
+        previousAddr = addr;
+
         for (std::unordered_map< VkDeviceMemory, PageGuardMappedMemory >::iterator it = getPageGuardControlInstance().getMapMemory().begin();
              it != getPageGuardControlInstance().getMapMemory().end();
              it++)
@@ -312,13 +320,12 @@ void getMappedDirtyPagesLinux(void)
             pMappedMem = &(it->second);
             index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
             if (index >= 0)
+            {
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-            else
-                VKTRACE_FATAL_ERROR("Received signal SIGSEGV on non-mapped memory.");
+                break;
+            }
         }
-        sighAddrList.pop_front();
     }
-    vktrace_sem_post(sighAddrListSem);
     vktrace_leave_critical_section(&g_memInfoLock);
 }
 #endif
@@ -1988,7 +1995,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pWaitSemaphores));
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pSignalSemaphores), pPacket->pSubmits[i].signalSemaphoreCount * sizeof(VkSemaphore), pSubmits[i].pSignalSemaphores);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pSignalSemaphores));
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pWaitDstStageMask), sizeof(VkPipelineStageFlags), pSubmits[i].pWaitDstStageMask);
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pWaitDstStageMask), pPacket->pSubmits[i].waitSemaphoreCount * sizeof(VkPipelineStageFlags), pSubmits[i].pWaitDstStageMask);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits[i].pWaitDstStageMask));
     }
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSubmits));

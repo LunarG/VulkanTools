@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os,re,sys
+import io,os,re,sys
 
 def write( *args, **kwargs ):
-    file = kwargs.pop('file',sys.stdout)
-    end = kwargs.pop( 'end','\n')
-    file.write( ' '.join([str(arg) for arg in args]) )
+    file = kwargs.pop(u'file',sys.stdout)
+    end = kwargs.pop( u'end',u'\n')
+    file.write( u' '.join([str(arg) for arg in args]) )
     file.write( end )
 
 # noneStr - returns string argument, or "" if argument is None.
@@ -318,7 +318,8 @@ class OutputGenerator:
         # Open specified output file. Not done in constructor since a
         # Generator can be used without writing to a file.
         if (self.genOpts.filename != None):
-            self.outFile = open(self.genOpts.directory + '/' + self.genOpts.filename, 'w')
+            filename = self.genOpts.directory + '/' + self.genOpts.filename
+            self.outFile = io.open(filename, 'w', encoding='utf-8')
         else:
             self.outFile = sys.stdout
     def endFile(self):

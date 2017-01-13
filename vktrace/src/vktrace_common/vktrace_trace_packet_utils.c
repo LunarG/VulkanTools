@@ -257,12 +257,12 @@ void vktrace_finalize_trace_packet(vktrace_trace_packet_header* pHeader)
 
 void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, FileLike* pFile)
 {
-    static int errorCount = 0;
     BOOL res = vktrace_FileLike_WriteRaw(pFile, pHeader, (size_t)pHeader->size);
-    if (!res && pHeader->packet_id != VKTRACE_TPI_MARKER_TERMINATE_PROCESS && errorCount < 10)
+    if (!res && pHeader->packet_id != VKTRACE_TPI_MARKER_TERMINATE_PROCESS)
     {
-        errorCount++;
-        vktrace_LogError("Failed to send trace packet index %u packetId %u size %u.", pHeader->global_packet_index, pHeader->packet_id, pHeader->size);
+        // We don't retry on failure because vktrace_FileLike_WriteRaw already retried and gave up.
+        vktrace_LogWarning("Failed to write trace packet.");
+        exit(1);
     }
 }
 
@@ -276,8 +276,6 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile)
     // offset to after size
     // read the rest of the packet
     uint64_t total_packet_size = 0;
-    void* pMemory;
-    vktrace_trace_packet_header* pHeader;
 
     if (vktrace_FileLike_ReadRaw(pFile, &total_packet_size, sizeof(uint64_t)) == FALSE)
     {
@@ -285,8 +283,7 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile)
     }
 
     // allocate space
-    pMemory = vktrace_malloc((size_t)total_packet_size);
-    pHeader = (vktrace_trace_packet_header*)pMemory;
+    vktrace_trace_packet_header *pHeader = (vktrace_trace_packet_header*)vktrace_malloc((size_t)total_packet_size);
 
     if (pHeader != NULL)
     {

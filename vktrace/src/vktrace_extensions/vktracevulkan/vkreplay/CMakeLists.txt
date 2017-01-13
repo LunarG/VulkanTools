@@ -60,11 +60,17 @@ if (NOT MSVC)
     add_compiler_flag("-fPIC")
 endif()
 
+add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
+
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${HDR_LIST})
 
-add_dependencies(${PROJECT_NAME} "vulkan-${MAJOR}")
+if(WIN32)
+    add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}-${MAJOR}")
+else()
+    add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}")
+endif()
 
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}
     ${OS_REPLAYER_LIBS}
     ${VKTRACE_VULKAN_LIB}
     vktrace_common

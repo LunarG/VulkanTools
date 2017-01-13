@@ -27,13 +27,11 @@
 #include "vk_layer_config.h"
 #include "vk_layer_extension_utils.h"
 #include "vk_layer_utils.h"
-#include "vk_enum_validate_helper.h"
-#include "vk_struct_validate_helper.h"
 #include "vk_layer_table.h"
 #include "vk_layer_logging.h"
 #include "threading.h"
 #include "vk_dispatch_table_helper.h"
-#include "vk_struct_string_helper_cpp.h"
+#include "vk_enum_string_helper.h"
 #include "vk_layer_data.h"
 #include "vk_layer_utils.h"
 
@@ -183,7 +181,7 @@ static const VkLayerProperties layerProps = {
 };
 
 static inline PFN_vkVoidFunction layer_intercept_proc(const char *name) {
-    for (int i = 0; i < sizeof(procmap) / sizeof(procmap[0]); i++) {
+    for (unsigned int i = 0; i < sizeof(procmap) / sizeof(procmap[0]); i++) {
         if (!strcmp(name, procmap[i].name))
             return procmap[i].pFunc;
     }

@@ -249,6 +249,11 @@ struct loader_icd_term {
     PFN_vkCreateDisplayPlaneSurfaceKHR CreateDisplayPlaneSurfaceKHR;
     PFN_vkDestroySurfaceKHR DestroySurfaceKHR;
     PFN_vkCreateSwapchainKHR CreateSwapchainKHR;
+
+    // NVX_device_generated_commands
+    PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX
+        GetPhysicalDeviceGeneratedCommandsPropertiesNVX;
+
     struct loader_icd_term *next;
 };
 
@@ -272,8 +277,10 @@ struct loader_instance {
     VkLayerInstanceDispatchTable *disp; // must be first entry in structure
 
     uint32_t total_gpu_count;
-    struct loader_physical_device_term *phys_devs_term;
-    struct loader_physical_device_tramp *phys_devs_tramp;
+    uint32_t phys_dev_count_term;
+    struct loader_physical_device_term **phys_devs_term;
+    uint32_t phys_dev_count_tramp;
+    struct loader_physical_device_tramp **phys_devs_tramp;
 
     struct loader_instance *next;
 

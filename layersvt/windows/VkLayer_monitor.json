@@ -1,11 +1,11 @@
 {
     "file_format_version" : "1.0.0",
     "layer" : {
-        "name": "VK_LAYER_LUNARG_screenshot",
+        "name": "VK_LAYER_LUNARG_monitor",
         "type": "GLOBAL",
-        "library_path": "./libVkLayer_screenshot.so",
+        "library_path": ".\\VkLayer_monitor.dll",
         "api_version": "1.0.38",
         "implementation_version": "1",
-        "description": "LunarG image capture layer"
+        "description": "Execution Monitoring Layer"
     }
 }

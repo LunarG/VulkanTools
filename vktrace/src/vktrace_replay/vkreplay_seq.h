@@ -52,18 +52,26 @@ class Sequencer: public AbstractSequencer
 
 public:
     Sequencer(FileLike* pFile) : m_lastPacket(NULL), m_pFile(pFile) {}
-    ~Sequencer() { delete m_lastPacket;}
-    
+    ~Sequencer() {
+        this->clean_up();
+    }
+
+    void clean_up() {
+        if (m_lastPacket){
+            free(m_lastPacket);
+            m_lastPacket = NULL;
+        }
+    }
+
     vktrace_trace_packet_header *get_next_packet();
     void get_bookmark(seqBookmark &bookmark);
     void set_bookmark(const seqBookmark &bookmark);
     void record_bookmark();
-    
+
 private:
     vktrace_trace_packet_header *m_lastPacket;
     seqBookmark m_bookmark;
     FileLike *m_pFile;
-    
 };
 
 } /* namespace vktrace_replay */

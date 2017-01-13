@@ -225,7 +225,6 @@ class ParamCheckerOutputGenerator(OutputGenerator):
         self.structNames = []
         self.stypes = []
         self.structTypes = dict()
-        self.handleTypes = set()
         self.commands = []
         self.structMembers = []
         self.validatedStructs = dict()
@@ -264,7 +263,7 @@ class ParamCheckerOutputGenerator(OutputGenerator):
                 if (self.genOpts.protectProto):
                     write(self.genOpts.protectProto,
                           self.genOpts.protectProtoStr, file=self.outFile)
-                write('\n'.join(self.sections['command']), end='', file=self.outFile)
+                write('\n'.join(self.sections['command']), end=u'', file=self.outFile)
             if (self.featureExtraProtect != None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
             else:
@@ -801,8 +800,12 @@ class ParamCheckerOutputGenerator(OutputGenerator):
             expr.append(indent + '{')
             indent = self.incIndent(indent)
             # Prefix for value name to display in error message
-            memberNamePrefix = '{}{}[{}].'.format(prefix, value.name, indexName)
-            memberDisplayNamePrefix = ('{}[%i].'.format(valueDisplayName), indexName)
+            if value.ispointer == 2:
+                memberNamePrefix = '{}{}[{}]->'.format(prefix, value.name, indexName)
+                memberDisplayNamePrefix = ('{}[%i]->'.format(valueDisplayName), indexName)
+            else:
+                memberNamePrefix = '{}{}[{}].'.format(prefix, value.name, indexName)
+                memberDisplayNamePrefix = ('{}[%i].'.format(valueDisplayName), indexName)
         else:
             memberNamePrefix = '{}{}->'.format(prefix, value.name)
             memberDisplayNamePrefix = '{}->'.format(valueDisplayName)
@@ -925,6 +928,8 @@ class ParamCheckerOutputGenerator(OutputGenerator):
                         usedLines.append('skipCall |= validate_bool32(report_data, "{}", {ppp}"{}"{pps}, {}{});\n'.format(funcName, valueDisplayName, valuePrefix, value.name, **postProcSpec))
                     elif value.israngedenum:
                         enumRange = self.enumRanges[value.type]
+                        if value.type == "VkObjectEntryTypeNVX":
+                            garbage = 2
                         usedLines.append('skipCall |= validate_ranged_enum(report_data, "{}", {ppp}"{}"{pps}, "{}", {}, {}, {}{});\n'.format(funcName, valueDisplayName, value.type, enumRange[0], enumRange[1], valuePrefix, value.name, **postProcSpec))
                     #
                     # If this is a struct, see if it contains members that need to be checked

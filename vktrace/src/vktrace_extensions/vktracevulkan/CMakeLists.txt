@@ -29,11 +29,11 @@ endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
       set(VKTRACE_VULKAN_LIB
-         ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/vulkan-1.lib
+         ${CMAKE_BINARY_DIR}/loader/${CMAKE_CFG_INTDIR}/${API_LOWERCASE}-1.lib
          )
    else()
       set(VKTRACE_VULKAN_LIB
-         ${CMAKE_BINARY_DIR}/loader/vulkan-1.lib
+         ${CMAKE_BINARY_DIR}/loader/${API_LOWERCASE}-1.lib
          )
    endif()
 endif()
@@ -41,7 +41,7 @@ endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR
     ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
     set(VKTRACE_VULKAN_LIB
-        ${CMAKE_BINARY_DIR}/loader/libvulkan.so
+        ${CMAKE_BINARY_DIR}/loader/lib${API_LOWERCASE}.so
     )
 
 endif()
@@ -56,12 +56,9 @@ set(VKTRACE_VULKAN_CODEGEN_UTILS "vulkan/codegen_utils")
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
 
 # generate files for vulkan.h
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_struct_sizes ${VKTRACE_VULKAN_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_enum_string_helper ${VKTRACE_VULKAN_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
-
-# generate files for vk_lunarg_debug_marker.h
-#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_struct_sizes ${VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
-#execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vk_helper.py --gen_enum_string_helper ${VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER} --abs_out_dir ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS})
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS} vk_struct_size_helper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS} vk_struct_size_helper.c)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${CMAKE_CURRENT_SOURCE_DIR}/${VKTRACE_VULKAN_CODEGEN_UTILS} vk_enum_string_helper.h)
 
 # Run a codegen script to generate vktrace-specific vulkan utils
 set(CODEGEN_VKTRACE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/codegen_vktrace_utils")
@@ -76,4 +73,3 @@ add_subdirectory(vkreplay/)
 if (Qt5_FOUND AND BUILD_VKTRACEVIEWER)
     add_subdirectory(vktraceviewer/)
 endif()
-

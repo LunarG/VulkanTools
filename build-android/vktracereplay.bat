@@ -17,7 +17,7 @@ REM # limitations under the License.
 setlocal EnableDelayedExpansion
 
 set vktrace_exe=..\build\vktrace\Debug\vktrace.exe
-set vktrace32_exe=..\build\vktrace\Debug\vktrace32.exe
+set vktrace32_exe=..\build32\vktrace\Debug\vktrace.exe
 set vkreplay_apk=.\vkreplay\bin\NativeActivity-debug.apk
 set activity=android.app.NativeActivity
 set frame=1
@@ -123,6 +123,12 @@ REM // ======== Parameter parsing ======== //
 
 REM // ======== end Parameter parsing ======== //
 
+REM Match 32-bit and 64-bit ABIs between host and target
+if "%target_abi%" == "armeabi-v7a" ( set vktrace_exe=%vktrace32_exe% )
+if "%target_abi%" == "x86"         ( set vktrace_exe=%vktrace32_exe% )
+if "%target_abi%" == "mips"        ( set vktrace_exe=%vktrace32_exe% )
+
+
 echo serial = %serial%
 echo target_abi = %target_abi%
 echo vktrace_exe = %vktrace_exe%
@@ -164,7 +170,7 @@ adb -s %serial% shell pm grant %package% android.permission.WRITE_EXTERNAL_STORA
 adb -s %serial% shell setprop debug.vulkan.screenshot %frame%
 
 REM vktrace
-adb -s %serial% reverse tcp:34201 tcp:34201
+adb -s %serial% reverse localabstract:vktrace tcp:34201
 start /b %vktrace_exe% -v full -o %package%.vktrace
 adb -s %serial% shell am start %package%/%activity%
 

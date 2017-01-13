@@ -91,7 +91,7 @@ template <typename T> class counter {
                 // There are no readers.  Two writers just collided.
                 if (use_data->thread != tid) {
                     skipCall |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, objectType, (uint64_t)(object),
-                                        /*location*/ 0, THREADING_CHECKER_MULTIPLE_THREADS, "THREADING",
+                                        0, THREADING_CHECKER_MULTIPLE_THREADS, "THREADING",
                                         "THREADING ERROR : object of type %s is simultaneously used in thread %ld and thread %ld",
                                         typeName, use_data->thread, tid);
                     if (skipCall) {
@@ -118,7 +118,7 @@ template <typename T> class counter {
                 // There are readers.  This writer collided with them.
                 if (use_data->thread != tid) {
                     skipCall |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, objectType, (uint64_t)(object),
-                                        /*location*/ 0, THREADING_CHECKER_MULTIPLE_THREADS, "THREADING",
+                                        0, THREADING_CHECKER_MULTIPLE_THREADS, "THREADING",
                                         "THREADING ERROR : object of type %s is simultaneously used in thread %ld and thread %ld",
                                         typeName, use_data->thread, tid);
                     if (skipCall) {
@@ -170,7 +170,7 @@ template <typename T> class counter {
         } else if (uses[object].writer_count > 0 && uses[object].thread != tid) {
             // There is a writer of the object.
             skipCall |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, objectType, (uint64_t)(object),
-                                /*location*/ 0, THREADING_CHECKER_MULTIPLE_THREADS, "THREADING",
+                                0, THREADING_CHECKER_MULTIPLE_THREADS, "THREADING",
                                 "THREADING ERROR : object of type %s is simultaneously used in thread %ld and thread %ld", typeName,
                                 uses[object].thread, tid);
             if (skipCall) {
@@ -245,9 +245,12 @@ struct layer_data {
     counter<VkSemaphore> c_VkSemaphore;
     counter<VkShaderModule> c_VkShaderModule;
     counter<VkDebugReportCallbackEXT> c_VkDebugReportCallbackEXT;
+    counter<VkObjectTableNVX> c_VkObjectTableNVX;
+    counter<VkIndirectCommandsLayoutNVX>c_VkIndirectCommandsLayoutNVX;
 #else  // DISTINCT_NONDISPATCHABLE_HANDLES
     counter<uint64_t> c_uint64_t;
 #endif // DISTINCT_NONDISPATCHABLE_HANDLES
+
     layer_data()
         : report_data(nullptr), num_tmp_callbacks(0), tmp_dbg_create_infos(nullptr), tmp_callbacks(nullptr),
           c_VkCommandBuffer("VkCommandBuffer", VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT),
@@ -274,7 +277,9 @@ struct layer_data {
           c_VkSampler("VkSampler", VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_EXT),
           c_VkSemaphore("VkSemaphore", VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT),
           c_VkShaderModule("VkShaderModule", VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT),
-          c_VkDebugReportCallbackEXT("VkDebugReportCallbackEXT", VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT)
+          c_VkDebugReportCallbackEXT("VkDebugReportCallbackEXT", VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT),
+          c_VkObjectTableNVX("VkObjectTableNVX", VK_DEBUG_REPORT_OBJECT_TYPE_OBJECT_TABLE_NVX_EXT),
+          c_VkIndirectCommandsLayoutNVX("VkIndirectCommandsLayoutNVX", VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT)
 #else  // DISTINCT_NONDISPATCHABLE_HANDLES
           c_uint64_t("NON_DISPATCHABLE_HANDLE", VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT)
 #endif // DISTINCT_NONDISPATCHABLE_HANDLES
@@ -316,9 +321,12 @@ WRAPPER(VkSampler)
 WRAPPER(VkSemaphore)
 WRAPPER(VkShaderModule)
 WRAPPER(VkDebugReportCallbackEXT)
+WRAPPER(VkObjectTableNVX)
+WRAPPER(VkIndirectCommandsLayoutNVX)
 #else  // DISTINCT_NONDISPATCHABLE_HANDLES
 WRAPPER(uint64_t)
 #endif // DISTINCT_NONDISPATCHABLE_HANDLES
+
 
 static std::unordered_map<void *, layer_data *> layer_data_map;
 static std::mutex command_pool_lock;

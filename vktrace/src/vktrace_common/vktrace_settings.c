@@ -129,16 +129,14 @@ char* vktrace_SettingInfo_stringify_value(vktrace_SettingInfo* pSetting)
         break;
     case VKTRACE_SETTING_UINT:
         {
-            char value[100];
-            memset(value, 0, 100);
+            char value[100] = {0};
             sprintf(value, "%u", *pSetting->Data.pUint);
             return vktrace_allocate_and_copy(value);
         }
         break;
     case VKTRACE_SETTING_INT:
         {
-            char value[100];
-            memset(value, 0, 100);
+            char value[100] = {0};
             sprintf(value, "%d", *pSetting->Data.pInt);
             return vktrace_allocate_and_copy(value);
         }
@@ -264,11 +262,12 @@ void vktrace_SettingGroup_Add_Info(vktrace_SettingInfo* pSrcInfo, vktrace_Settin
         memset(&info, 0, sizeof(vktrace_SettingInfo));
 
         // copy necessary buffers so that deletion works correctly
-        info.pShortName = pSrcInfo->pShortName;
+        info.pShortName = vktrace_allocate_and_copy(pSrcInfo->pShortName);
         info.pLongName = vktrace_allocate_and_copy(pSrcInfo->pLongName);
         info.type = VKTRACE_SETTING_STRING;
         info.Data.ppChar = vktrace_malloc(sizeof(char**));
         *info.Data.ppChar = vktrace_SettingInfo_stringify_value(pSrcInfo);
+        info.pDesc = NULL;
 
         // add it to the current group
         pTmp = pDestGroup->pSettings;
@@ -519,17 +518,26 @@ void vktrace_SettingGroup_Delete_Loaded(vktrace_SettingGroup** ppSettingGroups, 
 
         for (s = 0; s < pGroup->numSettings; s++)
         {
+            vktrace_free((void*)pGroup->pSettings[s].pShortName);
+            pGroup->pSettings[s].pShortName = NULL;
+
             vktrace_free((void*)pGroup->pSettings[s].pLongName);
             pGroup->pSettings[s].pLongName = NULL;
+
             vktrace_free(*pGroup->pSettings[s].Data.ppChar);
             vktrace_free(pGroup->pSettings[s].Data.ppChar);
+            pGroup->pSettings[s].Data.ppChar = NULL;
+
+            vktrace_free((void*)pGroup->pSettings[s].pDesc);
+            pGroup->pSettings[s].pDesc = NULL;
+
         }
 
-        VKTRACE_DELETE(pGroup->pSettings);
+        vktrace_free((void*)pGroup->pSettings);
         pGroup->pSettings = NULL;
     }
 
-    VKTRACE_DELETE(*ppSettingGroups);
+    vktrace_free(*ppSettingGroups);
     *pNumSettingGroups = 0;
 }
 
