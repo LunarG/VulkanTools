@@ -130,7 +130,7 @@ void vktrace_process_info_delete(vktrace_process_info* pInfo)
 
     if (pInfo->pTraceFile != NULL)
     {
-        vktrace_LogAlways("Closing trace file: '%s'", pInfo->traceFilename);
+        vktrace_LogDebug("Closing trace file: '%s'", pInfo->traceFilename);
         fclose(pInfo->pTraceFile);
     }
 

@@ -48,6 +48,7 @@ private:
     PageGuardChangedBlockInfo EmptyChangedInfoArray;
     std::unordered_map< VkDeviceMemory, PageGuardMappedMemory > MapMemory;
     std::unordered_map< VkDeviceMemory, PBYTE > MapMemoryPtr;
+    std::unordered_map< VkDeviceMemory, VkDeviceSize > MapMemorySize;
     std::unordered_map< VkDeviceMemory, VkDeviceSize > MapMemoryOffset;
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
     int clearRefsFd;
@@ -66,6 +67,8 @@ public:
     void* getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory);
 
     VkDeviceSize getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
+
+    VkDeviceSize getMappedMemorySize(VkDevice device, VkDeviceMemory memory);
 
     /// return: if it's target mapped memory and no change at all;
     /// PBYTE *ppPackageDataforOutOfMap, must be an array include memoryRangeCount elements

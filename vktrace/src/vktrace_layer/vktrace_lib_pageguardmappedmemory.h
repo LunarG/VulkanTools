@@ -46,11 +46,6 @@ private:
 
     VkDeviceSize PageGuardSize; /// size for one block
 
-#if defined(PLATFORM_LINUX)
-    void clearRefs();
-    int clearRefsFd;
-#endif
-
 protected:
     PageStatusArray *pPageStatus;
     bool BlockConflictError; /// record if any block has been read by host and also write by host
