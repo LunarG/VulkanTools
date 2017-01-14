@@ -337,7 +337,12 @@ The Vulkan loader "libvulkan.so.1" couldn't be found on your system.  This file 
 some Vulkan-capable games, or the LunarG Vulkan SDK.
 
 ##### Possible Reason:
-The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
+ 1. There is no Vulkan loader installed to a system folder.
+ 2. The user didn't set up the LD_LIBRARY_PATH environment variable to point to a local folder containing libvulkan.so.1.
+```
+ export LD_LIBRARY_PATH=/home/<user>/sdk/VulkanSDK/1.0.39.0/x64_86/lib
+```
+
 
 ##### Next Step:
 See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.

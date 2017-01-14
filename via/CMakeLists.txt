@@ -52,6 +52,10 @@ else()
         link_libraries(${WAYLAND_CLIENT_LIBRARIES})
     endif()
 
+    # Disable the RPATH for VIA because we want it to use
+    # the environment setup by the user
+    SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
+
     link_libraries(${API_LOWERCASE} m)
 
 endif()
