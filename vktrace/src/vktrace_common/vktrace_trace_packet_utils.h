@@ -64,7 +64,7 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
     }
     else
     {
-        vktrace_LogAlways("Creating trace file: '%s'", pProcInfo->traceFilename);
+        vktrace_LogDebug("Creating trace file: '%s'", pProcInfo->traceFilename);
     }
 
     // populate header information

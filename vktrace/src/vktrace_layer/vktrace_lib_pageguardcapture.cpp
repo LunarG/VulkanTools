@@ -72,6 +72,7 @@ void PageGuardCapture::vkMapMemoryPageGuardHandle(
     }
     MapMemoryPtr[memory] = (PBYTE)(*ppData);
     MapMemoryOffset[memory] = offset;
+    MapMemorySize[memory] = size;
 }
 
 void PageGuardCapture::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void** MappedData, vkFlushMappedMemoryRangesFunc pFunc)
@@ -86,6 +87,7 @@ void PageGuardCapture::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMem
     }
     MapMemoryPtr.erase(memory);
     MapMemoryOffset.erase(memory);
+    MapMemorySize.erase(memory);
 }
 
 void* PageGuardCapture::getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory)
@@ -96,6 +98,11 @@ void* PageGuardCapture::getMappedMemoryPointer(VkDevice device, VkDeviceMemory m
 VkDeviceSize PageGuardCapture::getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory)
 {
     return MapMemoryOffset[memory];
+}
+
+VkDeviceSize PageGuardCapture::getMappedMemorySize(VkDevice device, VkDeviceMemory memory)
+{
+    return MapMemorySize[memory];
 }
 
 //return: if it's target mapped memory and no change at all;
@@ -119,7 +126,7 @@ bool PageGuardCapture::vkFlushMappedMemoryRangesPageGuardHandle(
         {
             if (pRange->size == VK_WHOLE_SIZE)
             {
-                pRange->size = lpOPTMemoryTemp->getMappedSize() - pRange->offset;
+                pRange->size = lpOPTMemoryTemp->getMappedSize() - (pRange->offset - lpOPTMemoryTemp->MappedOffset);
             }
             if (lpOPTMemoryTemp->vkFlushMappedMemoryRangePageGuardHandle(device, pRange->memory, pRange->offset, pRange->size, nullptr, nullptr, nullptr))
             {
@@ -132,7 +139,7 @@ bool PageGuardCapture::vkFlushMappedMemoryRangesPageGuardHandle(
             VkDeviceSize RealRangeSize = pRange->size;
             if (RealRangeSize == VK_WHOLE_SIZE)
             {
-                RealRangeSize = pRange->size;//have to replace with real size, here just for break point
+                RealRangeSize = MapMemorySize[pRange->memory] - (pRange->offset - MapMemoryOffset[pRange->memory]);
             }
             ppPackageDataforOutOfMap[i] = (PBYTE)pageguardAllocateMemory(RealRangeSize + 2 * sizeof(PageGuardChangedBlockInfo));
             PageGuardChangedBlockInfo *pInfoTemp = (PageGuardChangedBlockInfo *)ppPackageDataforOutOfMap[i];

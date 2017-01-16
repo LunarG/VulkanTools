@@ -77,12 +77,29 @@ struct GlobalItems {
 // Create a global variable used to store the global settings
 GlobalItems global_items = {};
 
-// Error messages thrown by the application
+// Error messages
 enum ErrorResults {
-    VULKAN_CANT_FIND_DRIVER = -2,
-    MISSING_DRIVER_REGISTRY = -3,
-    MISSING_DRIVER_JSON = -4,
-    MISSING_DRIVER_LIB = -5,
+    SUCCESSFUL = 0,
+
+    UNKNOWN_ERROR = -1,
+    SYSTEM_CALL_FAILURE = -2,
+
+    MISSING_DRIVER_REGISTRY = -20,
+    MISSING_DRIVER_JSON = -21,
+    DRIVER_JSON_PARSING_ERROR = -22,
+    MISSING_DRIVER_LIB = -23,
+    MISSING_LAYER_JSON = -24,
+    LAYER_JSON_PARSING_ERROR = -25,
+    MISSING_LAYER_LIB = -26,
+
+    VULKAN_CANT_FIND_RUNTIME = -40,
+    VULKAN_CANT_FIND_DRIVER = -41,
+    VULKAN_CANT_FIND_EXTENSIONS = -42,
+    VULKAN_FAILED_CREATE_INSTANCE = -43,
+    VULKAN_FAILED_CREATE_DEVICE = -44,
+    VULKAN_FAILED_OUT_OF_MEM = -45,
+
+    TEST_FAILED = -60,
 };
 
 // Structure used to store name/value pairs read from the
@@ -94,197 +111,252 @@ struct SettingPair {
 
 void StartOutput(std::string title);
 void EndOutput();
-void PrintSystemInfo(void);
-void PrintVulkanInfo(void);
-void PrintDriverInfo(void);
-void PrintRunTimeInfo(void);
-void PrintSDKInfo(void);
+ErrorResults PrintSystemInfo(void);
+ErrorResults PrintVulkanInfo(void);
+ErrorResults PrintDriverInfo(void);
+ErrorResults PrintRunTimeInfo(void);
+ErrorResults PrintSDKInfo(void);
 void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
                                 Json::Value root, uint32_t num_cols);
 void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
                                 Json::Value root);
-void PrintLayerInfo(void);
-void PrintLayerSettingsFileInfo(void);
-void PrintTestResults(void);
+ErrorResults PrintLayerInfo(void);
+ErrorResults PrintLayerSettingsFileInfo(void);
+ErrorResults PrintTestResults(void);
 std::string TrimWhitespace(const std::string &str,
                            const std::string &whitespace = " \t\n\r");
 
 int main(int argc, char **argv) {
     int err_val = 0;
-    try {
-        time_t time_raw_format;
-        struct tm *ptr_time;
-        char html_file_name[MAX_STRING_LENGTH];
-        char full_file[MAX_STRING_LENGTH];
-        char temp[MAX_STRING_LENGTH];
-        const char *output_path = NULL;
-        bool generate_unique_file = false;
-
-        // Check and handle command-line arguments
-        if (argc > 1) {
-            for (int iii = 1; iii < argc; iii++) {
-                if (0 == strcmp("--unique_output", argv[iii])) {
-                    generate_unique_file = true;
-                } else if (0 == strcmp("--output_path", argv[iii]) &&
-                           argc > (iii + 1)) {
-                    output_path = argv[iii + 1];
-                    ++iii;
-                } else {
-                    std::cout
-                        << "Usage of via.exe:" << std::endl
-                        << "    via.exe [--unique_output] "
-                           "[--output_path <path>]"
-                        << std::endl
-                        << "          [--unique_output] Optional "
-                           "parameter to generate a unique html"
-                        << std::endl
-                        << "                            "
-                           "output file in the form "
-                           "\'via_YYYY_MM_DD_HH_MM.html\'"
-                        << std::endl
-                        << "          [--output_path <path>"
-                           "] Optional parameter to generate the output at"
-                        << std::endl
-                        << "                               "
-                           "  a given path"
-                        << std::endl;
-                    throw(-1);
-                }
-            }
-        }
-
-        // If the user wants a specific output path, write it to the buffer
-        // and then continue writing the rest of the name below
-        size_t file_name_offset = 0;
-        if (output_path != NULL) {
-            file_name_offset = strlen(output_path) + 1;
-            strncpy(html_file_name, output_path, MAX_STRING_LENGTH - 1);
+    time_t time_raw_format;
+    struct tm *ptr_time;
+    char html_file_name[MAX_STRING_LENGTH];
+    char full_file[MAX_STRING_LENGTH];
+    char temp[MAX_STRING_LENGTH];
+    const char *output_path = NULL;
+    bool generate_unique_file = false;
+    ErrorResults res = SUCCESSFUL;
+    size_t file_name_offset = 0;
 #ifdef _WIN32
-            strncpy(html_file_name + file_name_offset - 1, "\\",
-                    MAX_STRING_LENGTH - file_name_offset);
-#else
-            strncpy(html_file_name + file_name_offset - 1, "/",
-                    MAX_STRING_LENGTH - file_name_offset);
+    int bytes;
+#elif __GNUC__
+    ssize_t len;
 #endif
-        }
 
-        // If the user wants a unique file, generate a file with the current
-        // time and date incorporated into it.
-        if (generate_unique_file) {
-            time(&time_raw_format);
-            ptr_time = localtime(&time_raw_format);
-            if (strftime(html_file_name + file_name_offset,
-                         MAX_STRING_LENGTH - 1, "via_%Y_%m_%d_%H_%M.html",
-                         ptr_time) == 0) {
-                std::cerr << "Couldn't prepare formatted string" << std::endl;
-                throw(-1);
+    // Check and handle command-line arguments
+    if (argc > 1) {
+        for (int iii = 1; iii < argc; iii++) {
+            if (0 == strcmp("--unique_output", argv[iii])) {
+                generate_unique_file = true;
+            } else if (0 == strcmp("--output_path", argv[iii]) &&
+                       argc > (iii + 1)) {
+                output_path = argv[iii + 1];
+                ++iii;
+            } else {
+                std::cout
+                    << "Usage of via.exe:" << std::endl
+                    << "    via.exe [--unique_output] "
+                       "[--output_path <path>]"
+                    << std::endl
+                    << "          [--unique_output] Optional "
+                       "parameter to generate a unique html"
+                    << std::endl
+                    << "                            "
+                       "output file in the form "
+                       "\'via_YYYY_MM_DD_HH_MM.html\'"
+                    << std::endl
+                    << "          [--output_path <path>"
+                       "] Optional parameter to generate the output at"
+                    << std::endl
+                    << "                               "
+                       "  a given path"
+                    << std::endl;
+                goto out;
             }
-        } else {
-            strncpy(html_file_name + file_name_offset, "via.html",
-                    MAX_STRING_LENGTH - 1 - file_name_offset);
         }
+    }
 
-        // Write the output file to the current executing directory, or, if
-        // that fails, write it out to the user's home folder.
-        global_items.html_file_stream.open(html_file_name);
+    // If the user wants a specific output path, write it to the buffer
+    // and then continue writing the rest of the name below
+    if (output_path != NULL) {
+        file_name_offset = strlen(output_path) + 1;
+        strncpy(html_file_name, output_path, MAX_STRING_LENGTH - 1);
+#ifdef _WIN32
+        strncpy(html_file_name + file_name_offset - 1, "\\",
+                MAX_STRING_LENGTH - file_name_offset);
+#else
+        strncpy(html_file_name + file_name_offset - 1, "/",
+                MAX_STRING_LENGTH - file_name_offset);
+#endif
+    }
+
+    // If the user wants a unique file, generate a file with the current
+    // time and date incorporated into it.
+    if (generate_unique_file) {
+        time(&time_raw_format);
+        ptr_time = localtime(&time_raw_format);
+        if (strftime(html_file_name + file_name_offset,
+                     MAX_STRING_LENGTH - 1, "via_%Y_%m_%d_%H_%M.html",
+                     ptr_time) == 0) {
+            std::cerr << "Couldn't prepare formatted string" << std::endl;
+            goto out;
+        }
+    } else {
+        strncpy(html_file_name + file_name_offset, "via.html",
+                MAX_STRING_LENGTH - 1 - file_name_offset);
+    }
+
+    // Write the output file to the current executing directory, or, if
+    // that fails, write it out to the user's home folder.
+    global_items.html_file_stream.open(html_file_name);
+    if (global_items.html_file_stream.fail()) {
+#ifdef _WIN32
+        char home_drive[32];
+        if (0 != GetEnvironmentVariableA("HOMEDRIVE", home_drive, 31) ||
+            0 != GetEnvironmentVariableA("HOMEPATH", temp,
+                                         MAX_STRING_LENGTH - 1)) {
+            std::cerr << "Error failed to get either HOMEDRIVE or HOMEPATH "
+                         "from environment settings!"
+                      << std::endl;
+            goto out;
+        }
+        snprintf(full_file, MAX_STRING_LENGTH - 1, "%s%s\\%s", home_drive,
+                 temp, html_file_name);
+#else
+        snprintf(full_file, MAX_STRING_LENGTH - 1, "~/%s", html_file_name);
+#endif
+        global_items.html_file_stream.open(full_file);
         if (global_items.html_file_stream.fail()) {
-#ifdef _WIN32
-            char home_drive[32];
-            if (0 != GetEnvironmentVariableA("HOMEDRIVE", home_drive, 31) ||
-                0 != GetEnvironmentVariableA("HOMEPATH", temp,
-                                             MAX_STRING_LENGTH - 1)) {
-                std::cerr << "Error failed to get either HOMEDRIVE or HOMEPATH "
-                             "from environment settings!"
-                          << std::endl;
-                throw(-1);
-            }
-            snprintf(full_file, MAX_STRING_LENGTH - 1, "%s%s\\%s", home_drive,
-                     temp, html_file_name);
-#else
-            snprintf(full_file, MAX_STRING_LENGTH - 1, "~/%s", html_file_name);
-#endif
-            global_items.html_file_stream.open(full_file);
-            if (global_items.html_file_stream.fail()) {
-                std::cerr << "Error failed opening html file stream to "
-                             "either current"
-                             " folder as "
-                          << html_file_name << " or home folder as "
-                          << full_file << std::endl;
-                throw(-1);
-            }
+            std::cerr << "Error failed opening html file stream to "
+                         "either current"
+                         " folder as "
+                      << html_file_name << " or home folder as "
+                      << full_file << std::endl;
+            goto out;
         }
+    }
 
-        global_items.cur_table = 0;
+    global_items.cur_table = 0;
 
 // Determine where we are executing at.
 #ifdef _WIN32
-        int bytes = GetModuleFileName(NULL, temp, MAX_STRING_LENGTH - 1);
-        if (0 < bytes) {
-            std::string exe_location = temp;
-            global_items.exe_directory =
-                exe_location.substr(0, exe_location.rfind("\\"));
+    bytes = GetModuleFileName(NULL, temp, MAX_STRING_LENGTH - 1);
+    if (0 < bytes) {
+        std::string exe_location = temp;
+        global_items.exe_directory =
+            exe_location.substr(0, exe_location.rfind("\\"));
 
-            size_t index = 0;
-            while (true) {
-                index = global_items.exe_directory.find("\\", index);
-                if (index == std::string::npos) {
-                    break;
-                }
-                global_items.exe_directory.replace(index, 1, "/");
-                index++;
+        size_t index = 0;
+        while (true) {
+            index = global_items.exe_directory.find("\\", index);
+            if (index == std::string::npos) {
+                break;
             }
-        } else {
-            global_items.exe_directory = "";
+            global_items.exe_directory.replace(index, 1, "/");
+            index++;
         }
+    } else {
+        global_items.exe_directory = "";
+    }
 
 #elif __GNUC__
-        ssize_t len = ::readlink("/proc/self/exe", temp, MAX_STRING_LENGTH - 1);
-        if (0 < len) {
-            std::string exe_location = temp;
-            global_items.exe_directory =
-                exe_location.substr(0, exe_location.rfind("/"));
-        } else {
-            global_items.exe_directory = "";
-        }
+    len = ::readlink("/proc/self/exe", temp, MAX_STRING_LENGTH - 1);
+    if (0 < len) {
+        std::string exe_location = temp;
+        global_items.exe_directory =
+            exe_location.substr(0, exe_location.rfind("/"));
+    } else {
+        global_items.exe_directory = "";
+    }
 #endif
 
-        StartOutput("LunarG VIA");
+    StartOutput("LunarG VIA");
 
-        PrintSystemInfo();
-        PrintVulkanInfo();
-        PrintTestResults();
-        EndOutput();
-    } catch (int e) {
-        // Print out a useful message for any common errors.
-        switch (e) {
-        case MISSING_DRIVER_REGISTRY:
-            std::cout << "ERROR: Failed to find Vulkan Driver JSON in registry"
-                      << std::endl;
-            break;
-        case MISSING_DRIVER_JSON:
-            std::cout << "ERROR: Failed to find Vulkan Driver JSON"
-                      << std::endl;
-            break;
-        case MISSING_DRIVER_LIB:
-            std::cout << "ERROR: Failed to find Vulkan Driver Lib" << std::endl;
-            break;
-        case VULKAN_CANT_FIND_DRIVER:
-            std::cout << "ERROR: Vulkan failed to find a compatible driver"
-                      << std::endl;
-            break;
-        default:
-            std::cout << "ERROR: Uknown failure occurred.  Refer to HTML for "
-                         "more info"
-                      << std::endl;
-            break;
-        }
-        err_val = e;
+    res = PrintSystemInfo();
+    if (res != SUCCESSFUL) {
+        goto out;
     }
+    res = PrintVulkanInfo();
+    if (res != SUCCESSFUL) {
+        goto out;
+    }
+    res = PrintTestResults();
+    EndOutput();
+
+out:
+
+    // Print out a useful message for any common errors.
+    switch (res) {
+    case SUCCESSFUL:
+        std::cout << "SUCCESS: Validation completed properly." << std::endl;
+        break;
+    case SYSTEM_CALL_FAILURE:
+        std::cout << "ERROR: Failure occurred during system call." << std::endl;
+        break;
+    case MISSING_DRIVER_REGISTRY:
+        std::cout << "ERROR: Failed to find Vulkan Driver JSON in registry."
+                  << std::endl;
+        break;
+    case MISSING_DRIVER_JSON:
+        std::cout << "ERROR: Failed to find Vulkan Driver JSON."
+                  << std::endl;
+        break;
+    case DRIVER_JSON_PARSING_ERROR:
+        std::cout << "ERROR: Failed to properly parse Vulkan Driver JSON."
+                  << std::endl;
+        break;
+    case MISSING_DRIVER_LIB:
+        std::cout << "ERROR: Failed to find Vulkan Driver Lib." << std::endl;
+        break;
+    case MISSING_LAYER_JSON:
+        std::cout << "ERROR: Failed to find Vulkan Layer JSON."
+                  << std::endl;
+        break;
+    case LAYER_JSON_PARSING_ERROR:
+        std::cout << "ERROR: Failed to properly parse Vulkan Layer JSON."
+                  << std::endl;
+        break;
+    case MISSING_LAYER_LIB:
+        std::cout << "ERROR: Failed to find Vulkan Layer Lib." << std::endl;
+        break;
+    case VULKAN_CANT_FIND_RUNTIME:
+        std::cout << "ERROR: Vulkan failed to find a Vulkan Runtime to use."
+                  << std::endl;
+        break;
+    case VULKAN_CANT_FIND_DRIVER:
+        std::cout << "ERROR: Vulkan failed to find a compatible driver."
+                  << std::endl;
+        break;
+    case VULKAN_CANT_FIND_EXTENSIONS:
+        std::cout << "ERROR: Failed to find expected Vulkan Extensions."
+                  << "  This may indicate a bad driver install." << std::endl;
+        break;
+    case VULKAN_FAILED_CREATE_INSTANCE:
+        std::cout << "ERROR: Unknown error while attempting to create Vulkan Instance."
+                  << std::endl;
+        break;
+    case VULKAN_FAILED_CREATE_DEVICE:
+        std::cout << "ERROR: Unknown error while attempting to create Vulkan Device."
+                  << std::endl;
+        break;
+    case VULKAN_FAILED_OUT_OF_MEM:
+        std::cout << "ERROR: Vulkan Loader, Layer, or Driver ran out of memory."
+                  << std::endl;
+        break;
+    case TEST_FAILED:
+        std::cout << "ERROR: Unknown Test failure occurred." << std::endl;
+        break;
+    case UNKNOWN_ERROR:
+    default:
+        std::cout << "ERROR: Uknown failure occurred.  Refer to HTML for "
+                     "more info"
+                  << std::endl;
+        break;
+    }
+    err_val = static_cast<int>(res);
+
     global_items.html_file_stream.close();
 
-    if (err_val == 0) {
-        std::cout << "SUCCESS: Validation completed properly" << std::endl;
-    }
     return err_val;
 }
 
@@ -828,7 +900,8 @@ int RunTestInDirectory(std::string path, std::string test,
 
 // Print out any information about the current system that we can
 // capture to ease in debugging/investigation at a later time.
-void PrintSystemInfo(void) {
+ErrorResults PrintSystemInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     OSVERSIONINFOEX os_info;
     SYSTEM_INFO sys_info;
     MEMORYSTATUSEX mem_stat;
@@ -1108,7 +1181,8 @@ void PrintSystemInfo(void) {
         PrintTableElement("Error retrieving Windows Version");
         PrintTableElement("");
         PrintEndTableRow();
-        throw(-1);
+        res = UNKNOWN_ERROR;
+        goto out;
     }
 
     if (0 != GetEnvironmentVariableA("SYSTEMROOT", system_root_dir,
@@ -1397,12 +1471,19 @@ void PrintSystemInfo(void) {
     PrintEndTable();
 
     // Now print out the remaining system info.
-    PrintDriverInfo();
+    res = PrintDriverInfo();
+    if (res != SUCCESSFUL) {
+        goto out;
+    }
     PrintRunTimeInfo();
-    PrintSDKInfo();
-    PrintLayerInfo();
-    PrintLayerSettingsFileInfo();
+    res = PrintSDKInfo();
+    res = PrintLayerInfo();
+    res = PrintLayerSettingsFileInfo();
     EndSection();
+
+out:
+
+    return res;
 }
 
 // Determine what version an executable or library file is.
@@ -1633,8 +1714,8 @@ out:
 
 // Print out the information for every driver in the appropriate
 // Windows registry location and its corresponding JSON file.
-void PrintDriverInfo(void) {
-    bool failed = false;
+ErrorResults PrintDriverInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
     const char vulkan_reg_base_wow64[] =
         "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
@@ -1840,28 +1921,23 @@ void PrintDriverInfo(void) {
         } while (keep_looping);
     }
 
-    if (!found_registry || !found_json || !found_lib) {
-        failed = true;
-    }
-
     PrintEndTable();
 
-    if (failed) {
-        if (!found_registry) {
-            throw MISSING_DRIVER_REGISTRY;
-        } else if (!found_json) {
-            throw MISSING_DRIVER_JSON;
-        } else if (!found_lib) {
-            throw MISSING_DRIVER_LIB;
-        } else {
-            throw(-1);
-        }
+    if (!found_registry) {
+        res = MISSING_DRIVER_REGISTRY;
+    } else if (!found_json) {
+        res = MISSING_DRIVER_JSON;
+    } else if (!found_lib) {
+        res = MISSING_DRIVER_LIB;
     }
+
+    return res;
 }
 
 // Print out whatever Vulkan runtime information we can gather from the system
-// via registry, standard system paths, etc.
-void PrintRunTimeInfo(void) {
+// using the registry, standard system paths, etc.
+ErrorResults PrintRunTimeInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     char generic_string[MAX_STRING_LENGTH];
     char count_string[MAX_STRING_LENGTH];
     char version_string[MAX_STRING_LENGTH];
@@ -1871,6 +1947,7 @@ void PrintRunTimeInfo(void) {
     uint32_t i = 0;
     uint32_t install_count = 0;
     FILE *fp = NULL;
+    bool found = false;
 
     PrintBeginTable("Vulkan Runtimes", 3);
 
@@ -1984,6 +2061,7 @@ void PrintRunTimeInfo(void) {
                     PrintTableElement(generic_string);
                     PrintTableElement("");
                 }
+                found = true;
             }
             fclose(fp);
         }
@@ -1995,12 +2073,19 @@ void PrintRunTimeInfo(void) {
     PrintEndTableRow();
 
     PrintEndTable();
+
+    if (!found) {
+        res = VULKAN_CANT_FIND_RUNTIME;
+    }
+
+    return res;
 }
 
 // Print out information on whatever LunarG Vulkan SDKs we can find on
 // the system using the registry, and environmental variables.  This
 // includes listing what layers are available from the SDK.
-void PrintSDKInfo(void) {
+ErrorResults PrintSDKInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
     const char vulkan_reg_base_wow64[] =
         "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
@@ -2014,7 +2099,6 @@ void PrintSDKInfo(void) {
     uint32_t j = 0;
     FILE *fp = NULL;
     bool found = false;
-    bool failed = false;
 
     PrintBeginTable("LunarG Vulkan SDKs", 3);
     PrintBeginTableRow();
@@ -2122,7 +2206,7 @@ void PrintSDKInfo(void) {
             PrintTableElement("ERROR reading JSON file!");
             PrintTableElement("");
             PrintEndTableRow();
-            failed = true;
+            res = MISSING_LAYER_JSON;
         } else {
             Json::Value root = Json::nullValue;
             Json::Reader reader;
@@ -2134,7 +2218,7 @@ void PrintSDKInfo(void) {
                 PrintTableElement("ERROR parsing JSON file!");
                 PrintTableElement(reader.getFormattedErrorMessages());
                 PrintEndTableRow();
-                failed = true;
+                res = LAYER_JSON_PARSING_ERROR;
             } else {
                 PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root, 3);
             }
@@ -2154,15 +2238,14 @@ void PrintSDKInfo(void) {
 
     PrintEndTable();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 // Print out whatever layers we can find out from the Windows'
 // registry and other environmental variables that may be used
 // to point the Vulkan loader at a layer path.
-void PrintLayerInfo(void) {
+ErrorResults PrintLayerInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
     const char vulkan_reg_base_wow64[] =
         "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
@@ -2174,7 +2257,6 @@ void PrintLayerInfo(void) {
     uint32_t i = 0;
     uint32_t j = 0;
     FILE *fp = NULL;
-    bool failed = false;
 
 // Dump implicit layer information first.
 #if _WIN64 || __x86_64__ || __ppc64__
@@ -2224,7 +2306,7 @@ void PrintLayerInfo(void) {
             PrintTableElement("ERROR reading JSON file!");
             PrintTableElement("");
             PrintEndTableRow();
-            failed = true;
+            res = MISSING_LAYER_JSON;
         } else {
             Json::Value root = Json::nullValue;
             Json::Reader reader;
@@ -2236,7 +2318,7 @@ void PrintLayerInfo(void) {
                 PrintTableElement("ERROR parsing JSON file!");
                 PrintTableElement(reader.getFormattedErrorMessages());
                 PrintEndTableRow();
-                failed = true;
+                res = LAYER_JSON_PARSING_ERROR;
             } else {
                 PrintImplicitLayerJsonInfo(cur_vulkan_layer_json, root);
             }
@@ -2317,7 +2399,7 @@ void PrintLayerInfo(void) {
                             PrintTableElement("ERROR reading JSON file!");
                             PrintTableElement("");
                             PrintEndTableRow();
-                            failed = true;
+                            res = MISSING_LAYER_JSON;
                         } else {
                             Json::Value root = Json::nullValue;
                             Json::Reader reader;
@@ -2331,7 +2413,7 @@ void PrintLayerInfo(void) {
                                 PrintTableElement(
                                     reader.getFormattedErrorMessages());
                                 PrintEndTableRow();
-                                failed = true;
+                                res = LAYER_JSON_PARSING_ERROR;
                             } else {
                                 PrintExplicitLayerJsonInfo(
                                     cur_vulkan_layer_json, root, 3);
@@ -2358,9 +2440,7 @@ void PrintLayerInfo(void) {
         PrintEndTable();
     }
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 #elif __GNUC__
@@ -2453,7 +2533,8 @@ out:
 
 // Print out any information about the current system that we can
 // capture to ease in debugging/investigation at a later time.
-void PrintSystemInfo(void) {
+ErrorResults PrintSystemInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     FILE *fp;
     char path[1035];
     char generic_string[MAX_STRING_LENGTH];
@@ -2462,7 +2543,6 @@ void PrintSystemInfo(void) {
     int num_cpus;
     uint64_t memory;
     char *env_value;
-    bool failed = false;
     std::string cur_directory;
     std::string exe_directory;
     std::string desktop_session;
@@ -2480,7 +2560,7 @@ void PrintSystemInfo(void) {
         PrintTableElement("Failed to cat /etc/os-release");
         PrintTableElement("");
         PrintEndTableRow();
-        failed = true;
+        res = SYSTEM_CALL_FAILURE;
     } else {
         // Read the output a line at a time - output it.
         while (fgets(path, sizeof(path) - 1, fp) != NULL) {
@@ -2521,7 +2601,7 @@ void PrintSystemInfo(void) {
         PrintTableElement("ERROR");
         PrintTableElement("Failed to query uname");
         PrintEndTableRow();
-        failed = true;
+        res = SYSTEM_CALL_FAILURE;
     } else {
         PrintBeginTableRow();
         PrintTableElement("");
@@ -2749,16 +2829,14 @@ void PrintSystemInfo(void) {
     PrintEndTable();
 
     // Print out the rest of the useful system information.
-    PrintDriverInfo();
-    PrintRunTimeInfo();
-    PrintSDKInfo();
-    PrintLayerInfo();
-    PrintLayerSettingsFileInfo();
+    res = PrintDriverInfo();
+    res = PrintRunTimeInfo();
+    res = PrintSDKInfo();
+    res = PrintLayerInfo();
+    res = PrintLayerSettingsFileInfo();
     EndSection();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
@@ -2945,8 +3023,8 @@ out:
 
 // Print out the information for every driver JSON in the appropriate
 // system folders.
-void PrintDriverInfo(void) {
-    bool failed = false;
+ErrorResults PrintDriverInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     bool found_json = false;
     bool found_lib = false;
     bool found_this_lib = false;
@@ -3109,30 +3187,23 @@ void PrintDriverInfo(void) {
         }
     }
 
-    if (!found_json || !found_lib) {
-        failed = true;
-    }
-
     PrintEndTable();
 
-    if (failed) {
-        if (!found_json) {
-            throw MISSING_DRIVER_JSON;
-        } else if (!found_lib) {
-            throw MISSING_DRIVER_LIB;
-        } else {
-            throw(-1);
-        }
+    if (!found_json) {
+        res = MISSING_DRIVER_JSON;
+    } else if (!found_lib) {
+        res = MISSING_DRIVER_LIB;
     }
+
+    return res;
 }
 
 // Print out all the runtime files found in a given location.  This way we
 // capture the full state of the system.
-bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
+ErrorResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
                            bool print_header = true) {
     DIR *runtime_dir;
-    bool success = false;
-    bool failed = false;
+    ErrorResults res = SUCCESSFUL;
 
     runtime_dir = opendir(folder_loc.c_str());
     if (NULL != runtime_dir) {
@@ -3173,7 +3244,7 @@ bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
                 if (pfp == NULL) {
                     PrintTableElement(cur_ent->d_name);
                     PrintTableElement("Failed to retrieve symbolic link");
-                    failed = true;
+                    res = SYSTEM_CALL_FAILURE;
                 } else {
                     if (NULL != fgets(path, sizeof(path) - 1, pfp)) {
                         std::string cmd = path;
@@ -3214,8 +3285,6 @@ bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
             PrintEndTableRow();
         }
         closedir(runtime_dir);
-
-        success = !failed;
     } else {
         PrintBeginTableRow();
         PrintTableElement(folder_loc, ALIGN_RIGHT);
@@ -3224,24 +3293,24 @@ bool PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
         PrintEndTableRow();
     }
 
-    return success;
+    return res;
 }
 
 // Utility function to determine if a runtime exists in the folder
 bool CheckRuntime(std::string &folder_loc, std::string &object_name) {
-    return PrintRuntimesInFolder(folder_loc, object_name);
+    return (SUCCESSFUL == PrintRuntimesInFolder(folder_loc, object_name));
 }
 
 // Print out whatever Vulkan runtime information we can gather from the
 // standard system paths, etc.
-void PrintRunTimeInfo(void) {
+ErrorResults PrintRunTimeInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     const char vulkan_so_prefix[] = "libvulkan.so.";
     char path[1035];
     char generic_string[MAX_STRING_LENGTH];
     char buff[PATH_MAX];
     std::string runtime_dir_name;
     FILE *pfp;
-    bool failed = false;
     PrintBeginTable("Vulkan Runtimes", 3);
 
     PrintBeginTableRow();
@@ -3251,7 +3320,7 @@ void PrintRunTimeInfo(void) {
     PrintEndTableRow();
 
     if (!FindLinuxSystemObject(vulkan_so_prefix, CheckRuntime, false)) {
-        failed = true;
+        res = VULKAN_CANT_FIND_RUNTIME;
     }
 
     ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff) - 1);
@@ -3267,7 +3336,7 @@ void PrintRunTimeInfo(void) {
             PrintTableElement("Failed to query via library info");
             PrintTableElement("");
             PrintEndTableRow();
-            failed = true;
+            res = SYSTEM_CALL_FAILURE;
         } else {
             bool found = false;
             while (fgets(path, sizeof(path) - 1, pfp) != NULL) {
@@ -3296,16 +3365,17 @@ void PrintRunTimeInfo(void) {
                         PrintEndTableRow();
 
                         std::string find_so = vulkan_so_prefix;
-                        if (!PrintRuntimesInFolder(trimmed, find_so, false)) {
-                            failed = true;
+                        ErrorResults temp_res = PrintRuntimesInFolder(trimmed, find_so, false);
+                        if (!found) {
+                            res = temp_res;
                         } else {
                             // We found one runtime, clear any failures
-                            if (failed) {
-                                failed = false;
+                            if (res == VULKAN_CANT_FIND_RUNTIME) {
+                                res = SUCCESSFUL;
+                                found = true;
                             }
                         }
                     }
-                    found = !failed;
                     break;
                 }
             }
@@ -3323,16 +3393,14 @@ void PrintRunTimeInfo(void) {
 
     PrintEndTable();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 // Print out the explicit layers that are stored in any of the standard
 // locations.
-bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
+ErrorResults PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
+    ErrorResults res = SUCCESSFUL;
     DIR *layer_dir;
-    bool success = false;
 
     layer_dir = opendir(folder_loc.c_str());
     if (NULL != layer_dir) {
@@ -3340,7 +3408,6 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
         std::string cur_layer;
         char generic_string[MAX_STRING_LENGTH];
         uint32_t i = 0;
-        bool failed = false;
         bool found_json = false;
 
         PrintBeginTableRow();
@@ -3368,7 +3435,7 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
                     PrintTableElement(cur_ent->d_name);
                     PrintTableElement("ERROR reading JSON file!");
                     PrintEndTableRow();
-                    failed = true;
+                    res = MISSING_LAYER_JSON;
                 } else {
                     Json::Value root = Json::nullValue;
                     Json::Reader reader;
@@ -3380,7 +3447,7 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
                         PrintTableElement(cur_ent->d_name);
                         PrintTableElement(reader.getFormattedErrorMessages());
                         PrintEndTableRow();
-                        failed = true;
+                        res = LAYER_JSON_PARSING_ERROR;
                     } else {
                         PrintBeginTableRow();
                         PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -3406,27 +3473,22 @@ bool PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
             PrintEndTableRow();
         }
         closedir(layer_dir);
-
-        success = !failed;
     } else {
         PrintBeginTableRow();
         PrintTableElement(id, ALIGN_RIGHT);
         PrintTableElement(folder_loc);
         PrintTableElement("No such folder");
         PrintEndTableRow();
-
-        // This isn't a failure, just an attempt to read information
-        success = true;
     }
 
-    return success;
+    return res;
 }
 
 // Print out information on whatever LunarG Vulkan SDKs we can find on
 // the system using the standard locations and environmental variables.
 // This includes listing what layers are available from the SDK.
-void PrintSDKInfo(void) {
-    bool failed = false;
+ErrorResults PrintSDKInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     bool sdk_exists = false;
     std::string sdk_path;
     std::string sdk_env_name;
@@ -3456,7 +3518,7 @@ void PrintSDKInfo(void) {
             sdk_path = env_value;
             break;
         default:
-            failed = true;
+            res = UNKNOWN_ERROR;
             continue;
         }
 
@@ -3472,10 +3534,8 @@ void PrintSDKInfo(void) {
             }
             closedir(sdk_dir);
 
-            if (!PrintExplicitLayersInFolder(sdk_env_name,
-                                             explicit_layer_path)) {
-                failed = true;
-            }
+            res = PrintExplicitLayersInFolder(sdk_env_name,
+                                              explicit_layer_path);
 
             global_items.sdk_found = true;
             global_items.sdk_path = sdk_path;
@@ -3493,17 +3553,15 @@ void PrintSDKInfo(void) {
 
     PrintEndTable();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 // Print out whatever layers we can find out from other environmental
 // variables that may be used to point the Vulkan loader at a layer path.
-void PrintLayerInfo(void) {
+ErrorResults PrintLayerInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     uint32_t i = 0;
     char generic_string[MAX_STRING_LENGTH];
-    bool failed = false;
     char cur_vulkan_layer_json[MAX_STRING_LENGTH];
     DIR *layer_dir;
     dirent *cur_ent;
@@ -3572,7 +3630,7 @@ void PrintLayerInfo(void) {
                         PrintTableElement("ERROR reading JSON file!");
                         PrintTableElement("");
                         PrintEndTableRow();
-                        failed = true;
+                        res = MISSING_LAYER_JSON;
                     } else {
                         Json::Value root = Json::nullValue;
                         Json::Reader reader;
@@ -3586,7 +3644,7 @@ void PrintLayerInfo(void) {
                             PrintTableElement(
                                 reader.getFormattedErrorMessages());
                             PrintEndTableRow();
-                            failed = true;
+                            res = LAYER_JSON_PARSING_ERROR;
                         } else {
                             PrintExplicitLayerJsonInfo(cur_vulkan_layer_json,
                                                        root, 3);
@@ -3656,7 +3714,7 @@ void PrintLayerInfo(void) {
             continue;
         }
 
-        PrintExplicitLayersInFolder(explicit_layer_id, cur_layer_path);
+        res = PrintExplicitLayersInFolder(explicit_layer_id, cur_layer_path);
     }
 
     // Look at the VK_LAYER_PATH environment variable paths if it is set.
@@ -3680,20 +3738,18 @@ void PrintLayerInfo(void) {
                 cur_name.str("");
                 cur_name << "Path " << offset++;
                 explicit_layer_id = cur_name.str();
-                PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
+                res = PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
                 tok = strtok(NULL, ":");
             }
         } else {
             cur_json = env_value;
-            PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
+            res = PrintExplicitLayersInFolder(explicit_layer_id, cur_json);
         }
     }
 
     PrintEndTable();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 // Run the test in the specified directory with the corresponding
@@ -3750,8 +3806,8 @@ std::string TrimWhitespace(const std::string &str,
 // Print any information found on the current vk_layer_settings.txt
 // file being used.  It looks in the current folder first, and then will
 // look in any defined by the registry variable VK_LAYER_SETTINGS_PATH.
-void PrintLayerSettingsFileInfo(void) {
-    bool failed = false;
+ErrorResults PrintLayerSettingsFileInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     char *settings_path = NULL;
     std::string settings_file;
     std::map<std::string, std::vector<SettingPair>> settings;
@@ -3887,9 +3943,7 @@ void PrintLayerSettingsFileInfo(void) {
     }
     PrintEndTable();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 // Print out the information stored in an explicit layer's JSON file.
@@ -4191,7 +4245,8 @@ void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
 
 // Perform Vulkan commands to find out what extensions are available
 // to a Vulkan Instance, and attempt to create one.
-void PrintInstanceInfo(void) {
+ErrorResults PrintInstanceInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     VkApplicationInfo app_info;
     VkInstanceCreateInfo inst_info;
     uint32_t ext_count;
@@ -4228,6 +4283,7 @@ void PrintInstanceInfo(void) {
         PrintTableElement(generic_string);
         PrintTableElement("");
         PrintEndTableRow();
+        res = VULKAN_CANT_FIND_EXTENSIONS;
     } else {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d extensions found",
                  ext_count);
@@ -4246,6 +4302,7 @@ void PrintInstanceInfo(void) {
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
+            res = VULKAN_CANT_FIND_EXTENSIONS;
         } else {
             for (uint32_t iii = 0; iii < ext_count; iii++) {
                 PrintBeginTableRow();
@@ -4265,27 +4322,30 @@ void PrintInstanceInfo(void) {
     status = vkCreateInstance(&inst_info, NULL, &global_items.instance);
     if (status == VK_ERROR_INCOMPATIBLE_DRIVER) {
         PrintTableElement("ERROR: Incompatible Driver");
+        res = VULKAN_CANT_FIND_DRIVER;
     } else if (status == VK_ERROR_OUT_OF_HOST_MEMORY) {
         PrintTableElement("ERROR: Out of memory");
+        res = VULKAN_FAILED_OUT_OF_MEM;
     } else if (status) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1,
                  "ERROR: Failed to create - %d", status);
         PrintTableElement(generic_string);
+        res = VULKAN_FAILED_CREATE_INSTANCE;
     } else {
         PrintTableElement("SUCCESSFUL");
     }
     PrintTableElement("");
     PrintEndTableRow();
     PrintEndTable();
-    if (VK_SUCCESS != status) {
-        throw(-1);
-    }
+
+    return res;
 }
 
 // Print out any information we can find out about physical devices using
 // the Vulkan commands.  There should be one for each Vulkan capable device
 // on the system.
-void PrintPhysDevInfo(void) {
+ErrorResults PrintPhysDevInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     VkPhysicalDeviceProperties props;
     std::vector<VkPhysicalDevice> phys_devices;
     VkResult status;
@@ -4293,7 +4353,6 @@ void PrintPhysDevInfo(void) {
     uint32_t gpu_count = 0;
     uint32_t iii;
     uint32_t jjj;
-    bool failed = false;
 
     PrintBeginTable("Physical Devices", 4);
 
@@ -4305,7 +4364,8 @@ void PrintPhysDevInfo(void) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1,
                  "ERROR: Failed to query - %d", status);
         PrintTableElement(generic_string);
-        failed = true;
+        res = VULKAN_CANT_FIND_DRIVER;
+        goto out;
     } else {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", gpu_count);
         PrintTableElement(generic_string);
@@ -4314,23 +4374,18 @@ void PrintPhysDevInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    // If we failed here, the rest will have issues, so, unlike everywhere
-    // else, we'll just return immediately.
-    if (failed) {
-        throw VULKAN_CANT_FIND_DRIVER;
-    }
-
     phys_devices.resize(gpu_count);
     global_items.phys_devices.resize(gpu_count);
     status = vkEnumeratePhysicalDevices(global_items.instance, &gpu_count,
                                         phys_devices.data());
-    if (VK_SUCCESS != status) {
+    if (VK_SUCCESS != status && VK_INCOMPLETE != status) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Failed to enumerate physical devices!");
         PrintTableElement("");
         PrintEndTableRow();
-        failed = true;
+        res = VULKAN_CANT_FIND_DRIVER;
+        goto out;
     }
     for (iii = 0; iii < gpu_count; iii++) {
         global_items.phys_devices[iii].vulkan_phys_dev = phys_devices[iii];
@@ -4742,7 +4797,7 @@ void PrintPhysDevInfo(void) {
                 PrintTableElement("");
                 PrintEndTableRow();
 
-                failed = true;
+                res = VULKAN_CANT_FIND_EXTENSIONS;
             } else {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
                          num_ext_props);
@@ -4754,7 +4809,7 @@ void PrintPhysDevInfo(void) {
                     PrintTableElement("FAILED querying actual extension info");
                     PrintEndTableRow();
 
-                    failed = true;
+                    res = VULKAN_CANT_FIND_EXTENSIONS;
                 } else {
                     PrintTableElement("");
                     PrintEndTableRow();
@@ -4778,21 +4833,22 @@ void PrintPhysDevInfo(void) {
 
     PrintEndTable();
 
-    if (failed) {
-        throw VULKAN_CANT_FIND_DRIVER;
-    }
+out:
+
+    return res;
 }
 
 // Using the previously determine information, attempt to create a logical
 // device for each physical device we found.
-void PrintLogicalDeviceInfo(void) {
+ErrorResults PrintLogicalDeviceInfo(void) {
+    ErrorResults res = SUCCESSFUL;
     VkDeviceCreateInfo device_create_info;
     VkDeviceQueueCreateInfo queue_create_info;
     VkResult status = VK_SUCCESS;
     uint32_t dev_count =
         static_cast<uint32_t>(global_items.phys_devices.size());
     char generic_string[MAX_STRING_LENGTH];
-    bool failed = false;
+    bool found_driver = false;
 
     PrintBeginTable("Logical Devices", 3);
 
@@ -4850,26 +4906,36 @@ void PrintLogicalDeviceInfo(void) {
                                 &global_items.log_devices[dev]);
         if (VK_ERROR_INCOMPATIBLE_DRIVER == status) {
             PrintTableElement("FAILED: Incompatible Driver");
-            failed = true;
+            if (!found_driver) {
+                res = VULKAN_CANT_FIND_DRIVER;
+            }
         } else if (VK_ERROR_OUT_OF_HOST_MEMORY == status) {
             PrintTableElement("FAILED: Out of Host Memory");
-            failed = true;
+            // If we haven't already found a driver, set an error
+            if (!found_driver) {
+                res = VULKAN_FAILED_OUT_OF_MEM;
+            }
         } else if (VK_SUCCESS != status) {
             snprintf(generic_string, MAX_STRING_LENGTH - 1,
                      "FAILED : VkResult code = 0x%x", status);
             PrintTableElement(generic_string);
-            failed = true;
+            // If we haven't already found a driver, set an error
+            if (!found_driver) {
+                res = VULKAN_FAILED_CREATE_DEVICE;
+            }
         } else {
             PrintTableElement("SUCCESSFUL");
+            found_driver = true;
+            // Clear any potential previous errors
+            res = SUCCESSFUL;
         }
 
         PrintEndTableRow();
     }
 
     PrintEndTable();
-    if (failed) {
-        throw(-1);
-    }
+
+    return res;
 }
 
 // Clean up all the Vulkan items we previously created and print
@@ -4909,8 +4975,8 @@ void PrintCleanupInfo(void) {
 
 // Run any external tests we can find, and print the results of those
 // tests.
-void PrintTestResults(void) {
-    bool failed = false;
+ErrorResults PrintTestResults(void) {
+    ErrorResults res = SUCCESSFUL;
 
     BeginSection("External Tests");
     if (global_items.sdk_found) {
@@ -4944,7 +5010,7 @@ void PrintTestResults(void) {
             PrintTableElement("Not Found");
         } else {
             PrintTableElement("FAILED!");
-            failed = true;
+            res = TEST_FAILED;
         }
         PrintEndTableRow();
 
@@ -4959,7 +5025,7 @@ void PrintTestResults(void) {
             PrintTableElement("Not Found");
         } else {
             PrintTableElement("FAILED!");
-            failed = true;
+            res = TEST_FAILED;
         }
         PrintEndTableRow();
 
@@ -4969,19 +5035,35 @@ void PrintTestResults(void) {
     }
     EndSection();
 
-    if (failed) {
-        throw(-1);
-    }
+    return res;
 }
 
 // Print information on any Vulkan commands we can (or can't) execute.
-void PrintVulkanInfo(void) {
+ErrorResults PrintVulkanInfo(void) {
+    ErrorResults res = SUCCESSFUL;
+    bool created = false;
     BeginSection("Vulkan API Calls");
 
-    PrintInstanceInfo();
-    PrintPhysDevInfo();
-    PrintLogicalDeviceInfo();
-    PrintCleanupInfo();
+    res = PrintInstanceInfo();
+    if (res != SUCCESSFUL) {
+        goto out;
+    }
+    created = true;
+    res = PrintPhysDevInfo();
+    if (res != SUCCESSFUL) {
+        goto out;
+    }
+    res = PrintLogicalDeviceInfo();
+    if (res != SUCCESSFUL) {
+        goto out;
+    }
+
+out:
+    if (created) {
+        PrintCleanupInfo();
+    }
 
     EndSection();
+
+    return res;
 }
