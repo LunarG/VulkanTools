@@ -34,6 +34,7 @@ namespace screenshot {
     //the string of rangeString can be and must be one of the following values:
     // 1. all
     // 2. <startFrame>-<frameCount>-<interval>
+    // 3. <startFrame>-<frameCount>
     //    if frameCount is 0, it means the range is unlimited range or all frames from startFrame.
     //return:
     // return 0 if parsing rangeString successfully, other value is a status value indicating a specified error was encountered, currently support the following values:
@@ -44,7 +45,17 @@ namespace screenshot {
     //        .......
     int initScreenShotFrameRange(const char *rangeString, FrameRange* pFrameRange);
 
-    //detect if the input command option _vk_screenshot is defination of frame range or a frame list. 
+    //detect if the input command line option _vk_screenshot is definition of frame range or a frame list. 
     bool isOptionBelongToScreenShotRange(const char *_vk_screenshot);
+
+    //get error message by parsing status
+    //return:
+    //       error message.
+    char *getFrameRangeErrorMessage(int parsingStatus);
+
+    //check screenshot frame range command line option
+    //return:
+    //      indicate check success or not. if fail, return false,  *ppErrorMessage return error message if it's not nullptr.
+    bool checkParsingFrameRange(const char *_vk_screenshot, char** ppErrorMessage);
 
 }

@@ -80,16 +80,19 @@ namespace screenshot {
                             pFrameRange->valid = true;
                         }
 
-                        if (frameCount == 0)
+                        if (parsingStatus == 0)
                         {
-                            pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
-                        }
-                        else
-                        {
-                            pFrameRange->count = frameCount / pFrameRange->interval;
-                            if ((frameCount % pFrameRange->interval) != 0)
+                            if (frameCount == 0)
                             {
-                                pFrameRange->count++;
+                                pFrameRange->count = SCREEN_SHOT_FRAMES_UNLIMITED;
+                            }
+                            else
+                            {
+                                pFrameRange->count = frameCount / pFrameRange->interval;
+                                if ((frameCount % pFrameRange->interval) != 0)
+                                {
+                                    pFrameRange->count++;
+                                }
                             }
                         }
                     }
@@ -103,7 +106,7 @@ namespace screenshot {
         return parsingStatus;
     }
 
-    //detect if the input command option _vk_screenshot is defination of frame range or a frame list. 
+    //detect if the input command option _vk_screenshot is definition of frame range or a frame list. 
     bool isOptionBelongToScreenShotRange(const char *_vk_screenshot)
     {
         bool belongToScreenShotRange = false;
@@ -114,4 +117,58 @@ namespace screenshot {
         return belongToScreenShotRange;
     }
 
+    //get error message by parsing status
+    char *getFrameRangeErrorMessage(int parsingStatus)
+    {
+        static char* message[] = { "no error",
+                                   "parsing error or the number of input parameters less than two",
+                                   "start frame number cannot be negative",
+                                   "frame count cannot be negative",
+                                   "interval cannot be negative or 0",
+                                   "unknown errors" };
+        char *parsingMessage = nullptr;
+
+        switch (parsingStatus)
+        {
+            case 0:
+                parsingMessage = message[0];
+                break;
+            case 1:
+                parsingMessage = message[1];
+                break;
+            case 2:
+                parsingMessage = message[2];
+                break;
+            case 3:
+                parsingMessage = message[3];
+                break;
+            case 4:
+                parsingMessage = message[4];
+                break;
+            default:
+                parsingMessage = message[5];
+                break;
+        }
+        return parsingMessage;
+    }
+
+    //check screenshot frame range command line option
+    bool checkParsingFrameRange(const char *_vk_screenshot, char** ppErrorMessage)
+    {
+        bool checkPassed = true;
+        if (isOptionBelongToScreenShotRange(_vk_screenshot))
+        {
+            screenshot::FrameRange frameRange;
+            int parsingStatus = initScreenShotFrameRange(_vk_screenshot, &frameRange);
+            if (parsingStatus != 0)
+            {
+                checkPassed = false;
+                if (ppErrorMessage != nullptr)
+                {
+                    *ppErrorMessage = getFrameRangeErrorMessage(parsingStatus);
+                }
+            }
+        }
+        return checkPassed;
+    }
 }

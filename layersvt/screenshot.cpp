@@ -271,7 +271,11 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
         }
     }
     else {
-        initScreenShotFrameRange(vk_screenshot_frames, &screenShotFrameRange);
+        int parsingStatus = initScreenShotFrameRange(vk_screenshot_frames, &screenShotFrameRange);
+        if (parsingStatus != 0)
+        {
+            fprintf(stderr, "Screenshots option include errors: %s\n", getFrameRangeErrorMessage(parsingStatus));
+        }
     }
 
     screenshotFramesReceived = true;

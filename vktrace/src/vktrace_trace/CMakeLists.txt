@@ -18,7 +18,7 @@ include_directories(
     ${SRC_DIR}
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/vktrace_trace
-    ${PROJECT_SOURCE_DIR}/layersvt
+    ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
 )
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})

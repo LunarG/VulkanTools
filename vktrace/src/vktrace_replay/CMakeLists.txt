@@ -20,7 +20,7 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}/../vktrace_extensions/vktracevulkan/vkreplay/
-    ${PROJECT_SOURCE_DIR}/layersvt
+    ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
 )
 
 set (LIBRARIES vktrace_common vulkan_replay)

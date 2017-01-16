@@ -37,6 +37,7 @@
 #include "vkreplay_factory.h"
 #include "vkreplay_seq.h"
 #include "vkreplay_window.h"
+#include "screenshot_parsing.h"
 
 vkreplayer_settings replaySettings = { NULL, 1, -1, -1, NULL, NULL };
 
@@ -47,7 +48,7 @@ vktrace_SettingInfo g_settings_info[] =
     { "l", "NumLoops", VKTRACE_SETTING_UINT, { &replaySettings.numLoops }, { &replaySettings.numLoops }, TRUE, "The number of times to replay the trace file or loop range." },
     { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, { &replaySettings.loopStartFrame }, { &replaySettings.loopStartFrame }, TRUE, "The start frame number of the loop range." },
     { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, { &replaySettings.loopEndFrame }, { &replaySettings.loopEndFrame }, TRUE, "The end frame number of the loop range." },
-    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &replaySettings.screenshotList }, { &replaySettings.screenshotList }, TRUE, "Generate screenshots with specified frames, the frames are comma separated list of frames or a range like <start_frame>-<frame_count>-<interval>. The range also can be 'all' to generate screenshots for all frames or like <start_frame>-<frame_count> for default interval value 1. It means unlimited if frame_count is 0."},
+    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &replaySettings.screenshotList }, { &replaySettings.screenshotList }, TRUE, "Get screenshots with comma separated list of frames, <start>-<count>-<interval> or <all>."},
 #if _DEBUG
     { "v", "Verbosity", VKTRACE_SETTING_STRING, { &replaySettings.verbosity }, { &replaySettings.verbosity }, TRUE, "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", \"debug\"."},
 #else
@@ -261,8 +262,17 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
     // Set up environment for screenshot
     if (replaySettings.screenshotList != NULL)
     {
-        // Set env var that communicates list to ScreenShot layer
-        vktrace_set_global_var("_VK_SCREENSHOT", replaySettings.screenshotList);
+        char* frameRangeErrorMessage;
+        if (!screenshot::checkParsingFrameRange(replaySettings.screenshotList, &frameRangeErrorMessage))
+        {
+            vktrace_LogError("Screenshots command line option include errors: %s.", frameRangeErrorMessage);
+            vktrace_set_global_var("_VK_SCREENSHOT", "");
+        }
+        else
+        {
+            // Set env var that communicates list to ScreenShot layer
+            vktrace_set_global_var("_VK_SCREENSHOT", replaySettings.screenshotList);
+        }
     }
     else
     {
