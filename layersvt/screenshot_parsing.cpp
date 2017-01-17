@@ -118,15 +118,15 @@ namespace screenshot {
     }
 
     //get error message by parsing status
-    char *getFrameRangeErrorMessage(int parsingStatus)
+    const char *getFrameRangeErrorMessage(int parsingStatus)
     {
-        static char* message[] = { "no error",
+        static const char* message[] = { "no error",
                                    "parsing error or the number of input parameters less than two",
                                    "start frame number cannot be negative",
                                    "frame count cannot be negative",
                                    "interval cannot be negative or 0",
                                    "unknown errors" };
-        char *parsingMessage = nullptr;
+        const char *parsingMessage = nullptr;
 
         switch (parsingStatus)
         {
@@ -165,7 +165,7 @@ namespace screenshot {
                 checkPassed = false;
                 if (ppErrorMessage != nullptr)
                 {
-                    *ppErrorMessage = getFrameRangeErrorMessage(parsingStatus);
+                    *ppErrorMessage = const_cast<char*>(getFrameRangeErrorMessage(parsingStatus));
                 }
             }
         }

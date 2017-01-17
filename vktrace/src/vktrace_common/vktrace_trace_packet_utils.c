@@ -251,8 +251,6 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile)
     // offset to after size
     // read the rest of the packet
     uint64_t total_packet_size = 0;
-    void* pMemory;
-    vktrace_trace_packet_header* pHeader;
 
     if (vktrace_FileLike_ReadRaw(pFile, &total_packet_size, sizeof(uint64_t)) == FALSE)
     {
@@ -260,8 +258,7 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile)
     }
 
     // allocate space
-    pMemory = vktrace_malloc((size_t)total_packet_size);
-    pHeader = (vktrace_trace_packet_header*)pMemory;
+    vktrace_trace_packet_header *pHeader = (vktrace_trace_packet_header*)vktrace_malloc((size_t)total_packet_size);
 
     if (pHeader != NULL)
     {

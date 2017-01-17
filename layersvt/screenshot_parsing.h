@@ -51,7 +51,7 @@ namespace screenshot {
     //get error message by parsing status
     //return:
     //       error message.
-    char *getFrameRangeErrorMessage(int parsingStatus);
+    const char *getFrameRangeErrorMessage(int parsingStatus);
 
     //check screenshot frame range command line option
     //return:

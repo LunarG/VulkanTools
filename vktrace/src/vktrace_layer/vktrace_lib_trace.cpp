@@ -586,15 +586,16 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     uint64_t trace_begin_time = vktrace_get_time();
 
     // find out how much memory is in the ranges
+#ifndef USE_PAGEGUARD_SPEEDUP
     for (iter = 0; iter < memoryRangeCount; iter++)
     {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
-        rangesSize += vk_size_vkmappedmemoryrange(pRange);
-        dataSize += ROUNDUP_TO_4(((size_t)pRange->size));
+        dataSize += ROUNDUP_TO_4(((size_t)(getPageGuardControlInstance().getMappedMemorySize(device, pRange->memory));
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#else
     dataSize = ROUNDUP_TO_4(getPageGuardControlInstance().getALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges, ppPackageData));
 #endif
+    rangesSize = sizeof(VkMappedMemoryRange) * memoryRangeCount;
 
     CREATE_TRACE_PACKET(vkFlushMappedMemoryRanges, rangesSize + sizeof(void*)*memoryRangeCount + dataSize);
     pHeader->vktrace_begin_time = trace_begin_time;
@@ -618,10 +619,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
 
         if (pEntry != NULL)
         {
+            VkDeviceSize rangeSize;
+            if (pRange->size == VK_WHOLE_SIZE)
+            {
+                LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
+                rangeSize = getPageGuardControlInstance().getMappedMemorySize(device, pRange->memory) - (pRange->offset - pOPTMemoryTemp->getMappedOffset());
+            }
+            else
+                rangeSize = pRange->size;
             assert(pEntry->handle == pRange->memory);
-            assert(pEntry->totalSize >= (pRange->size + pRange->offset));
-            assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
+            assert(pEntry->totalSize >= (rangeSize + pRange->offset));
+            assert(pEntry->totalSize >= rangeSize);
+            assert(pRange->offset >= pEntry->rangeOffset && (pRange->offset + rangeSize) <= (pEntry->rangeOffset + pEntry->rangeSize));
 #ifdef USE_PAGEGUARD_SPEEDUP
             LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
             VkDeviceSize OPTPackageSizeTemp = 0;
@@ -639,7 +648,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
                 getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
             }
 #else
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(pRange->size), pEntry->pData + pRange->offset);
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(rangeSize), pEntry->pData + pRange->offset);
 #endif
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
             pEntry->didFlush = TRUE;

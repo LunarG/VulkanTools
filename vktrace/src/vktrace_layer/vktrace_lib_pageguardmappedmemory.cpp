@@ -58,9 +58,6 @@ PageGuardMappedMemory::PageGuardMappedMemory()
     pChangedDataPackage(nullptr),
     MappedSize(0),
     PageGuardSize(pageguardGetSystemPageSize()),
-    #if defined(PLATFORM_LINUX)
-    clearRefsFd(-1),
-    #endif
     pPageStatus(nullptr),
     BlockConflictError(false),
     PageSizeLeft(0),

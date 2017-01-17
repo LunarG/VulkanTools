@@ -31,6 +31,7 @@ if(WIN32)
     add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}-${MAJOR}")
 else()
     add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 target_link_libraries(${PROJECT_NAME}

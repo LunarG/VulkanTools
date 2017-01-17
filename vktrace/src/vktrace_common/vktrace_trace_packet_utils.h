@@ -59,6 +59,10 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
         vktrace_LogError("Cannot open trace file for writing %s.", pProcInfo->traceFilename);
         return tracefp;
     }
+    else
+    {
+        vktrace_LogDebug("Creating trace file: '%s'", pProcInfo->traceFilename);
+    }
 
     // populate header information
     pHeader = vktrace_create_trace_file_header();

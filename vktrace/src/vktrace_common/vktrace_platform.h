@@ -151,7 +151,9 @@ char* vktrace_platform_get_data_path();
 
 vktrace_thread vktrace_platform_create_thread(VKTRACE_THREAD_ROUTINE_RETURN_TYPE(*start_routine)(LPVOID), void* args);
 void vktrace_platform_resume_thread(vktrace_thread* pThread);
-void vktrace_platform_sync_wait_for_thread(vktrace_thread* pThread);
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+int64_t vktrace_linux_sync_wait_for_thread(vktrace_thread* pThread);
+#endif
 void vktrace_platform_delete_thread(vktrace_thread* pThread);
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 void vktrace_platform_thread_once(void *ctl, void (* func) (void));

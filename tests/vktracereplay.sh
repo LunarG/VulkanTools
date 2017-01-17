@@ -17,15 +17,17 @@ export VK_LAYER_PATH=${PWD}/../layersvt
 
 function trace_replay {
 	PGM=$1
+	PARGS=$2
+	TARGS=$3
 	VKTRACE=${PWD}/../vktrace/vktrace
 	VKREPLAY=${PWD}/../vktrace/vkreplay
 	APPDIR=${PWD}/../demos
 	printf "$GREEN[ TRACE    ]$NC ${PGM}\n"
 	${VKTRACE}	--Program ${APPDIR}/${PGM} \
-			--Arguments "--c 100" \
+			--Arguments "--c 100 ${PARGS}" \
 			--WorkingDir ${APPDIR} \
 			--OutputTrace ${PGM}.vktrace \
-			--PMB false \
+			${TARGS} \
 			-s 1
 	printf "$GREEN[ REPLAY   ]$NC ${PGM}\n"
 	${VKREPLAY}	--Open ${PGM}.vktrace \
@@ -44,7 +46,13 @@ function trace_replay {
 	fi
 }
 
-trace_replay cube
+trace_replay cube "" "--PMB false"
+# Test smoketest with pageguard
+trace_replay smoketest "" "--PMB true"
+# Test smoketest without pageguard, using push constants
+trace_replay smoketest "-p" "--PMB false"
+# Test smoketest without pageguard, using flush call
+trace_replay smoketest "--flush" "--PMB false"
 
 exit 0
 

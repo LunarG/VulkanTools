@@ -21,6 +21,10 @@ include_directories(
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
 )
 
+if (NOT WIN32)
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 target_link_libraries(${PROJECT_NAME}
