@@ -5126,6 +5126,10 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetBufferDestroyed) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptorSet, 0, NULL);
+
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &m_viewports[0]);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &m_scissors[0]);
+
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5550,6 +5554,12 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptor_set, 0, NULL);
+
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5569,6 +5579,7 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+    // TODO : It seems Validation layers think ds_pool was already destroyed, even though it wasn't?
 }
 
 TEST_F(VkLayerTest, DescriptorImageUpdateNoMemoryBound) {
@@ -6809,6 +6820,12 @@ TEST_F(VkLayerTest, DescriptorSetCompatibility) {
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe_layout_bad_set0, 1, 1,
                             &descriptorSet[1], 0, NULL);
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " uses set #0 but that set is not bound.");
+
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+
     Draw(1, 0, 0, 0);
     m_errorMonitor->VerifyFound();
 
