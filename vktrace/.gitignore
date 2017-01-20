@@ -22,4 +22,3 @@ libs/Win32/Debug/*
 *.filters
 build
 dbuild
-src/vktrace_layer/codegen/*
