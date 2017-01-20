@@ -43,20 +43,18 @@ set(HDR_LIST
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_qgroupthreadsproxymodel.h
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_controller.h
     ${SRC_DIR}/vktrace_replay/vkreplay_factory.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils/vk_enum_string_helper.h
-    ${CODEGEN_VKTRACE_DIR}/vktrace_vk_packet_id.h
-    ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_packets.h
+    ${GENERATED_FILES_DIR}/vk_enum_string_helper.h
+    ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
+    ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h
 )
 
 include_directories(
-    ${CODEGEN_VKTRACE_DIR}
+    ${GENERATED_FILES_DIR}
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/vktrace_viewer
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}/../vkreplay
-    ${CMAKE_CURRENT_SOURCE_DIR}/../vulkan/codegen_utils
-    ${VKTRACE_VULKAN_DIR}/${CODEGEN_VKTRACE_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )

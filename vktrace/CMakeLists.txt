@@ -86,6 +86,8 @@ message("")
 #
 set(VKTRACE_VULKAN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
+
 add_subdirectory(src/vktrace_common)
 add_subdirectory(src/vktrace_trace)
 
