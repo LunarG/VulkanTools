@@ -5126,6 +5126,10 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetBufferDestroyed) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptorSet, 0, NULL);
+
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &m_viewports[0]);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &m_scissors[0]);
+
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5344,6 +5348,10 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptorSet, 0, NULL);
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5356,6 +5364,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     submit_info.pCommandBuffers = &m_commandBuffer->handle();
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
     m_errorMonitor->VerifyFound();
+
     // Now re-update descriptor with valid sampler and delete image
     img_info.sampler = sampler2;
     vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
@@ -5365,6 +5374,8 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptorSet, 0, NULL);
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5386,6 +5397,8 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptorSet, 0, NULL);
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5541,6 +5554,12 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptor_set, 0, NULL);
+
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -5560,6 +5579,7 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+    // TODO : It seems Validation layers think ds_pool was already destroyed, even though it wasn't?
 }
 
 TEST_F(VkLayerTest, DescriptorImageUpdateNoMemoryBound) {
@@ -6800,6 +6820,12 @@ TEST_F(VkLayerTest, DescriptorSetCompatibility) {
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe_layout_bad_set0, 1, 1,
                             &descriptorSet[1], 0, NULL);
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " uses set #0 but that set is not bound.");
+
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+
     Draw(1, 0, 0, 0);
     m_errorMonitor->VerifyFound();
 
@@ -10188,6 +10214,11 @@ TEST_F(VkLayerTest, NumBlendAttachMismatch) {
     m_commandBuffer->BeginRenderPass(m_renderPassBeginInfo);
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
 
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+
     // Render triangle (the error should trigger on the attempt to draw).
     Draw(3, 1, 0, 0);
 
@@ -11878,6 +11909,12 @@ TEST_F(VkLayerTest, SamplerInUseDestroyedSignaled) {
     vkCmdBindPipeline(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
     vkCmdBindDescriptorSets(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1,
                             &descriptor_set, 0, nullptr);
+
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(m_commandBuffer->handle(), 0, 1, &viewport);
+    vkCmdSetScissor(m_commandBuffer->handle(), 0, 1, &scissor);
+
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
@@ -11889,11 +11926,12 @@ TEST_F(VkLayerTest, SamplerInUseDestroyedSignaled) {
     // Submit cmd buffer and then destroy sampler while in-flight
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
 
-    vkDestroySampler(m_device->device(), sampler, nullptr);
+    vkDestroySampler(m_device->device(), sampler, nullptr); // Destroyed too soon
     m_errorMonitor->VerifyFound();
     vkQueueWaitIdle(m_device->m_queue);
+
     // Now we can actually destroy sampler
-    vkDestroySampler(m_device->device(), sampler, nullptr);
+    vkDestroySampler(m_device->device(), sampler, NULL); // Destroyed for real
     vkDestroyImageView(m_device->device(), view, NULL);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
@@ -13997,7 +14035,7 @@ TEST_F(VkLayerTest, CreatePipelineInputAttachmentMissingArray) {
     TEST_DESCRIPTION("Test that an error is produced for a shader consuming an input attachment "
                      "which is not included in the subpass description -- array case");
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "consumes input attachment index 1 but not provided in subpass");
+                                         "consumes input attachment index 0 but not provided in subpass");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
 
@@ -14011,10 +14049,10 @@ TEST_F(VkLayerTest, CreatePipelineInputAttachmentMissingArray) {
                            "}\n";
     char const *fsSource = "#version 450\n"
                            "\n"
-                           "layout(input_attachment_index=0, set=0, binding=0) uniform subpassInput xs[2];\n"
+                           "layout(input_attachment_index=0, set=0, binding=0) uniform subpassInput xs[1];\n"
                            "layout(location=0) out vec4 color;\n"
                            "void main() {\n"
-                           "   color = subpassLoad(xs[1]);\n"
+                           "   color = subpassLoad(xs[0]);\n"
                            "}\n";
 
     VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
