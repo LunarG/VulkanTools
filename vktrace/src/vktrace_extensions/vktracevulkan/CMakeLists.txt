@@ -37,9 +37,9 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -regist
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_enum_string_helper.h)
 
 # Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-packet-id VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-core-trace-packets VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-ext-trace-packets vk_lunarg_debug_marker OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_lunarg_debug_marker_packets.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-packet-id VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-core-trace-packets VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-ext-trace-packets vk_lunarg_debug_marker OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_lunarg_debug_marker_packets.h)
 
 # Directories which actually contain vulkan-specific vktrace plugins.
 add_subdirectory(vkreplay/)

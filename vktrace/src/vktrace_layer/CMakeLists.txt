@@ -17,8 +17,8 @@ project(VkLayer_vktrace_layer)
 
 include("${SRC_DIR}/build_options.cmake")
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-h      vk_version_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VKTRACE_VULKAN_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-c      vk_version_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-h      vk_version_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-c      vk_version_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp)
 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
