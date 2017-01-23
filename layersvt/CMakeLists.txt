@@ -35,13 +35,6 @@ endif()
 add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
 add_custom_target( generate_api_h DEPENDS api_dump_text.h )
 
-macro(run_vk_xml_generate subcmd output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/vt_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
-        DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/vt_genvk.py ${SCRIPTS_DIR}/reg.py
-    )
-endmacro()
-
 set(LAYER_JSON_FILES
     VkLayer_api_dump
     VkLayer_monitor
@@ -97,13 +90,13 @@ if (WIN32)
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_vt_helpers generate_api_cpp generate_api_h)
+    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h)
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_vt_helpers generate_api_cpp generate_api_h)
+    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
     endmacro()
@@ -115,6 +108,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../layers
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
 )
 
@@ -140,24 +134,9 @@ else()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
 
-add_custom_target(generate_vt_helpers DEPENDS
-    vk_dispatch_table_helper.h
-    vk_enum_string_helper.h
-    vk_struct_size_helper.h
-    vk_struct_size_helper.c
-    vk_safe_struct.h
-    vk_safe_struct.cpp
-)
-
 #VulkanTools layers
-run_vk_xml_generate(helper_file_generator.py vk_safe_struct.h)
-run_vk_xml_generate(helper_file_generator.py vk_safe_struct.cpp)
-run_vk_xml_generate(helper_file_generator.py vk_struct_size_helper.h)
-run_vk_xml_generate(helper_file_generator.py vk_struct_size_helper.c)
-run_vk_xml_generate(helper_file_generator.py vk_enum_string_helper.h)
-run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
-run_vk_xml_generate(ApiDump api_dump.cpp)
-run_vk_xml_generate(ApiDump api_dump_text.h)
+run_vk_xml_generate(api_dump_generator.py api_dump.cpp)
+run_vk_xml_generate(api_dump_generator.py api_dump_text.h)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -171,7 +150,7 @@ endif()
 
 # VulkanTools layers
 add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
 # generated
 add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp ../layers/vk_layer_table.cpp)
 
