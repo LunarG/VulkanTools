@@ -31,8 +31,8 @@ mkdir -p generated/include generated/common
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.h )
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h )
 
-( cd generated/include; python3 ../../../scripts/vt_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp )
-( cd generated/include; python3 ../../../scripts/vt_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h )
 
 # vktrace
 python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > generated/include/vktrace_vk_vk.h
