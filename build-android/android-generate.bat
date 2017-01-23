@@ -27,8 +27,8 @@ py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_dispatc
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml thread_check.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h
-py -3 ../../../scripts/vt_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp
-py -3 ../../../scripts/vt_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h
 
 REM vktrace
 py -3 ../../../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > vktrace_vk_vk.h
