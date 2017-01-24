@@ -26,6 +26,7 @@ from parameter_validation_generator import ParamCheckerGeneratorOptions, ParamCh
 from unique_objects_generator import UniqueObjectsGeneratorOptions, UniqueObjectsOutputGenerator
 from dispatch_table_generator import DispatchTableOutputGenerator, DispatchTableOutputGeneratorOptions
 from helper_file_generator import HelperFileOutputGenerator, HelperFileOutputGeneratorOptions
+from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN
 
 # Simple timer functions
 startTime = None
@@ -295,6 +296,55 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             helper_file_type  = 'safe_struct_source')
         ]
 
+    # API dump generator options for api_dump.cpp
+    genOpts['api_dump.cpp'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            input             = COMMON_CODEGEN,
+            filename          = 'api_dump.cpp',
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = None,
+            removeExtensions  = None,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protectFile,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # API dump generator options for api_dump_text.h
+    genOpts['api_dump_text.h'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            input             = TEXT_CODEGEN,
+            filename          = 'api_dump_text.h',
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = None,
+            removeExtensions  = None,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protectFile,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+    ]
 
 
 # Generate a target based on the options in the matching genOpts{} object.

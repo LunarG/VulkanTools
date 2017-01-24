@@ -62,7 +62,6 @@ set (HDR_LIST
     vktrace_lib_pageguardcapture.h
     vktrace_lib_pageguard.h
     vktrace_vk_exts.h
-    vk_dispatch_table_helper.h
     codegen/vktrace_vk_vk.h
     ${CODEGEN_VKTRACE_DIR}/vktrace_vk_packet_id.h
     ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_packets.h
@@ -81,17 +80,6 @@ endif()
 #    ${CODEGEN_VKTRACE_DIR}/vktrace_vk_vk_lunarg_debug_marker_packets.h
 #    ${CODEGEN_UTILS_DIR}/vk_lunarg_debug_marker_struct_size_helper.h
 
-macro(run_vk_xml_generate dependency output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
-        DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/${dependency} ${SCRIPTS_DIR}/lvl_genvk.py ${SCRIPTS_DIR}/reg.py
-    )
-endmacro()
-
-run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
-add_custom_target(generate_vktrace_layer_helpers DEPENDS
-    vk_dispatch_table_helper.h)
-
 include_directories(
     codegen
     ${SRC_DIR}/vktrace_common
@@ -101,6 +89,7 @@ include_directories(
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CODEGEN_UTILS_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/../../../layersvt
+    ${CMAKE_BINARY_DIR}
 )
 # copy/link layer json file into build/layersvt directory
 if (NOT WIN32)
@@ -130,7 +119,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${HDR_LIST})
 
-add_dependencies(${PROJECT_NAME} generate_vktrace_layer_helpers)
+add_dependencies(${PROJECT_NAME} generate_helper_files)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
