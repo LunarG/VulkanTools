@@ -36,7 +36,6 @@ set(SRC_LIST
     vktrace_lib_trace.cpp
     vktrace_vk_exts.cpp
     ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
-    ${GENERATED_FILES_DIR}/vk_struct_size_helper.c
 )
 
 set_source_files_properties( ${SRC_LIST} PROPERTIES LANGUAGE CXX)

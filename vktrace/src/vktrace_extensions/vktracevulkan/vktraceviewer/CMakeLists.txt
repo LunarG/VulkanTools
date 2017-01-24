@@ -43,7 +43,6 @@ set(HDR_LIST
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_qgroupthreadsproxymodel.h
     ${SRC_DIR}/vktrace_viewer/vktraceviewer_controller.h
     ${SRC_DIR}/vktrace_replay/vkreplay_factory.h
-    ${GENERATED_FILES_DIR}/vk_enum_string_helper.h
     ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
     ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h
 )
@@ -57,6 +56,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../vkreplay
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}
 )
 
 QT5_WRAP_CPP(QT_GEN_HEADER_MOC_LIST ${UI_HEADER_LIST})
@@ -67,7 +67,9 @@ add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${HDR_LIST}
     ${QT_GEN_HEADER_MOC_LIST}
 )
 
-target_link_libraries(${PROJECT_NAME} 
+add_dependencies(${PROJECT_NAME} generate_helper_files)
+
+target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Core
     Qt5::Svg

@@ -257,7 +257,6 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_vktrace_layer
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vktrace_vk_vk.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_interconnect.c
@@ -295,7 +294,6 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := vkreplay
-LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vkreplay_vk_replay_gen.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c

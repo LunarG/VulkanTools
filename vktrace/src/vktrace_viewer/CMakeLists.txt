@@ -32,6 +32,7 @@ include_directories(
     ${SRC_DIR}/vktrace_extensions/vktracevulkan/vktraceviewer
     ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )
 
@@ -116,7 +117,7 @@ if (TARGET SDL)
     add_dependencies(${PROJECT_NAME} SDL)
 endif ()
 
-add_dependencies(${PROJECT_NAME} vktraceviewer_vk)
+add_dependencies(${PROJECT_NAME} generate_helper_files vktraceviewer_vk)
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets

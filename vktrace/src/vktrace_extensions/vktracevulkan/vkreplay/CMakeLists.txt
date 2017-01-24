@@ -38,7 +38,6 @@ set (HDR_LIST
     vkreplay_vkreplay.h
     ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
     ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h
-    ${GENERATED_FILES_DIR}/vk_enum_string_helper.h
     ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
     ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h
 )
@@ -51,6 +50,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${GENERATED_FILES_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
+    ${CMAKE_BINARY_DIR}
 )
 # needed for vktraceviewer_vk library which is shared
 if (NOT MSVC)
@@ -62,9 +62,9 @@ add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${HDR_LIST})
 
 if(WIN32)
-    add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}-${MAJOR}")
+    add_dependencies(${PROJECT_NAME} generate_helper_files "${API_LOWERCASE}-${MAJOR}")
 else()
-    add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}")
+    add_dependencies(${PROJECT_NAME} generate_helper_files "${API_LOWERCASE}")
 endif()
 
 target_link_libraries(${PROJECT_NAME}
