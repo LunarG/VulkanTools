@@ -159,6 +159,9 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer &seq,
             }
         }
         settings.numLoops--;
+        if (settings.numLoops)
+           vktrace_LogAlways("Loop number %d completed. Remaining loops:%d", settings.numLoops+1, settings.numLoops);
+
         //if screenshot is enabled run it for one cycle only
         //as all consecutive cycles must generate same screen
         if (replaySettings.screenshotList != NULL) {

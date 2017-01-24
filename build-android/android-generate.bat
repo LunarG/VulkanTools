@@ -48,6 +48,7 @@ copy /Y ..\layers\vk_layer_extension_utils.cpp  generated\common\
 copy /Y ..\layers\vk_layer_utils.cpp    generated\common\
 copy /Y ..\layers\vk_layer_table.cpp    generated\common\
 copy /Y ..\layers\descriptor_sets.cpp   generated\common\
+copy /Y ..\layers\buffer_validation.cpp generated\common\
 
 REM create build-script root directory
 mkdir generated\gradle-build
@@ -69,6 +70,7 @@ for %%G in (screenshot) Do (
 )
 copy generated\include\api_dump.cpp   generated\layer-src\api_dump
 copy generated\common\descriptor_sets.cpp generated\layer-src\core_validation\descriptor_sets.cpp
+copy generated\common\buffer_validation.cpp generated\layer-src\core_validation\buffer_validation.cpp
 copy generated\include\vk_safe_struct.cpp generated\layer-src\core_validation\vk_safe_struct.cpp
 move generated\include\vk_safe_struct.cpp generated\layer-src\unique_objects\vk_safe_struct.cpp
 echo apply from: "../common.gradle"  > generated\gradle-build\unique_objects\build.gradle

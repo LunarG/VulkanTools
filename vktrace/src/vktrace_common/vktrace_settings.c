@@ -282,12 +282,14 @@ void vktrace_SettingGroup_Add_Info(vktrace_SettingInfo* pSrcInfo, vktrace_Settin
         }
         else
         {
-            if (pTmp != NULL)
+            if (pTmp != NULL && (pDestGroup->numSettings > 1))
             {
-                memcpy(pDestGroup->pSettings, pTmp, pDestGroup->numSettings * sizeof(vktrace_SettingInfo));
+                memcpy(pDestGroup->pSettings, pTmp, (pDestGroup->numSettings - 1) * sizeof(vktrace_SettingInfo));
             }
 
             pDestGroup->pSettings[pDestGroup->numSettings - 1] = info;
+
+            free(pTmp);
         }
     }
 }
@@ -479,12 +481,14 @@ int vktrace_SettingGroup_Load_from_file(FILE* pFile, vktrace_SettingGroup** ppSe
                         }
                         else
                         {
-                            if (pTmp != NULL)
+                            if (pTmp != NULL && (pCurGroup->numSettings > 1))
                             {
-                                memcpy(pCurGroup->pSettings, pTmp, pCurGroup->numSettings * sizeof(vktrace_SettingInfo));
+                                memcpy(pCurGroup->pSettings, pTmp, (pCurGroup->numSettings - 1) * sizeof(vktrace_SettingInfo));
                             }
 
                             pCurGroup->pSettings[pCurGroup->numSettings - 1] = info;
+
+                            free(pTmp);
                         }
                     }
                 }
