@@ -2134,7 +2134,6 @@ class VktraceTraceC(Subcommand):
         header_txt.append('#include "vktrace_common.h"')
         header_txt.append('#include "vktrace_lib_helpers.h"')
         header_txt.append('#include "vktrace_vk_vk.h"')
-        #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
         header_txt.append('#include "vktrace_filelike.h"')
         header_txt.append('#include "vk_struct_size_helper.h"')
@@ -2166,7 +2165,6 @@ class VktracePacketID(Subcommand):
         header_txt.append('#include "vktrace_trace_packet_identifiers.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
         header_txt.append("#include <inttypes.h>")
-        #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
         header_txt.append('#include "vk_enum_string_helper.h"')
         header_txt.append('#ifndef _WIN32')
         header_txt.append(' #pragma GCC diagnostic ignored "-Wwrite-strings"')
@@ -2239,27 +2237,12 @@ class VktraceExtTraceC(Subcommand):
         header_txt.append('#include "vktrace_vk_%s_packets.h"' % extensionName.lower())
         header_txt.append('#include "vk_struct_size_helper.h"')
         header_txt.append('#include "%s_struct_size_helper.h"' % extensionName.lower())
-        #if extensionName == 'vk_lunarg_debug_marker':
-        #    header_txt.append('#include "vk_debug_marker_layer.h"\n')
 
         header_txt.append('#include "vktrace_lib_helpers.h"')
         return "\n".join(header_txt)
 
     def generate_body(self):
         body = [self._generate_trace_funcs(self.extensionName)]
-
-        return "\n".join(body)
-
-class VktraceExtTracePackets(Subcommand):
-    def generate_header(self, extensionName):
-        header_txt = []
-        header_txt.append('#pragma once\n')
-        header_txt.append('#include "%s.h"' % extensionName.lower())
-        header_txt.append('#include "vktrace_trace_packet_utils.h"\n')
-        return "\n".join(header_txt)
-
-    def generate_body(self):
-        body = [self._generate_interp_funcs_ext(self.extensionName)]
 
         return "\n".join(body)
 
@@ -2273,7 +2256,6 @@ class VktraceReplayVkFuncPtrs(Subcommand):
         header_txt.append('#endif')
         header_txt.append('#endif')
         header_txt.append('#include "vulkan/vulkan.h"')
-        #header_txt.append('#include "vulkan/vk_lunarg_debug_marker.h"')
 
     def generate_body(self):
         body = [self._generate_replay_func_ptrs()]
@@ -2289,7 +2271,6 @@ class VktraceReplayObjMapperHeader(Subcommand):
         header_txt.append('#include <string>')
         header_txt.append('#include "vulkan/vulkan.h"')
         header_txt.append('#include "vktrace_pageguard_memorycopy.h"')
-        #header_txt.append('#include "vulkan/vk_lunarg_debug_marker.h"')
         return "\n".join(header_txt)
 
     def generate_body(self):
@@ -2307,7 +2288,6 @@ class VktraceReplayC(Subcommand):
         header_txt.append('\n')
         header_txt.append('extern "C" {')
         header_txt.append('#include "vktrace_vk_vk_packets.h"')
-        #header_txt.append('#include "vktrace_vk_vk_lunarg_debug_marker_packets.h"')
         header_txt.append('#include "vktrace_vk_packet_id.h"')
         #header_txt.append('#include "vk_enum_string_helper.h"\n}\n')
 
@@ -2326,9 +2306,6 @@ def main():
             "vktrace-trace-c" : VktraceTraceC,
             "vktrace-packet-id" : VktracePacketID,
             "vktrace-core-trace-packets" : VktraceCoreTracePackets,
-            "vktrace-ext-trace-h" : VktraceExtTraceHeader,
-            "vktrace-ext-trace-c" : VktraceExtTraceC,
-            "vktrace-ext-trace-packets" : VktraceExtTracePackets,
             "vktrace-replay-vk-funcs" : VktraceReplayVkFuncPtrs,
             "vktrace-replay-obj-mapper-h" : VktraceReplayObjMapperHeader,
             "vktrace-replay-c" : VktraceReplayC,
