@@ -282,10 +282,32 @@ static void add_alloc_memory_to_trace_packet(vktrace_trace_packet_header* pHeade
             break;
 #endif
         default:
-            vktrace_LogError("vkAllocateMemory: unrecognize pAllocate pNext list structure");
+            vktrace_LogError("vkAllocateMemory: unrecognized pNext list structure");
             break;
         }
         pIn = ((VkApplicationInfo *)pIn)->pNext;
+    }
+}
+
+static void add_extension_to_createimage_trace_packet(vktrace_trace_packet_header* pHeader, void** ppOut, const void* pIn)
+{
+    while (pIn)
+    {
+        switch (((VkExternalMemoryImageCreateInfoNV *)pIn)->sType)
+        {
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
+            vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExternalMemoryImageCreateInfoNV), pIn);
+            vktrace_finalize_buffer_address(pHeader, ppOut);
+            break;
+        case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
+            vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationImageCreateInfoNV), pIn);
+            vktrace_finalize_buffer_address(pHeader, ppOut);
+            break;
+        default:
+            vktrace_LogError("vkCreateImage: unrecognized pNext list structure");
+            break;
+        }
+        pIn = ((VkExternalMemoryImageCreateInfoNV *)pIn)->pNext;
     }
 }
 
