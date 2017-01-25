@@ -82,7 +82,7 @@ namespace trim
     uint32_t get_RenderPassVersion(VkRenderPass renderPass);
 
     //-----------------------
-    // the follow calls are pass-through to the StateTracker
+    // the following calls are pass-through to the StateTracker
     void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader);
     void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 

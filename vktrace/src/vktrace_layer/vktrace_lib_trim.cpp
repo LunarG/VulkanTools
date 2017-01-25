@@ -32,68 +32,125 @@ namespace trim
     // A snapshot of the GlobalStateTracker taken at the start of the trim frames.
     static StateTracker s_trimStateTrackerSnapshot;
 
+    // Maximum length of the VKTRACE_TRIM_TRIGGER environment variable
+    static const int MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH = 32;
+
+    static const int MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH = 16;
+    static const int TRACE_TRIGGER_STRING_LENGTH = MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH + MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH;
+
     VKTRACE_CRITICAL_SECTION trimRecordedPacketLock;
     VKTRACE_CRITICAL_SECTION trimStateTrackerLock;
     VKTRACE_CRITICAL_SECTION trimCommandBufferPacketLock;
 
+    //=========================================================================
+    // Information necessary to create the staged buffer and memory for DEVICE_LOCAL buffers.
+    // This holds all the necessary structures so that we can fill them in once when we make
+    // the call during trim snapshot, and then reuse them when generating the calls to recreate
+    // the buffer into the trace file.
+    //=========================================================================
+    struct StagingInfo
+    {
+        VkBuffer buffer = {};
+        VkBufferCreateInfo bufferCreateInfo = {};
+        VkMemoryRequirements bufferMemoryRequirements = {};
+
+        VkDeviceMemory memory = {};
+        VkMemoryAllocateInfo memoryAllocationInfo = {};
+
+        // Region for copying buffers
+        VkBufferCopy copyRegion = {};
+
+        // Per-miplevel region for copying images
+        std::vector<VkBufferImageCopy> imageCopyRegions;
+
+        VkCommandPool commandPool = VK_NULL_HANDLE;
+        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+        VkQueue queue = VK_NULL_HANDLE;
+    };
+
+    //=========================================================================
+    // Map to associate trace-time buffer with a staged buffer
+    //=========================================================================
+    static std::unordered_map<VkBuffer, StagingInfo> s_bufferToStagedInfoMap;
+
+    //=========================================================================
+    // Map to associate trace-time image with a staged buffer
+    //=========================================================================
+    static std::unordered_map<VkImage, StagingInfo> s_imageToStagedInfoMap;
+
+    //=========================================================================
+    // Associates a Device to a trim-specific CommandPool
+    //=========================================================================
+    static std::unordered_map<VkDevice, VkCommandPool> s_deviceToCommandPoolMap;
+
+    //=========================================================================
     // Typically an application will have one VkAllocationCallbacks struct and 
     // will pass in that same address as needed, so we'll keep a map to correlate
     // the supplied address to the AllocationCallbacks object.
+    //=========================================================================
     static std::unordered_map<const void*, VkAllocationCallbacks> s_trimAllocatorMap;
 
+    //=========================================================================
+    // Associates a Device to a trim-specific CommandBuffer
+    //=========================================================================
+    static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
+
+    //=========================================================================
     // List of all the packets that have been recorded for the frames of interest.
+    //=========================================================================
     std::list<vktrace_trace_packet_header*> recorded_packets;
 
-    //-------------------------------------------------------------------------
+    //=========================================================================
     void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition)
     {
         s_trimGlobalStateTracker.AddImageTransition(commandBuffer, transition);
     }
 
-    //-------------------------------------------------------------------------
+    //=========================================================================
     std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer)
     {
         return s_trimGlobalStateTracker.m_cmdBufferToImageTransitionsMap[commandBuffer];
     }
 
-    //-------------------------------------------------------------------------
+    //=========================================================================
     void ClearImageTransitions(VkCommandBuffer commandBuffer)
     {
         s_trimGlobalStateTracker.ClearImageTransitions(commandBuffer);
     }
 
-    //-------------------------------------------------------------------------
+    //=========================================================================
     void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition)
     {
         s_trimGlobalStateTracker.AddBufferTransition(commandBuffer, transition);
     }
 
-    //-------------------------------------------------------------------------
+    //=========================================================================
     std::list<BufferTransition> GetBufferTransitions(VkCommandBuffer commandBuffer)
     {
         return s_trimGlobalStateTracker.m_cmdBufferToBufferTransitionsMap[commandBuffer];
     }
 
-    //-------------------------------------------------------------------------
+    //=========================================================================
     void ClearBufferTransitions(VkCommandBuffer commandBuffer)
     {
         s_trimGlobalStateTracker.ClearBufferTransitions(commandBuffer);
     }
 
-
-    static const int MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH = 32;
-
-    //  if specified trigger enabled
+    //=========================================================================
+    // Returns true if specified trigger enabled; false otherwise
+    //=========================================================================
     bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType)
     {
         //only one type of trigger is allowed at same time
         return getTraceTriggerOptionString(triggerType) != nullptr;
     }
 
-    //get user defined hotkey string.
-    //the user defined hotkey string can be one of F1-F12,TAB,CONTROL
-    //return:
+    //=========================================================================
+    // Get user defined hotkey string.
+    // The user defined hotkey string can be one of F1-F12,TAB,CONTROL
+    // return:
     //  char* value pointer to user defined hotkey string.
+    //=========================================================================
     char * get_hotkey_string()
     {
         return getTraceTriggerOptionString(enum_trim_trigger::hotKey);
@@ -102,22 +159,29 @@ namespace trim
 
 #if defined(PLATFORM_LINUX)
 
-    static xcb_connection_t* keyboardConnection=nullptr;
-    //on Linux paltform, xcb calls need Connection which is connected to target server, because hotkey process is supposed to insert into target application,
-    //so we need to capture the connection that target app use. the function is used to insert into Vulakn call to capture and save the connection.
+    static xcb_connection_t* keyboardConnection = nullptr;
+
+    //=========================================================================
+    // On Linux paltform, xcb calls need Connection which is connected to target server, because hotkey process is supposed to insert into target application,
+    // so we need to capture the connection that target app use. the function is used to insert into Vulakn call to capture and save the connection.
+    //=========================================================================
     void set_keyboard_connection(xcb_connection_t* pConnection)
     {
         keyboardConnection = pConnection;
     }
 
-    //Get connection which is used by target application.
+    //=========================================================================
+    // Get connection which is used by target application.
+    //=========================================================================
     xcb_connection_t* get_keyboard_connection( )
     {
         return keyboardConnection;
     }
 
-    //Get specified key's real time state: it's released or pressed now. 
-    //the function is platform specific.
+    //=========================================================================
+    // Get specified key's real time state: it's released or pressed now. 
+    // the function is platform specific.
+    //=========================================================================
     enum_key_state GetAsyncKeyState(int keyCode)
     {
         enum_key_state keyState=enum_key_state::Released;
@@ -143,12 +207,14 @@ namespace trim
         return keyState;
     }
 
-    //Get specified key's real time state: it's released or pressed now. 
-    //the function is "semi"cross-platform: the interface is cross-platform, the implementation is platform specific.
-    //Input:
+    //=========================================================================
+    // Get specified key's real time state: it's released or pressed now. 
+    // the function is "semi"cross-platform: the interface is cross-platform, the implementation is platform specific.
+    // Input:
     //      char *pHotkeyString, the string of target key
-    //Output:
+    // Output:
     //      return specified key's real time state: it's released or pressed now. 
+    //=========================================================================
     enum_key_state key_state_platform_specific(char *pHotkeyString)
     {
         enum_key_state KeyState = enum_key_state::Released;
@@ -171,12 +237,14 @@ namespace trim
 
 #elif defined(WIN32)
 
-    //Get specified key's real time state: it's released or pressed now. 
-    //the function is "semi"cross-platform: the interface is cross-platform, the implementation is platform specific.
-    //Input:
+    //=========================================================================
+    // Get specified key's real time state: it's released or pressed now. 
+    // the function is "semi"cross-platform: the interface is cross-platform, the implementation is platform specific.
+    // Input:
     //      char *pHotkeyString, the string of target key, the input cannot be nullptr.
-    //Output:
+    // Output:
     //      return specified key's real time state: it's released or pressed now. 
+    //=========================================================================
     enum_key_state key_state_platform_specific(char *pHotkeyString)
     {
         enum_key_state KeyState = enum_key_state::Released;
@@ -201,7 +269,9 @@ namespace trim
     }
 #endif
 
-    //Get specified key's real time state, if the input is null pointer, return key released.
+    //=========================================================================
+    // Get specified key's real time state, if the input is null pointer, return key released.
+    //=========================================================================
     enum_key_state key_state(char *pHotkeyString)
     {
         enum_key_state KeyState = enum_key_state::Released;
@@ -212,7 +282,9 @@ namespace trim
         return KeyState;
     }
 
-    //fresh hotkey current state and detect it's triggered or not. 
+    //=========================================================================
+    // Refresh hotkey current state and detect if it's triggered or not. 
+    //=========================================================================
     bool is_hotkey_trim_triggered()
     {
         bool hotkeyTriggered = false;
@@ -237,9 +309,7 @@ namespace trim
         return hotkeyTriggered;
     }
 
-    static const int MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH = 16;
-    static const int TRACE_TRIGGER_STRING_LENGTH = MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH + MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH;
-
+    //=========================================================================
     char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType)
     {
         static const char TRIM_TRIGGER_ENV_NAME[] = "VKTRACE_TRIM_TRIGGER";
@@ -290,6 +360,7 @@ namespace trim
         return (trimTriggerType != enum_trim_trigger::none) && (trimTriggerType == triggerType) ? trim_trigger_option : nullptr;
     }
 
+    //=========================================================================
     void initialize()
     {
         const char *trimFrames = getTraceTriggerOptionString(enum_trim_trigger::frameCounter);
@@ -330,6 +401,7 @@ namespace trim
         }
     }
 
+    //=========================================================================
     void deinitialize()
     {
         delete_all_packets();
@@ -343,6 +415,7 @@ namespace trim
         vktrace_delete_critical_section(&trimTransitionMapLock);
     }
 
+    //=========================================================================
     void add_Allocator(const VkAllocationCallbacks* pAllocator)
     {
         if (pAllocator != NULL)
@@ -355,6 +428,7 @@ namespace trim
         }
     }
 
+    //=========================================================================
     VkAllocationCallbacks* get_Allocator(const VkAllocationCallbacks* pAllocator)
     {
         if (pAllocator == NULL)
@@ -368,6 +442,7 @@ namespace trim
         return pStoredAllocator;
     }
 
+    //=========================================================================
     bool IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory)
     {
         ObjectInfo* pInfo = get_DeviceMemory_objectInfo(memory);
@@ -380,6 +455,7 @@ namespace trim
         return isDeviceOnly;
     }
 
+    //=========================================================================
     VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTypeIndex)
     {
         assert(memoryTypeIndex < VK_MAX_MEMORY_TYPES);
@@ -402,6 +478,7 @@ namespace trim
         return pInfo->ObjectInfo.PhysicalDevice.physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags;
     }
 
+    //=========================================================================
     uint32_t FindMemoryTypeIndex(VkDevice device, uint32_t memoryTypeBits, VkMemoryPropertyFlags propertyFlags)
     {
         VkPhysicalDevice physicalDevice = get_Device_objectInfo(device)->belongsToPhysicalDevice;
@@ -421,6 +498,7 @@ namespace trim
         return 0;
     }
 
+    //=========================================================================
     VkImageAspectFlags getImageAspectFromFormat(VkFormat format)
     {
         VkImageAspectFlags aspectMask;
@@ -447,45 +525,10 @@ namespace trim
         return aspectMask;
     }
 
-    // Information necessary to create the staged buffer and memory for DEVICE_LOCAL buffers.
-    // This holds all the necessary structures so that we can fill them in once when we make
-    // the call during trim snapshot, and then reuse them when generating the calls to recreate
-    // the buffer into the trace file.
-    struct StagingInfo
-    {
-        VkBuffer buffer = {};
-        VkBufferCreateInfo bufferCreateInfo = {};
-        VkMemoryRequirements bufferMemoryRequirements = {};
-
-        VkDeviceMemory memory = {};
-        VkMemoryAllocateInfo memoryAllocationInfo = {};
-
-        // Region for copying buffers
-        VkBufferCopy copyRegion = {};
-
-        // Per-miplevel region for copying images
-        std::vector<VkBufferImageCopy> imageCopyRegions;
-
-        VkCommandPool commandPool = VK_NULL_HANDLE;
-        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-        VkQueue queue = VK_NULL_HANDLE;
-    };
-
-    // map to associate trace-time buffer with a staged buffer
-    static std::unordered_map<VkBuffer, StagingInfo> s_bufferToStagedInfoMap;
-
-    // map to associate trace-time image with a staged buffer
-    static std::unordered_map<VkImage, StagingInfo> s_imageToStagedInfoMap;
-
-    //=============================================================================
-    // Associates a Device to a trim-specific CommandPool
-    //=============================================================================
-    static std::unordered_map<VkDevice, VkCommandPool> s_deviceToCommandPoolMap;
-
-    //=============================================================================
+    //=========================================================================
     // Find existing trim-specific CommandPool from the Device, or 
     // create a new one.
-    //=============================================================================
+    //=========================================================================
     VkCommandPool getCommandPoolFromDevice(VkDevice device, uint32_t queueFamilyIndex = 0)
     {
         assert(device != VK_NULL_HANDLE);
@@ -514,15 +557,10 @@ namespace trim
         return commandPool;
     }
 
-    //=============================================================================
-    // Associates a Device to a trim-specific CommandBuffer
-    //=============================================================================
-    static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
-
-    //=============================================================================
+    //=========================================================================
     // Find existing trim-specific CommandBuffer from the Device, or 
     // create a new one.
-    //=============================================================================
+    //=========================================================================
     VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool commandPool = VK_NULL_HANDLE)
     {
         assert(device != VK_NULL_HANDLE);
@@ -558,7 +596,7 @@ namespace trim
         return commandBuffer;
     }
 
-    //=============================================================================
+    //=========================================================================
     StagingInfo createStagingBuffer(VkDevice device, VkCommandPool commandPool, VkCommandBuffer commandBuffer, VkDeviceSize size)
     {
         StagingInfo stagingInfo = {};
@@ -592,7 +630,7 @@ namespace trim
         return stagingInfo;
     }
 
-    //=============================================================================
+    //=========================================================================
     void generateCreateStagingBuffer(VkDevice device, StagingInfo stagingInfo)
     {
         vktrace_trace_packet_header* pHeader = generate::vkCreateBuffer(false, device, &stagingInfo.bufferCreateInfo, NULL, &stagingInfo.buffer);
@@ -613,7 +651,7 @@ namespace trim
         vktrace_delete_trace_packet(&pHeader);
     }
 
-    //=============================================================================
+    //=========================================================================
     void generateDestroyStagingBuffer(VkDevice device, StagingInfo stagingInfo)
     {
         // delete staging buffer
@@ -627,7 +665,7 @@ namespace trim
         vktrace_delete_trace_packet(&pHeader);
     }
 
-    //=============================================================================
+    //=========================================================================
     void transitionImage(VkDevice device, VkCommandBuffer commandBuffer, VkImage image, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, uint32_t queueFamilyIndex, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t mipLevels)
     {
         // Create a pipeline barrier to make it host readable
@@ -650,7 +688,7 @@ namespace trim
         mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     };
 
-    //=============================================================================
+    //=========================================================================
     void generateTransitionImage(VkDevice device, VkCommandBuffer commandBuffer, VkImage image, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, uint32_t queueFamilyIndex, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlags aspectMask, uint32_t layerCount, uint32_t mipLevels)
     {
         // Create a pipeline barrier to make it host readable
@@ -675,7 +713,7 @@ namespace trim
         vktrace_delete_trace_packet(&pHeader);
     };
 
-    //=============================================================================
+    //=========================================================================
     void transitionBuffer(VkDevice device, VkCommandBuffer commandBuffer, VkBuffer buffer, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkDeviceSize offset, VkDeviceSize size)
     {
         // Create a pipeline barrier to make it host readable
@@ -693,7 +731,7 @@ namespace trim
         mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
     };
 
-    //=============================================================================
+    //=========================================================================
     void generateTransitionBuffer(VkDevice device, VkCommandBuffer commandBuffer, VkBuffer buffer, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkDeviceSize offset, VkDeviceSize size)
     {
         // Create a pipeline barrier to make it host readable
@@ -713,9 +751,10 @@ namespace trim
         vktrace_delete_trace_packet(&pHeader);
     };
 
-    //=============================================================================
+    //=========================================================================
     // \param isMappedOffset If the buffer is currently mapped by the application, this is the offset that was used during that call to vkMapMemory.
     // \param pIsMappedAddress If the buffer is currently mapped by the application, this is the address of the buffer that was returned by vkMapMemory.
+    //=========================================================================
     void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkDeviceSize isMappedOffset, void* pIsMappedAddress, vktrace_trace_packet_header** ppMapMemoryPacket, vktrace_trace_packet_header** ppUnmapMemoryPacket)
     {
         assert(ppMapMemoryPacket != NULL);
@@ -1353,6 +1392,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Instance_object(VkInstance var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1360,6 +1400,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Instance_objectInfo(VkInstance var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1373,6 +1414,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_PhysicalDevice_object(VkPhysicalDevice var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1381,6 +1423,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_PhysicalDevice_object(VkPhysicalDevice var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1388,6 +1431,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_PhysicalDevice_objectInfo(VkPhysicalDevice var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1401,6 +1445,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Device_object(VkDevice var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1409,6 +1454,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Device_object(VkDevice var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1416,6 +1462,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Device_objectInfo(VkDevice var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1429,6 +1476,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_SurfaceKHR_object(VkSurfaceKHR var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1437,6 +1485,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_SurfaceKHR_object(VkSurfaceKHR var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1444,6 +1493,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_SurfaceKHR_objectInfo(VkSurfaceKHR var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1457,6 +1507,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Queue_object(VkQueue var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1465,6 +1516,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Queue_object(VkQueue var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1472,6 +1524,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Queue_objectInfo(VkQueue var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1485,6 +1538,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_SwapchainKHR_object(VkSwapchainKHR var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1493,6 +1547,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_SwapchainKHR_object(VkSwapchainKHR var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1500,6 +1555,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_SwapchainKHR_objectInfo(VkSwapchainKHR var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1513,6 +1569,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_CommandPool_object(VkCommandPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1521,6 +1578,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_CommandPool_object(VkCommandPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1528,6 +1586,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_CommandPool_objectInfo(VkCommandPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1541,6 +1600,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_CommandBuffer_object(VkCommandBuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1549,6 +1609,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_CommandBuffer_object(VkCommandBuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1556,6 +1617,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_CommandBuffer_objectInfo(VkCommandBuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1569,6 +1631,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_DeviceMemory_object(VkDeviceMemory var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1577,6 +1640,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_DeviceMemory_object(VkDeviceMemory var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1584,6 +1648,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_DeviceMemory_objectInfo(VkDeviceMemory var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1597,6 +1662,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_ImageView_object(VkImageView var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1605,6 +1671,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_ImageView_object(VkImageView var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1612,6 +1679,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_ImageView_objectInfo(VkImageView var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1625,6 +1693,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Image_object(VkImage var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1633,6 +1702,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Image_object(VkImage var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1640,6 +1710,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Image_objectInfo(VkImage var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1653,6 +1724,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_BufferView_object(VkBufferView var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1661,6 +1733,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_BufferView_object(VkBufferView var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1668,6 +1741,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_BufferView_objectInfo(VkBufferView var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1681,6 +1755,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Buffer_object(VkBuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1689,6 +1764,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Buffer_object(VkBuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1696,6 +1772,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Buffer_objectInfo(VkBuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1709,6 +1786,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Sampler_object(VkSampler var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1717,6 +1795,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Sampler_object(VkSampler var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1724,6 +1803,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Sampler_objectInfo(VkSampler var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1737,6 +1817,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_DescriptorSetLayout_object(VkDescriptorSetLayout var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1745,6 +1826,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_DescriptorSetLayout_object(VkDescriptorSetLayout var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1752,6 +1834,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1765,6 +1848,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_PipelineLayout_object(VkPipelineLayout var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1773,6 +1857,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_PipelineLayout_object(VkPipelineLayout var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1780,6 +1865,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_PipelineLayout_objectInfo(VkPipelineLayout var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1793,6 +1879,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_RenderPass_object(VkRenderPass var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1801,6 +1888,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_RenderPass_object(VkRenderPass var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1808,6 +1896,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_RenderPass_objectInfo(VkRenderPass var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1821,6 +1910,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_ShaderModule_object(VkShaderModule var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1829,6 +1919,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_ShaderModule_object(VkShaderModule var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1836,6 +1927,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_ShaderModule_objectInfo(VkShaderModule var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1849,6 +1941,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_PipelineCache_object(VkPipelineCache var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1864,6 +1957,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_PipelineCache_objectInfo(VkPipelineCache var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1877,6 +1971,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_DescriptorPool_object(VkDescriptorPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1885,6 +1980,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_DescriptorPool_object(VkDescriptorPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1892,6 +1988,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_DescriptorPool_objectInfo(VkDescriptorPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1905,6 +2002,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Pipeline_object(VkPipeline var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1913,6 +2011,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Pipeline_object(VkPipeline var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1920,6 +2019,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Pipeline_objectInfo(VkPipeline var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1933,6 +2033,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Semaphore_object(VkSemaphore var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1941,6 +2042,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Semaphore_object(VkSemaphore var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1948,6 +2050,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Semaphore_objectInfo(VkSemaphore var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1961,6 +2064,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Fence_object(VkFence var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1969,6 +2073,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Fence_object(VkFence var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1976,6 +2081,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Fence_objectInfo(VkFence var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1989,6 +2095,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Framebuffer_object(VkFramebuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -1997,6 +2104,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Framebuffer_object(VkFramebuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2004,6 +2112,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Framebuffer_objectInfo(VkFramebuffer var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2017,6 +2126,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_Event_object(VkEvent var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2025,6 +2135,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_Event_object(VkEvent var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2032,6 +2143,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_Event_objectInfo(VkEvent var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2045,6 +2157,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_QueryPool_object(VkQueryPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2053,6 +2166,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_QueryPool_object(VkQueryPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2060,6 +2174,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_QueryPool_objectInfo(VkQueryPool var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2073,6 +2188,7 @@ namespace trim
         return pResult;
     }
 
+    //=========================================================================
     ObjectInfo* add_DescriptorSet_object(VkDescriptorSet var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2081,6 +2197,7 @@ namespace trim
         return info;
     }
 
+    //=========================================================================
     void remove_DescriptorSet_object(VkDescriptorSet var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2088,6 +2205,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     ObjectInfo* get_DescriptorSet_objectInfo(VkDescriptorSet var)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2102,7 +2220,6 @@ namespace trim
     }
 
     //=========================================================================
-    
 
 #define TRIM_MARK_OBJECT_REFERENCE(type) \
     void mark_##type##_reference(Vk##type var) { \
@@ -2159,9 +2276,9 @@ namespace trim
     TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Sampler)
     TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSetLayout)
 
-    //=============================================================================
+    //=========================================================================
     // Recreate all objects
-    //=============================================================================
+    //=========================================================================
     void write_all_referenced_object_calls()
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -3169,9 +3286,9 @@ namespace trim
         VKTRACE_DELETE(pSignalSemaphores);
     }
 
-    //===============================================
+    //=========================================================================
     // Object tracking
-    //===============================================
+    //=========================================================================
     void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo* pCreateInfo)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -3179,6 +3296,7 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
+    //=========================================================================
     uint32_t get_RenderPassVersion(VkRenderPass renderPass)
     {
         uint32_t version = 0;
@@ -3188,6 +3306,7 @@ namespace trim
         return version;
     }
     
+    //=========================================================================
     void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header* pHeader)
     {
         if (pHeader != NULL)
@@ -3198,6 +3317,7 @@ namespace trim
         }
     }
 
+    //=========================================================================
     void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer)
     {
         vktrace_enter_critical_section(&trimCommandBufferPacketLock);
@@ -3205,6 +3325,7 @@ namespace trim
         vktrace_leave_critical_section(&trimCommandBufferPacketLock);
     }
 
+    //=========================================================================
     void reset_DescriptorPool(VkDescriptorPool descriptorPool)
     {
         vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -3234,6 +3355,7 @@ namespace trim
         vktrace_leave_critical_section(&trimRecordedPacketLock);
     }
 
+    //=========================================================================
     void write_recorded_packets()
     {
         vktrace_enter_critical_section(&trimRecordedPacketLock);
@@ -3511,9 +3633,9 @@ namespace trim
         vktrace_leave_critical_section(&trimStateTrackerLock);
     }
 
-    //===============================================
+    //=========================================================================
     // Delete all the created packets
-    //===============================================
+    //=========================================================================
     void delete_all_packets()
     {
         // delete all recorded packets
