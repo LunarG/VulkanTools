@@ -11,6 +11,8 @@ set(SRC_LIST
     vkreplay_main.cpp
     vkreplay_seq.cpp
     vkreplay_factory.cpp
+    ../../../layersvt/screenshot_parsing.h
+    ../../../layersvt/screenshot_parsing.cpp
 )
 
 include_directories(
@@ -18,6 +20,7 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}/../vktrace_extensions/vktracevulkan/vkreplay/
+    ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
 )
 
 set (LIBRARIES vktrace_common vulkan_replay)
@@ -28,6 +31,7 @@ if(WIN32)
     add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}-${MAJOR}")
 else()
     add_dependencies(${PROJECT_NAME} "${API_LOWERCASE}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 target_link_libraries(${PROJECT_NAME}
