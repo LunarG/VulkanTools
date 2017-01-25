@@ -39,7 +39,7 @@ else ()
     cmake_minimum_required(VERSION 2.8.11)
 endif()
 
-set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SRC_DIR}/cmake/Modules/")
 #set(CMAKE_EXTERNAL_PATH "${SRC_DIR}/../../external")
@@ -87,21 +87,21 @@ set(VKTRACE_VULKAN_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
 
-add_subdirectory(src/vktrace_common)
-add_subdirectory(src/vktrace_trace)
+add_subdirectory(vktrace_common)
+add_subdirectory(vktrace_trace)
 
 option(BUILD_VKTRACE_LAYER "Build vktrace_layer" ON)
 if(BUILD_VKTRACE_LAYER)
-    add_subdirectory(src/vktrace_layer)
+    add_subdirectory(vktrace_layer)
 endif()
 option(BUILD_VKTRACE_REPLAY "Build vktrace_replay" ON)
 if(BUILD_VKTRACE_REPLAY)
-    add_subdirectory(src/vktrace_replay)
+    add_subdirectory(vktrace_replay)
 endif()
 
 # Only build vktraceviewer if Qt5 is available
 if (Qt5_FOUND AND BUILD_VKTRACEVIEWER)
-    add_subdirectory(src/vktrace_viewer)
+    add_subdirectory(vktrace_viewer)
 endif()
 
 # use macro from stackoverflow (link below) to get all the extensions that are on the current system

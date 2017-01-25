@@ -23,7 +23,7 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
     # so that vktrace.exe can find VkLayer_vktrace_layer.dll.
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../../../layersvt/)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../../layersvt/)
 endif()
 
 set(SRC_LIST
@@ -78,9 +78,9 @@ else()
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
         if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
-            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
+            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
         else()
-            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../../layersvt/VkLayer_vktrace_layer.json dst_json)
+            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/VkLayer_vktrace_layer.json dst_json)
         endif()
 
         add_custom_target(vktrace_layer-json ALL
