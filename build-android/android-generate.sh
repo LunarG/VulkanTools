@@ -80,6 +80,10 @@ cp  generated/common/buffer_validation.cpp ${SRC_ROOT}/core_validation/buffer_va
 cp  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/core_validation/vk_safe_struct.cpp
 mv  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/unique_objects/vk_safe_struct.cpp
 
+# Multiple source files for screenshot.  This whole area needs a rework since we don't support gradle anymore.
+cp  ../layersvt/screenshot_parsing.h   generated/include/
+cp  ../layersvt/screenshot_parsing.cpp ${SRC_ROOT}/screenshot/
+
 # fixup - remove copied files from generated/include
 rm  generated/include/api_dump.cpp
 

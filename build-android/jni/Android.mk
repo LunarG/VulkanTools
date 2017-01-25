@@ -155,6 +155,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_screenshot
 LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
 LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
@@ -310,6 +311,7 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkrep
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/common/vulkan_wrapper.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/include \
                     $(SRC_DIR)/include/vulkan \
