@@ -39,8 +39,11 @@
 #include <string>
 #include <type_traits>
 
+#define MAX_STRING_LENGTH 1024
+
 enum class ApiDumpFormat {
     Text,
+    Html,
 };
 
 class ApiDumpSettings {
@@ -59,9 +62,9 @@ class ApiDumpSettings {
             use_cout = true;
         }
 
-        output_format = ApiDumpFormat::Text;
-
         // Get the remaining settings
+        output_format = readFormatOption("lunarg_api_dump.output_format", ApiDumpFormat::Text);
+        
         show_params = readBoolOption("lunarg_api_dump.detailed", true);
         show_address = !readBoolOption("lunarg_api_dump.no_addr", false);
         should_flush = readBoolOption("lunarg_api_dump.flush", true);
@@ -71,10 +74,140 @@ class ApiDumpSettings {
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
         use_spaces = readBoolOption("lunarg_api_dump.use_spaces", true);
         show_shader = readBoolOption("lunarg_api_dump.show_shader", false);
+        
+        // Generate HTML heading if specified
+        if (output_format == ApiDumpFormat::Html) {
+            // Find the layer path
+            std::string layer_path;
+#ifdef _WIN32
+            char temp[MAX_STRING_LENGTH];
+            int bytes = GetEnvironmentVariableA("VK_LAYER_PATH", temp, MAX_STRING_LENGTH - 1);
+            if (0 < bytes) {
+                std::string location = temp;
+                layer_path = location.substr(0, location.rfind("\\"));
+
+                size_t index = 0;
+                while (true) {
+                    index = layer_path.find("\\", index);
+                    if (index == std::string::npos) {
+                        break;
+                    }
+                    layer_path.replace(index, 1, "/");
+                    index++;
+                }
+            } else {
+                layer_path = "";
+            }
+#elif __GNUC__
+            layer_path = getenv("VK_LAYER_PATH");
+            if (layer_path.length() > 0) {
+                layer_path = layer_path.substr(0, layer_path.rfind("/"));
+            } else {
+                layer_path = "";
+            }
+#endif
+            
+            // Insert html heading
+            stream() << 
+                "<!doctype html>"
+                "<html>"
+                    "<head>"
+                        "<title>Vulkan API Dump</title>"
+                        "<style type='text/css'>"
+                        "html {"
+                            "background-color: #0b1e48;"
+                            "background-image: url('https://vulkan.lunarg.com/img/bg-starfield.jpg');"
+                            "background-position: center;"
+                            "-webkit-background-size: cover;"
+                            "-moz-background-size: cover;"
+                            "-o-background-size: cover;"
+                            "background-size: cover;"
+                            "background-attachment: fixed;"
+                            "background-repeat: no-repeat;"
+                            "height: 100%;"
+                        "}"
+                        "#header {"
+                            "z-index: -1;"
+                        "}"
+                        "#header>img {"
+                            "position: absolute;"
+                            "width: 160px;"
+                            "margin-left: -280px;"
+                            "top: -10px;"
+                            "left: 50%;"
+                        "}"
+                        "#header>h1 {"
+                            "font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;"
+                            "font-size: 44px;"
+                            "font-weight: 200;"
+                            "text-shadow: 4px 4px 5px #000;"
+                            "color: #eee;"
+                            "position: absolute;"
+                            "width: 400px;"
+                            "margin-left: -80px;"
+                            "top: 8px;"
+                            "left: 50%;"
+                        "}"
+                        "body {"
+                            "font-family: Consolas, monaco, monospace;"
+                            "font-size: 14px;"
+                            "line-height: 20px;"
+                            "color: #eee;"
+                            "height: 100%;"
+                            "margin: 0;"
+                            "overflow: hidden;"
+                        "}"
+                        "#wrapper {"
+                            "background-color: rgba(0, 0, 0, 0.7);"
+                            "border: 1px solid #446;"
+                            "box-shadow: 0px 0px 10px #000;"
+                            "padding: 8px 12px;"
+                            "display: inline-block;"
+                            "position: absolute;"
+                            "top: 80px;"
+                            "bottom: 25px;"
+                            "left: 50px;"
+                            "right: 50px;"
+                            "overflow: auto;"
+                        "}"
+                        "details>*:not(summary) {"
+                            "margin-left: 22px;"
+                        "}"
+                        "details>summary:only-child::-webkit-details-marker {"
+                            "display: none;"
+                        "}"
+                        ".var, .type, .val {"
+                            "display: inline;"
+                        "}"
+                        ".type {"
+                            "color: #acf;"
+                            "margin: 0 12px;"
+                        "}"
+                        ".val {"
+                            "color: #afa;"
+                            "text-align: right;"
+                        "}"
+                        ".thd {"
+                            "color: #888;"
+                        "}"
+                        "</style>"
+                    "</head>"
+                    "<body>"
+                        "<div id='header'>"
+                            "<img src='" << layer_path << "/images/lunarg.png' />"
+                            "<h1>Vulkan API Dump</h1>"
+                        "</div>"
+                        "<div id='wrapper'>";
+        }
     }
 
     ~ApiDumpSettings() {
-        if (!use_cout) output_stream.close();
+        if (output_format == ApiDumpFormat::Html) {
+            // Close off html
+            stream() << "</div></body></html>";
+        }
+        if (!use_cout)
+            output_stream.close();
     }
 
     inline ApiDumpFormat format() const { return output_format; }
@@ -131,6 +264,16 @@ class ApiDumpSettings {
         } else {
             return value;
         }
+    }
+    
+    inline static ApiDumpFormat readFormatOption(const char *option, ApiDumpFormat default_value) {
+        const char *string_option = getLayerOption(option);
+        if (strcmp(string_option, "Text") == 0)
+            return ApiDumpFormat::Text;
+        else if (strcmp(string_option, "Html") == 0)
+            return ApiDumpFormat::Html;
+        else
+            return default_value;
     }
 
     inline static const char *spaces(int count) { return SPACES + (MAX_SPACES - std::max(count, 0)); }
@@ -345,6 +488,170 @@ inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &s
         return settings.stream() << "address";
 }
 
+
 inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, int indents) {
     return settings.stream() << object;
 }
+
+//==================================== Html Backend Helpers ======================================//
+
+inline std::ostream &dump_html_nametype(std::ostream &stream, const char *name, const char *type) {
+    return stream << "<div class='var'>" << name 
+                  << "</div><div class='type'>" << type
+                  << "</div>";
+}
+
+template <typename T>
+inline void
+dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings,
+                const char *type_string, const char *child_type,
+                const char *name, int indents,
+                std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), name, type_string);
+    settings.stream() << "<div class='val'>";
+    if (array == NULL) {
+        settings.stream() << "NULL</div></summary></details>";
+        return;
+    }
+    if (settings.showAddress())
+        settings.stream() << (void *)array << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    for (size_t i = 0; i < len && array != NULL; ++i) {
+        std::stringstream stream;
+        stream << name << '[' << i << ']';
+        std::string indexName = stream.str();
+        dump_html_value(array[i], settings, child_type, indexName.c_str(),
+                        indents + 1, dump);
+    }
+    settings.stream() << "</details>";
+}
+
+template <typename T>
+inline void dump_html_array(
+    const T *array, size_t len, const ApiDumpSettings &settings,
+    const char *type_string, const char *child_type, const char *name,
+    int indents,
+    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), name, type_string);
+    settings.stream() << "<div class='val'>";
+    if (array == NULL) {
+        settings.stream() << "NULL</div></summary></details>";
+        return;
+    }
+    if (settings.showAddress())
+        settings.stream() << (void *)array << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    for (size_t i = 0; i < len && array != NULL; ++i) {
+        std::stringstream stream;
+        stream << name << '[' << i << ']';
+        std::string indexName = stream.str();
+        dump_html_value(array[i], settings, child_type, indexName.c_str(),
+                        indents + 1, dump);
+    }
+    settings.stream() << "</details>";
+}
+
+template <typename T>
+inline void dump_html_pointer(
+    const T *pointer, const ApiDumpSettings &settings, const char *type_string,
+    const char *name, int indents,
+    std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+    if (pointer == NULL) {
+        settings.stream() << "<details class='data'><summary>";
+        dump_html_nametype(settings.stream(), name, type_string);
+        settings.stream() << "<div class='val'>NULL</div></summary></details>";
+    } else {
+        dump_html_value(*pointer, settings, type_string, name, indents, dump);
+    }
+}
+
+template <typename T>
+inline void dump_html_pointer(
+    const T *pointer, const ApiDumpSettings &settings, const char *type_string,
+    const char *name, int indents,
+    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+    if (pointer == NULL) {
+        settings.stream() << "<details class='data'><summary>";
+        dump_html_nametype(settings.stream(), name, type_string);
+        settings.stream() << "<div class='val'>NULL</div></summary></details>";
+    } else {
+        dump_html_value(*pointer, settings, type_string, name, indents, dump);
+    }
+}
+
+template <typename T>
+inline void
+dump_html_value(const T object, const ApiDumpSettings &settings,
+                const char *type_string, const char *name, int indents,
+                std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), name, type_string);
+    dump(object, settings, indents);
+    settings.stream() << "</details>";
+}
+
+template <typename T>
+inline void dump_html_value(
+    const T &object, const ApiDumpSettings &settings, const char *type_string,
+    const char *name, int indents,
+    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), name, type_string);
+    dump(object, settings, indents);
+    settings.stream() << "</details>";
+}
+
+inline void dump_html_special(
+    const char *text, const ApiDumpSettings &settings, const char *type_string,
+    const char *name, int indents) {
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), name, type_string);
+    settings.stream() << "<div class='val'>" << text << "</div></summary></details>";
+}
+
+inline bool dump_html_bitmaskOption(const std::string &option,
+                                    std::ostream &stream, bool isFirst) {
+    if (isFirst)
+        stream << " (";
+    else
+        stream << " | ";
+    stream << option;
+    return false;
+}
+
+inline std::ostream &dump_html_cstring(const char *object,
+                                       const ApiDumpSettings &settings,
+                                       int indents) {
+    settings.stream() << "<div class='val'>";
+    if (object == NULL)
+        settings.stream() << "NULL";
+    else
+        settings.stream() << "\"" << object << "\"";
+    return settings.stream() << "</div>";
+}
+
+inline std::ostream &dump_html_void(const void *object,
+                                    const ApiDumpSettings &settings,
+                                    int indents) {
+    settings.stream() << "<div class='val'>";
+    if (object == NULL)
+        settings.stream() << "NULL";
+    else if (settings.showAddress())
+        settings.stream() << object;
+    else
+        settings.stream() << "address";
+    return settings.stream() << "</div>";
+}
+
+inline std::ostream &dump_html_int(int object, const ApiDumpSettings &settings, int indents) {
+    settings.stream() << "<div class='val'>";
+    settings.stream() << object;
+    return settings.stream() << "</div>";
+}
+

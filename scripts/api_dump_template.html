@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Vulkan API Dump</title>
+        <style type='text/css'>
+         html {
+            background-color: #0b1e48;
+            background-image: url("https://vulkan.lunarg.com/img/bg-starfield.jpg");
+            background-position: center;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            height: 100%;
+        }
+        #header {
+            z-index: -1;
+        }
+        #header>img {
+            position: absolute;
+            width: 160px;
+            margin-left: -280px;
+            top: -10px;
+            left: 50%;
+        }
+        #header>h1 {
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+            font-size: 44px;
+            font-weight: 200;
+            text-shadow: 4px 4px 5px #000;
+            color: #eee;
+            position: absolute;
+            width: 400px;
+            margin-left: -80px;
+            top: 8px;
+            left: 50%;
+        }
+        body {
+            font-family: Consolas, monaco, monospace;
+            font-size: 14px;
+            line-height: 20px;
+            color: #eee;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        #wrapper {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #446;
+            box-shadow: 0px 0px 10px #000;
+            padding: 8px 12px;
+            
+            display: inline-block;
+            position: absolute;
+            top: 80px;
+            bottom: 25px;
+            left: 50px;
+            right: 50px;
+            overflow: auto;
+        }
+        details>details {
+            margin-left: 22px;
+        }
+        details>summary:only-child::-webkit-details-marker {
+            display: none;
+        }
+        .var, .type, .val {
+            display: inline;
+        }
+        .var {
+        }
+        .type {
+            color: #acf;
+            margin: 0 12px;
+        }
+        .val {
+            color: #afa;
+            background: #222;
+            text-align: right;
+        }
+        </style>
+    </head>
+    <body>
+        <div id='header'>
+            <img src='C:/Git/VulkanTools/layersvt/images/lunarg.png' />
+            <h1>Vulkan API Dump</h1>
+        </div>
+        <div id='wrapper'>
+            <details><summary>Frame 0</summary>
+                <details><summary>Thread 0</summary>
+                    <details class='fn'><summary><div class='var'>vkCreateInstance(pCreateInfo, pAllocator, pInstance)</div><div class='type'>VkResult</div><div class='val'>VK_SUCCESS (0)</div></summary>
+                        <details class='data'><summary><div class='var'>pCreateInfo</div><div class='type'>const VkInstanceCreateInfo*</div><div class='val'>000000B75F75EF00</div></summary>
+                            <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            <details class='data'><summary><div class='var'>flags</div><div class='type'>VkInstanceCreateFlags</div><div class='val'>0</div></summary></details>
+                            <details class='data'><summary><div class='var'>pApplicationInfo</div><div class='type'>const VkApplicationInfo*</div><div class='val'>000000B75F85F258</div></summary>
+                                <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            </details>
+                        </details>
+                        <details class='data'><summary><div class='var'>pAllocator</div><div class='type'>const VkAllocationCallbacks*</div><div class='val'>NULL</div></summary></details>
+                        <details class='data'><summary><div class='var'>pInstance</div><div class='type'>const VkInstance*</div><div class='val'>0000022C914539E0</div></summary></details>
+                    </details>
+                    <details class='fn'><summary><div class='var'>vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices)</div><div class='type'>VkResult</div><div class='val'>V_SUCCESS (0)</div></summary>
+                    </details>
+                </details>
+            </details>
+            <details><summary>Frame 1</summary>
+                <details><summary>Thread 0</summary>
+                    <details class='fn'><summary><div class='var'>vkCreateInstance(pCreateInfo, pAllocator, pInstance)</div><div class='type'>VkResult</div><div class='val'>VK_SUCCESS (0)</div></summary>
+                        <details class='data'><summary><div class='var'>pCreateInfo</div><div class='type'>const VkInstanceCreateInfo*</div><div class='val'>000000B75F75EF00</div></summary>
+                            <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            <details class='data'><summary><div class='var'>flags</div><div class='type'>VkInstanceCreateFlags</div><div class='val'>0</div></summary></details>
+                            <details class='data'><summary><div class='var'>pApplicationInfo</div><div class='type'>const VkApplicationInfo*</div><div class='val'>000000B75F85F258</div></summary>
+                                <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            </details>
+                        </details>
+                        <details class='data'><summary><div class='var'>pAllocator</div><div class='type'>const VkAllocationCallbacks*</div><div class='val'>NULL</div></summary></details>
+                        <details class='data'><summary><div class='var'>pInstance</div><div class='type'>const VkInstance*</div><div class='val'>0000022C914539E0</div></summary></details>
+                    </details>
+                    <details class='fn'><summary><div class='var'>vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices)</div><div class='type'>VkResult</div><div class='val'>V_SUCCESS (0)</div></summary>
+                    </details>
+                </details>
+            </details>
+            <details><summary>Frame 2</summary>
+                <details><summary>Thread 0</summary>
+                    <details class='fn'><summary><div class='var'>vkCreateInstance(pCreateInfo, pAllocator, pInstance)</div><div class='type'>VkResult</div><div class='val'>VK_SUCCESS (0)</div></summary>
+                        <details class='data'><summary><div class='var'>pCreateInfo</div><div class='type'>const VkInstanceCreateInfo*</div><div class='val'>000000B75F75EF00</div></summary>
+                            <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            <details class='data'><summary><div class='var'>flags</div><div class='type'>VkInstanceCreateFlags</div><div class='val'>0</div></summary></details>
+                            <details class='data'><summary><div class='var'>pApplicationInfo</div><div class='type'>const VkApplicationInfo*</div><div class='val'>000000B75F85F258</div></summary>
+                                <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            </details>
+                        </details>
+                        <details class='data'><summary><div class='var'>pAllocator</div><div class='type'>const VkAllocationCallbacks*</div><div class='val'>NULL</div></summary></details>
+                        <details class='data'><summary><div class='var'>pInstance</div><div class='type'>const VkInstance*</div><div class='val'>0000022C914539E0</div></summary></details>
+                    </details>
+                    <details class='fn'><summary><div class='var'>vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices)</div><div class='type'>VkResult</div><div class='val'>V_SUCCESS (0)</div></summary>
+                    </details>
+                </details>
+            </details>
+            <details><summary>Frame 3</summary>
+                <details><summary>Thread 0</summary>
+                    <details class='fn'><summary><div class='var'>vkCreateInstance(pCreateInfo, pAllocator, pInstance)</div><div class='type'>VkResult</div><div class='val'>VK_SUCCESS (0)</div></summary>
+                        <details class='data'><summary><div class='var'>pCreateInfo</div><div class='type'>const VkInstanceCreateInfo*</div><div class='val'>000000B75F75EF00</div></summary>
+                            <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            <details class='data'><summary><div class='var'>flags</div><div class='type'>VkInstanceCreateFlags</div><div class='val'>0</div></summary></details>
+                            <details class='data'><summary><div class='var'>pApplicationInfo</div><div class='type'>const VkApplicationInfo*</div><div class='val'>000000B75F85F258</div></summary>
+                                <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            </details>
+                        </details>
+                        <details class='data'><summary><div class='var'>pAllocator</div><div class='type'>const VkAllocationCallbacks*</div><div class='val'>NULL</div></summary></details>
+                        <details class='data'><summary><div class='var'>pInstance</div><div class='type'>const VkInstance*</div><div class='val'>0000022C914539E0</div></summary></details>
+                    </details>
+                    <details class='fn'><summary><div class='var'>vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices)</div><div class='type'>VkResult</div><div class='val'>V_SUCCESS (0)</div></summary>
+                    </details>
+                </details>
+            </details>
+            <details><summary>Frame 4</summary>
+                <details><summary>Thread 0</summary>
+                    <details class='fn'><summary><div class='var'>vkCreateInstance(pCreateInfo, pAllocator, pInstance)</div><div class='type'>VkResult</div><div class='val'>VK_SUCCESS (0)</div></summary>
+                        <details class='data'><summary><div class='var'>pCreateInfo</div><div class='type'>const VkInstanceCreateInfo*</div><div class='val'>000000B75F75EF00</div></summary>
+                            <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            <details class='data'><summary><div class='var'>flags</div><div class='type'>VkInstanceCreateFlags</div><div class='val'>0</div></summary></details>
+                            <details class='data'><summary><div class='var'>pApplicationInfo</div><div class='type'>const VkApplicationInfo*</div><div class='val'>000000B75F85F258</div></summary>
+                                <details class='data'><summary><div class='var'>sType</div><div class='type'>VkStructureType</div><div class='val'>VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO (1)</div></summary></details>
+                            <details class='data'><summary><div class='var'>pNext</div><div class='type'>const void*</div><div class='val'>000000B75F75EFE8</div></summary></details>
+                            </details>
+                        </details>
+                        <details class='data'><summary><div class='var'>pAllocator</div><div class='type'>const VkAllocationCallbacks*</div><div class='val'>NULL</div></summary></details>
+                        <details class='data'><summary><div class='var'>pInstance</div><div class='type'>const VkInstance*</div><div class='val'>0000022C914539E0</div></summary></details>
+                    </details>
+                    <details class='fn'><summary><div class='var'>vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices)</div><div class='type'>VkResult</div><div class='val'>V_SUCCESS (0)</div></summary>
+                    </details>
+                </details>
+            </details>
+        </div>
+    </body>
+</html>

@@ -65,6 +65,7 @@
 #   characters to be replaced with spaces
 
 #  VK_LUNARG_LAYER_api_dump Settings
+lunarg_api_dump.output_format = Text
 lunarg_api_dump.detailed = TRUE
 lunarg_api_dump.no_addr = FALSE
 lunarg_api_dump.file = FALSE

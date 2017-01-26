@@ -1,5 +1,10 @@
 cmake_minimum_required (VERSION 2.8.11)
 
+file(GLOB IMAGES
+   "${PROJECT_SOURCE_DIR}/layersvt/images/*"
+)
+file(COPY ${IMAGES} DESTINATION ${CMAKE_BINARY_DIR}/layersvt/images)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DVK_USE_PLATFORM_WIN32_KHX -DWIN32_LEAN_AND_MEAN)
     set(DisplayServer Win32)
@@ -34,6 +39,7 @@ endif()
 
 add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
 add_custom_target( generate_api_h DEPENDS api_dump_text.h )
+add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
 
 set(LAYER_JSON_FILES
     VkLayer_api_dump
@@ -91,13 +97,13 @@ if (WIN32)
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     add_dependencies(VkLayer_${target} generate_helper_files)
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h VkLayer_utilsvt)
+    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utilsvt)
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h VkLayer_utilsvt)
+    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utilsvt)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
     endmacro()
@@ -138,6 +144,7 @@ endif()
 #VulkanTools layers
 run_vk_xml_generate(api_dump_generator.py api_dump.cpp)
 run_vk_xml_generate(api_dump_generator.py api_dump_text.h)
+run_vk_xml_generate(api_dump_generator.py api_dump_html.h)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
