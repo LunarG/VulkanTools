@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (C) 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright (C) 2015-2017 Valve Corporation
+ * Copyright (C) 2015-2017 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
  * Author: Tobin Ehlis <tobin@lunarg.com>
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  * Author: Mark Lobodzinski <mark@lunarg.com>
+ * Author: David Pinedo <david@lunarg.com>
  */
 #include <stdbool.h>
 #include <unordered_map>
@@ -175,7 +176,7 @@ static int pipefd[2];
 
 static void segvHandler(int sig, siginfo_t *si, void *ununsed)
 {
-    size_t pageSize = getpagesize();
+    size_t pageSize = pageguardGetSystemPageSize();
     void *addr;
 
     addr = si->si_addr;
@@ -201,7 +202,7 @@ void getMappedDirtyPagesLinux(void)
     VkDeviceMemory mappedMemory;
     off_t pmOffset;
     int64_t index;
-    size_t pageSize = getpagesize();
+    size_t pageSize = pageguardGetSystemPageSize();
     size_t readLen;
     VKAllocInfo *pEntry;
     struct sigaction sigAction;
@@ -270,8 +271,23 @@ void getMappedDirtyPagesLinux(void)
             if ((pageEntries[i]&((uint64_t)1<<55)) != 0)
             {
                 index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-                if (index >= 0)
-                    pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                if (index >= 0) {
+                    // If the page is not already marked changed, compute a
+                    // checksum.
+                    // Mark the page as changed if the new checksum doesn't
+                    // match the
+                    // saved checksum, and save the new checksum.
+                    if (!pMappedMem->isMappedBlockChanged(
+                            index, BLOCK_FLAG_ARRAY_CHANGED)) {
+                        uint64_t checksum =
+                            pMappedMem->computePageChecksum(addr);
+                        if (checksum != pMappedMem->getPageChecksum(index)) {
+                            pMappedMem->setMappedBlockChanged(
+                                index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                            pMappedMem->setPageChecksum(index, checksum);
+                        }
+                    }
+                }
             }
             addr += pageSize;
         }
@@ -325,7 +341,14 @@ void getMappedDirtyPagesLinux(void)
             index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
             if (index >= 0)
             {
+                // Mark block as changed, and set checksum to invalid.
+                // We have to set the checksum to invalid because the block
+                // may be changed by another thread in this process, so
+                // the checksum we compute would be incorrect. We
+                // can only compute checksums while memory is mprotect'ed.
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                pMappedMem->setPageChecksum(
+                    index, PageGuardMappedMemory::CHECKSUM_INVALID);
                 break;
             }
         }
@@ -622,7 +645,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
 
         if (pEntry != NULL)
         {
+#if PLATFORM_LINUX
+            VkDeviceSize rangeSize __attribute__((unused));
+#else
             VkDeviceSize rangeSize;
+#endif
             if (pRange->size == VK_WHOLE_SIZE)
             {
                 LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);

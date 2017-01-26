@@ -51,8 +51,11 @@ protected:
     bool BlockConflictError; /// record if any block has been read by host and also write by host
     VkDeviceSize PageSizeLeft;
     uint64_t PageGuardAmount;
+    uint64_t *pPageChecksum;
 
-public:
+  public:
+    static const uint64_t CHECKSUM_INVALID = ~0UL;
+
     PageGuardMappedMemory();
     ~PageGuardMappedMemory();
 
@@ -126,4 +129,11 @@ public:
 
     /// get ptr and size of OPTChangedDataPackage;
     PBYTE getChangedDataPackage(VkDeviceSize  *pSize);
+
+    uint64_t getPageChecksum(uint64_t index);
+
+    void setPageChecksum(uint64_t index, uint64_t sum);
+
+    uint64_t computePageChecksum(void *addr);
+
 } PageGuardMappedMemory, *LPPageGuardMappedMemory;

@@ -305,6 +305,13 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
             uint64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
             if (!getEnableReadPMBFlag() || bWrite)
             {
+                // We don't attempt to use checksums on Windows to determine if
+                // a page is being written with the same data.
+                // We can't compute and save a checksum here because PAGEGUARD
+                // is a one-shot, and the saved checksum
+                // would be incorrect once the next word in the same block is
+                // written, and we don't have a way
+                // to find out about the change.
                 pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
             }
             else
