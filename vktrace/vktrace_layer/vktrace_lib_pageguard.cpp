@@ -302,30 +302,34 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
         LPPageGuardMappedMemory pMappedMem = getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
         if (pMappedMem)
         {
-            uint64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-            if (!getEnableReadPMBFlag() || bWrite)
-            {
-                // We don't attempt to use checksums on Windows to determine if
-                // a page is being written with the same data.
-                // We can't compute and save a checksum here because PAGEGUARD
-                // is a one-shot, and the saved checksum
-                // would be incorrect once the next word in the same block is
-                // written, and we don't have a way
-                // to find out about the change.
-                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-            }
-            else
-            {
+            int64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+            if (index >= 0) {
+                if (!getEnableReadPMBFlag() || bWrite) {
+                    // We don't attempt to use checksums on Windows to determine
+                    // if a page is being written with the same data.
+                    // We can't compute and save a checksum here because
+                    // PAGEGUARD is a one-shot, and the saved checksum
+                    // would be incorrect once the next word in the same block
+                    // is written, and we don't have a way to find out about the
+                    // change.
+                    pMappedMem->setMappedBlockChanged(index, true,
+                                                      BLOCK_FLAG_ARRAY_CHANGED);
+                } else {
 
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-                vktrace_pageguard_memcpy(pBlock, pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize, pMappedMem->getMappedBlockSize(index));
-                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
+                    vktrace_pageguard_memcpy(
+                        pBlock, pMappedMem->getRealMappedDataPointer() +
+                                    OffsetOfAddr - OffsetOfAddr % BlockSize,
+                        pMappedMem->getMappedBlockSize(index));
+                    pMappedMem->setMappedBlockChanged(index, true,
+                                                      BLOCK_FLAG_ARRAY_READ);
 
 #else
-                pMappedMem->setMappedBlockChanged(index, true);
+                    pMappedMem->setMappedBlockChanged(index, true);
 #endif
+                }
+                resultCode = EXCEPTION_CONTINUE_EXECUTION;
             }
-            resultCode = EXCEPTION_CONTINUE_EXECUTION;
         }
     }
     pageguardExit();

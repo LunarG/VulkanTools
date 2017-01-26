@@ -75,7 +75,7 @@ protected:
     bool getChangedRangeByIndex(uint64_t index, PBYTE *paddr, VkDeviceSize *pBlockSize);
 
     /// if return value <0, mean addr is out of page guard.
-    uint64_t getIndexOfChangedBlockByAddr(PBYTE addr);
+    int64_t getIndexOfChangedBlockByAddr(PBYTE addr);
 
     void setMappedBlockChanged(uint64_t index, bool bChanged, int useWhich);
 

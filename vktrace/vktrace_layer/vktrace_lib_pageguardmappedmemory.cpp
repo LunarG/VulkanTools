@@ -105,10 +105,9 @@ bool PageGuardMappedMemory::getChangedRangeByIndex(uint64_t index, PBYTE *pAddre
 }
 
 //if return value ==-1, mean addr is out of page guard.
-uint64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr)
-{
+int64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr) {
     int64_t addrOffset = addr - pMappedData;
-    uint64_t indexOfChangedBlockByAddr = -1;
+    int64_t indexOfChangedBlockByAddr = -1;
     if ((addrOffset >= 0) && ((VkDeviceSize)addrOffset < MappedSize))
     {
         indexOfChangedBlockByAddr = addrOffset / PageGuardSize;
