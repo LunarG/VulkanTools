@@ -35,15 +35,15 @@ mkdir -p generated/include generated/common
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h )
 
 # vktrace
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > generated/include/vktrace_vk_vk.h
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-trace-c vk_version_1_0 > generated/include/vktrace_vk_vk.cpp
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_version_1_0 > generated/include/vktrace_vk_vk_packets.h
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-packet-id vk_version_1_0 > generated/include/vktrace_vk_packet_id.h
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-trace-h vk_version_1_0 > generated/include/vktrace_vk_vk.h
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-trace-c vk_version_1_0 > generated/include/vktrace_vk_vk.cpp
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-core-trace-packets vk_version_1_0 > generated/include/vktrace_vk_vk_packets.h
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-packet-id vk_version_1_0 > generated/include/vktrace_vk_packet_id.h
 
 # vkreplay
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_version_1_0 > generated/include/vkreplay_vk_func_ptrs.h
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > generated/include/vkreplay_vk_replay_gen.cpp
-python3 ../vktrace/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_version_1_0 > generated/include/vkreplay_vk_objmapper.h
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_version_1_0 > generated/include/vkreplay_vk_func_ptrs.h
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > generated/include/vkreplay_vk_replay_gen.cpp
+python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_version_1_0 > generated/include/vkreplay_vk_objmapper.h
 
 cp -f ../layers/vk_layer_config.cpp   generated/common/
 cp -f ../layers/vk_layer_extension_utils.cpp  generated/common/
@@ -79,6 +79,10 @@ cp  generated/common/descriptor_sets.cpp ${SRC_ROOT}/core_validation/descriptor_
 cp  generated/common/buffer_validation.cpp ${SRC_ROOT}/core_validation/buffer_validation.cpp
 cp  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/core_validation/vk_safe_struct.cpp
 mv  generated/include/vk_safe_struct.cpp ${SRC_ROOT}/unique_objects/vk_safe_struct.cpp
+
+# Multiple source files for screenshot.  This whole area needs a rework since we don't support gradle anymore.
+cp  ../layersvt/screenshot_parsing.h   generated/include/
+cp  ../layersvt/screenshot_parsing.cpp ${SRC_ROOT}/screenshot/
 
 # fixup - remove copied files from generated/include
 rm  generated/include/api_dump.cpp

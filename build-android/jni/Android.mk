@@ -155,6 +155,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_screenshot
 LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
 LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
@@ -257,33 +258,32 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_vktrace_layer
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vktrace_vk_vk.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_interconnect.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_platform.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_process.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_settings.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_tracelog.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_pageguard_memorycopy.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_trace.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_vk_exts.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pagestatusarray.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardmappedmemory.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardcapture.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguard.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_trace_packet_utils.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_filelike.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_interconnect.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_platform.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_process.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_settings.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_pageguard_memorycopy.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_trace.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_layer/vktrace_vk_exts.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pagestatusarray.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguardmappedmemory.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguardcapture.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguard.cpp
 
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
 		    $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
-                    $(SRC_DIR)/vktrace/src/vktrace_common \
-                    $(SRC_DIR)/vktrace/src/vktrace_layer \
+                    $(SRC_DIR)/vktrace/vktrace_common \
+                    $(SRC_DIR)/vktrace/vktrace_layer \
                     $(SRC_DIR)/loader \
-                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardmappedmemory.h \
-                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguardcapture.h \
-                    $(SRC_DIR)/vktrace/src/vktrace_layer/vktrace_lib_pageguard.h \
-                    $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_pageguard_memorycopy.h
+                    $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguardmappedmemory.h \
+                    $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguardcapture.h \
+                    $(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguard.h \
+                    $(SRC_DIR)/vktrace/vktrace_common/vktrace_pageguard_memorycopy.h
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
@@ -295,32 +295,32 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := vkreplay
-LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_struct_size_helper.c
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/vkreplay_vk_replay_gen.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_trace_packet_utils.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_filelike.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_interconnect.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_platform.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_process.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_settings.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_common/vktrace_tracelog.c
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_factory.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_main.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_replay/vkreplay_seq.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_settings.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_trace_packet_utils.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_filelike.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_interconnect.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_platform.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_process.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_settings.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_factory.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_main.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_seq.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_settings.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/common/vulkan_wrapper.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/include \
                     $(SRC_DIR)/include/vulkan \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
-                    $(SRC_DIR)/vktrace/src/vktrace_common \
-                    $(SRC_DIR)/vktrace/src/vktrace_layer \
-                    $(SRC_DIR)/vktrace/src/vktrace_replay \
-                    $(SRC_DIR)/vktrace/src/vktrace_extensions/vktracevulkan/vkreplay \
+                    $(SRC_DIR)/vktrace/vktrace_common \
+                    $(SRC_DIR)/vktrace/vktrace_layer \
+                    $(SRC_DIR)/vktrace/vktrace_replay \
+                    $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
 LOCAL_SHARED_LIBRARIES += VkLayer_vktrace_layer
