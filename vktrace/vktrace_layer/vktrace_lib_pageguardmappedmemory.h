@@ -51,8 +51,11 @@ protected:
     bool BlockConflictError; /// record if any block has been read by host and also write by host
     VkDeviceSize PageSizeLeft;
     uint64_t PageGuardAmount;
+    uint64_t *pPageChecksum;
 
-public:
+  public:
+    static const uint64_t CHECKSUM_INVALID = ~0UL;
+
     PageGuardMappedMemory();
     ~PageGuardMappedMemory();
 
@@ -72,7 +75,7 @@ public:
     bool getChangedRangeByIndex(uint64_t index, PBYTE *paddr, VkDeviceSize *pBlockSize);
 
     /// if return value <0, mean addr is out of page guard.
-    uint64_t getIndexOfChangedBlockByAddr(PBYTE addr);
+    int64_t getIndexOfChangedBlockByAddr(PBYTE addr);
 
     void setMappedBlockChanged(uint64_t index, bool bChanged, int useWhich);
 
@@ -126,4 +129,11 @@ public:
 
     /// get ptr and size of OPTChangedDataPackage;
     PBYTE getChangedDataPackage(VkDeviceSize  *pSize);
+
+    uint64_t getPageChecksum(uint64_t index);
+
+    void setPageChecksum(uint64_t index, uint64_t sum);
+
+    uint64_t computePageChecksum(void *addr);
+
 } PageGuardMappedMemory, *LPPageGuardMappedMemory;

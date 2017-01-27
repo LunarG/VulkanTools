@@ -161,11 +161,11 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         {
             if (pMessageStream->mErrorNum == WSAECONNRESET)
             {
-                vktrace_LogError("Network Connection Reset");
+                vktrace_LogVerbose("Network connection closed");
             }
             else
             {
-                vktrace_LogError("Network Connection Failed");
+                vktrace_LogError("Network connection failed");
             }
             break;
         }

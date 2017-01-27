@@ -51,19 +51,12 @@ VkDeviceSize& PageGuardMappedMemory::getMappedSize()
 }
 
 PageGuardMappedMemory::PageGuardMappedMemory()
-    :MappedDevice(nullptr),
-    MappedMemory((VkDeviceMemory)nullptr),
-    pMappedData(nullptr),
-    pRealMappedData(nullptr),
-    pChangedDataPackage(nullptr),
-    MappedSize(0),
-    PageGuardSize(pageguardGetSystemPageSize()),
-    pPageStatus(nullptr),
-    BlockConflictError(false),
-    PageSizeLeft(0),
-    PageGuardAmount(0)
-{
-}
+    : MappedDevice(nullptr), MappedMemory((VkDeviceMemory) nullptr),
+      pMappedData(nullptr), pRealMappedData(nullptr),
+      pChangedDataPackage(nullptr), MappedSize(0),
+      PageGuardSize(pageguardGetSystemPageSize()), pPageStatus(nullptr),
+      BlockConflictError(false), PageSizeLeft(0), PageGuardAmount(0),
+      pPageChecksum(nullptr) {}
 
 PageGuardMappedMemory::~PageGuardMappedMemory()
 {
@@ -112,10 +105,9 @@ bool PageGuardMappedMemory::getChangedRangeByIndex(uint64_t index, PBYTE *pAddre
 }
 
 //if return value ==-1, mean addr is out of page guard.
-uint64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr)
-{
+int64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr) {
     int64_t addrOffset = addr - pMappedData;
-    uint64_t indexOfChangedBlockByAddr = -1;
+    int64_t indexOfChangedBlockByAddr = -1;
     if ((addrOffset >= 0) && ((VkDeviceSize)addrOffset < MappedSize))
     {
         indexOfChangedBlockByAddr = addrOffset / PageGuardSize;
@@ -301,6 +293,20 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
     {
         handleSuccessfully = false;
     }
+
+    pPageChecksum = new uint64_t[PageGuardAmount];
+    assert(pPageChecksum);
+#ifdef PLATFORM_LINUX
+    // We can't do page checksums on Windows - see the explanation in
+    // PageGuardExceptionHandler in vktrace_lib_pageguard.cpp.
+    // To minimize #ifdef's in the code, we compile in checksum code into
+    // Windows
+    // that is O(1), and #ifdef out checksum code that is >O(1) or is a large
+    // quantity of code.
+    for (uint64_t i = 0; i < PageGuardAmount; i++)
+        pPageChecksum[i] = CHECKSUM_INVALID;
+#endif
+
     return handleSuccessfully;
 }
 
@@ -335,6 +341,8 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
 #endif
         delete pPageStatus;
         pPageStatus = nullptr;
+        delete[] pPageChecksum;
+        pPageChecksum = nullptr;
         MappedMemory =(VkDeviceMemory)nullptr;
         MappedSize = 0;
     }
@@ -516,4 +524,40 @@ PBYTE PageGuardMappedMemory::getChangedDataPackage(VkDeviceSize  *pSize)
         }
     }
     return pResultDataPackage;
+}
+
+uint64_t PageGuardMappedMemory::getPageChecksum(uint64_t index) {
+    return pPageChecksum[index];
+}
+
+void PageGuardMappedMemory::setPageChecksum(uint64_t index, uint64_t sum) {
+    pPageChecksum[index] = sum;
+}
+
+uint64_t PageGuardMappedMemory::computePageChecksum(void *addr) {
+#ifdef PLATFORM_LINUX
+    size_t pageSize = pageguardGetSystemPageSize();
+    uint32_t *plui = (uint32_t *)addr;
+    uint64_t sum1 = 0, sum2 = 0;
+    uint64_t rval;
+    size_t i;
+    assert(pageSize % 4 == 0);
+    assert((((uint64_t)addr) & (pageSize - 1)) == 0);
+    for (i = 0; i < pageSize / 4; i++) {
+        sum1 = (sum1 + *plui);
+        sum2 = (sum2 + sum1);
+        plui++;
+    }
+    sum1 = (sum1 >> 32) ^ (sum1 & 0xffffffffUL);
+    sum2 = (sum2 >> 32) ^ (sum2 & 0xffffffffUL);
+    rval = (sum1 << 32) | sum2;
+    if (rval == CHECKSUM_INVALID)
+        // A checksum of all ones indicates an invalid checksum.
+        // Map it to something else.
+        rval = 0x1234567890abcdefUL;
+    return rval;
+#else
+    // Windows: checksums not supported
+    return 0;
+#endif
 }
