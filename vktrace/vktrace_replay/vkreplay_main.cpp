@@ -83,8 +83,10 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.screenshotList},
      {&replaySettings.screenshotList},
      TRUE,
-     "Get screenshots with comma separated list of frames, "
-     "<start>-<count>-<interval> or <all>."},
+     "Generate screenshots. <string> is one of:\n\
+                                       comma separated list of frames\n\
+                                       <start>-<count>-<interval>\n\
+                                       \"all\"" },
 #if _DEBUG
     {"v",
      "Verbosity",
