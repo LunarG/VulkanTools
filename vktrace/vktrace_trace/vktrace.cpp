@@ -74,8 +74,10 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_settings.screenshotList},
      {&g_default_settings.screenshotList},
      TRUE,
-     "Get screenshots with comma separated list of frames, "
-     "<start>-<count>-<interval> or <all>."},
+     "Generate screenshots. <string> is one of:\n\
+                                       comma separated list of frames\n\
+                                       <start>-<count>-<interval>\n\
+                                       \"all\"" },
     {"ptm",
      "PrintTraceMessages",
      VKTRACE_SETTING_BOOL,
