@@ -2775,7 +2775,45 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pImage));
-    FINISH_TRACE_PACKET();
+
+    if (!g_trimEnabled)
+    {
+        FINISH_TRACE_PACKET();
+    }
+    else
+    {
+        vktrace_finalize_trace_packet(pHeader);
+#if TRIM_USE_ORDERED_IMAGE_CREATION
+        trim::add_Image_call(trim::copy_packet(pHeader));
+#endif //TRIM_USE_ORDERED_IMAGE_CREATION"
+        trim::ObjectInfo* pInfo = trim::add_Image_object(*pImage);
+        pInfo->belongsToDevice = device;
+#if !TRIM_USE_ORDERED_IMAGE_CREATION
+        pInfo->ObjectInfo.Image.pCreatePacket = trim::copy_packet(pHeader);
+#endif //!TRIM_USE_ORDERED_IMAGE_CREATION
+        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;
+        pInfo->ObjectInfo.Image.format = pCreateInfo->format;
+        pInfo->ObjectInfo.Image.aspectMask = trim::getImageAspectFromFormat(pCreateInfo->format);
+        pInfo->ObjectInfo.Image.extent = pCreateInfo->extent;
+        pInfo->ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;
+        pInfo->ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;
+        pInfo->ObjectInfo.Image.sharingMode = pCreateInfo->sharingMode;
+        pInfo->ObjectInfo.Image.queueFamilyIndex = (pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT && pCreateInfo->pQueueFamilyIndices != NULL) ? pCreateInfo->pQueueFamilyIndices[0] : 0;
+        pInfo->ObjectInfo.Image.initialLayout = pCreateInfo->initialLayout;
+        pInfo->ObjectInfo.Image.mostRecentLayout = pCreateInfo->initialLayout;
+        if (pAllocator != NULL) {
+            pInfo->ObjectInfo.Image.pAllocator = pAllocator;
+            trim::add_Allocator(pAllocator);
+        }
+        if (g_trimIsInTrim)
+        {
+            trim::add_recorded_packet(pHeader);
+        }
+        else
+        {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
     return result;
 }
 
