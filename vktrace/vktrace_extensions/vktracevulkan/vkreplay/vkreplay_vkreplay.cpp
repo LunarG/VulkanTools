@@ -1322,19 +1322,35 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
         m_vkFuncs.real_vkUpdateDescriptorSets(remappedDevice, pPacket->descriptorWriteCount, pRemappedWrites, pPacket->descriptorCopyCount, pRemappedCopies);
     }
 
-    for (uint32_t d = 0; d < pPacket->descriptorWriteCount; d++)
-    {
-        if (pRemappedWrites[d].pImageInfo != NULL) {
-            VKTRACE_DELETE((void*)pRemappedWrites[d].pImageInfo);
-            pRemappedWrites[d].pImageInfo = NULL;
-        }
-        if (pRemappedWrites[d].pBufferInfo != NULL) {
-            VKTRACE_DELETE((void*)pRemappedWrites[d].pBufferInfo);
-            pRemappedWrites[d].pImageInfo = NULL;
-        }
-        if (pRemappedWrites[d].pTexelBufferView != NULL) {
-            VKTRACE_DELETE((void*)pRemappedWrites[d].pTexelBufferView);
-            pRemappedWrites[d].pTexelBufferView = NULL;
+    for (uint32_t d = 0; d < pPacket->descriptorWriteCount; d++) {
+        switch (pPacket->pDescriptorWrites[d].descriptorType) {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            if (pRemappedWrites[d].pImageInfo != NULL) {
+                VKTRACE_DELETE((void *)pRemappedWrites[d].pImageInfo);
+                pRemappedWrites[d].pImageInfo = NULL;
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            if (pRemappedWrites[d].pTexelBufferView != NULL) {
+                VKTRACE_DELETE((void *)pRemappedWrites[d].pTexelBufferView);
+                pRemappedWrites[d].pTexelBufferView = NULL;
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            if (pRemappedWrites[d].pBufferInfo != NULL) {
+                VKTRACE_DELETE((void *)pRemappedWrites[d].pBufferInfo);
+                pRemappedWrites[d].pBufferInfo = NULL;
+            }
+        default:
+            break;
         }
     }
     VKTRACE_DELETE(pRemappedWrites);
