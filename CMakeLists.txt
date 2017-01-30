@@ -58,11 +58,11 @@ endif()
 
 if(WIN32)
     # Treat warnings as errors
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/WX>")
+    #add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/WX>")
     # Disable RTTI
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/GR->")
     # Warn about nested declarations
-    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/w34456>")
+    #add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/w34456>")
 endif()
 
 if(NOT WIN32)
