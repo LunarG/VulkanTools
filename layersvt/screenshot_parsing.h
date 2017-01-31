@@ -56,6 +56,6 @@ const char *getFrameRangeErrorMessage(int parsingStatus);
 
 // check screenshot frame range command line option
 // return:
-//      indicate check success or not. if fail, return false,  *ppErrorMessage return error message if it's not nullptr.
-bool checkParsingFrameRange(const char *_vk_screenshot, char **ppErrorMessage);
+//      indicate check success or not. if fail, return false.
+bool checkParsingFrameRange(const char *_vk_screenshot);
 }

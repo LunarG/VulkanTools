@@ -125,50 +125,14 @@ bool isOptionBelongToScreenShotRange(const char *_vk_screenshot) {
     return belongToScreenShotRange;
 }
 
-// get error message by parsing status
-const char *getFrameRangeErrorMessage(int parsingStatus) {
-    static const char *message[] = {"no error",
-                                    "parsing error or input parameters include negative value or parameter number is not two or three",
-                                    "start frame number cannot be negative",
-                                    "frame count cannot be negative",
-                                    "interval cannot be negative or 0",
-                                    "unknown errors"};
-    const char *parsingMessage = nullptr;
-
-    switch (parsingStatus) {
-    case 0:
-        parsingMessage = message[0];
-        break;
-    case 1:
-        parsingMessage = message[1];
-        break;
-    case 2:
-        parsingMessage = message[2];
-        break;
-    case 3:
-        parsingMessage = message[3];
-        break;
-    case 4:
-        parsingMessage = message[4];
-        break;
-    default:
-        parsingMessage = message[5];
-        break;
-    }
-    return parsingMessage;
-}
-
 // check screenshot frame range command line option
-bool checkParsingFrameRange(const char *_vk_screenshot, char **ppErrorMessage) {
+bool checkParsingFrameRange(const char *_vk_screenshot) {
     bool checkPassed = true;
     if (isOptionBelongToScreenShotRange(_vk_screenshot)) {
         screenshot::FrameRange frameRange;
         int parsingStatus = initScreenShotFrameRange(_vk_screenshot, &frameRange);
         if (parsingStatus != 0) {
             checkPassed = false;
-            if (ppErrorMessage != nullptr) {
-                *ppErrorMessage = const_cast<char *>(getFrameRangeErrorMessage(parsingStatus));
-            }
         }
     }
     return checkPassed;

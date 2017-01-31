@@ -311,6 +311,21 @@ int main(int argc, char* argv[])
         }
         vktrace_set_global_var("_VK_TRACE_VERBOSITY", g_settings.verbosity);
 
+        if (g_settings.screenshotList)
+        {
+            if (!screenshot::checkParsingFrameRange(g_settings.screenshotList)) {
+                vktrace_LogError("Screenshot range error");
+                validArgs = FALSE;
+            } else {
+                // Export list to screenshot layer
+                vktrace_set_global_var("_VK_SCREENSHOT", g_settings.screenshotList);
+            }
+        }
+        else
+        {
+            vktrace_set_global_var("_VK_SCREENSHOT","");
+        }
+
         if (validArgs == FALSE)
         {
             vktrace_SettingGroup_print(&g_settingGroup);
@@ -341,25 +356,6 @@ int main(int argc, char* argv[])
                 vktrace_LogVerbose("Args to be passed to child process: '%s'", g_settings.arguments);
             }
         }
-    }
-
-    if (g_settings.screenshotList)
-    {
-        char *frameRangeErrorMessage;
-        if (!screenshot::checkParsingFrameRange(g_settings.screenshotList,
-                                                &frameRangeErrorMessage)) {
-            vktrace_LogError(
-                "Screenshots command line option include errors: %s.",
-                frameRangeErrorMessage);
-            vktrace_set_global_var("_VK_SCREENSHOT", "");
-        } else {
-            // Export list to screenshot layer
-            vktrace_set_global_var("_VK_SCREENSHOT", g_settings.screenshotList);
-        }
-    }
-    else
-    {
-        vktrace_set_global_var("_VK_SCREENSHOT","");
     }
 
     vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb?"1":"0");

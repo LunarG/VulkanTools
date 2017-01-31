@@ -325,13 +325,14 @@ int vkreplay_main(int argc, char **argv, vktrace_window_handle window = 0)
     // Set up environment for screenshot
     if (replaySettings.screenshotList != NULL)
     {
-        char *frameRangeErrorMessage;
-        if (!screenshot::checkParsingFrameRange(replaySettings.screenshotList,
-                                                &frameRangeErrorMessage)) {
-            vktrace_LogError(
-                "Screenshots command line option include errors: %s.",
-                frameRangeErrorMessage);
-            vktrace_set_global_var("_VK_SCREENSHOT", "");
+        if (!screenshot::checkParsingFrameRange(replaySettings.screenshotList)) {
+            vktrace_LogError("Screenshot range error");
+            vktrace_SettingGroup_print(&g_replaySettingGroup);
+            if (pAllSettings != NULL)
+            {
+                vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+            }
+            return -1;
         } else {
             // Set env var that communicates list to ScreenShot layer
             vktrace_set_global_var("_VK_SCREENSHOT",
