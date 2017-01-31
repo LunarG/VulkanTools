@@ -386,15 +386,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_DeviceMemory_object(*pMemory);
-        pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.DeviceMemory.pCreatePacket = trim::copy_packet(pHeader);
-        pInfo->ObjectInfo.DeviceMemory.memoryTypeIndex = pAllocateInfo->memoryTypeIndex;
-        pInfo->ObjectInfo.DeviceMemory.propertyFlags = trim::LookUpMemoryProperties(device, pAllocateInfo->memoryTypeIndex);
-        pInfo->ObjectInfo.DeviceMemory.size = pAllocateInfo->allocationSize;
+        trim::ObjectInfo& info = trim::add_DeviceMemory_object(*pMemory);
+        info.belongsToDevice = device;
+        info.ObjectInfo.DeviceMemory.pCreatePacket = trim::copy_packet(pHeader);
+        info.ObjectInfo.DeviceMemory.memoryTypeIndex = pAllocateInfo->memoryTypeIndex;
+        info.ObjectInfo.DeviceMemory.propertyFlags = trim::LookUpMemoryProperties(device, pAllocateInfo->memoryTypeIndex);
+        info.ObjectInfo.DeviceMemory.size = pAllocateInfo->allocationSize;
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.DeviceMemory.pAllocator = pAllocator;
+            info.ObjectInfo.DeviceMemory.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
@@ -434,7 +434,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(
 
     // For vktrace usage, clamp the memory size to the total size if VK_WHOLE_SIZE is specified.
     if (size == VK_WHOLE_SIZE) {
-        size = entry->totalSize;
+        size = entry->totalSize - offset;
     }
 
 #ifdef USE_PAGEGUARD_SPEEDUP
@@ -867,10 +867,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
  
         for (uint32_t i = 0; i < pAllocateInfo->commandBufferCount; i++)
         {
-            trim::ObjectInfo* pInfo = trim::add_CommandBuffer_object(pCommandBuffers[i]);
-            pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.CommandBuffer.commandPool = pAllocateInfo->commandPool;
-            pInfo->ObjectInfo.CommandBuffer.level = pAllocateInfo->level;
+            trim::ObjectInfo &info = trim::add_CommandBuffer_object(pCommandBuffers[i]);
+            info.belongsToDevice = device;
+            info.ObjectInfo.CommandBuffer.commandPool = pAllocateInfo->commandPool;
+            info.ObjectInfo.CommandBuffer.level = pAllocateInfo->level;
         }
 
         if (g_trimIsInTrim)
@@ -961,16 +961,16 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_DescriptorPool_object(*pDescriptorPool);
-        pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.DescriptorPool.pCreatePacket = trim::copy_packet(pHeader);
-        pInfo->ObjectInfo.DescriptorPool.createFlags = pCreateInfo->flags;
-        pInfo->ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
-        pInfo->ObjectInfo.DescriptorPool.numSets = 0;
+        trim::ObjectInfo &info = trim::add_DescriptorPool_object(*pDescriptorPool);
+        info.belongsToDevice = device;
+        info.ObjectInfo.DescriptorPool.pCreatePacket = trim::copy_packet(pHeader);
+        info.ObjectInfo.DescriptorPool.createFlags = pCreateInfo->flags;
+        info.ObjectInfo.DescriptorPool.maxSets = pCreateInfo->maxSets;
+        info.ObjectInfo.DescriptorPool.numSets = 0;
 
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.DescriptorPool.pAllocator = pAllocator;
+            info.ObjectInfo.DescriptorPool.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
 
@@ -1063,12 +1063,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_Device_object(*pDevice);
-        pInfo->belongsToPhysicalDevice = physicalDevice;
-        pInfo->ObjectInfo.Device.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_Device_object(*pDevice);
+        info.belongsToPhysicalDevice = physicalDevice;
+        info.ObjectInfo.Device.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.Device.pAllocator = pAllocator;
+            info.ObjectInfo.Device.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
 
@@ -1118,16 +1118,22 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_Framebuffer_object(*pFramebuffer);
-        pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.Framebuffer.pCreatePacket = trim::copy_packet(pHeader);
-        pInfo->ObjectInfo.Framebuffer.attachmentCount = pCreateInfo->attachmentCount;
-        pInfo->ObjectInfo.Framebuffer.pAttachments = new VkImageView[pCreateInfo->attachmentCount];
-        memcpy(pInfo->ObjectInfo.Framebuffer.pAttachments, pCreateInfo->pAttachments, sizeof(VkImageView) * pCreateInfo->attachmentCount);
-
+        trim::ObjectInfo &info = trim::add_Framebuffer_object(*pFramebuffer);
+        info.belongsToDevice = device;
+        info.ObjectInfo.Framebuffer.pCreatePacket = trim::copy_packet(pHeader);
+        info.ObjectInfo.Framebuffer.attachmentCount = pCreateInfo->attachmentCount;
+        if (pCreateInfo->attachmentCount == 0)
+        {
+            info.ObjectInfo.Framebuffer.pAttachments = nullptr;
+        }
+        else
+        {
+            info.ObjectInfo.Framebuffer.pAttachments = new VkImageView[pCreateInfo->attachmentCount];
+            memcpy(info.ObjectInfo.Framebuffer.pAttachments, pCreateInfo->pAttachments, sizeof(VkImageView) * pCreateInfo->attachmentCount);
+        }
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.Framebuffer.pAllocator = pAllocator;
+            info.ObjectInfo.Framebuffer.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
@@ -1250,14 +1256,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_Instance_object(*pInstance);
-        pInfo->ObjectInfo.Instance.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_Instance_object(*pInstance);
+        info.ObjectInfo.Instance.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.Instance.pAllocator = pAllocator;
+            info.ObjectInfo.Instance.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
-
         if (g_trimIsInTrim)
         {
             trim::add_recorded_packet(pHeader);
@@ -1370,29 +1375,30 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_RenderPass_object(*pRenderPass);
+        trim::ObjectInfo& info = trim::add_RenderPass_object(*pRenderPass);
         trim::add_RenderPassCreateInfo(*pRenderPass, pCreateInfo);
-        if (pInfo != NULL)
+        info.belongsToDevice = device;
+        info.ObjectInfo.RenderPass.pCreatePacket = trim::copy_packet(pHeader);
+        if (pCreateInfo == nullptr || pCreateInfo->attachmentCount == 0)
         {
-            pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.RenderPass.pCreatePacket = trim::copy_packet(pHeader);
-            
-            if (pCreateInfo->attachmentCount > 0)
+            info.ObjectInfo.RenderPass.attachmentCount = 0;
+            info.ObjectInfo.RenderPass.pAttachments = nullptr;
+        }
+        else
+        {
+            info.ObjectInfo.RenderPass.attachmentCount = pCreateInfo->attachmentCount;
+            info.ObjectInfo.RenderPass.pAttachments = new trim::ImageTransition[pCreateInfo->attachmentCount];
+            for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++)
             {
-                pInfo->ObjectInfo.RenderPass.attachmentCount = pCreateInfo->attachmentCount;
-                pInfo->ObjectInfo.RenderPass.pAttachments = new trim::ImageTransition[pCreateInfo->attachmentCount];
-                for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++)
-                {
-                    pInfo->ObjectInfo.RenderPass.pAttachments[i].initialLayout = pCreateInfo->pAttachments[i].initialLayout;
-                    pInfo->ObjectInfo.RenderPass.pAttachments[i].finalLayout = pCreateInfo->pAttachments[i].finalLayout;
+                info.ObjectInfo.RenderPass.pAttachments[i].initialLayout = pCreateInfo->pAttachments[i].initialLayout;
+                info.ObjectInfo.RenderPass.pAttachments[i].finalLayout = pCreateInfo->pAttachments[i].finalLayout;
 
-                    // We don't know which object it is at this time, but we'll find out in VkBindDescriptorSets().
-                    pInfo->ObjectInfo.RenderPass.pAttachments[i].image = VK_NULL_HANDLE;
-                }
+                // We don't know which object it is at this time, but we'll find out in VkBindDescriptorSets().
+                info.ObjectInfo.RenderPass.pAttachments[i].image = VK_NULL_HANDLE;
             }
-            if (pAllocator != NULL) {
-                pInfo->ObjectInfo.RenderPass.pAllocator = pAllocator;
-            }
+        }
+        if (pAllocator != NULL) {
+            info.ObjectInfo.RenderPass.pAllocator = pAllocator;
         }
 
         if (pAllocator != NULL)
@@ -1620,10 +1626,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
 
                 for (uint32_t iter = 0; iter < *pPhysicalDeviceCount; iter++)
                 {
-                    trim::ObjectInfo* pPDInfo = trim::add_PhysicalDevice_object(pPhysicalDevices[iter]);
-                    pPDInfo->belongsToInstance = instance;
+                    trim::ObjectInfo &PDInfo = trim::add_PhysicalDevice_object(pPhysicalDevices[iter]);
+                    PDInfo.belongsToInstance = instance;
                     // Get the memory properties of the device
-                    mid(instance)->instTable.GetPhysicalDeviceMemoryProperties(pPhysicalDevices[iter], &pPDInfo->ObjectInfo.PhysicalDevice.physicalDeviceMemoryProperties);
+                    mid(instance)->instTable.GetPhysicalDeviceMemoryProperties(pPhysicalDevices[iter], &PDInfo.ObjectInfo.PhysicalDevice.physicalDeviceMemoryProperties);
                 }
             }
         }
@@ -1735,10 +1741,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
 
         for (uint32_t i = 0; i < pAllocateInfo->descriptorSetCount; i++)
         {
-            trim::ObjectInfo* pSetInfo = trim::add_DescriptorSet_object(pDescriptorSets[i]);
-            pSetInfo->belongsToDevice = device;
-            pSetInfo->ObjectInfo.DescriptorSet.descriptorPool = pAllocateInfo->descriptorPool;
-            pSetInfo->ObjectInfo.DescriptorSet.layout = pAllocateInfo->pSetLayouts[i];
+            trim::ObjectInfo &setInfo = trim::add_DescriptorSet_object(pDescriptorSets[i]);
+            setInfo.belongsToDevice = device;
+            setInfo.ObjectInfo.DescriptorSet.descriptorPool = pAllocateInfo->descriptorPool;
+            setInfo.ObjectInfo.DescriptorSet.layout = pAllocateInfo->pSetLayouts[i];
 
             // need to allocate for a potential write & copy to update the descriptor; one for each binding based on the layout
             trim::ObjectInfo* pLayoutInfo = trim::get_DescriptorSetLayout_objectInfo(pAllocateInfo->pSetLayouts[i]);
@@ -1749,24 +1755,24 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
                 uint32_t numTexelBufferViews = pLayoutInfo->ObjectInfo.DescriptorSetLayout.numTexelBufferViews;
                 uint32_t numBindings = numImages + numBuffers + numTexelBufferViews;
 
-                pSetInfo->ObjectInfo.DescriptorSet.numBindings = numBindings;
-                pSetInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
-                pSetInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
-                pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets = new VkWriteDescriptorSet[numBindings];
-                pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets = new VkCopyDescriptorSet[numBindings];
+                setInfo.ObjectInfo.DescriptorSet.numBindings = numBindings;
+                setInfo.ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
+                setInfo.ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
+                setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets = new VkWriteDescriptorSet[numBindings];
+                setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets = new VkCopyDescriptorSet[numBindings];
 
                 // setup these WriteDescriptorSets to be specific to each binding of the associated layout
                 for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++)
                 {
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pNext = NULL;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstSet = pDescriptorSets[i];
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
-                    pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorType;
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pNext = NULL;
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstSet = pDescriptorSets[i];
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
+                    setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorType;
 
-                    switch (pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType)
+                    switch (setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorType)
                     {
                     case VK_DESCRIPTOR_TYPE_SAMPLER:
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1774,9 +1780,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = new VkDescriptorImageInfo[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = new VkDescriptorImageInfo[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
                     }
                     break;
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
@@ -1784,17 +1790,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                     {
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = new VkDescriptorBufferInfo[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = new VkDescriptorBufferInfo[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = NULL;
                     }
                     break;
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                     {
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
-                        pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = new VkBufferView[pSetInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pImageInfo = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pBufferInfo = NULL;
+                        setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].pTexelBufferView = new VkBufferView[setInfo.ObjectInfo.DescriptorSet.pWriteDescriptorSets[b].descriptorCount];
                     }
                     break;
                     default:
@@ -1805,15 +1811,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
                 // setup the CopyDescriptorSets similar to above
                 for (uint32_t b = 0; b < pLayoutInfo->ObjectInfo.DescriptorSetLayout.bindingCount; b++)
                 {
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].pNext = NULL;
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstSet = pDescriptorSets[i];
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcArrayElement = 0; // defaulting to 0, no way to know for sure at this time
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcSet = 0;          // defaulting to 0, no way to know for sure at this time
-                    pSetInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcBinding = 0;      // defaulting to 0, no way to know for sure at this time
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].pNext = NULL;
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].descriptorCount = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].descriptorCount;
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstArrayElement = 0; // defaulting to 0, no way to know for sure at this time
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstSet = pDescriptorSets[i];
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].dstBinding = pLayoutInfo->ObjectInfo.DescriptorSetLayout.pBindings[b].binding;
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcArrayElement = 0; // defaulting to 0, no way to know for sure at this time
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcSet = 0;          // defaulting to 0, no way to know for sure at this time
+                    setInfo.ObjectInfo.DescriptorSet.pCopyDescriptorSets[b].srcBinding = 0;      // defaulting to 0, no way to know for sure at this time
                 }
             }
         }
@@ -2512,15 +2518,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
 
         for (uint32_t i = 0; i < createInfoCount; i++)
         {
-            trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
-            pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.Pipeline.isGraphicsPipeline = true;
-            pInfo->ObjectInfo.Pipeline.pipelineCache = pipelineCache;
-            pInfo->ObjectInfo.Pipeline.renderPassVersion = trim::get_RenderPassVersion(pCreateInfos[i].renderPass);
+            trim::ObjectInfo &info = trim::add_Pipeline_object(pPipelines[i]);
+            info.belongsToDevice = device;
+            info.ObjectInfo.Pipeline.isGraphicsPipeline = true;
+            info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+            info.ObjectInfo.Pipeline.renderPassVersion = trim::get_RenderPassVersion(pCreateInfos[i].renderPass);
 
-            trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo, pCreateInfos[i]);
+            trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&info.ObjectInfo.Pipeline.graphicsPipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {
-                pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
+                info.ObjectInfo.Pipeline.pAllocator = pAllocator;
                 trim::add_Allocator(pAllocator);
             }
         }
@@ -2594,14 +2600,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
 
         for (uint32_t i = 0; i < createInfoCount; i++)
         {
-            trim::ObjectInfo* pInfo = trim::add_Pipeline_object(pPipelines[i]);
-            pInfo->belongsToDevice = device;
-            pInfo->ObjectInfo.Pipeline.isGraphicsPipeline = false;
-            pInfo->ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+            trim::ObjectInfo &info = trim::add_Pipeline_object(pPipelines[i]);
+            info.belongsToDevice = device;
+            info.ObjectInfo.Pipeline.isGraphicsPipeline = false;
+            info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
 
-            trim::StateTracker::copy_VkComputePipelineCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo, pCreateInfos[i]);
+            trim::StateTracker::copy_VkComputePipelineCreateInfo(&info.ObjectInfo.Pipeline.computePipelineCreateInfo, pCreateInfos[i]);
             if (pAllocator != NULL) {
-                pInfo->ObjectInfo.Pipeline.pAllocator = pAllocator;
+                info.ObjectInfo.Pipeline.pAllocator = pAllocator;
                 trim::add_Allocator(pAllocator);
             }
         }
@@ -2648,11 +2654,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_PipelineCache_object(*pPipelineCache);
-        pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.PipelineCache.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_PipelineCache_object(*pPipelineCache);
+        info.belongsToDevice = device;
+        info.ObjectInfo.PipelineCache.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL) {
-            pInfo->ObjectInfo.PipelineCache.pAllocator = pAllocator;
+            info.ObjectInfo.PipelineCache.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
@@ -2705,13 +2711,18 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(
             if (pRenderPass != nullptr && pFramebuffer != nullptr)
             {
                 assert(pRenderPass->ObjectInfo.RenderPass.attachmentCount == pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
-                for (uint32_t i = 0; i < pRenderPass->ObjectInfo.RenderPass.attachmentCount && i < pFramebuffer->ObjectInfo.Framebuffer.attachmentCount; i++)
+                uint32_t minAttachmentCount = min(pRenderPass->ObjectInfo.RenderPass.attachmentCount, pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
+                for (uint32_t i = 0; i < minAttachmentCount; i++)
                 {
                     trim::ObjectInfo* pImageView = trim::get_ImageView_objectInfo(pFramebuffer->ObjectInfo.Framebuffer.pAttachments[i]);
                     assert(pImageView != nullptr);
                     if (pImageView != nullptr)
                     {
                         pRenderPass->ObjectInfo.RenderPass.pAttachments[i].image = pImageView->ObjectInfo.ImageView.image;
+                    }
+                    else
+                    {
+                        pRenderPass->ObjectInfo.RenderPass.pAttachments[i].image = VK_NULL_HANDLE;
                     }
                 }
             }
@@ -2813,23 +2824,23 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(
 #if TRIM_USE_ORDERED_IMAGE_CREATION
         trim::add_Image_call(trim::copy_packet(pHeader));
 #endif //TRIM_USE_ORDERED_IMAGE_CREATION"
-        trim::ObjectInfo* pInfo = trim::add_Image_object(*pImage);
-        pInfo->belongsToDevice = device;
+        trim::ObjectInfo &info = trim::add_Image_object(*pImage);
+        info.belongsToDevice = device;
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
-        pInfo->ObjectInfo.Image.pCreatePacket = trim::copy_packet(pHeader);
+        info.ObjectInfo.Image.pCreatePacket = trim::copy_packet(pHeader);
 #endif //!TRIM_USE_ORDERED_IMAGE_CREATION
-        pInfo->ObjectInfo.Image.bIsSwapchainImage = false;
-        pInfo->ObjectInfo.Image.format = pCreateInfo->format;
-        pInfo->ObjectInfo.Image.aspectMask = trim::getImageAspectFromFormat(pCreateInfo->format);
-        pInfo->ObjectInfo.Image.extent = pCreateInfo->extent;
-        pInfo->ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;
-        pInfo->ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;
-        pInfo->ObjectInfo.Image.sharingMode = pCreateInfo->sharingMode;
-        pInfo->ObjectInfo.Image.queueFamilyIndex = (pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT && pCreateInfo->pQueueFamilyIndices != NULL) ? pCreateInfo->pQueueFamilyIndices[0] : 0;
-        pInfo->ObjectInfo.Image.initialLayout = pCreateInfo->initialLayout;
-        pInfo->ObjectInfo.Image.mostRecentLayout = pCreateInfo->initialLayout;
+        info.ObjectInfo.Image.bIsSwapchainImage = false;
+        info.ObjectInfo.Image.format = pCreateInfo->format;
+        info.ObjectInfo.Image.aspectMask = trim::getImageAspectFromFormat(pCreateInfo->format);
+        info.ObjectInfo.Image.extent = pCreateInfo->extent;
+        info.ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;
+        info.ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;
+        info.ObjectInfo.Image.sharingMode = pCreateInfo->sharingMode;
+        info.ObjectInfo.Image.queueFamilyIndex = (pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT && pCreateInfo->pQueueFamilyIndices != NULL) ? pCreateInfo->pQueueFamilyIndices[0] : 0;
+        info.ObjectInfo.Image.initialLayout = pCreateInfo->initialLayout;
+        info.ObjectInfo.Image.mostRecentLayout = pCreateInfo->initialLayout;
         if (pAllocator != NULL) {
-            pInfo->ObjectInfo.Image.pAllocator = pAllocator;
+            info.ObjectInfo.Image.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
@@ -3016,12 +3027,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_SwapchainKHR_object(*pSwapchain);
-        pInfo->belongsToDevice = device;
-        pInfo->ObjectInfo.SwapchainKHR.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_SwapchainKHR_object(*pSwapchain);
+        info.belongsToDevice = device;
+        info.ObjectInfo.SwapchainKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SwapchainKHR.pAllocator = pAllocator;
+            info.ObjectInfo.SwapchainKHR.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
@@ -3092,8 +3103,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
                 }
                 for (uint32_t i = 0; i < *pSwapchainImageCount; i++)
                 {
-                    trim::ObjectInfo* pImageInfo = trim::add_Image_object(pSwapchainImages[i]);
-                    pImageInfo->ObjectInfo.Image.bIsSwapchainImage = true;
+                    trim::ObjectInfo &imageInfo = trim::add_Image_object(pSwapchainImages[i]);
+                    imageInfo.ObjectInfo.Image.bIsSwapchainImage = true;
                 }
             }
         }
@@ -3266,12 +3277,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
-        pInfo->belongsToInstance = instance;
-        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_SurfaceKHR_object(*pSurface);
+        info.belongsToInstance = instance;
+        info.ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            info.ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim)
@@ -3349,12 +3360,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXcbSurfaceKHR(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
-        pInfo->belongsToInstance = instance;
-        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_SurfaceKHR_object(*pSurface);
+        info.belongsToInstance = instance;
+        info.ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            info.ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
 
@@ -3436,12 +3447,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXlibSurfaceKHR(
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
-        pInfo->belongsToInstance = instance;
-        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_SurfaceKHR_object(*pSurface);
+        info.belongsToInstance = instance;
+        info.ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            info.ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
 
@@ -3524,12 +3535,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
     else
     {
         vktrace_finalize_trace_packet(pHeader);
-        trim::ObjectInfo* pInfo = trim::add_SurfaceKHR_object(*pSurface);
-        pInfo->belongsToInstance = instance;
-        pInfo->ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_SurfaceKHR_object(*pSurface);
+        info.belongsToInstance = instance;
+        info.ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
         if (pAllocator != NULL)
         {
-            pInfo->ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            info.ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
 

@@ -1469,9 +1469,9 @@ void add_Image_call(vktrace_trace_packet_header *pHeader) {
 }
 
 //=========================================================================
-ObjectInfo *add_Instance_object(VkInstance var) {
+ObjectInfo &add_Instance_object(VkInstance var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Instance(var);
+    ObjectInfo& info = s_trimGlobalStateTracker.add_Instance(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1497,9 +1497,9 @@ ObjectInfo *get_Instance_objectInfo(VkInstance var) {
 }
 
 //=========================================================================
-ObjectInfo *add_PhysicalDevice_object(VkPhysicalDevice var) {
+ObjectInfo &add_PhysicalDevice_object(VkPhysicalDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_PhysicalDevice(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_PhysicalDevice(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1525,9 +1525,9 @@ ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Device_object(VkDevice var) {
+ObjectInfo &add_Device_object(VkDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Device(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Device(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1553,9 +1553,9 @@ ObjectInfo *get_Device_objectInfo(VkDevice var) {
 }
 
 //=========================================================================
-ObjectInfo *add_SurfaceKHR_object(VkSurfaceKHR var) {
+ObjectInfo &add_SurfaceKHR_object(VkSurfaceKHR var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_SurfaceKHR(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_SurfaceKHR(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1581,9 +1581,9 @@ ObjectInfo *get_SurfaceKHR_objectInfo(VkSurfaceKHR var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Queue_object(VkQueue var) {
+ObjectInfo &add_Queue_object(VkQueue var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Queue(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Queue(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1609,9 +1609,9 @@ ObjectInfo *get_Queue_objectInfo(VkQueue var) {
 }
 
 //=========================================================================
-ObjectInfo *add_SwapchainKHR_object(VkSwapchainKHR var) {
+ObjectInfo &add_SwapchainKHR_object(VkSwapchainKHR var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_SwapchainKHR(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_SwapchainKHR(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1637,9 +1637,9 @@ ObjectInfo *get_SwapchainKHR_objectInfo(VkSwapchainKHR var) {
 }
 
 //=========================================================================
-ObjectInfo *add_CommandPool_object(VkCommandPool var) {
+ObjectInfo &add_CommandPool_object(VkCommandPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_CommandPool(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_CommandPool(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1665,9 +1665,9 @@ ObjectInfo *get_CommandPool_objectInfo(VkCommandPool var) {
 }
 
 //=========================================================================
-ObjectInfo *add_CommandBuffer_object(VkCommandBuffer var) {
+ObjectInfo &add_CommandBuffer_object(VkCommandBuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_CommandBuffer(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_CommandBuffer(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1693,9 +1693,9 @@ ObjectInfo *get_CommandBuffer_objectInfo(VkCommandBuffer var) {
 }
 
 //=========================================================================
-ObjectInfo *add_DeviceMemory_object(VkDeviceMemory var) {
+ObjectInfo &add_DeviceMemory_object(VkDeviceMemory var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_DeviceMemory(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_DeviceMemory(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1721,9 +1721,9 @@ ObjectInfo *get_DeviceMemory_objectInfo(VkDeviceMemory var) {
 }
 
 //=========================================================================
-ObjectInfo *add_ImageView_object(VkImageView var) {
+ObjectInfo &add_ImageView_object(VkImageView var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_ImageView(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_ImageView(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1749,9 +1749,9 @@ ObjectInfo *get_ImageView_objectInfo(VkImageView var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Image_object(VkImage var) {
+ObjectInfo &add_Image_object(VkImage var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Image(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Image(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1777,9 +1777,9 @@ ObjectInfo *get_Image_objectInfo(VkImage var) {
 }
 
 //=========================================================================
-ObjectInfo *add_BufferView_object(VkBufferView var) {
+ObjectInfo &add_BufferView_object(VkBufferView var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_BufferView(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_BufferView(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1805,9 +1805,9 @@ ObjectInfo *get_BufferView_objectInfo(VkBufferView var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Buffer_object(VkBuffer var) {
+ObjectInfo &add_Buffer_object(VkBuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Buffer(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Buffer(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1833,9 +1833,9 @@ ObjectInfo *get_Buffer_objectInfo(VkBuffer var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Sampler_object(VkSampler var) {
+ObjectInfo &add_Sampler_object(VkSampler var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Sampler(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Sampler(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1861,9 +1861,9 @@ ObjectInfo *get_Sampler_objectInfo(VkSampler var) {
 }
 
 //=========================================================================
-ObjectInfo *add_DescriptorSetLayout_object(VkDescriptorSetLayout var) {
+ObjectInfo &add_DescriptorSetLayout_object(VkDescriptorSetLayout var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_DescriptorSetLayout(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_DescriptorSetLayout(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1889,9 +1889,9 @@ ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var) {
 }
 
 //=========================================================================
-ObjectInfo *add_PipelineLayout_object(VkPipelineLayout var) {
+ObjectInfo &add_PipelineLayout_object(VkPipelineLayout var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_PipelineLayout(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_PipelineLayout(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1917,9 +1917,9 @@ ObjectInfo *get_PipelineLayout_objectInfo(VkPipelineLayout var) {
 }
 
 //=========================================================================
-ObjectInfo *add_RenderPass_object(VkRenderPass var) {
+ObjectInfo &add_RenderPass_object(VkRenderPass var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_RenderPass(var);
+    ObjectInfo& info = s_trimGlobalStateTracker.add_RenderPass(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1945,9 +1945,9 @@ ObjectInfo *get_RenderPass_objectInfo(VkRenderPass var) {
 }
 
 //=========================================================================
-ObjectInfo *add_ShaderModule_object(VkShaderModule var) {
+ObjectInfo &add_ShaderModule_object(VkShaderModule var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_ShaderModule(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_ShaderModule(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -1973,9 +1973,9 @@ ObjectInfo *get_ShaderModule_objectInfo(VkShaderModule var) {
 }
 
 //=========================================================================
-ObjectInfo *add_PipelineCache_object(VkPipelineCache var) {
+ObjectInfo &add_PipelineCache_object(VkPipelineCache var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_PipelineCache(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_PipelineCache(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2000,9 +2000,9 @@ ObjectInfo *get_PipelineCache_objectInfo(VkPipelineCache var) {
 }
 
 //=========================================================================
-ObjectInfo *add_DescriptorPool_object(VkDescriptorPool var) {
+ObjectInfo &add_DescriptorPool_object(VkDescriptorPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_DescriptorPool(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_DescriptorPool(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2028,9 +2028,9 @@ ObjectInfo *get_DescriptorPool_objectInfo(VkDescriptorPool var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Pipeline_object(VkPipeline var) {
+ObjectInfo &add_Pipeline_object(VkPipeline var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Pipeline(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Pipeline(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2056,9 +2056,9 @@ ObjectInfo *get_Pipeline_objectInfo(VkPipeline var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Semaphore_object(VkSemaphore var) {
+ObjectInfo &add_Semaphore_object(VkSemaphore var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Semaphore(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Semaphore(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2084,9 +2084,9 @@ ObjectInfo *get_Semaphore_objectInfo(VkSemaphore var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Fence_object(VkFence var) {
+ObjectInfo &add_Fence_object(VkFence var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Fence(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Fence(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2112,9 +2112,9 @@ ObjectInfo *get_Fence_objectInfo(VkFence var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Framebuffer_object(VkFramebuffer var) {
+ObjectInfo &add_Framebuffer_object(VkFramebuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Framebuffer(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Framebuffer(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2140,9 +2140,9 @@ ObjectInfo *get_Framebuffer_objectInfo(VkFramebuffer var) {
 }
 
 //=========================================================================
-ObjectInfo *add_Event_object(VkEvent var) {
+ObjectInfo &add_Event_object(VkEvent var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_Event(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_Event(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2168,9 +2168,9 @@ ObjectInfo *get_Event_objectInfo(VkEvent var) {
 }
 
 //=========================================================================
-ObjectInfo *add_QueryPool_object(VkQueryPool var) {
+ObjectInfo &add_QueryPool_object(VkQueryPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_QueryPool(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_QueryPool(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }
@@ -2196,9 +2196,9 @@ ObjectInfo *get_QueryPool_objectInfo(VkQueryPool var) {
 }
 
 //=========================================================================
-ObjectInfo *add_DescriptorSet_object(VkDescriptorSet var) {
+ObjectInfo &add_DescriptorSet_object(VkDescriptorSet var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    ObjectInfo *info = s_trimGlobalStateTracker.add_DescriptorSet(var);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_DescriptorSet(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return info;
 }

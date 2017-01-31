@@ -61,7 +61,7 @@ uint64_t vktrace_get_unique_packet_index()
 
     vktrace_enter_critical_section(&s_packet_index_lock);
     // Store the value then increment within the critical section to avoid race conditions.
-    int index = s_packet_index;
+    uint64_t index = s_packet_index;
     s_packet_index += 1;
     vktrace_leave_critical_section(&s_packet_index_lock);
 

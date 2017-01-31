@@ -22,7 +22,10 @@ vktrace_trace_packet_header *copy_packet(vktrace_trace_packet_header *pHeader) {
     uint64_t packetSize = pHeader->size;
     vktrace_trace_packet_header *pCopy =
         static_cast<vktrace_trace_packet_header *>(malloc(packetSize));
-    memcpy(pCopy, pHeader, packetSize);
+    if (pCopy != nullptr)
+    {
+        memcpy(pCopy, pHeader, packetSize);
+    }
     return pCopy;
 }
 
@@ -256,32 +259,31 @@ void StateTracker::clear() {
                 const_cast<VkSubpassDescription *>(pCreateInfo->pSubpasses);
             for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
                 if (pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
-                    delete[] pCreateInfo->pSubpasses[i].pInputAttachments;
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pInputAttachments));
                 }
 
                 if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr) {
-                    delete[] pCreateInfo->pSubpasses[i].pColorAttachments;
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pColorAttachments));
                 }
 
                 if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                    delete[] pCreateInfo->pSubpasses[i].pResolveAttachments;
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pResolveAttachments));
                 }
 
-                if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment !=
-                    nullptr) {
-                    delete[] pCreateInfo->pSubpasses[i].pDepthStencilAttachment;
+                if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pDepthStencilAttachment));
                 }
 
                 if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0) {
-                    delete[] pCreateInfo->pSubpasses[i].pPreserveAttachments;
+                    VKTRACE_DELETE(const_cast<uint32_t*>(pCreateInfo->pSubpasses[i].pPreserveAttachments));
                 }
             }
 
             if (pCreateInfo->pAttachments != nullptr) {
-                delete[] pCreateInfo->pAttachments;
+                VKTRACE_DELETE(const_cast<VkAttachmentDescription*>(pCreateInfo->pAttachments));
             }
 
-            delete pCreateInfo;
+            VKTRACE_DELETE(pCreateInfo);
         }
         versions.clear();
     }
@@ -291,83 +293,79 @@ void StateTracker::clear() {
 //-------------------------------------------------------------------------
 void StateTracker::add_RenderPassCreateInfo(
     VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo) {
-    VkRenderPassCreateInfo *pCopyCreateInfo = new VkRenderPassCreateInfo();
-    *pCopyCreateInfo = *pCreateInfo;
+    VkRenderPassCreateInfo *pCopyCreateInfo = static_cast<VkRenderPassCreateInfo*>(VKTRACE_NEW(VkRenderPassCreateInfo));
+    if (pCopyCreateInfo != nullptr)
+    {
+        *pCopyCreateInfo = *pCreateInfo;
 
-    VkSubpassDescription *pSubPasses =
-        new VkSubpassDescription[pCreateInfo->subpassCount];
-    for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
-        pSubPasses[i] = pCreateInfo->pSubpasses[i];
+        VkSubpassDescription *pSubPasses = static_cast<VkSubpassDescription*>(VKTRACE_NEW_ARRAY(VkSubpassDescription, pCreateInfo->subpassCount));
+        if (pSubPasses != nullptr)
+        {
+            for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
+                pSubPasses[i] = pCreateInfo->pSubpasses[i];
 
-        if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0) {
-            VkAttachmentReference *pInputAttachments =
-                new VkAttachmentReference[pCopyCreateInfo->pSubpasses[i]
-                                              .inputAttachmentCount];
-            for (uint32_t j = 0;
-                 j < pCreateInfo->pSubpasses[i].inputAttachmentCount; j++) {
-                pInputAttachments[j] =
-                    pCreateInfo->pSubpasses[i].pInputAttachments[j];
-            }
-            pSubPasses[i].pInputAttachments = pInputAttachments;
-        }
-
-        if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
-            VkAttachmentReference *pColorAttachments =
-                new VkAttachmentReference[pCreateInfo->pSubpasses[i]
-                                              .colorAttachmentCount];
-            for (uint32_t j = 0;
-                 j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++) {
-                pColorAttachments[j] =
-                    pCreateInfo->pSubpasses[i].pColorAttachments[j];
-            }
-            pSubPasses[i].pColorAttachments = pColorAttachments;
-
-            if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                VkAttachmentReference *pResolveAttachments =
-                    new VkAttachmentReference[pCreateInfo->pSubpasses[i]
-                                                  .colorAttachmentCount];
-                for (uint32_t j = 0;
-                     j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++) {
-                    pResolveAttachments[j] =
-                        pCreateInfo->pSubpasses[i].pResolveAttachments[j];
+                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0) {
+                    VkAttachmentReference *pInputAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, pCopyCreateInfo->pSubpasses[i].inputAttachmentCount));
+                    if (pInputAttachments != nullptr) {
+                        for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].inputAttachmentCount; j++) {
+                            pInputAttachments[j] = pCreateInfo->pSubpasses[i].pInputAttachments[j];
+                        }
+                    }
+                    pSubPasses[i].pInputAttachments = pInputAttachments;
                 }
-                pSubPasses[i].pResolveAttachments = pResolveAttachments;
+
+                if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
+                    VkAttachmentReference *pColorAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, pCreateInfo->pSubpasses[i].colorAttachmentCount));
+                    if (pColorAttachments != nullptr)
+                    {
+                        for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++) {
+                            pColorAttachments[j] = pCreateInfo->pSubpasses[i].pColorAttachments[j];
+                        }
+                    }
+                    pSubPasses[i].pColorAttachments = pColorAttachments;
+
+                    if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
+                        VkAttachmentReference *pResolveAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, pCreateInfo->pSubpasses[i].colorAttachmentCount));
+                        if (pResolveAttachments != nullptr) {
+                            for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++) {
+                                pResolveAttachments[j] = pCreateInfo->pSubpasses[i].pResolveAttachments[j];
+                            }
+                        }
+                        pSubPasses[i].pResolveAttachments = pResolveAttachments;
+                    }
+                }
+
+                if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
+                    VkAttachmentReference *pDepthStencilAttachment = static_cast<VkAttachmentReference*>(VKTRACE_NEW(VkAttachmentReference));
+                    if (pDepthStencilAttachment != nullptr)
+                    {
+                        *pDepthStencilAttachment = *pCreateInfo->pSubpasses[i].pDepthStencilAttachment;
+                    }
+                    pSubPasses[i].pDepthStencilAttachment = pDepthStencilAttachment;
+                }
+
+                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0) {
+                    uint32_t *pPreserveAttachments = static_cast<uint32_t*>(VKTRACE_NEW_ARRAY(uint32_t, pCreateInfo->pSubpasses[i].preserveAttachmentCount));
+                    if (pPreserveAttachments != nullptr) {
+                        for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].preserveAttachmentCount; j++) {
+                            pPreserveAttachments[j] = pCreateInfo->pSubpasses[i].pPreserveAttachments[j];
+                        }
+                    }
+                    pSubPasses[i].pPreserveAttachments = pPreserveAttachments;
+                }
             }
         }
 
-        if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
-            VkAttachmentReference *pDepthStencilAttachment =
-                new VkAttachmentReference();
-            *pDepthStencilAttachment =
-                *pCreateInfo->pSubpasses[i].pDepthStencilAttachment;
-            pSubPasses[i].pDepthStencilAttachment = pDepthStencilAttachment;
-        }
+        pCopyCreateInfo->pSubpasses = pSubPasses;
 
-        if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0) {
-            uint32_t *pPreserveAttachments =
-                new uint32_t[pCreateInfo->pSubpasses[i]
-                                 .preserveAttachmentCount];
-            for (uint32_t j = 0;
-                 j < pCreateInfo->pSubpasses[i].preserveAttachmentCount; j++) {
-                pPreserveAttachments[j] =
-                    pCreateInfo->pSubpasses[i].pPreserveAttachments[j];
+        VkAttachmentDescription *pAttachments = static_cast<VkAttachmentDescription*>(VKTRACE_NEW_ARRAY(VkAttachmentDescription, pCreateInfo->attachmentCount));
+        if (pAttachments != nullptr) {
+            for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++) {
+                pAttachments[i] = pCreateInfo->pAttachments[i];
             }
-            pSubPasses[i].pPreserveAttachments = pPreserveAttachments;
         }
-    }
-
-    pCopyCreateInfo->pSubpasses = pSubPasses;
-
-    if (pCreateInfo->attachmentCount > 0) {
-        VkAttachmentDescription *pAttachments =
-            new VkAttachmentDescription[pCreateInfo->attachmentCount];
-        for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++) {
-            pAttachments[i] = pCreateInfo->pAttachments[i];
-        }
-
         pCopyCreateInfo->pAttachments = pAttachments;
     }
-
     m_renderPassVersions[renderPass].push_back(pCopyCreateInfo);
 }
 
@@ -911,193 +909,193 @@ void StateTracker::copy_VkComputePipelineCreateInfo(
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-ObjectInfo *StateTracker::add_Instance(VkInstance var) {
+ObjectInfo &StateTracker::add_Instance(VkInstance var) {
     ObjectInfo &info = createdInstances[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_PhysicalDevice(VkPhysicalDevice var) {
+ObjectInfo &StateTracker::add_PhysicalDevice(VkPhysicalDevice var) {
     ObjectInfo &info = createdPhysicalDevices[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Device(VkDevice var) {
+ObjectInfo &StateTracker::add_Device(VkDevice var) {
     ObjectInfo &info = createdDevices[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_SurfaceKHR(VkSurfaceKHR var) {
+ObjectInfo &StateTracker::add_SurfaceKHR(VkSurfaceKHR var) {
     ObjectInfo &info = createdSurfaceKHRs[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_CommandPool(VkCommandPool var) {
+ObjectInfo &StateTracker::add_CommandPool(VkCommandPool var) {
     ObjectInfo &info = createdCommandPools[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_CommandBuffer(VkCommandBuffer var) {
+ObjectInfo &StateTracker::add_CommandBuffer(VkCommandBuffer var) {
     ObjectInfo &info = createdCommandBuffers[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_DescriptorPool(VkDescriptorPool var) {
+ObjectInfo &StateTracker::add_DescriptorPool(VkDescriptorPool var) {
     ObjectInfo &info = createdDescriptorPools[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_RenderPass(VkRenderPass var) {
+ObjectInfo &StateTracker::add_RenderPass(VkRenderPass var) {
     ObjectInfo &info = createdRenderPasss[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_PipelineCache(VkPipelineCache var) {
+ObjectInfo &StateTracker::add_PipelineCache(VkPipelineCache var) {
     ObjectInfo &info = createdPipelineCaches[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Pipeline(VkPipeline var) {
+ObjectInfo &StateTracker::add_Pipeline(VkPipeline var) {
     ObjectInfo &info = createdPipelines[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Queue(VkQueue var) {
+ObjectInfo &StateTracker::add_Queue(VkQueue var) {
     ObjectInfo &info = createdQueues[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Semaphore(VkSemaphore var) {
+ObjectInfo &StateTracker::add_Semaphore(VkSemaphore var) {
     ObjectInfo &info = createdSemaphores[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_DeviceMemory(VkDeviceMemory var) {
+ObjectInfo &StateTracker::add_DeviceMemory(VkDeviceMemory var) {
     ObjectInfo &info = createdDeviceMemorys[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Fence(VkFence var) {
+ObjectInfo &StateTracker::add_Fence(VkFence var) {
     ObjectInfo &info = createdFences[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_SwapchainKHR(VkSwapchainKHR var) {
+ObjectInfo &StateTracker::add_SwapchainKHR(VkSwapchainKHR var) {
     ObjectInfo &info = createdSwapchainKHRs[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Image(VkImage var) {
+ObjectInfo &StateTracker::add_Image(VkImage var) {
     ObjectInfo &info = createdImages[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_ImageView(VkImageView var) {
+ObjectInfo &StateTracker::add_ImageView(VkImageView var) {
     ObjectInfo &info = createdImageViews[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Buffer(VkBuffer var) {
+ObjectInfo &StateTracker::add_Buffer(VkBuffer var) {
     ObjectInfo &info = createdBuffers[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_BufferView(VkBufferView var) {
+ObjectInfo &StateTracker::add_BufferView(VkBufferView var) {
     ObjectInfo &info = createdBufferViews[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Framebuffer(VkFramebuffer var) {
+ObjectInfo &StateTracker::add_Framebuffer(VkFramebuffer var) {
     ObjectInfo &info = createdFramebuffers[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Event(VkEvent var) {
+ObjectInfo &StateTracker::add_Event(VkEvent var) {
     ObjectInfo &info = createdEvents[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_QueryPool(VkQueryPool var) {
+ObjectInfo &StateTracker::add_QueryPool(VkQueryPool var) {
     ObjectInfo &info = createdQueryPools[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_ShaderModule(VkShaderModule var) {
+ObjectInfo &StateTracker::add_ShaderModule(VkShaderModule var) {
     ObjectInfo &info = createdShaderModules[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_PipelineLayout(VkPipelineLayout var) {
+ObjectInfo &StateTracker::add_PipelineLayout(VkPipelineLayout var) {
     ObjectInfo &info = createdPipelineLayouts[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_Sampler(VkSampler var) {
+ObjectInfo &StateTracker::add_Sampler(VkSampler var) {
     ObjectInfo &info = createdSamplers[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_DescriptorSetLayout(VkDescriptorSetLayout var) {
+ObjectInfo &StateTracker::add_DescriptorSetLayout(VkDescriptorSetLayout var) {
     ObjectInfo &info = createdDescriptorSetLayouts[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
-ObjectInfo *StateTracker::add_DescriptorSet(VkDescriptorSet var) {
+ObjectInfo &StateTracker::add_DescriptorSet(VkDescriptorSet var) {
     ObjectInfo &info = createdDescriptorSets[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
-    return &info;
+    return info;
 }
 
 //---------------------------------------------------------------------

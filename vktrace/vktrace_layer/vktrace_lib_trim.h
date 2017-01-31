@@ -128,85 +128,85 @@ VkAllocationCallbacks *get_Allocator(const VkAllocationCallbacks *pAllocator);
 
 void mark_CommandBuffer_reference(VkCommandBuffer commandbuffer);
 
-ObjectInfo *add_Instance_object(VkInstance var);
+ObjectInfo &add_Instance_object(VkInstance var);
 ObjectInfo *get_Instance_objectInfo(VkInstance var);
 
-ObjectInfo *add_PhysicalDevice_object(VkPhysicalDevice var);
+ObjectInfo &add_PhysicalDevice_object(VkPhysicalDevice var);
 ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var);
 
-ObjectInfo *add_Device_object(VkDevice var);
+ObjectInfo &add_Device_object(VkDevice var);
 ObjectInfo *get_Device_objectInfo(VkDevice var);
 
-ObjectInfo *add_SurfaceKHR_object(VkSurfaceKHR var);
+ObjectInfo &add_SurfaceKHR_object(VkSurfaceKHR var);
 ObjectInfo *get_SurfaceKHR_objectInfo(VkSurfaceKHR var);
 
-ObjectInfo *add_CommandPool_object(VkCommandPool var);
+ObjectInfo &add_CommandPool_object(VkCommandPool var);
 ObjectInfo *get_CommandPool_objectInfo(VkCommandPool var);
 
-ObjectInfo *add_CommandBuffer_object(VkCommandBuffer var);
+ObjectInfo &add_CommandBuffer_object(VkCommandBuffer var);
 ObjectInfo *get_CommandBuffer_objectInfo(VkCommandBuffer var);
 
-ObjectInfo *add_DescriptorPool_object(VkDescriptorPool var);
+ObjectInfo &add_DescriptorPool_object(VkDescriptorPool var);
 ObjectInfo *get_DescriptorPool_objectInfo(VkDescriptorPool var);
 
-ObjectInfo *add_RenderPass_object(VkRenderPass var);
+ObjectInfo &add_RenderPass_object(VkRenderPass var);
 ObjectInfo *get_RenderPass_objectInfo(VkRenderPass var);
 
-ObjectInfo *add_PipelineCache_object(VkPipelineCache var);
+ObjectInfo &add_PipelineCache_object(VkPipelineCache var);
 ObjectInfo *get_PipelineCache_objectInfo(VkPipelineCache var);
 
-ObjectInfo *add_Pipeline_object(VkPipeline var);
+ObjectInfo &add_Pipeline_object(VkPipeline var);
 ObjectInfo *get_Pipeline_objectInfo(VkPipeline var);
 
-ObjectInfo *add_Queue_object(VkQueue var);
+ObjectInfo &add_Queue_object(VkQueue var);
 ObjectInfo *get_Queue_objectInfo(VkQueue var);
 
-ObjectInfo *add_Semaphore_object(VkSemaphore var);
+ObjectInfo &add_Semaphore_object(VkSemaphore var);
 ObjectInfo *get_Semaphore_objectInfo(VkSemaphore var);
 
-ObjectInfo *add_DeviceMemory_object(VkDeviceMemory var);
+ObjectInfo &add_DeviceMemory_object(VkDeviceMemory var);
 ObjectInfo *get_DeviceMemory_objectInfo(VkDeviceMemory var);
 
-ObjectInfo *add_Fence_object(VkFence var);
+ObjectInfo &add_Fence_object(VkFence var);
 ObjectInfo *get_Fence_objectInfo(VkFence var);
 
-ObjectInfo *add_SwapchainKHR_object(VkSwapchainKHR var);
+ObjectInfo &add_SwapchainKHR_object(VkSwapchainKHR var);
 ObjectInfo *get_SwapchainKHR_objectInfo(VkSwapchainKHR var);
 
-ObjectInfo *add_Image_object(VkImage var);
+ObjectInfo &add_Image_object(VkImage var);
 ObjectInfo *get_Image_objectInfo(VkImage var);
 
-ObjectInfo *add_ImageView_object(VkImageView var);
+ObjectInfo &add_ImageView_object(VkImageView var);
 ObjectInfo *get_ImageView_objectInfo(VkImageView var);
 
-ObjectInfo *add_Buffer_object(VkBuffer var);
+ObjectInfo &add_Buffer_object(VkBuffer var);
 ObjectInfo *get_Buffer_objectInfo(VkBuffer var);
 
-ObjectInfo *add_BufferView_object(VkBufferView var);
+ObjectInfo &add_BufferView_object(VkBufferView var);
 ObjectInfo *get_BufferView_objectInfo(VkBufferView var);
 
-ObjectInfo *add_Framebuffer_object(VkFramebuffer var);
+ObjectInfo &add_Framebuffer_object(VkFramebuffer var);
 ObjectInfo *get_Framebuffer_objectInfo(VkFramebuffer var);
 
-ObjectInfo *add_Event_object(VkEvent var);
+ObjectInfo &add_Event_object(VkEvent var);
 ObjectInfo *get_Event_objectInfo(VkEvent var);
 
-ObjectInfo *add_QueryPool_object(VkQueryPool var);
+ObjectInfo &add_QueryPool_object(VkQueryPool var);
 ObjectInfo *get_QueryPool_objectInfo(VkQueryPool var);
 
-ObjectInfo *add_ShaderModule_object(VkShaderModule var);
+ObjectInfo &add_ShaderModule_object(VkShaderModule var);
 ObjectInfo *get_ShaderModule_objectInfo(VkShaderModule var);
 
-ObjectInfo *add_PipelineLayout_object(VkPipelineLayout var);
+ObjectInfo &add_PipelineLayout_object(VkPipelineLayout var);
 ObjectInfo *get_PipelineLayout_objectInfo(VkPipelineLayout var);
 
-ObjectInfo *add_Sampler_object(VkSampler var);
+ObjectInfo &add_Sampler_object(VkSampler var);
 ObjectInfo *get_Sampler_objectInfo(VkSampler var);
 
-ObjectInfo *add_DescriptorSetLayout_object(VkDescriptorSetLayout var);
+ObjectInfo &add_DescriptorSetLayout_object(VkDescriptorSetLayout var);
 ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var);
 
-ObjectInfo *add_DescriptorSet_object(VkDescriptorSet var);
+ObjectInfo &add_DescriptorSet_object(VkDescriptorSet var);
 ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var);
 
 void remove_Instance_object(VkInstance var);
