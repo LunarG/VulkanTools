@@ -258,7 +258,7 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
     } else {
         int parsingStatus = initScreenShotFrameRange(vk_screenshot_frames, &screenShotFrameRange);
         if (parsingStatus != 0) {
-            fprintf(stderr, "Screenshots option include errors: %s\n", getFrameRangeErrorMessage(parsingStatus));
+            fprintf(stderr, "Screenshot range error\n");
         }
     }
 
