@@ -712,7 +712,7 @@ static bool ClearMemoryObjectBinding(layer_data *dev_data, uint64_t handle, VkDe
 // ClearMemoryObjectBindings clears the binding of objects to memory
 //  For the given object it pulls the memory bindings and makes sure that the bindings
 //  no longer refer to the object being cleared. This occurs when objects are destroyed.
-static bool ClearMemoryObjectBindings(layer_data *dev_data, uint64_t handle, VkDebugReportObjectTypeEXT type) {
+bool ClearMemoryObjectBindings(layer_data *dev_data, uint64_t handle, VkDebugReportObjectTypeEXT type) {
     bool skip = false;
     BINDABLE *mem_binding = GetObjectMemBinding(dev_data, handle, type);
     if (mem_binding) {
@@ -5634,7 +5634,7 @@ static void RemoveMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info, bool i
 
 static void RemoveBufferMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info) { RemoveMemoryRange(handle, mem_info, false); }
 
-static void RemoveImageMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info) { RemoveMemoryRange(handle, mem_info, true); }
+void RemoveImageMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info) { RemoveMemoryRange(handle, mem_info, true); }
 
 static bool PreCallValidateDestroyBuffer(layer_data *dev_data, VkBuffer buffer, BUFFER_STATE **buffer_state,
                                          VK_OBJECT *obj_struct) {
@@ -5706,39 +5706,6 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(VkDevice device, VkBufferView buffe
         dev_data->dispatch_table.DestroyBufferView(device, bufferView, pAllocator);
         lock.lock();
         PostCallRecordDestroyBufferView(dev_data, bufferView, buffer_view_state, obj_struct);
-    }
-}
-
-static bool PreCallValidateDestroyImage(layer_data *dev_data, VkImage image, IMAGE_STATE **image_state, VK_OBJECT *obj_struct) {
-    *image_state = getImageState(dev_data, image);
-    *obj_struct = {reinterpret_cast<uint64_t &>(image), VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT};
-    if (dev_data->instance_data->disabled.destroy_image) return false;
-    bool skip = false;
-    if (*image_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *image_state, *obj_struct, VALIDATION_ERROR_00743);
-    }
-    return skip;
-}
-
-static void PostCallRecordDestroyImage(layer_data *dev_data, VkImage image, IMAGE_STATE *image_state, VK_OBJECT obj_struct) {
-    invalidateCommandBuffers(dev_data, image_state->cb_bindings, obj_struct);
-    // Clean up memory mapping, bindings and range references for image
-    for (auto mem_binding : image_state->GetBoundMemory()) {
-        auto mem_info = getMemObjInfo(dev_data, mem_binding);
-        if (mem_info) {
-            RemoveImageMemoryRange(obj_struct.handle, mem_info);
-        }
-    }
-    ClearMemoryObjectBindings(dev_data, obj_struct.handle, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT);
-    // Remove image from imageMap
-    dev_data->imageMap.erase(image);
-
-    const auto &sub_entry = dev_data->imageSubresourceMap.find(image);
-    if (sub_entry != dev_data->imageSubresourceMap.end()) {
-        for (const auto &pair : sub_entry->second) {
-            dev_data->imageLayoutMap.erase(pair);
-        }
-        dev_data->imageSubresourceMap.erase(sub_entry);
     }
 }
 
@@ -6394,16 +6361,48 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(VkDevice device, const VkBufferV
     return result;
 }
 
+// Access helper functions for external modules
+PFN_vkGetPhysicalDeviceFormatProperties GetFormatPropertiesPointer(core_validation::layer_data *device_data) {
+    return device_data->instance_data->dispatch_table.GetPhysicalDeviceFormatProperties;
+}
+
+PFN_vkGetPhysicalDeviceImageFormatProperties GetImageFormatPropertiesPointer(core_validation::layer_data *device_data) {
+    return device_data->instance_data->dispatch_table.GetPhysicalDeviceImageFormatProperties;
+}
+
+VkPhysicalDevice GetPhysicalDevice(core_validation::layer_data *device_data) { return device_data->physical_device; }
+
+const debug_report_data *GetReportData(core_validation::layer_data *device_data) { return device_data->report_data; }
+
+const VkPhysicalDeviceProperties *GetPhysicalDeviceProperties(core_validation::layer_data *device_data) {
+    return &device_data->phys_dev_props;
+}
+
+const CHECK_DISABLED *GetDisables(core_validation::layer_data *device_data) { return &device_data->instance_data->disabled; }
+
+std::unordered_map<VkImage, std::unique_ptr<IMAGE_STATE>> *GetImageMap(core_validation::layer_data *device_data) {
+    return &device_data->imageMap;
+}
+
+std::unordered_map<VkImage, std::vector<ImageSubresourcePair>> *GetImageSubresourceMap(core_validation::layer_data *device_data) {
+    return &device_data->imageSubresourceMap;
+}
+
+std::unordered_map<ImageSubresourcePair, IMAGE_LAYOUT_NODE> *GetImageLayoutMap(layer_data *device_data) {
+    return &device_data->imageLayoutMap;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo,
                                            const VkAllocationCallbacks *pAllocator, VkImage *pImage) {
+    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-
-    VkResult result = dev_data->dispatch_table.CreateImage(device, pCreateInfo, pAllocator, pImage);
-
+    bool skip = PreCallValidateCreateImage(dev_data, pCreateInfo, pAllocator, pImage);
+    if (!skip) {
+        result = dev_data->dispatch_table.CreateImage(device, pCreateInfo, pAllocator, pImage);
+    }
     if (VK_SUCCESS == result) {
         std::lock_guard<std::mutex> lock(global_lock);
-        PostCallRecordCreateImage(&dev_data->imageMap, &dev_data->imageSubresourceMap, &dev_data->imageLayoutMap, pCreateInfo,
-                                  pImage);
+        PostCallRecordCreateImage(dev_data, pCreateInfo, pImage);
     }
     return result;
 }
@@ -8880,6 +8879,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer commandBuffer, VkI
         assert(0);
     }
     for (uint32_t i = 0; i < rangeCount; ++i) {
+        skip_call |= ValidateImageAttributes(dev_data, image_state, pRanges[i]);
         skip_call |= VerifyClearImageLayout(dev_data, cb_node, image, pRanges[i], imageLayout, "vkCmdClearColorImage()");
     }
     lock.unlock();
@@ -10589,7 +10589,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderP
     layer_data *dev_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
 
     std::unique_lock<std::mutex> lock(global_lock);
-
     // TODO: As part of wrapping up the mem_tracker/core_validation merge the following routine should be consolidated with
     //       ValidateLayouts.
     skip_call |= ValidateRenderpassAttachmentUsage(dev_data, pCreateInfo);
