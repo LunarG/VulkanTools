@@ -23,6 +23,7 @@
  * Author: David Pinedo <david@lunarg.com>
  */
 #include <stdbool.h>
+#include <algorithm>
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -2711,7 +2712,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(
             if (pRenderPass != nullptr && pFramebuffer != nullptr)
             {
                 assert(pRenderPass->ObjectInfo.RenderPass.attachmentCount == pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
-                uint32_t minAttachmentCount = min(pRenderPass->ObjectInfo.RenderPass.attachmentCount, pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
+                uint32_t minAttachmentCount = std::min<uint32_t>(pRenderPass->ObjectInfo.RenderPass.attachmentCount, pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
                 for (uint32_t i = 0; i < minAttachmentCount; i++)
                 {
                     trim::ObjectInfo* pImageView = trim::get_ImageView_objectInfo(pFramebuffer->ObjectInfo.Framebuffer.pAttachments[i]);
