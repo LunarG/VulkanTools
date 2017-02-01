@@ -495,6 +495,26 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(
 {
     vktrace_trace_packet_header* pHeader;
     packet_vkFreeMemory* pPacket = NULL;
+#ifdef USE_PAGEGUARD_SPEEDUP
+    // There are some apps call vkFreeMemory without call vkUnmapMemory on
+    // same memory object. in that situation, capture/playback run into error.
+    // so add process here for that situation.
+    pageguardEnter();
+    if (getPageGuardControlInstance().findMappedMemoryObject(device, memory) !=
+        nullptr) {
+        void *PageGuardMappedData = nullptr;
+#if defined(PLATFORM_LINUX)
+        getMappedDirtyPagesLinux();
+#endif
+        getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(
+            device, memory, &PageGuardMappedData,
+            &vkFlushMappedMemoryRangesWithoutAPICall);
+        if (PageGuardMappedData != nullptr) {
+            pageguardFreeMemory(PageGuardMappedData);
+        }
+    }
+    pageguardExit();
+#endif
     CREATE_TRACE_PACKET(vkFreeMemory, sizeof(VkAllocationCallbacks));
     mdd(device)->devTable.FreeMemory(device, memory, pAllocator);
     vktrace_set_packet_entrypoint_end_time(pHeader);
