@@ -20,6 +20,8 @@ if exist generated (
 mkdir generated\include generated\common
 
 cd generated/include
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_safe_struct.h
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_safe_struct.cpp
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_struct_size_helper.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_struct_size_helper.c
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_enum_string_helper.h
@@ -74,5 +76,9 @@ copy generated\common\buffer_validation.cpp generated\layer-src\core_validation\
 copy generated\include\vk_safe_struct.cpp generated\layer-src\core_validation\vk_safe_struct.cpp
 move generated\include\vk_safe_struct.cpp generated\layer-src\unique_objects\vk_safe_struct.cpp
 echo apply from: "../common.gradle"  > generated\gradle-build\unique_objects\build.gradle
+
+REM Multiple source files for screenshot.  This whole area needs a rework since we don't support gradle anymore.
+copy  ..\layersvt\screenshot_parsing.h   generated\include\
+copy  ..\layersvt\screenshot_parsing.cpp generated\layer-src\screenshot\
 
 del  /f /q generated\include\api_dump.cpp
