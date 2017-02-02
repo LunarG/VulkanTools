@@ -211,6 +211,10 @@ class Subcommand(object):
             if '*' in vk_type:
                 return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
             return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
+        if "VkFence" in vk_type:
+            if '*' in vk_type:
+                return ("%p {%p}", "%s, (%s == NULL) ? 0 : *(%s)" % (name, name, name), "*")
+            return ("%p", "%s" %(name), deref)
         if "size_t" in vk_type:
             if '*' in vk_type:
                 return ("\" VK_SIZE_T_SPECIFIER \"", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
