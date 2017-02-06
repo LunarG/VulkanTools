@@ -705,6 +705,24 @@ struct CHECK_DISABLED {
     bool destroy_query_pool;
     bool get_query_pool_results;
     bool destroy_buffer;
+    bool shader_validation;         // Skip validation for shaders
+};
+
+struct MT_FB_ATTACHMENT_INFO {
+    IMAGE_VIEW_STATE *view_state;
+    VkImage image;
+    VkDeviceMemory mem;
+};
+
+class FRAMEBUFFER_STATE : public BASE_NODE {
+public:
+    VkFramebuffer framebuffer;
+    safe_VkFramebufferCreateInfo createInfo;
+    safe_VkRenderPassCreateInfo renderPassCreateInfo;
+    std::unordered_set<VkCommandBuffer> referencingCmdBuffers;
+    std::vector<MT_FB_ATTACHMENT_INFO> attachments;
+    FRAMEBUFFER_STATE(VkFramebuffer fb, const VkFramebufferCreateInfo *pCreateInfo, const VkRenderPassCreateInfo *pRPCI)
+        : framebuffer(fb), createInfo(pCreateInfo), renderPassCreateInfo(pRPCI) {};
 };
 
 // Fwd declarations of layer_data and helpers to look-up/validate state from layer_data maps
@@ -721,6 +739,10 @@ SAMPLER_STATE *getSamplerState(const layer_data *, VkSampler);
 IMAGE_VIEW_STATE *getImageViewState(const layer_data *, VkImageView);
 VkSwapchainKHR getSwapchainFromImage(const layer_data *, VkImage);
 SWAPCHAIN_NODE *getSwapchainNode(const layer_data *, VkSwapchainKHR);
+GLOBAL_CB_NODE *getCBNode(layer_data const *my_data, const VkCommandBuffer cb);
+RENDER_PASS_STATE *getRenderPassState(layer_data const *my_data, VkRenderPass renderpass);
+FRAMEBUFFER_STATE *getFramebufferState(const layer_data *my_data, VkFramebuffer framebuffer);
+
 void invalidateCommandBuffers(const layer_data *, std::unordered_set<GLOBAL_CB_NODE *> const &, VK_OBJECT);
 bool ValidateMemoryIsBoundToBuffer(const layer_data *, const BUFFER_STATE *, const char *, UNIQUE_VALIDATION_ERROR_CODE);
 bool ValidateMemoryIsBoundToImage(const layer_data *, const IMAGE_STATE *, const char *, UNIQUE_VALIDATION_ERROR_CODE);
@@ -733,6 +755,11 @@ bool ValidateObjectNotInUse(const layer_data *dev_data, BASE_NODE *obj_node, VK_
 void invalidateCommandBuffers(const layer_data *dev_data, std::unordered_set<GLOBAL_CB_NODE *> const &cb_nodes, VK_OBJECT obj);
 void RemoveImageMemoryRange(uint64_t handle, DEVICE_MEM_INFO *mem_info);
 bool ClearMemoryObjectBindings(layer_data *dev_data, uint64_t handle, VkDebugReportObjectTypeEXT type);
+bool ValidateCmd(layer_data *my_data, GLOBAL_CB_NODE *pCB, const CMD_TYPE cmd, const char *caller_name);
+bool insideRenderPass(const layer_data *my_data, GLOBAL_CB_NODE *pCB, const char *apiName, UNIQUE_VALIDATION_ERROR_CODE msgCode);
+void SetImageMemoryValid(layer_data *dev_data, IMAGE_STATE *image_state, bool valid);
+void UpdateCmdBufferLastCmd(layer_data *my_data, GLOBAL_CB_NODE *cb_state, const CMD_TYPE cmd);
+bool outsideRenderPass(const layer_data *my_data, GLOBAL_CB_NODE *pCB, const char *apiName, UNIQUE_VALIDATION_ERROR_CODE msgCode);
 
 // Prototypes for layer_data accessor functions.  These should be in their own header file at some point
 PFN_vkGetPhysicalDeviceFormatProperties GetFormatPropertiesPointer(layer_data *);
