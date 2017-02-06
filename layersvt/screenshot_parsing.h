@@ -49,13 +49,8 @@ int initScreenShotFrameRange(const char *rangeString, FrameRange *pFrameRange);
 // detect if the input command line option _vk_screenshot is definition of frame range or a frame list.
 bool isOptionBelongToScreenShotRange(const char *_vk_screenshot);
 
-// get error message by parsing status
-// return:
-//       error message.
-const char *getFrameRangeErrorMessage(int parsingStatus);
-
 // check screenshot frame range command line option
 // return:
-//      indicate check success or not. if fail, return false,  *ppErrorMessage return error message if it's not nullptr.
-bool checkParsingFrameRange(const char *_vk_screenshot, char **ppErrorMessage);
+//      indicate check success or not. if fail, return false.
+bool checkParsingFrameRange(const char *_vk_screenshot);
 }

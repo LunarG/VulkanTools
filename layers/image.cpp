@@ -68,7 +68,10 @@ struct layer_data {
     unordered_map<VkImage, IMAGE_STATE> imageMap;
 
     layer_data()
-        : report_data(nullptr), device_dispatch_table(nullptr), instance_dispatch_table(nullptr), physicalDevice(0),
+        : report_data(nullptr),
+          device_dispatch_table(nullptr),
+          instance_dispatch_table(nullptr),
+          physicalDevice(0),
           physicalDeviceProperties(){};
 };
 
@@ -89,9 +92,10 @@ static IMAGE_STATE const *getImageState(layer_data const *dev_data, VkImage imag
     return &it->second;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-CreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
-                             const VkAllocationCallbacks *pAllocator, VkDebugReportCallbackEXT *pMsgCallback) {
+VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
+                                                            const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
+                                                            const VkAllocationCallbacks *pAllocator,
+                                                            VkDebugReportCallbackEXT *pMsgCallback) {
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
     VkResult res = my_data->instance_dispatch_table->CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pMsgCallback);
     if (res == VK_SUCCESS) {
@@ -100,24 +104,23 @@ CreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCre
     return res;
 }
 
-VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance,
-                                                         VkDebugReportCallbackEXT msgCallback,
+VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT msgCallback,
                                                          const VkAllocationCallbacks *pAllocator) {
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
     my_data->instance_dispatch_table->DestroyDebugReportCallbackEXT(instance, msgCallback, pAllocator);
     layer_destroy_msg_callback(my_data->report_data, msgCallback, pAllocator);
 }
 
-VKAPI_ATTR void VKAPI_CALL
-DebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t object,
-                      size_t location, int32_t msgCode, const char *pLayerPrefix, const char *pMsg) {
+VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags,
+                                                 VkDebugReportObjectTypeEXT objType, uint64_t object, size_t location,
+                                                 int32_t msgCode, const char *pLayerPrefix, const char *pMsg) {
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
     my_data->instance_dispatch_table->DebugReportMessageEXT(instance, flags, objType, object, location, msgCode, pLayerPrefix,
                                                             pMsg);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
+VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                              VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
@@ -131,8 +134,7 @@ CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallba
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
     VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-    if (result != VK_SUCCESS)
-        return result;
+    if (result != VK_SUCCESS) return result;
 
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(*pInstance), layer_data_map);
     my_data->instance = *pInstance;
@@ -165,8 +167,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
     layer_data_map.erase(key);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice physicalDevice,
-                                            const VkDeviceCreateInfo *pCreateInfo,
+VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo *pCreateInfo,
                                             const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
     layer_data *my_instance_data = get_my_data_ptr(get_dispatch_key(physicalDevice), layer_data_map);
     VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
@@ -220,185 +221,11 @@ static const VkLayerProperties global_layer = {
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo,
                                            const VkAllocationCallbacks *pAllocator, VkImage *pImage) {
-    bool skip_call = false;
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
-    VkImageFormatProperties ImageFormatProperties;
-
     layer_data *device_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    VkPhysicalDevice physicalDevice = device_data->physicalDevice;
-    layer_data *phy_dev_data = get_my_data_ptr(get_dispatch_key(physicalDevice), layer_data_map);
 
-    if (pCreateInfo->format != VK_FORMAT_UNDEFINED) {
-        VkFormatProperties properties;
-        phy_dev_data->instance_dispatch_table->GetPhysicalDeviceFormatProperties(device_data->physicalDevice, pCreateInfo->format,
-                                                                                 &properties);
-        if ((pCreateInfo->tiling == VK_IMAGE_TILING_LINEAR) && (properties.linearTilingFeatures == 0)) {
-            std::stringstream ss;
-            ss << "vkCreateImage format parameter (" << string_VkFormat(pCreateInfo->format) << ") is an unsupported format";
-            skip_call |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT,
-                                 0, __LINE__, VALIDATION_ERROR_02150, "IMAGE", "%s. %s", ss.str().c_str(),
-                                 validation_error_map[VALIDATION_ERROR_02150]);
-        }
+    result = device_data->device_dispatch_table->CreateImage(device, pCreateInfo, pAllocator, pImage);
 
-        if ((pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL) && (properties.optimalTilingFeatures == 0)) {
-            std::stringstream ss;
-            ss << "vkCreateImage format parameter (" << string_VkFormat(pCreateInfo->format) << ") is an unsupported format";
-            skip_call |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT,
-                                 0, __LINE__, VALIDATION_ERROR_02155, "IMAGE", "%s. %s", ss.str().c_str(),
-                                 validation_error_map[VALIDATION_ERROR_02155]);
-        }
-
-        // Validate that format supports usage as color attachment
-        if (pCreateInfo->usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
-            if ((pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL) &&
-                ((properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == 0)) {
-                std::stringstream ss;
-                ss << "vkCreateImage: VkFormat for TILING_OPTIMAL image (" << string_VkFormat(pCreateInfo->format)
-                   << ") does not support requested Image usage type VK_IMAGE_USAGE_COLOR_ATTACHMENT";
-                skip_call |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__, VALIDATION_ERROR_02158, "IMAGE",
-                                     "%s. %s", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_02158]);
-            }
-            if ((pCreateInfo->tiling == VK_IMAGE_TILING_LINEAR) &&
-                ((properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == 0)) {
-                std::stringstream ss;
-                ss << "vkCreateImage: VkFormat for TILING_LINEAR image (" << string_VkFormat(pCreateInfo->format)
-                   << ") does not support requested Image usage type VK_IMAGE_USAGE_COLOR_ATTACHMENT";
-                skip_call |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__, VALIDATION_ERROR_02153, "IMAGE",
-                                     "%s. %s", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_02153]);
-            }
-        }
-        // Validate that format supports usage as depth/stencil attachment
-        if (pCreateInfo->usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            if ((pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL) &&
-                ((properties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) == 0)) {
-                std::stringstream ss;
-                ss << "vkCreateImage: VkFormat for TILING_OPTIMAL image (" << string_VkFormat(pCreateInfo->format)
-                   << ") does not support requested Image usage type VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT";
-                skip_call |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__, VALIDATION_ERROR_02159, "IMAGE",
-                                     "%s. %s", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_02159]);
-            }
-            if ((pCreateInfo->tiling == VK_IMAGE_TILING_LINEAR) &&
-                ((properties.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) == 0)) {
-                std::stringstream ss;
-                ss << "vkCreateImage: VkFormat for TILING_LINEAR image (" << string_VkFormat(pCreateInfo->format)
-                   << ") does not support requested Image usage type VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT";
-                skip_call |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                     VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__, VALIDATION_ERROR_02154, "IMAGE",
-                                     "%s. %s", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_02154]);
-            }
-        }
-    } else {
-        skip_call |=
-            log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
-                    VALIDATION_ERROR_00715, "IMAGE", "vkCreateImage: VkFormat for image must not be VK_FORMAT_UNDEFINED. %s",
-                    validation_error_map[VALIDATION_ERROR_00715]);
-    }
-
-    // Internal call to get format info.  Still goes through layers, could potentially go directly to ICD.
-    phy_dev_data->instance_dispatch_table->GetPhysicalDeviceImageFormatProperties(
-        physicalDevice, pCreateInfo->format, pCreateInfo->imageType, pCreateInfo->tiling, pCreateInfo->usage, pCreateInfo->flags,
-        &ImageFormatProperties);
-
-    VkDeviceSize imageGranularity = device_data->physicalDeviceProperties.limits.bufferImageGranularity;
-    imageGranularity = imageGranularity == 1 ? 0 : imageGranularity;
-
-    // Make sure all required dimension are non-zero at least.
-    bool failedMinSize = false;
-    switch (pCreateInfo->imageType) {
-    case VK_IMAGE_TYPE_3D:
-        if (pCreateInfo->extent.depth == 0) {
-            failedMinSize = true;
-        }
-    // Intentional fall-through
-    case VK_IMAGE_TYPE_2D:
-        if (pCreateInfo->extent.height == 0) {
-            failedMinSize = true;
-        }
-    // Intentional fall-through
-    case VK_IMAGE_TYPE_1D:
-        if (pCreateInfo->extent.width == 0) {
-            failedMinSize = true;
-        }
-        break;
-    default:
-        break;
-    }
-    // TODO: VALIDATION_ERROR_00716
-    // this is *almost* VU 00716, except should not be condidtional on image type - all extents must be non-zero for all types
-    if (failedMinSize) {
-        skip_call |=
-            log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0, __LINE__,
-                    IMAGE_INVALID_FORMAT_LIMITS_VIOLATION, "Image",
-                    "CreateImage extents is 0 for at least one required dimension for image of type %d: "
-                    "Width = %d Height = %d Depth = %d.",
-                    pCreateInfo->imageType, pCreateInfo->extent.width, pCreateInfo->extent.height, pCreateInfo->extent.depth);
-    }
-
-    // TODO: VALIDATION_ERROR_02125 VALIDATION_ERROR_02126 VALIDATION_ERROR_02128 VALIDATION_ERROR_00720
-    // All these extent-related VUs should be checked here
-    if ((pCreateInfo->extent.depth > ImageFormatProperties.maxExtent.depth) ||
-        (pCreateInfo->extent.width > ImageFormatProperties.maxExtent.width) ||
-        (pCreateInfo->extent.height > ImageFormatProperties.maxExtent.height)) {
-        skip_call |= log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0,
-                             __LINE__, IMAGE_INVALID_FORMAT_LIMITS_VIOLATION, "Image",
-                             "CreateImage extents exceed allowable limits for format: "
-                             "Width = %d Height = %d Depth = %d:  Limits for Width = %d Height = %d Depth = %d for format %s.",
-                             pCreateInfo->extent.width, pCreateInfo->extent.height, pCreateInfo->extent.depth,
-                             ImageFormatProperties.maxExtent.width, ImageFormatProperties.maxExtent.height,
-                             ImageFormatProperties.maxExtent.depth, string_VkFormat(pCreateInfo->format));
-    }
-
-    uint64_t totalSize = ((uint64_t)pCreateInfo->extent.width * (uint64_t)pCreateInfo->extent.height *
-                              (uint64_t)pCreateInfo->extent.depth * (uint64_t)pCreateInfo->arrayLayers *
-                              (uint64_t)pCreateInfo->samples * (uint64_t)vk_format_get_size(pCreateInfo->format) +
-                          (uint64_t)imageGranularity) &
-                         ~(uint64_t)imageGranularity;
-
-    if (totalSize > ImageFormatProperties.maxResourceSize) {
-        skip_call |= log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0,
-                             __LINE__, IMAGE_INVALID_FORMAT_LIMITS_VIOLATION, "Image",
-                             "CreateImage resource size exceeds allowable maximum "
-                             "Image resource size = 0x%" PRIxLEAST64 ", maximum resource size = 0x%" PRIxLEAST64 " ",
-                             totalSize, ImageFormatProperties.maxResourceSize);
-    }
-
-    // TODO: VALIDATION_ERROR_02132
-    if (pCreateInfo->mipLevels > ImageFormatProperties.maxMipLevels) {
-        skip_call |= log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0,
-                             __LINE__, IMAGE_INVALID_FORMAT_LIMITS_VIOLATION, "Image",
-                             "CreateImage mipLevels=%d exceeds allowable maximum supported by format of %d", pCreateInfo->mipLevels,
-                             ImageFormatProperties.maxMipLevels);
-    }
-
-    if (pCreateInfo->arrayLayers > ImageFormatProperties.maxArrayLayers) {
-        skip_call |= log_msg(
-            phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0, __LINE__,
-            VALIDATION_ERROR_02133, "Image", "CreateImage arrayLayers=%d exceeds allowable maximum supported by format of %d. %s",
-            pCreateInfo->arrayLayers, ImageFormatProperties.maxArrayLayers, validation_error_map[VALIDATION_ERROR_02133]);
-    }
-
-    if ((pCreateInfo->samples & ImageFormatProperties.sampleCounts) == 0) {
-        skip_call |=
-            log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0, __LINE__,
-                    VALIDATION_ERROR_02138, "Image", "CreateImage samples %s is not supported by format 0x%.8X. %s",
-                    string_VkSampleCountFlagBits(pCreateInfo->samples), ImageFormatProperties.sampleCounts,
-                    validation_error_map[VALIDATION_ERROR_02138]);
-    }
-
-    if (pCreateInfo->initialLayout != VK_IMAGE_LAYOUT_UNDEFINED && pCreateInfo->initialLayout != VK_IMAGE_LAYOUT_PREINITIALIZED) {
-        skip_call |= log_msg(phy_dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, 0,
-                             __LINE__, VALIDATION_ERROR_00731, "Image",
-                             "vkCreateImage parameter, pCreateInfo->initialLayout, must be VK_IMAGE_LAYOUT_UNDEFINED or "
-                             "VK_IMAGE_LAYOUT_PREINITIALIZED. %s",
-                             validation_error_map[VALIDATION_ERROR_00731]);
-    }
-
-    if (!skip_call) {
-        result = device_data->device_dispatch_table->CreateImage(device, pCreateInfo, pAllocator, pImage);
-    }
     if (result == VK_SUCCESS) {
         std::lock_guard<std::mutex> lock(global_lock);
         device_data->imageMap[*pImage] = IMAGE_STATE(pCreateInfo);
@@ -414,427 +241,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(VkDevice device, VkImage image, const Vk
     device_data->device_dispatch_table->DestroyImage(device, image, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(VkDevice device, const VkRenderPassCreateInfo *pCreateInfo,
-                                                const VkAllocationCallbacks *pAllocator, VkRenderPass *pRenderPass) {
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    bool skip_call = false;
-
-    for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
-        if (pCreateInfo->pAttachments[i].format == VK_FORMAT_UNDEFINED) {
-            std::stringstream ss;
-            ss << "vkCreateRenderPass: pCreateInfo->pAttachments[" << i << "].format is VK_FORMAT_UNDEFINED";
-            skip_call |= log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0, __LINE__,
-                                 IMAGE_RENDERPASS_INVALID_ATTACHMENT, "IMAGE", "%s", ss.str().c_str());
-        }
-    }
-
-    if (skip_call) {
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
-
-    VkResult result = my_data->device_dispatch_table->CreateRenderPass(device, pCreateInfo, pAllocator, pRenderPass);
-
-    return result;
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout,
-                                              const VkClearColorValue *pColor, uint32_t rangeCount,
-                                              const VkImageSubresourceRange *pRanges) {
-    bool skipCall = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-
-    // For each range, image aspect must be color only
-    // TODO: this is a 'must' in the spec, so there should be a VU enum for it
-    for (uint32_t i = 0; i < rangeCount; i++) {
-        if (pRanges[i].aspectMask != VK_IMAGE_ASPECT_COLOR_BIT) {
-            char const str[] =
-                "vkCmdClearColorImage aspectMasks for all subresource ranges must be set to VK_IMAGE_ASPECT_COLOR_BIT";
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_INVALID_IMAGE_ASPECT, "IMAGE", str);
-        }
-    }
-
-    auto image_state = getImageState(device_data, image);
-    if (image_state) {
-        if (vk_format_is_depth_or_stencil(image_state->format)) {
-            char const str[] = "vkCmdClearColorImage called with depth/stencil image.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01088, "IMAGE", "%s. %s", str,
-                                validation_error_map[VALIDATION_ERROR_01088]);
-        } else if (vk_format_is_compressed(image_state->format)) {
-            char const str[] = "vkCmdClearColorImage called with compressed image.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01088, "IMAGE", "%s. %s", str,
-                                validation_error_map[VALIDATION_ERROR_01088]);
-        }
-
-        if (!(image_state->usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
-            char const str[] = "vkCmdClearColorImage called with image created without VK_IMAGE_USAGE_TRANSFER_DST_BIT.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01084, "IMAGE", "%s. %s", str,
-                                validation_error_map[VALIDATION_ERROR_01084]);
-        }
-    }
-
-    if (!skipCall) {
-        device_data->device_dispatch_table->CmdClearColorImage(commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
-    }
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout,
-                                                     const VkClearDepthStencilValue *pDepthStencil, uint32_t rangeCount,
-                                                     const VkImageSubresourceRange *pRanges) {
-    bool skipCall = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-    // For each range, Image aspect must be depth or stencil or both
-    for (uint32_t i = 0; i < rangeCount; i++) {
-        if (((pRanges[i].aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT) != VK_IMAGE_ASPECT_DEPTH_BIT) &&
-            ((pRanges[i].aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT) != VK_IMAGE_ASPECT_STENCIL_BIT)) {
-            char const str[] = "vkCmdClearDepthStencilImage aspectMasks for all subresource ranges must be "
-                               "set to VK_IMAGE_ASPECT_DEPTH_BIT and/or VK_IMAGE_ASPECT_STENCIL_BIT";
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_INVALID_IMAGE_ASPECT, "IMAGE", str);
-        }
-    }
-
-    auto image_state = getImageState(device_data, image);
-    if (image_state && !vk_format_is_depth_or_stencil(image_state->format)) {
-        char const str[] = "vkCmdClearDepthStencilImage called without a depth/stencil image.";
-        skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                            reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01103, "IMAGE", "%s. %s", str,
-                            validation_error_map[VALIDATION_ERROR_01103]);
-    }
-
-    if (!skipCall) {
-        device_data->device_dispatch_table->CmdClearDepthStencilImage(commandBuffer, image, imageLayout, pDepthStencil, rangeCount,
-                                                                      pRanges);
-    }
-}
-
-// Returns true if [x, xoffset] and [y, yoffset] overlap
-static bool RangesIntersect(int32_t start, uint32_t start_offset, int32_t end, uint32_t end_offset) {
-    bool result = false;
-    uint32_t intersection_min = std::max(static_cast<uint32_t>(start), static_cast<uint32_t>(end));
-    uint32_t intersection_max = std::min(static_cast<uint32_t>(start) + start_offset, static_cast<uint32_t>(end) + end_offset);
-
-    if (intersection_max > intersection_min) {
-        result = true;
-    }
-    return result;
-}
-
-// Returns true if two VkImageCopy structures overlap
-static bool RegionIntersects(const VkImageCopy *src, const VkImageCopy *dst, VkImageType type) {
-    bool result = false;
-    if ((src->srcSubresource.mipLevel == dst->dstSubresource.mipLevel) &&
-        (RangesIntersect(src->srcSubresource.baseArrayLayer, src->srcSubresource.layerCount, dst->dstSubresource.baseArrayLayer,
-                         dst->dstSubresource.layerCount))) {
-        result = true;
-        switch (type) {
-        case VK_IMAGE_TYPE_3D:
-            result &= RangesIntersect(src->srcOffset.z, src->extent.depth, dst->dstOffset.z, dst->extent.depth);
-        // Intentionally fall through to 2D case
-        case VK_IMAGE_TYPE_2D:
-            result &= RangesIntersect(src->srcOffset.y, src->extent.height, dst->dstOffset.y, dst->extent.height);
-        // Intentionally fall through to 1D case
-        case VK_IMAGE_TYPE_1D:
-            result &= RangesIntersect(src->srcOffset.x, src->extent.width, dst->dstOffset.x, dst->extent.width);
-            break;
-        default:
-            // Unrecognized or new IMAGE_TYPE enums will be caught in parameter_validation
-            assert(false);
-        }
-    }
-    return result;
-}
-
-// Returns true if offset and extent exceed image extents
-static bool ExceedsBounds(const VkOffset3D *offset, const VkExtent3D *extent, const IMAGE_STATE *image) {
-    bool result = false;
-    // Extents/depths cannot be negative but checks left in for clarity
-    switch (image->imageType) {
-    case VK_IMAGE_TYPE_3D: // Validate z and depth
-        if ((offset->z + extent->depth > image->extent.depth) || (offset->z < 0) ||
-            ((offset->z + static_cast<int32_t>(extent->depth)) < 0)) {
-            result = true;
-        }
-        // Intentionally fall through to 2D case to check height
-    case VK_IMAGE_TYPE_2D: // Validate y and height
-        if ((offset->y + extent->height > image->extent.height) || (offset->y < 0) ||
-            ((offset->y + static_cast<int32_t>(extent->height)) < 0)) {
-            result = true;
-        }
-        // Intentionally fall through to 1D case to check width
-    case VK_IMAGE_TYPE_1D: // Validate x and width
-        if ((offset->x + extent->width > image->extent.width) || (offset->x < 0) ||
-            ((offset->x + static_cast<int32_t>(extent->width)) < 0)) {
-            result = true;
-        }
-        break;
-    default:
-        assert(false);
-    }
-    return result;
-}
-
-bool PreCallValidateCmdCopyImage(VkCommandBuffer command_buffer, VkImage src_image, VkImage dst_image, uint32_t region_count,
-                                 const VkImageCopy *regions) {
-    bool skip = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(command_buffer), layer_data_map);
-    auto src_image_entry = getImageState(device_data, src_image);
-    auto dst_image_entry = getImageState(device_data, dst_image);
-
-    // TODO: This does not cover swapchain-created images. This should fall out when this layer is moved
-    // into the core_validation layer
-    if (src_image_entry && dst_image_entry) {
-
-        for (uint32_t i = 0; i < region_count; i++) {
-
-            if (regions[i].srcSubresource.layerCount == 0) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: number of layers in pRegions[" << i << "] srcSubresource is zero";
-                skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, reinterpret_cast<uint64_t &>(command_buffer),
-                                __LINE__, IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
-            }
-
-            if (regions[i].dstSubresource.layerCount == 0) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: number of layers in pRegions[" << i << "] dstSubresource is zero";
-                skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, reinterpret_cast<uint64_t &>(command_buffer),
-                                __LINE__, IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
-            }
-
-            // For each region the layerCount member of srcSubresource and dstSubresource must match
-            if (regions[i].srcSubresource.layerCount != regions[i].dstSubresource.layerCount) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: number of layers in source and destination subresources for pRegions[" << i
-                   << "] do not match";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01198, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01198]);
-            }
-
-            // For each region, the aspectMask member of srcSubresource and dstSubresource must match
-            if (regions[i].srcSubresource.aspectMask != regions[i].dstSubresource.aspectMask) {
-                char const str[] = "vkCmdCopyImage: Src and dest aspectMasks for each region must match";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01197, "IMAGE", "%s. %s", str,
-                            validation_error_map[VALIDATION_ERROR_01197]);
-            }
-
-            // AspectMask must not contain VK_IMAGE_ASPECT_METADATA_BIT
-            if ((regions[i].srcSubresource.aspectMask & VK_IMAGE_ASPECT_METADATA_BIT) ||
-                (regions[i].dstSubresource.aspectMask & VK_IMAGE_ASPECT_METADATA_BIT)) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: pRegions[" << i << "] may not specify aspectMask containing VK_IMAGE_ASPECT_METADATA_BIT";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01222, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01222]);
-            }
-
-            // For each region, if aspectMask contains VK_IMAGE_ASPECT_COLOR_BIT, it must not contain either of
-            // VK_IMAGE_ASPECT_DEPTH_BIT or VK_IMAGE_ASPECT_STENCIL_BIT
-            if ((regions[i].srcSubresource.aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) &&
-                (regions[i].srcSubresource.aspectMask & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))) {
-                char const str[] = "vkCmdCopyImage aspectMask cannot specify both COLOR and DEPTH/STENCIL aspects";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01221, "IMAGE", "%s. %s", str,
-                            validation_error_map[VALIDATION_ERROR_01221]);
-            }
-
-            // If either of the calling command's src_image or dst_image parameters are of VkImageType VK_IMAGE_TYPE_3D,
-            // the baseArrayLayer and layerCount members of both srcSubresource and dstSubresource must be 0 and 1, respectively
-            if (((src_image_entry->imageType == VK_IMAGE_TYPE_3D) || (dst_image_entry->imageType == VK_IMAGE_TYPE_3D)) &&
-                ((regions[i].srcSubresource.baseArrayLayer != 0) || (regions[i].srcSubresource.layerCount != 1) ||
-                 (regions[i].dstSubresource.baseArrayLayer != 0) || (regions[i].dstSubresource.layerCount != 1))) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: src or dstImage type was IMAGE_TYPE_3D, but in subRegion[" << i
-                   << "] baseArrayLayer was not zero or layerCount was not 1.";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01199, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01199]);
-            }
-
-            // MipLevel must be less than the mipLevels specified in VkImageCreateInfo when the image was created
-            if (regions[i].srcSubresource.mipLevel >= src_image_entry->mipLevels) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: pRegions[" << i
-                   << "] specifies a src mipLevel greater than the number specified when the srcImage was created.";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01223, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01223]);
-            }
-            if (regions[i].dstSubresource.mipLevel >= dst_image_entry->mipLevels) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: pRegions[" << i
-                   << "] specifies a dst mipLevel greater than the number specified when the dstImage was created.";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01223, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01223]);
-            }
-
-            // (baseArrayLayer + layerCount) must be less than or equal to the arrayLayers specified in VkImageCreateInfo when the
-            // image was created
-            if ((regions[i].srcSubresource.baseArrayLayer + regions[i].srcSubresource.layerCount) > src_image_entry->arraySize) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: srcImage arrayLayers was " << src_image_entry->arraySize << " but subRegion[" << i
-                   << "] baseArrayLayer + layerCount is "
-                   << (regions[i].srcSubresource.baseArrayLayer + regions[i].srcSubresource.layerCount);
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01224, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01224]);
-            }
-            if ((regions[i].dstSubresource.baseArrayLayer + regions[i].dstSubresource.layerCount) > dst_image_entry->arraySize) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: dstImage arrayLayers was " << dst_image_entry->arraySize << " but subRegion[" << i
-                   << "] baseArrayLayer + layerCount is "
-                   << (regions[i].dstSubresource.baseArrayLayer + regions[i].dstSubresource.layerCount);
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01224, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01224]);
-            }
-
-            // The source region specified by a given element of regions must be a region that is contained within srcImage
-            if (ExceedsBounds(&regions[i].srcOffset, &regions[i].extent, src_image_entry)) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: srcSubResource in pRegions[" << i << "] exceeds extents srcImage was created with";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01175, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01175]);
-            }
-
-            // The destination region specified by a given element of regions must be a region that is contained within dst_image
-            if (ExceedsBounds(&regions[i].dstOffset, &regions[i].extent, dst_image_entry)) {
-                std::stringstream ss;
-                ss << "vkCmdCopyImage: dstSubResource in pRegions[" << i << "] exceeds extents dstImage was created with";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01176, "IMAGE", "%s. %s",
-                            ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01176]);
-            }
-
-            // The union of all source regions, and the union of all destination regions, specified by the elements of regions,
-            // must not overlap in memory
-            if (src_image == dst_image) {
-                for (uint32_t j = 0; j < region_count; j++) {
-                    if (RegionIntersects(&regions[i], &regions[j], src_image_entry->imageType)) {
-                        std::stringstream ss;
-                        ss << "vkCmdCopyImage: pRegions[" << i << "] src overlaps with pRegions[" << j << "].";
-                        skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                        VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                                        reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01177, "IMAGE",
-                                        "%s. %s", ss.str().c_str(), validation_error_map[VALIDATION_ERROR_01177]);
-                    }
-                }
-            }
-        }
-
-        // The formats of src_image and dst_image must be compatible. Formats are considered compatible if their texel size in bytes
-        // is the same between both formats. For example, VK_FORMAT_R8G8B8A8_UNORM is compatible with VK_FORMAT_R32_UINT because
-        // because both texels are 4 bytes in size. Depth/stencil formats must match exactly.
-        if (vk_format_is_depth_or_stencil(src_image_entry->format) || vk_format_is_depth_or_stencil(dst_image_entry->format)) {
-            if (src_image_entry->format != dst_image_entry->format) {
-                char const str[] = "vkCmdCopyImage called with unmatched source and dest image depth/stencil formats.";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, IMAGE_MISMATCHED_IMAGE_FORMAT, "IMAGE", str);
-            }
-        } else {
-            size_t srcSize = vk_format_get_size(src_image_entry->format);
-            size_t destSize = vk_format_get_size(dst_image_entry->format);
-            if (srcSize != destSize) {
-                char const str[] = "vkCmdCopyImage called with unmatched source and dest image format sizes.";
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            reinterpret_cast<uint64_t &>(command_buffer), __LINE__, VALIDATION_ERROR_01184, "IMAGE", "%s. %s", str,
-                            validation_error_map[VALIDATION_ERROR_01184]);
-            }
-        }
-    }
-    return skip;
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdCopyImage(VkCommandBuffer commandBuffer, VkImage srcImage,
-                                        VkImageLayout srcImageLayout, VkImage dstImage,
-                                        VkImageLayout dstImageLayout, uint32_t regionCount,
-                                        const VkImageCopy *pRegions) {
-
-    bool skip = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-
-    skip = PreCallValidateCmdCopyImage(commandBuffer, srcImage, dstImage, regionCount, pRegions);
-
-    if (!skip) {
-        device_data->device_dispatch_table->CmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout,
-                                                         regionCount, pRegions);
-    }
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(VkCommandBuffer commandBuffer, uint32_t attachmentCount,
-                                               const VkClearAttachment *pAttachments, uint32_t rectCount,
-                                               const VkClearRect *pRects) {
-    bool skipCall = false;
-    VkImageAspectFlags aspectMask;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-    for (uint32_t i = 0; i < attachmentCount; i++) {
-        aspectMask = pAttachments[i].aspectMask;
-        if (0 == aspectMask) {
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                VALIDATION_ERROR_01128, "IMAGE", "%s", validation_error_map[VALIDATION_ERROR_01128]);
-        } else if (aspectMask & VK_IMAGE_ASPECT_METADATA_BIT) {
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                VALIDATION_ERROR_01126, "IMAGE", "%s", validation_error_map[VALIDATION_ERROR_01126]);
-        } else if (aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) {
-            if ((aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT) || (aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT)) {
-                char const str[] =
-                    "vkCmdClearAttachments aspectMask [%d] must set only VK_IMAGE_ASPECT_COLOR_BIT of a color attachment. %s";
-                skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                    VALIDATION_ERROR_01125, "IMAGE", str, i, validation_error_map[VALIDATION_ERROR_01125]);
-            }
-        } else {
-            // Having eliminated all other possibilities, image aspect must be depth or stencil or both
-            if (((aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT) != VK_IMAGE_ASPECT_DEPTH_BIT) &&
-                ((aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT) != VK_IMAGE_ASPECT_STENCIL_BIT)) {
-                char const str[] = "vkCmdClearAttachments aspectMask [%d] must be set to VK_IMAGE_ASPECT_DEPTH_BIT and/or "
-                                   "VK_IMAGE_ASPECT_STENCIL_BIT. %s";
-                skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                    VALIDATION_ERROR_01127, "IMAGE", str, i, validation_error_map[VALIDATION_ERROR_01127]);
-            }
-        }
-    }
-
-    if (!skipCall) {
-        device_data->device_dispatch_table->CmdClearAttachments(commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
-    }
-}
-
 static bool ValidateBufferImageCopyData(layer_data *dev_data, uint32_t regionCount, const VkBufferImageCopy *pRegions,
                                         VkImage image, const char *function) {
     bool skip = false;
 
     for (uint32_t i = 0; i < regionCount; i++) {
-
         auto image_info = getImageState(dev_data, image);
         if (image_info) {
-
             if ((image_info->imageType == VK_IMAGE_TYPE_1D) || (image_info->imageType == VK_IMAGE_TYPE_2D)) {
                 if ((pRegions[i].imageOffset.z != 0) || (pRegions[i].imageExtent.depth != 1)) {
                     skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
@@ -846,9 +259,10 @@ static bool ValidateBufferImageCopyData(layer_data *dev_data, uint32_t regionCou
                 }
             }
 
-            // BufferOffset must be a multiple of the calling command's VkImage parameter's texel size
+            // If the the calling command's VkImage parameter's format is not a depth/stencil format,
+            // then bufferOffset must be a multiple of the calling command's VkImage parameter's texel size
             auto texel_size = vk_format_get_size(image_info->format);
-            if (vk_safe_modulo(pRegions[i].bufferOffset, texel_size) != 0) {
+            if (!vk_format_is_depth_and_stencil(image_info->format) && vk_safe_modulo(pRegions[i].bufferOffset, texel_size) != 0) {
                 skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                                 reinterpret_cast<uint64_t &>(image), __LINE__, VALIDATION_ERROR_01263, "IMAGE",
                                 "%s(): pRegion[%d] bufferOffset 0x%" PRIxLEAST64
@@ -962,7 +376,6 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(VkCommandBuffer commandBuffer, VkImage s
     auto dstImageEntry = getImageState(device_data, dstImage);
 
     if (srcImageEntry && dstImageEntry) {
-
         VkFormat srcFormat = srcImageEntry->format;
         VkFormat dstFormat = dstImageEntry->format;
 
@@ -1097,37 +510,6 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(VkCommandBuffer commandBuffer, VkImage s
     }
 }
 
-VKAPI_ATTR void VKAPI_CALL
-CmdPipelineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
-                   VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const VkMemoryBarrier *pMemoryBarriers,
-                   uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier *pBufferMemoryBarriers,
-                   uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier *pImageMemoryBarriers) {
-    bool skipCall = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; ++i) {
-        VkImageMemoryBarrier const *const barrier = (VkImageMemoryBarrier const *const) & pImageMemoryBarriers[i];
-        // TODO: add VALIDATION_ERROR_00309 (sType == VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER) here
-        if (barrier->sType == VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER) {
-            // TODO: this check should include VALIDATION_ERROR_00301 and VALIDATION_ERROR_00316
-            if (barrier->subresourceRange.layerCount == 0) {
-                std::stringstream ss;
-                ss << "vkCmdPipelineBarrier called with 0 in ppMemoryBarriers[" << i << "]->subresourceRange.layerCount.";
-                skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, (VkDebugReportObjectTypeEXT)0, 0,
-                                    __LINE__, IMAGE_INVALID_IMAGE_RESOURCE, "IMAGE", "%s", ss.str().c_str());
-            }
-        }
-    }
-
-    if (skipCall) {
-        return;
-    }
-
-    device_data->device_dispatch_table->CmdPipelineBarrier(commandBuffer, srcStageMask, dstStageMask, dependencyFlags,
-                                                           memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount,
-                                                           pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
-}
-
 VKAPI_ATTR void VKAPI_CALL CmdResolveImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
                                            VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount,
                                            const VkImageResolve *pRegions) {
@@ -1239,36 +621,32 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(VkDevice device, VkImage im
     }
 }
 
-VKAPI_ATTR void VKAPI_CALL
-GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties *pProperties) {
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties *pProperties) {
     layer_data *phy_dev_data = get_my_data_ptr(get_dispatch_key(physicalDevice), layer_data_map);
     phy_dev_data->instance_dispatch_table->GetPhysicalDeviceProperties(physicalDevice, pProperties);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
     return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount,
+                                                              VkLayerProperties *pProperties) {
     return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                    VkExtensionProperties *pProperties) {
     if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
         return util_GetExtensionProperties(1, instance_extensions, pCount, pProperties);
 
     return VK_ERROR_LAYER_NOT_PRESENT;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
-                                                                  const char *pLayerName, uint32_t *pCount,
-                                                                  VkExtensionProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char *pLayerName,
+                                                                  uint32_t *pCount, VkExtensionProperties *pProperties) {
     // Image does not have any physical device extensions
-    if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
-        return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName)) return util_GetExtensionProperties(0, NULL, pCount, pProperties);
 
     assert(physicalDevice);
 
@@ -1278,15 +656,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     return pTable->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
 }
 
-static PFN_vkVoidFunction
-intercept_core_instance_command(const char *name);
-static PFN_vkVoidFunction
-intercept_core_device_command(const char *name);
+static PFN_vkVoidFunction intercept_core_instance_command(const char *name);
+static PFN_vkVoidFunction intercept_core_device_command(const char *name);
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
-    if (proc)
-        return proc;
+    if (proc) return proc;
 
     assert(device);
 
@@ -1294,29 +669,24 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     {
-        if (pTable->GetDeviceProcAddr == NULL)
-            return NULL;
+        if (pTable->GetDeviceProcAddr == NULL) return NULL;
         return pTable->GetDeviceProcAddr(device, funcName);
     }
 }
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_instance_command(funcName);
-    if (!proc)
-        proc = intercept_core_device_command(funcName);
-    if (proc)
-        return proc;
+    if (!proc) proc = intercept_core_device_command(funcName);
+    if (proc) return proc;
 
     assert(instance);
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
 
     proc = debug_report_get_instance_proc_addr(my_data->report_data, funcName);
-    if (proc)
-        return proc;
+    if (proc) return proc;
 
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
-    if (pTable->GetInstanceProcAddr == NULL)
-        return NULL;
+    if (pTable->GetInstanceProcAddr == NULL) return NULL;
     return pTable->GetInstanceProcAddr(instance, funcName);
 }
 
@@ -1326,39 +696,35 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance in
     layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
 
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
-    if (pTable->GetPhysicalDeviceProcAddr == NULL)
-        return NULL;
+    if (pTable->GetPhysicalDeviceProcAddr == NULL) return NULL;
     return pTable->GetPhysicalDeviceProcAddr(instance, funcName);
 }
 
-static PFN_vkVoidFunction
-intercept_core_instance_command(const char *name) {
+static PFN_vkVoidFunction intercept_core_instance_command(const char *name) {
     static const struct {
         const char *name;
         PFN_vkVoidFunction proc;
     } core_instance_commands[] = {
-        { "vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr) },
-        { "vkCreateInstance", reinterpret_cast<PFN_vkVoidFunction>(CreateInstance) },
-        { "vkDestroyInstance", reinterpret_cast<PFN_vkVoidFunction>(DestroyInstance) },
-        { "vkCreateDevice", reinterpret_cast<PFN_vkVoidFunction>(CreateDevice) },
-        { "vkEnumerateInstanceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceLayerProperties) },
-        { "vkEnumerateDeviceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceLayerProperties) },
-        { "vkEnumerateInstanceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceExtensionProperties) },
-        { "vkEnumerateDeviceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceExtensionProperties) },
-        { "vkGetPhysicalDeviceProperties", reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProperties) },
-        { "vk_layerGetPhysicalDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },
+        {"vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr)},
+        {"vkCreateInstance", reinterpret_cast<PFN_vkVoidFunction>(CreateInstance)},
+        {"vkDestroyInstance", reinterpret_cast<PFN_vkVoidFunction>(DestroyInstance)},
+        {"vkCreateDevice", reinterpret_cast<PFN_vkVoidFunction>(CreateDevice)},
+        {"vkEnumerateInstanceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceLayerProperties)},
+        {"vkEnumerateDeviceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceLayerProperties)},
+        {"vkEnumerateInstanceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceExtensionProperties)},
+        {"vkEnumerateDeviceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceExtensionProperties)},
+        {"vkGetPhysicalDeviceProperties", reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProperties)},
+        {"vk_layerGetPhysicalDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr)},
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(core_instance_commands); i++) {
-        if (!strcmp(core_instance_commands[i].name, name))
-            return core_instance_commands[i].proc;
+        if (!strcmp(core_instance_commands[i].name, name)) return core_instance_commands[i].proc;
     }
 
     return nullptr;
 }
 
-static PFN_vkVoidFunction
-intercept_core_device_command(const char *name) {
+static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
     static const struct {
         const char *name;
         PFN_vkVoidFunction proc;
@@ -1367,64 +733,56 @@ intercept_core_device_command(const char *name) {
         {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
         {"vkCreateImage", reinterpret_cast<PFN_vkVoidFunction>(CreateImage)},
         {"vkDestroyImage", reinterpret_cast<PFN_vkVoidFunction>(DestroyImage)},
-        {"vkCreateRenderPass", reinterpret_cast<PFN_vkVoidFunction>(CreateRenderPass)},
-        {"vkCmdClearColorImage", reinterpret_cast<PFN_vkVoidFunction>(CmdClearColorImage)},
-        {"vkCmdClearDepthStencilImage", reinterpret_cast<PFN_vkVoidFunction>(CmdClearDepthStencilImage)},
-        {"vkCmdClearAttachments", reinterpret_cast<PFN_vkVoidFunction>(CmdClearAttachments)},
-        {"vkCmdCopyImage", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyImage)},
         {"vkCmdCopyImageToBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyImageToBuffer)},
         {"vkCmdCopyBufferToImage", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyBufferToImage)},
         {"vkCmdBlitImage", reinterpret_cast<PFN_vkVoidFunction>(CmdBlitImage)},
-        {"vkCmdPipelineBarrier", reinterpret_cast<PFN_vkVoidFunction>(CmdPipelineBarrier)},
         {"vkCmdResolveImage", reinterpret_cast<PFN_vkVoidFunction>(CmdResolveImage)},
         {"vkGetImageSubresourceLayout", reinterpret_cast<PFN_vkVoidFunction>(GetImageSubresourceLayout)},
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(core_device_commands); i++) {
-        if (!strcmp(core_device_commands[i].name, name))
-            return core_device_commands[i].proc;
+        if (!strcmp(core_device_commands[i].name, name)) return core_device_commands[i].proc;
     }
 
     return nullptr;
 }
 
-} // namespace image
+}  // namespace image
 
 // vk_layer_logging.h expects these to be defined
 
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
-                               const VkAllocationCallbacks *pAllocator, VkDebugReportCallbackEXT *pMsgCallback) {
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(VkInstance instance,
+                                                              const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
+                                                              const VkAllocationCallbacks *pAllocator,
+                                                              VkDebugReportCallbackEXT *pMsgCallback) {
     return image::CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pMsgCallback);
 }
 
-VKAPI_ATTR void VKAPI_CALL
-vkDestroyDebugReportCallbackEXT(VkInstance instance,
-                                VkDebugReportCallbackEXT msgCallback,
-                                const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT msgCallback,
+                                                           const VkAllocationCallbacks *pAllocator) {
     image::DestroyDebugReportCallbackEXT(instance, msgCallback, pAllocator);
 }
 
-VKAPI_ATTR void VKAPI_CALL
-vkDebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t object,
-                        size_t location, int32_t msgCode, const char *pLayerPrefix, const char *pMsg) {
+VKAPI_ATTR void VKAPI_CALL vkDebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags,
+                                                   VkDebugReportObjectTypeEXT objType, uint64_t object, size_t location,
+                                                   int32_t msgCode, const char *pLayerPrefix, const char *pMsg) {
     image::DebugReportMessageEXT(instance, flags, objType, object, location, msgCode, pLayerPrefix, pMsg);
 }
 
 // loader-layer interface v0, just wrappers since there is only a layer
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount, VkExtensionProperties *pProperties) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                                      VkExtensionProperties *pProperties) {
     return image::EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pCount,
+                                                                                  VkLayerProperties *pProperties) {
     return image::EnumerateInstanceLayerProperties(pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount, VkLayerProperties *pProperties) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount,
+                                                                                VkLayerProperties *pProperties) {
     // the layer command handles VK_NULL_HANDLE just fine internally
     assert(physicalDevice == VK_NULL_HANDLE);
     return image::EnumerateDeviceLayerProperties(VK_NULL_HANDLE, pCount, pProperties);
@@ -1446,7 +804,8 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     return image::GetInstanceProcAddr(instance, funcName);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *funcName) {
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance,
+                                                                                           const char *funcName) {
     return image::GetPhysicalDeviceProcAddr(instance, funcName);
 }
 

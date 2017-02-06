@@ -61,7 +61,19 @@ rename-item -path 1.ppm -newname 1-smoketrace.ppm
 & vkreplay  -s 1 -o  s01.vktrace > replay.sout 2> replay.serr
 rename-item -path 1.ppm -newname 1-smokereplay.ppm
 
-# Replay old trace if specified
+# Do a trace and replay for smoketest with flush
+& vktrace -o s02.vktrace -s 1 -p smoketest -a "--c 10 --flush" --PMB false > trace.sout 2> trace.serr
+rename-item -path 1.ppm -newname 2-smoketrace.ppm
+& vkreplay  -s 1 -o  s02.vktrace > replay.sout 2> replay.serr
+rename-item -path 1.ppm -newname 2-smokereplay.ppm
+
+# Do a trace and replay for smoketest with push constants
+& vktrace -o s03.vktrace -s 1 -p smoketest -a "--c 10 -p" --PMB false > trace.sout 2> trace.serr
+rename-item -path 1.ppm -newname 3-smoketrace.ppm
+& vkreplay  -s 1 -o  s03.vktrace > replay.sout 2> replay.serr
+rename-item -path 1.ppm -newname 3-smokereplay.ppm
+
+# Replay old trace if specified.
 if ($Replay) {
     & vkreplay -s 1 -o "$Replay.vktrace" > replayold.sout 2> replayold.serr
     rename-item -path 1.ppm -newname 1-replayold.ppm

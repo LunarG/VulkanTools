@@ -58,7 +58,7 @@ using namespace std;
 class VkImageObj;
 
 class VkTestFramework : public ::testing::Test {
-  public:
+   public:
     VkTestFramework();
     ~VkTestFramework();
 
@@ -76,7 +76,7 @@ class VkTestFramework : public ::testing::Test {
     char **ReadFileData(const char *fileName);
     void FreeFileData(char **data);
 
-  private:
+   private:
     int m_compile_options;
     int m_num_shader_strings;
     TBuiltInResource Resources;
@@ -92,10 +92,10 @@ class VkTestFramework : public ::testing::Test {
 };
 
 class TestEnvironment : public ::testing::Environment {
-  public:
+   public:
     void SetUp();
 
     void TearDown();
 };
 
-#endif // VKTESTFRAMEWORK_H
+#endif  // VKTESTFRAMEWORK_H

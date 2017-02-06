@@ -21,7 +21,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
     option(BUILD_WSI_MIR_SUPPORT "Build Mir WSI support" ON)
-    set(DEMOS_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for demos")
+    set(DEMOS_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for demos (XCB, XLIB, WAYLAND, MIR, DISPLAY)")
 
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
@@ -40,7 +40,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endif()
 endif()
 
-set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
+set(SCRIPTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 
 # Header file for CMake settings
 include_directories("${PROJECT_SOURCE_DIR}/include")
@@ -57,8 +57,12 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(WIN32)
+    # Treat warnings as errors
+    #add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/WX>")
     # Disable RTTI
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/GR->")
+    # Warn about nested declarations
+    #add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/w34456>")
 endif()
 
 if(NOT WIN32)
@@ -328,16 +332,9 @@ if(NOT WIN32)
     include(GNUInstallDirs)
 
     add_definitions(-DSYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}")
-    add_definitions(-DDATADIR="${CMAKE_INSTALL_FULL_DATADIR}")
-
     # Make sure /etc is searched by the loader
-    if (NOT (CMAKE_INSTALL_FULL_SYSCONFDIR STREQUAL "/etc"))
+    if(NOT (CMAKE_INSTALL_FULL_SYSCONFDIR STREQUAL "/etc"))
         add_definitions(-DEXTRASYSCONFDIR="/etc")
-    endif()
-
-    # Make sure /usr/share is searched by the loader
-    if (NOT (CMAKE_INSTALL_FULL_DATADIR STREQUAL "/usr/share"))
-        add_definitions(-DEXTRADATADIR="/usr/share")
     endif()
 endif()
 

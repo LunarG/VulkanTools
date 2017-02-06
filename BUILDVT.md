@@ -22,7 +22,7 @@ Ubuntu 14.04.3 LTS, 14.10, 15.04,15.10, and 16.04 LTS have been tested with this
 These additional packages are needed for building the components in this repo.
 ```
 # Dependencies from the LoaderAndValidationLayers repo:
-sudo apt-get install git cmake build-essential bison libx11-dev libxcb1-dev libxkbcommon-dev libmirclient-dev libwayland-dev
+sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libmirclient-dev libwayland-dev libxrandr-dev
 # Additional dependencies for this repo:
 sudo apt-get install wget autotools-dev
 # If performing 32-bit builds, you'll also need:
