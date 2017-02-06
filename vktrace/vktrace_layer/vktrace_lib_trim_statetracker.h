@@ -380,6 +380,9 @@ class StateTracker {
     void remove_DescriptorSetLayout(VkDescriptorSetLayout var);
     void remove_DescriptorSet(VkDescriptorSet var);
 
+    static void copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
+        const VkRenderPassCreateInfo &src);
+
     static void
     copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo *pDst,
                                       const VkGraphicsPipelineCreateInfo &src);

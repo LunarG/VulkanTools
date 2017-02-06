@@ -258,23 +258,25 @@ void StateTracker::clear() {
             VkSubpassDescription *pSubPasses =
                 const_cast<VkSubpassDescription *>(pCreateInfo->pSubpasses);
             for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
-                if (pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
+                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0 && pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
                     VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pInputAttachments));
                 }
 
-                if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pColorAttachments));
-                }
+                if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
+                    if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr) {
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pColorAttachments));
+                    }
 
-                if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pResolveAttachments));
+                    if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pResolveAttachments));
+                    }
                 }
 
                 if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
                     VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pDepthStencilAttachment));
                 }
 
-                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0) {
+                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0 && pCreateInfo->pSubpasses[i].pPreserveAttachments != nullptr) {
                     VKTRACE_DELETE(const_cast<uint32_t*>(pCreateInfo->pSubpasses[i].pPreserveAttachments));
                 }
             }
@@ -291,64 +293,64 @@ void StateTracker::clear() {
 }
 
 //-------------------------------------------------------------------------
-void StateTracker::add_RenderPassCreateInfo(
-    VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo) {
-    VkRenderPassCreateInfo *pCopyCreateInfo = static_cast<VkRenderPassCreateInfo*>(VKTRACE_NEW(VkRenderPassCreateInfo));
-    if (pCopyCreateInfo != nullptr)
+void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
+    const VkRenderPassCreateInfo &src)
+{
+    if (pDst != nullptr)
     {
-        *pCopyCreateInfo = *pCreateInfo;
+        *pDst = src;
 
-        VkSubpassDescription *pSubPasses = static_cast<VkSubpassDescription*>(VKTRACE_NEW_ARRAY(VkSubpassDescription, pCreateInfo->subpassCount));
+        VkSubpassDescription *pSubPasses = static_cast<VkSubpassDescription*>(VKTRACE_NEW_ARRAY(VkSubpassDescription, src.subpassCount));
         if (pSubPasses != nullptr)
         {
-            for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
-                pSubPasses[i] = pCreateInfo->pSubpasses[i];
+            for (uint32_t i = 0; i < src.subpassCount; i++) {
+                pSubPasses[i] = src.pSubpasses[i];
 
-                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0) {
-                    VkAttachmentReference *pInputAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, pCopyCreateInfo->pSubpasses[i].inputAttachmentCount));
+                if (src.pSubpasses[i].inputAttachmentCount > 0) {
+                    VkAttachmentReference *pInputAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].inputAttachmentCount));
                     if (pInputAttachments != nullptr) {
-                        for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].inputAttachmentCount; j++) {
-                            pInputAttachments[j] = pCreateInfo->pSubpasses[i].pInputAttachments[j];
+                        for (uint32_t j = 0; j < src.pSubpasses[i].inputAttachmentCount; j++) {
+                            pInputAttachments[j] = src.pSubpasses[i].pInputAttachments[j];
                         }
                     }
                     pSubPasses[i].pInputAttachments = pInputAttachments;
                 }
 
-                if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
-                    VkAttachmentReference *pColorAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, pCreateInfo->pSubpasses[i].colorAttachmentCount));
+                if (src.pSubpasses[i].colorAttachmentCount > 0) {
+                    VkAttachmentReference *pColorAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].colorAttachmentCount));
                     if (pColorAttachments != nullptr)
                     {
-                        for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++) {
-                            pColorAttachments[j] = pCreateInfo->pSubpasses[i].pColorAttachments[j];
+                        for (uint32_t j = 0; j < src.pSubpasses[i].colorAttachmentCount; j++) {
+                            pColorAttachments[j] = src.pSubpasses[i].pColorAttachments[j];
                         }
                     }
                     pSubPasses[i].pColorAttachments = pColorAttachments;
 
-                    if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                        VkAttachmentReference *pResolveAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, pCreateInfo->pSubpasses[i].colorAttachmentCount));
+                    if (src.pSubpasses[i].pResolveAttachments != nullptr) {
+                        VkAttachmentReference *pResolveAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].colorAttachmentCount));
                         if (pResolveAttachments != nullptr) {
-                            for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].colorAttachmentCount; j++) {
-                                pResolveAttachments[j] = pCreateInfo->pSubpasses[i].pResolveAttachments[j];
+                            for (uint32_t j = 0; j < src.pSubpasses[i].colorAttachmentCount; j++) {
+                                pResolveAttachments[j] = src.pSubpasses[i].pResolveAttachments[j];
                             }
                         }
                         pSubPasses[i].pResolveAttachments = pResolveAttachments;
                     }
                 }
 
-                if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
+                if (src.pSubpasses[i].pDepthStencilAttachment != nullptr) {
                     VkAttachmentReference *pDepthStencilAttachment = static_cast<VkAttachmentReference*>(VKTRACE_NEW(VkAttachmentReference));
                     if (pDepthStencilAttachment != nullptr)
                     {
-                        *pDepthStencilAttachment = *pCreateInfo->pSubpasses[i].pDepthStencilAttachment;
+                        *pDepthStencilAttachment = *src.pSubpasses[i].pDepthStencilAttachment;
                     }
                     pSubPasses[i].pDepthStencilAttachment = pDepthStencilAttachment;
                 }
 
-                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0) {
-                    uint32_t *pPreserveAttachments = static_cast<uint32_t*>(VKTRACE_NEW_ARRAY(uint32_t, pCreateInfo->pSubpasses[i].preserveAttachmentCount));
+                if (src.pSubpasses[i].preserveAttachmentCount > 0) {
+                    uint32_t *pPreserveAttachments = static_cast<uint32_t*>(VKTRACE_NEW_ARRAY(uint32_t, src.pSubpasses[i].preserveAttachmentCount));
                     if (pPreserveAttachments != nullptr) {
-                        for (uint32_t j = 0; j < pCreateInfo->pSubpasses[i].preserveAttachmentCount; j++) {
-                            pPreserveAttachments[j] = pCreateInfo->pSubpasses[i].pPreserveAttachments[j];
+                        for (uint32_t j = 0; j < src.pSubpasses[i].preserveAttachmentCount; j++) {
+                            pPreserveAttachments[j] = src.pSubpasses[i].pPreserveAttachments[j];
                         }
                     }
                     pSubPasses[i].pPreserveAttachments = pPreserveAttachments;
@@ -356,22 +358,28 @@ void StateTracker::add_RenderPassCreateInfo(
             }
         }
 
-        pCopyCreateInfo->pSubpasses = pSubPasses;
+        pDst->pSubpasses = pSubPasses;
 
-        VkAttachmentDescription *pAttachments = static_cast<VkAttachmentDescription*>(VKTRACE_NEW_ARRAY(VkAttachmentDescription, pCreateInfo->attachmentCount));
+        VkAttachmentDescription *pAttachments = static_cast<VkAttachmentDescription*>(VKTRACE_NEW_ARRAY(VkAttachmentDescription, src.attachmentCount));
         if (pAttachments != nullptr) {
-            for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++) {
-                pAttachments[i] = pCreateInfo->pAttachments[i];
+            for (uint32_t i = 0; i < src.attachmentCount; i++) {
+                pAttachments[i] = src.pAttachments[i];
             }
         }
-        pCopyCreateInfo->pAttachments = pAttachments;
+        pDst->pAttachments = pAttachments;
     }
+}
+
+void StateTracker::add_RenderPassCreateInfo(
+    VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo) {
+    VkRenderPassCreateInfo *pCopyCreateInfo = static_cast<VkRenderPassCreateInfo*>(VKTRACE_NEW(VkRenderPassCreateInfo));
+    copy_VkRenderPassCreateInfo(pCopyCreateInfo, *pCreateInfo);
     m_renderPassVersions[renderPass].push_back(pCopyCreateInfo);
 }
 
 //-------------------------------------------------------------------------
 uint32_t StateTracker::get_RenderPassVersion(VkRenderPass renderPass) {
-    return m_renderPassVersions[renderPass].size() - 1;
+    return static_cast<uint32_t>(m_renderPassVersions[renderPass].size() - 1);
 }
 
 //-------------------------------------------------------------------------
@@ -387,6 +395,14 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
         return *this;
 
     m_renderPassVersions = other.m_renderPassVersions;
+    for (auto iter = m_renderPassVersions.begin(); iter != m_renderPassVersions.end(); ++iter) {
+        for (uint32_t i = 0; i < iter->second.size(); i++) {
+            VkRenderPassCreateInfo* pCreateInfoVersion = iter->second[i];
+            VkRenderPassCreateInfo *pCopiedCreateInfo = static_cast<VkRenderPassCreateInfo*>(VKTRACE_NEW(VkRenderPassCreateInfo));
+            copy_VkRenderPassCreateInfo(pCopiedCreateInfo, *pCreateInfoVersion);
+            iter->second[i] = pCopiedCreateInfo;
+        }
+    }
 
     for (auto iter = other.m_cmdBufferPackets.cbegin();
          iter != other.m_cmdBufferPackets.cend(); ++iter) {
