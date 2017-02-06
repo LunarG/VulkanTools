@@ -943,8 +943,8 @@ void snapshot_state_tracker() {
                         device, image, &sub, &layout);
 
                     VkBufferImageCopy copyRegion = {};
-                    copyRegion.bufferRowLength = layout.rowPitch;
-                    copyRegion.bufferImageHeight = layout.arrayPitch;
+                    copyRegion.bufferRowLength = static_cast<uint32_t>(layout.rowPitch);
+                    copyRegion.bufferImageHeight = static_cast<uint32_t>(layout.arrayPitch);
                     copyRegion.bufferOffset = layout.offset;
                     copyRegion.imageExtent.depth = 1;
                     copyRegion.imageExtent.width =
@@ -970,8 +970,8 @@ void snapshot_state_tracker() {
                         device, image, &sub, &layout);
 
                     VkBufferImageCopy copyRegion = {};
-                    copyRegion.bufferRowLength = layout.rowPitch;
-                    copyRegion.bufferImageHeight = layout.arrayPitch;
+                    copyRegion.bufferRowLength = static_cast<uint32_t>(layout.rowPitch);
+                    copyRegion.bufferImageHeight = static_cast<uint32_t>(layout.arrayPitch);
                     copyRegion.bufferOffset = layout.offset;
                     copyRegion.imageExtent.depth = 1;
                     copyRegion.imageExtent.width =
@@ -1047,7 +1047,7 @@ void snapshot_state_tracker() {
 
             mdd(device)->devTable.CmdCopyImageToBuffer(
                 commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                stagingInfo.buffer, stagingInfo.imageCopyRegions.size(),
+                stagingInfo.buffer, static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()),
                 stagingInfo.imageCopyRegions.data());
 
             // save the staging info for later
