@@ -209,6 +209,7 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
         emit OutputMessage(VKTRACE_LOG_WARNING, "Failed to seek to the first packet offset in the trace file.");
     }
 
+    // "Walk" through each packet based on the packet size (which is the first 64-bits of the packet header)
     uint64_t fileOffset = pTraceFileInfo->header.first_packet_offset;
     uint64_t packetSize = 0;
     while(1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile))
@@ -217,7 +218,18 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
         pTraceFileInfo->packetCount++;
         fileOffset += packetSize;
 
-        fseek(pTraceFileInfo->pFile, fileOffset, SEEK_SET);
+        seekResult = fseek(pTraceFileInfo->pFile, packetSize - sizeof(uint64_t), SEEK_CUR);
+        if (seekResult != 0)
+        {
+            emit OutputMessage(VKTRACE_LOG_ERROR, "Error while seeking through trace file.");
+            break;
+        }
+
+        if (ferror(pTraceFileInfo->pFile) != 0)
+        {
+            emit OutputMessage(VKTRACE_LOG_ERROR, "Error while reading trace file.");
+            break;
+        }
     }
 
     if (pTraceFileInfo->packetCount == 0)
@@ -255,7 +267,13 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
             pTraceFileInfo->pPacketOffsets[packetIndex].fileOffset = fileOffset;
 
             // rewind slightly
-            fseek(pTraceFileInfo->pFile, -1*(long)sizeof(uint64_t), SEEK_CUR);
+            seekResult = fseek(pTraceFileInfo->pFile, -1*(long)sizeof(uint64_t), SEEK_CUR);
+
+            if (seekResult != 0)
+            {
+                emit OutputMessage(VKTRACE_LOG_ERROR, "Error while seeking between packets.");
+                break;
+            }
 
             // allocate space for the packet and read it in
             pTraceFileInfo->pPacketOffsets[packetIndex].pHeader = (vktrace_trace_packet_header*)vktrace_malloc(packetSize);
