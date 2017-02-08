@@ -2763,7 +2763,7 @@ ErrorResults PrintSystemInfo(void) {
 
     // Print current directory disk space info
     sprintf(generic_string,
-            "df -h %s | awk \'{ print $4 } \' | tail -n 1",
+            "df -h \'%s\' | awk \'{ print $4 } \' | tail -n 1",
             cur_directory.c_str());
     fp = popen(generic_string, "r");
     if (fp == NULL) {
@@ -3228,10 +3228,11 @@ ErrorResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_
                 strlen(cur_ent->d_name) == 14) {
 
                 // Get the source of this symbolic link
-                command_str = "stat -c%N ";
+                command_str = "stat -c%N \'";
                 command_str += folder_loc;
                 command_str += "/";
                 command_str += cur_ent->d_name;
+                command_str += "\'";
                 pfp = popen(command_str.c_str(), "r");
 
                 generic_str << "[" << i++ << "]";
@@ -3328,7 +3329,7 @@ ErrorResults PrintRunTimeInfo(void) {
         buff[len] = '\0';
 
         std::string runtime_dir_id = "Runtime Folder Used By via";
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "ldd %s", buff);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "ldd \'%s\'", buff);
         pfp = popen(generic_string, "r");
         if (pfp == NULL) {
             PrintBeginTableRow();
