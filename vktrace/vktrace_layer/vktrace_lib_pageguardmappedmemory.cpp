@@ -216,24 +216,28 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard()
         {
             #if defined(WIN32)
             SIZE_T pageSize = pageguardGetSystemPageSize();
-            SIZE_T pmask = ~(pageSize-1);
+            SIZE_T pmask = ~(pageSize - 1);
             PVOID Addresses[1];
             ULONG Granularity;
             ULONG_PTR Count = 1;
             UINT rval;
             DWORD oldProt;
-            void *pgAddr = (void *)((uint64_t)(pMappedData + i*PageGuardSize));
+            void *pgAddr =
+                (void *)((uint64_t)(pMappedData + i * PageGuardSize));
             assert(((SIZE_T)pgAddr & (~pmask)) == 0);
-            VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
-            rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, pageSize, &Addresses[0], &Count, &Granularity);
+            VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i),
+                           PAGE_READWRITE | PAGE_GUARD, &oldProt);
+            rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, pageSize,
+                                 &Addresses[0], &Count, &Granularity);
             assert(rval == 0);
             assert(Count == 0 || Count == 1);
             assert(Granularity == pageSize);
             assert((Count == 1) ? (Addresses[0] == pgAddr) : 1);
-            if (Count == 1)
-            {
-                // Page was modified after we copied it, so mark the page as changed.
-                VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE, &oldProt);
+            if (Count == 1) {
+                // Page was modified after we copied it, so mark the page as
+                // changed.
+                VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i),
+                               PAGE_READWRITE, &oldProt);
                 setMappedBlockChanged(i, true, BLOCK_FLAG_ARRAY_CHANGED);
             }
             #endif
@@ -261,11 +265,16 @@ void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard()
 bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSetBlockChanged)
 {
 
-    // Note that we don't call GetWriteWatch from this method to check write counts on pages.
-    // This is because this method is only called during vkMapMemory and vkUnMapMemory, so
-    // we don't need to be concerned with missing a write on mapped memory, since the memory
-    // is either being created or destroyed.  If this method were to be called from some other
-    // api call besides vkMapMemory or vkUnmapMemory, this method would have to be modified to
+    // Note that we don't call GetWriteWatch from this method to check write
+    // counts on pages.
+    // This is because this method is only called during vkMapMemory and
+    // vkUnMapMemory, so
+    // we don't need to be concerned with missing a write on mapped memory,
+    // since the memory
+    // is either being created or destroyed.  If this method were to be called
+    // from some other
+    // api call besides vkMapMemory or vkUnmapMemory, this method would have to
+    // be modified to
     // check write counts of pages.
 
     bool setSuccessfully = true;
@@ -456,29 +465,35 @@ DWORD PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDev
 
                 srcAddr = (void *)((uint64_t)(pMappedData + offset));
 #ifdef WIN32
-                // We are about to copy from mapped memory to a temporary buffer.
+                // We are about to copy from mapped memory to a temporary
+                // buffer.
                 // If another thread were to change this mapped memory after the
                 // copy but before the VirtualProtect we'll be doing later to
                 // re-arm PAGE_GUARD exceptions for this page, we would not see
-                // the change to mapped memory. So we call GetWriteWatch to reset the
-                // write count on this page, and then we'll call it again after the
-                // the VirtualProtect to see if it was written to between the copy
+                // the change to mapped memory. So we call GetWriteWatch to
+                // reset the
+                // write count on this page, and then we'll call it again after
+                // the
+                // the VirtualProtect to see if it was written to between the
+                // copy
                 // and the VirtualProtect.
 
                 SIZE_T pageSize = pageguardGetSystemPageSize();
-                SIZE_T pmask = ~(pageSize-1);
+                SIZE_T pmask = ~(pageSize - 1);
                 PVOID Addresses[1];
                 ULONG Granularity;
                 ULONG_PTR Count = 1;
                 UINT rval;
                 assert((((SIZE_T)(srcAddr)) & (~pmask)) == 0);
-                rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, srcAddr, pageSize, Addresses, &Count, &Granularity);
-                assert(rval==0);
-                assert(Count==0 || Count==1);
+                rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, srcAddr, pageSize,
+                                     Addresses, &Count, &Granularity);
+                assert(rval == 0);
+                assert(Count == 0 || Count == 1);
                 assert(Granularity == pageSize);
                 assert((Count == 1) ? (Addresses[0] == srcAddr) : true);
 #endif
-                vktrace_pageguard_memcpy(pChangedData, srcAddr, CurrentBlockSize);
+                vktrace_pageguard_memcpy(pChangedData, srcAddr,
+                                         CurrentBlockSize);
             }
             SaveSize += CurrentBlockSize;
             dwIndex++;
