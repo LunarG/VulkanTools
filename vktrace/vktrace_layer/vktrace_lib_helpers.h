@@ -436,6 +436,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
     return;
 }
 
+uint64_t getVkComputePipelineCreateInfosAdditionalSize(uint32_t createInfoCount, const VkComputePipelineCreateInfo* pCreateInfos);
+
 static void add_VkComputePipelineCreateInfos_to_trace_packet(vktrace_trace_packet_header* pHeader, VkComputePipelineCreateInfo* pPacket, const VkComputePipelineCreateInfo* pParam, uint32_t count)
 {
     if (pParam != NULL)

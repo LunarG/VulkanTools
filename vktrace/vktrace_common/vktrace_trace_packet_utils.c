@@ -42,7 +42,32 @@
 
 #include "vktrace_pageguard_memorycopy.h"
 
-static uint64_t g_packet_index = 0;
+static VKTRACE_CRITICAL_SECTION s_packet_index_lock;
+
+void vktrace_initialize_trace_packet_utils()
+{
+    vktrace_create_critical_section(&s_packet_index_lock);
+}
+
+void vktrace_deinitialize_trace_packet_utils()
+{
+    vktrace_delete_critical_section(&s_packet_index_lock);
+}
+
+uint64_t vktrace_get_unique_packet_index()
+{
+    // Keep the s_packet_index scope to within this method, to ensure this method is always used to get a unique packet index.
+    static uint64_t s_packet_index = 0;
+
+    vktrace_enter_critical_section(&s_packet_index_lock);
+    // Store the value then increment within the critical section to avoid race conditions.
+    uint64_t index = s_packet_index;
+    s_packet_index += 1;
+    vktrace_leave_critical_section(&s_packet_index_lock);
+
+    // Return the stored value rather than the actual variable (again to avoid race conditions).
+    return index;
+}
 
 void vktrace_gen_uuid(uint32_t* pUuid)
 {
@@ -134,7 +159,7 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
 
     vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)pMemory;
     pHeader->size = total_packet_size;
-    pHeader->global_packet_index = g_packet_index++;
+    pHeader->global_packet_index = vktrace_get_unique_packet_index();
     pHeader->tracer_id = tracer_id;
     pHeader->thread_id = vktrace_platform_get_thread_id();
     pHeader->packet_id = packet_id;

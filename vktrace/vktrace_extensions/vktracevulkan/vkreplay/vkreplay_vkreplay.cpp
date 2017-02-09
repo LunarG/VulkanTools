@@ -1171,9 +1171,11 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
         return;
     }
 
+    // allocate a new array for the writes and clear the memory, we'll update the contents further down
     VkWriteDescriptorSet* pRemappedWrites = VKTRACE_NEW_ARRAY(VkWriteDescriptorSet, pPacket->descriptorWriteCount);
-    memcpy(pRemappedWrites, pPacket->pDescriptorWrites, pPacket->descriptorWriteCount * sizeof(VkWriteDescriptorSet));
+    memset(pRemappedWrites, 0, pPacket->descriptorWriteCount * sizeof(VkWriteDescriptorSet));
 
+    // allocate a new array for the copies, and simply copy the original data in since there are no pointers to update.
     VkCopyDescriptorSet* pRemappedCopies = VKTRACE_NEW_ARRAY(VkCopyDescriptorSet, pPacket->descriptorCopyCount);
     memcpy(pRemappedCopies, pPacket->pDescriptorCopies, pPacket->descriptorCopyCount * sizeof(VkCopyDescriptorSet));
 
@@ -1181,13 +1183,19 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
 
     for (uint32_t i = 0; i < pPacket->descriptorWriteCount && !errorBadRemap; i++)
     {
-        pRemappedWrites[i].dstSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorWrites[i].dstSet);
-        if (pRemappedWrites[i].dstSet == VK_NULL_HANDLE)
+        VkDescriptorSet dstSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorWrites[i].dstSet);
+        if (dstSet == VK_NULL_HANDLE)
         {
             vktrace_LogError("Skipping vkUpdateDescriptorSets() due to invalid remapped write VkDescriptorSet.");
             errorBadRemap = true;
             break;
         }
+
+        pRemappedWrites[i] = pPacket->pDescriptorWrites[i];
+        pRemappedWrites[i].dstSet = dstSet;
+        pRemappedWrites[i].pBufferInfo = nullptr;
+        pRemappedWrites[i].pImageInfo = nullptr;
+        pRemappedWrites[i].pTexelBufferView = nullptr;
 
         switch (pPacket->pDescriptorWrites[i].descriptorType) {
         case VK_DESCRIPTOR_TYPE_SAMPLER:

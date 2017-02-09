@@ -28,6 +28,7 @@ typedef struct vkreplayer_settings
     unsigned int numLoops;
     int loopStartFrame;
     int loopEndFrame;
+    bool skipGetQueryPoolResults;
     const char* screenshotList;
     const char* verbosity;
 } vkreplayer_settings;

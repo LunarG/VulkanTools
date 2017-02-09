@@ -19,6 +19,7 @@
 #include "vktrace_lib_pageguardmappedmemory.h"
 #include "vktrace_lib_pageguardcapture.h"
 #include "vktrace_lib_pageguard.h"
+#include "vktrace_lib_trim.h"
 
 #if !defined(ANDROID)
 static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = true;
@@ -182,8 +183,8 @@ void* pageguardAllocateMemory(size_t size)
     if (size != 0)
     {
 #if defined(WIN32)
-        pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize(size), MEM_WRITE_WATCH | MEM_RESERVE | MEM_COMMIT,
-                                      PAGE_READWRITE);
+        pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize(size),
+                                      MEM_WRITE_WATCH | MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 #else
         pMemory = mmap(NULL, pageguardGetAdjustedSize(size),
                        PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
