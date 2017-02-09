@@ -24,7 +24,7 @@ These additional packages are needed for building the components in this repo.
 # Dependencies from the LoaderAndValidationLayers repo:
 sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libmirclient-dev libwayland-dev libxrandr-dev
 # Additional dependencies for this repo:
-sudo apt-get install wget autotools-dev
+sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev
 # If performing 32-bit builds, you'll also need:
 sudo apt-get install libc6-dev-i386 g++-multilib
 ```
