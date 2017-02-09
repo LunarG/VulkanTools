@@ -423,7 +423,9 @@ BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes
 BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
 {
     unsigned int totalDataRead = 0;
+    unsigned int attempts = 0;
     do {
+        attempts++;
         int dataRead = recv(pStream->mSocket, ((char*)_out) + totalDataRead, (int)_len - totalDataRead, 0);
         if (dataRead == SOCKET_ERROR) {
             pStream->mErrorNum = VKTRACE_WSAGetLastError();
@@ -445,7 +447,22 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
                 vktrace_LogError("Unexpected error (%d) while receiving message stream.", pStream->mErrorNum);
                 return FALSE;
             }
-        } else {
+        } else if (dataRead == 0) {
+            // From recv(2): "When  a  stream  socket  peer  has  performed  an orderly shutdown, the return value will be 0"
+            // Try 100 times before sleeping for a while. When we have tried 200 times, give up.
+            if (attempts == 100) {
+                vktrace_LogDebug("Sleep on socket recv of 0 (%u bytes / %u).", totalDataRead, _len);
+                Sleep(1);
+            }
+            if (attempts == 200)
+            {
+                // Give up
+                pStream->mErrorNum = WSAECONNRESET;
+                vktrace_LogDebug("Connection was reset by client.");
+                return FALSE;
+            }
+        }
+        else {
             totalDataRead += dataRead;
         }
     } while (totalDataRead < _len);
