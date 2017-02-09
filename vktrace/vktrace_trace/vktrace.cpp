@@ -75,9 +75,9 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.screenshotList},
      TRUE,
      "Generate screenshots. <string> is one of:\n\
-                                       comma separated list of frames\n\
-                                       <start>-<count>-<interval>\n\
-                                       \"all\"" },
+                                         comma separated list of frames\n\
+                                         <start>-<count>-<interval>\n\
+                                         \"all\"" },
     {"ptm",
      "PrintTraceMessages",
      VKTRACE_SETTING_BOOL,
@@ -118,7 +118,9 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_settings.traceTrigger},
      {&g_default_settings.traceTrigger},
      TRUE,
-     "start/stop trim by hotkey or frame range: hotkey-<keyname> or frames-<startFrame>-<endFrame>"},
+     "(Beta) Start/stop trim by hotkey or frame range:\n\
+                                         hotkey-<keyname>\n\
+                                         frames-<startFrame>-<endFrame>"},
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause,
     //&g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger
     // can be attached)" },
