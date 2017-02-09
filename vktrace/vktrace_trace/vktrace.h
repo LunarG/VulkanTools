@@ -42,6 +42,8 @@ typedef struct vktrace_settings
     const char* screenshotList;
     BOOL enable_pmb;
     const char *verbosity;
+    const char *traceTrigger;
+
 } vktrace_settings;
 
 extern vktrace_settings g_settings;

@@ -434,6 +434,24 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(
     pPacket->memoryRangeCount = memoryRangeCount;
     pPacket->result = result;
 
-    FINISH_TRACE_PACKET();
+    if (!g_trimEnabled)
+    {
+        // trim not enabled, send packet as usual
+        FINISH_TRACE_PACKET();
+    }
+    else if (g_trimIsPreTrim)
+    {
+        vktrace_finalize_trace_packet(pHeader);
+    }
+    else if (g_trimIsInTrim)
+    {
+        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
+        vktrace_finalize_trace_packet(pHeader);
+        trim::add_recorded_packet(pHeader);
+    }
+    else // g_trimIsPostTrim
+    {
+        vktrace_delete_trace_packet(&pHeader);
+    }
     return result;
 }

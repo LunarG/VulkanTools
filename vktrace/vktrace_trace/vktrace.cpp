@@ -112,6 +112,13 @@ vktrace_SettingInfo g_settings_info[] = {
      "\"full\"."},
 #endif
 
+    {"tr",
+     "TraceTrigger",
+     VKTRACE_SETTING_STRING,
+     {&g_settings.traceTrigger},
+     {&g_default_settings.traceTrigger},
+     TRUE,
+     "start/stop trim by hotkey or frame range: hotkey-<keyname> or frames-<startFrame>-<endFrame>"},
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause,
     //&g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger
     // can be attached)" },
@@ -359,6 +366,16 @@ int main(int argc, char* argv[])
     }
 
     vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb?"1":"0");
+    if (g_settings.traceTrigger)
+    {
+        // Export list to screenshot layer
+        vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", g_settings.traceTrigger);
+    }
+    else
+    {
+        vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", "");
+    }
+
 
     unsigned int serverIndex = 0;
     do {
