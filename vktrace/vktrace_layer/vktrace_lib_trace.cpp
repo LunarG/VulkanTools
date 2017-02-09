@@ -144,19 +144,18 @@ void *strip_create_extensions(const void *pNext)
 
 #if defined (PLATFORM_LINUX)
 
-static void mprotectWithErrorCheck(void *addr, size_t size, int prot)
-{
+// Function to call mprotect and check for errors.
+// Returns 0 on success, -1 on failure.
+static int32_t mprotectWithErrorCheck(void* addr, size_t size, int prot) {
     while (0 != mprotect(addr, size, prot))
     {
         if (errno == EAGAIN)
             continue;
 
         // Something bad happened, and it's fatal.
-        // Calling VKTRACE_FATAL_ERROR involves potentially doing a malloc,
-        // writing to the trace file, and writing to stdout -- operations that
-        // may not work from a signal handler.  But we're about to exit anyway.
-        VKTRACE_FATAL_ERROR("mprotect sys call failed.");
+        return -1;
     }
+    return 0;
 }
 
 // When quering dirty pages from /proc/self/pagemap, there is a
@@ -180,11 +179,18 @@ static void segvHandler(int sig, siginfo_t *si, void *ununsed)
     void *addr;
 
     addr = si->si_addr;
-    if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr)))
-        VKTRACE_FATAL_ERROR("Write to pipe failed in PMB signal hander.");
+    if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr))) {
+        // Write to pipe failed. This could happen if the app generates 8k SIGSEGV exceptions and the pipe overflows. We'll just
+        // abort in that case.
+        abort();
+    }
 
-    // Change protection of this page to allow the write to proceed
-    mprotectWithErrorCheck((void *)((uint64_t)si->si_addr & ~(pageSize-1)), pageSize, PROT_READ|PROT_WRITE);
+    // Change the protection of this page to allow the write to proceed.
+    if (mprotectWithErrorCheck((void*)((uint64_t)si->si_addr & ~(pageSize - 1)), pageSize, PROT_READ | PROT_WRITE) != 0) {
+        // If the mprotect failed, write addr to the pipe a second time.  getMappedDirtyPagesLinux will read consective identical
+        // values from the pipe and generate an error.
+        if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr))) abort();
+    }
 }
 
 
@@ -319,17 +325,12 @@ void getMappedDirtyPagesLinux(void)
     previousAddr=0;
     while ((sizeof(addr) == read(pipefd[0], &addr, sizeof(addr))))
     {
-        // If we get consecutive identical addresses, the sig handler is getting
-        // called repeatedly with the same address (or an app is doing something crazy).
-        // To avoid infinitely calling the sighandler, generate an error and exit.
-
-        // We can't give an error here if we didn't find the address
-        // in mapped memory. The arrival of a signal might be delayed
-        // due to process scheduling, and thus might arrive after the
-        // mapped memory has been unmapped.
+        // If we get consecutive identical addresses, the sig handler is getting called repeatedly with the same address, the
+        // mprotect call in the sig handler failed, or the app is writing to the same address from different threads.  Generate an
+        // error and exit.
         if (previousAddr == addr)
         {
-            VKTRACE_FATAL_ERROR("SIGSEGV received on the same address.");
+            VKTRACE_FATAL_ERROR("vktrace layer trapped SIGSEGV but unable to handle.");
         }
         previousAddr = addr;
 
@@ -350,6 +351,11 @@ void getMappedDirtyPagesLinux(void)
                 pMappedMem->setPageChecksum(
                     index, PageGuardMappedMemory::CHECKSUM_INVALID);
                 break;
+            } else {
+                // We can't give an error here if we didn't find the address
+                // in mapped memory. The arrival of a signal might be delayed
+                // due to process scheduling, and thus might arrive after the
+                // mapped memory has been unmapped.
             }
         }
     }

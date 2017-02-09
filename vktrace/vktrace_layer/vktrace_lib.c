@@ -60,17 +60,6 @@ static inline char *vktrace_layer_getenv(const char *name)
 static inline void vktrace_layer_free_getenv(const char *val) { }
 #endif
 
-VKTRACER_LEAVE _Unload(void);
-
-#ifdef PLATFORM_LINUX
-static void vktrace_sighandler(int signum, siginfo_t *info, void *ptr)
-{
-   vktrace_LogVerbose("vktrace_lib library handle signal %d.", signum);
-    _Unload();
-    kill(0, signum);
-}
-#endif
-
 VKTRACER_EXIT TrapExit(void)
 {
     vktrace_LogVerbose("vktrace_lib TrapExit.");
@@ -161,15 +150,6 @@ VKTRACER_ENTRY _Load(void)
         while (debugStartup);
         }
     #endif
-#ifdef PLATFORM_LINUX
-        struct sigaction act;
-        memset(&act, 0 , sizeof(act));
-        act.sa_sigaction = vktrace_sighandler;
-        act.sa_flags = SA_SIGINFO | SA_RESETHAND;
-        sigaction(SIGINT, &act, NULL);
-        sigaction(SIGTERM, &act, NULL);
-        sigaction(SIGABRT, &act, NULL);
-#endif
     }
 }
 
