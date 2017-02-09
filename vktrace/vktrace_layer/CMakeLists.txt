@@ -34,6 +34,9 @@ set(SRC_LIST
     vktrace_lib_pageguardcapture.cpp
     vktrace_lib_pageguard.cpp
     vktrace_lib_trace.cpp
+    vktrace_lib_trim.cpp
+    vktrace_lib_trim_generate.cpp
+    vktrace_lib_trim_statetracker.cpp
     vktrace_vk_exts.cpp
     ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
 )
@@ -42,6 +45,9 @@ set_source_files_properties( ${SRC_LIST} PROPERTIES LANGUAGE CXX)
 
 set(HDR_LIST
     vktrace_lib_helpers.h
+    vktrace_lib_trim.h
+    vktrace_lib_trim_generate.h
+    vktrace_lib_trim_statetracker.h
     vktrace_lib_pagestatusarray.h
     vktrace_lib_pageguardmappedmemory.h
     vktrace_lib_pageguardcapture.h
