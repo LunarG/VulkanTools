@@ -240,7 +240,7 @@ VkDeviceSize PageGuardCapture::getALLChangedPackageSizeInMappedMemory(VkDevice d
         }
         allChangedPackageSize += PackageSize;
     }
-    return allChangedPackageSize;
+    return ROUNDUP_TO_4(allChangedPackageSize);
 }
 
 //get ptr and size of OPTChangedDataPackage;
