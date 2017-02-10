@@ -44,8 +44,8 @@ for ext in vulkan.extensions_all:
     protos.extend(ext.protos)
 
 # Add parameters we need to remap, along with their type, in pairs
-additional_remap_dict = {}
-additional_remap_dict['pImageIndex'] = "uint32_t"
+additional_remap_fifo = {}
+additional_remap_fifo['pImageIndex'] = "uint32_t"
 
 class Subcommand(object):
     def __init__(self, argv):
@@ -165,14 +165,34 @@ class Subcommand(object):
     def _get_printf_params(self, vk_type, name, output_param):
         deref = ""
         # TODO : Need ENUM and STRUCT checks here
-        if "VkImageLayout" in vk_type:
+        if "VkImageLayout" in vk_type or "VkImageAspectMask" in vk_type:
             return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
+        if "VkMappedMemoryRange" in vk_type:
+            return ("%p [0]={memory=%p, offset=%llu, size=%llu}", "%s, (%s == NULL)?0:%s->memory, (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "")
+        if "VkImageMemoryBarrier" in vk_type:
+            return ("%p [0]={srcAccessMask=%lu, dstAccessMask=%lu, oldLayout=%s, newLayout=%s, srcQueueFamilyIndex=%u, dstQueueFamilyIndex=%u, image=%p, subresourceRange=%p}", "%s, (%s == NULL)?0:%s->srcAccessMask, (%s == NULL)?0:%s->dstAccessMask, (%s == NULL)?NULL:string_VkImageLayout(%s->oldLayout), (%s == NULL)?NULL:string_VkImageLayout(%s->newLayout), (%s == NULL)?0:%s->srcQueueFamilyIndex, (%s == NULL)?0:%s->dstQueueFamilyIndex, (%s == NULL)?NULL:%s->image, (%s == NULL)?0:&%s->subresourceRange" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkBufferMemoryBarrier" in vk_type:
+            return ("%p [0]={srcAccessMask=%lu, dstAccessMask=%lu, srcQueueFamilyIndex=%u, dstQueueFamilyIndex=%u, buffer=%p, offset=%\" PRIu64 \", size=%\" PRIu64 \"}", "%s, (%s == NULL)?0:%s->srcAccessMask, (%s == NULL)?0:%s->dstAccessMask, (%s == NULL)?0:%s->srcQueueFamilyIndex, (%s == NULL)?0:%s->dstQueueFamilyIndex, (%s == NULL)?NULL:%s->buffer, (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkSubmitInfo" in vk_type:
+            return ("%p [0]={... waitSemaphoreCount=%lu, pWaitSemaphores[0]=%p, cmdBufferCount=%lu, pCmdBuffers[0]=%p, signalSemaphoreCount=%lu, pSignalSemaphores[0]=%p ...}", "%s, (%s == NULL)?0:%s->waitSemaphoreCount, (%s == NULL)?0:(%s->pWaitSemaphores == NULL)?0:%s->pWaitSemaphores[0], (%s == NULL)?0:%s->commandBufferCount, (%s == NULL)?0:(%s->pCommandBuffers == NULL)?0:%s->pCommandBuffers[0], (%s == NULL)?0:%s->signalSemaphoreCount, (%s == NULL)?0:(%s->pSignalSemaphores == NULL)?0:%s->pSignalSemaphores[0]" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkPresentInfoKHR" in vk_type:
+            return ("%p {... waitSemaphoreCount=%lu, pWaitSemaphores[0]=%p, swapchainCount=%lu, pSwapchains[0]=%p, pImageIndices[0]=%lu ...}", "%s, (%s == NULL)?0:%s->waitSemaphoreCount, (%s == NULL)?0:(%s->pWaitSemaphores == NULL)?0:%s->pWaitSemaphores[0], (%s == NULL)?0:%s->swapchainCount, (%s == NULL)?0:(%s->pSwapchains == NULL)?0:%s->pSwapchains[0], (%s == NULL)?0:(%s->pImageIndices == NULL)?0:%s->pImageIndices[0]" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkFenceCreateInfo" in vk_type:
+            return ("%p { flags=%s }", "%s, (%s == NULL)?\"0\":(%s->flags == VK_FENCE_CREATE_SIGNALED_BIT)?\"VK_FENCE_CREATE_SIGNALED_BIT\":\"0\"" % (name, name, name), "")
+        if "VkBufferCopy" in vk_type:
+            return ("%p [0]={srcOffset=%llu, dstOffset=%llu, size=%llu}", "%s, (%s == NULL)?0:%s->srcOffset, (%s == NULL)?0:%s->dstOffset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "")
+        if "VkMemoryRequirements" in vk_type:
+            return ("%p {size=%llu, alignment=%llu, memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->size, (%s == NULL)?0:%s->alignment, (%s == NULL)?0:%s->memoryTypeBits" % (name, name, name, name, name, name, name), "")
         if "VkClearColor" in vk_type:
             return ("%p", "(void*)&%s" % name, deref)
         if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
             return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
         if "char*" in vk_type:
             return ("\\\"%s\\\"", name, "*")
+        if "VkDeviceSize" in vk_type:
+            if '*' in vk_type:
+                return ("%llu",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%llu", name, deref)
         if "uint64_t" in vk_type:
             if '*' in vk_type:
                 return ("%\" PRIu64 \"",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
@@ -191,6 +211,10 @@ class Subcommand(object):
             if '*' in vk_type:
                 return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
             return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
+        if "VkFence" in vk_type:
+            if '*' in vk_type:
+                return ("%p {%p}", "%s, (%s == NULL) ? 0 : *(%s)" % (name, name, name), "*")
+            return ("%p", "%s" %(name), deref)
         if "size_t" in vk_type:
             if '*' in vk_type:
                 return ("\" VK_SIZE_T_SPECIFIER \"", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
@@ -208,7 +232,7 @@ class Subcommand(object):
                 return ("%i", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
             return ("%i", name, deref)
         if output_param:
-            return ("%p {%\" PRIx64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
+            return ("%p {%\" PRIX64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
         return ("%p", "(void*)(%s)" % name, deref)
 
     def _generate_init_funcs(self):
@@ -242,6 +266,8 @@ class Subcommand(object):
         init_tracer.append('#endif')
         init_tracer.append('    vktrace_trace_set_trace_file(vktrace_FileLike_create_msg(gMessageStream));')
         init_tracer.append('    vktrace_tracelog_set_tracer_id(VKTRACE_TID_VULKAN);')
+        init_tracer.append('    trim::initialize();')
+        init_tracer.append('    vktrace_initialize_trace_packet_utils();')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
         init_tracer.append('    if (gMessageStream != NULL)')
         init_tracer.append('        send_vk_api_version_packet();\n')
@@ -435,6 +461,790 @@ class Subcommand(object):
                     ps.append('sizeof(%s)' % (p.ty.strip('*').replace('const ', '')))
         return ps
 
+    # Generate instructions for certain API calls that need special handling when we are recording
+    # them during the trim frames. This ensures that we recreate the objects that are referenced 
+    # during the trim frames.
+    def _generate_trim_recording_instructions(self, proto):
+        trim_instructions = []
+        if 'CmdExecuteCommands' is proto.name:
+            trim_instructions.append("            trim::add_recorded_packet(pHeader);")
+            trim_instructions.append("            trim::mark_CommandBuffer_reference(commandBuffer);")
+            trim_instructions.append("            if (pCommandBuffers != nullptr && commandBufferCount > 0)")
+            trim_instructions.append("            {")            
+            trim_instructions.append("                for (uint32_t i = 0; i < commandBufferCount; i++)")
+            trim_instructions.append("                {")
+            trim_instructions.append("                    trim::mark_CommandBuffer_reference(pCommandBuffers[i]);")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+        else:
+            return None
+        return "\n".join(trim_instructions)  
+        
+    # Generate instructions for certain API calls that need to be tracked prior to the trim frames 
+    # so that we can recreate objects that are used within a trimmed trace file.
+    def _generate_trim_statetracking_instructions(self, proto):
+        trim_instructions = []
+        if 'GetDeviceQueue' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_Queue_object(*pQueue);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.Queue.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateCommandPool' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_CommandPool_object(*pCommandPool);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.CommandPool.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.CommandPool.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'FreeCommandBuffers' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pCommandBuffers[0]);")
+            trim_instructions.append("        VkCommandBufferLevel level = (pCBInfo == NULL) ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : pCBInfo->ObjectInfo.CommandBuffer.level;")
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_CommandPool_objectInfo(commandPool);")
+            trim_instructions.append("        if (pInfo != NULL ) { pInfo->ObjectInfo.CommandPool.numCommandBuffersAllocated[level] -= commandBufferCount; }")
+            trim_instructions.append("        for (uint32_t i = 0; i < commandBufferCount; i++)")
+            trim_instructions.append("        {")
+            trim_instructions.append("            trim::remove_CommandBuffer_object(pCommandBuffers[i]);")
+            trim_instructions.append("            trim::remove_CommandBuffer_calls(pCommandBuffers[i]);")
+            trim_instructions.append("            trim::ClearImageTransitions(pCommandBuffers[i]);")
+            trim_instructions.append("            trim::ClearBufferTransitions(pCommandBuffers[i]);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'QueueBindSparse' is proto.name:
+            trim_instructions.append("        if (result == VK_SUCCESS) {")
+            trim_instructions.append("            trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(fence);")
+            trim_instructions.append("            if (pFenceInfo != NULL) {")
+            trim_instructions.append("                pFenceInfo->ObjectInfo.Fence.pendingOnQueue = queue;")
+            trim_instructions.append("            }")
+            trim_instructions.append("            if (pBindInfo != NULL && pBindInfo->pWaitSemaphores != NULL) {")
+            trim_instructions.append("                for (uint32_t i = 0; i < pBindInfo->waitSemaphoreCount; i++) {")
+            trim_instructions.append("                    trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo->pWaitSemaphores[i]);")
+            trim_instructions.append("                    if (pInfo != NULL) {")
+            trim_instructions.append("                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("                    }")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+            trim_instructions.append("            if (pBindInfo != NULL && pBindInfo->pSignalSemaphores != NULL) {")
+            trim_instructions.append("                for (uint32_t i = 0; i < pBindInfo->signalSemaphoreCount; i++) {")
+            trim_instructions.append("                    trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo->pSignalSemaphores[i]);")
+            trim_instructions.append("                    if (pInfo != NULL) {")
+            trim_instructions.append("                        pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;")
+            trim_instructions.append("                    }")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateSemaphore' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_Semaphore_object(*pSemaphore);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.Semaphore.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.Semaphore.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroySemaphore' is proto.name:
+            trim_instructions.append("        trim::remove_Semaphore_object(semaphore);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateFence' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_Fence_object(*pFence);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.Fence.signaled = ((pCreateInfo->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT);")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.Fence.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'ResetFences' is proto.name:
+            trim_instructions.append("        for (uint32_t i = 0; i < fenceCount; i++) {")
+            trim_instructions.append("            trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(pFences[i]);")
+            trim_instructions.append("            if (pFenceInfo != NULL && result == VK_SUCCESS) {")
+            trim_instructions.append("                // clear the fence")
+            trim_instructions.append("                pFenceInfo->ObjectInfo.Fence.signaled = false;")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyFence' is proto.name:
+            trim_instructions.append("        trim::remove_Fence_object(fence);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif ('CmdCopyImage' is proto.name or
+              'CmdBlitImage' is proto.name or
+              'CmdResolveImage' is proto.name or
+              'CmdCopyBufferToImage' is proto.name):
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(dstImage);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.mostRecentLayout = dstImageLayout;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif ('CmdClearColorImage' is proto.name or
+              'CmdClearDepthStencilImage' is proto.name):
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.mostRecentLayout = imageLayout;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CmdEndRenderPass' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pCommandBuffer = trim::get_CommandBuffer_objectInfo(commandBuffer);")
+            trim_instructions.append("        if (pCommandBuffer != nullptr)")
+            trim_instructions.append('        {')
+            trim_instructions.append("            trim::ObjectInfo* pRenderPass = trim::get_RenderPass_objectInfo(pCommandBuffer->ObjectInfo.CommandBuffer.activeRenderPass);")
+            trim_instructions.append("            if (pRenderPass != nullptr)")
+            trim_instructions.append('            {')
+            trim_instructions.append('                for (uint32_t i = 0; i < pRenderPass->ObjectInfo.RenderPass.attachmentCount; i++)')
+            trim_instructions.append('                {')
+            trim_instructions.append('                    trim::AddImageTransition(commandBuffer, pRenderPass->ObjectInfo.RenderPass.pAttachments[i]);')
+            trim_instructions.append('                }')
+            trim_instructions.append('            }')
+            trim_instructions.append('        }')
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        
+        elif ('EndCommandBuffer' is proto.name or
+              'CmdBindPipeline' is proto.name or
+              'CmdSetViewport' is proto.name or
+              'CmdSetScissor' is proto.name or
+              'CmdSetLineWidth' is proto.name or
+              'CmdSetDepthBias' is proto.name or
+              'CmdSetBlendConstants' is proto.name or
+              'CmdSetDepthBounds' is proto.name or
+              'CmdSetStencilCompareMask' is proto.name or
+              'CmdSetStencilWriteMask' is proto.name or
+              'CmdSetStencilReference' is proto.name or
+              'CmdBindDescriptorSets' is proto.name or
+              'CmdBindIndexBuffer' is proto.name or
+              'CmdBindVertexBuffers' is proto.name or
+              'CmdDraw' is proto.name or
+              'CmdDrawIndexed' is proto.name or
+              'CmdDrawIndirect' is proto.name or
+              'CmdDrawIndexedIndirect' is proto.name or
+              'CmdDispatch' is proto.name or
+              'CmdDispatchIndirect' is proto.name or
+              'CmdCopyBuffer' is proto.name or
+              'CmdCopyImageToBuffer' is proto.name or
+              'CmdUpdateBuffer' is proto.name or
+              'CmdFillBuffer' is proto.name or
+              'CmdClearAttachments' is proto.name or
+              'CmdSetEvent' is proto.name or
+              'CmdResetEvent' is proto.name or
+              'CmdNextSubpass' is proto.name or
+              'CmdExecuteCommands' is proto.name):
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif ('ResetCommandBuffer' is proto.name):
+            trim_instructions.append("        trim::remove_CommandBuffer_calls(commandBuffer);")
+            trim_instructions.append("        trim::ClearImageTransitions(commandBuffer);")
+            trim_instructions.append("        trim::ClearBufferTransitions(commandBuffer);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateImageView' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_ImageView_object(*pView);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.ImageView.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.ImageView.image = pCreateInfo->image;")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.ImageView.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyImageView' is proto.name:
+            trim_instructions.append("        trim::remove_ImageView_object(imageView);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif ('GetImageMemoryRequirements' is proto.name):
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->size;")
+            trim_instructions.append("        }")
+            trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
+            trim_instructions.append("        trim::add_Image_call(trim::copy_packet(pHeader));")
+            trim_instructions.append("#else")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        }")
+            trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyImage' is proto.name:
+            trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
+            trim_instructions.append("        trim::add_Image_call(trim::copy_packet(pHeader));")
+            trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
+            trim_instructions.append("        trim::remove_Image_object(image);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'BindImageMemory' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.pBindImageMemoryPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.memory = memory;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.memoryOffset = memoryOffset;")
+            trim_instructions.append("            pInfo->ObjectInfo.Image.needsStagingBuffer = trim::IsMemoryDeviceOnly(device, memory);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateBufferView' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_BufferView_object(*pView);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.BufferView.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.BufferView.pAllocator = pAllocator;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyBufferView' is proto.name:
+            trim_instructions.append("        trim::remove_BufferView_object(bufferView);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateBuffer' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_Buffer_object(*pBuffer);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.Buffer.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.Buffer.size = pCreateInfo->size;")
+            trim_instructions.append("        if (pCreateInfo->queueFamilyIndexCount > 0) { info.ObjectInfo.Buffer.queueFamilyIndex = pCreateInfo->pQueueFamilyIndices[0]; }")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.Buffer.pAllocator = pAllocator;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyBuffer' is proto.name:
+            trim_instructions.append("        trim::remove_Buffer_object(buffer);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'BindBufferMemory' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);")
+            trim_instructions.append("        if (pInfo != NULL) {")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memory = memory;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
+            trim_instructions.append("            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(device, memory);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateSampler' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_Sampler_object(*pSampler);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.Sampler.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.Sampler.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroySampler' is proto.name:
+            trim_instructions.append("        trim::remove_Sampler_object(sampler);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateDescriptorSetLayout' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_DescriptorSetLayout_object(*pSetLayout);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.DescriptorSetLayout.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.DescriptorSetLayout.bindingCount = pCreateInfo->bindingCount;")
+            trim_instructions.append("        info.ObjectInfo.DescriptorSetLayout.pBindings = (pCreateInfo->bindingCount == 0) ? nullptr : new VkDescriptorSetLayoutBinding[pCreateInfo->bindingCount];")
+            trim_instructions.append("        for (uint32_t i = 0; i < pCreateInfo->bindingCount; i++ ) {")
+            trim_instructions.append("            info.ObjectInfo.DescriptorSetLayout.pBindings[i] = pCreateInfo->pBindings[i];")
+            trim_instructions.append("            if (pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT) {")
+            trim_instructions.append("                    info.ObjectInfo.DescriptorSetLayout.numImages++;")
+            trim_instructions.append("            }")
+            trim_instructions.append("            if (pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {")
+            trim_instructions.append("                    info.ObjectInfo.DescriptorSetLayout.numBuffers++;")
+            trim_instructions.append("            }")
+            trim_instructions.append("            if (pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER ||")
+            trim_instructions.append("                pCreateInfo->pBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) {")
+            trim_instructions.append("                    info.ObjectInfo.DescriptorSetLayout.numTexelBufferViews++;")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.DescriptorSetLayout.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyDescriptorSetLayout' is proto.name:
+            trim_instructions.append("        trim::remove_DescriptorSetLayout_object(descriptorSetLayout);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'ResetDescriptorPool' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(descriptorPool);")
+            trim_instructions.append("        pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
+            trim_instructions.append("        trim::reset_DescriptorPool(descriptorPool);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreatePipelineLayout' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_PipelineLayout_object(*pPipelineLayout);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.PipelineLayout.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.PipelineLayout.descriptorSetLayoutCount = pCreateInfo->setLayoutCount;")
+            trim_instructions.append("        info.ObjectInfo.PipelineLayout.pDescriptorSetLayouts = (pCreateInfo->setLayoutCount == 0) ? nullptr : new VkDescriptorSetLayout[pCreateInfo->setLayoutCount];")
+            trim_instructions.append("        memcpy(info.ObjectInfo.PipelineLayout.pDescriptorSetLayouts, pCreateInfo->pSetLayouts, pCreateInfo->setLayoutCount * sizeof( VkDescriptorSetLayout ));")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.PipelineLayout.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyPipelineLayout' is proto.name:
+            trim_instructions.append("        trim::remove_PipelineLayout_object(pipelineLayout);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyRenderPass' is proto.name:
+            trim_instructions.append("        trim::remove_RenderPass_object(renderPass);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateShaderModule' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_ShaderModule_object(*pShaderModule);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.ShaderModule.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.ShaderModule.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyShaderModule' is proto.name:
+            trim_instructions.append("        //During pre-trim, we don't want to remove shader modules because they can be deleted after the pipeline is created, and we don't track that properly yet")
+            trim_instructions.append("        //trim_remove_ShaderModule_object(shaderModule);")
+            trim_instructions.append("        //Remove the shadermodule if we've recorded this in-trim, because we don't want to delete it twice.")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append("            trim::remove_ShaderModule_object(shaderModule);")
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyPipeline' is proto.name:
+            trim_instructions.append("        trim::remove_Pipeline_object(pipeline);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyDescriptorPool' is proto.name:
+            trim_instructions.append("        trim::remove_DescriptorPool_object(descriptorPool);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyFramebuffer' is proto.name:
+            trim_instructions.append("        trim::remove_Framebuffer_object(framebuffer);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateEvent' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_Event_object(*pEvent);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.Event.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.Event.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyEvent' is proto.name:
+            trim_instructions.append("        trim::remove_Event_object(event);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CreateQueryPool' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo &info = trim::add_QueryPool_object(*pQueryPool);")
+            trim_instructions.append("        info.belongsToDevice = device;")
+            trim_instructions.append("        info.ObjectInfo.QueryPool.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pCreateInfo != nullptr) {")
+            trim_instructions.append("            info.ObjectInfo.QueryPool.queryType = pCreateInfo->queryType;")
+            trim_instructions.append("            info.ObjectInfo.QueryPool.size = pCreateInfo->queryCount;")
+            trim_instructions.append("            info.ObjectInfo.QueryPool.pResultsAvailable = new bool[pCreateInfo->queryCount];")
+            trim_instructions.append("            for (uint32_t i = 0; i < pCreateInfo->queryCount; i++) {")
+            trim_instructions.append("                info.ObjectInfo.QueryPool.pResultsAvailable[i] = false;")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append("        if (pAllocator != NULL) {")
+            trim_instructions.append("            info.ObjectInfo.QueryPool.pAllocator = pAllocator;")
+            trim_instructions.append("            trim::add_Allocator(pAllocator);")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CmdResetQueryPool' is proto.name:
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_QueryPool_objectInfo(queryPool);")
+            trim_instructions.append("        if (pInfo != NULL) {" )
+            trim_instructions.append("            for (uint32_t i = firstQuery; (i < pInfo->ObjectInfo.QueryPool.size) && (i < firstQuery + queryCount); i++) {")
+            trim_instructions.append("                pInfo->ObjectInfo.QueryPool.pResultsAvailable[i] = false;")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'CmdBeginQuery' is proto.name:
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif ('CmdEndQuery' is proto.name or
+              'CmdWriteTimestamp' is proto.name):
+            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_QueryPool_objectInfo(queryPool);")
+            trim_instructions.append("        if (pInfo != NULL) {" )
+            trim_instructions.append("            pInfo->ObjectInfo.QueryPool.commandBuffer = commandBuffer;")
+            trim_instructions.append("            pInfo->ObjectInfo.QueryPool.pResultsAvailable[query] = true;")
+            trim_instructions.append("        }")
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyQueryPool' is proto.name:
+            trim_instructions.append("        trim::remove_QueryPool_object(queryPool);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'AcquireNextImageKHR' is proto.name:
+            trim_instructions.append("        if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR ) {")
+            trim_instructions.append("            if (semaphore != VK_NULL_HANDLE) {")
+            trim_instructions.append("                trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(semaphore);")
+            trim_instructions.append("                if (pInfo != NULL) {")
+            trim_instructions.append("                    // TODO Find another way to signal this semaphore since it's not on a queue.")
+            trim_instructions.append("                    pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+            trim_instructions.append("            if (fence != VK_NULL_HANDLE) {")
+            trim_instructions.append("                trim::ObjectInfo* pFenceInfo = trim::get_Fence_objectInfo(fence);")
+            trim_instructions.append("                if (pFenceInfo != NULL) {")
+            trim_instructions.append("                    pFenceInfo->ObjectInfo.Fence.signaled = true;")
+            trim_instructions.append("                }")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'GetPhysicalDeviceSurfaceSupportKHR' is proto.name:
+            trim_instructions.append("        if (result == VK_SUCCESS && g_trimIsPreTrim)")
+            trim_instructions.append("        {")
+            trim_instructions.append("            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);")
+            trim_instructions.append("            if (pInfo != NULL)")
+            trim_instructions.append("            {")
+            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'GetPhysicalDeviceMemoryProperties' is proto.name:
+            trim_instructions.append("        if (g_trimIsPreTrim)")
+            trim_instructions.append("        {")
+            trim_instructions.append("            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);")
+            trim_instructions.append("            if (pInfo != NULL)")
+            trim_instructions.append("            {")
+            trim_instructions.append("                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("            }")
+            trim_instructions.append("        }")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'DestroyDevice' is proto.name:
+            trim_instructions.append("        trim::remove_Device_object(device);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        else:
+            return None
+        return "\n".join(trim_instructions)            
+
     # Generate functions used to trace API calls and store the input and result data into a packet
     # Here's the general flow of code insertion w/ option items flagged w/ "?"
     # Result decl?
@@ -540,10 +1350,11 @@ class Subcommand(object):
                         ptr_packet_update_list = self._get_packet_ptr_param_list(proto.params)
                         func_body[-1] = func_body[-1].replace(',', ')')
                         # End of function declaration portion, begin function body
-                        func_body.append('{\n    vktrace_trace_packet_header* pHeader;')
+                        func_body.append('{')
                         if 'void' not in proto.ret or '*' in proto.ret:
                             func_body.append('    %s result;' % proto.ret)
                             return_txt = 'result = '
+                        func_body.append('    vktrace_trace_packet_header* pHeader;')
                         if in_data_size:
                             func_body.append('    size_t _dataSize;')
                         func_body.append('    packet_vk%s* pPacket = NULL;' % proto.name)
@@ -554,6 +1365,23 @@ class Subcommand(object):
                             func_body.append('    CREATE_TRACE_PACKET(vk%s, 0);' % (proto.name))
                         else:
                             func_body.append('    CREATE_TRACE_PACKET(vk%s, %s);' % (proto.name, ' + '.join(packet_size)))
+
+                        if proto.name == "CreateImage":
+                            func_body.append('    VkImageCreateInfo replayCreateInfo = *pCreateInfo;')
+                            func_body.append('    VkImageCreateInfo trimCreateInfo = *pCreateInfo;')
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_SRC usage to the image so that we can copy out of it.")
+                            func_body.append('        trimCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;')
+                            func_body.append('        pCreateInfo = &trimCreateInfo;')
+                            func_body.append('    }') 
+                        elif proto.name == "CreateBuffer":
+                            func_body.append('    VkBufferCreateInfo replayCreateInfo = *pCreateInfo;')
+                            func_body.append('    VkBufferCreateInfo trimCreateInfo = *pCreateInfo;')
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_SRC usage to the buffer so that we can copy out of it.")
+                            func_body.append('        trimCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;')
+                            func_body.append('        pCreateInfo = &trimCreateInfo;')
+                            func_body.append('    }')                            
 
                         # call down the layer chain and get return value (if there is one)
                         # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
@@ -566,6 +1394,19 @@ class Subcommand(object):
                         func_body.append('    %s%s.%s;' % (return_txt, table_txt, proto.c_call()))
                         func_body.append('    vktrace_set_packet_entrypoint_end_time(pHeader);')
 
+                        if proto.name == "CreateImage":
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_DST usage to the image so that we can recreate it.")
+                            func_body.append('        replayCreateInfo.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;')
+                            func_body.append('        pCreateInfo = &replayCreateInfo;')
+                            func_body.append('    }')
+                        elif proto.name == "CreateBuffer":
+                            func_body.append("    if (g_trimEnabled) {")
+                            func_body.append("        // need to add TRANSFER_DST usage to the buffer so that we can recreate it.")
+                            func_body.append('        replayCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;')
+                            func_body.append('        pCreateInfo = &replayCreateInfo;')
+                            func_body.append('    }')
+
                         if in_data_size:
                             func_body.append('    _dataSize = (pDataSize == NULL || pData == NULL) ? 0 : *pDataSize;')
                         func_body.append('    pPacket = interpret_body_as_vk%s(pHeader);' % proto.name)
@@ -577,8 +1418,36 @@ class Subcommand(object):
                         for pp_dict in ptr_packet_update_list:
                             if ('DeviceCreateInfo' not in proto.params[pp_dict['index']].ty):
                                 func_body.append('    %s;' % (pp_dict['finalize_txt']))
+                        func_body.append('    if (!g_trimEnabled)')
+                        func_body.append('    {')
                         # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
-                        func_body.append('    FINISH_TRACE_PACKET();')
+                        func_body.append('        FINISH_TRACE_PACKET();')
+
+                        # Else half of g_trimEnabled conditional
+                        # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
+                        func_body.append('    }')
+                        func_body.append('    else')
+                        func_body.append('    {')
+                        func_body.append('        vktrace_finalize_trace_packet(pHeader);')
+                        trim_instructions = self._generate_trim_statetracking_instructions(proto)
+                        if trim_instructions is not None:
+                            func_body.append(trim_instructions)
+                        else:
+                            func_body.append('        if (g_trimIsInTrim)')
+                            func_body.append('        {')
+                            intrim_instructions = self._generate_trim_recording_instructions(proto)
+                            if intrim_instructions is not None:
+                                func_body.append(intrim_instructions)
+                            else:
+                                func_body.append('            trim::add_recorded_packet(pHeader);')
+                            func_body.append('        }')
+                            func_body.append('        else')
+                            func_body.append('        {')
+                            func_body.append('            vktrace_delete_trace_packet(&pHeader);')
+                            func_body.append('        }')
+                        func_body.append('    }')
+
+                        # Clean up instance or device data if needed
                         if proto.name == "DestroyInstance":
                             func_body.append('    g_instanceDataMap.erase(key);')
                         elif proto.name == "DestroyDevice":
@@ -650,6 +1519,8 @@ class Subcommand(object):
             print_vals = ''
             create_func = False
             if 'Create' in proto.name or 'Alloc' in proto.name or 'MapMemory' in proto.name:
+                create_func = True
+            if 'GetSwapchainImages' in proto.name:
                 create_func = True
             for p in proto.params:
                 last_param = False
@@ -1497,7 +2368,7 @@ class Subcommand(object):
         rc_body.append('    void clear_all_map_handles()\n    {')
         for var in sorted(obj_map_dict):
             rc_body.append('        %s.clear();' % var)
-        for var in additional_remap_dict:
+        for var in additional_remap_fifo:
             rc_body.append('        m_%s.clear();' %var)
         rc_body.append('    }\n')
         disp_obj_types = [obj for obj in vulkan.object_dispatch_list]
@@ -1543,23 +2414,23 @@ class Subcommand(object):
                 rc_body.append(self._add_to_map_decl(obj_map_dict[var], obj_map_dict[var], var))
                 rc_body.append(self._rm_from_map_decl(obj_map_dict[var], var))
                 rc_body.append(self._remap_decl(obj_map_dict[var], var))
-        for var in additional_remap_dict:
-            rc_body.append('        std::map<%s, %s> m_%s;' % (additional_remap_dict[var], additional_remap_dict[var], var))
-            rc_body.append('        void add_to_%s_map(%s traceVal, %s replayVal)' % (var, additional_remap_dict[var], additional_remap_dict[var]))
+        for var in additional_remap_fifo:
+            rc_body.append('        std::list<%s> m_%s;' % (additional_remap_fifo[var], var))
+            rc_body.append('        void add_to_%s_map(%s traceVal, %s replayVal)' % (var, additional_remap_fifo[var], additional_remap_fifo[var]))
             rc_body.append('        {')
-            rc_body.append('            m_%s[traceVal] = replayVal;' % var)
+            rc_body.append('            m_%s.push_back(replayVal);' % var)
             rc_body.append('        }')
             rc_body.append('')
-            rc_body.append('        void rm_from_%s_map(const %s& key)' % (var, additional_remap_dict[var]))
+            rc_body.append('        %s remap_%s(const %s& value)' % (additional_remap_fifo[var], var, additional_remap_fifo[var]))
             rc_body.append('        {')
-            rc_body.append('            m_%s.erase(key);' % var)
-            rc_body.append('        }')
-            rc_body.append('')
-            rc_body.append('        %s remap_%s(const %s& value)' % (additional_remap_dict[var], var, additional_remap_dict[var]))
-            rc_body.append('        {')
-            rc_body.append('            std::map<%s, %s>::const_iterator q = m_%s.find(value);' % (additional_remap_dict[var], additional_remap_dict[var], var))
-            rc_body.append('            if (q == m_%s.end()) { vktrace_LogError("Failed to remap %s."); return UINT32_MAX; }' % (var, var))
-            rc_body.append('            return q->second;')
+            rc_body.append('            if (m_%s.size() == 0)' % (var))
+            rc_body.append('            {')
+            rc_body.append('                vktrace_LogError("Failed to remap %s.");' % (var))
+            rc_body.append('                return UINT32_MAX;')
+            rc_body.append('            }')
+            rc_body.append('            %s result = m_%s.front();' % (additional_remap_fifo[var], var))
+            rc_body.append('            m_%s.pop_front();' % (var))
+            rc_body.append('            return result;')
             rc_body.append('        }')
 
         # VkDynamicStateObject code
@@ -1992,6 +2863,10 @@ class Subcommand(object):
                             rbody.append('            if (strcmp(pPacket->pName, "vk%s") == 0) {' % (dProto.name))
                             rbody.append('               m_vkFuncs.real_vk%s = (PFN_vk%s)vk%s(remappeddevice, pPacket->pName);' % (dProto.name, dProto.name, proto.name))
                             rbody.append('            }')
+                elif proto.name == 'GetPhysicalDeviceMemoryProperties':
+                    rbody.append('            VkPhysicalDeviceMemoryProperties memProperties = *(pPacket->pMemoryProperties);')
+                elif proto.name == 'GetImageMemoryRequirements':
+                    rbody.append('            VkMemoryRequirements memReqs = *(pPacket->pMemoryRequirements);')
 
                 # build the call to the "real_" entrypoint
                 rr_string = '            '
@@ -2000,6 +2875,8 @@ class Subcommand(object):
                         ret_value = False
                     else:
                         rr_string = '            replayResult = '
+                if proto.name == 'GetQueryPoolResults':
+                    rr_string += '(g_pReplaySettings->skipGetQueryPoolResults) ? VK_SUCCESS : '
                 rr_string += 'm_vkFuncs.real_vk%s(' % proto.name
                 for p in proto.params:
                     # For last param of Create funcs, pass address of param
@@ -2081,6 +2958,15 @@ class Subcommand(object):
                     rbody.append('            }')
                     rbody.append('            free(local_pSetLayouts);')
                     rbody.append('            free(local_pDescriptorSets);')
+                elif proto.name == 'GetImageMemoryRequirements':
+                    rbody.append('            if (memReqs.size != pPacket->pMemoryRequirements->size)')
+                    rbody.append('            {')
+                    rbody.append('                vktrace_LogError("Image memory size requirements differ: trace image %p needed %u bytes; replay image %p needed %u bytes.", pPacket->image, memReqs.size, remappedimage, pPacket->pMemoryRequirements->size);')
+                    rbody.append('            }')
+                elif proto.name == 'GetPhysicalDeviceMemoryProperties':
+                    rbody.append('            if (memcmp(&memProperties, pPacket->pMemoryProperties, sizeof(VkPhysicalDeviceMemoryProperties)) != 0) {')
+                    rbody.append('                vktrace_LogError("Physical Device Memory properties differ. Memory heaps may not match as expected.");')
+                    rbody.append('            }')
                 elif proto.name == 'ResetFences':
                     rbody.append('            VKTRACE_DELETE(fences);')
                 elif create_func: # save handle mapping if create successful
@@ -2140,6 +3026,7 @@ class VktraceTraceC(Subcommand):
         header_txt.append('#include "vktrace_platform.h"')
         header_txt.append('#include "vktrace_common.h"')
         header_txt.append('#include "vktrace_lib_helpers.h"')
+        header_txt.append('#include "vktrace_lib_trim.h"')
         header_txt.append('#include "vktrace_vk_vk.h"')
         header_txt.append('#include "vktrace_interconnect.h"')
         header_txt.append('#include "vktrace_filelike.h"')
@@ -2274,6 +3161,7 @@ class VktraceReplayObjMapperHeader(Subcommand):
         header_txt.append('#pragma once\n')
         header_txt.append('#include <set>')
         header_txt.append('#include <map>')
+        header_txt.append('#include <list>')
         header_txt.append('#include <vector>')
         header_txt.append('#include <string>')
         header_txt.append('#include "vulkan/vulkan.h"')
