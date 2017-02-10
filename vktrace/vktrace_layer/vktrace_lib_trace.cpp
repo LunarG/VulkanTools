@@ -225,8 +225,7 @@ void getMappedDirtyPagesLinux(void)
     if (pmFd == -1)
     {
         pmFd = open("/proc/self/pagemap", O_RDONLY);
-        if (pmFd < 0)
-            VKTRACE_FATAL_ERROR("Failed to open pagemap file.");
+        if (pmFd < 0) VKTRACE_FATAL_ERROR("Failed to open pagemap file. Is your kernel configured with CONFIG_MEM_SOFT_DIRTY?");
 
         if (0 != pipe2(pipefd, O_NONBLOCK))
             VKTRACE_FATAL_ERROR("Failed to create pipe.");
@@ -274,8 +273,7 @@ void getMappedDirtyPagesLinux(void)
         addr = alignedAddrStart;
         for (uint64_t i=0; i<nPages; i++)
         {
-            if ((pageEntries[i]&((uint64_t)1<<55)) != 0)
-            {
+            if ((pageEntries[i] & PTE_DIRTY_BIT) != 0) {
                 index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
                 if (index >= 0) {
                     // If the page is not already marked changed, compute a

@@ -1,6 +1,6 @@
 /*
 * Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-* Copyright (C) 2015-2016 LunarG, Inc.
+* Copyright (C) 2015-2017 LunarG, Inc.
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+#include "vktrace_common.h"
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pagestatusarray.h"
 #include "vktrace_lib_pageguardmappedmemory.h"
@@ -68,6 +69,67 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
 PVOID OPTHandler = nullptr; //use to remove page guard handler
 uint32_t OPTHandlerRefAmount = 0; //for persistent map and multi-threading environment, map and unmap maybe overlap, we need to make sure remove handler after all persistent map has been unmapped.
 
+// Function to verify pageguard support on current platform.
+// Generates warning if platform does not support pageguard.
+// Returns true if platform can support pageguard, false otherwise.
+// This function is needed because some Linux kernels may be
+// configured without /proc/self/pagemap support.
+static bool verifyPlatformPageGuardSupport(void) {
+#if defined(PLATFORM_LINUX)
+    int pmFd = -1, crFd = -1;
+    void* p = nullptr;
+    size_t pageSize = pageguardGetSystemPageSize();
+    off_t fileOffset;
+    uint64_t ptEntry;
+    char four = '4';
+
+    pmFd = open("/proc/self/pagemap", O_RDONLY);
+    if (pmFd <= 0) goto error;
+    crFd = open("/proc/self/clear_refs", O_WRONLY);
+    if (crFd <= 0) goto error;
+    p = (uint32_t*)pageguardAllocateMemory(sizeof(uint32_t));
+    if (p == nullptr) goto error;
+
+    fileOffset = ((off_t)((((size_t)p & ~(pageSize - 1)) / pageSize))) * 8;
+
+    // Use clear_refs to clear dirty bit and verify it is cleared
+    if (write(crFd, &four, 1) <= 0) goto error;
+    if (fileOffset != lseek(pmFd, fileOffset, SEEK_SET)) goto error;
+    if (sizeof(ptEntry) != read(pmFd, &ptEntry, sizeof(ptEntry))) goto error;
+    if ((ptEntry & PTE_DIRTY_BIT) != 0) goto error;
+
+    // Make sure a write to *p results in dirty bit being set
+    *((uint64_t*)p) = 1;
+    if (fileOffset != lseek(pmFd, fileOffset, SEEK_SET)) goto error;
+    if (sizeof(ptEntry) != read(pmFd, &ptEntry, sizeof(ptEntry))) goto error;
+    if ((ptEntry & PTE_DIRTY_BIT) == 0) goto error;
+
+    // Use clear_refs to clear dirty bit and verify it is cleared
+    if (write(crFd, &four, 1) <= 0) goto error;
+    if (fileOffset != lseek(pmFd, fileOffset, SEEK_SET)) goto error;
+    if (sizeof(ptEntry) != read(pmFd, &ptEntry, sizeof(ptEntry))) goto error;
+    if ((ptEntry & PTE_DIRTY_BIT) != 0) goto error;
+
+    // Clean up
+    pageguardFreeMemory(p);
+    close(pmFd);
+    close(crFd);
+    return true;
+
+error:
+    vktrace_LogAlways("Cannot enable pmb tracing, using --PMB false.");
+    vktrace_LogAlways("Linux kernel seems to not be configured with CONFIG_MEM_SOFT_DIRTY.");
+    if (p != nullptr) pageguardFreeMemory(p);
+    if (pmFd != -1) close(pmFd);
+    if (crFd != -1) close(crFd);
+    return false;
+
+#else
+    // Windows always supports pageguard
+    return true;
+#endif
+}
+
 //return if enable pageguard;
 //if enable page guard, then check if need to update target range size, page guard only work for those persistent mapped memory which >= target range size. 
 bool getPageGuardEnableFlag()
@@ -105,6 +167,8 @@ bool getPageGuardEnableFlag()
                 }
             }
         }
+        // Make sure current platform can support pageguard
+        if (EnablePageGuard) EnablePageGuard = verifyPlatformPageGuardSupport();
     }
     return EnablePageGuard;
 }

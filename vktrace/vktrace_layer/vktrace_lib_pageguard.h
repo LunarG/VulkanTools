@@ -1,5 +1,6 @@
 /*
 * Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
+* Copyright (C) 2015-2017 LunarG, Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -80,6 +81,11 @@
         exit(1); \
     } while (0)
 
+#if defined(PLATFORM_LINUX)
+// Page table entry dirty bit.
+// See https://www.kernel.org/doc/Documentation/vm/pagemap.txt
+#define PTE_DIRTY_BIT (1ULL << 55)
+#endif
 
 VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
