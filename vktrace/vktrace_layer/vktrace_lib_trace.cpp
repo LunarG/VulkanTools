@@ -3148,33 +3148,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
     return result;
 }
 
-void trim_Start()
-{
-    g_trimIsPreTrim = false;
-    g_trimIsInTrim = true;
-    trim::snapshot_state_tracker();
-}
-
-void trim_Stop()
-{
-    g_trimIsInTrim = false;
-    g_trimIsPostTrim = true;
-
-    // This will write packets to recreate ONLY THE REFERENCED objects.
-    trim::write_all_referenced_object_calls();
-
-    // write the packets that were recorded during the trim frames
-    trim::write_recorded_packets();
-
-    // write packets to destroy all created objects
-    trim::write_destroy_packets();
-
-    // clean up
-    trim::delete_all_packets();
-
-    g_trimAlreadyFinished = true;
-}
-
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
     VkQueue queue,
     const VkPresentInfoKHR* pPresentInfo)
@@ -3248,12 +3221,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
             if (trim::is_hotkey_trim_triggered() && (!g_trimAlreadyFinished))
             {
                 if (g_trimIsInTrim)
-                {//stop trim
-                    trim_Stop();
+                {
+                    trim::stop();
                 }
                 else
-                {//start trim
-                    trim_Start();
+                {
+                    trim::start();
                 }
             }
         }
@@ -3262,12 +3235,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(
             g_trimFrameCounter++;
             if (g_trimFrameCounter == g_trimStartFrame)
             {
-                trim_Start();
+                trim::start();
             }
             if (g_trimEndFrame < UINT64_MAX &&
                 g_trimFrameCounter == g_trimEndFrame + 1)
             {
-                trim_Stop();
+                trim::stop();
             }
         }
     }

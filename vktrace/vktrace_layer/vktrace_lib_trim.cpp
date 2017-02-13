@@ -113,6 +113,40 @@ static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
 //=========================================================================
 std::list<vktrace_trace_packet_header *> recorded_packets;
 
+
+//=========================================================================
+// Start trimming
+//=========================================================================
+void start()
+{
+    g_trimIsPreTrim = false;
+    g_trimIsInTrim = true;
+    snapshot_state_tracker();
+}
+
+//=========================================================================
+// Stop trimming
+//=========================================================================
+void stop()
+{
+    g_trimIsInTrim = false;
+    g_trimIsPostTrim = true;
+
+    // This will write packets to recreate ONLY THE REFERENCED objects.
+    write_all_referenced_object_calls();
+
+    // write the packets that were recorded during the trim frames
+    write_recorded_packets();
+
+    // write packets to destroy all created objects
+    write_destroy_packets();
+
+    // clean up
+    delete_all_packets();
+
+    g_trimAlreadyFinished = true;
+}
+
 //=========================================================================
 void AddImageTransition(VkCommandBuffer commandBuffer,
                         ImageTransition transition) {
