@@ -173,17 +173,17 @@ bool getPageGuardEnableFlag()
     return EnablePageGuard;
 }
 
-bool getEnableReadPMBFlag()
-{
+bool getEnableReadProcessFlag(const char* name) {
     static bool EnableReadPMB;
     static bool FirstTimeRun = true;
-    if (FirstTimeRun)
-    {
-        EnableReadPMB = (vktrace_get_global_var(PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV) != NULL);
+    if (FirstTimeRun) {
+        EnableReadPMB = (vktrace_get_global_var(name) != NULL);
         FirstTimeRun = false;
     }
     return EnableReadPMB;
 }
+bool getEnableReadPMBFlag() { return getEnableReadProcessFlag(PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV); }
+bool getEnableReadPMBPostProcessFlag() { return getEnableReadProcessFlag(PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV); }
 
 #if defined(WIN32)
 void setPageGuardExceptionHandler()
@@ -386,8 +386,10 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
                         pBlock, pMappedMem->getRealMappedDataPointer() +
                                     OffsetOfAddr - OffsetOfAddr % BlockSize,
                         pMappedMem->getMappedBlockSize(index));
-                    pMappedMem->setMappedBlockChanged(index, true,
-                                                      BLOCK_FLAG_ARRAY_READ);
+                    pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
+                    if (getEnableReadPMBPostProcessFlag()) {
+                        pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                    }
 
 #else
                     pMappedMem->setMappedBlockChanged(index, true);
