@@ -72,6 +72,10 @@
 // VKTRACE_PAGEGUARD_ENABLE_READ_PMB env var enables read PMB support. Only
 // supported on Windows. Not yet tested.
 #define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB"
+// PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV env var enables post process for read PMB support. Only
+// supported on Windows. page guard process miss following write access if read access happen on same page for some titles which
+// need read PMB support, the env var is used to enable post process to fix missed pmb writes.
+#define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS"
 
 // Usefull macro for handling fatal errors during tracing
 #define VKTRACE_FATAL_ERROR(_m) \
