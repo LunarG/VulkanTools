@@ -43,16 +43,6 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-#define PARAMETER_VALIDATION_TESTS 1
-#define MEM_TRACKER_TESTS 1
-#define OBJ_TRACKER_TESTS 1
-#define DRAW_STATE_TESTS 1
-#define THREADING_TESTS 1
-#define SHADER_CHECKER_TESTS 1
-#define DEVICE_LIMITS_TESTS 1
-#define IMAGE_TESTS 1
-#define API_DUMP_TESTS 0
-
 //--------------------------------------------------------------------------------------
 // Mesh and VertexFormat Data
 //--------------------------------------------------------------------------------------
@@ -811,7 +801,6 @@ uint32_t VkVerticesObj::BindIdGenerator;
 // ********************************************************************************************************************
 // ********************************************************************************************************************
 // ********************************************************************************************************************
-#if PARAMETER_VALIDATION_TESTS
 TEST_F(VkLayerTest, RequiredParameter) {
     TEST_DESCRIPTION(
         "Specify VK_NULL_HANDLE, NULL, and 0 for required handle, "
@@ -1199,9 +1188,6 @@ TEST_F(VkLayerTest, PSOPolygonModeInvalid) {
     vkDestroyPipelineLayout(test_device.device(), pipeline_layout, NULL);
 }
 
-#endif  // PARAMETER_VALIDATION_TESTS
-
-#if MEM_TRACKER_TESTS
 #if 0
 TEST_F(VkLayerTest, CallResetCommandBufferBeforeCompletion)
 {
@@ -2214,10 +2200,6 @@ TEST_F(VkLayerTest, InvalidUsageBits) {
     m_errorMonitor->VerifyFound();
 }
 
-#endif  // MEM_TRACKER_TESTS
-
-#if OBJ_TRACKER_TESTS
-
 TEST_F(VkLayerTest, LeakAnObject) {
     VkResult err;
 
@@ -2675,10 +2657,6 @@ TEST_F(VkLayerTest, BindMemoryToDestroyedObject) {
 
     vkFreeMemory(m_device->device(), mem, NULL);
 }
-
-#endif  // OBJ_TRACKER_TESTS
-
-#if DRAW_STATE_TESTS
 
 TEST_F(VkLayerTest, CreatePipelineBadVertexAttributeFormat) {
     TEST_DESCRIPTION("Test that pipeline validation catches invalid vertex attribute formats");
@@ -3274,7 +3252,31 @@ TEST_F(VkLayerTest, DisabledIndependentBlend) {
     descriptorSet.CreateVKDescriptorSet(m_commandBuffer);
 
     VkPipelineObj pipeline(m_device);
-    VkRenderpassObj renderpass(m_device);
+    // Create a renderPass with two color attachments
+    VkAttachmentReference attachments[2] = {};
+    attachments[0].layout = VK_IMAGE_LAYOUT_GENERAL;
+    attachments[1].layout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pColorAttachments = attachments;
+    subpass.colorAttachmentCount = 2;
+
+    VkRenderPassCreateInfo rpci = {};
+    rpci.subpassCount = 1;
+    rpci.pSubpasses = &subpass;
+    rpci.attachmentCount = 1;
+
+    VkAttachmentDescription attach_desc = {};
+    attach_desc.format = VK_FORMAT_B8G8R8A8_UNORM;
+    attach_desc.samples = VK_SAMPLE_COUNT_1_BIT;
+    attach_desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attach_desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    rpci.pAttachments = &attach_desc;
+    rpci.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+
+    VkRenderPass renderpass;
+    vkCreateRenderPass(m_device->device(), &rpci, NULL, &renderpass);
     VkShaderObj vs(m_device, bindStateVertShaderText, VK_SHADER_STAGE_VERTEX_BIT, this);
     pipeline.AddShader(&vs);
 
@@ -3285,8 +3287,9 @@ TEST_F(VkLayerTest, DisabledIndependentBlend) {
     att_state2.blendEnable = VK_FALSE;
     pipeline.AddColorAttachment(0, &att_state1);
     pipeline.AddColorAttachment(1, &att_state2);
-    pipeline.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderpass.handle());
+    pipeline.CreateVKPipeline(descriptorSet.GetPipelineLayout(), renderpass);
     m_errorMonitor->VerifyFound();
+    vkDestroyRenderPass(m_device->device(), renderpass, NULL);
 }
 
 #if 0
@@ -8354,10 +8357,9 @@ TEST_F(VkLayerTest, UpdateBufferWithinRenderPass) {
     dstBuffer.init_as_dst(*m_device, (VkDeviceSize)1024, reqs);
 
     VkDeviceSize dstOffset = 0;
-    VkDeviceSize dataSize = 1024;
-    const void *pData = NULL;
-
-    vkCmdUpdateBuffer(m_commandBuffer->GetBufferHandle(), dstBuffer.handle(), dstOffset, dataSize, pData);
+    uint32_t Data[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    VkDeviceSize dataSize = sizeof(Data) / sizeof(uint32_t);
+    vkCmdUpdateBuffer(m_commandBuffer->GetBufferHandle(), dstBuffer.handle(), dstOffset, dataSize, &Data);
 
     m_errorMonitor->VerifyFound();
 }
@@ -8676,7 +8678,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     img_barrier.image = ds_image.handle();
 
     // Not having DEPTH or STENCIL set is an error
-    img_barrier.subresourceRange.aspectMask = 0;
+    img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_METADATA_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0,
                          nullptr, 0, nullptr, 1, &img_barrier);
     m_errorMonitor->VerifyFound();
@@ -8704,7 +8706,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
         // DEPTH bit must be set
         m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                              "Depth-only image formats must have the VK_IMAGE_ASPECT_DEPTH_BIT set.");
-        img_barrier.subresourceRange.aspectMask = 0;
+        img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_METADATA_BIT;
         vkCmdPipelineBarrier(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0,
                              0, nullptr, 0, nullptr, 1, &img_barrier);
         m_errorMonitor->VerifyFound();
@@ -8747,7 +8749,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     // COLOR bit must be set
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "Color image formats must have the VK_IMAGE_ASPECT_COLOR_BIT set.");
-    img_barrier.subresourceRange.aspectMask = 0;
+    img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_METADATA_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0,
                          nullptr, 0, nullptr, 1, &img_barrier);
     m_errorMonitor->VerifyFound();
@@ -9299,6 +9301,174 @@ TEST_F(VkLayerTest, DSBufferInfoErrors) {
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     vkDestroyBuffer(m_device->device(), buffer, NULL);
     vkFreeDescriptorSets(m_device->device(), ds_pool, 1, &descriptor_set);
+    vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+}
+
+TEST_F(VkLayerTest, DSBufferLimitErrors) {
+    TEST_DESCRIPTION(
+        "Attempt to update buffer descriptor set that has VkDescriptorBufferInfo values that violate device limits.\n"
+        "Test cases include:\n"
+        "1. range of uniform buffer update exceeds maxUniformBufferRange\n"
+        "2. offset of uniform buffer update is not multiple of minUniformBufferOffsetAlignment\n"
+        "3. range of storage buffer update exceeds maxStorageBufferRange\n"
+        "4. offset of storage buffer update is not multiple of minStorageBufferOffsetAlignment");
+    VkResult err;
+
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    VkDescriptorPoolSize ds_type_count[2] = {};
+    ds_type_count[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    ds_type_count[0].descriptorCount = 1;
+    ds_type_count[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    ds_type_count[1].descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo ds_pool_ci = {};
+    ds_pool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    ds_pool_ci.pNext = NULL;
+    ds_pool_ci.maxSets = 1;
+    ds_pool_ci.poolSizeCount = 2;
+    ds_pool_ci.pPoolSizes = ds_type_count;
+
+    VkDescriptorPool ds_pool;
+    err = vkCreateDescriptorPool(m_device->device(), &ds_pool_ci, NULL, &ds_pool);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create layout with single uniform buffer & single storage buffer descriptor
+    VkDescriptorSetLayoutBinding dsl_binding[2] = {};
+    dsl_binding[0].binding = 0;
+    dsl_binding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    dsl_binding[0].descriptorCount = 1;
+    dsl_binding[0].stageFlags = VK_SHADER_STAGE_ALL;
+    dsl_binding[0].pImmutableSamplers = NULL;
+    dsl_binding[1].binding = 1;
+    dsl_binding[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    dsl_binding[1].descriptorCount = 1;
+    dsl_binding[1].stageFlags = VK_SHADER_STAGE_ALL;
+    dsl_binding[1].pImmutableSamplers = NULL;
+
+    VkDescriptorSetLayoutCreateInfo ds_layout_ci = {};
+    ds_layout_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    ds_layout_ci.pNext = NULL;
+    ds_layout_ci.bindingCount = 2;
+    ds_layout_ci.pBindings = dsl_binding;
+    VkDescriptorSetLayout ds_layout;
+    err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL, &ds_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    VkDescriptorSet descriptor_set = {};
+    VkDescriptorSetAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.descriptorSetCount = 1;
+    alloc_info.descriptorPool = ds_pool;
+    alloc_info.pSetLayouts = &ds_layout;
+    err = vkAllocateDescriptorSets(m_device->device(), &alloc_info, &descriptor_set);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create a buffer to be used for invalid updates
+    auto max_ub_range = m_device->props.limits.maxUniformBufferRange;
+    auto min_ub_align = m_device->props.limits.minUniformBufferOffsetAlignment;
+    auto max_sb_range = m_device->props.limits.maxStorageBufferRange;
+    auto min_sb_align = m_device->props.limits.minStorageBufferOffsetAlignment;
+    VkBufferCreateInfo ub_ci = {};
+    ub_ci.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    ub_ci.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    ub_ci.size = max_ub_range + 128;  // Make buffer bigger than range limit
+    ub_ci.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkBuffer uniform_buffer;
+    err = vkCreateBuffer(m_device->device(), &ub_ci, NULL, &uniform_buffer);
+    ASSERT_VK_SUCCESS(err);
+    VkBufferCreateInfo sb_ci = {};
+    sb_ci.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    sb_ci.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    sb_ci.size = max_sb_range + 128;  // Make buffer bigger than range limit
+    sb_ci.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkBuffer storage_buffer;
+    err = vkCreateBuffer(m_device->device(), &sb_ci, NULL, &storage_buffer);
+    ASSERT_VK_SUCCESS(err);
+    // Have to bind memory to buffer before descriptor update
+    VkMemoryAllocateInfo mem_alloc = {};
+    mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    mem_alloc.pNext = NULL;
+    mem_alloc.allocationSize = ub_ci.size + sb_ci.size + 1024;  // additional buffer for offset
+    mem_alloc.memoryTypeIndex = 0;
+
+    VkMemoryRequirements mem_reqs;
+    vkGetBufferMemoryRequirements(m_device->device(), uniform_buffer, &mem_reqs);
+    bool pass = m_device->phy().set_memory_type(mem_reqs.memoryTypeBits, &mem_alloc, 0);
+    vkGetBufferMemoryRequirements(m_device->device(), storage_buffer, &mem_reqs);
+    pass &= m_device->phy().set_memory_type(mem_reqs.memoryTypeBits, &mem_alloc, 0);
+    if (!pass) {
+        vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
+        vkDestroyBuffer(m_device->device(), uniform_buffer, NULL);
+        vkDestroyBuffer(m_device->device(), storage_buffer, NULL);
+        vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+        return;
+    }
+
+    VkDeviceMemory mem;
+    err = vkAllocateMemory(m_device->device(), &mem_alloc, NULL, &mem);
+    if (VK_SUCCESS != err) {
+        printf("Failed to allocate memory in DSBufferLimitErrors; skipped.\n");
+        vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
+        vkDestroyBuffer(m_device->device(), uniform_buffer, NULL);
+        vkDestroyBuffer(m_device->device(), storage_buffer, NULL);
+        vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+        return;
+    }
+    ASSERT_VK_SUCCESS(err);
+    err = vkBindBufferMemory(m_device->device(), uniform_buffer, mem, 0);
+    ASSERT_VK_SUCCESS(err);
+    auto sb_offset = ub_ci.size + 1024;
+    // Verify offset alignment, I know there's a bit trick to do this but it escapes me
+    sb_offset = (sb_offset % mem_reqs.alignment) ? sb_offset - (sb_offset % mem_reqs.alignment) : sb_offset;
+    err = vkBindBufferMemory(m_device->device(), storage_buffer, mem, sb_offset);
+    ASSERT_VK_SUCCESS(err);
+
+    VkDescriptorBufferInfo buff_info = {};
+    buff_info.buffer = uniform_buffer;
+    buff_info.range = ub_ci.size;  // This will exceed limit
+    VkWriteDescriptorSet descriptor_write = {};
+    descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptor_write.dstBinding = 0;
+    descriptor_write.descriptorCount = 1;
+    descriptor_write.pTexelBufferView = nullptr;
+    descriptor_write.pBufferInfo = &buff_info;
+    descriptor_write.pImageInfo = nullptr;
+
+    descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptor_write.dstSet = descriptor_set;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00948);
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+    m_errorMonitor->VerifyFound();
+
+    // Reduce size of range to acceptable limit & cause offset error
+    buff_info.range = max_ub_range;
+    buff_info.offset = min_ub_align - 1;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00944);
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+    m_errorMonitor->VerifyFound();
+
+    // Now break storage updates
+    buff_info.buffer = storage_buffer;
+    buff_info.range = sb_ci.size;  // This will exceed limit
+    buff_info.offset = 0;          // Reset offset for this update
+
+    descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptor_write.dstBinding = 1;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00949);
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+    m_errorMonitor->VerifyFound();
+
+    // Reduce size of range to acceptable limit & cause offset error
+    buff_info.range = max_sb_range;
+    buff_info.offset = min_sb_align - 1;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00945);
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+    m_errorMonitor->VerifyFound();
+
+    vkFreeMemory(m_device->device(), mem, NULL);
+    vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
+    vkDestroyBuffer(m_device->device(), uniform_buffer, NULL);
+    vkDestroyBuffer(m_device->device(), storage_buffer, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
 }
 
@@ -12506,9 +12676,7 @@ TEST_F(VkLayerTest, ColorBlendLogicOpTests) {
     vkDestroyPipelineCache(m_device->device(), pipelineCache, NULL);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
 }
-#endif  // DRAW_STATE_TESTS
 
-#if THREADING_TESTS
 #if GTEST_IS_THREADSAFE
 struct thread_data_struct {
     VkCommandBuffer commandBuffer;
@@ -12588,9 +12756,7 @@ TEST_F(VkLayerTest, ThreadCommandBufferCollision) {
     vkDestroyEvent(device(), event, NULL);
 }
 #endif  // GTEST_IS_THREADSAFE
-#endif  // THREADING_TESTS
 
-#if SHADER_CHECKER_TESTS
 TEST_F(VkLayerTest, InvalidSPIRVCodeSize) {
     TEST_DESCRIPTION(
         "Test that an error is produced for a spirv module "
@@ -14702,9 +14868,6 @@ TEST_F(VkLayerTest, DrawTimeImageMultisampleMismatchWithPipeline) {
     m_commandBuffer->EndCommandBuffer();
 }
 
-#endif  // SHADER_CHECKER_TESTS
-
-#if DEVICE_LIMITS_TESTS
 TEST_F(VkLayerTest, CreateImageLimitsViolationMaxWidth) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "CreateImage extents exceed allowable limits for format");
 
@@ -14772,9 +14935,6 @@ TEST_F(VkLayerTest, CreateImageLimitsViolationMinWidth) {
 
     m_errorMonitor->VerifyFound();
 }
-#endif  // DEVICE_LIMITS_TESTS
-
-#if IMAGE_TESTS
 
 TEST_F(VkLayerTest, AttachmentDescriptionUndefinedFormat) {
     TEST_DESCRIPTION(
@@ -14784,7 +14944,7 @@ TEST_F(VkLayerTest, AttachmentDescriptionUndefinedFormat) {
     ASSERT_NO_FATAL_FAILURE(InitState());
     ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "format is VK_FORMAT_UNDEFINED");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT, "format is VK_FORMAT_UNDEFINED");
 
     VkAttachmentReference color_attach = {};
     color_attach.layout = VK_IMAGE_LAYOUT_GENERAL;
@@ -15278,10 +15438,6 @@ TEST_F(VkLayerTest, MiscImageLayerTests) {
     m_errorMonitor->VerifyFound();
 
     region.bufferImageHeight = 128;
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "If the format of srcImage is an "
-                                         "integer-based format then filter must be VK_FILTER_NEAREST");
-    // Expect INVALID_FILTER
     VkImageObj intImage1(m_device);
     intImage1.init(128, 128, VK_FORMAT_R8_UINT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
@@ -15297,10 +15453,6 @@ TEST_F(VkLayerTest, MiscImageLayerTests) {
     blitRegion.dstSubresource.baseArrayLayer = 0;
     blitRegion.dstSubresource.layerCount = 1;
     blitRegion.dstSubresource.mipLevel = 0;
-
-    vkCmdBlitImage(m_commandBuffer->GetBufferHandle(), intImage1.handle(), intImage1.layout(), intImage2.handle(),
-                   intImage2.layout(), 1, &blitRegion, VK_FILTER_LINEAR);
-    m_errorMonitor->VerifyFound();
 
     // Look for NULL-blit warning
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT, "Offsets specify a zero-volume area.");
@@ -15871,7 +16023,7 @@ TEST_F(VkLayerTest, ResolveImageFormatMismatch) {
     VkResult err;
     bool pass;
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT,
                                          "vkCmdResolveImage called with unmatched source and dest formats.");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
@@ -15976,7 +16128,7 @@ TEST_F(VkLayerTest, ResolveImageTypeMismatch) {
     VkResult err;
     bool pass;
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT,
                                          "vkCmdResolveImage called with unmatched source and dest image types.");
 
     ASSERT_NO_FATAL_FAILURE(InitState());
@@ -16279,7 +16431,6 @@ TEST_F(VkLayerTest, ClearImageErrors) {
 
     m_errorMonitor->VerifyFound();
 }
-#endif  // IMAGE_TESTS
 
 // WSI Enabled Tests
 //

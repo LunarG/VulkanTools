@@ -84,7 +84,7 @@ static void init_image(layer_data *my_data, const VkAllocationCallbacks *pAlloca
     layer_debug_actions(my_data->report_data, my_data->logging_callback, pAllocator, "lunarg_image");
 }
 
-static IMAGE_STATE const *getImageState(layer_data const *dev_data, VkImage image) {
+static IMAGE_STATE const *GetImageState(layer_data const *dev_data, VkImage image) {
     auto it = dev_data->imageMap.find(image);
     if (it == dev_data->imageMap.end()) {
         return nullptr;
@@ -96,7 +96,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
                                                             const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
                                                             const VkAllocationCallbacks *pAllocator,
                                                             VkDebugReportCallbackEXT *pMsgCallback) {
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     VkResult res = my_data->instance_dispatch_table->CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pMsgCallback);
     if (res == VK_SUCCESS) {
         res = layer_create_msg_callback(my_data->report_data, false, pCreateInfo, pAllocator, pMsgCallback);
@@ -106,7 +106,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
 
 VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT msgCallback,
                                                          const VkAllocationCallbacks *pAllocator) {
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     my_data->instance_dispatch_table->DestroyDebugReportCallbackEXT(instance, msgCallback, pAllocator);
     layer_destroy_msg_callback(my_data->report_data, msgCallback, pAllocator);
 }
@@ -114,7 +114,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, Vk
 VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags,
                                                  VkDebugReportObjectTypeEXT objType, uint64_t object, size_t location,
                                                  int32_t msgCode, const char *pLayerPrefix, const char *pMsg) {
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     my_data->instance_dispatch_table->DebugReportMessageEXT(instance, flags, objType, object, location, msgCode, pLayerPrefix,
                                                             pMsg);
 }
@@ -136,7 +136,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
     if (result != VK_SUCCESS) return result;
 
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(*pInstance), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(*pInstance), layer_data_map);
     my_data->instance = *pInstance;
     my_data->instance_dispatch_table = new VkLayerInstanceDispatchTable;
     layer_init_instance_dispatch_table(*pInstance, my_data->instance_dispatch_table, fpGetInstanceProcAddr);
@@ -151,7 +151,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     // Grab the key before the instance is destroyed.
     dispatch_key key = get_dispatch_key(instance);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     pTable->DestroyInstance(instance, pAllocator);
 
@@ -169,7 +169,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo *pCreateInfo,
                                             const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
-    layer_data *my_instance_data = get_my_data_ptr(get_dispatch_key(physicalDevice), layer_data_map);
+    layer_data *my_instance_data = GetLayerDataPtr(get_dispatch_key(physicalDevice), layer_data_map);
     VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
@@ -188,7 +188,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice physicalDevice, con
         return result;
     }
 
-    layer_data *my_device_data = get_my_data_ptr(get_dispatch_key(*pDevice), layer_data_map);
+    layer_data *my_device_data = GetLayerDataPtr(get_dispatch_key(*pDevice), layer_data_map);
 
     // Setup device dispatch table
     my_device_data->device_dispatch_table = new VkLayerDispatchTable;
@@ -205,7 +205,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice physicalDevice, con
 
 VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     my_data->device_dispatch_table->DestroyDevice(device, pAllocator);
     delete my_data->device_dispatch_table;
     layer_data_map.erase(key);
@@ -222,7 +222,7 @@ static const VkLayerProperties global_layer = {
 VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo,
                                            const VkAllocationCallbacks *pAllocator, VkImage *pImage) {
     VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
 
     result = device_data->device_dispatch_table->CreateImage(device, pCreateInfo, pAllocator, pImage);
 
@@ -234,7 +234,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice device, const VkImageCreateI
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyImage(VkDevice device, VkImage image, const VkAllocationCallbacks *pAllocator) {
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
     std::unique_lock<std::mutex> lock(global_lock);
     device_data->imageMap.erase(image);
     lock.unlock();
@@ -246,7 +246,7 @@ static bool ValidateBufferImageCopyData(layer_data *dev_data, uint32_t regionCou
     bool skip = false;
 
     for (uint32_t i = 0; i < regionCount; i++) {
-        auto image_info = getImageState(dev_data, image);
+        auto image_info = GetImageState(dev_data, image);
         if (image_info) {
             if ((image_info->imageType == VK_IMAGE_TYPE_1D) || (image_info->imageType == VK_IMAGE_TYPE_2D)) {
                 if ((pRegions[i].imageOffset.z != 0) || (pRegions[i].imageExtent.depth != 1)) {
@@ -320,7 +320,7 @@ static bool PreCallValidateCmdCopyImageToBuffer(layer_data *dev_data, VkImage sr
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
                                                 VkBuffer dstBuffer, uint32_t regionCount, const VkBufferImageCopy *pRegions) {
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(commandBuffer), layer_data_map);
 
     if (!PreCallValidateCmdCopyImageToBuffer(device_data, srcImage, regionCount, pRegions, "vkCmdCopyImageToBuffer()")) {
         device_data->device_dispatch_table->CmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount,
@@ -336,7 +336,7 @@ static bool PreCallValidateCmdCopyBufferToImage(layer_data *dev_data, VkImage ds
 VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkImage dstImage,
                                                 VkImageLayout dstImageLayout, uint32_t regionCount,
                                                 const VkBufferImageCopy *pRegions) {
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(commandBuffer), layer_data_map);
 
     if (!PreCallValidateCmdCopyBufferToImage(device_data, dstImage, regionCount, pRegions, "vkCmdCopyBufferToImage()")) {
         device_data->device_dispatch_table->CmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount,
@@ -344,285 +344,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(VkCommandBuffer commandBuffer, V
     }
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdBlitImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
-                                        VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount,
-                                        const VkImageBlit *pRegions, VkFilter filter) {
-    bool skipCall = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-
-    // Warn for zero-sized regions
-    for (uint32_t i = 0; i < regionCount; i++) {
-        if ((pRegions[i].srcOffsets[0].x == pRegions[i].srcOffsets[1].x) ||
-            (pRegions[i].srcOffsets[0].y == pRegions[i].srcOffsets[1].y) ||
-            (pRegions[i].srcOffsets[0].z == pRegions[i].srcOffsets[1].z)) {
-            std::stringstream ss;
-            ss << "vkCmdBlitImage: pRegions[" << i << "].srcOffsets specify a zero-volume area.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, reinterpret_cast<uint64_t>(commandBuffer), __LINE__,
-                                IMAGE_INVALID_EXTENTS, "IMAGE", "%s", ss.str().c_str());
-        }
-        if ((pRegions[i].dstOffsets[0].x == pRegions[i].dstOffsets[1].x) ||
-            (pRegions[i].dstOffsets[0].y == pRegions[i].dstOffsets[1].y) ||
-            (pRegions[i].dstOffsets[0].z == pRegions[i].dstOffsets[1].z)) {
-            std::stringstream ss;
-            ss << "vkCmdBlitImage: pRegions[" << i << "].dstOffsets specify a zero-volume area.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, reinterpret_cast<uint64_t>(commandBuffer), __LINE__,
-                                IMAGE_INVALID_EXTENTS, "IMAGE", "%s", ss.str().c_str());
-        }
-    }
-
-    auto srcImageEntry = getImageState(device_data, srcImage);
-    auto dstImageEntry = getImageState(device_data, dstImage);
-
-    if (srcImageEntry && dstImageEntry) {
-        VkFormat srcFormat = srcImageEntry->format;
-        VkFormat dstFormat = dstImageEntry->format;
-
-        // Validate consistency for unsigned formats
-        if (vk_format_is_uint(srcFormat) != vk_format_is_uint(dstFormat)) {
-            std::stringstream ss;
-            ss << "vkCmdBlitImage: If one of srcImage and dstImage images has unsigned integer format, "
-               << "the other one must also have unsigned integer format.  "
-               << "Source format is " << string_VkFormat(srcFormat) << " Destination format is " << string_VkFormat(dstFormat);
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, VALIDATION_ERROR_02191, "IMAGE", "%s. %s", ss.str().c_str(),
-                        validation_error_map[VALIDATION_ERROR_02191]);
-        }
-
-        // Validate consistency for signed formats
-        if (vk_format_is_sint(srcFormat) != vk_format_is_sint(dstFormat)) {
-            std::stringstream ss;
-            ss << "vkCmdBlitImage: If one of srcImage and dstImage images has signed integer format, "
-               << "the other one must also have signed integer format.  "
-               << "Source format is " << string_VkFormat(srcFormat) << " Destination format is " << string_VkFormat(dstFormat);
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, VALIDATION_ERROR_02190, "IMAGE", "%s. %s", ss.str().c_str(),
-                        validation_error_map[VALIDATION_ERROR_02190]);
-        }
-
-        // Validate aspect bits and formats for depth/stencil images
-        if (vk_format_is_depth_or_stencil(srcFormat) || vk_format_is_depth_or_stencil(dstFormat)) {
-            if (srcFormat != dstFormat) {
-                std::stringstream ss;
-                ss << "vkCmdBlitImage: If one of srcImage and dstImage images has a format of depth, stencil or depth "
-                   << "stencil, the other one must have exactly the same format.  "
-                   << "Source format is " << string_VkFormat(srcFormat) << " Destination format is " << string_VkFormat(dstFormat);
-                skipCall |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            (uint64_t)commandBuffer, __LINE__, VALIDATION_ERROR_02192, "IMAGE", "%s. %s", ss.str().c_str(),
-                            validation_error_map[VALIDATION_ERROR_02192]);
-            }
-
-            // TODO: Confirm that all these checks are intended to be nested under depth/stencil only
-            for (uint32_t i = 0; i < regionCount; i++) {
-                if (pRegions[i].srcSubresource.layerCount == 0) {
-                    char const str[] = "vkCmdBlitImage: number of layers in source subresource is zero";
-                    // TODO: Verify against Valid Use section of spec, if this case yields undefined results, then it's an error
-                    skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                        VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                        IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", str);
-                }
-
-                if (pRegions[i].dstSubresource.layerCount == 0) {
-                    char const str[] = "vkCmdBlitImage: number of layers in destination subresource is zero";
-                    // TODO: Verify against Valid Use section of spec, if this case yields undefined results, then it's an error
-                    skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                        VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                        IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", str);
-                }
-
-                if (pRegions[i].srcSubresource.layerCount != pRegions[i].dstSubresource.layerCount) {
-                    char const str[] = "vkCmdBlitImage: number of layers in source and destination subresources must match";
-                    skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                        VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                        IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", str);
-                }
-
-                VkImageAspectFlags srcAspect = pRegions[i].srcSubresource.aspectMask;
-                VkImageAspectFlags dstAspect = pRegions[i].dstSubresource.aspectMask;
-
-                if (srcAspect != dstAspect) {
-                    std::stringstream ss;
-                    ss << "vkCmdBlitImage: Image aspects of depth/stencil images should match";
-                    // TODO: Verify against Valid Use section of spec, if this case yields undefined results, then it's an error
-                    skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                        VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                        IMAGE_INVALID_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
-                }
-                if (vk_format_is_depth_and_stencil(srcFormat)) {
-                    if ((srcAspect != VK_IMAGE_ASPECT_DEPTH_BIT) && (srcAspect != VK_IMAGE_ASPECT_STENCIL_BIT)) {
-                        std::stringstream ss;
-                        ss << "vkCmdBlitImage: Combination depth/stencil image formats must have only one of "
-                              "VK_IMAGE_ASPECT_DEPTH_BIT "
-                           << "and VK_IMAGE_ASPECT_STENCIL_BIT set in srcImage and dstImage";
-                        skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                            VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                            IMAGE_INVALID_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
-                    }
-                } else if (vk_format_is_stencil_only(srcFormat)) {
-                    if (srcAspect != VK_IMAGE_ASPECT_STENCIL_BIT) {
-                        std::stringstream ss;
-                        ss << "vkCmdBlitImage: Stencil-only image formats must have only the VK_IMAGE_ASPECT_STENCIL_BIT "
-                           << "set in both the srcImage and dstImage";
-                        skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                            VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                            IMAGE_INVALID_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
-                    }
-                } else if (vk_format_is_depth_only(srcFormat)) {
-                    if (srcAspect != VK_IMAGE_ASPECT_DEPTH_BIT) {
-                        std::stringstream ss;
-                        ss << "vkCmdBlitImage: Depth-only image formats must have only the VK_IMAGE_ASPECT_DEPTH "
-                           << "set in both the srcImage and dstImage";
-                        skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                            VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                            IMAGE_INVALID_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
-                    }
-                }
-            }
-        }
-
-        // Validate filter
-        if (vk_format_is_depth_or_stencil(srcFormat) && (filter != VK_FILTER_NEAREST)) {
-            std::stringstream ss;
-            ss << "vkCmdBlitImage: If the format of srcImage is a depth, stencil, or depth stencil "
-               << "then filter must be VK_FILTER_NEAREST.";
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, VALIDATION_ERROR_02193, "IMAGE", "%s. %s", ss.str().c_str(),
-                        validation_error_map[VALIDATION_ERROR_02193]);
-        }
-        if (vk_format_is_int(srcFormat) && (filter != VK_FILTER_NEAREST)) {
-            std::stringstream ss;
-            ss << "vkCmdBlitImage: If the format of srcImage is an integer-based format "
-               << "then filter must be VK_FILTER_NEAREST.";
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_INVALID_FILTER, "IMAGE", "%s", ss.str().c_str());
-        }
-    }
-
-    if (!skipCall) {
-        device_data->device_dispatch_table->CmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout,
-                                                         regionCount, pRegions, filter);
-    }
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdResolveImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
-                                           VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount,
-                                           const VkImageResolve *pRegions) {
-    bool skipCall = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(commandBuffer), layer_data_map);
-    auto srcImageEntry = getImageState(device_data, srcImage);
-    auto dstImageEntry = getImageState(device_data, dstImage);
-
-    // For each region, the number of layers in the image subresource should not be zero
-    // For each region, src and dest image aspect must be color only
-    for (uint32_t i = 0; i < regionCount; i++) {
-        if (pRegions[i].srcSubresource.layerCount == 0) {
-            char const str[] = "vkCmdResolveImage: number of layers in source subresource is zero";
-            // TODO: Verify against Valid Use section of spec. Generally if something yield an undefined result, it's invalid/error
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", str);
-        }
-
-        if (pRegions[i].dstSubresource.layerCount == 0) {
-            char const str[] = "vkCmdResolveImage: number of layers in destination subresource is zero";
-
-            // TODO: Verify against Valid Use section of spec. Generally if something yield an undefined result, it's invalid/error
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_MISMATCHED_IMAGE_ASPECT, "IMAGE", str);
-        }
-
-        // TODO: VALIDATION_ERROR_01339
-
-        if ((pRegions[i].srcSubresource.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT) ||
-            (pRegions[i].dstSubresource.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT)) {
-            char const str[] =
-                "vkCmdResolveImage: src and dest aspectMasks for each region must specify only VK_IMAGE_ASPECT_COLOR_BIT";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                VALIDATION_ERROR_01338, "IMAGE", "%s. %s", str, validation_error_map[VALIDATION_ERROR_01338]);
-        }
-    }
-
-    if (srcImageEntry && dstImageEntry) {
-        if (srcImageEntry->format != dstImageEntry->format) {
-            char const str[] = "vkCmdResolveImage called with unmatched source and dest formats.";
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_MISMATCHED_IMAGE_FORMAT, "IMAGE", str);
-        }
-        if (srcImageEntry->imageType != dstImageEntry->imageType) {
-            char const str[] = "vkCmdResolveImage called with unmatched source and dest image types.";
-            skipCall |=
-                log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        (uint64_t)commandBuffer, __LINE__, IMAGE_MISMATCHED_IMAGE_TYPE, "IMAGE", str);
-        }
-        if (srcImageEntry->samples == VK_SAMPLE_COUNT_1_BIT) {
-            char const str[] = "vkCmdResolveImage called with source sample count less than 2.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                VALIDATION_ERROR_01320, "IMAGE", "%s. %s", str, validation_error_map[VALIDATION_ERROR_01320]);
-        }
-        if (dstImageEntry->samples != VK_SAMPLE_COUNT_1_BIT) {
-            char const str[] = "vkCmdResolveImage called with dest sample count greater than 1.";
-            skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT, (uint64_t)commandBuffer, __LINE__,
-                                VALIDATION_ERROR_01321, "IMAGE", "%s. %s", str, validation_error_map[VALIDATION_ERROR_01321]);
-        }
-    }
-
-    if (!skipCall) {
-        device_data->device_dispatch_table->CmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout,
-                                                            regionCount, pRegions);
-    }
-}
-
-VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(VkDevice device, VkImage image, const VkImageSubresource *pSubresource,
-                                                     VkSubresourceLayout *pLayout) {
-    bool skipCall = false;
-    layer_data *device_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
-    VkFormat format;
-
-    auto imageEntry = getImageState(device_data, image);
-
-    // Validate that image aspects match formats
-    if (imageEntry) {
-        format = imageEntry->format;
-        if (vk_format_is_color(format)) {
-            if (pSubresource->aspectMask != VK_IMAGE_ASPECT_COLOR_BIT) {
-                std::stringstream ss;
-                ss << "vkGetImageSubresourceLayout: For color formats, the aspectMask field of VkImageSubresource must be "
-                      "VK_IMAGE_ASPECT_COLOR.";
-                skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                    (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE", "%s. %s", ss.str().c_str(),
-                                    validation_error_map[VALIDATION_ERROR_00741]);
-            }
-        } else if (vk_format_is_depth_or_stencil(format)) {
-            if ((pSubresource->aspectMask != VK_IMAGE_ASPECT_DEPTH_BIT) &&
-                (pSubresource->aspectMask != VK_IMAGE_ASPECT_STENCIL_BIT)) {
-                std::stringstream ss;
-                ss << "vkGetImageSubresourceLayout: For depth/stencil formats, the aspectMask selects either the depth or stencil "
-                      "image aspectMask.";
-                skipCall |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
-                                    (uint64_t)image, __LINE__, VALIDATION_ERROR_00741, "IMAGE", "%s. %s", ss.str().c_str(),
-                                    validation_error_map[VALIDATION_ERROR_00741]);
-            }
-        }
-    }
-
-    if (!skipCall) {
-        device_data->device_dispatch_table->GetImageSubresourceLayout(device, image, pSubresource, pLayout);
-    }
-}
-
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties *pProperties) {
-    layer_data *phy_dev_data = get_my_data_ptr(get_dispatch_key(physicalDevice), layer_data_map);
+    layer_data *phy_dev_data = GetLayerDataPtr(get_dispatch_key(physicalDevice), layer_data_map);
     phy_dev_data->instance_dispatch_table->GetPhysicalDeviceProperties(physicalDevice, pProperties);
 }
 
@@ -651,7 +374,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     assert(physicalDevice);
 
     dispatch_key key = get_dispatch_key(physicalDevice);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     return pTable->EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
 }
@@ -665,7 +388,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 
     assert(device);
 
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(device), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
 
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     {
@@ -680,7 +403,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     if (proc) return proc;
 
     assert(instance);
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
 
     proc = debug_report_get_instance_proc_addr(my_data->report_data, funcName);
     if (proc) return proc;
@@ -693,7 +416,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *funcName) {
     assert(instance);
 
-    layer_data *my_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
 
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     if (pTable->GetPhysicalDeviceProcAddr == NULL) return NULL;
@@ -735,9 +458,6 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
         {"vkDestroyImage", reinterpret_cast<PFN_vkVoidFunction>(DestroyImage)},
         {"vkCmdCopyImageToBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyImageToBuffer)},
         {"vkCmdCopyBufferToImage", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyBufferToImage)},
-        {"vkCmdBlitImage", reinterpret_cast<PFN_vkVoidFunction>(CmdBlitImage)},
-        {"vkCmdResolveImage", reinterpret_cast<PFN_vkVoidFunction>(CmdResolveImage)},
-        {"vkGetImageSubresourceLayout", reinterpret_cast<PFN_vkVoidFunction>(GetImageSubresourceLayout)},
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(core_device_commands); i++) {
