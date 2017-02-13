@@ -13,7 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#pragma once
 #include "vktrace_lib_trim_statetracker.h"
 #include "vktrace_lib_trim.h"
 
@@ -265,8 +264,6 @@ void StateTracker::clear() {
         for (uint32_t i = 0; i < versions.size(); i++) {
             VkRenderPassCreateInfo *pCreateInfo = versions[i];
 
-            VkSubpassDescription *pSubPasses =
-                const_cast<VkSubpassDescription *>(pCreateInfo->pSubpasses);
             for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
                 if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0 && pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
                     VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pInputAttachments));
