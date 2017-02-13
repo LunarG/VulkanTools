@@ -36,6 +36,9 @@ void vktrace_gen_uuid(uint32_t* pUuid);
 
 uint64_t vktrace_get_time();
 
+void vktrace_initialize_trace_packet_utils();
+void vktrace_deinitialize_trace_packet_utils();
+
 //=============================================================================
 // trace file header
 
