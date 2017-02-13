@@ -86,6 +86,9 @@ bool is_hotkey_trim_triggered();
 // frames.
 void snapshot_state_tracker();
 
+void start();
+void stop();
+
 // Outputs object-related trace packets to the trace file.
 void write_all_referenced_object_calls();
 void add_recorded_packet(vktrace_trace_packet_header *pHeader);
