@@ -67,10 +67,10 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType);
 bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType);
 
 #ifdef PLATFORM_LINUX
-// on Linux paltform, xcb calls need Connection which is connected to target
+// on Linux platform, xcb calls need Connection which is connected to target
 // server, because hotkey process is supposed to insert into target application,
 // so we need to capture the connection that target app use. the function is
-// used to insert into Vulakn call to capture and save the connection.
+// used to insert into Vulkan call to capture and save the connection.
 void set_keyboard_connection(xcb_connection_t *pConnection);
 #endif
 
