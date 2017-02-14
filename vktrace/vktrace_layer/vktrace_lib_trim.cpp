@@ -1579,6 +1579,20 @@ ObjectInfo &add_Device_object(VkDevice var) {
 //=========================================================================
 void remove_Device_object(VkDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
+
+    std::vector<VkQueue> queuesToRemove;
+    for (TrimObjectInfoMap::iterator info = s_trimGlobalStateTracker.createdQueues.begin(); info != s_trimGlobalStateTracker.createdQueues.end(); ++info) {
+        if (info->second.belongsToDevice == var)
+        {
+            queuesToRemove.push_back(static_cast<VkQueue>(info->first));
+        }
+    }
+
+    for (int i = 0; i < queuesToRemove.size(); i++)
+    {
+        trim::remove_Queue_object(queuesToRemove[i]);
+    }
+
     s_trimGlobalStateTracker.remove_Device(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
 }
