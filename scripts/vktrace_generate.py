@@ -1134,6 +1134,16 @@ memoryTypeBits=%0x08X}",
             trim_instructions.append('        {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
+        elif 'DestroySurfaceKHR' is proto.name:
+            trim_instructions.append("        trim::remove_SurfaceKHR_object(surface);")
+            trim_instructions.append('        if (g_trimIsInTrim)')
+            trim_instructions.append('        {')
+            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('        }')
+            trim_instructions.append('        else')
+            trim_instructions.append('        {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
         elif 'DestroyRenderPass' is proto.name:
             trim_instructions.append("        trim::remove_RenderPass_object(renderPass);")
             trim_instructions.append('        if (g_trimIsInTrim)')
