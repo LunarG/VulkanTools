@@ -303,6 +303,7 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_platform.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_process.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_settings.c
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_tracelog.c
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_pageguard_memorycopy.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_factory.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_main.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_seq.cpp
@@ -323,7 +324,6 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
-LOCAL_SHARED_LIBRARIES += VkLayer_vktrace_layer
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DAPI_LOWERCASE=\"vulkan\" --include=$(SRC_DIR)/common/vulkan_wrapper.h -fexceptions
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1
