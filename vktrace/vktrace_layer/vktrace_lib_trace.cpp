@@ -1228,6 +1228,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(VkInstance instance,
                                                                       const VkAllocationCallbacks* pAllocator) {
+    if (g_trimEnabled && g_trimIsInTrim) {
+        trim::stop();
+    }
+
     vktrace_trace_packet_header* pHeader;
     packet_vkDestroyInstance* pPacket = NULL;
     dispatch_key key = get_dispatch_key(instance);
