@@ -1588,7 +1588,7 @@ void remove_Device_object(VkDevice var) {
         }
     }
 
-    for (int i = 0; i < queuesToRemove.size(); i++)
+    for (size_t i = 0; i < queuesToRemove.size(); i++)
     {
         trim::remove_Queue_object(queuesToRemove[i]);
     }
