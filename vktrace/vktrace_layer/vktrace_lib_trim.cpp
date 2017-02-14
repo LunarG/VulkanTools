@@ -171,10 +171,10 @@ char *get_hotkey_string() {
 static xcb_connection_t *keyboardConnection = nullptr;
 
 //=========================================================================
-// On Linux paltform, xcb calls need Connection which is connected to target
+// On Linux platform, xcb calls need Connection which is connected to target
 // server, because hotkey process is supposed to insert into target application,
 // so we need to capture the connection that target app use. the function is
-// used to insert into Vulakn call to capture and save the connection.
+// used to insert into Vulkan call to capture and save the connection.
 //=========================================================================
 void set_keyboard_connection(xcb_connection_t *pConnection) {
     keyboardConnection = pConnection;
@@ -376,11 +376,11 @@ void initialize() {
         getTraceTriggerOptionString(enum_trim_trigger::frameCounter);
     if (trimFrames != nullptr) {
         uint32_t numFrames = 0;
-        if (sscanf(trimFrames, "%llu,%lu", &g_trimStartFrame, &numFrames) ==
+        if (sscanf(trimFrames, "%" PRIu64 ",%" PRIu32, &g_trimStartFrame, &numFrames) ==
             2) {
             g_trimEndFrame = g_trimStartFrame + numFrames;
         } else {
-            int matches = sscanf(trimFrames, "%llu-%llu", &g_trimStartFrame,
+            int matches = sscanf(trimFrames, "%" PRIu64 "-%" PRIu64, &g_trimStartFrame,
                                  &g_trimEndFrame);
             assert(matches == 2);
         }
@@ -497,9 +497,7 @@ uint32_t FindMemoryTypeIndex(VkDevice device, uint32_t memoryTypeBits,
 
     ObjectInfo *pInfo = get_PhysicalDevice_objectInfo(physicalDevice);
     assert(pInfo != NULL);
-    for (uint32_t i = 0; i,
-                  pInfo->ObjectInfo.PhysicalDevice
-                             .physicalDeviceMemoryProperties.memoryTypeCount;
+    for (uint32_t i = 0; i < pInfo->ObjectInfo.PhysicalDevice.physicalDeviceMemoryProperties.memoryTypeCount;
          i++) {
         if ((memoryTypeBits & (1 << i)) &&
             ((pInfo->ObjectInfo.PhysicalDevice.physicalDeviceMemoryProperties
@@ -853,13 +851,6 @@ void snapshot_state_tracker() {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimStateTrackerSnapshot = s_trimGlobalStateTracker;
 
-    VkInstance instance = VK_NULL_HANDLE;
-    if (s_trimStateTrackerSnapshot.createdInstances.size() > 0) {
-        instance =
-            (VkInstance)s_trimStateTrackerSnapshot.createdInstances.begin()
-                ->first;
-    }
-
     // Copying all the buffers is a length process:
     // 1) Create a cmd pool and cmd buffer on each device; begin the command
     // buffer.
@@ -881,9 +872,6 @@ void snapshot_state_tracker() {
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end();
          deviceIter++) {
         VkDevice device = static_cast<VkDevice>(deviceIter->first);
-
-        // Find or create an existing command pool
-        VkCommandPool commandPool = getCommandPoolFromDevice(device);
 
         // Find or create an existing command buffer
         VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
@@ -1179,14 +1167,12 @@ void snapshot_state_tracker() {
         VkDeviceMemory memory = imageIter->second.ObjectInfo.Image.memory;
         VkDeviceSize offset = imageIter->second.ObjectInfo.Image.memoryOffset;
         VkDeviceSize size = imageIter->second.ObjectInfo.Image.memorySize;
-        VkMemoryMapFlags flags = 0;
 
         if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
             // Note that the staged memory object won't be in the state tracker,
             // so we want to swap out the buffer and memory
             // that will be mapped / unmapped.
             StagingInfo staged = s_imageToStagedInfoMap[image];
-            VkBuffer buffer = staged.buffer;
             memory = staged.memory;
             offset = 0;
 
@@ -1249,7 +1235,6 @@ void snapshot_state_tracker() {
         VkDeviceMemory memory = bufferIter->second.ObjectInfo.Buffer.memory;
         VkDeviceSize offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
         VkDeviceSize size = bufferIter->second.ObjectInfo.Buffer.size;
-        VkMemoryMapFlags flags = 0;
 
         void *mappedAddress = NULL;
         VkDeviceSize mappedOffset = 0;
@@ -2755,8 +2740,6 @@ void write_all_referenced_object_calls() {
                 uint32_t mipLevels = obj->second.ObjectInfo.Image.mipLevels;
                 uint32_t arrayLayers = obj->second.ObjectInfo.Image.arrayLayers;
                 VkFormat format = obj->second.ObjectInfo.Image.format;
-                VkSharingMode sharingMode =
-                    obj->second.ObjectInfo.Image.sharingMode;
                 uint32_t srcAccessMask =
                     (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED)
                         ? VK_ACCESS_HOST_WRITE_BIT
@@ -3690,7 +3673,6 @@ void write_destroy_packets() {
              s_trimGlobalStateTracker.createdQueues.begin();
          obj != s_trimGlobalStateTracker.createdQueues.end(); obj++) {
         VkQueue queue = static_cast<VkQueue>(obj->first);
-        VkDevice device = obj->second.belongsToDevice;
         vktrace_trace_packet_header *pHeader =
             generate::vkQueueWaitIdle(false, queue);
         vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());

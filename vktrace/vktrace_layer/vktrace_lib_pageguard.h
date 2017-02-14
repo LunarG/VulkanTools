@@ -1,5 +1,6 @@
 /*
 * Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
+* Copyright (C) 2015-2017 LunarG, Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,6 +73,10 @@
 // VKTRACE_PAGEGUARD_ENABLE_READ_PMB env var enables read PMB support. Only
 // supported on Windows. Not yet tested.
 #define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB"
+// PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV env var enables post process for read PMB support. Only
+// supported on Windows. page guard process miss following write access if read access happen on same page for some titles which
+// need read PMB support, the env var is used to enable post process to fix missed pmb writes.
+#define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS"
 
 // Usefull macro for handling fatal errors during tracing
 #define VKTRACE_FATAL_ERROR(_m) \
@@ -80,6 +85,11 @@
         exit(1); \
     } while (0)
 
+#if defined(PLATFORM_LINUX)
+// Page table entry dirty bit.
+// See https://www.kernel.org/doc/Documentation/vm/pagemap.txt
+#define PTE_DIRTY_BIT (1ULL << 55)
+#endif
 
 VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();

@@ -225,8 +225,7 @@ void getMappedDirtyPagesLinux(void)
     if (pmFd == -1)
     {
         pmFd = open("/proc/self/pagemap", O_RDONLY);
-        if (pmFd < 0)
-            VKTRACE_FATAL_ERROR("Failed to open pagemap file.");
+        if (pmFd < 0) VKTRACE_FATAL_ERROR("Failed to open pagemap file. Is your kernel configured with CONFIG_MEM_SOFT_DIRTY?");
 
         if (0 != pipe2(pipefd, O_NONBLOCK))
             VKTRACE_FATAL_ERROR("Failed to create pipe.");
@@ -274,8 +273,7 @@ void getMappedDirtyPagesLinux(void)
         addr = alignedAddrStart;
         for (uint64_t i=0; i<nPages; i++)
         {
-            if ((pageEntries[i]&((uint64_t)1<<55)) != 0)
-            {
+            if ((pageEntries[i] & PTE_DIRTY_BIT) != 0) {
                 index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
                 if (index >= 0) {
                     // If the page is not already marked changed, compute a
@@ -1342,7 +1340,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(
     }
     g_instanceDataMap.erase(key);
 #if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
-	vktrace_pageguard_done_multi_threads_memcpy();
+    vktrace_pageguard_done_multi_threads_memcpy();
 #endif
 }
 
@@ -2096,8 +2094,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(
                     // Update attachment objects based on RenderPass transitions
                     for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++)
                     {
-                        trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
-
                         // apply image transitions
                         std::list<trim::ImageTransition> imageTransitions = trim::GetImageTransitions(pSubmits[i].pCommandBuffers[c]);
                         for (std::list<trim::ImageTransition>::iterator transition = imageTransitions.begin(); transition != imageTransitions.end(); transition++)
@@ -2200,7 +2196,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(
 
     for (i = 0; i<bindInfoCount; ++i) {
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBindInfo[i].pBufferBinds), pPacket->pBindInfo[i].bufferBindCount * sizeof(VkSparseBufferMemoryBindInfo), pBindInfo[i].pBufferBinds);
-	for (uint32_t j = 0; j < pPacket->pBindInfo[i].bufferBindCount; j++) {
+        for (uint32_t j = 0; j < pPacket->pBindInfo[i].bufferBindCount; j++) {
             VkSparseBufferMemoryBindInfo *pSparseBufferMemoryBindInfo = (VkSparseBufferMemoryBindInfo *)&pPacket->pBindInfo[i].pBufferBinds[j];
             const VkSparseBufferMemoryBindInfo *pSparseBufMemBndInf = &pBindInfo[i].pBufferBinds[j];
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSparseBufferMemoryBindInfo->pBinds), pSparseBufferMemoryBindInfo->bindCount * sizeof(VkSparseMemoryBind), pSparseBufMemBndInf->pBinds);

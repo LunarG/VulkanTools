@@ -1238,8 +1238,17 @@ VkResult loader_get_icd_loader_instance_extensions(const struct loader_instance 
                                                    struct loader_extension_list *inst_exts) {
     struct loader_extension_list icd_exts;
     VkResult res = VK_SUCCESS;
+    char *env_value;
+    bool filter_extensions = true;
 
     loader_log(inst, VK_DEBUG_REPORT_DEBUG_BIT_EXT, 0, "Build ICD instance extension list");
+
+    // Check if a user wants to disable the instance extension filtering behavior
+    env_value = loader_getenv("VK_LOADER_DISABLE_INST_EXT_FILTER", inst);
+    if (NULL != env_value && atoi(env_value) != 0) {
+        filter_extensions = false;
+    }
+    loader_free_getenv(env_value, inst);
 
     // traverse scanned icd list adding non-duplicate extensions to the list
     for (uint32_t i = 0; i < icd_tramp_list->count; i++) {
@@ -1250,24 +1259,26 @@ VkResult loader_get_icd_loader_instance_extensions(const struct loader_instance 
         res = loader_add_instance_extensions(inst, icd_tramp_list->scanned_list[i].EnumerateInstanceExtensionProperties,
                                              icd_tramp_list->scanned_list[i].lib_name, &icd_exts);
         if (VK_SUCCESS == res) {
-            // Remove any extensions not recognized by the loader
-            for (int32_t j = 0; j < (int32_t)icd_exts.count; j++) {
-                // See if the extension is in the list of supported extensions
-                bool found = false;
-                for (uint32_t k = 0; LOADER_INSTANCE_EXTENSIONS[k] != NULL; k++) {
-                    if (strcmp(icd_exts.list[j].extensionName, LOADER_INSTANCE_EXTENSIONS[k]) == 0) {
-                        found = true;
-                        break;
+            if (filter_extensions) {
+                // Remove any extensions not recognized by the loader
+                for (int32_t j = 0; j < (int32_t)icd_exts.count; j++) {
+                    // See if the extension is in the list of supported extensions
+                    bool found = false;
+                    for (uint32_t k = 0; LOADER_INSTANCE_EXTENSIONS[k] != NULL; k++) {
+                        if (strcmp(icd_exts.list[j].extensionName, LOADER_INSTANCE_EXTENSIONS[k]) == 0) {
+                            found = true;
+                            break;
+                        }
                     }
-                }
 
-                // If it isn't in the list, remove it
-                if (!found) {
-                    for (uint32_t k = j + 1; k < icd_exts.count; k++) {
-                        icd_exts.list[k - 1] = icd_exts.list[k];
+                    // If it isn't in the list, remove it
+                    if (!found) {
+                        for (uint32_t k = j + 1; k < icd_exts.count; k++) {
+                            icd_exts.list[k - 1] = icd_exts.list[k];
+                        }
+                        --icd_exts.count;
+                        --j;
                     }
-                    --icd_exts.count;
-                    --j;
                 }
             }
 
@@ -2673,19 +2684,26 @@ static VkResult loader_get_manifest_files(const struct loader_instance *inst, co
         char *loc_write = loc;
 #if !defined(_WIN32)
         const char *loc_read;
+        size_t start, stop;
 
         loc_read = &xdgconfdirs[0];
-        for (const char *x = loc_read;; ++x) {
-            if (*x == PATH_SEPARATOR || *x == '\0') {
-                const size_t s = x - loc_read;
-                memcpy(loc_write, loc_read, s);
+        start = 0;
+        while (loc_read[start] != '\0') {
+            while (loc_read[start] == PATH_SEPARATOR) {
+                start++;
+            }
+            stop = start;
+            while (loc_read[stop] != PATH_SEPARATOR && loc_read[stop] != '\0') {
+                stop++;
+            }
+            const size_t s = stop - start;
+            if (s) {
+                memcpy(loc_write, &loc_read[start], s);
                 loc_write += s;
                 memcpy(loc_write, relative_location, rel_size);
                 loc_write += rel_size;
                 *loc_write++ = PATH_SEPARATOR;
-                if (*x == 0)
-                    break;
-                loc_read = ++x;
+                start = stop;
             }
         }
 
@@ -2704,19 +2722,26 @@ static VkResult loader_get_manifest_files(const struct loader_instance *inst, co
 #endif
 
         loc_read = &xdgdatadirs[0];
-        for (const char *x = loc_read;; ++x) {
-            if (*x == PATH_SEPARATOR || *x == '\0') {
-                const size_t s = x - loc_read;
-                memcpy(loc_write, loc_read, s);
+        start = 0;
+        while (loc_read[start] != '\0') {
+            while (loc_read[start] == PATH_SEPARATOR) {
+                start++;
+            }
+            stop = start;
+            while (loc_read[stop] != PATH_SEPARATOR && loc_read[stop] != '\0') {
+                stop++;
+            }
+            const size_t s = stop - start;
+            if (s) {
+                memcpy(loc_write, &loc_read[start], s);
                 loc_write += s;
                 memcpy(loc_write, relative_location, rel_size);
                 loc_write += rel_size;
                 *loc_write++ = PATH_SEPARATOR;
-                if (*x == 0)
-                    break;
-                loc_read = ++x;
+                start = stop;
             }
         }
+
         --loc_write;
 #else
         memcpy(loc_write, location, strlen(location));

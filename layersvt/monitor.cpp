@@ -67,7 +67,7 @@ struct layer_data {
 static std::unordered_map<void *, layer_data *> layer_data_map;
 
 template layer_data *
-get_my_data_ptr<layer_data>(void *data_key,
+GetLayerDataPtr<layer_data>(void *data_key,
                             std::unordered_map<void *, layer_data *> &data_map);
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
@@ -96,7 +96,7 @@ vkCreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
     }
 
     layer_data *my_device_data =
-        get_my_data_ptr(get_dispatch_key(*pDevice), layer_data_map);
+        GetLayerDataPtr(get_dispatch_key(*pDevice), layer_data_map);
 
     // Setup device dispatch table
     my_device_data->device_dispatch_table = new VkLayerDispatchTable;
@@ -130,7 +130,7 @@ vkCreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL
 vkDestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     pTable->DeviceWaitIdle(device);
     pTable->DestroyDevice(device, pAllocator);
@@ -161,7 +161,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(
         return result;
 
     layer_data *my_data =
-        get_my_data_ptr(get_dispatch_key(*pInstance), layer_data_map);
+        GetLayerDataPtr(get_dispatch_key(*pInstance), layer_data_map);
     my_data->instance_dispatch_table = new VkLayerInstanceDispatchTable;
     layer_init_instance_dispatch_table(
         *pInstance, my_data->instance_dispatch_table, fpGetInstanceProcAddr);
@@ -172,7 +172,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(
 VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
     VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(instance);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     pTable->DestroyInstance(instance, pAllocator);
     delete pTable;
@@ -182,7 +182,7 @@ VK_LAYER_EXPORT VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     layer_data *my_data =
-        get_my_data_ptr(get_dispatch_key(queue), layer_data_map);
+        GetLayerDataPtr(get_dispatch_key(queue), layer_data_map);
 
     time_t now;
     time(&now);
@@ -192,7 +192,7 @@ vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
         char str[TITLE_LENGTH + FPS_LENGTH];
         char fpsstr[FPS_LENGTH];
         layer_data *my_instance_data =
-            get_my_data_ptr(get_dispatch_key(my_data->gpu), layer_data_map);
+            GetLayerDataPtr(get_dispatch_key(my_data->gpu), layer_data_map);
         my_data->fps = (my_data->frame - my_data->lastFrame) / seconds;
         my_data->lastFrame = my_data->frame;
         my_data->lastTime = now;
@@ -222,7 +222,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(
     VkInstance instance, const VkWin32SurfaceCreateInfoKHR *pCreateInfo,
     const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
     layer_data *my_data =
-        get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+        GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     my_data->hwnd = pCreateInfo->hwnd;
     GetWindowText(my_data->hwnd, my_data->base_title, TITLE_LENGTH);
 
@@ -240,7 +240,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(
     xcb_atom_t type = XCB_ATOM_STRING;
 
     layer_data *my_data =
-        get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+        GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     my_data->xcb_window = pCreateInfo->window;
     my_data->connection = pCreateInfo->connection;
     cookie = xcb_get_property(my_data->connection, 0, my_data->xcb_window,
@@ -279,7 +279,7 @@ vkGetDeviceProcAddr(VkDevice dev, const char *funcName) {
         return NULL;
 
     layer_data *dev_data;
-    dev_data = get_my_data_ptr(get_dispatch_key(dev), layer_data_map);
+    dev_data = GetLayerDataPtr(get_dispatch_key(dev), layer_data_map);
     VkLayerDispatchTable *pTable = dev_data->device_dispatch_table;
 
     if (pTable->GetDeviceProcAddr == NULL)
@@ -308,7 +308,7 @@ vkGetInstanceProcAddr(VkInstance instance, const char *funcName) {
         return NULL;
 
     layer_data *instance_data;
-    instance_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    instance_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     VkLayerInstanceDispatchTable *pTable =
         instance_data->instance_dispatch_table;
 
