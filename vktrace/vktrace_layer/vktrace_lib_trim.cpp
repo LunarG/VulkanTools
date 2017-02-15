@@ -201,6 +201,15 @@ char *get_hotkey_string() {
 }
 
 #if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+
+// TODO
+enum_key_state key_state_platform_specific(char *pHotkeyString) {
+    enum_key_state KeyState = enum_key_state::Released;
+    return KeyState;
+}
+
+#else
 
 static xcb_connection_t *keyboardConnection = nullptr;
 
@@ -283,7 +292,7 @@ enum_key_state key_state_platform_specific(char *pHotkeyString) {
     }
     return KeyState;
 }
-
+#endif // ANDROID
 #elif defined(WIN32)
 
 //=========================================================================
