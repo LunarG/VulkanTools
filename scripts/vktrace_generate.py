@@ -550,6 +550,7 @@ memoryTypeBits=%0x08X}",
             trim_instructions.append("        trim::ObjectInfo &info = trim::add_Queue_object(*pQueue);")
             trim_instructions.append("        info.belongsToDevice = device;")
             trim_instructions.append("        info.ObjectInfo.Queue.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        trim::set_DeviceQueue(device, queueFamilyIndex, queueIndex, *pQueue);")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
             trim_instructions.append('            trim::add_recorded_packet(pHeader);')
