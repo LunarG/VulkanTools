@@ -100,6 +100,7 @@ void stop();
 // Outputs object-related trace packets to the trace file.
 void write_all_referenced_object_calls();
 void add_recorded_packet(vktrace_trace_packet_header *pHeader);
+void add_destroy_device_object_packets(VkDevice device);
 void write_recorded_packets();
 void write_destroy_packets();
 void delete_all_packets();
@@ -149,6 +150,9 @@ ObjectInfo *get_Instance_objectInfo(VkInstance var);
 
 ObjectInfo &add_PhysicalDevice_object(VkPhysicalDevice var);
 ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var);
+
+void set_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue queue);
+VkQueue get_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex);
 
 ObjectInfo &add_Device_object(VkDevice var);
 ObjectInfo *get_Device_objectInfo(VkDevice var);

@@ -587,7 +587,7 @@ StagingInfo createStagingBuffer(VkDevice device, VkCommandPool commandPool, VkCo
 
     stagingInfo.commandPool = commandPool;
     stagingInfo.commandBuffer = commandBuffer;
-    mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &stagingInfo.queue);
+    stagingInfo.queue = trim::get_DeviceQueue(device, 0, 0);
 
     stagingInfo.bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     stagingInfo.bufferCreateInfo.pNext = NULL;
@@ -1048,9 +1048,11 @@ void snapshot_state_tracker() {
 
         // Submit the queue and wait for it to complete
         VkQueue queue = VK_NULL_HANDLE;
-        mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
-        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        VkResult U_ASSERT_ONLY waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+        queue = trim::get_DeviceQueue(device, 0, 0);
+
+        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo,
+                                          VK_NULL_HANDLE);
+        VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
         assert(waitResult == VK_SUCCESS);
     }
 
@@ -1258,7 +1260,7 @@ void snapshot_state_tracker() {
         submitInfo.pSignalSemaphores = NULL;
 
         VkQueue queue = VK_NULL_HANDLE;
-        mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
+        queue = trim::get_DeviceQueue(device, 0, 0);
 
         mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
         VkResult U_ASSERT_ONLY waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
@@ -1371,6 +1373,20 @@ ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var) {
 }
 
 //=========================================================================
+std::map<VkDevice, VkQueue> deviceQueueMap;
+
+//=========================================================================
+void set_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue queue) {
+    deviceQueueMap[device] = queue;
+}
+
+//=========================================================================
+VkQueue get_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex) {
+    std::map<VkDevice, VkQueue>::iterator queueIter = deviceQueueMap.find(device);
+    return (queueIter == deviceQueueMap.end()) ? VK_NULL_HANDLE : queueIter->second;
+}
+
+//=========================================================================
 ObjectInfo &add_Device_object(VkDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     ObjectInfo &info = s_trimGlobalStateTracker.add_Device(var);
@@ -1392,6 +1408,8 @@ void remove_Device_object(VkDevice var) {
     for (size_t i = 0; i < queuesToRemove.size(); i++) {
         trim::remove_Queue_object(queuesToRemove[i]);
     }
+
+    add_destroy_device_object_packets(var);
 
     s_trimGlobalStateTracker.remove_Device(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2455,8 +2473,11 @@ void write_all_referenced_object_calls() {
                 // single image transition.
 
                 // This means:
-                // 0) Need a VkCommandPool
-                VkCommandPool tmpCommandPool;
+                // 0) Need a VkCommandPool. Arbitrarily name it something 
+                // so that it has a unique handle which will be replaced
+                // at replay time.
+                uint64_t cmdPoolUint = 0xAAAAAAAA;
+                VkCommandPool tmpCommandPool = (VkCommandPool)cmdPoolUint;
                 const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
                     VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, NULL,
                     VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
@@ -2466,17 +2487,26 @@ void write_all_referenced_object_calls() {
                 // commandPool and CommandBuffer object to use in the generated
                 // call
                 vktrace_trace_packet_header *pCreateCommandPoolPacket =
-                    generate::vkCreateCommandPool(true, device, &cmdPoolCreateInfo, NULL, &tmpCommandPool);
-                vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
+                    generate::vkCreateCommandPool(false, device,
+                                                  &cmdPoolCreateInfo, NULL,
+                                                  &tmpCommandPool);
+                vktrace_write_trace_packet(pCreateCommandPoolPacket,
+                                           vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
 
-                // 1) Create & begin a command buffer
-                VkCommandBuffer tmpCommandBuffer;
-                const VkCommandBufferAllocateInfo cmdBufferAllocInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
-                                                                        tmpCommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
+                // 1) Create & begin a command buffer. Arbitrarily name it something
+                // so that it has a unique handle which will be replaced
+                // at replay time.
+                uint64_t cmdBufferUint = 0xBBBBBBBB;
+                VkCommandBuffer tmpCommandBuffer = (VkCommandBuffer)cmdBufferUint;
+                const VkCommandBufferAllocateInfo cmdBufferAllocInfo = {
+                    VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
+                    tmpCommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
                 vktrace_trace_packet_header *pAllocateCommandBufferPacket =
-                    generate::vkAllocateCommandBuffers(true, device, &cmdBufferAllocInfo, &tmpCommandBuffer);
-                vktrace_write_trace_packet(pAllocateCommandBufferPacket, vktrace_trace_get_trace_file());
+                    generate::vkAllocateCommandBuffers(
+                        false, device, &cmdBufferAllocInfo, &tmpCommandBuffer);
+                vktrace_write_trace_packet(pAllocateCommandBufferPacket,
+                                           vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pAllocateCommandBufferPacket);
 
                 VkCommandBufferBeginInfo cmdBufferBeginInfo = {
@@ -2536,11 +2566,11 @@ void write_all_referenced_object_calls() {
                 vktrace_write_trace_packet(pEndCommandBufferPacket, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pEndCommandBufferPacket);
 
-                VkQueue trimQueue;
+                VkQueue trimQueue = VK_NULL_HANDLE;
                 uint32_t queueIndex = 0;  // just using the first queue
                                           // available, we don't yet verify if
                                           // this even exists, just assuming.
-                mdd(device)->devTable.GetDeviceQueue(device, queueFamilyIndex, queueIndex, &trimQueue);
+                trimQueue = trim::get_DeviceQueue(device, queueFamilyIndex, queueIndex);
 
                 // 5) vkQueueSubmit()
                 VkSubmitInfo submitInfo = {VK_STRUCTURE_TYPE_SUBMIT_INFO, NULL, 0, NULL, NULL, 1, &tmpCommandBuffer, 0, NULL};
@@ -2557,14 +2587,19 @@ void write_all_referenced_object_calls() {
 
                 // 6) vkResetCommandPool() or vkFreeCommandBuffers()
                 vktrace_trace_packet_header *pResetCommandPoolPacket =
-                    generate::vkResetCommandPool(true, device, tmpCommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
-                vktrace_write_trace_packet(pResetCommandPoolPacket, vktrace_trace_get_trace_file());
+                    generate::vkResetCommandPool(
+                        false, device, tmpCommandPool,
+                        VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+                vktrace_write_trace_packet(pResetCommandPoolPacket,
+                                           vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pResetCommandPoolPacket);
 
                 // 7) vkDestroyCommandPool()
                 vktrace_trace_packet_header *pDestroyCommandPoolPacket =
-                    generate::vkDestroyCommandPool(true, device, tmpCommandPool, NULL);
-                vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
+                    generate::vkDestroyCommandPool(false, device, tmpCommandPool,
+                                                   NULL);
+                vktrace_write_trace_packet(pDestroyCommandPoolPacket,
+                                           vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
             }
         }
@@ -2978,7 +3013,7 @@ void write_all_referenced_object_calls() {
             vktrace_delete_trace_packet(&pEndCB);
 
             VkQueue queue = VK_NULL_HANDLE;
-            mdd(device)->devTable.GetDeviceQueue(device, 0, 0, &queue);
+            queue = trim::get_DeviceQueue(device, 0, 0);
 
             VkSubmitInfo submitInfo = {};
             submitInfo.commandBufferCount = 1;
@@ -3118,6 +3153,302 @@ void write_recorded_packets() {
     vktrace_leave_critical_section(&trimRecordedPacketLock);
 }
 
+//=============================================================================
+// Generate packets to destroy all objects on the specified device and add them to the recorded packets list.
+// Ideally, the app would have destroyed all the objects before destroying the device, so this shouldn't 
+// necessarily add many packets to the list of recorded packets (except for ShaderModules, which we
+// specifically skip their destruction).
+//=============================================================================
+void add_destroy_device_object_packets(VkDevice device) {
+
+    // QueryPool
+    for (auto obj = s_trimGlobalStateTracker.createdQueryPools.begin(); obj != s_trimGlobalStateTracker.createdQueryPools.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            VkQueryPool queryPool = obj->first;
+            VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.QueryPool.pAllocator);
+
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyQueryPool(false, obj->second.belongsToDevice, queryPool, pAllocator);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Event
+    for (auto obj = s_trimGlobalStateTracker.createdEvents.begin(); obj != s_trimGlobalStateTracker.createdEvents.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            VkEvent event = obj->first;
+            VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Event.pAllocator);
+
+            vktrace_trace_packet_header *pHeader = generate::vkDestroyEvent(false, obj->second.belongsToDevice, event, pAllocator);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Fence
+    for (auto obj = s_trimGlobalStateTracker.createdFences.begin(); obj != s_trimGlobalStateTracker.createdFences.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            VkFence fence = obj->first;
+            VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
+
+            vktrace_trace_packet_header *pHeader = generate::vkDestroyFence(false, obj->second.belongsToDevice, fence, pAllocator);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Semaphore
+    for (auto obj = s_trimGlobalStateTracker.createdSemaphores.begin(); obj != s_trimGlobalStateTracker.createdSemaphores.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            VkSemaphore semaphore = obj->first;
+            VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Semaphore.pAllocator);
+
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroySemaphore(false, obj->second.belongsToDevice, semaphore, pAllocator);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Framebuffer
+    for (auto obj = s_trimGlobalStateTracker.createdFramebuffers.begin(); obj != s_trimGlobalStateTracker.createdFramebuffers.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            VkFramebuffer framebuffer = obj->first;
+            VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Framebuffer.pAllocator);
+
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyFramebuffer(false, obj->second.belongsToDevice, framebuffer, pAllocator);
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // DescriptorPool
+    for (auto obj = s_trimGlobalStateTracker.createdDescriptorPools.begin();
+    obj != s_trimGlobalStateTracker.createdDescriptorPools.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            // Free the associated DescriptorSets
+            VkDescriptorPool descriptorPool = obj->first;
+
+            // We can always call ResetDescriptorPool, but can only use
+            // FreeDescriptorSets if the pool was created with
+            // VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.
+            {
+                vktrace_trace_packet_header *pHeader =
+                    generate::vkResetDescriptorPool(false, obj->second.belongsToDevice, descriptorPool, 0);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+            }
+
+            // Now destroy the DescriptorPool
+            {
+                vktrace_trace_packet_header *pHeader =
+                    generate::vkDestroyDescriptorPool(false, obj->second.belongsToDevice, descriptorPool,
+                        get_Allocator(obj->second.ObjectInfo.DescriptorPool.pAllocator));
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+            }
+        }
+    }
+
+    // Pipeline
+    for (auto obj = s_trimGlobalStateTracker.createdPipelines.begin(); obj != s_trimGlobalStateTracker.createdPipelines.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader = generate::vkDestroyPipeline(
+                false, obj->second.belongsToDevice, (VkPipeline)obj->first, get_Allocator(obj->second.ObjectInfo.Pipeline.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // PipelineCache
+    for (auto obj = s_trimGlobalStateTracker.createdPipelineCaches.begin();
+    obj != s_trimGlobalStateTracker.createdPipelineCaches.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyPipelineCache(false, obj->second.belongsToDevice, (VkPipelineCache)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.PipelineCache.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // ShaderModule
+    for (auto obj = s_trimGlobalStateTracker.createdShaderModules.begin();
+         obj != s_trimGlobalStateTracker.createdShaderModules.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyShaderModule(false, obj->second.belongsToDevice, (VkShaderModule)obj->first,
+                                                get_Allocator(obj->second.ObjectInfo.ShaderModule.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // RenderPass
+    for (auto obj = s_trimGlobalStateTracker.createdRenderPasss.begin(); obj != s_trimGlobalStateTracker.createdRenderPasss.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyRenderPass(false, obj->second.belongsToDevice, (VkRenderPass)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.RenderPass.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // PipelineLayout
+    for (auto obj = s_trimGlobalStateTracker.createdPipelineLayouts.begin();
+    obj != s_trimGlobalStateTracker.createdPipelineLayouts.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyPipelineLayout(false, obj->second.belongsToDevice, (VkPipelineLayout)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.PipelineLayout.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // DescriptorSetLayout
+    for (auto obj = s_trimGlobalStateTracker.createdDescriptorSetLayouts.begin();
+    obj != s_trimGlobalStateTracker.createdDescriptorSetLayouts.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyDescriptorSetLayout(false, obj->second.belongsToDevice, (VkDescriptorSetLayout)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.DescriptorSetLayout.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Sampler
+    for (auto obj = s_trimGlobalStateTracker.createdSamplers.begin(); obj != s_trimGlobalStateTracker.createdSamplers.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader = generate::vkDestroySampler(false, obj->second.belongsToDevice, (VkSampler)obj->first,
+                get_Allocator(obj->second.ObjectInfo.Sampler.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Buffer
+    for (auto obj = s_trimGlobalStateTracker.createdBuffers.begin(); obj != s_trimGlobalStateTracker.createdBuffers.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader = generate::vkDestroyBuffer(false, obj->second.belongsToDevice, (VkBuffer)obj->first,
+                get_Allocator(obj->second.ObjectInfo.Buffer.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // BufferView
+    for (auto obj = s_trimGlobalStateTracker.createdBufferViews.begin(); obj != s_trimGlobalStateTracker.createdBufferViews.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyBufferView(false, obj->second.belongsToDevice, (VkBufferView)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.BufferView.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // Image
+    for (auto obj = s_trimGlobalStateTracker.createdImages.begin(); obj != s_trimGlobalStateTracker.createdImages.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false) {
+                vktrace_trace_packet_header *pHeader = generate::vkDestroyImage(false, obj->second.belongsToDevice, (VkImage)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.Image.pAllocator));
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+            }
+        }
+    }
+
+    // ImageView
+    for (auto obj = s_trimGlobalStateTracker.createdImageViews.begin(); obj != s_trimGlobalStateTracker.createdImageViews.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyImageView(false, obj->second.belongsToDevice, (VkImageView)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.ImageView.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // DeviceMemory
+    for (auto obj = s_trimGlobalStateTracker.createdDeviceMemorys.begin();
+    obj != s_trimGlobalStateTracker.createdDeviceMemorys.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkFreeMemory(false, obj->second.belongsToDevice, (VkDeviceMemory)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.DeviceMemory.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // SwapchainKHR
+    for (auto obj = s_trimGlobalStateTracker.createdSwapchainKHRs.begin();
+    obj != s_trimGlobalStateTracker.createdSwapchainKHRs.end(); obj++) {
+        if (obj->second.belongsToDevice == device) {
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroySwapchainKHR(false, obj->second.belongsToDevice, (VkSwapchainKHR)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.SwapchainKHR.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    // CommandPool
+    for (auto obj = s_trimGlobalStateTracker.createdCommandPools.begin(); obj != s_trimGlobalStateTracker.createdCommandPools.end();
+    obj++) {
+        if (obj->second.belongsToDevice == device) {
+            // free the command buffers
+            for (uint32_t level = VK_COMMAND_BUFFER_LEVEL_BEGIN_RANGE; level < VK_COMMAND_BUFFER_LEVEL_END_RANGE; level++) {
+                uint32_t commandBufferCount = obj->second.ObjectInfo.CommandPool.numCommandBuffersAllocated[level];
+                if (commandBufferCount > 0) {
+                    uint64_t vktrace_begin_time = vktrace_get_time();
+
+                    VkCommandBuffer *pCommandBuffers = new VkCommandBuffer[commandBufferCount];
+                    uint32_t index = 0;
+                    for (auto cbIter = s_trimGlobalStateTracker.createdCommandBuffers.begin();
+                    cbIter != s_trimGlobalStateTracker.createdCommandBuffers.end(); cbIter++) {
+                        if (cbIter->second.ObjectInfo.CommandBuffer.commandPool == (VkCommandPool)obj->first &&
+                            cbIter->second.ObjectInfo.CommandBuffer.level == level) {
+                            pCommandBuffers[index] = (VkCommandBuffer)cbIter->first;
+                            index++;
+                        }
+                    }
+
+                    vktrace_trace_packet_header *pHeader = generate::vkFreeCommandBuffers(
+                        false, obj->second.belongsToDevice, (VkCommandPool)obj->first, commandBufferCount, pCommandBuffers);
+                    pHeader->vktrace_begin_time = vktrace_begin_time;
+                    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pHeader);
+
+                    delete[] pCommandBuffers;
+                }
+            }
+
+            // Destroy the CommandPool
+            vktrace_trace_packet_header *pHeader =
+                generate::vkDestroyCommandPool(false, obj->second.belongsToDevice, (VkCommandPool)obj->first,
+                    get_Allocator(obj->second.ObjectInfo.CommandPool.pAllocator));
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+//=============================================================================
+
 //===============================================
 // Write packets to destroy all created created objects.
 // Remember that we want to destroy them roughly in the opposite
@@ -3134,256 +3465,15 @@ void write_destroy_packets() {
         vktrace_delete_trace_packet(&pHeader);
     }
 
-    // QueryPool
-    for (auto obj = s_trimGlobalStateTracker.createdQueryPools.begin(); obj != s_trimGlobalStateTracker.createdQueryPools.end();
-         obj++) {
-        VkQueryPool queryPool = obj->first;
-        VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.QueryPool.pAllocator);
-
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyQueryPool(false, obj->second.belongsToDevice, queryPool, pAllocator);
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Event
-    for (auto obj = s_trimGlobalStateTracker.createdEvents.begin(); obj != s_trimGlobalStateTracker.createdEvents.end(); obj++) {
-        VkEvent event = obj->first;
-        VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Event.pAllocator);
-
-        vktrace_trace_packet_header *pHeader = generate::vkDestroyEvent(false, obj->second.belongsToDevice, event, pAllocator);
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Fence
-    for (auto obj = s_trimGlobalStateTracker.createdFences.begin(); obj != s_trimGlobalStateTracker.createdFences.end(); obj++) {
-        VkFence fence = obj->first;
-        VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
-
-        vktrace_trace_packet_header *pHeader = generate::vkDestroyFence(false, obj->second.belongsToDevice, fence, pAllocator);
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Semaphore
-    for (auto obj = s_trimGlobalStateTracker.createdSemaphores.begin(); obj != s_trimGlobalStateTracker.createdSemaphores.end();
-         obj++) {
-        VkSemaphore semaphore = obj->first;
-        VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Semaphore.pAllocator);
-
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroySemaphore(false, obj->second.belongsToDevice, semaphore, pAllocator);
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Framebuffer
-    for (auto obj = s_trimGlobalStateTracker.createdFramebuffers.begin(); obj != s_trimGlobalStateTracker.createdFramebuffers.end();
-         obj++) {
-        VkFramebuffer framebuffer = obj->first;
-        VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Framebuffer.pAllocator);
-
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyFramebuffer(false, obj->second.belongsToDevice, framebuffer, pAllocator);
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // DescriptorPool
-    for (auto obj = s_trimGlobalStateTracker.createdDescriptorPools.begin();
-         obj != s_trimGlobalStateTracker.createdDescriptorPools.end(); obj++) {
-        // Free the associated DescriptorSets
-        VkDescriptorPool descriptorPool = obj->first;
-
-        // We can always call ResetDescriptorPool, but can only use
-        // FreeDescriptorSets if the pool was created with
-        // VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.
-        {
-            vktrace_trace_packet_header *pHeader =
-                generate::vkResetDescriptorPool(false, obj->second.belongsToDevice, descriptorPool, 0);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-        }
-
-        // Now destroy the DescriptorPool
-        {
-            vktrace_trace_packet_header *pHeader =
-                generate::vkDestroyDescriptorPool(false, obj->second.belongsToDevice, descriptorPool,
-                                                  get_Allocator(obj->second.ObjectInfo.DescriptorPool.pAllocator));
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-        }
-    }
-
-    // Pipeline
-    for (auto obj = s_trimGlobalStateTracker.createdPipelines.begin(); obj != s_trimGlobalStateTracker.createdPipelines.end();
-         obj++) {
-        vktrace_trace_packet_header *pHeader = generate::vkDestroyPipeline(
-            false, obj->second.belongsToDevice, (VkPipeline)obj->first, get_Allocator(obj->second.ObjectInfo.Pipeline.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // PipelineCache
-    for (auto obj = s_trimGlobalStateTracker.createdPipelineCaches.begin();
-         obj != s_trimGlobalStateTracker.createdPipelineCaches.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyPipelineCache(false, obj->second.belongsToDevice, (VkPipelineCache)obj->first,
-                                             get_Allocator(obj->second.ObjectInfo.PipelineCache.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // ShaderModule
-    for (auto obj = s_trimGlobalStateTracker.createdShaderModules.begin();
-         obj != s_trimGlobalStateTracker.createdShaderModules.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyShaderModule(false, obj->second.belongsToDevice, (VkShaderModule)obj->first,
-                                            get_Allocator(obj->second.ObjectInfo.ShaderModule.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // RenderPass
-    for (auto obj = s_trimGlobalStateTracker.createdRenderPasss.begin(); obj != s_trimGlobalStateTracker.createdRenderPasss.end();
-         obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyRenderPass(false, obj->second.belongsToDevice, (VkRenderPass)obj->first,
-                                          get_Allocator(obj->second.ObjectInfo.RenderPass.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // PipelineLayout
-    for (auto obj = s_trimGlobalStateTracker.createdPipelineLayouts.begin();
-         obj != s_trimGlobalStateTracker.createdPipelineLayouts.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyPipelineLayout(false, obj->second.belongsToDevice, (VkPipelineLayout)obj->first,
-                                              get_Allocator(obj->second.ObjectInfo.PipelineLayout.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // DescriptorSetLayout
-    for (auto obj = s_trimGlobalStateTracker.createdDescriptorSetLayouts.begin();
-         obj != s_trimGlobalStateTracker.createdDescriptorSetLayouts.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyDescriptorSetLayout(false, obj->second.belongsToDevice, (VkDescriptorSetLayout)obj->first,
-                                                   get_Allocator(obj->second.ObjectInfo.DescriptorSetLayout.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Sampler
-    for (auto obj = s_trimGlobalStateTracker.createdSamplers.begin(); obj != s_trimGlobalStateTracker.createdSamplers.end();
-         obj++) {
-        vktrace_trace_packet_header *pHeader = generate::vkDestroySampler(false, obj->second.belongsToDevice, (VkSampler)obj->first,
-                                                                          get_Allocator(obj->second.ObjectInfo.Sampler.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Buffer
-    for (auto obj = s_trimGlobalStateTracker.createdBuffers.begin(); obj != s_trimGlobalStateTracker.createdBuffers.end(); obj++) {
-        vktrace_trace_packet_header *pHeader = generate::vkDestroyBuffer(false, obj->second.belongsToDevice, (VkBuffer)obj->first,
-                                                                         get_Allocator(obj->second.ObjectInfo.Buffer.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // BufferView
-    for (auto obj = s_trimGlobalStateTracker.createdBufferViews.begin(); obj != s_trimGlobalStateTracker.createdBufferViews.end();
-         obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyBufferView(false, obj->second.belongsToDevice, (VkBufferView)obj->first,
-                                          get_Allocator(obj->second.ObjectInfo.BufferView.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // Image
-    for (auto obj = s_trimGlobalStateTracker.createdImages.begin(); obj != s_trimGlobalStateTracker.createdImages.end(); obj++) {
-        if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false) {
-            vktrace_trace_packet_header *pHeader = generate::vkDestroyImage(false, obj->second.belongsToDevice, (VkImage)obj->first,
-                                                                            get_Allocator(obj->second.ObjectInfo.Image.pAllocator));
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-        }
-    }
-
-    // ImageView
-    for (auto obj = s_trimGlobalStateTracker.createdImageViews.begin(); obj != s_trimGlobalStateTracker.createdImageViews.end();
-         obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyImageView(false, obj->second.belongsToDevice, (VkImageView)obj->first,
-                                         get_Allocator(obj->second.ObjectInfo.ImageView.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // DeviceMemory
-    for (auto obj = s_trimGlobalStateTracker.createdDeviceMemorys.begin();
-         obj != s_trimGlobalStateTracker.createdDeviceMemorys.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkFreeMemory(false, obj->second.belongsToDevice, (VkDeviceMemory)obj->first,
-                                   get_Allocator(obj->second.ObjectInfo.DeviceMemory.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // SwapchainKHR
-    for (auto obj = s_trimGlobalStateTracker.createdSwapchainKHRs.begin();
-         obj != s_trimGlobalStateTracker.createdSwapchainKHRs.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroySwapchainKHR(false, obj->second.belongsToDevice, (VkSwapchainKHR)obj->first,
-                                            get_Allocator(obj->second.ObjectInfo.SwapchainKHR.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
-    // CommandPool
-    for (auto obj = s_trimGlobalStateTracker.createdCommandPools.begin(); obj != s_trimGlobalStateTracker.createdCommandPools.end();
-         obj++) {
-        // free the command buffers
-        for (uint32_t level = VK_COMMAND_BUFFER_LEVEL_BEGIN_RANGE; level < VK_COMMAND_BUFFER_LEVEL_END_RANGE; level++) {
-            uint32_t commandBufferCount = obj->second.ObjectInfo.CommandPool.numCommandBuffersAllocated[level];
-            if (commandBufferCount > 0) {
-                uint64_t vktrace_begin_time = vktrace_get_time();
-
-                VkCommandBuffer *pCommandBuffers = new VkCommandBuffer[commandBufferCount];
-                uint32_t index = 0;
-                for (auto cbIter = s_trimGlobalStateTracker.createdCommandBuffers.begin();
-                     cbIter != s_trimGlobalStateTracker.createdCommandBuffers.end(); cbIter++) {
-                    if (cbIter->second.ObjectInfo.CommandBuffer.commandPool == (VkCommandPool)obj->first &&
-                        cbIter->second.ObjectInfo.CommandBuffer.level == level) {
-                        pCommandBuffers[index] = (VkCommandBuffer)cbIter->first;
-                        index++;
-                    }
-                }
-
-                vktrace_trace_packet_header *pHeader = generate::vkFreeCommandBuffers(
-                    false, obj->second.belongsToDevice, (VkCommandPool)obj->first, commandBufferCount, pCommandBuffers);
-                pHeader->vktrace_begin_time = vktrace_begin_time;
-                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pHeader);
-
-                delete[] pCommandBuffers;
-            }
-        }
-
-        // Destroy the CommandPool
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyCommandPool(false, obj->second.belongsToDevice, (VkCommandPool)obj->first,
-                                           get_Allocator(obj->second.ObjectInfo.CommandPool.pAllocator));
-        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&pHeader);
-    }
-
     // Device
-    for (auto obj = s_trimGlobalStateTracker.createdDevices.begin(); obj != s_trimGlobalStateTracker.createdDevices.end(); obj++) {
-        vktrace_trace_packet_header *pHeader =
-            generate::vkDestroyDevice(false, (VkDevice)obj->first, get_Allocator(obj->second.ObjectInfo.Device.pAllocator));
+    // This will also write packets to destroy any remaining objects on the device
+    for (auto obj =
+             s_trimGlobalStateTracker.createdDevices.begin();
+         obj != s_trimGlobalStateTracker.createdDevices.end(); obj++) {
+        add_destroy_device_object_packets((VkDevice)obj->first);
+        vktrace_trace_packet_header *pHeader = generate::vkDestroyDevice(
+            false, (VkDevice)obj->first,
+            get_Allocator(obj->second.ObjectInfo.Device.pAllocator));
         vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet(&pHeader);
     }
