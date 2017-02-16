@@ -235,8 +235,6 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
                         &(*this->atom_wm_delete_window).atom);
     free(reply);
 
-    xcb_map_window(m_pXcbConnection, m_XcbWindow);
-    xcb_flush(m_pXcbConnection);
     // TODO : Not sure of best place to put this, but I have all the info I need here so just setting it all here for now
     //m_XcbPlatformHandle.connection = m_pXcbConnection;
     //m_XcbPlatformHandle.root = m_pXcbScreen->root;
@@ -276,7 +274,6 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 
     if (m_windowHandle)
     {
-        ShowWindow( m_windowHandle, SW_SHOWDEFAULT);
         m_windowWidth = width;
         m_windowHeight = height;
     } else {
@@ -307,6 +304,15 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
         xcb_flush(m_pXcbConnection);
         m_windowWidth = width;
         m_windowHeight = height;
+
+        // Make sure window is visible.
+        // xcb doesn't have the equivalent of XSync, so we need to sleep
+        // for a while to make sure the X server received and processed
+        // the map window request. This is a kludge, but without the sleep,
+        // the window doesn't get mapped for a long time.
+        xcb_map_window(m_pXcbConnection, m_XcbWindow);
+        xcb_flush(m_pXcbConnection);
+        usleep(50000);  // 0.05 seconds
     }
 #endif
 #elif defined(WIN32)
@@ -317,6 +323,9 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
         SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, wr.right-wr.left, wr.bottom-wr.top, SWP_NOMOVE);
         m_windowWidth = width;
         m_windowHeight = height;
+
+        // Make sure window is visible.
+        ShowWindow(m_windowHandle, SW_SHOWDEFAULT);
     }
 #endif
 }

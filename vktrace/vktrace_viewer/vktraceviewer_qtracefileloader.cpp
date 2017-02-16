@@ -199,6 +199,9 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
         return false;
     }
 
+    // Set global version num
+    vktrace_set_trace_version(pTraceFileInfo->header.trace_file_version);
+
     // Find out how many trace packets there are.
 
     // Seek to first packet

@@ -37,7 +37,6 @@ vktrace_SettingInfo g_vk_settings[] =
     { "gt", "GroupByThread", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.groupByThread, &s_defaultVkSettings.groupByThread, TRUE, "Group API calls by the CPU thread Id on which they executed."},
     { "rw", "ReplayWindowWidth", VKTRACE_SETTING_INT, &g_vkTraceViewerSettings.replay_window_width, &s_defaultVkSettings.replay_window_width, TRUE, "Width of replay window on startup."},
     { "rh", "ReplayWindowHeight", VKTRACE_SETTING_INT, &g_vkTraceViewerSettings.replay_window_height, &s_defaultVkSettings.replay_window_height, TRUE, "Height of replay window on startup."},
-    { "sr", "SeparateReplayWindow", VKTRACE_SETTING_BOOL, &g_vkTraceViewerSettings.separate_replay_window, &s_defaultVkSettings.separate_replay_window, TRUE, "Use a separate replay window."},
 };
 
 vktrace_SettingGroup g_vkTraceViewerSettingGroup =
@@ -57,7 +56,7 @@ void initialize_default_settings()
     s_defaultVkSettings.pauseOnReplayError = TRUE;
     s_defaultVkSettings.groupByFrame = FALSE;
     s_defaultVkSettings.groupByThread = FALSE;
-    s_defaultVkSettings.replay_window_width = 1024;
-    s_defaultVkSettings.replay_window_height = 768;
-    s_defaultVkSettings.separate_replay_window = FALSE;
+    s_defaultVkSettings.replay_window_width = 100;
+    s_defaultVkSettings.replay_window_height = 100;
+    s_defaultVkSettings.separate_replay_window = TRUE;
 };

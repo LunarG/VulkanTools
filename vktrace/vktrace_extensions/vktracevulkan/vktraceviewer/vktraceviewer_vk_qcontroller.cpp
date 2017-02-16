@@ -97,6 +97,11 @@ bool vktraceviewer_vk_QController::LoadTraceFile(vktraceviewer_trace_file_info* 
     m_pReplayWidget = new vktraceviewer_QReplayWidget(&m_replayWorker);
     if (m_pReplayWidget != NULL)
     {
+
+        // Force separate_replay_window to false. We don't yet support
+        // replay in vktraceviewer gui window.
+        g_vkTraceViewerSettings.separate_replay_window = TRUE;
+
         // load available replayers
         if (!m_replayWorker.load_replayers(pTraceFileInfo, m_pReplayWidget->GetReplayWindow(),
             g_vkTraceViewerSettings.replay_window_width,
