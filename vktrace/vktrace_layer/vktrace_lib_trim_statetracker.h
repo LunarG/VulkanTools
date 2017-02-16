@@ -266,7 +266,7 @@ typedef struct _Trim_ObjectInfo {
     } ObjectInfo;
 } ObjectInfo;
 
-typedef std::unordered_map<void *, ObjectInfo> TrimObjectInfoMap;
+typedef std::unordered_map<uint64_t, ObjectInfo> TrimObjectInfoMap;
 
 //-------------------------------------------------------------------------
 class StateTracker {
