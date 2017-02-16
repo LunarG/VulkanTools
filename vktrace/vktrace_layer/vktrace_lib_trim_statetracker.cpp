@@ -111,131 +111,114 @@ void StateTracker::add_Image_call(vktrace_trace_packet_header *pHeader) {
 //-------------------------------------------------------------------------
 void StateTracker::clear() {
     while (createdInstances.size() != 0) {
-        remove_Instance(
-            static_cast<VkInstance>(createdInstances.begin()->first));
+        remove_Instance(reinterpret_cast<const VkInstance>(createdInstances.begin()->first));
     }
 
     while (createdPhysicalDevices.size() != 0) {
-        remove_PhysicalDevice(static_cast<VkPhysicalDevice>(
+        remove_PhysicalDevice(reinterpret_cast<VkPhysicalDevice>(
             createdPhysicalDevices.begin()->first));
     }
 
     while (createdDevices.size() != 0) {
-        remove_Device(static_cast<VkDevice>(createdDevices.begin()->first));
+        remove_Device(reinterpret_cast<VkDevice>(reinterpret_cast<void*>(createdDevices.begin()->first)));
     }
 
     while (createdSurfaceKHRs.size() != 0) {
         remove_SurfaceKHR(
-            static_cast<VkSurfaceKHR>(createdSurfaceKHRs.begin()->first));
+            createdSurfaceKHRs.begin()->first);
     }
 
     while (createdCommandPools.size() != 0) {
-        remove_CommandPool(
-            static_cast<VkCommandPool>(createdCommandPools.begin()->first));
+        remove_CommandPool(createdCommandPools.begin()->first);
     }
 
     while (createdCommandBuffers.size() != 0) {
         remove_CommandBuffer(
-            static_cast<VkCommandBuffer>(createdCommandBuffers.begin()->first));
+            reinterpret_cast<VkCommandBuffer>(reinterpret_cast<void*>(createdCommandBuffers.begin()->first)));
     }
 
     while (createdDescriptorPools.size() != 0) {
-        remove_DescriptorPool(static_cast<VkDescriptorPool>(
-            createdDescriptorPools.begin()->first));
+        remove_DescriptorPool(createdDescriptorPools.begin()->first);
     }
 
     while (createdRenderPasss.size() != 0) {
-        remove_RenderPass(
-            static_cast<VkRenderPass>(createdRenderPasss.begin()->first));
+        remove_RenderPass(createdRenderPasss.begin()->first);
     }
 
     while (createdPipelineCaches.size() != 0) {
-        remove_PipelineCache(
-            static_cast<VkPipelineCache>(createdPipelineCaches.begin()->first));
+        remove_PipelineCache(createdPipelineCaches.begin()->first);
     }
 
     while (createdPipelines.size() != 0) {
-        remove_Pipeline(
-            static_cast<VkPipeline>(createdPipelines.begin()->first));
+        remove_Pipeline(createdPipelines.begin()->first);
     }
 
     while (createdQueues.size() != 0) {
-        remove_Queue(static_cast<VkQueue>(createdQueues.begin()->first));
+        remove_Queue(reinterpret_cast<const VkQueue>(createdQueues.begin()->first));
     }
 
     while (createdSemaphores.size() != 0) {
-        remove_Semaphore(
-            static_cast<VkSemaphore>(createdSemaphores.begin()->first));
+        remove_Semaphore(createdSemaphores.begin()->first);
     }
 
     while (createdDeviceMemorys.size() != 0) {
-        remove_DeviceMemory(
-            static_cast<VkDeviceMemory>(createdDeviceMemorys.begin()->first));
+        remove_DeviceMemory(createdDeviceMemorys.begin()->first);
     }
 
     while (createdFences.size() != 0) {
-        remove_Fence(static_cast<VkFence>(createdFences.begin()->first));
+        remove_Fence(createdFences.begin()->first);
     }
 
     while (createdSwapchainKHRs.size() != 0) {
-        remove_SwapchainKHR(
-            static_cast<VkSwapchainKHR>(createdSwapchainKHRs.begin()->first));
+        remove_SwapchainKHR(createdSwapchainKHRs.begin()->first);
     }
 
     while (createdImages.size() != 0) {
-        remove_Image(static_cast<VkImage>(createdImages.begin()->first));
+        remove_Image(createdImages.begin()->first);
     }
 
     while (createdImageViews.size() != 0) {
-        remove_ImageView(
-            static_cast<VkImageView>(createdImageViews.begin()->first));
+        remove_ImageView(createdImageViews.begin()->first);
     }
 
     while (createdBuffers.size() != 0) {
-        remove_Buffer(static_cast<VkBuffer>(createdBuffers.begin()->first));
+        remove_Buffer(createdBuffers.begin()->first);
     }
 
     while (createdBufferViews.size() != 0) {
-        remove_BufferView(
-            static_cast<VkBufferView>(createdBufferViews.begin()->first));
+        remove_BufferView(createdBufferViews.begin()->first);
     }
 
     while (createdFramebuffers.size() != 0) {
-        remove_Framebuffer(
-            static_cast<VkFramebuffer>(createdFramebuffers.begin()->first));
+        remove_Framebuffer(createdFramebuffers.begin()->first);
     }
 
     while (createdEvents.size() != 0) {
-        remove_Event(static_cast<VkEvent>(createdEvents.begin()->first));
+        remove_Event(createdEvents.begin()->first);
     }
 
     while (createdQueryPools.size() != 0) {
-        remove_QueryPool(
-            static_cast<VkQueryPool>(createdQueryPools.begin()->first));
+        remove_QueryPool(createdQueryPools.begin()->first);
     }
 
     while (createdShaderModules.size() != 0) {
-        remove_ShaderModule(
-            static_cast<VkShaderModule>(createdShaderModules.begin()->first));
+        remove_ShaderModule(createdShaderModules.begin()->first);
     }
 
     while (createdPipelineLayouts.size() != 0) {
-        remove_PipelineLayout(static_cast<VkPipelineLayout>(
-            createdPipelineLayouts.begin()->first));
+        remove_PipelineLayout(createdPipelineLayouts.begin()->first);
     }
 
     while (createdSamplers.size() != 0) {
-        remove_Sampler(static_cast<VkSampler>(createdSamplers.begin()->first));
+        remove_Sampler(createdSamplers.begin()->first);
     }
 
     while (createdDescriptorSetLayouts.size() != 0) {
-        remove_DescriptorSetLayout(static_cast<VkDescriptorSetLayout>(
-            createdDescriptorSetLayouts.begin()->first));
+        remove_DescriptorSetLayout(createdDescriptorSetLayouts.begin()->first);
     }
 
     while (createdDescriptorSets.size() != 0) {
-        remove_DescriptorSet(
-            static_cast<VkDescriptorSet>(createdDescriptorSets.begin()->first));
+        remove_DescriptorSet(createdDescriptorSets.begin()->first);
     }
 
     for (auto iter = m_cmdBufferPackets.begin();
@@ -427,7 +410,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdInstances = other.createdInstances;
-    for (TrimObjectInfoMap::iterator obj = createdInstances.begin();
+    for (auto obj = createdInstances.begin();
          obj != createdInstances.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Instance.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.Instance
@@ -437,7 +420,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdPhysicalDevices = other.createdPhysicalDevices;
-    for (TrimObjectInfoMap::iterator obj = createdPhysicalDevices.begin();
+    for (auto obj = createdPhysicalDevices.begin();
          obj != createdPhysicalDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice
                         .pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
@@ -452,19 +435,19 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdDevices = other.createdDevices;
-    for (TrimObjectInfoMap::iterator obj = createdDevices.begin();
+    for (auto obj = createdDevices.begin();
          obj != createdDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Device.pCreatePacket);
     }
 
     createdSurfaceKHRs = other.createdSurfaceKHRs;
-    for (TrimObjectInfoMap::iterator obj = createdSurfaceKHRs.begin();
+    for (auto obj = createdSurfaceKHRs.begin();
          obj != createdSurfaceKHRs.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.SurfaceKHR.pCreatePacket);
     }
 
     createdCommandPools = other.createdCommandPools;
-    for (TrimObjectInfoMap::iterator obj = createdCommandPools.begin();
+    for (auto obj = createdCommandPools.begin();
          obj != createdCommandPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.CommandPool.pCreatePacket);
     }
@@ -472,13 +455,13 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdCommandBuffers = other.createdCommandBuffers;
 
     createdDescriptorPools = other.createdDescriptorPools;
-    for (TrimObjectInfoMap::iterator obj = createdDescriptorPools.begin();
+    for (auto obj = createdDescriptorPools.begin();
          obj != createdDescriptorPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DescriptorPool.pCreatePacket);
     }
 
     createdSwapchainKHRs = other.createdSwapchainKHRs;
-    for (TrimObjectInfoMap::iterator obj = createdSwapchainKHRs.begin();
+    for (auto obj = createdSwapchainKHRs.begin();
          obj != createdSwapchainKHRs.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pCreatePacket);
         COPY_PACKET(
@@ -488,19 +471,19 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdRenderPasss = other.createdRenderPasss;
-    for (TrimObjectInfoMap::iterator obj = createdRenderPasss.begin();
+    for (auto obj = createdRenderPasss.begin();
          obj != createdRenderPasss.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.RenderPass.pCreatePacket);
     }
 
     createdPipelineCaches = other.createdPipelineCaches;
-    for (TrimObjectInfoMap::iterator obj = createdPipelineCaches.begin();
+    for (auto obj = createdPipelineCaches.begin();
          obj != createdPipelineCaches.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PipelineCache.pCreatePacket);
     }
 
     createdPipelines = other.createdPipelines;
-    for (TrimObjectInfoMap::iterator obj = createdPipelines.begin();
+    for (auto obj = createdPipelines.begin();
          obj != createdPipelines.end(); obj++) {
         VkGraphicsPipelineCreateInfo *pCreateInfo =
             &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
@@ -518,19 +501,19 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdQueues = other.createdQueues;
-    for (TrimObjectInfoMap::iterator obj = createdQueues.begin();
+    for (auto obj = createdQueues.begin();
          obj != createdQueues.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Queue.pCreatePacket);
     }
 
     createdSemaphores = other.createdSemaphores;
-    for (TrimObjectInfoMap::iterator obj = createdSemaphores.begin();
+    for (auto obj = createdSemaphores.begin();
          obj != createdSemaphores.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Semaphore.pCreatePacket);
     }
 
     createdDeviceMemorys = other.createdDeviceMemorys;
-    for (TrimObjectInfoMap::iterator obj = createdDeviceMemorys.begin();
+    for (auto obj = createdDeviceMemorys.begin();
          obj != createdDeviceMemorys.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DeviceMemory.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket);
@@ -542,7 +525,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdFences = other.createdFences;
 
     createdImages = other.createdImages;
-    for (TrimObjectInfoMap::iterator obj = createdImages.begin();
+    for (auto obj = createdImages.begin();
          obj != createdImages.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Image.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.Image.pMapMemoryPacket);
@@ -555,13 +538,13 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdImageViews = other.createdImageViews;
-    for (TrimObjectInfoMap::iterator obj = createdImageViews.begin();
+    for (auto obj = createdImageViews.begin();
          obj != createdImageViews.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.ImageView.pCreatePacket);
     }
 
     createdBuffers = other.createdBuffers;
-    for (TrimObjectInfoMap::iterator obj = createdBuffers.begin();
+    for (auto obj = createdBuffers.begin();
          obj != createdBuffers.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Buffer.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket);
@@ -570,25 +553,25 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdBufferViews = other.createdBufferViews;
-    for (TrimObjectInfoMap::iterator obj = createdBufferViews.begin();
+    for (auto obj = createdBufferViews.begin();
          obj != createdBufferViews.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.BufferView.pCreatePacket);
     }
 
     createdFramebuffers = other.createdFramebuffers;
-    for (TrimObjectInfoMap::iterator obj = createdFramebuffers.begin();
+    for (auto obj = createdFramebuffers.begin();
          obj != createdFramebuffers.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Framebuffer.pCreatePacket);
     }
 
     createdEvents = other.createdEvents;
-    for (TrimObjectInfoMap::iterator obj = createdEvents.begin();
+    for (auto obj = createdEvents.begin();
          obj != createdEvents.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Event.pCreatePacket);
     }
 
     createdQueryPools = other.createdQueryPools;
-    for (TrimObjectInfoMap::iterator obj = createdQueryPools.begin();
+    for (auto obj = createdQueryPools.begin();
          obj != createdQueryPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.QueryPool.pCreatePacket);
 
@@ -604,13 +587,13 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdShaderModules = other.createdShaderModules;
-    for (TrimObjectInfoMap::iterator obj = createdShaderModules.begin();
+    for (auto obj = createdShaderModules.begin();
          obj != createdShaderModules.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.ShaderModule.pCreatePacket);
     }
 
     createdPipelineLayouts = other.createdPipelineLayouts;
-    for (TrimObjectInfoMap::iterator obj = createdPipelineLayouts.begin();
+    for (auto obj = createdPipelineLayouts.begin();
          obj != createdPipelineLayouts.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PipelineLayout.pCreatePacket);
 
@@ -630,13 +613,13 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdSamplers = other.createdSamplers;
-    for (TrimObjectInfoMap::iterator obj = createdSamplers.begin();
+    for (auto obj = createdSamplers.begin();
          obj != createdSamplers.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Sampler.pCreatePacket);
     }
 
     createdDescriptorSetLayouts = other.createdDescriptorSetLayouts;
-    for (TrimObjectInfoMap::iterator obj = createdDescriptorSetLayouts.begin();
+    for (auto obj = createdDescriptorSetLayouts.begin();
          obj != createdDescriptorSetLayouts.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DescriptorSetLayout.pCreatePacket);
 
@@ -654,7 +637,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdDescriptorSets = other.createdDescriptorSets;
-    for (TrimObjectInfoMap::iterator obj = createdDescriptorSets.begin();
+    for (auto obj = createdDescriptorSets.begin();
          obj != createdDescriptorSets.end(); obj++) {
         uint32_t numBindings = obj->second.ObjectInfo.DescriptorSet.numBindings;
         if (numBindings > 0) {
@@ -1124,7 +1107,7 @@ ObjectInfo &StateTracker::add_DescriptorSet(VkDescriptorSet var) {
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 ObjectInfo *StateTracker::get_Instance(VkInstance var) {
-    TrimObjectInfoMap::iterator iter = createdInstances.find(var);
+    auto iter = createdInstances.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdInstances.end()) {
         pResult = &(iter->second);
@@ -1133,7 +1116,7 @@ ObjectInfo *StateTracker::get_Instance(VkInstance var) {
 }
 
 ObjectInfo *StateTracker::get_PhysicalDevice(VkPhysicalDevice var) {
-    TrimObjectInfoMap::iterator iter = createdPhysicalDevices.find(var);
+    auto iter = createdPhysicalDevices.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdPhysicalDevices.end()) {
         pResult = &(iter->second);
@@ -1142,7 +1125,7 @@ ObjectInfo *StateTracker::get_PhysicalDevice(VkPhysicalDevice var) {
 }
 
 ObjectInfo *StateTracker::get_Device(VkDevice var) {
-    TrimObjectInfoMap::iterator iter = createdDevices.find(var);
+    auto iter = createdDevices.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdDevices.end()) {
         pResult = &(iter->second);
@@ -1151,7 +1134,7 @@ ObjectInfo *StateTracker::get_Device(VkDevice var) {
 }
 
 ObjectInfo *StateTracker::get_SurfaceKHR(VkSurfaceKHR var) {
-    TrimObjectInfoMap::iterator iter = createdSurfaceKHRs.find(var);
+    auto iter = createdSurfaceKHRs.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdSurfaceKHRs.end()) {
         pResult = &(iter->second);
@@ -1160,7 +1143,7 @@ ObjectInfo *StateTracker::get_SurfaceKHR(VkSurfaceKHR var) {
 }
 
 ObjectInfo *StateTracker::get_Queue(VkQueue var) {
-    TrimObjectInfoMap::iterator iter = createdQueues.find(var);
+    auto iter = createdQueues.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdQueues.end()) {
         pResult = &(iter->second);
@@ -1169,7 +1152,7 @@ ObjectInfo *StateTracker::get_Queue(VkQueue var) {
 }
 
 ObjectInfo *StateTracker::get_SwapchainKHR(VkSwapchainKHR var) {
-    TrimObjectInfoMap::iterator iter = createdSwapchainKHRs.find(var);
+    auto iter = createdSwapchainKHRs.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdSwapchainKHRs.end()) {
         pResult = &(iter->second);
@@ -1178,7 +1161,7 @@ ObjectInfo *StateTracker::get_SwapchainKHR(VkSwapchainKHR var) {
 }
 
 ObjectInfo *StateTracker::get_CommandPool(VkCommandPool var) {
-    TrimObjectInfoMap::iterator iter = createdCommandPools.find(var);
+    auto iter = createdCommandPools.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdCommandPools.end()) {
         pResult = &(iter->second);
@@ -1187,7 +1170,7 @@ ObjectInfo *StateTracker::get_CommandPool(VkCommandPool var) {
 }
 
 ObjectInfo *StateTracker::get_CommandBuffer(VkCommandBuffer var) {
-    TrimObjectInfoMap::iterator iter = createdCommandBuffers.find(var);
+    auto iter = createdCommandBuffers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdCommandBuffers.end()) {
         pResult = &(iter->second);
@@ -1196,7 +1179,7 @@ ObjectInfo *StateTracker::get_CommandBuffer(VkCommandBuffer var) {
 }
 
 ObjectInfo *StateTracker::get_DeviceMemory(VkDeviceMemory var) {
-    TrimObjectInfoMap::iterator iter = createdDeviceMemorys.find(var);
+    auto iter = createdDeviceMemorys.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdDeviceMemorys.end()) {
         pResult = &(iter->second);
@@ -1205,7 +1188,7 @@ ObjectInfo *StateTracker::get_DeviceMemory(VkDeviceMemory var) {
 }
 
 ObjectInfo *StateTracker::get_ImageView(VkImageView var) {
-    TrimObjectInfoMap::iterator iter = createdImageViews.find(var);
+    auto iter = createdImageViews.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdImageViews.end()) {
         pResult = &(iter->second);
@@ -1214,7 +1197,7 @@ ObjectInfo *StateTracker::get_ImageView(VkImageView var) {
 }
 
 ObjectInfo *StateTracker::get_Image(VkImage var) {
-    TrimObjectInfoMap::iterator iter = createdImages.find(var);
+    auto iter = createdImages.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdImages.end()) {
         pResult = &(iter->second);
@@ -1223,7 +1206,7 @@ ObjectInfo *StateTracker::get_Image(VkImage var) {
 }
 
 ObjectInfo *StateTracker::get_BufferView(VkBufferView var) {
-    TrimObjectInfoMap::iterator iter = createdBufferViews.find(var);
+    auto iter = createdBufferViews.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdBufferViews.end()) {
         pResult = &(iter->second);
@@ -1232,7 +1215,7 @@ ObjectInfo *StateTracker::get_BufferView(VkBufferView var) {
 }
 
 ObjectInfo *StateTracker::get_Buffer(VkBuffer var) {
-    TrimObjectInfoMap::iterator iter = createdBuffers.find(var);
+    auto iter = createdBuffers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdBuffers.end()) {
         pResult = &(iter->second);
@@ -1241,7 +1224,7 @@ ObjectInfo *StateTracker::get_Buffer(VkBuffer var) {
 }
 
 ObjectInfo *StateTracker::get_Sampler(VkSampler var) {
-    TrimObjectInfoMap::iterator iter = createdSamplers.find(var);
+    auto iter = createdSamplers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdSamplers.end()) {
         pResult = &(iter->second);
@@ -1250,7 +1233,7 @@ ObjectInfo *StateTracker::get_Sampler(VkSampler var) {
 }
 
 ObjectInfo *StateTracker::get_DescriptorSetLayout(VkDescriptorSetLayout var) {
-    TrimObjectInfoMap::iterator iter = createdDescriptorSetLayouts.find(var);
+    auto iter = createdDescriptorSetLayouts.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdDescriptorSetLayouts.end()) {
         pResult = &(iter->second);
@@ -1259,7 +1242,7 @@ ObjectInfo *StateTracker::get_DescriptorSetLayout(VkDescriptorSetLayout var) {
 }
 
 ObjectInfo *StateTracker::get_PipelineLayout(VkPipelineLayout var) {
-    TrimObjectInfoMap::iterator iter = createdPipelineLayouts.find(var);
+    auto iter = createdPipelineLayouts.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdPipelineLayouts.end()) {
         pResult = &(iter->second);
@@ -1268,7 +1251,7 @@ ObjectInfo *StateTracker::get_PipelineLayout(VkPipelineLayout var) {
 }
 
 ObjectInfo *StateTracker::get_RenderPass(VkRenderPass var) {
-    TrimObjectInfoMap::iterator iter = createdRenderPasss.find(var);
+    auto iter = createdRenderPasss.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdRenderPasss.end()) {
         pResult = &(iter->second);
@@ -1277,7 +1260,7 @@ ObjectInfo *StateTracker::get_RenderPass(VkRenderPass var) {
 }
 
 ObjectInfo *StateTracker::get_ShaderModule(VkShaderModule var) {
-    TrimObjectInfoMap::iterator iter = createdShaderModules.find(var);
+    auto iter = createdShaderModules.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdShaderModules.end()) {
         pResult = &(iter->second);
@@ -1286,7 +1269,7 @@ ObjectInfo *StateTracker::get_ShaderModule(VkShaderModule var) {
 }
 
 ObjectInfo *StateTracker::get_PipelineCache(VkPipelineCache var) {
-    TrimObjectInfoMap::iterator iter = createdPipelineCaches.find(var);
+    auto iter = createdPipelineCaches.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdPipelineCaches.end()) {
         pResult = &(iter->second);
@@ -1295,7 +1278,7 @@ ObjectInfo *StateTracker::get_PipelineCache(VkPipelineCache var) {
 }
 
 ObjectInfo *StateTracker::get_DescriptorPool(VkDescriptorPool var) {
-    TrimObjectInfoMap::iterator iter = createdDescriptorPools.find(var);
+    auto iter = createdDescriptorPools.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdDescriptorPools.end()) {
         pResult = &(iter->second);
@@ -1304,7 +1287,7 @@ ObjectInfo *StateTracker::get_DescriptorPool(VkDescriptorPool var) {
 }
 
 ObjectInfo *StateTracker::get_Pipeline(VkPipeline var) {
-    TrimObjectInfoMap::iterator iter = createdPipelines.find(var);
+    auto iter = createdPipelines.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdPipelines.end()) {
         pResult = &(iter->second);
@@ -1313,7 +1296,7 @@ ObjectInfo *StateTracker::get_Pipeline(VkPipeline var) {
 }
 
 ObjectInfo *StateTracker::get_Semaphore(VkSemaphore var) {
-    TrimObjectInfoMap::iterator iter = createdSemaphores.find(var);
+    auto iter = createdSemaphores.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdSemaphores.end()) {
         pResult = &(iter->second);
@@ -1322,7 +1305,7 @@ ObjectInfo *StateTracker::get_Semaphore(VkSemaphore var) {
 }
 
 ObjectInfo *StateTracker::get_Fence(VkFence var) {
-    TrimObjectInfoMap::iterator iter = createdFences.find(var);
+    auto iter = createdFences.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdFences.end()) {
         pResult = &(iter->second);
@@ -1331,7 +1314,7 @@ ObjectInfo *StateTracker::get_Fence(VkFence var) {
 }
 
 ObjectInfo *StateTracker::get_Framebuffer(VkFramebuffer var) {
-    TrimObjectInfoMap::iterator iter = createdFramebuffers.find(var);
+    auto iter = createdFramebuffers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdFramebuffers.end()) {
         pResult = &(iter->second);
@@ -1340,7 +1323,7 @@ ObjectInfo *StateTracker::get_Framebuffer(VkFramebuffer var) {
 }
 
 ObjectInfo *StateTracker::get_Event(VkEvent var) {
-    TrimObjectInfoMap::iterator iter = createdEvents.find(var);
+    auto iter = createdEvents.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdEvents.end()) {
         pResult = &(iter->second);
@@ -1349,7 +1332,7 @@ ObjectInfo *StateTracker::get_Event(VkEvent var) {
 }
 
 ObjectInfo *StateTracker::get_QueryPool(VkQueryPool var) {
-    TrimObjectInfoMap::iterator iter = createdQueryPools.find(var);
+    auto iter = createdQueryPools.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdQueryPools.end()) {
         pResult = &(iter->second);
@@ -1358,7 +1341,7 @@ ObjectInfo *StateTracker::get_QueryPool(VkQueryPool var) {
 }
 
 ObjectInfo *StateTracker::get_DescriptorSet(VkDescriptorSet var) {
-    TrimObjectInfoMap::iterator iter = createdDescriptorSets.find(var);
+    auto iter = createdDescriptorSets.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdDescriptorSets.end()) {
         pResult = &(iter->second);
@@ -1368,7 +1351,7 @@ ObjectInfo *StateTracker::get_DescriptorSet(VkDescriptorSet var) {
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void StateTracker::remove_Instance(VkInstance var) {
+void StateTracker::remove_Instance(const VkInstance var) {
     ObjectInfo *pInfo = get_Instance(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pCreatePacket);
@@ -1380,7 +1363,7 @@ void StateTracker::remove_Instance(VkInstance var) {
     createdInstances.erase(var);
 }
 
-void StateTracker::remove_PhysicalDevice(VkPhysicalDevice var) {
+void StateTracker::remove_PhysicalDevice(const VkPhysicalDevice var) {
     ObjectInfo *pInfo = get_PhysicalDevice(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1402,7 +1385,7 @@ void StateTracker::remove_PhysicalDevice(VkPhysicalDevice var) {
     createdPhysicalDevices.erase(var);
 }
 
-void StateTracker::remove_Device(VkDevice var) {
+void StateTracker::remove_Device(const VkDevice var) {
     ObjectInfo *pInfo = get_Device(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
@@ -1410,7 +1393,7 @@ void StateTracker::remove_Device(VkDevice var) {
     createdDevices.erase(var);
 }
 
-void StateTracker::remove_SurfaceKHR(VkSurfaceKHR var) {
+void StateTracker::remove_SurfaceKHR(const VkSurfaceKHR var) {
     ObjectInfo *pInfo = get_SurfaceKHR(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1419,7 +1402,7 @@ void StateTracker::remove_SurfaceKHR(VkSurfaceKHR var) {
     createdSurfaceKHRs.erase(var);
 }
 
-void StateTracker::remove_Queue(VkQueue var) {
+void StateTracker::remove_Queue(const VkQueue var) {
     ObjectInfo *pInfo = get_Queue(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Queue.pCreatePacket);
@@ -1427,7 +1410,7 @@ void StateTracker::remove_Queue(VkQueue var) {
     createdQueues.erase(var);
 }
 
-void StateTracker::remove_CommandPool(VkCommandPool var) {
+void StateTracker::remove_CommandPool(const VkCommandPool var) {
     ObjectInfo *pInfo = get_CommandPool(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1436,7 +1419,7 @@ void StateTracker::remove_CommandPool(VkCommandPool var) {
     createdCommandPools.erase(var);
 }
 
-void StateTracker::remove_SwapchainKHR(VkSwapchainKHR var) {
+void StateTracker::remove_SwapchainKHR(const VkSwapchainKHR var) {
     ObjectInfo *pInfo = get_SwapchainKHR(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1449,11 +1432,11 @@ void StateTracker::remove_SwapchainKHR(VkSwapchainKHR var) {
     createdSwapchainKHRs.erase(var);
 }
 
-void StateTracker::remove_CommandBuffer(VkCommandBuffer var) {
+void StateTracker::remove_CommandBuffer(const VkCommandBuffer var) {
     createdCommandBuffers.erase(var);
 }
 
-void StateTracker::remove_DeviceMemory(VkDeviceMemory var) {
+void StateTracker::remove_DeviceMemory(const VkDeviceMemory var) {
     ObjectInfo *pInfo = get_DeviceMemory(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1468,7 +1451,7 @@ void StateTracker::remove_DeviceMemory(VkDeviceMemory var) {
     createdDeviceMemorys.erase(var);
 }
 
-void StateTracker::remove_Image(VkImage var) {
+void StateTracker::remove_Image(const VkImage var) {
     ObjectInfo *pInfo = get_Image(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
@@ -1485,7 +1468,7 @@ void StateTracker::remove_Image(VkImage var) {
     createdImages.erase(var);
 }
 
-void StateTracker::remove_ImageView(VkImageView var) {
+void StateTracker::remove_ImageView(const VkImageView var) {
     ObjectInfo *pInfo = get_ImageView(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.ImageView.pCreatePacket);
@@ -1493,7 +1476,7 @@ void StateTracker::remove_ImageView(VkImageView var) {
     createdImageViews.erase(var);
 }
 
-void StateTracker::remove_Buffer(VkBuffer var) {
+void StateTracker::remove_Buffer(const VkBuffer var) {
     ObjectInfo *pInfo = get_Buffer(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pCreatePacket);
@@ -1506,7 +1489,7 @@ void StateTracker::remove_Buffer(VkBuffer var) {
     createdBuffers.erase(var);
 }
 
-void StateTracker::remove_BufferView(VkBufferView var) {
+void StateTracker::remove_BufferView(const VkBufferView var) {
     ObjectInfo *pInfo = get_BufferView(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1515,7 +1498,7 @@ void StateTracker::remove_BufferView(VkBufferView var) {
     createdBufferViews.erase(var);
 }
 
-void StateTracker::remove_Sampler(VkSampler var) {
+void StateTracker::remove_Sampler(const VkSampler var) {
     ObjectInfo *pInfo = get_Sampler(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Sampler.pCreatePacket);
@@ -1523,7 +1506,7 @@ void StateTracker::remove_Sampler(VkSampler var) {
     createdSamplers.erase(var);
 }
 
-void StateTracker::remove_DescriptorSetLayout(VkDescriptorSetLayout var) {
+void StateTracker::remove_DescriptorSetLayout(const VkDescriptorSetLayout var) {
     ObjectInfo *pInfo = get_DescriptorSetLayout(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1538,7 +1521,7 @@ void StateTracker::remove_DescriptorSetLayout(VkDescriptorSetLayout var) {
     createdDescriptorSetLayouts.erase(var);
 }
 
-void StateTracker::remove_PipelineLayout(VkPipelineLayout var) {
+void StateTracker::remove_PipelineLayout(const VkPipelineLayout var) {
     ObjectInfo *pInfo = get_PipelineLayout(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1552,7 +1535,7 @@ void StateTracker::remove_PipelineLayout(VkPipelineLayout var) {
     createdPipelineLayouts.erase(var);
 }
 
-void StateTracker::remove_RenderPass(VkRenderPass var) {
+void StateTracker::remove_RenderPass(const VkRenderPass var) {
     ObjectInfo *pInfo = get_RenderPass(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1561,7 +1544,7 @@ void StateTracker::remove_RenderPass(VkRenderPass var) {
     createdRenderPasss.erase(var);
 }
 
-void StateTracker::remove_ShaderModule(VkShaderModule var) {
+void StateTracker::remove_ShaderModule(const VkShaderModule var) {
     ObjectInfo *pInfo = get_ShaderModule(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1570,7 +1553,7 @@ void StateTracker::remove_ShaderModule(VkShaderModule var) {
     createdShaderModules.erase(var);
 }
 
-void StateTracker::remove_PipelineCache(VkPipelineCache var) {
+void StateTracker::remove_PipelineCache(const VkPipelineCache var) {
     ObjectInfo *pInfo = get_PipelineCache(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1579,7 +1562,7 @@ void StateTracker::remove_PipelineCache(VkPipelineCache var) {
     createdPipelineCaches.erase(var);
 }
 
-void StateTracker::remove_Pipeline(VkPipeline var) {
+void StateTracker::remove_Pipeline(const VkPipeline var) {
     ObjectInfo *pInfo = get_Pipeline(var);
     if (pInfo != nullptr) {
         delete_VkPipelineShaderStageCreateInfo(
@@ -1699,7 +1682,7 @@ void StateTracker::remove_Pipeline(VkPipeline var) {
     createdPipelines.erase(var);
 }
 
-void StateTracker::remove_DescriptorPool(VkDescriptorPool var) {
+void StateTracker::remove_DescriptorPool(const VkDescriptorPool var) {
     ObjectInfo *pInfo = get_DescriptorPool(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1708,7 +1691,7 @@ void StateTracker::remove_DescriptorPool(VkDescriptorPool var) {
     createdDescriptorPools.erase(var);
 }
 
-void StateTracker::remove_DescriptorSet(VkDescriptorSet var) {
+void StateTracker::remove_DescriptorSet(const VkDescriptorSet var) {
     ObjectInfo *pInfo = get_DescriptorSet(var);
     if (pInfo != nullptr) {
         if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets != nullptr) {
@@ -1751,7 +1734,7 @@ void StateTracker::remove_DescriptorSet(VkDescriptorSet var) {
     createdDescriptorSets.erase(var);
 }
 
-void StateTracker::remove_Framebuffer(VkFramebuffer var) {
+void StateTracker::remove_Framebuffer(const VkFramebuffer var) {
     ObjectInfo *pInfo = get_Framebuffer(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(
@@ -1760,7 +1743,7 @@ void StateTracker::remove_Framebuffer(VkFramebuffer var) {
     createdFramebuffers.erase(var);
 }
 
-void StateTracker::remove_Semaphore(VkSemaphore var) {
+void StateTracker::remove_Semaphore(const VkSemaphore var) {
     ObjectInfo *pInfo = get_Semaphore(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Semaphore.pCreatePacket);
@@ -1768,9 +1751,9 @@ void StateTracker::remove_Semaphore(VkSemaphore var) {
     createdSemaphores.erase(var);
 }
 
-void StateTracker::remove_Fence(VkFence var) { createdFences.erase(var); }
+void StateTracker::remove_Fence(const VkFence var) { createdFences.erase(var); }
 
-void StateTracker::remove_Event(VkEvent var) {
+void StateTracker::remove_Event(const VkEvent var) {
     ObjectInfo *pInfo = get_Event(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Event.pCreatePacket);
@@ -1778,7 +1761,7 @@ void StateTracker::remove_Event(VkEvent var) {
     createdEvents.erase(var);
 }
 
-void StateTracker::remove_QueryPool(VkQueryPool var) {
+void StateTracker::remove_QueryPool(const VkQueryPool var) {
     ObjectInfo *pInfo = get_QueryPool(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.QueryPool.pCreatePacket);
