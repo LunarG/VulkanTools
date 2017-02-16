@@ -901,11 +901,11 @@ void snapshot_state_tracker() {
 
     // 1) Create a cmd pool and cmd buffer on each device; begin the command
     // buffer.
-    for (TrimObjectInfoMap::iterator deviceIter =
+    for (auto deviceIter =
              s_trimStateTrackerSnapshot.createdDevices.begin();
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end();
          deviceIter++) {
-        VkDevice device = static_cast<VkDevice>(deviceIter->first);
+        VkDevice device = deviceIter->first;
 
         // Find or create an existing command buffer
         VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
@@ -923,12 +923,12 @@ void snapshot_state_tracker() {
     }
 
     // 2a) Transition all images into host-readable state.
-    for (TrimObjectInfoMap::iterator imageIter =
+    for (auto imageIter =
              s_trimStateTrackerSnapshot.createdImages.begin();
          imageIter != s_trimStateTrackerSnapshot.createdImages.end();
          imageIter++) {
         VkDevice device = imageIter->second.belongsToDevice;
-        VkImage image = static_cast<VkImage>(imageIter->first);
+        VkImage image = imageIter->first;
 
         if (device == VK_NULL_HANDLE) {
             // this is likely a swapchain image which we haven't associated a
@@ -1109,12 +1109,12 @@ void snapshot_state_tracker() {
     }
 
     // 2b) Transition all buffers into host-readable state.
-    for (TrimObjectInfoMap::iterator bufferIter =
+    for (auto bufferIter =
              s_trimStateTrackerSnapshot.createdBuffers.begin();
          bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end();
          bufferIter++) {
         VkDevice device = bufferIter->second.belongsToDevice;
-        VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
+        VkBuffer buffer = bufferIter->first;
 
         VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
@@ -1154,7 +1154,7 @@ void snapshot_state_tracker() {
     }
 
     // 3) End the cmd buffers and submit them on the right queue.
-    for (TrimObjectInfoMap::iterator deviceIter =
+    for (auto deviceIter =
              s_trimStateTrackerSnapshot.createdDevices.begin();
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end();
          deviceIter++) {
@@ -1185,12 +1185,12 @@ void snapshot_state_tracker() {
     }
 
     // 4a) Map, copy, unmap each image.
-    for (TrimObjectInfoMap::iterator imageIter =
+    for (auto imageIter =
              s_trimStateTrackerSnapshot.createdImages.begin();
          imageIter != s_trimStateTrackerSnapshot.createdImages.end();
          imageIter++) {
         VkDevice device = imageIter->second.belongsToDevice;
-        VkImage image = static_cast<VkImage>(imageIter->first);
+        VkImage image = imageIter->first;
 
         if (device == VK_NULL_HANDLE) {
             // this is likely a swapchain image which we haven't associated a
@@ -1219,7 +1219,7 @@ void snapshot_state_tracker() {
                     &imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket);
             }
         } else {
-            TrimObjectInfoMap::iterator memoryIter =
+            auto memoryIter =
                 s_trimStateTrackerSnapshot.createdDeviceMemorys.find(memory);
 
             if (memoryIter !=
@@ -1259,12 +1259,12 @@ void snapshot_state_tracker() {
     }
 
     // 4b) Map, copy, unmap each buffer.
-    for (TrimObjectInfoMap::iterator bufferIter =
+    for (auto bufferIter =
              s_trimStateTrackerSnapshot.createdBuffers.begin();
          bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end();
          bufferIter++) {
         VkDevice device = bufferIter->second.belongsToDevice;
-        VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
+        VkBuffer buffer = bufferIter->first;
 
         VkDeviceMemory memory = bufferIter->second.ObjectInfo.Buffer.memory;
         VkDeviceSize offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
@@ -1283,7 +1283,7 @@ void snapshot_state_tracker() {
             memory = staged.memory;
             offset = 0;
         } else {
-            TrimObjectInfoMap::iterator memoryIter =
+            auto memoryIter =
                 s_trimStateTrackerSnapshot.createdDeviceMemorys.find(memory);
             assert(memoryIter !=
                    s_trimStateTrackerSnapshot.createdDeviceMemorys.end());
@@ -1323,7 +1323,7 @@ void snapshot_state_tracker() {
     }
 
     // 5) Begin the cmd buffers again.
-    for (TrimObjectInfoMap::iterator deviceIter =
+    for (auto deviceIter =
              s_trimStateTrackerSnapshot.createdDevices.begin();
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end();
          deviceIter++) {
@@ -1343,12 +1343,12 @@ void snapshot_state_tracker() {
     }
 
     // 6a) Transition all the images back to their previous state.
-    for (TrimObjectInfoMap::iterator imageIter =
+    for (auto imageIter =
              s_trimStateTrackerSnapshot.createdImages.begin();
          imageIter != s_trimStateTrackerSnapshot.createdImages.end();
          imageIter++) {
         VkDevice device = imageIter->second.belongsToDevice;
-        VkImage image = static_cast<VkImage>(imageIter->first);
+        VkImage image = imageIter->first;
 
         if (device == VK_NULL_HANDLE) {
             // this is likely a swapchain image which we haven't associated a
@@ -1385,12 +1385,12 @@ void snapshot_state_tracker() {
     }
 
     // 6b) Transition all the buffers back to their previous state.
-    for (TrimObjectInfoMap::iterator bufferIter =
+    for (auto bufferIter =
              s_trimStateTrackerSnapshot.createdBuffers.begin();
          bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end();
          bufferIter++) {
         VkDevice device = bufferIter->second.belongsToDevice;
-        VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
+        VkBuffer buffer = bufferIter->first;
         VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
         if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
@@ -1408,11 +1408,11 @@ void snapshot_state_tracker() {
     }
 
     // 7) End the cmd buffers, submit, and wait for them
-    for (TrimObjectInfoMap::iterator deviceIter =
+    for (auto deviceIter =
              s_trimStateTrackerSnapshot.createdDevices.begin();
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end();
          deviceIter++) {
-        VkDevice device = static_cast<VkDevice>(deviceIter->first);
+        VkDevice device = reinterpret_cast<VkDevice>(deviceIter->first);
         VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
         mdd(device)->devTable.EndCommandBuffer(commandBuffer);
@@ -1439,11 +1439,11 @@ void snapshot_state_tracker() {
     }
 
     // 8) Destroy the command pools / command buffers and fences
-    for (TrimObjectInfoMap::iterator deviceIter =
+    for (auto deviceIter =
              s_trimStateTrackerSnapshot.createdDevices.begin();
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end();
          deviceIter++) {
-        VkDevice device = static_cast<VkDevice>(deviceIter->first);
+        VkDevice device = reinterpret_cast<VkDevice>(deviceIter->first);
         VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
 
         mdd(device)->devTable.ResetCommandBuffer(
@@ -1459,7 +1459,7 @@ void snapshot_state_tracker() {
     }
 
     // Now: generate a vkMapMemory to recreate the persistently mapped buffers
-    for (TrimObjectInfoMap::iterator iter =
+    for (auto iter =
              s_trimStateTrackerSnapshot.createdDeviceMemorys.begin();
          iter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end();
          iter++) {
@@ -1470,8 +1470,7 @@ void snapshot_state_tracker() {
             (iter->second.ObjectInfo.DeviceMemory.mappedAddress != NULL);
         if (bCurrentlyMapped) {
             VkDevice device = iter->second.belongsToDevice;
-            VkDeviceMemory deviceMemory =
-                static_cast<VkDeviceMemory>(iter->first);
+            VkDeviceMemory deviceMemory = iter->first;
             VkDeviceSize offset = 0;
             VkDeviceSize size = iter->second.ObjectInfo.DeviceMemory.size;
             VkMemoryMapFlags flags = 0;
@@ -1515,7 +1514,7 @@ void remove_Instance_object(VkInstance var) {
 //=========================================================================
 ObjectInfo *get_Instance_objectInfo(VkInstance var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdInstances.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdInstances.end()) {
@@ -1543,7 +1542,7 @@ void remove_PhysicalDevice_object(VkPhysicalDevice var) {
 //=========================================================================
 ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdPhysicalDevices.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdPhysicalDevices.end()) {
@@ -1566,10 +1565,10 @@ void remove_Device_object(VkDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
 
     std::vector<VkQueue> queuesToRemove;
-    for (TrimObjectInfoMap::iterator info = s_trimGlobalStateTracker.createdQueues.begin(); info != s_trimGlobalStateTracker.createdQueues.end(); ++info) {
+    for (auto info = s_trimGlobalStateTracker.createdQueues.begin(); info != s_trimGlobalStateTracker.createdQueues.end(); ++info) {
         if (info->second.belongsToDevice == var)
         {
-            queuesToRemove.push_back(static_cast<VkQueue>(info->first));
+            queuesToRemove.push_back(reinterpret_cast<VkQueue>(info->first));
         }
     }
 
@@ -1585,7 +1584,7 @@ void remove_Device_object(VkDevice var) {
 //=========================================================================
 ObjectInfo *get_Device_objectInfo(VkDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdDevices.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdDevices.end()) {
@@ -1613,7 +1612,7 @@ void remove_SurfaceKHR_object(VkSurfaceKHR var) {
 //=========================================================================
 ObjectInfo *get_SurfaceKHR_objectInfo(VkSurfaceKHR var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdSurfaceKHRs.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdSurfaceKHRs.end()) {
@@ -1632,7 +1631,7 @@ ObjectInfo &add_Queue_object(VkQueue var) {
 }
 
 //=========================================================================
-void remove_Queue_object(VkQueue var) {
+void remove_Queue_object(const VkQueue var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Queue(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1641,7 +1640,7 @@ void remove_Queue_object(VkQueue var) {
 //=========================================================================
 ObjectInfo *get_Queue_objectInfo(VkQueue var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdQueues.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdQueues.end()) {
@@ -1660,7 +1659,7 @@ ObjectInfo &add_SwapchainKHR_object(VkSwapchainKHR var) {
 }
 
 //=========================================================================
-void remove_SwapchainKHR_object(VkSwapchainKHR var) {
+void remove_SwapchainKHR_object(const VkSwapchainKHR var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_SwapchainKHR(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1669,7 +1668,7 @@ void remove_SwapchainKHR_object(VkSwapchainKHR var) {
 //=========================================================================
 ObjectInfo *get_SwapchainKHR_objectInfo(VkSwapchainKHR var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdSwapchainKHRs.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdSwapchainKHRs.end()) {
@@ -1688,7 +1687,7 @@ ObjectInfo &add_CommandPool_object(VkCommandPool var) {
 }
 
 //=========================================================================
-void remove_CommandPool_object(VkCommandPool var) {
+void remove_CommandPool_object(const VkCommandPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_CommandPool(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1697,7 +1696,7 @@ void remove_CommandPool_object(VkCommandPool var) {
 //=========================================================================
 ObjectInfo *get_CommandPool_objectInfo(VkCommandPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdCommandPools.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdCommandPools.end()) {
@@ -1716,7 +1715,7 @@ ObjectInfo &add_CommandBuffer_object(VkCommandBuffer var) {
 }
 
 //=========================================================================
-void remove_CommandBuffer_object(VkCommandBuffer var) {
+void remove_CommandBuffer_object(const VkCommandBuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_CommandBuffer(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1725,7 +1724,7 @@ void remove_CommandBuffer_object(VkCommandBuffer var) {
 //=========================================================================
 ObjectInfo *get_CommandBuffer_objectInfo(VkCommandBuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdCommandBuffers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdCommandBuffers.end()) {
@@ -1744,7 +1743,7 @@ ObjectInfo &add_DeviceMemory_object(VkDeviceMemory var) {
 }
 
 //=========================================================================
-void remove_DeviceMemory_object(VkDeviceMemory var) {
+void remove_DeviceMemory_object(const VkDeviceMemory var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_DeviceMemory(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1753,7 +1752,7 @@ void remove_DeviceMemory_object(VkDeviceMemory var) {
 //=========================================================================
 ObjectInfo *get_DeviceMemory_objectInfo(VkDeviceMemory var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdDeviceMemorys.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdDeviceMemorys.end()) {
@@ -1772,7 +1771,7 @@ ObjectInfo &add_ImageView_object(VkImageView var) {
 }
 
 //=========================================================================
-void remove_ImageView_object(VkImageView var) {
+void remove_ImageView_object(const VkImageView var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_ImageView(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1781,7 +1780,7 @@ void remove_ImageView_object(VkImageView var) {
 //=========================================================================
 ObjectInfo *get_ImageView_objectInfo(VkImageView var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdImageViews.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdImageViews.end()) {
@@ -1800,7 +1799,7 @@ ObjectInfo &add_Image_object(VkImage var) {
 }
 
 //=========================================================================
-void remove_Image_object(VkImage var) {
+void remove_Image_object(const VkImage var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Image(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1809,7 +1808,7 @@ void remove_Image_object(VkImage var) {
 //=========================================================================
 ObjectInfo *get_Image_objectInfo(VkImage var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdImages.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdImages.end()) {
@@ -1828,7 +1827,7 @@ ObjectInfo &add_BufferView_object(VkBufferView var) {
 }
 
 //=========================================================================
-void remove_BufferView_object(VkBufferView var) {
+void remove_BufferView_object(const VkBufferView var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_BufferView(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1837,7 +1836,7 @@ void remove_BufferView_object(VkBufferView var) {
 //=========================================================================
 ObjectInfo *get_BufferView_objectInfo(VkBufferView var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdBufferViews.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdBufferViews.end()) {
@@ -1856,7 +1855,7 @@ ObjectInfo &add_Buffer_object(VkBuffer var) {
 }
 
 //=========================================================================
-void remove_Buffer_object(VkBuffer var) {
+void remove_Buffer_object(const VkBuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Buffer(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1865,7 +1864,7 @@ void remove_Buffer_object(VkBuffer var) {
 //=========================================================================
 ObjectInfo *get_Buffer_objectInfo(VkBuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdBuffers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdBuffers.end()) {
@@ -1884,7 +1883,7 @@ ObjectInfo &add_Sampler_object(VkSampler var) {
 }
 
 //=========================================================================
-void remove_Sampler_object(VkSampler var) {
+void remove_Sampler_object(const VkSampler var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Sampler(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1893,7 +1892,7 @@ void remove_Sampler_object(VkSampler var) {
 //=========================================================================
 ObjectInfo *get_Sampler_objectInfo(VkSampler var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdSamplers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdSamplers.end()) {
@@ -1921,7 +1920,7 @@ void remove_DescriptorSetLayout_object(VkDescriptorSetLayout var) {
 //=========================================================================
 ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdDescriptorSetLayouts.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdDescriptorSetLayouts.end()) {
@@ -1940,7 +1939,7 @@ ObjectInfo &add_PipelineLayout_object(VkPipelineLayout var) {
 }
 
 //=========================================================================
-void remove_PipelineLayout_object(VkPipelineLayout var) {
+void remove_PipelineLayout_object(const VkPipelineLayout var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_PipelineLayout(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1949,7 +1948,7 @@ void remove_PipelineLayout_object(VkPipelineLayout var) {
 //=========================================================================
 ObjectInfo *get_PipelineLayout_objectInfo(VkPipelineLayout var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdPipelineLayouts.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdPipelineLayouts.end()) {
@@ -1968,7 +1967,7 @@ ObjectInfo &add_RenderPass_object(VkRenderPass var) {
 }
 
 //=========================================================================
-void remove_RenderPass_object(VkRenderPass var) {
+void remove_RenderPass_object(const VkRenderPass var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_RenderPass(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -1977,7 +1976,7 @@ void remove_RenderPass_object(VkRenderPass var) {
 //=========================================================================
 ObjectInfo *get_RenderPass_objectInfo(VkRenderPass var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdRenderPasss.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdRenderPasss.end()) {
@@ -1996,7 +1995,7 @@ ObjectInfo &add_ShaderModule_object(VkShaderModule var) {
 }
 
 //=========================================================================
-void remove_ShaderModule_object(VkShaderModule var) {
+void remove_ShaderModule_object(const VkShaderModule var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_ShaderModule(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2005,7 +2004,7 @@ void remove_ShaderModule_object(VkShaderModule var) {
 //=========================================================================
 ObjectInfo *get_ShaderModule_objectInfo(VkShaderModule var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdShaderModules.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdShaderModules.end()) {
@@ -2023,7 +2022,7 @@ ObjectInfo &add_PipelineCache_object(VkPipelineCache var) {
     return info;
 }
 
-void remove_PipelineCache_object(VkPipelineCache var) {
+void remove_PipelineCache_object(const VkPipelineCache var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_PipelineCache(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2032,7 +2031,7 @@ void remove_PipelineCache_object(VkPipelineCache var) {
 //=========================================================================
 ObjectInfo *get_PipelineCache_objectInfo(VkPipelineCache var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdPipelineCaches.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdPipelineCaches.end()) {
@@ -2051,7 +2050,7 @@ ObjectInfo &add_DescriptorPool_object(VkDescriptorPool var) {
 }
 
 //=========================================================================
-void remove_DescriptorPool_object(VkDescriptorPool var) {
+void remove_DescriptorPool_object(const VkDescriptorPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_DescriptorPool(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2060,7 +2059,7 @@ void remove_DescriptorPool_object(VkDescriptorPool var) {
 //=========================================================================
 ObjectInfo *get_DescriptorPool_objectInfo(VkDescriptorPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdDescriptorPools.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdDescriptorPools.end()) {
@@ -2079,7 +2078,7 @@ ObjectInfo &add_Pipeline_object(VkPipeline var) {
 }
 
 //=========================================================================
-void remove_Pipeline_object(VkPipeline var) {
+void remove_Pipeline_object(const VkPipeline var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Pipeline(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2088,7 +2087,7 @@ void remove_Pipeline_object(VkPipeline var) {
 //=========================================================================
 ObjectInfo *get_Pipeline_objectInfo(VkPipeline var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdPipelines.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdPipelines.end()) {
@@ -2107,7 +2106,7 @@ ObjectInfo &add_Semaphore_object(VkSemaphore var) {
 }
 
 //=========================================================================
-void remove_Semaphore_object(VkSemaphore var) {
+void remove_Semaphore_object(const VkSemaphore var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Semaphore(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2116,7 +2115,7 @@ void remove_Semaphore_object(VkSemaphore var) {
 //=========================================================================
 ObjectInfo *get_Semaphore_objectInfo(VkSemaphore var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdSemaphores.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdSemaphores.end()) {
@@ -2135,7 +2134,7 @@ ObjectInfo &add_Fence_object(VkFence var) {
 }
 
 //=========================================================================
-void remove_Fence_object(VkFence var) {
+void remove_Fence_object(const VkFence var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Fence(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2144,7 +2143,7 @@ void remove_Fence_object(VkFence var) {
 //=========================================================================
 ObjectInfo *get_Fence_objectInfo(VkFence var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdFences.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdFences.end()) {
@@ -2163,7 +2162,7 @@ ObjectInfo &add_Framebuffer_object(VkFramebuffer var) {
 }
 
 //=========================================================================
-void remove_Framebuffer_object(VkFramebuffer var) {
+void remove_Framebuffer_object(const VkFramebuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Framebuffer(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2172,7 +2171,7 @@ void remove_Framebuffer_object(VkFramebuffer var) {
 //=========================================================================
 ObjectInfo *get_Framebuffer_objectInfo(VkFramebuffer var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdFramebuffers.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdFramebuffers.end()) {
@@ -2191,7 +2190,7 @@ ObjectInfo &add_Event_object(VkEvent var) {
 }
 
 //=========================================================================
-void remove_Event_object(VkEvent var) {
+void remove_Event_object(const VkEvent var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_Event(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2200,7 +2199,7 @@ void remove_Event_object(VkEvent var) {
 //=========================================================================
 ObjectInfo *get_Event_objectInfo(VkEvent var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdEvents.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdEvents.end()) {
@@ -2219,7 +2218,7 @@ ObjectInfo &add_QueryPool_object(VkQueryPool var) {
 }
 
 //=========================================================================
-void remove_QueryPool_object(VkQueryPool var) {
+void remove_QueryPool_object(const VkQueryPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_QueryPool(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2228,7 +2227,7 @@ void remove_QueryPool_object(VkQueryPool var) {
 //=========================================================================
 ObjectInfo *get_QueryPool_objectInfo(VkQueryPool var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdQueryPools.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdQueryPools.end()) {
@@ -2247,7 +2246,7 @@ ObjectInfo &add_DescriptorSet_object(VkDescriptorSet var) {
 }
 
 //=========================================================================
-void remove_DescriptorSet_object(VkDescriptorSet var) {
+void remove_DescriptorSet_object(const VkDescriptorSet var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimGlobalStateTracker.remove_DescriptorSet(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -2256,7 +2255,7 @@ void remove_DescriptorSet_object(VkDescriptorSet var) {
 //=========================================================================
 ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    TrimObjectInfoMap::iterator iter =
+    auto iter =
         s_trimGlobalStateTracker.createdDescriptorSets.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != s_trimGlobalStateTracker.createdDescriptorSets.end()) {
@@ -2271,7 +2270,7 @@ ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
 #define TRIM_MARK_OBJECT_REFERENCE(type)                                       \
     void mark_##type##_reference(Vk##type var) {                               \
         vktrace_enter_critical_section(&trimStateTrackerLock);                 \
-        TrimObjectInfoMap::iterator iter =                                     \
+        auto iter =                                     \
             s_trimStateTrackerSnapshot.created##type##s.find(var);             \
         if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {       \
             ObjectInfo *info = &iter->second;                                  \
@@ -2285,7 +2284,7 @@ ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
 #define TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(type)                \
     void mark_##type##_reference(Vk##type var) {                               \
         vktrace_enter_critical_section(&trimStateTrackerLock);                 \
-        TrimObjectInfoMap::iterator iter =                                     \
+        auto iter =                                     \
             s_trimStateTrackerSnapshot.created##type##s.find(var);             \
         if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {       \
             ObjectInfo *info = &iter->second;                                  \
@@ -2335,7 +2334,7 @@ void write_all_referenced_object_calls() {
     vktrace_leave_critical_section(&trimStateTrackerLock);
 
     // Instances (& PhysicalDevices)
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdInstances.begin();
          obj != stateTracker.createdInstances.end(); obj++) {
         vktrace_write_trace_packet(
@@ -2367,7 +2366,7 @@ void write_all_referenced_object_calls() {
     }
 
     // SurfaceKHR
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdSurfaceKHRs.begin();
          obj != stateTracker.createdSurfaceKHRs.end(); obj++) {
         vktrace_write_trace_packet(
@@ -2378,7 +2377,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Get PhysicalDevice properties, etc
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdPhysicalDevices.begin();
          obj != stateTracker.createdPhysicalDevices.end(); obj++) {
         if (obj->second.ObjectInfo.PhysicalDevice
@@ -2439,7 +2438,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Devices
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdDevices.begin();
+    for (auto obj = stateTracker.createdDevices.begin();
          obj != stateTracker.createdDevices.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.Device.pCreatePacket,
                                    vktrace_trace_get_trace_file());
@@ -2448,7 +2447,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Queue
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdQueues.begin();
+    for (auto obj = stateTracker.createdQueues.begin();
          obj != stateTracker.createdQueues.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.Queue.pCreatePacket,
                                    vktrace_trace_get_trace_file());
@@ -2457,7 +2456,7 @@ void write_all_referenced_object_calls() {
     }
 
     // CommandPool
-    for (TrimObjectInfoMap::iterator poolObj =
+    for (auto poolObj =
              stateTracker.createdCommandPools.begin();
          poolObj != stateTracker.createdCommandPools.end(); poolObj++) {
         vktrace_write_trace_packet(
@@ -2481,7 +2480,7 @@ void write_all_referenced_object_calls() {
                 VkCommandBuffer *pCommandBuffers =
                     new VkCommandBuffer[allocateInfo.commandBufferCount];
                 uint32_t index = 0;
-                for (TrimObjectInfoMap::iterator cbIter =
+                for (auto cbIter =
                          stateTracker.createdCommandBuffers.begin();
                      cbIter != stateTracker.createdCommandBuffers.end();
                      cbIter++) {
@@ -2508,7 +2507,7 @@ void write_all_referenced_object_calls() {
     }
 
     // SwapchainKHR
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdSwapchainKHRs.begin();
          obj != stateTracker.createdSwapchainKHRs.end(); obj++) {
         vktrace_write_trace_packet(
@@ -2531,7 +2530,7 @@ void write_all_referenced_object_calls() {
     }
 
     // DeviceMemory
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdDeviceMemorys.begin();
          obj != stateTracker.createdDeviceMemorys.end(); obj++) {
         // AllocateMemory
@@ -2545,7 +2544,7 @@ void write_all_referenced_object_calls() {
     // Image
 
     // First fill in the memory that the image will be associated with
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin();
+    for (auto obj = stateTracker.createdImages.begin();
          obj != stateTracker.createdImages.end(); obj++) {
         // only update the memory for images that don't need a staging buffer
         if (obj->second.ObjectInfo.Image.needsStagingBuffer == false) {
@@ -2576,7 +2575,7 @@ void write_all_referenced_object_calls() {
         vktrace_delete_trace_packet(&(*iter));
     }
 #endif // TRIM_USE_ORDERED_IMAGE_CREATION
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin();
+    for (auto obj = stateTracker.createdImages.begin();
          obj != stateTracker.createdImages.end(); obj++) {
 #ifndef TRIM_USE_ORDERED_IMAGE_CREATION
         // CreateImage
@@ -2610,9 +2609,9 @@ void write_all_referenced_object_calls() {
         }
     }
 
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdImages.begin();
+    for (auto obj = stateTracker.createdImages.begin();
          obj != stateTracker.createdImages.end(); obj++) {
-        VkImage image = static_cast<VkImage>(obj->first);
+        VkImage image = obj->first;
         VkDevice device = obj->second.belongsToDevice;
 
         if (obj->second.ObjectInfo.Image.mostRecentLayout ==
@@ -2967,7 +2966,7 @@ void write_all_referenced_object_calls() {
     }
 
     // ImageView
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdImageViews.begin();
          obj != stateTracker.createdImageViews.end(); obj++) {
         vktrace_write_trace_packet(
@@ -2978,7 +2977,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Buffer
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdBuffers.begin();
+    for (auto obj = stateTracker.createdBuffers.begin();
          obj != stateTracker.createdBuffers.end(); obj++) {
         VkBuffer buffer = (VkBuffer)obj->first;
         VkDevice device = obj->second.belongsToDevice;
@@ -3157,7 +3156,7 @@ void write_all_referenced_object_calls() {
     }
 
     // DeviceMemory
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdDeviceMemorys.begin();
          obj != stateTracker.createdDeviceMemorys.end(); obj++) {
         if (obj->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket !=
@@ -3171,7 +3170,7 @@ void write_all_referenced_object_calls() {
     }
 
     // BufferView
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdBufferViews.begin();
          obj != stateTracker.createdBufferViews.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3182,7 +3181,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Sampler
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdSamplers.begin();
+    for (auto obj = stateTracker.createdSamplers.begin();
          obj != stateTracker.createdSamplers.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.Sampler.pCreatePacket,
                                    vktrace_trace_get_trace_file());
@@ -3191,7 +3190,7 @@ void write_all_referenced_object_calls() {
     }
 
     // DescriptorSetLayout
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdDescriptorSetLayouts.begin();
          obj != stateTracker.createdDescriptorSetLayouts.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3202,7 +3201,7 @@ void write_all_referenced_object_calls() {
     }
 
     // PipelineLayout
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdPipelineLayouts.begin();
          obj != stateTracker.createdPipelineLayouts.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3213,7 +3212,7 @@ void write_all_referenced_object_calls() {
     }
 
     // RenderPass
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdRenderPasss.begin();
          obj != stateTracker.createdRenderPasss.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3224,7 +3223,7 @@ void write_all_referenced_object_calls() {
     }
 
     // ShaderModule
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdShaderModules.begin();
          obj != stateTracker.createdShaderModules.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3235,7 +3234,7 @@ void write_all_referenced_object_calls() {
     }
 
     // PipelineCache
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdPipelineCaches.begin();
          obj != stateTracker.createdPipelineCaches.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3246,10 +3245,10 @@ void write_all_referenced_object_calls() {
     }
 
     // Pipeline
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdPipelines.begin();
          obj != stateTracker.createdPipelines.end(); obj++) {
-        VkPipeline pipeline = static_cast<VkPipeline>(obj->first);
+        VkPipeline pipeline = obj->first;
         VkDevice device = obj->second.belongsToDevice;
         VkPipelineCache pipelineCache =
             obj->second.ObjectInfo.Pipeline.pipelineCache;
@@ -3318,7 +3317,7 @@ void write_all_referenced_object_calls() {
     }
 
     // DescriptorPool
-    for (TrimObjectInfoMap::iterator poolObj =
+    for (auto poolObj =
              stateTracker.createdDescriptorPools.begin();
          poolObj != stateTracker.createdDescriptorPools.end(); poolObj++) {
         // write the createDescriptorPool packet
@@ -3334,8 +3333,7 @@ void write_all_referenced_object_calls() {
             VkDescriptorSetAllocateInfo allocateInfo;
             allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             allocateInfo.pNext = NULL;
-            allocateInfo.descriptorPool =
-                static_cast<VkDescriptorPool>(poolObj->first);
+            allocateInfo.descriptorPool = poolObj->first;
 
             VkDescriptorSetLayout *pSetLayouts =
                 new VkDescriptorSetLayout[poolObj->second.ObjectInfo
@@ -3346,7 +3344,7 @@ void write_all_referenced_object_calls() {
                                         .numSets];
             uint32_t setIndex = 0;
 
-            for (TrimObjectInfoMap::iterator setObj =
+            for (auto setObj =
                      stateTracker.createdDescriptorSets.begin();
                  setObj != stateTracker.createdDescriptorSets.end(); setObj++) {
                 // get descriptorSetLayouts and DescriptorSets specific to this
@@ -3357,8 +3355,7 @@ void write_all_referenced_object_calls() {
                         poolObj->second.ObjectInfo.DescriptorPool.numSets) {
                     pSetLayouts[setIndex] =
                         setObj->second.ObjectInfo.DescriptorSet.layout;
-                    pDescriptorSets[setIndex] =
-                        static_cast<VkDescriptorSet>(setObj->first);
+                    pDescriptorSets[setIndex] = setObj->first;
                     setIndex++;
                 }
             }
@@ -3382,10 +3379,10 @@ void write_all_referenced_object_calls() {
 
     // Update DescriptorSets
     // needs to be done per-Device
-    for (TrimObjectInfoMap::iterator deviceObj =
+    for (auto deviceObj =
              stateTracker.createdDevices.begin();
          deviceObj != stateTracker.createdDevices.end(); deviceObj++) {
-        for (TrimObjectInfoMap::iterator setObj =
+        for (auto setObj =
                  stateTracker.createdDescriptorSets.begin();
              setObj != stateTracker.createdDescriptorSets.end(); setObj++) {
             if (setObj->second.belongsToDevice == (VkDevice)deviceObj->first) {
@@ -3413,7 +3410,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Framebuffer
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdFramebuffers.begin();
          obj != stateTracker.createdFramebuffers.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3424,7 +3421,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Semaphore
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdSemaphores.begin();
          obj != stateTracker.createdSemaphores.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3435,10 +3432,10 @@ void write_all_referenced_object_calls() {
     }
 
     // Fence
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdFences.begin();
+    for (auto obj = stateTracker.createdFences.begin();
          obj != stateTracker.createdFences.end(); obj++) {
         VkDevice device = obj->second.belongsToDevice;
-        VkFence fence = static_cast<VkFence>(obj->first);
+        VkFence fence = obj->first;
         VkAllocationCallbacks *pAllocator =
             get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
 
@@ -3456,7 +3453,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Event
-    for (TrimObjectInfoMap::iterator obj = stateTracker.createdEvents.begin();
+    for (auto obj = stateTracker.createdEvents.begin();
          obj != stateTracker.createdEvents.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.Event.pCreatePacket,
                                    vktrace_trace_get_trace_file());
@@ -3465,7 +3462,7 @@ void write_all_referenced_object_calls() {
     }
 
     // QueryPool
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdQueryPools.begin();
          obj != stateTracker.createdQueryPools.end(); obj++) {
         vktrace_write_trace_packet(
@@ -3478,7 +3475,7 @@ void write_all_referenced_object_calls() {
             obj->second.ObjectInfo.QueryPool.commandBuffer;
 
         if (commandBuffer != VK_NULL_HANDLE) {
-            VkQueryPool queryPool = static_cast<VkQueryPool>(obj->first);
+            VkQueryPool queryPool = obj->first;
             VkDevice device = obj->second.belongsToDevice;
 
             VkCommandBufferBeginInfo beginInfo = {};
@@ -3570,7 +3567,7 @@ void write_all_referenced_object_calls() {
     // write out the packets to recreate the command buffers that were just
     // allocated
     vktrace_enter_critical_section(&trimCommandBufferPacketLock);
-    for (TrimObjectInfoMap::iterator cmdBuffer =
+    for (auto cmdBuffer =
              stateTracker.createdCommandBuffers.begin();
          cmdBuffer != stateTracker.createdCommandBuffers.end(); ++cmdBuffer) {
         // TODO: need to clean this up somewhere else.
@@ -3605,12 +3602,12 @@ void write_all_referenced_object_calls() {
     uint32_t signalSemaphoreCount = 0;
     VkSemaphore *pSignalSemaphores =
         VKTRACE_NEW_ARRAY(VkSemaphore, maxSemaphores);
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              stateTracker.createdSemaphores.begin();
          obj != stateTracker.createdSemaphores.end(); obj++) {
         VkQueue queue = obj->second.ObjectInfo.Semaphore.signaledOnQueue;
         if (queue != VK_NULL_HANDLE) {
-            VkSemaphore semaphore = static_cast<VkSemaphore>(obj->first);
+            VkSemaphore semaphore = obj->first;
             pSignalSemaphores[signalSemaphoreCount++] = semaphore;
 
             VkSubmitInfo submit_info;
@@ -3673,7 +3670,7 @@ void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer) {
 //=========================================================================
 void reset_DescriptorPool(VkDescriptorPool descriptorPool) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
-    for (TrimObjectInfoMap::iterator dsIter =
+    for (auto dsIter =
              s_trimGlobalStateTracker.createdDescriptorSets.begin();
          dsIter != s_trimGlobalStateTracker.createdDescriptorSets.end();) {
         if (dsIter->second.ObjectInfo.DescriptorSet.descriptorPool ==
@@ -3717,10 +3714,10 @@ void write_recorded_packets() {
 void write_destroy_packets() {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     // Make sure all queues have completed before trying to delete anything
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdQueues.begin();
          obj != s_trimGlobalStateTracker.createdQueues.end(); obj++) {
-        VkQueue queue = static_cast<VkQueue>(obj->first);
+        VkQueue queue = obj->first;
         vktrace_trace_packet_header *pHeader =
             generate::vkQueueWaitIdle(false, queue);
         vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
@@ -3728,10 +3725,10 @@ void write_destroy_packets() {
     }
 
     // QueryPool
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdQueryPools.begin();
          obj != s_trimGlobalStateTracker.createdQueryPools.end(); obj++) {
-        VkQueryPool queryPool = static_cast<VkQueryPool>(obj->first);
+        VkQueryPool queryPool = obj->first;
         VkAllocationCallbacks *pAllocator =
             get_Allocator(obj->second.ObjectInfo.QueryPool.pAllocator);
 
@@ -3742,10 +3739,10 @@ void write_destroy_packets() {
     }
 
     // Event
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdEvents.begin();
          obj != s_trimGlobalStateTracker.createdEvents.end(); obj++) {
-        VkEvent event = static_cast<VkEvent>(obj->first);
+        VkEvent event = obj->first;
         VkAllocationCallbacks *pAllocator =
             get_Allocator(obj->second.ObjectInfo.Event.pAllocator);
 
@@ -3756,10 +3753,10 @@ void write_destroy_packets() {
     }
 
     // Fence
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdFences.begin();
          obj != s_trimGlobalStateTracker.createdFences.end(); obj++) {
-        VkFence fence = static_cast<VkFence>(obj->first);
+        VkFence fence = obj->first;
         VkAllocationCallbacks *pAllocator =
             get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
 
@@ -3770,10 +3767,10 @@ void write_destroy_packets() {
     }
 
     // Semaphore
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdSemaphores.begin();
          obj != s_trimGlobalStateTracker.createdSemaphores.end(); obj++) {
-        VkSemaphore semaphore = static_cast<VkSemaphore>(obj->first);
+        VkSemaphore semaphore = obj->first;
         VkAllocationCallbacks *pAllocator =
             get_Allocator(obj->second.ObjectInfo.Semaphore.pAllocator);
 
@@ -3784,10 +3781,10 @@ void write_destroy_packets() {
     }
 
     // Framebuffer
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdFramebuffers.begin();
          obj != s_trimGlobalStateTracker.createdFramebuffers.end(); obj++) {
-        VkFramebuffer framebuffer = static_cast<VkFramebuffer>(obj->first);
+        VkFramebuffer framebuffer = obj->first;
         VkAllocationCallbacks *pAllocator =
             get_Allocator(obj->second.ObjectInfo.Framebuffer.pAllocator);
 
@@ -3798,12 +3795,11 @@ void write_destroy_packets() {
     }
 
     // DescriptorPool
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdDescriptorPools.begin();
          obj != s_trimGlobalStateTracker.createdDescriptorPools.end(); obj++) {
         // Free the associated DescriptorSets
-        VkDescriptorPool descriptorPool =
-            static_cast<VkDescriptorPool>(obj->first);
+        VkDescriptorPool descriptorPool = obj->first;
 
         // We can always call ResetDescriptorPool, but can only use
         // FreeDescriptorSets if the pool was created with
@@ -3829,7 +3825,7 @@ void write_destroy_packets() {
     }
 
     // Pipeline
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdPipelines.begin();
          obj != s_trimGlobalStateTracker.createdPipelines.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyPipeline(
@@ -3840,7 +3836,7 @@ void write_destroy_packets() {
     }
 
     // PipelineCache
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdPipelineCaches.begin();
          obj != s_trimGlobalStateTracker.createdPipelineCaches.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyPipelineCache(
@@ -3851,7 +3847,7 @@ void write_destroy_packets() {
     }
 
     // ShaderModule
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdShaderModules.begin();
          obj != s_trimGlobalStateTracker.createdShaderModules.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyShaderModule(
@@ -3862,7 +3858,7 @@ void write_destroy_packets() {
     }
 
     // RenderPass
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdRenderPasss.begin();
          obj != s_trimGlobalStateTracker.createdRenderPasss.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyRenderPass(
@@ -3873,7 +3869,7 @@ void write_destroy_packets() {
     }
 
     // PipelineLayout
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdPipelineLayouts.begin();
          obj != s_trimGlobalStateTracker.createdPipelineLayouts.end(); obj++) {
         vktrace_trace_packet_header *pHeader =
@@ -3887,7 +3883,7 @@ void write_destroy_packets() {
     }
 
     // DescriptorSetLayout
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdDescriptorSetLayouts.begin();
          obj != s_trimGlobalStateTracker.createdDescriptorSetLayouts.end();
          obj++) {
@@ -3902,7 +3898,7 @@ void write_destroy_packets() {
     }
 
     // Sampler
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdSamplers.begin();
          obj != s_trimGlobalStateTracker.createdSamplers.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroySampler(
@@ -3913,7 +3909,7 @@ void write_destroy_packets() {
     }
 
     // Buffer
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdBuffers.begin();
          obj != s_trimGlobalStateTracker.createdBuffers.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyBuffer(
@@ -3924,7 +3920,7 @@ void write_destroy_packets() {
     }
 
     // BufferView
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdBufferViews.begin();
          obj != s_trimGlobalStateTracker.createdBufferViews.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyBufferView(
@@ -3935,7 +3931,7 @@ void write_destroy_packets() {
     }
 
     // Image
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdImages.begin();
          obj != s_trimGlobalStateTracker.createdImages.end(); obj++) {
         if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false) {
@@ -3948,7 +3944,7 @@ void write_destroy_packets() {
     }
 
     // ImageView
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdImageViews.begin();
          obj != s_trimGlobalStateTracker.createdImageViews.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyImageView(
@@ -3959,7 +3955,7 @@ void write_destroy_packets() {
     }
 
     // DeviceMemory
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdDeviceMemorys.begin();
          obj != s_trimGlobalStateTracker.createdDeviceMemorys.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkFreeMemory(
@@ -3970,7 +3966,7 @@ void write_destroy_packets() {
     }
 
     // SwapchainKHR
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdSwapchainKHRs.begin();
          obj != s_trimGlobalStateTracker.createdSwapchainKHRs.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroySwapchainKHR(
@@ -3981,7 +3977,7 @@ void write_destroy_packets() {
     }
 
     // CommandPool
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdCommandPools.begin();
          obj != s_trimGlobalStateTracker.createdCommandPools.end(); obj++) {
         // free the command buffers
@@ -3996,7 +3992,7 @@ void write_destroy_packets() {
                 VkCommandBuffer *pCommandBuffers =
                     new VkCommandBuffer[commandBufferCount];
                 uint32_t index = 0;
-                for (TrimObjectInfoMap::iterator cbIter =
+                for (auto cbIter =
                          s_trimGlobalStateTracker.createdCommandBuffers.begin();
                      cbIter !=
                      s_trimGlobalStateTracker.createdCommandBuffers.end();
@@ -4033,7 +4029,7 @@ void write_destroy_packets() {
     }
 
     // Device
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdDevices.begin();
          obj != s_trimGlobalStateTracker.createdDevices.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyDevice(
@@ -4044,7 +4040,7 @@ void write_destroy_packets() {
     }
 
     // SurfaceKHR
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdSurfaceKHRs.begin();
          obj != s_trimGlobalStateTracker.createdSurfaceKHRs.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroySurfaceKHR(
@@ -4055,7 +4051,7 @@ void write_destroy_packets() {
     }
 
     // Instance
-    for (TrimObjectInfoMap::iterator obj =
+    for (auto obj =
              s_trimGlobalStateTracker.createdInstances.begin();
          obj != s_trimGlobalStateTracker.createdInstances.end(); obj++) {
         vktrace_trace_packet_header *pHeader = generate::vkDestroyInstance(

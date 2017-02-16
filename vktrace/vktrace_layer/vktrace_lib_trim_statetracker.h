@@ -266,7 +266,7 @@ typedef struct _Trim_ObjectInfo {
     } ObjectInfo;
 } ObjectInfo;
 
-typedef std::unordered_map<void *, ObjectInfo> TrimObjectInfoMap;
+//typedef std::unordered_map<uint64_t, ObjectInfo> TrimObjectInfoMap;
 
 //-------------------------------------------------------------------------
 class StateTracker {
@@ -362,33 +362,33 @@ class StateTracker {
     ObjectInfo *get_DescriptorSetLayout(VkDescriptorSetLayout var);
     ObjectInfo *get_DescriptorSet(VkDescriptorSet var);
 
-    void remove_Instance(VkInstance var);
-    void remove_PhysicalDevice(VkPhysicalDevice var);
-    void remove_Device(VkDevice var);
-    void remove_SurfaceKHR(VkSurfaceKHR var);
-    void remove_CommandPool(VkCommandPool var);
-    void remove_CommandBuffer(VkCommandBuffer var);
-    void remove_DescriptorPool(VkDescriptorPool var);
-    void remove_RenderPass(VkRenderPass var);
-    void remove_PipelineCache(VkPipelineCache var);
-    void remove_Pipeline(VkPipeline var);
-    void remove_Queue(VkQueue var);
-    void remove_Semaphore(VkSemaphore var);
-    void remove_DeviceMemory(VkDeviceMemory var);
-    void remove_Fence(VkFence var);
-    void remove_SwapchainKHR(VkSwapchainKHR var);
-    void remove_Image(VkImage var);
-    void remove_ImageView(VkImageView var);
-    void remove_Buffer(VkBuffer var);
-    void remove_BufferView(VkBufferView var);
-    void remove_Framebuffer(VkFramebuffer var);
-    void remove_Event(VkEvent var);
-    void remove_QueryPool(VkQueryPool var);
-    void remove_ShaderModule(VkShaderModule var);
-    void remove_PipelineLayout(VkPipelineLayout var);
-    void remove_Sampler(VkSampler var);
-    void remove_DescriptorSetLayout(VkDescriptorSetLayout var);
-    void remove_DescriptorSet(VkDescriptorSet var);
+    void remove_Instance(const VkInstance var);
+    void remove_PhysicalDevice(const VkPhysicalDevice var);
+    void remove_Device(const VkDevice var);
+    void remove_SurfaceKHR(const VkSurfaceKHR var);
+    void remove_CommandPool(const VkCommandPool var);
+    void remove_CommandBuffer(const VkCommandBuffer var);
+    void remove_DescriptorPool(const VkDescriptorPool var);
+    void remove_RenderPass(const VkRenderPass var);
+    void remove_PipelineCache(const VkPipelineCache var);
+    void remove_Pipeline(const VkPipeline var);
+    void remove_Queue(const VkQueue var);
+    void remove_Semaphore(const VkSemaphore var);
+    void remove_DeviceMemory(const VkDeviceMemory var);
+    void remove_Fence(const VkFence var);
+    void remove_SwapchainKHR(const VkSwapchainKHR var);
+    void remove_Image(const VkImage var);
+    void remove_ImageView(const VkImageView var);
+    void remove_Buffer(const VkBuffer var);
+    void remove_BufferView(const VkBufferView var);
+    void remove_Framebuffer(const VkFramebuffer var);
+    void remove_Event(const VkEvent var);
+    void remove_QueryPool(const VkQueryPool var);
+    void remove_ShaderModule(const VkShaderModule var);
+    void remove_PipelineLayout(const VkPipelineLayout var);
+    void remove_Sampler(const VkSampler var);
+    void remove_DescriptorSetLayout(const VkDescriptorSetLayout var);
+    void remove_DescriptorSet(const VkDescriptorSet var);
 
     static void copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
         const VkRenderPassCreateInfo &src);
@@ -421,32 +421,32 @@ class StateTracker {
     // same size requirements as they had a trace-time.
     std::list<vktrace_trace_packet_header *> m_image_calls;
 
-    TrimObjectInfoMap createdInstances;
-    TrimObjectInfoMap createdPhysicalDevices;
-    TrimObjectInfoMap createdDevices;
-    TrimObjectInfoMap createdSurfaceKHRs;
-    TrimObjectInfoMap createdCommandPools;
-    TrimObjectInfoMap createdCommandBuffers;
-    TrimObjectInfoMap createdDescriptorPools;
-    TrimObjectInfoMap createdRenderPasss;
-    TrimObjectInfoMap createdPipelineCaches;
-    TrimObjectInfoMap createdPipelines;
-    TrimObjectInfoMap createdQueues;
-    TrimObjectInfoMap createdSemaphores;
-    TrimObjectInfoMap createdDeviceMemorys;
-    TrimObjectInfoMap createdFences;
-    TrimObjectInfoMap createdSwapchainKHRs;
-    TrimObjectInfoMap createdImages;
-    TrimObjectInfoMap createdImageViews;
-    TrimObjectInfoMap createdBuffers;
-    TrimObjectInfoMap createdBufferViews;
-    TrimObjectInfoMap createdFramebuffers;
-    TrimObjectInfoMap createdEvents;
-    TrimObjectInfoMap createdQueryPools;
-    TrimObjectInfoMap createdShaderModules;
-    TrimObjectInfoMap createdPipelineLayouts;
-    TrimObjectInfoMap createdSamplers;
-    TrimObjectInfoMap createdDescriptorSetLayouts;
-    TrimObjectInfoMap createdDescriptorSets;
+    std::unordered_map<VkInstance, ObjectInfo> createdInstances;
+    std::unordered_map<VkPhysicalDevice, ObjectInfo>createdPhysicalDevices;
+    std::unordered_map<VkDevice, ObjectInfo> createdDevices;
+    std::unordered_map<VkSurfaceKHR, ObjectInfo> createdSurfaceKHRs;
+    std::unordered_map<VkCommandPool, ObjectInfo> createdCommandPools;
+    std::unordered_map<VkCommandBuffer, ObjectInfo> createdCommandBuffers;
+    std::unordered_map<VkDescriptorPool, ObjectInfo> createdDescriptorPools;
+    std::unordered_map<VkRenderPass, ObjectInfo> createdRenderPasss;
+    std::unordered_map<VkPipelineCache, ObjectInfo> createdPipelineCaches;
+    std::unordered_map<VkPipeline, ObjectInfo> createdPipelines;
+    std::unordered_map<VkQueue, ObjectInfo> createdQueues;
+    std::unordered_map<VkSemaphore, ObjectInfo> createdSemaphores;
+    std::unordered_map<VkDeviceMemory, ObjectInfo> createdDeviceMemorys;
+    std::unordered_map<VkFence, ObjectInfo> createdFences;
+    std::unordered_map<VkSwapchainKHR, ObjectInfo> createdSwapchainKHRs;
+    std::unordered_map<VkImage, ObjectInfo> createdImages;
+    std::unordered_map<VkImageView, ObjectInfo> createdImageViews;
+    std::unordered_map<VkBuffer, ObjectInfo> createdBuffers;
+    std::unordered_map<VkBufferView, ObjectInfo> createdBufferViews;
+    std::unordered_map<VkFramebuffer, ObjectInfo> createdFramebuffers;
+    std::unordered_map<VkEvent, ObjectInfo> createdEvents;
+    std::unordered_map<VkQueryPool, ObjectInfo> createdQueryPools;
+    std::unordered_map<VkShaderModule, ObjectInfo> createdShaderModules;
+    std::unordered_map<VkPipelineLayout, ObjectInfo> createdPipelineLayouts;
+    std::unordered_map<VkSampler, ObjectInfo> createdSamplers;
+    std::unordered_map<VkDescriptorSetLayout, ObjectInfo> createdDescriptorSetLayouts;
+    std::unordered_map<VkDescriptorSet, ObjectInfo> createdDescriptorSets;
 };
 }
