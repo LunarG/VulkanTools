@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 #
 # Copyright (c) 2013-2017 The Khronos Group Inc.
-# Copyright (c) 2015-2017 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +17,8 @@
 import argparse, cProfile, pdb, string, sys, time
 from reg import *
 from generator import write
-
-#
-# LoaderAndValidationLayer Generator Additions
+from cgenerator import CGeneratorOptions, COutputGenerator
+# LoaderAndValidationLayer Generator Modifications
 from threading_generator import  ThreadGeneratorOptions, ThreadOutputGenerator
 from parameter_validation_generator import ParamCheckerGeneratorOptions, ParamCheckerOutputGenerator
 from unique_objects_generator import UniqueObjectsGeneratorOptions, UniqueObjectsOutputGenerator
@@ -68,7 +66,7 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
-        '** Copyright (c) 2015-2016 The Khronos Group Inc.',
+        '** Copyright (c) 2015-2017 The Khronos Group Inc.',
         '**',
         '** Licensed under the Apache License, Version 2.0 (the "License");',
         '** you may not use this file except in compliance with the License.',
@@ -99,7 +97,8 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
     protectFeature = protect
     protectProto = protect
 
-    #
+
+        #
     # LoaderAndValidationLayer Generators
     # Options for threading layer
     genOpts['thread_check.h'] = [
@@ -447,7 +446,7 @@ if __name__ == '__main__':
 
     if (args.dump):
         write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle = open('regdump.txt','w', encoding='utf-8'))
+        reg.dumpReg(filehandle = open('regdump.txt', 'w', encoding='utf-8'))
 
     # create error/warning & diagnostic files
     if (args.errfile):
