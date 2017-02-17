@@ -85,7 +85,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_settings.enable_pmb},
      {&g_default_settings.enable_pmb},
      TRUE,
-     "Optimize tracing of persistently mapped buffers, default is TRUE."},
+     "Enable tracking of persistently mapped buffers, default is TRUE."},
 #if _DEBUG
     {"v",
      "Verbosity",
@@ -337,7 +337,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb ? "1" : "0");
+    vktrace_set_global_var("VKTRACE_PMB_ENABLE", g_settings.enable_pmb ? "1" : "0");
     if (g_settings.traceTrigger) {
         // Export list to screenshot layer
         vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", g_settings.traceTrigger);
