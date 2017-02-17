@@ -85,7 +85,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_settings.enable_pmb},
      {&g_default_settings.enable_pmb},
      TRUE,
-     "Optimize tracing of persistently mapped buffers, default is TRUE."},
+     "Enable tracking of persistently mapped buffers, default is TRUE."},
 #if _DEBUG
     {"v",
      "Verbosity",
@@ -268,6 +268,12 @@ int main(int argc, char* argv[]) {
     g_default_settings.screenshotList = NULL;
     g_default_settings.enable_pmb = true;
 
+    // Check to see if the PAGEGUARD_PAGEGUARD_ENABLE_ENV env var is set.
+    // If it is set to anything but "1", set the default to false.
+    // Note that the command line option will override the env variable.
+    char* pmbEnableEnv = vktrace_get_global_var(VKTRACE_PMB_ENABLE_ENV);
+    if (pmbEnableEnv && strcmp(pmbEnableEnv, "1")) g_default_settings.enable_pmb = false;
+
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0) {
         // invalid cmd-line parameters
         vktrace_SettingGroup_delete(&g_settingGroup);
@@ -297,7 +303,7 @@ int main(int argc, char* argv[]) {
             vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
             validArgs = FALSE;
         }
-        vktrace_set_global_var("_VK_TRACE_VERBOSITY", g_settings.verbosity);
+        vktrace_set_global_var(_VKTRACE_VERBOSITY_ENV, g_settings.verbosity);
 
         if (g_settings.screenshotList) {
             if (!screenshot::checkParsingFrameRange(g_settings.screenshotList)) {
@@ -305,10 +311,10 @@ int main(int argc, char* argv[]) {
                 validArgs = FALSE;
             } else {
                 // Export list to screenshot layer
-                vktrace_set_global_var("_VK_SCREENSHOT", g_settings.screenshotList);
+                vktrace_set_global_var("VK_SCREENSHOT_FRAMES", g_settings.screenshotList);
             }
         } else {
-            vktrace_set_global_var("_VK_SCREENSHOT", "");
+            vktrace_set_global_var("VK_SCREENSHOT_FRAMES", "");
         }
 
         if (validArgs == FALSE) {
@@ -337,12 +343,13 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb ? "1" : "0");
+    vktrace_set_global_var(VKTRACE_PMB_ENABLE_ENV, g_settings.enable_pmb ? "1" : "0");
+
     if (g_settings.traceTrigger) {
         // Export list to screenshot layer
-        vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", g_settings.traceTrigger);
+        vktrace_set_global_var(VKTRACE_TRIM_TRIGGER_ENV, g_settings.traceTrigger);
     } else {
-        vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", "");
+        vktrace_set_global_var(VKTRACE_TRIM_TRIGGER_ENV, "");
     }
 
     unsigned int serverIndex = 0;

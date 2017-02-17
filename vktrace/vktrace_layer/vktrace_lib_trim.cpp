@@ -347,7 +347,6 @@ bool is_hotkey_trim_triggered() {
 
 //=========================================================================
 char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType) {
-    static const char TRIM_TRIGGER_ENV_NAME[] = "VKTRACE_TRIM_TRIGGER";
     static const char TRIM_TRIGGER_HOTKEY_TYPE_STRING[] = "hotkey";
     static const char TRIM_TRIGGER_FRAMES_TYPE_STRING[] = "frames";
     static const char TRIM_TRIGGER_FRAMES_DEFAULT_HOTKEY_STRING[] = "F12";
@@ -360,7 +359,7 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType) {
 
     if (firstTimeRunning) {
         firstTimeRunning = false;
-        const char *trim_trigger_string = vktrace_get_global_var(TRIM_TRIGGER_ENV_NAME);
+        const char *trim_trigger_string = vktrace_get_global_var(VKTRACE_TRIM_TRIGGER_ENV);
         if (trim_trigger_string) {
             assert(strlen(trim_trigger_string) < TRACE_TRIGGER_STRING_LENGTH);
 
