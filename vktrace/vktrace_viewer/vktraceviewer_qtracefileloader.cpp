@@ -26,42 +26,34 @@ extern "C" {
 #include "vktrace_trace_packet_utils.h"
 }
 
-vktraceviewer_QTraceFileLoader::vktraceviewer_QTraceFileLoader()
-    : QObject(NULL)
-{
+vktraceviewer_QTraceFileLoader::vktraceviewer_QTraceFileLoader() : QObject(NULL) {
     qRegisterMetaType<vktraceviewer_trace_file_info>("vktraceviewer_trace_file_info");
 }
 
-vktraceviewer_QTraceFileLoader::~vktraceviewer_QTraceFileLoader()
-{
-}
+vktraceviewer_QTraceFileLoader::~vktraceviewer_QTraceFileLoader() {}
 
 //-----------------------------------------------------------------------------
-void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
-{
+void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename) {
     // open trace file and read in header
     memset(&m_traceFileInfo, 0, sizeof(vktraceviewer_trace_file_info));
     m_traceFileInfo.pFile = fopen(filename.toStdString().c_str(), "rb");
 
     bool bOpened = (m_traceFileInfo.pFile != NULL);
-    if (!bOpened)
-    {
+    if (!bOpened) {
         emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to open file.");
-    }
-    else
-    {
+    } else {
         m_traceFileInfo.filename = vktrace_allocate_and_copy(filename.toStdString().c_str());
-        if (populate_trace_file_info(&m_traceFileInfo) == FALSE)
-        {
+        if (populate_trace_file_info(&m_traceFileInfo) == FALSE) {
             emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to populate trace file info from file.");
             bOpened = false;
-        }
-        else
-        {
+        } else {
             // Make sure trace file version is supported
-            if (m_traceFileInfo.header.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE)
-            {
-                emit OutputMessage(VKTRACE_LOG_ERROR, QString("Trace file version %1 is older than minimum compatible version (%2).\nYou'll need to make a new trace file, or use an older replayer.").arg(m_traceFileInfo.header.trace_file_version).arg(VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE));
+            if (m_traceFileInfo.header.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE) {
+                emit OutputMessage(VKTRACE_LOG_ERROR,
+                                   QString("Trace file version %1 is older than minimum compatible version (%2).\nYou'll need to "
+                                           "make a new trace file, or use an older replayer.")
+                                       .arg(m_traceFileInfo.header.trace_file_version)
+                                       .arg(VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE));
                 bOpened = false;
             }
 
@@ -69,24 +61,24 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
             m_pController = vtvCreateQController();
             if (bOpened)
 #else
-            if (!load_controllers(&m_traceFileInfo))
-            {
+            if (!load_controllers(&m_traceFileInfo)) {
                 emit OutputMessage(VKTRACE_LOG_ERROR, "Failed to load necessary debug controllers.");
                 bOpened = false;
-            }
-            else if (bOpened)
+            } else if (bOpened)
 #endif
             {
-                connect(m_pController, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)), this, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)));
-                connect(m_pController, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)), this, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)));
+                connect(m_pController, SIGNAL(OutputMessage(VktraceLogLevel, const QString&)), this,
+                        SIGNAL(OutputMessage(VktraceLogLevel, const QString&)));
+                connect(m_pController, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)), this,
+                        SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)));
 
                 // interpret the trace file packets
-                for (uint64_t i = 0; i < m_traceFileInfo.packetCount; i++)
-                {
+                for (uint64_t i = 0; i < m_traceFileInfo.packetCount; i++) {
                     vktraceviewer_trace_file_packet_offsets* pOffsets = &m_traceFileInfo.pPacketOffsets[i];
                     switch (pOffsets->pHeader->packet_id) {
                         case VKTRACE_TPI_MESSAGE:
-                            m_traceFileInfo.pPacketOffsets[i].pHeader = vktrace_interpret_body_as_trace_packet_message(pOffsets->pHeader)->pHeader;
+                            m_traceFileInfo.pPacketOffsets[i].pHeader =
+                                vktrace_interpret_body_as_trace_packet_message(pOffsets->pHeader)->pHeader;
                             break;
                         case VKTRACE_TPI_MARKER_CHECKPOINT:
                             break;
@@ -98,14 +90,13 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
                             break;
                         case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
                             break;
-                        //TODO processing code for all the above cases
-                        default:
-                        {
+                        // TODO processing code for all the above cases
+                        default: {
                             vktrace_trace_packet_header* pHeader = m_pController->InterpretTracePacket(pOffsets->pHeader);
-                            if (pHeader == NULL)
-                            {
+                            if (pHeader == NULL) {
                                 bOpened = false;
-                                emit OutputMessage(VKTRACE_LOG_ERROR, QString("Unrecognized packet type: %1").arg(pOffsets->pHeader->packet_id));
+                                emit OutputMessage(VKTRACE_LOG_ERROR,
+                                                   QString("Unrecognized packet type: %1").arg(pOffsets->pHeader->packet_id));
                                 m_traceFileInfo.pPacketOffsets[i].pHeader = NULL;
                                 break;
                             }
@@ -114,16 +105,15 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
                     }
 
                     // break from loop if there is an error
-                    if (bOpened == false)
-                    {
+                    if (bOpened == false) {
                         break;
                     }
                 }
 
 #ifdef USE_STATIC_CONTROLLER_LIBRARY
-            vtvDeleteQController(&m_pController);
+                vtvDeleteQController(&m_pController);
 #else
-            m_controllerFactory.Unload(&m_pController);
+                m_controllerFactory.Unload(&m_pController);
 #endif
             }
         }
@@ -143,40 +133,32 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename)
 }
 
 //-----------------------------------------------------------------------------
-bool vktraceviewer_QTraceFileLoader::load_controllers(vktraceviewer_trace_file_info* pTraceFileInfo)
-{
-    if (pTraceFileInfo->header.tracer_count == 0)
-    {
+bool vktraceviewer_QTraceFileLoader::load_controllers(vktraceviewer_trace_file_info* pTraceFileInfo) {
+    if (pTraceFileInfo->header.tracer_count == 0) {
         emit OutputMessage(VKTRACE_LOG_ERROR, "No API specified in tracefile for replaying.");
         return false;
     }
 
-    for (int i = 0; i < pTraceFileInfo->header.tracer_count; i++)
-    {
+    for (int i = 0; i < pTraceFileInfo->header.tracer_count; i++) {
         uint8_t tracerId = pTraceFileInfo->header.tracer_id_array[i].id;
 
         const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);
 
-        if (pReplayerInfo->tracerId != tracerId)
-        {
-            emit OutputMessage(VKTRACE_LOG_ERROR, QString("Replayer info for TracerId (%1) failed consistency check.").arg(tracerId));
+        if (pReplayerInfo->tracerId != tracerId) {
+            emit OutputMessage(VKTRACE_LOG_ERROR,
+                               QString("Replayer info for TracerId (%1) failed consistency check.").arg(tracerId));
             assert(!"TracerId in VKTRACE_TRACER_REPLAYER_INFO does not match the requested tracerId. The array needs to be corrected.");
-        }
-        else if (strlen(pReplayerInfo->debuggerLibraryname) != 0)
-        {
+        } else if (strlen(pReplayerInfo->debuggerLibraryname) != 0) {
             // Have our factory create the necessary controller
             emit OutputMessage(VKTRACE_LOG_VERBOSE, QString("Loading controller: %1").arg(pReplayerInfo->debuggerLibraryname));
 
             m_pController = m_controllerFactory.Load(pReplayerInfo->debuggerLibraryname);
 
-            if (m_pController != NULL)
-            {
+            if (m_pController != NULL) {
                 m_controllerFilename = QString(pReplayerInfo->debuggerLibraryname);
                 // Only one controller needs to be loaded, so break from loop
                 break;
-            }
-            else
-            {
+            } else {
                 // controller failed to be created
                 emit OutputMessage(VKTRACE_LOG_ERROR, QString("Unable to load controller for TracerId %1.").arg(tracerId));
             }
@@ -187,14 +169,12 @@ bool vktraceviewer_QTraceFileLoader::load_controllers(vktraceviewer_trace_file_i
 }
 
 //-----------------------------------------------------------------------------
-bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo)
-{
+bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo) {
     assert(pTraceFileInfo != NULL);
     assert(pTraceFileInfo->pFile != NULL);
 
     // read trace file header
-    if (1 != fread(&(pTraceFileInfo->header), sizeof(vktrace_trace_file_header), 1, pTraceFileInfo->pFile))
-    {
+    if (1 != fread(&(pTraceFileInfo->header), sizeof(vktrace_trace_file_header), 1, pTraceFileInfo->pFile)) {
         emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to read header from file.");
         return false;
     }
@@ -207,95 +187,81 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
     // Seek to first packet
     long first_offset = pTraceFileInfo->header.first_packet_offset;
     int seekResult = fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
-    if (seekResult != 0)
-    {
+    if (seekResult != 0) {
         emit OutputMessage(VKTRACE_LOG_WARNING, "Failed to seek to the first packet offset in the trace file.");
     }
 
     // "Walk" through each packet based on the packet size (which is the first 64-bits of the packet header)
     uint64_t fileOffset = pTraceFileInfo->header.first_packet_offset;
     uint64_t packetSize = 0;
-    while(1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile))
-    {
+    while (1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile)) {
         // success!
         pTraceFileInfo->packetCount++;
         fileOffset += packetSize;
 
         seekResult = fseek(pTraceFileInfo->pFile, packetSize - sizeof(uint64_t), SEEK_CUR);
-        if (seekResult != 0)
-        {
+        if (seekResult != 0) {
             emit OutputMessage(VKTRACE_LOG_ERROR, "Error while seeking through trace file.");
             break;
         }
 
-        if (ferror(pTraceFileInfo->pFile) != 0)
-        {
+        if (ferror(pTraceFileInfo->pFile) != 0) {
             emit OutputMessage(VKTRACE_LOG_ERROR, "Error while reading trace file.");
             break;
         }
     }
 
-    if (pTraceFileInfo->packetCount == 0)
-    {
-        if (ferror(pTraceFileInfo->pFile) != 0)
-        {
+    if (pTraceFileInfo->packetCount == 0) {
+        if (ferror(pTraceFileInfo->pFile) != 0) {
             perror("File Read error:");
             emit OutputMessage(VKTRACE_LOG_ERROR, "There was an error reading the trace file.");
             return false;
-        }
-        else if (feof(pTraceFileInfo->pFile) != 0)
-        {
+        } else if (feof(pTraceFileInfo->pFile) != 0) {
             emit OutputMessage(VKTRACE_LOG_WARNING, "Reached the end of the file.");
         }
         emit OutputMessage(VKTRACE_LOG_WARNING, "There are no trace packets in this trace file.");
         pTraceFileInfo->pPacketOffsets = NULL;
-    }
-    else
-    {
+    } else {
         pTraceFileInfo->pPacketOffsets = VKTRACE_NEW_ARRAY(vktraceviewer_trace_file_packet_offsets, pTraceFileInfo->packetCount);
 
         // rewind to first packet and this time, populate the packet offsets
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0)
-        {
+        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to rewind trace file to gather packet offsets.");
             return false;
         }
 
         unsigned int packetIndex = 0;
         fileOffset = first_offset;
-        while(1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile))
-        {
+        while (1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile)) {
             // the fread confirms that this packet exists
             // NOTE: We do not actually read the entire packet into memory right now.
             pTraceFileInfo->pPacketOffsets[packetIndex].fileOffset = fileOffset;
 
             // rewind slightly
-            seekResult = fseek(pTraceFileInfo->pFile, -1*(long)sizeof(uint64_t), SEEK_CUR);
+            seekResult = fseek(pTraceFileInfo->pFile, -1 * (long)sizeof(uint64_t), SEEK_CUR);
 
-            if (seekResult != 0)
-            {
+            if (seekResult != 0) {
                 emit OutputMessage(VKTRACE_LOG_ERROR, "Error while seeking between packets.");
                 break;
             }
 
             // allocate space for the packet and read it in
             pTraceFileInfo->pPacketOffsets[packetIndex].pHeader = (vktrace_trace_packet_header*)vktrace_malloc(packetSize);
-            if (1 != fread(pTraceFileInfo->pPacketOffsets[packetIndex].pHeader, packetSize, 1, pTraceFileInfo->pFile))
-            {
+            if (1 != fread(pTraceFileInfo->pPacketOffsets[packetIndex].pHeader, packetSize, 1, pTraceFileInfo->pFile)) {
                 emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to read in a trace packet.");
                 return false;
             }
 
             // adjust pointer to body of the packet
-            pTraceFileInfo->pPacketOffsets[packetIndex].pHeader->pBody = (uintptr_t)pTraceFileInfo->pPacketOffsets[packetIndex].pHeader + sizeof(vktrace_trace_packet_header);
+            pTraceFileInfo->pPacketOffsets[packetIndex].pHeader->pBody =
+                (uintptr_t)pTraceFileInfo->pPacketOffsets[packetIndex].pHeader + sizeof(vktrace_trace_packet_header);
 
             // now seek to what should be the next packet
             fileOffset += packetSize;
             packetIndex++;
         }
 
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0)
-        {
+        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to rewind trace file to restore position.");
             return false;
         }

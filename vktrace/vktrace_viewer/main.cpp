@@ -24,22 +24,19 @@
 #include "vktraceviewer.h"
 #include "vktraceviewer_settings.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     // Initialize QApplication before initializing settings
     QApplication a(argc, argv);
 
     // initialize settings
-    if (vktraceviewer_initialize_settings(argc, argv) == false)
-    {
+    if (vktraceviewer_initialize_settings(argc, argv) == false) {
         return -1;
     }
 
     vktraceviewer w;
     w.show();
 
-    if (g_settings.trace_file_to_open != NULL && strlen(g_settings.trace_file_to_open) > 0)
-    {
+    if (g_settings.trace_file_to_open != NULL && strlen(g_settings.trace_file_to_open) > 0) {
         w.open_trace_file_threaded(QString(g_settings.trace_file_to_open));
     }
 

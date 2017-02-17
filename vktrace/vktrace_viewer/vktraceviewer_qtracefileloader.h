@@ -26,17 +26,16 @@
 #include "vktraceviewer_controller.h"
 
 #define USE_STATIC_CONTROLLER_LIBRARY 1
-class vktraceviewer_QTraceFileLoader : public QObject
-{
+class vktraceviewer_QTraceFileLoader : public QObject {
     Q_OBJECT
-public:
+   public:
     vktraceviewer_QTraceFileLoader();
     virtual ~vktraceviewer_QTraceFileLoader();
 
-public slots:
+   public slots:
     void loadTraceFile(const QString& filename);
 
-signals:
+   signals:
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message);
     void OutputMessage(VktraceLogLevel level, const QString& message);
 
@@ -44,7 +43,7 @@ signals:
 
     void Finished();
 
-private:
+   private:
     vktraceviewer_trace_file_info m_traceFileInfo;
     vktraceviewer_controller_factory m_controllerFactory;
     vktraceviewer_QController* m_pController;
@@ -53,7 +52,6 @@ private:
     bool load_controllers(vktraceviewer_trace_file_info* pTraceFileInfo);
 
     bool populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo);
-
 };
 
-#endif // VKTRACEVIEWER_QTRACEFILELOADER_H
+#endif  // VKTRACEVIEWER_QTRACEFILELOADER_H

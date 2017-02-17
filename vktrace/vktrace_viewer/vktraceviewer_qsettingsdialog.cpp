@@ -35,11 +35,8 @@
 
 Q_DECLARE_METATYPE(vktrace_SettingInfo*);
 
-vktraceviewer_QSettingsDialog::vktraceviewer_QSettingsDialog(QWidget *parent)
-    : QDialog(parent),
-      m_pSettingGroups(NULL),
-      m_numSettingGroups(0)
-{
+vktraceviewer_QSettingsDialog::vktraceviewer_QSettingsDialog(QWidget* parent)
+    : QDialog(parent), m_pSettingGroups(NULL), m_numSettingGroups(0) {
     this->setWindowTitle("Settings");
 
     QVBoxLayout* pLayout = new QVBoxLayout(this);
@@ -56,63 +53,46 @@ vktraceviewer_QSettingsDialog::vktraceviewer_QSettingsDialog(QWidget *parent)
     connect(pButtonBox, SIGNAL(rejected()), this, SLOT(cancelCB()));
 }
 
-vktraceviewer_QSettingsDialog::~vktraceviewer_QSettingsDialog()
-{
-    removeTabs();
-}
+vktraceviewer_QSettingsDialog::~vktraceviewer_QSettingsDialog() { removeTabs(); }
 
-void vktraceviewer_QSettingsDialog::removeTabs()
-{
-    if (m_pTabWidget == NULL)
-    {
+void vktraceviewer_QSettingsDialog::removeTabs() {
+    if (m_pTabWidget == NULL) {
         return;
     }
 
-    while (m_pTabWidget->count() > 0)
-    {
+    while (m_pTabWidget->count() > 0) {
         m_pTabWidget->removeTab(0);
     }
 }
 
-void vktraceviewer_QSettingsDialog::setGroups(vktrace_SettingGroup* pSettingGroups, unsigned int numGroups)
-{
+void vktraceviewer_QSettingsDialog::setGroups(vktrace_SettingGroup* pSettingGroups, unsigned int numGroups) {
     removeTabs();
 
     m_pSettingGroups = pSettingGroups;
     m_numSettingGroups = numGroups;
 
     // add tabs to display other groups of settings
-    for (unsigned int i = 0; i < m_numSettingGroups; i++)
-    {
+    for (unsigned int i = 0; i < m_numSettingGroups; i++) {
         this->add_tab(&m_pSettingGroups[i]);
     }
 }
 
-void vktraceviewer_QSettingsDialog::acceptCB()
-{
-    save();
-}
+void vktraceviewer_QSettingsDialog::acceptCB() { save(); }
 
-void vktraceviewer_QSettingsDialog::cancelCB()
-{
-    reject();
-}
+void vktraceviewer_QSettingsDialog::cancelCB() { reject(); }
 
-void vktraceviewer_QSettingsDialog::resizeEvent(QResizeEvent *pEvent)
-{
+void vktraceviewer_QSettingsDialog::resizeEvent(QResizeEvent* pEvent) {
     emit Resized(pEvent->size().width(), pEvent->size().height());
 }
 
-void vktraceviewer_QSettingsDialog::save()
-{
+void vktraceviewer_QSettingsDialog::save() {
     // save vktraceviewer settings
 
     emit SaveSettings(m_pSettingGroups, m_numSettingGroups);
     accept();
 }
 
-void vktraceviewer_QSettingsDialog::add_tab(vktrace_SettingGroup* pGroup)
-{
+void vktraceviewer_QSettingsDialog::add_tab(vktrace_SettingGroup* pGroup) {
     QWidget* pTab = new QWidget(m_pTabWidget);
     m_pTabWidget->addTab(pTab, pGroup->pName);
     QHBoxLayout* pLayout = new QHBoxLayout(pTab);
@@ -123,21 +103,21 @@ void vktraceviewer_QSettingsDialog::add_tab(vktrace_SettingGroup* pGroup)
     pLayout->addWidget(pTable, 1);
 
     QStringList headers;
-    headers << "Name" << "Value";
+    headers << "Name"
+            << "Value";
     pTable->setHorizontalHeaderLabels(headers);
     pTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     pTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    connect(pTable, SIGNAL(itemChanged(QTableWidgetItem *)), this, SLOT(settingEdited(QTableWidgetItem *)));
+    connect(pTable, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(settingEdited(QTableWidgetItem*)));
     int row = 0;
-    for (unsigned int i = 0; i < pGroup->numSettings; i++)
-    {
-        QTableWidgetItem *nameItem = new QTableWidgetItem(pGroup->pSettings[i].pLongName);
+    for (unsigned int i = 0; i < pGroup->numSettings; i++) {
+        QTableWidgetItem* nameItem = new QTableWidgetItem(pGroup->pSettings[i].pLongName);
         nameItem->setData(Qt::UserRole, QVariant::fromValue(&pGroup->pSettings[i]));
         pTable->setItem(row, 0, nameItem);
 
         char* pLeakedMem = vktrace_SettingInfo_stringify_value(&pGroup->pSettings[i]);
-        QTableWidgetItem *valueItem = new QTableWidgetItem(pLeakedMem);
+        QTableWidgetItem* valueItem = new QTableWidgetItem(pLeakedMem);
         valueItem->setData(Qt::UserRole, QVariant::fromValue(&pGroup->pSettings[i]));
         pTable->setItem(row, 1, valueItem);
 
@@ -145,23 +125,16 @@ void vktraceviewer_QSettingsDialog::add_tab(vktrace_SettingGroup* pGroup)
     }
 }
 
-void vktraceviewer_QSettingsDialog::settingEdited(QTableWidgetItem *pItem)
-{
+void vktraceviewer_QSettingsDialog::settingEdited(QTableWidgetItem* pItem) {
     vktrace_SettingInfo* pSetting = pItem->data(Qt::UserRole).value<vktrace_SettingInfo*>();
 
-    if (pSetting != NULL)
-    {
-        if (pItem->column() == 0)
-        {
+    if (pSetting != NULL) {
+        if (pItem->column() == 0) {
             vktrace_free((void*)pSetting->pLongName);
             pSetting->pLongName = vktrace_allocate_and_copy(pItem->text().toStdString().c_str());
-        }
-        else if (pItem->column() == 1)
-        {
+        } else if (pItem->column() == 1) {
             vktrace_SettingInfo_parse_value(pSetting, pItem->text().toStdString().c_str());
-        }
-        else
-        {
+        } else {
             // invalid column
         }
     }

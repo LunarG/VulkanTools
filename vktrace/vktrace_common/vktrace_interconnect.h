@@ -2,7 +2,7 @@
  * Copyright (c) 2013, NVIDIA CORPORATION. All rights reserved.
  * Copyright (c) 2014-2016 Valve Corporation. All rights reserved.
  * Copyright (C) 2014-2016 LunarG, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,24 +25,24 @@
 #include "vktrace_common.h"
 
 #if defined(PLATFORM_POSIX)
-    #include <arpa/inet.h>
-    #include <netdb.h>
-    #include <netinet/in.h>
-    #include <netinet/tcp.h>
-    #include <sys/socket.h>
-    #define SOCKET int
-    #define INVALID_SOCKET 0
-    #define SOCKET_ERROR -1
-    #define closesocket close
-    #define VKTRACE_WSAGetLastError() errno
-    #define WSAEWOULDBLOCK EWOULDBLOCK
-    #define WSAEAGAIN EAGAIN
-    #define WSAECONNRESET ECONNRESET
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#define SOCKET int
+#define INVALID_SOCKET 0
+#define SOCKET_ERROR -1
+#define closesocket close
+#define VKTRACE_WSAGetLastError() errno
+#define WSAEWOULDBLOCK EWOULDBLOCK
+#define WSAEAGAIN EAGAIN
+#define WSAECONNRESET ECONNRESET
 #elif defined(WIN32)
-    #include <WinSock2.h>
-    #include <WS2tcpip.h>
-    #pragma comment (lib, "Ws2_32.lib")
-    #define VKTRACE_WSAGetLastError() WSAGetLastError()
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#pragma comment(lib, "Ws2_32.lib")
+#define VKTRACE_WSAGetLastError() WSAGetLastError()
 #endif
 
 static const unsigned int VKTRACE_BASE_PORT = 34199;
@@ -53,8 +53,7 @@ struct SimpleBuffer;
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-typedef struct MessageStream
-{
+typedef struct MessageStream {
     SOCKET mSocket;
     struct addrinfo* mHostAddressInfo;
     size_t mNextPacketId;
@@ -90,8 +89,7 @@ extern MessageStream* gMessageStream;
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-typedef struct SimpleBuffer
-{
+typedef struct SimpleBuffer {
     void* mBuffer;
     size_t mEnd;
     size_t mSize;

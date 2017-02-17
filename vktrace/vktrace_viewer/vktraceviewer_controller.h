@@ -25,9 +25,8 @@
 
 #include <QObject>
 
-class vktraceviewer_QController : public QObject
-{
-public:
+class vktraceviewer_QController : public QObject {
+   public:
     vktraceviewer_QController() {}
     virtual ~vktraceviewer_QController() {}
 
@@ -38,19 +37,18 @@ public:
     virtual bool LoadTraceFile(vktraceviewer_trace_file_info* pTraceFileInfo, vktraceviewer_view* pView) = 0;
     virtual void UnloadTraceFile(void) = 0;
 
-public slots:
+   public slots:
 
-signals:
+   signals:
     void OutputMessage(VktraceLogLevel level, const QString& message);
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message);
 };
 
-extern "C"
-{
+extern "C" {
 VKTRACER_EXPORT vktraceviewer_QController* VKTRACER_CDECL vtvCreateQController(void);
 VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController** ppController);
 
 // entrypoints that must be exposed by each controller library
-typedef vktraceviewer_QController* (VKTRACER_CDECL *funcptr_vktraceviewer_CreateQController)(void);
-typedef void (VKTRACER_CDECL *funcptr_vktraceviewer_DeleteQController)(vktraceviewer_QController* pController);
+typedef vktraceviewer_QController*(VKTRACER_CDECL* funcptr_vktraceviewer_CreateQController)(void);
+typedef void(VKTRACER_CDECL* funcptr_vktraceviewer_DeleteQController)(vktraceviewer_QController* pController);
 }

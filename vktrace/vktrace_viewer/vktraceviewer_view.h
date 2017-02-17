@@ -29,19 +29,18 @@ class QToolButton;
 class QAction;
 class QAbstractProxyModel;
 
-class vktraceviewer_view
-{
-public:
+class vktraceviewer_view {
+   public:
     virtual void reset_view() = 0;
 
-//    virtual void output_message(uint64_t packetIndex, QString message) = 0;
-//    virtual void output_warning(uint64_t packetIndex, QString message) = 0;
-//    virtual void output_error(uint64_t packetIndex, QString message) = 0;
+    //    virtual void output_message(uint64_t packetIndex, QString message) = 0;
+    //    virtual void output_warning(uint64_t packetIndex, QString message) = 0;
+    //    virtual void output_error(uint64_t packetIndex, QString message) = 0;
 
     virtual void add_setting_group(vktrace_SettingGroup* pGroup) = 0;
     virtual unsigned int get_global_settings(vktrace_SettingGroup** ppGroups) = 0;
 
-    virtual void set_calltree_model(vktraceviewer_QTraceFileModel* pTraceFileModel, QAbstractProxyModel *pModel) = 0;
+    virtual void set_calltree_model(vktraceviewer_QTraceFileModel* pTraceFileModel, QAbstractProxyModel* pModel) = 0;
     virtual void add_calltree_contextmenu_item(QAction* pAction) = 0;
     virtual void select_call_at_packet_index(unsigned long long packetIndex) = 0;
     virtual void highlight_timeline_item(unsigned long long packetArrayIndex, bool bScrollTo, bool bSelect) = 0;

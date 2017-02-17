@@ -25,8 +25,7 @@ extern "C" {
 #include "vktrace_settings.h"
 }
 
-typedef struct vktraceviewer_vk_settings
-{
+typedef struct vktraceviewer_vk_settings {
     BOOL printReplayInfoMsgs;
     BOOL printReplayWarningMsgs;
     BOOL printReplayErrorMsgs;
@@ -45,5 +44,4 @@ extern vktrace_SettingGroup g_vkTraceViewerSettingGroup;
 
 void initialize_default_settings();
 
-#endif // VKTRACEVIEWER_VK_SETTINGS_H
-
+#endif  // VKTRACEVIEWER_VK_SETTINGS_H

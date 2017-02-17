@@ -27,12 +27,7 @@
 #define APP_NAME "vkreplay_vk"
 #define IDI_ICON 101
 
-vkDisplay::vkDisplay()
-    : m_initedVK(false),
-    m_windowWidth(0),
-    m_windowHeight(0),
-    m_frameNumber(0)
-{
+vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0), m_frameNumber(0) {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceAndroid));
@@ -50,22 +45,18 @@ vkDisplay::vkDisplay()
 #endif
 }
 
-vkDisplay::~vkDisplay()
-{
+vkDisplay::~vkDisplay() {
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    if (m_XcbWindow != 0)
-    {
+    if (m_XcbWindow != 0) {
         xcb_destroy_window(m_pXcbConnection, m_XcbWindow);
     }
-    if (m_pXcbConnection != NULL)
-    {
+    if (m_pXcbConnection != NULL) {
         xcb_disconnect(m_pXcbConnection);
     }
 #endif
 }
 
-VkResult vkDisplay::init_vk(unsigned int gpu_idx)
-{
+VkResult vkDisplay::init_vk(unsigned int gpu_idx) {
 #if 0
     VkApplicationInfo appInfo = {};
     appInfo.pApplicationName = APP_NAME;
@@ -134,9 +125,8 @@ VkResult vkDisplay::init_vk(unsigned int gpu_idx)
 #endif
 }
 
-int vkDisplay::init(const unsigned int gpu_idx)
-{
-    //m_gpuIdx = gpu_idx;
+int vkDisplay::init(const unsigned int gpu_idx) {
+// m_gpuIdx = gpu_idx;
 #if 0
     VkResult result = init_vk(gpu_idx);
     if (result != VK_SUCCESS) {
@@ -153,8 +143,7 @@ int vkDisplay::init(const unsigned int gpu_idx)
     m_pXcbConnection = xcb_connect(NULL, &scr);
     setup = xcb_get_setup(m_pXcbConnection);
     iter = xcb_setup_roots_iterator(setup);
-    while (scr-- > 0)
-        xcb_screen_next(&iter);
+    while (scr-- > 0) xcb_screen_next(&iter);
     m_pXcbScreen = iter.data;
 #endif
     set_pause_status(false);
@@ -163,24 +152,21 @@ int vkDisplay::init(const unsigned int gpu_idx)
 }
 
 #if defined(WIN32)
-LRESULT WINAPI WindowProcVk( HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
-{
-    switch(msg)
-    {
+LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp) {
+    switch (msg) {
         case WM_CLOSE:
-            DestroyWindow( window);
-            // fall-thru
+            DestroyWindow(window);
+        // fall-thru
         case WM_DESTROY:
-            PostQuitMessage(0) ;
-            return 0L ;
+            PostQuitMessage(0);
+            return 0L;
         default:
-            return DefWindowProc( window, msg, wp, lp ) ;
+            return DefWindowProc(window, msg, wp, lp);
     }
 }
 #endif
 
-int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height)
-{
+int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     m_window = hWindow;
@@ -196,8 +182,7 @@ int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, uns
     return 0;
 }
 
-int vkDisplay::create_window(const unsigned int width, const unsigned int height)
-{
+int vkDisplay::create_window(const unsigned int width, const unsigned int height) {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     return 0;
@@ -208,36 +193,25 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 
     value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     value_list[0] = m_pXcbScreen->black_pixel;
-    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE |
-                    XCB_EVENT_MASK_EXPOSURE;
+    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE;
 
-    xcb_create_window(m_pXcbConnection,
-            XCB_COPY_FROM_PARENT,
-            m_XcbWindow, m_pXcbScreen->root,
-            0, 0, width, height, 0,
-            XCB_WINDOW_CLASS_INPUT_OUTPUT,
-            m_pXcbScreen->root_visual,
-            value_mask, value_list);
+    xcb_create_window(m_pXcbConnection, XCB_COPY_FROM_PARENT, m_XcbWindow, m_pXcbScreen->root, 0, 0, width, height, 0,
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT, m_pXcbScreen->root_visual, value_mask, value_list);
 
     // Magic code that will send notification when window is destroyed
-    xcb_intern_atom_cookie_t cookie =
-        xcb_intern_atom(m_pXcbConnection, 1, 12, "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t *reply =
-        xcb_intern_atom_reply(m_pXcbConnection, cookie, 0);
+    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_pXcbConnection, 1, 12, "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(m_pXcbConnection, cookie, 0);
 
-    xcb_intern_atom_cookie_t cookie2 =
-        xcb_intern_atom(m_pXcbConnection, 0, 16, "WM_DELETE_WINDOW");
-    this->atom_wm_delete_window =
-        xcb_intern_atom_reply(m_pXcbConnection, cookie2, 0);
+    xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(m_pXcbConnection, 0, 16, "WM_DELETE_WINDOW");
+    this->atom_wm_delete_window = xcb_intern_atom_reply(m_pXcbConnection, cookie2, 0);
 
-    xcb_change_property(m_pXcbConnection, XCB_PROP_MODE_REPLACE, m_XcbWindow,
-                        (*reply).atom, 4, 32, 1,
+    xcb_change_property(m_pXcbConnection, XCB_PROP_MODE_REPLACE, m_XcbWindow, (*reply).atom, 4, 32, 1,
                         &(*this->atom_wm_delete_window).atom);
     free(reply);
 
     // TODO : Not sure of best place to put this, but I have all the info I need here so just setting it all here for now
-    //m_XcbPlatformHandle.connection = m_pXcbConnection;
-    //m_XcbPlatformHandle.root = m_pXcbScreen->root;
+    // m_XcbPlatformHandle.connection = m_pXcbConnection;
+    // m_XcbPlatformHandle.root = m_pXcbScreen->root;
     m_surface.base.platform = VK_ICD_WSI_PLATFORM_XCB;
     m_surface.connection = m_pXcbConnection;
     m_surface.window = m_XcbWindow;
@@ -246,34 +220,31 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 #elif defined(WIN32)
     // Register Window class
     WNDCLASSEX wcex = {};
-	m_connection = GetModuleHandle(0);
-    wcex.cbSize = sizeof( WNDCLASSEX);
+    m_connection = GetModuleHandle(0);
+    wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WindowProcVk;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = m_connection;
-    wcex.hIcon = LoadIcon(wcex.hInstance, MAKEINTRESOURCE( IDI_ICON));
-    wcex.hCursor = LoadCursor( NULL, IDC_ARROW);
-    wcex.hbrBackground = ( HBRUSH )( COLOR_WINDOW + 1);
+    wcex.hIcon = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON));
+    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = NULL;
     wcex.lpszClassName = APP_NAME;
-    wcex.hIconSm = LoadIcon( wcex.hInstance, MAKEINTRESOURCE( IDI_ICON));
-    if( !RegisterClassEx( &wcex))
-    {
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON));
+    if (!RegisterClassEx(&wcex)) {
         vktrace_LogError("Failed to register windows class");
         return -1;
     }
 
     // create the window
-    RECT wr = {0,0,width,height};
+    RECT wr = {0, 0, width, height};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-    m_windowHandle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPEDWINDOW,
-                                  0, 0, wr.right-wr.left, wr.bottom-wr.top,
-                                  NULL, NULL, wcex.hInstance, NULL);
+    m_windowHandle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPEDWINDOW, 0, 0, wr.right - wr.left, wr.bottom - wr.top, NULL, NULL,
+                                  wcex.hInstance, NULL);
 
-    if (m_windowHandle)
-    {
+    if (m_windowHandle) {
         m_windowWidth = width;
         m_windowHeight = height;
     } else {
@@ -288,15 +259,13 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 #endif
 }
 
-void vkDisplay::resize_window(const unsigned int width, const unsigned int height)
-{
+void vkDisplay::resize_window(const unsigned int width, const unsigned int height) {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     m_windowWidth = width;
     m_windowHeight = height;
 #else
-    if (width != m_windowWidth || height != m_windowHeight)
-    {
+    if (width != m_windowWidth || height != m_windowHeight) {
         uint32_t values[2];
         values[0] = width;
         values[1] = height;
@@ -316,11 +285,10 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
     }
 #endif
 #elif defined(WIN32)
-    if (width != m_windowWidth || height != m_windowHeight)
-    {
+    if (width != m_windowWidth || height != m_windowHeight) {
         RECT wr = {0, 0, width, height};
         AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-        SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, wr.right-wr.left, wr.bottom-wr.top, SWP_NOMOVE);
+        SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE);
         m_windowWidth = width;
         m_windowHeight = height;
 
@@ -330,8 +298,7 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 #endif
 }
 
-void vkDisplay::process_event()
-{
+void vkDisplay::process_event() {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
 // TODO
@@ -344,31 +311,29 @@ void vkDisplay::process_event()
     while (event) {
         event_code = event->response_type & 0x7f;
         switch (event_code) {
-        case XCB_EXPOSE:
-            // TODO: Resize window
-            break;
-        case XCB_CLIENT_MESSAGE:
-            if ((*(xcb_client_message_event_t *)event).data.data32[0] ==
-                (*this->atom_wm_delete_window).atom) {
-                this->set_quit_status(true);
-            }
-            break;
-        case XCB_KEY_RELEASE: {
-            const xcb_key_release_event_t *key =
-                (const xcb_key_release_event_t *)event;
+            case XCB_EXPOSE:
+                // TODO: Resize window
+                break;
+            case XCB_CLIENT_MESSAGE:
+                if ((*(xcb_client_message_event_t *)event).data.data32[0] == (*this->atom_wm_delete_window).atom) {
+                    this->set_quit_status(true);
+                }
+                break;
+            case XCB_KEY_RELEASE: {
+                const xcb_key_release_event_t *key = (const xcb_key_release_event_t *)event;
 
-            switch (key->detail) {
-            case 0x9: // Escape
-                this->set_quit_status(true);
-                break;
-            case 0x41:
-                this->set_pause_status(!(this->get_pause_status()));
-                break;
-            }
-        } break;
-        case XCB_CONFIGURE_NOTIFY: {
-            // TODO resize here too
-        } break;
+                switch (key->detail) {
+                    case 0x9:  // Escape
+                        this->set_quit_status(true);
+                        break;
+                    case 0x41:
+                        this->set_pause_status(!(this->get_pause_status()));
+                        break;
+                }
+            } break;
+            case XCB_CONFIGURE_NOTIFY: {
+                // TODO resize here too
+            } break;
         }
         free(event);
         event = xcb_poll_for_event(xcb_conn);

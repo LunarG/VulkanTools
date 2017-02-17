@@ -22,7 +22,7 @@
 #include "vktrace_lib_trim_statetracker.h"
 #include "vulkan.h"
 
-#ifdef PLATFORM_LINUX // VK_USE_PLATFORM_XCB_KHR
+#ifdef PLATFORM_LINUX  // VK_USE_PLATFORM_XCB_KHR
 #if defined(ANDROID)
 // TODO
 #else
@@ -31,7 +31,7 @@
 #include <X11/keysym.h>
 #include <xcb/xcb_keysyms.h>
 #include <vector>
-#endif // ANDROID
+#endif  // ANDROID
 #endif
 
 // Trim support
@@ -53,8 +53,8 @@ void deinitialize();
 
 enum enum_trim_trigger {
     none = 0,
-    frameCounter, // trim trigger base on startFrame and endFrame
-    hotKey        // trim trigger base on hotKey
+    frameCounter,  // trim trigger base on startFrame and endFrame
+    hotKey         // trim trigger base on hotKey
 };
 
 // when the funtion first time run, it Check ENV viarable VKTRACE_TRIM_TRIGGER
@@ -79,7 +79,7 @@ bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType);
 // so we need to capture the connection that target app use. the function is
 // used to insert into Vulkan call to capture and save the connection.
 void set_keyboard_connection(xcb_connection_t *pConnection);
-#endif // ANDROID
+#endif  // ANDROID
 #endif
 
 enum enum_key_state {
@@ -104,27 +104,23 @@ void write_recorded_packets();
 void write_destroy_packets();
 void delete_all_packets();
 
-void add_RenderPassCreateInfo(VkRenderPass renderPass,
-                              const VkRenderPassCreateInfo *pCreateInfo);
+void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo);
 uint32_t get_RenderPassVersion(VkRenderPass renderPass);
 
 //-----------------------
 // the following calls are pass-through to the StateTracker
-void add_CommandBuffer_call(VkCommandBuffer commandBuffer,
-                            vktrace_trace_packet_header *pHeader);
+void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header *pHeader);
 void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
 #if TRIM_USE_ORDERED_IMAGE_CREATION
 void add_Image_call(vktrace_trace_packet_header *pHeader);
-#endif // TRIM_USE_ORDERED_IMAGE_CREATION
+#endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
-void AddImageTransition(VkCommandBuffer commandBuffer,
-                        ImageTransition transition);
+void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
 std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer);
 void ClearImageTransitions(VkCommandBuffer commandBuffer);
 
-void AddBufferTransition(VkCommandBuffer commandBuffer,
-                         BufferTransition transition);
+void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
 std::list<BufferTransition> GetBufferTransitions(VkCommandBuffer commandBuffer);
 void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 // The above calls are pass-through to the StateTracker
@@ -132,8 +128,7 @@ void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 
 void reset_DescriptorPool(VkDescriptorPool descriptorPool);
 
-VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device,
-                                             uint32_t memoryTypeIndex);
+VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTypeIndex);
 
 // check if a memory type on the physical device is only DEVICE_LOCAL and not
 // HOST_VISIBLE
@@ -257,4 +252,4 @@ void remove_PipelineLayout_object(const VkPipelineLayout var);
 void remove_Sampler_object(const VkSampler var);
 void remove_DescriptorSetLayout_object(const VkDescriptorSetLayout var);
 void remove_DescriptorSet_object(const VkDescriptorSet var);
-} // namespace trim
+}  // namespace trim

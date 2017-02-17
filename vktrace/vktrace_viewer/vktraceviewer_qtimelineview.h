@@ -38,10 +38,9 @@ QT_END_NAMESPACE
 #include <QPen>
 #include <QScrollBar>
 
-class vktraceviewer_QTimelineItemDelegate : public QAbstractItemDelegate
-{
+class vktraceviewer_QTimelineItemDelegate : public QAbstractItemDelegate {
     Q_OBJECT
-public:
+   public:
     vktraceviewer_QTimelineItemDelegate(QObject *parent = 0);
     virtual ~vktraceviewer_QTimelineItemDelegate();
 
@@ -51,14 +50,13 @@ public:
 
 // Implementation of the QTimelineView has benefited greatly from the following site:
 // http://www.informit.com/articles/article.aspx?p=1613548
-class vktraceviewer_QTimelineView : public QAbstractItemView
-{
+class vktraceviewer_QTimelineView : public QAbstractItemView {
     Q_OBJECT
-public:
+   public:
     explicit vktraceviewer_QTimelineView(QWidget *parent = 0);
     virtual ~vktraceviewer_QTimelineView();
 
-    virtual void setModel(QAbstractItemModel* pModel);
+    virtual void setModel(QAbstractItemModel *pModel);
 
     // Begin public virtual functions of QAbstractItemView
     virtual QRect visualRect(const QModelIndex &index) const;
@@ -68,21 +66,16 @@ public:
 
     QList<uint32_t> getModelThreadList() const;
     QRectF itemRect(const QModelIndex &item) const;
-    float getMaxItemDuration() const
-    {
-        return m_maxItemDuration;
-    }
+    float getMaxItemDuration() const { return m_maxItemDuration; }
 
-    void deletePixmap()
-    {
-        if (m_pPixmap != NULL)
-        {
+    void deletePixmap() {
+        if (m_pPixmap != NULL) {
             delete m_pPixmap;
             m_pPixmap = NULL;
         }
     }
 
-private:
+   private:
     QBrush m_background;
     QPen m_trianglePen;
     QPen m_textPen;
@@ -90,7 +83,7 @@ private:
 
     // new members
     QList<uint32_t> m_threadIdList;
-    QHash< uint32_t, QVector<int> > m_threadMask;
+    QHash<uint32_t, QVector<int> > m_threadMask;
     QList<QRect> m_threadArea;
     float m_maxItemDuration;
     uint64_t m_rawStartTime;
@@ -111,7 +104,7 @@ private:
 
     void calculateRectsIfNecessary();
     void drawBaseTimelines(QPainter *painter, const QRect &rect, const QList<uint32_t> &threadList);
-    void drawTimelineItem(QPainter* painter, const QModelIndex &index);
+    void drawTimelineItem(QPainter *painter, const QModelIndex &index);
 
     QRectF viewportRect(const QModelIndex &index) const;
     float scaleDurationHorizontally(uint64_t value) const;
@@ -121,51 +114,34 @@ private:
     virtual QRegion itemRegion(const QModelIndex &index) const;
     // End private...
 
-protected:
+   protected:
     void paintEvent(QPaintEvent *event);
     void paint(QPainter *painter, QPaintEvent *event);
 
-    virtual bool event(QEvent * e);
+    virtual bool event(QEvent *e);
     virtual void resizeEvent(QResizeEvent *event);
-    virtual void mousePressEvent(QMouseEvent * event);
-    virtual void mouseMoveEvent(QMouseEvent * event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void scrollContentsBy(int dx, int dy);
 
     // Begin protected virtual functions of QAbstractItemView
-    virtual QModelIndex moveCursor(CursorAction cursorAction,
-                                   Qt::KeyboardModifiers modifiers)
-    {
-        return QModelIndex();
-    }
+    virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers) { return QModelIndex(); }
 
-    virtual int horizontalOffset() const
-    {
-        return horizontalScrollBar()->value();
-    }
-    virtual int verticalOffset() const
-    {
-        return verticalScrollBar()->value();
-    }
+    virtual int horizontalOffset() const { return horizontalScrollBar()->value(); }
+    virtual int verticalOffset() const { return verticalScrollBar()->value(); }
 
-    virtual bool isIndexHidden(const QModelIndex &index) const
-    {
-        return false;
-    }
+    virtual bool isIndexHidden(const QModelIndex &index) const { return false; }
 
     virtual void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command) {}
-    virtual QRegion visualRegionForSelection(const QItemSelection &selection) const
-    {
-        return QRegion();
-    }
+    virtual QRegion visualRegionForSelection(const QItemSelection &selection) const { return QRegion(); }
     // End protected virtual functions of QAbstractItemView
 
-protected slots:
+   protected slots:
     virtual void updateGeometries();
 
-signals:
+   signals:
 
-public
-slots:
+   public slots:
 };
 
-#endif // VKTRACEVIEWER_QTIMELINEVIEW_H
+#endif  // VKTRACEVIEWER_QTIMELINEVIEW_H

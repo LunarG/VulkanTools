@@ -35,21 +35,20 @@
 // Constructor for root node
 glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(int columnCount, glvdebug_QApiCallTreeModel *pModel)
     : m_parentItem(NULL),
-      //m_pApiCallItem(NULL),
-      //m_pGroupItem(NULL),
-      //m_pFrameItem(NULL),
+      // m_pApiCallItem(NULL),
+      // m_pGroupItem(NULL),
+      // m_pFrameItem(NULL),
       m_pModel(pModel),
       m_localRowIndex(0),
-      m_columnCount(columnCount)
-{
+      m_columnCount(columnCount) {
     m_columnData = new QVariant[m_columnCount];
-    //m_columnData[VOGL_ACTC_APICALL] = "API Call";
-    //m_columnData[VOGL_ACTC_INDEX] = "Index";
-    //m_columnData[VOGL_ACTC_FLAGS] = "";
-    //m_columnData[VOGL_ACTC_GLCONTEXT] = "GL Context";
+    // m_columnData[VOGL_ACTC_APICALL] = "API Call";
+    // m_columnData[VOGL_ACTC_INDEX] = "Index";
+    // m_columnData[VOGL_ACTC_FLAGS] = "";
+    // m_columnData[VOGL_ACTC_GLCONTEXT] = "GL Context";
     ////m_ColumnTitles[VOGL_ACTC_BEGINTIME] = "Begin Time";
     ////m_ColumnTitles[VOGL_ACTC_ENDTIME] = "End Time";
-    //m_columnData[VOGL_ACTC_DURATION] = "Duration (ns)";
+    // m_columnData[VOGL_ACTC_DURATION] = "Duration (ns)";
     m_columnData[0] = "API Call";
     m_columnData[1] = "Index";
     m_columnData[2] = "";
@@ -58,7 +57,7 @@ glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(int columnCount, glvdebug_QAp
 }
 //
 //// Constructor for frame nodes
-//glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(glvdebug_frameItem *frameItem, glvdebug_apiCallTreeItem *parent)
+// glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(glvdebug_frameItem *frameItem, glvdebug_apiCallTreeItem *parent)
 //    : m_parentItem(parent),
 //      m_pApiCallItem(NULL),
 //      m_pGroupItem(NULL),
@@ -80,7 +79,7 @@ glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(int columnCount, glvdebug_QAp
 //}
 //
 //// Constructor for group nodes
-//glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(glvdebug_groupItem *groupItem, glvdebug_apiCallTreeItem *parent)
+// glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(glvdebug_groupItem *groupItem, glvdebug_apiCallTreeItem *parent)
 //    : m_parentItem(parent),
 //      m_pApiCallItem(NULL),
 //      m_pGroupItem(groupItem),
@@ -98,15 +97,14 @@ glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(int columnCount, glvdebug_QAp
 // Constructor for apiCall nodes
 glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(glvdebug_apiCallItem *apiCallItem)
     : m_parentItem(NULL),
-      //m_pApiCallItem(apiCallItem),
-      //m_pGroupItem(NULL),
-      //m_pFrameItem(NULL),
+      // m_pApiCallItem(apiCallItem),
+      // m_pGroupItem(NULL),
+      // m_pFrameItem(NULL),
       m_pModel(NULL),
-      m_localRowIndex(0)
-{
-    //m_columnData[VOGL_ACTC_APICALL] = apiCallItem->apiFunctionCall();
+      m_localRowIndex(0) {
+    // m_columnData[VOGL_ACTC_APICALL] = apiCallItem->apiFunctionCall();
 
-    //if (apiCallItem != NULL)
+    // if (apiCallItem != NULL)
     //{
     //    m_columnData[VOGL_ACTC_INDEX] = (qulonglong)apiCallItem->globalCallIndex();
     //    m_columnData[VOGL_ACTC_FLAGS] = "";
@@ -117,48 +115,46 @@ glvdebug_apiCallTreeItem::glvdebug_apiCallTreeItem(glvdebug_apiCallItem *apiCall
     //    m_columnData[VOGL_ACTC_DURATION] = (qulonglong)apiCallItem->duration();
     //}
 
-    //if (m_parentItem != NULL)
+    // if (m_parentItem != NULL)
     //{
     //    m_pModel = m_parentItem->m_pModel;
     //}
 
     m_columnCount = m_pModel->columnCount();
     m_columnData = new QVariant[m_columnCount];
-    //m_columnData[VOGL_ACTC_APICALL] = "API Call";
-    //m_columnData[VOGL_ACTC_INDEX] = "Index";
-    //m_columnData[VOGL_ACTC_FLAGS] = "";
-    //m_columnData[VOGL_ACTC_GLCONTEXT] = "GL Context";
+    // m_columnData[VOGL_ACTC_APICALL] = "API Call";
+    // m_columnData[VOGL_ACTC_INDEX] = "Index";
+    // m_columnData[VOGL_ACTC_FLAGS] = "";
+    // m_columnData[VOGL_ACTC_GLCONTEXT] = "GL Context";
     ////m_ColumnTitles[VOGL_ACTC_BEGINTIME] = "Begin Time";
     ////m_ColumnTitles[VOGL_ACTC_ENDTIME] = "End Time";
-    //m_columnData[VOGL_ACTC_DURATION] = "Duration (ns)";
-    for (int i = 0; i < m_columnCount; i++)
-    {
+    // m_columnData[VOGL_ACTC_DURATION] = "Duration (ns)";
+    for (int i = 0; i < m_columnCount; i++) {
         m_columnData[i] = "data";
     }
 }
 
-glvdebug_apiCallTreeItem::~glvdebug_apiCallTreeItem()
-{
-    delete [] m_columnData;
-    //if (m_pFrameItem != NULL)
+glvdebug_apiCallTreeItem::~glvdebug_apiCallTreeItem() {
+    delete[] m_columnData;
+    // if (m_pFrameItem != NULL)
     //{
     //    vogl_delete(m_pFrameItem);
     //    m_pFrameItem = NULL;
     //}
 
-    //if (m_pGroupItem != NULL)
+    // if (m_pGroupItem != NULL)
     //{
     //    vogl_delete(m_pGroupItem);
     //    m_pGroupItem = NULL;
     //}
 
-    //if (m_pApiCallItem != NULL)
+    // if (m_pApiCallItem != NULL)
     //{
     //    vogl_delete(m_pApiCallItem);
     //    m_pApiCallItem = NULL;
     //}
 
-    //for (int i = 0; i < m_childItems.size(); i++)
+    // for (int i = 0; i < m_childItems.size(); i++)
     //{
     //    vogl_delete(m_childItems[i]);
     //    m_childItems[i] = NULL;
@@ -166,78 +162,55 @@ glvdebug_apiCallTreeItem::~glvdebug_apiCallTreeItem()
     m_childItems.clear();
 }
 
-void glvdebug_apiCallTreeItem::setParent(glvdebug_apiCallTreeItem* pParent)
-{
+void glvdebug_apiCallTreeItem::setParent(glvdebug_apiCallTreeItem *pParent) {
     m_parentItem = pParent;
-    if (m_parentItem != NULL)
-    {
+    if (m_parentItem != NULL) {
         m_pModel = m_parentItem->m_pModel;
     }
 }
-glvdebug_apiCallTreeItem *glvdebug_apiCallTreeItem::parent() const
-{
-    return m_parentItem;
-}
-//bool glvdebug_apiCallTreeItem::isApiCall() const
+glvdebug_apiCallTreeItem *glvdebug_apiCallTreeItem::parent() const { return m_parentItem; }
+// bool glvdebug_apiCallTreeItem::isApiCall() const
 //{
 //    return m_pApiCallItem != NULL;
 //}
-//bool glvdebug_apiCallTreeItem::isGroup() const
+// bool glvdebug_apiCallTreeItem::isGroup() const
 //{
 //    return (g_settings.groups_state_render() && (m_pGroupItem != NULL));
 //}
-//bool glvdebug_apiCallTreeItem::isFrame() const
+// bool glvdebug_apiCallTreeItem::isFrame() const
 //{
 //    return m_pFrameItem != NULL;
 //}
-//bool glvdebug_apiCallTreeItem::isRoot() const
+// bool glvdebug_apiCallTreeItem::isRoot() const
 //{
 //    return !(isApiCall() | isGroup() | isFrame());
 //}
 
-void glvdebug_apiCallTreeItem::appendChild(glvdebug_apiCallTreeItem *pChild)
-{
+void glvdebug_apiCallTreeItem::appendChild(glvdebug_apiCallTreeItem *pChild) {
     pChild->m_localRowIndex = m_childItems.size();
     pChild->setParent(this);
     m_childItems.append(pChild);
 }
 
-void glvdebug_apiCallTreeItem::popChild()
-{
-    m_childItems.removeLast();
-}
+void glvdebug_apiCallTreeItem::popChild() { m_childItems.removeLast(); }
 
-int glvdebug_apiCallTreeItem::childCount() const
-{
-    return m_childItems.size();
-}
+int glvdebug_apiCallTreeItem::childCount() const { return m_childItems.size(); }
 
-glvdebug_apiCallTreeItem *glvdebug_apiCallTreeItem::child(int index) const
-{
-    if (index < 0 || index >= childCount())
-    {
+glvdebug_apiCallTreeItem *glvdebug_apiCallTreeItem::child(int index) const {
+    if (index < 0 || index >= childCount()) {
         return NULL;
     }
 
     return m_childItems[index];
 }
 
-glvdebug_apiCallItem *glvdebug_apiCallTreeItem::apiCallItem() const
-{
-    return m_pApiCallItem;
-}
+glvdebug_apiCallItem *glvdebug_apiCallTreeItem::apiCallItem() const { return m_pApiCallItem; }
 
-glvdebug_groupItem *glvdebug_apiCallTreeItem::groupItem() const
-{
-    return m_pGroupItem;
-}
+glvdebug_groupItem *glvdebug_apiCallTreeItem::groupItem() const { return m_pGroupItem; }
 
-glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const
-{
-    return m_pFrameItem;
-}
+glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const { return m_pFrameItem; }
 //
-//uint64_t glvdebug_apiCallTreeItem::startTime() const
+// uint64_t glvdebug_apiCallTreeItem::startTime() const
 //{
 //    uint64_t startTime = 0;
 //
@@ -260,7 +233,7 @@ glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const
 //    return startTime;
 //}
 //
-//uint64_t glvdebug_apiCallTreeItem::endTime() const
+// uint64_t glvdebug_apiCallTreeItem::endTime() const
 //{
 //    uint64_t endTime = 0;
 //
@@ -283,12 +256,12 @@ glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const
 //    return endTime;
 //}
 //
-//uint64_t glvdebug_apiCallTreeItem::duration() const
+// uint64_t glvdebug_apiCallTreeItem::duration() const
 //{
 //    return endTime() - startTime();
 //}
 
-//void glvdebug_apiCallTreeItem::set_snapshot(glvdebug_gl_state_snapshot *pSnapshot)
+// void glvdebug_apiCallTreeItem::set_snapshot(glvdebug_gl_state_snapshot *pSnapshot)
 //{
 //    if (m_pFrameItem)
 //    {
@@ -301,7 +274,7 @@ glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const
 //    }
 //}
 //
-//bool glvdebug_apiCallTreeItem::has_snapshot() const
+// bool glvdebug_apiCallTreeItem::has_snapshot() const
 //{
 //    bool bHasSnapshot = false;
 //    if (m_pFrameItem)
@@ -316,7 +289,7 @@ glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const
 //    return bHasSnapshot;
 //}
 //
-//glvdebug_gl_state_snapshot *glvdebug_apiCallTreeItem::get_snapshot() const
+// glvdebug_gl_state_snapshot *glvdebug_apiCallTreeItem::get_snapshot() const
 //{
 //    glvdebug_gl_state_snapshot *pSnapshot = NULL;
 //    if (m_pFrameItem)
@@ -331,33 +304,26 @@ glvdebug_frameItem *glvdebug_apiCallTreeItem::frameItem() const
 //    return pSnapshot;
 //}
 
-int glvdebug_apiCallTreeItem::columnCount() const
-{
+int glvdebug_apiCallTreeItem::columnCount() const {
     int count = 0;
-    if (m_parentItem == NULL)
-    {
+    if (m_parentItem == NULL) {
         count = m_columnCount;
-    }
-    else
-    {
+    } else {
         m_pModel->columnCount();
     }
 
     return count;
 }
 
-QVariant glvdebug_apiCallTreeItem::columnData(int column, int role) const
-{
-    if (column >= m_columnCount)
-    {
+QVariant glvdebug_apiCallTreeItem::columnData(int column, int role) const {
+    if (column >= m_columnCount) {
         assert(!"Unexpected column data being requested");
         return QVariant();
     }
 
-    if (role == Qt::DecorationRole)
-    {
+    if (role == Qt::DecorationRole) {
         //// handle flags
-        //if (column == VOGL_ACTC_FLAGS)
+        // if (column == VOGL_ACTC_FLAGS)
         //{
         //    if (has_snapshot())
         //    {
@@ -384,36 +350,34 @@ QVariant glvdebug_apiCallTreeItem::columnData(int column, int role) const
         //}
     }
 
-    if (role == Qt::DisplayRole)
-    {
+    if (role == Qt::DisplayRole) {
         return m_columnData[column];
     }
 
     return QVariant();
 }
 
-//void glvdebug_apiCallTreeItem::setApiCallColumnData(QString name)
+// void glvdebug_apiCallTreeItem::setApiCallColumnData(QString name)
 //{
 //    setColumnData(QVariant(name), VOGL_ACTC_APICALL);
 //}
 
-//void glvdebug_apiCallTreeItem::setColumnData(QVariant data, int column)
+// void glvdebug_apiCallTreeItem::setColumnData(QVariant data, int column)
 //{
 //    m_columnData[column] = data;
 //}
 
-//QString glvdebug_apiCallTreeItem::apiCallColumnData() const
+// QString glvdebug_apiCallTreeItem::apiCallColumnData() const
 //{
 //    return (columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
 //}
 //
-//QString glvdebug_apiCallTreeItem::apiCallStringArg() const
+// QString glvdebug_apiCallTreeItem::apiCallStringArg() const
 //{
 //    return isApiCall() ? apiCallItem()->stringArg() : QString();
 //}
 
-int glvdebug_apiCallTreeItem::row() const
-{
+int glvdebug_apiCallTreeItem::row() const {
     // note, this is just the row within the current level of the hierarchy
     return m_localRowIndex;
 }

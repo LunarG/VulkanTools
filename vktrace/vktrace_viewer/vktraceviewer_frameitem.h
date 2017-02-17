@@ -25,51 +25,47 @@
 // definitions were move to a .cpp file)
 #include "glvdebug_apicallitem.h"
 
-class vogleditor_frameItem //: public vogleditor_snapshotItem
+class vogleditor_frameItem  //: public vogleditor_snapshotItem
 {
-public:
-    vogleditor_frameItem(uint64_t frameNumber)
-        : m_frameNumber(frameNumber)
-    {
-    }
+   public:
+    vogleditor_frameItem(uint64_t frameNumber) : m_frameNumber(frameNumber) {}
 
-    ~vogleditor_frameItem()
-    {
+    ~vogleditor_frameItem() {
         m_apiCallList.clear();
         m_groupList.clear();
     }
 
-    //inline uint64_t frameNumber() const
+    // inline uint64_t frameNumber() const
     //{
     //    return m_frameNumber;
     //}
 
-    //void appendGroup(vogleditor_groupItem *pItem)
+    // void appendGroup(vogleditor_groupItem *pItem)
     //{
     //    m_groupList.append(pItem);
     //}
 
-    //vogleditor_apiCallItem *popApiCall()
+    // vogleditor_apiCallItem *popApiCall()
     //{
     //    return m_apiCallList.takeLast();
     //}
 
-    //vogleditor_groupItem *popGroup()
+    // vogleditor_groupItem *popGroup()
     //{
     //    return m_groupList.takeLast();
     //}
 
-    //void appendCall(vogleditor_apiCallItem *pItem)
+    // void appendCall(vogleditor_apiCallItem *pItem)
     //{
     //    m_apiCallList.append(pItem);
     //}
 
-    //inline int callCount() const
+    // inline int callCount() const
     //{
     //    return m_apiCallList.size();
     //}
 
-    //vogleditor_apiCallItem *call(int index) const
+    // vogleditor_apiCallItem *call(int index) const
     //{
     //    if (index < 0 || index > callCount())
     //    {
@@ -79,7 +75,7 @@ public:
     //    return m_apiCallList[index];
     //}
 
-    //bool getStartEndTimes(uint64_t &start, uint64_t &end) const
+    // bool getStartEndTimes(uint64_t &start, uint64_t &end) const
     //{
     //    if (callCount() == 0)
     //    {
@@ -91,47 +87,47 @@ public:
     //    return true;
     //}
 
-    //uint64_t startTime() const
+    // uint64_t startTime() const
     //{
     //    return apiCallStartTime(0);
     //}
 
-    //uint64_t endTime() const
+    // uint64_t endTime() const
     //{
     //    return apiCallEndTime(callCount() - 1);
     //}
 
-    //uint64_t apiCallStartTime(uint index) const
+    // uint64_t apiCallStartTime(uint index) const
     //{
     //    return m_apiCallList[index]->startTime();
     //}
 
-    //uint64_t apiCallEndTime(uint index) const
+    // uint64_t apiCallEndTime(uint index) const
     //{
     //    return m_apiCallList[index]->endTime();
     //}
 
-    //uint64_t duration() const
+    // uint64_t duration() const
     //{
     //    return (endTime() - startTime());
     //}
 
-    //void set_screenshot_filename(const std::string &filename)
+    // void set_screenshot_filename(const std::string &filename)
     //{
     //    m_screenshot_filename = filename;
     //}
 
-    //const std::string &get_screenshot_filename() const
+    // const std::string &get_screenshot_filename() const
     //{
     //    return m_screenshot_filename;
     //}
 
-private:
+   private:
     uint64_t m_frameNumber;
     QList<glvdebug_apiCallItem *> m_apiCallList;
     QList<vogleditor_groupItem *> m_groupList;
 
-    //std::string m_screenshot_filename;
+    // std::string m_screenshot_filename;
 };
 
-#endif // VOGLEDITOR_FRAMEITEM_H
+#endif  // VOGLEDITOR_FRAMEITEM_H

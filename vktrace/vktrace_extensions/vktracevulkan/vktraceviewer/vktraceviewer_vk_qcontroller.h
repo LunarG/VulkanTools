@@ -29,11 +29,9 @@
 #include <QLabel>
 #include <QScrollArea>
 
-
-class vktraceviewer_vk_QController : public vktraceviewer_QController
-{
+class vktraceviewer_vk_QController : public vktraceviewer_QController {
     Q_OBJECT
-public:
+   public:
     vktraceviewer_vk_QController();
     virtual ~vktraceviewer_vk_QController();
 
@@ -41,26 +39,25 @@ public:
     virtual bool LoadTraceFile(vktraceviewer_trace_file_info* pTraceFileInfo, vktraceviewer_view* pView);
     virtual void UnloadTraceFile(void);
 
-    void setView(vktraceviewer_view* pView)
-    {
+    void setView(vktraceviewer_view* pView) {
         m_pView = pView;
         m_replayWorker.setView(pView);
     }
 
     virtual vktrace_SettingGroup* GetSettings();
-    virtual void UpdateFromSettings(vktrace_SettingGroup *pGroups, unsigned int numGroups);
+    virtual void UpdateFromSettings(vktrace_SettingGroup* pGroups, unsigned int numGroups);
 
     virtual const char* GetPacketIdString(uint16_t packetId);
 
-public slots:
+   public slots:
     void OnOutputMessage(VktraceLogLevel level, const QString& msg);
 
-signals:
+   signals:
     // Inherited from glvdebug_QController
     void OutputMessage(VktraceLogLevel level, const QString& message);
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message);
 
-protected slots:
+   protected slots:
     void onReplayStarted();
     void onReplayPaused(uint64_t packetIndex);
     void onReplayContinued();
@@ -68,7 +65,7 @@ protected slots:
     void onReplayFinished(uint64_t packetIndex);
     void onReplayProgressUpdate(uint64_t packetArrayIndex);
 
-private:
+   private:
     vktraceviewer_view* m_pView;
     vktraceviewer_trace_file_info* m_pTraceFileInfo;
     vktraceviewer_QReplayWorker m_replayWorker;
@@ -84,4 +81,4 @@ private:
     void deleteStateDumps() const;
 };
 
-#endif // VKTRACEVIEWER_VK_QCONTROLLER_H
+#endif  // VKTRACEVIEWER_VK_QCONTROLLER_H

@@ -30,34 +30,26 @@ extern "C" {
  * Requires low level file/stream reading/seeking support. */
 namespace vktrace_replay {
 
-
-struct seqBookmark
-{
+struct seqBookmark {
     unsigned int file_offset;
 };
 
-
 // replay Sequencer interface
- class AbstractSequencer
- {
- public:
+class AbstractSequencer {
+   public:
     virtual ~AbstractSequencer() {}
     virtual vktrace_trace_packet_header *get_next_packet() = 0;
     virtual void get_bookmark(seqBookmark &bookmark) = 0;
     virtual void set_bookmark(const seqBookmark &bookmark) = 0;
- };
+};
 
-class Sequencer: public AbstractSequencer
-{
-
-public:
-    Sequencer(FileLike* pFile) : m_lastPacket(NULL), m_pFile(pFile) {}
-    ~Sequencer() {
-        this->clean_up();
-    }
+class Sequencer : public AbstractSequencer {
+   public:
+    Sequencer(FileLike *pFile) : m_lastPacket(NULL), m_pFile(pFile) {}
+    ~Sequencer() { this->clean_up(); }
 
     void clean_up() {
-        if (m_lastPacket){
+        if (m_lastPacket) {
             free(m_lastPacket);
             m_lastPacket = NULL;
         }
@@ -68,12 +60,10 @@ public:
     void set_bookmark(const seqBookmark &bookmark);
     void record_bookmark();
 
-private:
+   private:
     vktrace_trace_packet_header *m_lastPacket;
     seqBookmark m_bookmark;
     FileLike *m_pFile;
 };
 
 } /* namespace vktrace_replay */
-
-

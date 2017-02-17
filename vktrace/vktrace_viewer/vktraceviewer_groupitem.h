@@ -25,44 +25,30 @@
 
 class vogleditor_frameItem;
 
-class vogleditor_groupItem //: public vogleditor_snapshotItem
+class vogleditor_groupItem  //: public vogleditor_snapshotItem
 {
-public:
-    vogleditor_groupItem(vogleditor_frameItem *pFrameItem)
-        : m_pParentFrame(pFrameItem)
-    {
-    }
+   public:
+    vogleditor_groupItem(vogleditor_frameItem *pFrameItem) : m_pParentFrame(pFrameItem) {}
 
-    ~vogleditor_groupItem()
-    {
-        m_apiCallList.clear();
-    }
+    ~vogleditor_groupItem() { m_apiCallList.clear(); }
 
-    void appendCall(glvdebug_apiCallItem *pItem)
-    {
-        m_apiCallList.append(pItem);
-    }
+    void appendCall(glvdebug_apiCallItem *pItem) { m_apiCallList.append(pItem); }
 
-    inline int callCount() const
-    {
-        return m_apiCallList.size();
-    }
+    inline int callCount() const { return m_apiCallList.size(); }
 
-    glvdebug_apiCallItem *call(int index) const
-    {
-        if (index < 0 || index > callCount())
-        {
+    glvdebug_apiCallItem *call(int index) const {
+        if (index < 0 || index > callCount()) {
             return NULL;
         }
         return m_apiCallList[index];
     }
 
-    //inline uint64_t firstApiCallIndex() const
+    // inline uint64_t firstApiCallIndex() const
     //{
     //    return apiCallIndex(0);
     //}
 
-    //inline uint64_t apiCallIndex(int index = 0) const
+    // inline uint64_t apiCallIndex(int index = 0) const
     //{
     //    if (vogleditor_apiCallItem *apiCallItem = call(index))
     //    {
@@ -71,22 +57,22 @@ public:
     //    return uint64_t(-1); // (-1 index won't be found)
     //}
 
-    //inline uint64_t startTime() const
+    // inline uint64_t startTime() const
     //{
     //    return m_apiCallList[0]->startTime();
     //}
 
-    //inline uint64_t endTime() const
+    // inline uint64_t endTime() const
     //{
     //    return m_apiCallList[callCount() - 1]->endTime();
     //}
 
-    //inline uint64_t duration() const
+    // inline uint64_t duration() const
     //{
     //    return endTime() - startTime();
     //}
 
-private:
+   private:
     vogleditor_frameItem *m_pParentFrame;
     QList<glvdebug_apiCallItem *> m_apiCallList;
 };

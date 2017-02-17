@@ -47,16 +47,16 @@
 
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 
-#define VKTRACER_EXPORT __attribute__ ((visibility ("default")))
+#define VKTRACER_EXPORT __attribute__((visibility("default")))
 #define VKTRACER_STDCALL
 #define VKTRACER_CDECL
 #define VKTRACER_EXIT void
-#define VKTRACER_ENTRY void __attribute__ ((constructor))
-#define VKTRACER_LEAVE void __attribute__ ((destructor))
+#define VKTRACER_ENTRY void __attribute__((constructor))
+#define VKTRACER_LEAVE void __attribute__((destructor))
 
 #endif
 
-#define ROUNDUP_TO_2(_len)  ((((_len)+ 1)>>1)<<1)
-#define ROUNDUP_TO_4(_len)  ((((_len)+ 3)>>2)<<2)
-#define ROUNDUP_TO_8(_len)  ((((_len)+ 7)>>3)<<3)
-#define ROUNDUP_TO_16(_len) ((((_len)+15)>>4)<<4)
+#define ROUNDUP_TO_2(_len) ((((_len) + 1) >> 1) << 1)
+#define ROUNDUP_TO_4(_len) ((((_len) + 3) >> 2) << 2)
+#define ROUNDUP_TO_8(_len) ((((_len) + 7) >> 3) << 3)
+#define ROUNDUP_TO_16(_len) ((((_len) + 15) >> 4) << 4)

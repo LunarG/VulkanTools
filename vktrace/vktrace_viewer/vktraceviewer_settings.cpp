@@ -32,7 +32,7 @@ extern "C" {
 static const unsigned int VKTRACEVIEWER_SETTINGS_FILE_FORMAT_VERSION_1 = 1;
 static const unsigned int VKTRACEVIEWER_SETTINGS_FILE_FORMAT_VERSION = VKTRACEVIEWER_SETTINGS_FILE_FORMAT_VERSION_1;
 
-static const char *s_SETTINGS_FILE = "vktraceviewer_settings.txt";
+static const char* s_SETTINGS_FILE = "vktraceviewer_settings.txt";
 
 // declared as extern in header
 vktraceviewer_settings g_settings;
@@ -69,37 +69,28 @@ vktrace_SettingInfo g_settings_info[] = {
      &s_default_settings.settings_dialog_height, FALSE, "Height of VkTraceViewer settings dialog when opened."},
 };
 
-vktrace_SettingGroup g_settingGroup =
-{
-    "vktraceviewer",
-    sizeof(g_settings_info) / sizeof(g_settings_info[0]),
-    &g_settings_info[0]
-};
+vktrace_SettingGroup g_settingGroup = {"vktraceviewer", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
 
-QString vktraceviewer_get_settings_file_path()
-{
+QString vktraceviewer_get_settings_file_path() {
     QString result = vktraceviewer_get_settings_directory() + "/" + QString(s_SETTINGS_FILE);
     return result;
 }
 
-QString vktraceviewer_get_settings_directory()
-{
-    char * pSettingsPath = vktrace_platform_get_settings_path();
+QString vktraceviewer_get_settings_directory() {
+    char* pSettingsPath = vktrace_platform_get_settings_path();
     QString result = QString(pSettingsPath);
     vktrace_free(pSettingsPath);
     return result;
 }
 
-QString vktraceviewer_get_sessions_directory()
-{
-    char * pDataPath = vktrace_platform_get_data_path();
+QString vktraceviewer_get_sessions_directory() {
+    char* pDataPath = vktrace_platform_get_data_path();
     QString result = QString(pDataPath) + "/sessions/";
     vktrace_free(pDataPath);
     return result;
 }
 
-bool vktraceviewer_initialize_settings(int argc, char* argv[])
-{
+bool vktraceviewer_initialize_settings(int argc, char* argv[]) {
     bool bSuccess = true;
 
     // setup default values
@@ -126,24 +117,20 @@ bool vktraceviewer_initialize_settings(int argc, char* argv[])
 
     QString settingsFilePath = vktraceviewer_get_settings_file_path();
     FILE* pFile = fopen(settingsFilePath.toStdString().c_str(), "r");
-    if (pFile == NULL)
-    {
+    if (pFile == NULL) {
         vktrace_LogWarning("Unable to open settings file: '%s'.", settingsFilePath.toStdString().c_str());
     }
 
     // Secondly set options based on settings file
-    if (pFile != NULL)
-    {
+    if (pFile != NULL) {
         g_pAllSettings = NULL;
         g_numAllSettings = 0;
-        if (vktrace_SettingGroup_Load_from_file(pFile, &g_pAllSettings, &g_numAllSettings) == -1)
-        {
+        if (vktrace_SettingGroup_Load_from_file(pFile, &g_pAllSettings, &g_numAllSettings) == -1) {
             vktrace_SettingGroup_print(&g_settingGroup);
             return false;
         }
 
-        if (g_pAllSettings != NULL && g_numAllSettings > 0)
-        {
+        if (g_pAllSettings != NULL && g_numAllSettings > 0) {
             vktrace_SettingGroup_Apply_Overrides(&g_settingGroup, g_pAllSettings, g_numAllSettings);
         }
 
@@ -152,8 +139,7 @@ bool vktraceviewer_initialize_settings(int argc, char* argv[])
     }
 
     // apply settings from settings file and from cmd-line args
-    if (vktrace_SettingGroup_init_from_cmdline(&g_settingGroup, argc, argv, &g_settings.trace_file_to_open) != 0)
-    {
+    if (vktrace_SettingGroup_init_from_cmdline(&g_settingGroup, argc, argv, &g_settings.trace_file_to_open) != 0) {
         // invalid options specified
         bSuccess = false;
     }
@@ -165,39 +151,29 @@ bool vktraceviewer_initialize_settings(int argc, char* argv[])
 
     // This would be a good place to validate any "required" settings, but right now there aren't any!
 
-    if (bSuccess == false)
-    {
+    if (bSuccess == false) {
         vktrace_SettingGroup_delete(&g_settingGroup);
     }
 
     return bSuccess;
 }
 
-void vktraceviewer_settings_updated()
-{
-    vktrace_SettingGroup_update(&g_settingGroup, g_pAllSettings, g_numAllSettings);
-}
+void vktraceviewer_settings_updated() { vktrace_SettingGroup_update(&g_settingGroup, g_pAllSettings, g_numAllSettings); }
 
-void vktraceviewer_save_settings()
-{
+void vktraceviewer_save_settings() {
     QDir settingsDir(vktraceviewer_get_settings_directory());
-    if (settingsDir.mkpath(".") == false)
-    {
+    if (settingsDir.mkpath(".") == false) {
         QString error = "Failed to create " + settingsDir.path();
         vktraceviewer_output_error(error);
     }
 
     QString filepath = vktraceviewer_get_settings_file_path();
     FILE* pSettingsFile = fopen(filepath.toStdString().c_str(), "w");
-    if (pSettingsFile == NULL)
-    {
+    if (pSettingsFile == NULL) {
         QString error = "Failed to open settings file for writing: " + filepath;
         vktraceviewer_output_error(error);
-    }
-    else
-    {
-        if (vktrace_SettingGroup_save(g_pAllSettings, g_numAllSettings, pSettingsFile) == FALSE)
-        {
+    } else {
+        if (vktrace_SettingGroup_save(g_pAllSettings, g_numAllSettings, pSettingsFile) == FALSE) {
             QString error = "Failed to save settings file: " + filepath;
             vktraceviewer_output_error(error);
         }

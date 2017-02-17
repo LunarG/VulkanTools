@@ -29,18 +29,15 @@ vktrace_trace_packet_header *copy_packet(vktrace_trace_packet_header *pHeader) {
     }
 
     uint64_t packetSize = pHeader->size;
-    vktrace_trace_packet_header *pCopy =
-        static_cast<vktrace_trace_packet_header *>(malloc(packetSize));
-    if (pCopy != nullptr)
-    {
+    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc(packetSize));
+    if (pCopy != nullptr) {
         memcpy(pCopy, pHeader, packetSize);
     }
     return pCopy;
 }
 
 //-------------------------------------------------------------------------
-void StateTracker::AddImageTransition(VkCommandBuffer commandBuffer,
-                                      ImageTransition transition) {
+void StateTracker::AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition) {
     vktrace_enter_critical_section(&trimTransitionMapLock);
     m_cmdBufferToImageTransitionsMap[commandBuffer].push_back(transition);
     vktrace_leave_critical_section(&trimTransitionMapLock);
@@ -55,8 +52,7 @@ void StateTracker::ClearImageTransitions(VkCommandBuffer commandBuffer) {
 }
 
 //-------------------------------------------------------------------------
-void StateTracker::AddBufferTransition(VkCommandBuffer commandBuffer,
-                                       BufferTransition transition) {
+void StateTracker::AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition) {
     vktrace_enter_critical_section(&trimTransitionMapLock);
     m_cmdBufferToBufferTransitionsMap[commandBuffer].push_back(transition);
     vktrace_leave_critical_section(&trimTransitionMapLock);
@@ -78,8 +74,7 @@ StateTracker::StateTracker(const StateTracker &other) { *this = other; }
 StateTracker::~StateTracker() { clear(); }
 
 //-------------------------------------------------------------------------
-void StateTracker::add_CommandBuffer_call(
-    VkCommandBuffer commandBuffer, vktrace_trace_packet_header *pHeader) {
+void StateTracker::add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header *pHeader) {
     if (pHeader != NULL) {
         m_cmdBufferPackets[commandBuffer].push_back(pHeader);
     }
@@ -87,12 +82,10 @@ void StateTracker::add_CommandBuffer_call(
 
 //-------------------------------------------------------------------------
 void StateTracker::remove_CommandBuffer_calls(VkCommandBuffer commandBuffer) {
-    std::unordered_map<VkCommandBuffer,
-                       std::list<vktrace_trace_packet_header *>>::iterator
-        cmdBufferMap = m_cmdBufferPackets.find(commandBuffer);
+    std::unordered_map<VkCommandBuffer, std::list<vktrace_trace_packet_header *>>::iterator cmdBufferMap =
+        m_cmdBufferPackets.find(commandBuffer);
     if (cmdBufferMap != m_cmdBufferPackets.end()) {
-        for (auto packet = cmdBufferMap->second.begin();
-             packet != cmdBufferMap->second.end(); ++packet) {
+        for (auto packet = cmdBufferMap->second.begin(); packet != cmdBufferMap->second.end(); ++packet) {
             vktrace_trace_packet_header *pHeader = *packet;
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -103,10 +96,8 @@ void StateTracker::remove_CommandBuffer_calls(VkCommandBuffer commandBuffer) {
 }
 
 #if TRIM_USE_ORDERED_IMAGE_CREATION
-void StateTracker::add_Image_call(vktrace_trace_packet_header *pHeader) {
-    m_image_calls.push_back(pHeader);
-}
-#endif // TRIM_USE_ORDERED_IMAGE_CREATION
+void StateTracker::add_Image_call(vktrace_trace_packet_header *pHeader) { m_image_calls.push_back(pHeader); }
+#endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
 //-------------------------------------------------------------------------
 void StateTracker::clear() {
@@ -115,17 +106,15 @@ void StateTracker::clear() {
     }
 
     while (createdPhysicalDevices.size() != 0) {
-        remove_PhysicalDevice(reinterpret_cast<VkPhysicalDevice>(
-            createdPhysicalDevices.begin()->first));
+        remove_PhysicalDevice(reinterpret_cast<VkPhysicalDevice>(createdPhysicalDevices.begin()->first));
     }
 
     while (createdDevices.size() != 0) {
-        remove_Device(reinterpret_cast<VkDevice>(reinterpret_cast<void*>(createdDevices.begin()->first)));
+        remove_Device(reinterpret_cast<VkDevice>(reinterpret_cast<void *>(createdDevices.begin()->first)));
     }
 
     while (createdSurfaceKHRs.size() != 0) {
-        remove_SurfaceKHR(
-            createdSurfaceKHRs.begin()->first);
+        remove_SurfaceKHR(createdSurfaceKHRs.begin()->first);
     }
 
     while (createdCommandPools.size() != 0) {
@@ -133,8 +122,7 @@ void StateTracker::clear() {
     }
 
     while (createdCommandBuffers.size() != 0) {
-        remove_CommandBuffer(
-            reinterpret_cast<VkCommandBuffer>(reinterpret_cast<void*>(createdCommandBuffers.begin()->first)));
+        remove_CommandBuffer(reinterpret_cast<VkCommandBuffer>(reinterpret_cast<void *>(createdCommandBuffers.begin()->first)));
     }
 
     while (createdDescriptorPools.size() != 0) {
@@ -221,11 +209,9 @@ void StateTracker::clear() {
         remove_DescriptorSet(createdDescriptorSets.begin()->first);
     }
 
-    for (auto iter = m_cmdBufferPackets.begin();
-         iter != m_cmdBufferPackets.end(); ++iter) {
+    for (auto iter = m_cmdBufferPackets.begin(); iter != m_cmdBufferPackets.end(); ++iter) {
         std::list<vktrace_trace_packet_header *> &packets = iter->second;
-        for (auto packetIter = iter->second.begin();
-             packetIter != iter->second.end(); ++packetIter) {
+        for (auto packetIter = iter->second.begin(); packetIter != iter->second.end(); ++packetIter) {
             vktrace_trace_packet_header *pHeader = *packetIter;
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -233,46 +219,46 @@ void StateTracker::clear() {
     }
     m_cmdBufferPackets.clear();
 
-    for (auto packet = m_image_calls.begin(); packet != m_image_calls.end();
-         ++packet) {
+    for (auto packet = m_image_calls.begin(); packet != m_image_calls.end(); ++packet) {
         vktrace_trace_packet_header *pHeader = *packet;
         vktrace_delete_trace_packet(&pHeader);
     }
     m_image_calls.clear();
 
-    for (auto renderPassIter = m_renderPassVersions.begin();
-         renderPassIter != m_renderPassVersions.end(); ++renderPassIter) {
+    for (auto renderPassIter = m_renderPassVersions.begin(); renderPassIter != m_renderPassVersions.end(); ++renderPassIter) {
         std::vector<VkRenderPassCreateInfo *> versions = renderPassIter->second;
 
         for (uint32_t i = 0; i < versions.size(); i++) {
             VkRenderPassCreateInfo *pCreateInfo = versions[i];
 
             for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
-                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0 && pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pInputAttachments));
+                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0 &&
+                    pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pInputAttachments));
                 }
 
                 if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
                     if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr) {
-                        VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pColorAttachments));
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pColorAttachments));
                     }
 
                     if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                        VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pResolveAttachments));
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pResolveAttachments));
                     }
                 }
 
                 if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference*>(pCreateInfo->pSubpasses[i].pDepthStencilAttachment));
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pDepthStencilAttachment));
                 }
 
-                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0 && pCreateInfo->pSubpasses[i].pPreserveAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<uint32_t*>(pCreateInfo->pSubpasses[i].pPreserveAttachments));
+                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0 &&
+                    pCreateInfo->pSubpasses[i].pPreserveAttachments != nullptr) {
+                    VKTRACE_DELETE(const_cast<uint32_t *>(pCreateInfo->pSubpasses[i].pPreserveAttachments));
                 }
             }
 
             if (pCreateInfo->pAttachments != nullptr) {
-                VKTRACE_DELETE(const_cast<VkAttachmentDescription*>(pCreateInfo->pAttachments));
+                VKTRACE_DELETE(const_cast<VkAttachmentDescription *>(pCreateInfo->pAttachments));
             }
 
             VKTRACE_DELETE(pCreateInfo);
@@ -283,21 +269,19 @@ void StateTracker::clear() {
 }
 
 //-------------------------------------------------------------------------
-void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
-    const VkRenderPassCreateInfo &src)
-{
-    if (pDst != nullptr)
-    {
+void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst, const VkRenderPassCreateInfo &src) {
+    if (pDst != nullptr) {
         *pDst = src;
 
-        VkSubpassDescription *pSubPasses = static_cast<VkSubpassDescription*>(VKTRACE_NEW_ARRAY(VkSubpassDescription, src.subpassCount));
-        if (pSubPasses != nullptr)
-        {
+        VkSubpassDescription *pSubPasses =
+            static_cast<VkSubpassDescription *>(VKTRACE_NEW_ARRAY(VkSubpassDescription, src.subpassCount));
+        if (pSubPasses != nullptr) {
             for (uint32_t i = 0; i < src.subpassCount; i++) {
                 pSubPasses[i] = src.pSubpasses[i];
 
                 if (src.pSubpasses[i].inputAttachmentCount > 0) {
-                    VkAttachmentReference *pInputAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].inputAttachmentCount));
+                    VkAttachmentReference *pInputAttachments = static_cast<VkAttachmentReference *>(
+                        VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].inputAttachmentCount));
                     if (pInputAttachments != nullptr) {
                         for (uint32_t j = 0; j < src.pSubpasses[i].inputAttachmentCount; j++) {
                             pInputAttachments[j] = src.pSubpasses[i].pInputAttachments[j];
@@ -307,9 +291,9 @@ void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
                 }
 
                 if (src.pSubpasses[i].colorAttachmentCount > 0) {
-                    VkAttachmentReference *pColorAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].colorAttachmentCount));
-                    if (pColorAttachments != nullptr)
-                    {
+                    VkAttachmentReference *pColorAttachments = static_cast<VkAttachmentReference *>(
+                        VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].colorAttachmentCount));
+                    if (pColorAttachments != nullptr) {
                         for (uint32_t j = 0; j < src.pSubpasses[i].colorAttachmentCount; j++) {
                             pColorAttachments[j] = src.pSubpasses[i].pColorAttachments[j];
                         }
@@ -317,7 +301,8 @@ void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
                     pSubPasses[i].pColorAttachments = pColorAttachments;
 
                     if (src.pSubpasses[i].pResolveAttachments != nullptr) {
-                        VkAttachmentReference *pResolveAttachments = static_cast<VkAttachmentReference*>(VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].colorAttachmentCount));
+                        VkAttachmentReference *pResolveAttachments = static_cast<VkAttachmentReference *>(
+                            VKTRACE_NEW_ARRAY(VkAttachmentReference, src.pSubpasses[i].colorAttachmentCount));
                         if (pResolveAttachments != nullptr) {
                             for (uint32_t j = 0; j < src.pSubpasses[i].colorAttachmentCount; j++) {
                                 pResolveAttachments[j] = src.pSubpasses[i].pResolveAttachments[j];
@@ -328,16 +313,17 @@ void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
                 }
 
                 if (src.pSubpasses[i].pDepthStencilAttachment != nullptr) {
-                    VkAttachmentReference *pDepthStencilAttachment = static_cast<VkAttachmentReference*>(VKTRACE_NEW(VkAttachmentReference));
-                    if (pDepthStencilAttachment != nullptr)
-                    {
+                    VkAttachmentReference *pDepthStencilAttachment =
+                        static_cast<VkAttachmentReference *>(VKTRACE_NEW(VkAttachmentReference));
+                    if (pDepthStencilAttachment != nullptr) {
                         *pDepthStencilAttachment = *src.pSubpasses[i].pDepthStencilAttachment;
                     }
                     pSubPasses[i].pDepthStencilAttachment = pDepthStencilAttachment;
                 }
 
                 if (src.pSubpasses[i].preserveAttachmentCount > 0) {
-                    uint32_t *pPreserveAttachments = static_cast<uint32_t*>(VKTRACE_NEW_ARRAY(uint32_t, src.pSubpasses[i].preserveAttachmentCount));
+                    uint32_t *pPreserveAttachments =
+                        static_cast<uint32_t *>(VKTRACE_NEW_ARRAY(uint32_t, src.pSubpasses[i].preserveAttachmentCount));
                     if (pPreserveAttachments != nullptr) {
                         for (uint32_t j = 0; j < src.pSubpasses[i].preserveAttachmentCount; j++) {
                             pPreserveAttachments[j] = src.pSubpasses[i].pPreserveAttachments[j];
@@ -350,7 +336,8 @@ void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
 
         pDst->pSubpasses = pSubPasses;
 
-        VkAttachmentDescription *pAttachments = static_cast<VkAttachmentDescription*>(VKTRACE_NEW_ARRAY(VkAttachmentDescription, src.attachmentCount));
+        VkAttachmentDescription *pAttachments =
+            static_cast<VkAttachmentDescription *>(VKTRACE_NEW_ARRAY(VkAttachmentDescription, src.attachmentCount));
         if (pAttachments != nullptr) {
             for (uint32_t i = 0; i < src.attachmentCount; i++) {
                 pAttachments[i] = src.pAttachments[i];
@@ -360,9 +347,8 @@ void StateTracker::copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst,
     }
 }
 
-void StateTracker::add_RenderPassCreateInfo(
-    VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo) {
-    VkRenderPassCreateInfo *pCopyCreateInfo = static_cast<VkRenderPassCreateInfo*>(VKTRACE_NEW(VkRenderPassCreateInfo));
+void StateTracker::add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo) {
+    VkRenderPassCreateInfo *pCopyCreateInfo = static_cast<VkRenderPassCreateInfo *>(VKTRACE_NEW(VkRenderPassCreateInfo));
     copy_VkRenderPassCreateInfo(pCopyCreateInfo, *pCreateInfo);
     m_renderPassVersions[renderPass].push_back(pCopyCreateInfo);
 }
@@ -373,179 +359,142 @@ uint32_t StateTracker::get_RenderPassVersion(VkRenderPass renderPass) {
 }
 
 //-------------------------------------------------------------------------
-VkRenderPassCreateInfo *
-StateTracker::get_RenderPassCreateInfo(VkRenderPass renderPass,
-                                       uint32_t version) {
+VkRenderPassCreateInfo *StateTracker::get_RenderPassCreateInfo(VkRenderPass renderPass, uint32_t version) {
     return m_renderPassVersions[renderPass][version];
 }
 
 //-------------------------------------------------------------------------
 StateTracker &StateTracker::operator=(const StateTracker &other) {
-    if (this == &other)
-        return *this;
+    if (this == &other) return *this;
 
     m_renderPassVersions = other.m_renderPassVersions;
     for (auto iter = m_renderPassVersions.begin(); iter != m_renderPassVersions.end(); ++iter) {
         for (uint32_t i = 0; i < iter->second.size(); i++) {
-            VkRenderPassCreateInfo* pCreateInfoVersion = iter->second[i];
-            VkRenderPassCreateInfo *pCopiedCreateInfo = static_cast<VkRenderPassCreateInfo*>(VKTRACE_NEW(VkRenderPassCreateInfo));
+            VkRenderPassCreateInfo *pCreateInfoVersion = iter->second[i];
+            VkRenderPassCreateInfo *pCopiedCreateInfo = static_cast<VkRenderPassCreateInfo *>(VKTRACE_NEW(VkRenderPassCreateInfo));
             copy_VkRenderPassCreateInfo(pCopiedCreateInfo, *pCreateInfoVersion);
             iter->second[i] = pCopiedCreateInfo;
         }
     }
 
-    for (auto iter = other.m_cmdBufferPackets.cbegin();
-         iter != other.m_cmdBufferPackets.cend(); ++iter) {
+    for (auto iter = other.m_cmdBufferPackets.cbegin(); iter != other.m_cmdBufferPackets.cend(); ++iter) {
         std::list<vktrace_trace_packet_header *> packets;
-        for (auto packetIter = iter->second.cbegin();
-             packetIter != iter->second.cend(); ++packetIter) {
+        for (auto packetIter = iter->second.cbegin(); packetIter != iter->second.cend(); ++packetIter) {
             packets.push_back(copy_packet(*packetIter));
         }
         m_cmdBufferPackets[iter->first] = packets;
     }
 
-    for (auto packet = other.m_image_calls.cbegin();
-         packet != other.m_image_calls.cend(); ++packet) {
+    for (auto packet = other.m_image_calls.cbegin(); packet != other.m_image_calls.cend(); ++packet) {
         m_image_calls.push_back(copy_packet(*packet));
     }
 
     createdInstances = other.createdInstances;
-    for (auto obj = createdInstances.begin();
-         obj != createdInstances.end(); obj++) {
+    for (auto obj = createdInstances.begin(); obj != createdInstances.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Instance.pCreatePacket);
-        COPY_PACKET(obj->second.ObjectInfo.Instance
-                        .pEnumeratePhysicalDevicesCountPacket);
-        COPY_PACKET(
-            obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket);
+        COPY_PACKET(obj->second.ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
     }
 
     createdPhysicalDevices = other.createdPhysicalDevices;
-    for (auto obj = createdPhysicalDevices.begin();
-         obj != createdPhysicalDevices.end(); obj++) {
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice
-                        .pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice
-                        .pGetPhysicalDeviceSurfaceSupportKHRPacket);
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice
-                        .pGetPhysicalDeviceMemoryPropertiesPacket);
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice
-                        .pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice
-                        .pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+    for (auto obj = createdPhysicalDevices.begin(); obj != createdPhysicalDevices.end(); obj++) {
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
     }
 
     createdDevices = other.createdDevices;
-    for (auto obj = createdDevices.begin();
-         obj != createdDevices.end(); obj++) {
+    for (auto obj = createdDevices.begin(); obj != createdDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Device.pCreatePacket);
     }
 
     createdSurfaceKHRs = other.createdSurfaceKHRs;
-    for (auto obj = createdSurfaceKHRs.begin();
-         obj != createdSurfaceKHRs.end(); obj++) {
+    for (auto obj = createdSurfaceKHRs.begin(); obj != createdSurfaceKHRs.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.SurfaceKHR.pCreatePacket);
     }
 
     createdCommandPools = other.createdCommandPools;
-    for (auto obj = createdCommandPools.begin();
-         obj != createdCommandPools.end(); obj++) {
+    for (auto obj = createdCommandPools.begin(); obj != createdCommandPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.CommandPool.pCreatePacket);
     }
 
     createdCommandBuffers = other.createdCommandBuffers;
 
     createdDescriptorPools = other.createdDescriptorPools;
-    for (auto obj = createdDescriptorPools.begin();
-         obj != createdDescriptorPools.end(); obj++) {
+    for (auto obj = createdDescriptorPools.begin(); obj != createdDescriptorPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DescriptorPool.pCreatePacket);
     }
 
     createdSwapchainKHRs = other.createdSwapchainKHRs;
-    for (auto obj = createdSwapchainKHRs.begin();
-         obj != createdSwapchainKHRs.end(); obj++) {
+    for (auto obj = createdSwapchainKHRs.begin(); obj != createdSwapchainKHRs.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pCreatePacket);
-        COPY_PACKET(
-            obj->second.ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
-        COPY_PACKET(
-            obj->second.ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
+        COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
     }
 
     createdRenderPasss = other.createdRenderPasss;
-    for (auto obj = createdRenderPasss.begin();
-         obj != createdRenderPasss.end(); obj++) {
+    for (auto obj = createdRenderPasss.begin(); obj != createdRenderPasss.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.RenderPass.pCreatePacket);
     }
 
     createdPipelineCaches = other.createdPipelineCaches;
-    for (auto obj = createdPipelineCaches.begin();
-         obj != createdPipelineCaches.end(); obj++) {
+    for (auto obj = createdPipelineCaches.begin(); obj != createdPipelineCaches.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PipelineCache.pCreatePacket);
     }
 
     createdPipelines = other.createdPipelines;
-    for (auto obj = createdPipelines.begin();
-         obj != createdPipelines.end(); obj++) {
-        VkGraphicsPipelineCreateInfo *pCreateInfo =
-            &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
+    for (auto obj = createdPipelines.begin(); obj != createdPipelines.end(); obj++) {
+        VkGraphicsPipelineCreateInfo *pCreateInfo = &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
 
         // note: Using the same memory as both the destination and the source.
         // We're copying what is currently there, which will properly result in
         // new copies of any pointed-to objects and arrays.
-        copy_VkGraphicsPipelineCreateInfo(
-            pCreateInfo,
-            obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo);
+        copy_VkGraphicsPipelineCreateInfo(pCreateInfo, obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo);
         copy_VkComputePipelineCreateInfo(
-            const_cast<VkComputePipelineCreateInfo *>(
-                &obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo),
+            const_cast<VkComputePipelineCreateInfo *>(&obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo),
             obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo);
     }
 
     createdQueues = other.createdQueues;
-    for (auto obj = createdQueues.begin();
-         obj != createdQueues.end(); obj++) {
+    for (auto obj = createdQueues.begin(); obj != createdQueues.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Queue.pCreatePacket);
     }
 
     createdSemaphores = other.createdSemaphores;
-    for (auto obj = createdSemaphores.begin();
-         obj != createdSemaphores.end(); obj++) {
+    for (auto obj = createdSemaphores.begin(); obj != createdSemaphores.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Semaphore.pCreatePacket);
     }
 
     createdDeviceMemorys = other.createdDeviceMemorys;
-    for (auto obj = createdDeviceMemorys.begin();
-         obj != createdDeviceMemorys.end(); obj++) {
+    for (auto obj = createdDeviceMemorys.begin(); obj != createdDeviceMemorys.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DeviceMemory.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.DeviceMemory.pMapMemoryPacket);
         COPY_PACKET(obj->second.ObjectInfo.DeviceMemory.pUnmapMemoryPacket);
-        COPY_PACKET(
-            obj->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
+        COPY_PACKET(obj->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
     }
 
     createdFences = other.createdFences;
 
     createdImages = other.createdImages;
-    for (auto obj = createdImages.begin();
-         obj != createdImages.end(); obj++) {
+    for (auto obj = createdImages.begin(); obj != createdImages.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Image.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.Image.pMapMemoryPacket);
         COPY_PACKET(obj->second.ObjectInfo.Image.pUnmapMemoryPacket);
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
-        COPY_PACKET(
-            obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
-#endif //! TRIM_USE_ORDERED_IMAGE_CREATION
+        COPY_PACKET(obj->second.ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
+#endif  //! TRIM_USE_ORDERED_IMAGE_CREATION
         COPY_PACKET(obj->second.ObjectInfo.Image.pBindImageMemoryPacket);
     }
 
     createdImageViews = other.createdImageViews;
-    for (auto obj = createdImageViews.begin();
-         obj != createdImageViews.end(); obj++) {
+    for (auto obj = createdImageViews.begin(); obj != createdImageViews.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.ImageView.pCreatePacket);
     }
 
     createdBuffers = other.createdBuffers;
-    for (auto obj = createdBuffers.begin();
-         obj != createdBuffers.end(); obj++) {
+    for (auto obj = createdBuffers.begin(); obj != createdBuffers.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Buffer.pCreatePacket);
         COPY_PACKET(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket);
         COPY_PACKET(obj->second.ObjectInfo.Buffer.pMapMemoryPacket);
@@ -553,33 +502,28 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdBufferViews = other.createdBufferViews;
-    for (auto obj = createdBufferViews.begin();
-         obj != createdBufferViews.end(); obj++) {
+    for (auto obj = createdBufferViews.begin(); obj != createdBufferViews.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.BufferView.pCreatePacket);
     }
 
     createdFramebuffers = other.createdFramebuffers;
-    for (auto obj = createdFramebuffers.begin();
-         obj != createdFramebuffers.end(); obj++) {
+    for (auto obj = createdFramebuffers.begin(); obj != createdFramebuffers.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Framebuffer.pCreatePacket);
     }
 
     createdEvents = other.createdEvents;
-    for (auto obj = createdEvents.begin();
-         obj != createdEvents.end(); obj++) {
+    for (auto obj = createdEvents.begin(); obj != createdEvents.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Event.pCreatePacket);
     }
 
     createdQueryPools = other.createdQueryPools;
-    for (auto obj = createdQueryPools.begin();
-         obj != createdQueryPools.end(); obj++) {
+    for (auto obj = createdQueryPools.begin(); obj != createdQueryPools.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.QueryPool.pCreatePacket);
 
         uint32_t queryCount = obj->second.ObjectInfo.QueryPool.size;
         if (queryCount > 0) {
             bool *tmp = new bool[queryCount];
-            memcpy(tmp, obj->second.ObjectInfo.QueryPool.pResultsAvailable,
-                   queryCount * sizeof(bool));
+            memcpy(tmp, obj->second.ObjectInfo.QueryPool.pResultsAvailable, queryCount * sizeof(bool));
             obj->second.ObjectInfo.QueryPool.pResultsAvailable = tmp;
         } else {
             obj->second.ObjectInfo.QueryPool.pResultsAvailable = nullptr;
@@ -587,49 +531,36 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdShaderModules = other.createdShaderModules;
-    for (auto obj = createdShaderModules.begin();
-         obj != createdShaderModules.end(); obj++) {
+    for (auto obj = createdShaderModules.begin(); obj != createdShaderModules.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.ShaderModule.pCreatePacket);
     }
 
     createdPipelineLayouts = other.createdPipelineLayouts;
-    for (auto obj = createdPipelineLayouts.begin();
-         obj != createdPipelineLayouts.end(); obj++) {
+    for (auto obj = createdPipelineLayouts.begin(); obj != createdPipelineLayouts.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PipelineLayout.pCreatePacket);
 
-        if (obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts !=
-            nullptr) {
+        if (obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts != nullptr) {
             VkDescriptorSetLayout *pLayouts =
-                new VkDescriptorSetLayout[obj->second.ObjectInfo.PipelineLayout
-                                              .descriptorSetLayoutCount];
-            memcpy(
-                pLayouts,
-                obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts,
-                obj->second.ObjectInfo.PipelineLayout.descriptorSetLayoutCount *
-                    sizeof(VkDescriptorSetLayout));
-            obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts =
-                pLayouts;
+                new VkDescriptorSetLayout[obj->second.ObjectInfo.PipelineLayout.descriptorSetLayoutCount];
+            memcpy(pLayouts, obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts,
+                   obj->second.ObjectInfo.PipelineLayout.descriptorSetLayoutCount * sizeof(VkDescriptorSetLayout));
+            obj->second.ObjectInfo.PipelineLayout.pDescriptorSetLayouts = pLayouts;
         }
     }
 
     createdSamplers = other.createdSamplers;
-    for (auto obj = createdSamplers.begin();
-         obj != createdSamplers.end(); obj++) {
+    for (auto obj = createdSamplers.begin(); obj != createdSamplers.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Sampler.pCreatePacket);
     }
 
     createdDescriptorSetLayouts = other.createdDescriptorSetLayouts;
-    for (auto obj = createdDescriptorSetLayouts.begin();
-         obj != createdDescriptorSetLayouts.end(); obj++) {
+    for (auto obj = createdDescriptorSetLayouts.begin(); obj != createdDescriptorSetLayouts.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.DescriptorSetLayout.pCreatePacket);
 
-        uint32_t bindingCount =
-            obj->second.ObjectInfo.DescriptorSetLayout.bindingCount;
+        uint32_t bindingCount = obj->second.ObjectInfo.DescriptorSetLayout.bindingCount;
         if (bindingCount > 0) {
-            VkDescriptorSetLayoutBinding *tmp =
-                new VkDescriptorSetLayoutBinding[bindingCount];
-            memcpy(tmp, obj->second.ObjectInfo.DescriptorSetLayout.pBindings,
-                   bindingCount * sizeof(VkDescriptorSetLayoutBinding));
+            VkDescriptorSetLayoutBinding *tmp = new VkDescriptorSetLayoutBinding[bindingCount];
+            memcpy(tmp, obj->second.ObjectInfo.DescriptorSetLayout.pBindings, bindingCount * sizeof(VkDescriptorSetLayoutBinding));
             obj->second.ObjectInfo.DescriptorSetLayout.pBindings = tmp;
         } else {
             obj->second.ObjectInfo.DescriptorSetLayout.pBindings = nullptr;
@@ -637,57 +568,33 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdDescriptorSets = other.createdDescriptorSets;
-    for (auto obj = createdDescriptorSets.begin();
-         obj != createdDescriptorSets.end(); obj++) {
+    for (auto obj = createdDescriptorSets.begin(); obj != createdDescriptorSets.end(); obj++) {
         uint32_t numBindings = obj->second.ObjectInfo.DescriptorSet.numBindings;
         if (numBindings > 0) {
             VkWriteDescriptorSet *tmp = new VkWriteDescriptorSet[numBindings];
-            memcpy(tmp,
-                   obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets,
-                   numBindings * sizeof(VkWriteDescriptorSet));
+            memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets, numBindings * sizeof(VkWriteDescriptorSet));
             obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = tmp;
 
-            for (uint32_t s = 0;
-                 s < obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
-                 s++) {
-                uint32_t count =
-                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .descriptorCount;
+            for (uint32_t s = 0; s < obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount; s++) {
+                uint32_t count = obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].descriptorCount;
 
-                if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pImageInfo != nullptr) {
-                    VkDescriptorImageInfo *pTmp =
-                        new VkDescriptorImageInfo[count];
-                    memcpy(pTmp,
-                           obj->second.ObjectInfo.DescriptorSet
-                               .pWriteDescriptorSets[s]
-                               .pImageInfo,
+                if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr) {
+                    VkDescriptorImageInfo *pTmp = new VkDescriptorImageInfo[count];
+                    memcpy(pTmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo,
                            count * sizeof(VkDescriptorImageInfo));
-                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pImageInfo = pTmp;
+                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo = pTmp;
                 }
-                if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pBufferInfo != nullptr) {
-                    VkDescriptorBufferInfo *pTmp =
-                        new VkDescriptorBufferInfo[count];
-                    memcpy(pTmp,
-                           obj->second.ObjectInfo.DescriptorSet
-                               .pWriteDescriptorSets[s]
-                               .pBufferInfo,
+                if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != nullptr) {
+                    VkDescriptorBufferInfo *pTmp = new VkDescriptorBufferInfo[count];
+                    memcpy(pTmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo,
                            count * sizeof(VkDescriptorBufferInfo));
-                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pBufferInfo = pTmp;
+                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo = pTmp;
                 }
-                if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pTexelBufferView != nullptr) {
+                if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != nullptr) {
                     VkBufferView *pTmp = new VkBufferView[count];
-                    memcpy(pTmp,
-                           obj->second.ObjectInfo.DescriptorSet
-                               .pWriteDescriptorSets[s]
-                               .pTexelBufferView,
+                    memcpy(pTmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView,
                            count * sizeof(VkBufferView));
-                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pTexelBufferView = pTmp;
+                    obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView = pTmp;
                 }
             }
         } else {
@@ -696,9 +603,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
 
         if (numBindings > 0) {
             VkCopyDescriptorSet *tmp = new VkCopyDescriptorSet[numBindings];
-            memcpy(tmp,
-                   obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets,
-                   numBindings * sizeof(VkCopyDescriptorSet));
+            memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets, numBindings * sizeof(VkCopyDescriptorSet));
             obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets = tmp;
         } else {
             obj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets = nullptr;
@@ -710,9 +615,8 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void StateTracker::copy_VkPipelineShaderStageCreateInfo(
-    VkPipelineShaderStageCreateInfo *pDstStage,
-    const VkPipelineShaderStageCreateInfo &srcStage) {
+void StateTracker::copy_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo *pDstStage,
+                                                        const VkPipelineShaderStageCreateInfo &srcStage) {
     *pDstStage = srcStage;
 
     if (srcStage.pName != nullptr) {
@@ -725,21 +629,16 @@ void StateTracker::copy_VkPipelineShaderStageCreateInfo(
         VkSpecializationInfo *pSI = new VkSpecializationInfo();
         *pSI = *(srcStage.pSpecializationInfo);
 
-        if (srcStage.pSpecializationInfo->pData != nullptr &&
-            srcStage.pSpecializationInfo->dataSize > 0) {
+        if (srcStage.pSpecializationInfo->pData != nullptr && srcStage.pSpecializationInfo->dataSize > 0) {
             void *pData = malloc(srcStage.pSpecializationInfo->dataSize);
-            memcpy(pData, srcStage.pSpecializationInfo->pData,
-                   srcStage.pSpecializationInfo->dataSize);
+            memcpy(pData, srcStage.pSpecializationInfo->pData, srcStage.pSpecializationInfo->dataSize);
             pSI->pData = pData;
         }
 
         if (pSI->pMapEntries != nullptr) {
-            VkSpecializationMapEntry *pSMEs =
-                new VkSpecializationMapEntry[srcStage.pSpecializationInfo
-                                                 ->mapEntryCount];
+            VkSpecializationMapEntry *pSMEs = new VkSpecializationMapEntry[srcStage.pSpecializationInfo->mapEntryCount];
             memcpy(pSMEs, srcStage.pSpecializationInfo->pMapEntries,
-                   srcStage.pSpecializationInfo->mapEntryCount *
-                       sizeof(VkSpecializationMapEntry));
+                   srcStage.pSpecializationInfo->mapEntryCount * sizeof(VkSpecializationMapEntry));
             pSI->pMapEntries = pSMEs;
         }
 
@@ -749,8 +648,7 @@ void StateTracker::copy_VkPipelineShaderStageCreateInfo(
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void StateTracker::delete_VkPipelineShaderStageCreateInfo(
-    VkPipelineShaderStageCreateInfo *pStage) {
+void StateTracker::delete_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo *pStage) {
     if (pStage->pName != nullptr) {
         delete[] pStage->pName;
     }
@@ -768,14 +666,11 @@ void StateTracker::delete_VkPipelineShaderStageCreateInfo(
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void StateTracker::copy_VkGraphicsPipelineCreateInfo(
-    VkGraphicsPipelineCreateInfo *pDst,
-    const VkGraphicsPipelineCreateInfo &src) {
+void StateTracker::copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo *pDst, const VkGraphicsPipelineCreateInfo &src) {
     *pDst = src;
 
     if (src.pStages != nullptr) {
-        VkPipelineShaderStageCreateInfo *pStages =
-            new VkPipelineShaderStageCreateInfo[src.stageCount]();
+        VkPipelineShaderStageCreateInfo *pStages = new VkPipelineShaderStageCreateInfo[src.stageCount]();
         for (uint32_t i = 0; i < src.stageCount; i++) {
             copy_VkPipelineShaderStageCreateInfo(&pStages[i], src.pStages[i]);
         }
@@ -784,77 +679,64 @@ void StateTracker::copy_VkGraphicsPipelineCreateInfo(
     }
 
     if (src.pVertexInputState != nullptr) {
-        VkPipelineVertexInputStateCreateInfo *pVIS =
-            new VkPipelineVertexInputStateCreateInfo();
+        VkPipelineVertexInputStateCreateInfo *pVIS = new VkPipelineVertexInputStateCreateInfo();
         *pVIS = *(src.pVertexInputState);
         pDst->pVertexInputState = pVIS;
 
         if (src.pVertexInputState->pVertexAttributeDescriptions != nullptr) {
             VkVertexInputAttributeDescription *pVIADs =
-                new VkVertexInputAttributeDescription
-                    [pVIS->vertexAttributeDescriptionCount]();
+                new VkVertexInputAttributeDescription[pVIS->vertexAttributeDescriptionCount]();
             memcpy(pVIADs, pVIS->pVertexAttributeDescriptions,
-                   pVIS->vertexAttributeDescriptionCount *
-                       sizeof(VkVertexInputAttributeDescription));
+                   pVIS->vertexAttributeDescriptionCount * sizeof(VkVertexInputAttributeDescription));
             pVIS->pVertexAttributeDescriptions = pVIADs;
         }
 
         if (src.pVertexInputState->pVertexBindingDescriptions != nullptr) {
-            VkVertexInputBindingDescription *pVIBDs =
-                new VkVertexInputBindingDescription
-                    [pVIS->vertexBindingDescriptionCount]();
+            VkVertexInputBindingDescription *pVIBDs = new VkVertexInputBindingDescription[pVIS->vertexBindingDescriptionCount]();
             memcpy(pVIBDs, pVIS->pVertexBindingDescriptions,
-                   pVIS->vertexBindingDescriptionCount *
-                       sizeof(VkVertexInputBindingDescription));
+                   pVIS->vertexBindingDescriptionCount * sizeof(VkVertexInputBindingDescription));
             pVIS->pVertexBindingDescriptions = pVIBDs;
         }
     }
 
     if (src.pInputAssemblyState != nullptr) {
-        VkPipelineInputAssemblyStateCreateInfo *pIAS =
-            new VkPipelineInputAssemblyStateCreateInfo();
+        VkPipelineInputAssemblyStateCreateInfo *pIAS = new VkPipelineInputAssemblyStateCreateInfo();
         *pIAS = *(src.pInputAssemblyState);
         pDst->pInputAssemblyState = pIAS;
     }
 
     if (src.pTessellationState != nullptr) {
-        VkPipelineTessellationStateCreateInfo *pTS =
-            new VkPipelineTessellationStateCreateInfo();
+        VkPipelineTessellationStateCreateInfo *pTS = new VkPipelineTessellationStateCreateInfo();
         *pTS = *(src.pTessellationState);
         pDst->pTessellationState = pTS;
     }
 
     if (src.pViewportState != nullptr) {
-        VkPipelineViewportStateCreateInfo *pVS =
-            new VkPipelineViewportStateCreateInfo();
+        VkPipelineViewportStateCreateInfo *pVS = new VkPipelineViewportStateCreateInfo();
         *pVS = *(src.pViewportState);
         pDst->pViewportState = pVS;
 
         if (src.pViewportState->pViewports != nullptr) {
             VkViewport *pViewports = new VkViewport[pVS->viewportCount];
-            memcpy(pViewports, pVS->pViewports,
-                   pVS->viewportCount * sizeof(VkViewport));
+            memcpy(pViewports, pVS->pViewports, pVS->viewportCount * sizeof(VkViewport));
             pVS->pViewports = pViewports;
         }
 
         if (src.pViewportState->pScissors != nullptr) {
             VkRect2D *pScissors = new VkRect2D[pVS->scissorCount];
-            memcpy(pScissors, pVS->pScissors,
-                   pVS->scissorCount * sizeof(VkRect2D));
+            memcpy(pScissors, pVS->pScissors, pVS->scissorCount * sizeof(VkRect2D));
             pVS->pScissors = pScissors;
         }
     }
 
     if (src.pRasterizationState != nullptr) {
-        VkPipelineRasterizationStateCreateInfo *pRS =
-            new VkPipelineRasterizationStateCreateInfo();
+        VkPipelineRasterizationStateCreateInfo *pRS = new VkPipelineRasterizationStateCreateInfo();
         *pRS = *(src.pRasterizationState);
         pDst->pRasterizationState = pRS;
     }
 
     if (src.pMultisampleState != nullptr) {
-        VkPipelineMultisampleStateCreateInfo *pMS =
-            new VkPipelineMultisampleStateCreateInfo();
+        VkPipelineMultisampleStateCreateInfo *pMS = new VkPipelineMultisampleStateCreateInfo();
         *pMS = *(src.pMultisampleState);
         pDst->pMultisampleState = pMS;
 
@@ -866,39 +748,31 @@ void StateTracker::copy_VkGraphicsPipelineCreateInfo(
     }
 
     if (src.pDepthStencilState != nullptr) {
-        VkPipelineDepthStencilStateCreateInfo *pDSS =
-            new VkPipelineDepthStencilStateCreateInfo();
+        VkPipelineDepthStencilStateCreateInfo *pDSS = new VkPipelineDepthStencilStateCreateInfo();
         *pDSS = *(src.pDepthStencilState);
         pDst->pDepthStencilState = pDSS;
     }
 
     if (src.pColorBlendState != nullptr) {
-        VkPipelineColorBlendStateCreateInfo *pCBS =
-            new VkPipelineColorBlendStateCreateInfo();
+        VkPipelineColorBlendStateCreateInfo *pCBS = new VkPipelineColorBlendStateCreateInfo();
         *pCBS = *(src.pColorBlendState);
         pDst->pColorBlendState = pCBS;
 
         if (src.pColorBlendState->pAttachments != nullptr) {
-            VkPipelineColorBlendAttachmentState *pAttachments =
-                new VkPipelineColorBlendAttachmentState[pCBS->attachmentCount];
-            memcpy(pAttachments, pCBS->pAttachments,
-                   pCBS->attachmentCount *
-                       sizeof(VkPipelineColorBlendAttachmentState));
+            VkPipelineColorBlendAttachmentState *pAttachments = new VkPipelineColorBlendAttachmentState[pCBS->attachmentCount];
+            memcpy(pAttachments, pCBS->pAttachments, pCBS->attachmentCount * sizeof(VkPipelineColorBlendAttachmentState));
             pCBS->pAttachments = pAttachments;
         }
     }
 
     if (src.pDynamicState != nullptr) {
-        VkPipelineDynamicStateCreateInfo *pDS =
-            new VkPipelineDynamicStateCreateInfo();
+        VkPipelineDynamicStateCreateInfo *pDS = new VkPipelineDynamicStateCreateInfo();
         *pDS = *(src.pDynamicState);
         pDst->pDynamicState = pDS;
 
         if (src.pDynamicState->pDynamicStates != nullptr) {
-            VkDynamicState *pDynamicStates =
-                new VkDynamicState[pDS->dynamicStateCount];
-            memcpy(pDynamicStates, pDS->pDynamicStates,
-                   pDS->dynamicStateCount * sizeof(VkDynamicState));
+            VkDynamicState *pDynamicStates = new VkDynamicState[pDS->dynamicStateCount];
+            memcpy(pDynamicStates, pDS->pDynamicStates, pDS->dynamicStateCount * sizeof(VkDynamicState));
             pDS->pDynamicStates = pDynamicStates;
         }
     }
@@ -906,8 +780,7 @@ void StateTracker::copy_VkGraphicsPipelineCreateInfo(
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void StateTracker::copy_VkComputePipelineCreateInfo(
-    VkComputePipelineCreateInfo *pDst, const VkComputePipelineCreateInfo &src) {
+void StateTracker::copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo *pDst, const VkComputePipelineCreateInfo &src) {
     *pDst = src;
 
     copy_VkPipelineShaderStageCreateInfo(&pDst->stage, src.stage);
@@ -1355,10 +1228,8 @@ void StateTracker::remove_Instance(const VkInstance var) {
     ObjectInfo *pInfo = get_Instance(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pCreatePacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesCountPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Instance.pEnumeratePhysicalDevicesPacket);
     }
     createdInstances.erase(var);
 }
@@ -1366,21 +1237,11 @@ void StateTracker::remove_Instance(const VkInstance var) {
 void StateTracker::remove_PhysicalDevice(const VkPhysicalDevice var) {
     ObjectInfo *pInfo = get_PhysicalDevice(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PhysicalDevice
-                 .pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PhysicalDevice
-                 .pGetPhysicalDeviceSurfaceSupportKHRPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PhysicalDevice
-                 .pGetPhysicalDeviceMemoryPropertiesPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PhysicalDevice
-                 .pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PhysicalDevice
-                 .pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
     }
     createdPhysicalDevices.erase(var);
 }
@@ -1396,8 +1257,7 @@ void StateTracker::remove_Device(const VkDevice var) {
 void StateTracker::remove_SurfaceKHR(const VkSurfaceKHR var) {
     ObjectInfo *pInfo = get_SurfaceKHR(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.SurfaceKHR.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.SurfaceKHR.pCreatePacket);
     }
     createdSurfaceKHRs.erase(var);
 }
@@ -1413,8 +1273,7 @@ void StateTracker::remove_Queue(const VkQueue var) {
 void StateTracker::remove_CommandPool(const VkCommandPool var) {
     ObjectInfo *pInfo = get_CommandPool(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.CommandPool.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.CommandPool.pCreatePacket);
     }
     createdCommandPools.erase(var);
 }
@@ -1422,31 +1281,22 @@ void StateTracker::remove_CommandPool(const VkCommandPool var) {
 void StateTracker::remove_SwapchainKHR(const VkSwapchainKHR var) {
     ObjectInfo *pInfo = get_SwapchainKHR(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.SwapchainKHR.pCreatePacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImageCountPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.SwapchainKHR.pGetSwapchainImagesPacket);
     }
     createdSwapchainKHRs.erase(var);
 }
 
-void StateTracker::remove_CommandBuffer(const VkCommandBuffer var) {
-    createdCommandBuffers.erase(var);
-}
+void StateTracker::remove_CommandBuffer(const VkCommandBuffer var) { createdCommandBuffers.erase(var); }
 
 void StateTracker::remove_DeviceMemory(const VkDeviceMemory var) {
     ObjectInfo *pInfo = get_DeviceMemory(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.DeviceMemory.pCreatePacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.DeviceMemory.pMapMemoryPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.DeviceMemory.pUnmapMemoryPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pMapMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pUnmapMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket);
     }
     createdDeviceMemorys.erase(var);
 }
@@ -1456,14 +1306,11 @@ void StateTracker::remove_Image(const VkImage var) {
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pCreatePacket);
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
-#endif //! TRIM_USE_ORDERED_IMAGE_CREATION
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket);
+#endif  //! TRIM_USE_ORDERED_IMAGE_CREATION
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pBindImageMemoryPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pMapMemoryPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Image.pUnmapMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Image.pUnmapMemoryPacket);
     }
     createdImages.erase(var);
 }
@@ -1480,11 +1327,9 @@ void StateTracker::remove_Buffer(const VkBuffer var) {
     ObjectInfo *pInfo = get_Buffer(var);
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pCreatePacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pMapMemoryPacket);
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Buffer.pUnmapMemoryPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Buffer.pUnmapMemoryPacket);
     }
     createdBuffers.erase(var);
 }
@@ -1492,8 +1337,7 @@ void StateTracker::remove_Buffer(const VkBuffer var) {
 void StateTracker::remove_BufferView(const VkBufferView var) {
     ObjectInfo *pInfo = get_BufferView(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.BufferView.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.BufferView.pCreatePacket);
     }
     createdBufferViews.erase(var);
 }
@@ -1509,8 +1353,7 @@ void StateTracker::remove_Sampler(const VkSampler var) {
 void StateTracker::remove_DescriptorSetLayout(const VkDescriptorSetLayout var) {
     ObjectInfo *pInfo = get_DescriptorSetLayout(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorSetLayout.pCreatePacket);
 
         if (pInfo->ObjectInfo.DescriptorSetLayout.pBindings != nullptr) {
             delete[] pInfo->ObjectInfo.DescriptorSetLayout.pBindings;
@@ -1524,8 +1367,7 @@ void StateTracker::remove_DescriptorSetLayout(const VkDescriptorSetLayout var) {
 void StateTracker::remove_PipelineLayout(const VkPipelineLayout var) {
     ObjectInfo *pInfo = get_PipelineLayout(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineLayout.pCreatePacket);
         if (pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts != nullptr) {
             delete[] pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts;
             pInfo->ObjectInfo.PipelineLayout.pDescriptorSetLayouts = nullptr;
@@ -1538,8 +1380,7 @@ void StateTracker::remove_PipelineLayout(const VkPipelineLayout var) {
 void StateTracker::remove_RenderPass(const VkRenderPass var) {
     ObjectInfo *pInfo = get_RenderPass(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.RenderPass.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.RenderPass.pCreatePacket);
     }
     createdRenderPasss.erase(var);
 }
@@ -1547,8 +1388,7 @@ void StateTracker::remove_RenderPass(const VkRenderPass var) {
 void StateTracker::remove_ShaderModule(const VkShaderModule var) {
     ObjectInfo *pInfo = get_ShaderModule(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.ShaderModule.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
     }
     createdShaderModules.erase(var);
 }
@@ -1556,8 +1396,7 @@ void StateTracker::remove_ShaderModule(const VkShaderModule var) {
 void StateTracker::remove_PipelineCache(const VkPipelineCache var) {
     ObjectInfo *pInfo = get_PipelineCache(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.PipelineCache.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PipelineCache.pCreatePacket);
     }
     createdPipelineCaches.erase(var);
 }
@@ -1565,118 +1404,78 @@ void StateTracker::remove_PipelineCache(const VkPipelineCache var) {
 void StateTracker::remove_Pipeline(const VkPipeline var) {
     ObjectInfo *pInfo = get_Pipeline(var);
     if (pInfo != nullptr) {
-        delete_VkPipelineShaderStageCreateInfo(
-            &pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
+        delete_VkPipelineShaderStageCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages !=
-            nullptr) {
-            for (uint32_t i = 0; i < pInfo->ObjectInfo.Pipeline
-                                         .graphicsPipelineCreateInfo.stageCount;
-                 ++i) {
-                delete_VkPipelineShaderStageCreateInfo(
-                    const_cast<VkPipelineShaderStageCreateInfo *>(
-                        &pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                             .pStages[i]));
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages != nullptr) {
+            for (uint32_t i = 0; i < pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.stageCount; ++i) {
+                delete_VkPipelineShaderStageCreateInfo(const_cast<VkPipelineShaderStageCreateInfo *>(
+                    &pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[i]));
             }
 
-            delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pStages;
+            delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pVertexInputState != nullptr) {
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pVertexInputState->pVertexAttributeDescriptions !=
-                nullptr) {
-                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pVertexInputState->pVertexAttributeDescriptions;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState != nullptr) {
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexAttributeDescriptions != nullptr) {
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexAttributeDescriptions;
             }
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pVertexInputState->pVertexBindingDescriptions != nullptr) {
-                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pVertexInputState->pVertexBindingDescriptions;
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexBindingDescriptions != nullptr) {
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState->pVertexBindingDescriptions;
             }
 
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pVertexInputState;
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pVertexInputState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pInputAssemblyState != nullptr) {
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pInputAssemblyState;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pInputAssemblyState != nullptr) {
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pInputAssemblyState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pTessellationState != nullptr) {
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pTessellationState;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pTessellationState != nullptr) {
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pTessellationState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pViewportState != nullptr) {
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pViewportState->pViewports != nullptr) {
-                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pViewportState->pViewports;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState != nullptr) {
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pViewports != nullptr) {
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pViewports;
             }
 
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pViewportState->pScissors != nullptr) {
-                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pViewportState->pScissors;
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pScissors != nullptr) {
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState->pScissors;
             }
 
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pViewportState;
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pViewportState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pRasterizationState != nullptr) {
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pRasterizationState;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pRasterizationState != nullptr) {
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pRasterizationState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pMultisampleState != nullptr) {
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pMultisampleState->pSampleMask != nullptr) {
-                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pMultisampleState->pSampleMask;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState != nullptr) {
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState->pSampleMask != nullptr) {
+                delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState->pSampleMask;
             }
 
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pMultisampleState;
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pMultisampleState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pDepthStencilState != nullptr) {
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pDepthStencilState;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDepthStencilState != nullptr) {
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDepthStencilState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pColorBlendState != nullptr) {
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pColorBlendState->pAttachments != nullptr) {
-                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pColorBlendState->pAttachments;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState != nullptr) {
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState->pAttachments != nullptr) {
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState->pAttachments;
             }
 
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pColorBlendState;
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pColorBlendState;
         }
 
-        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pDynamicState != nullptr) {
-            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pDynamicState->pDynamicStates != nullptr) {
-                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                    .pDynamicState->pDynamicStates;
+        if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState != nullptr) {
+            if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState->pDynamicStates != nullptr) {
+                delete[] pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState->pDynamicStates;
             }
 
-            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo
-                .pDynamicState;
+            delete pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pDynamicState;
         }
     }
     createdPipelines.erase(var);
@@ -1685,8 +1484,7 @@ void StateTracker::remove_Pipeline(const VkPipeline var) {
 void StateTracker::remove_DescriptorPool(const VkDescriptorPool var) {
     ObjectInfo *pInfo = get_DescriptorPool(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.DescriptorPool.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorPool.pCreatePacket);
     }
     createdDescriptorPools.erase(var);
 }
@@ -1699,31 +1497,18 @@ void StateTracker::remove_DescriptorSet(const VkDescriptorSet var) {
             pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets = nullptr;
         }
         if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets != nullptr) {
-            for (uint32_t s = 0;
-                 s < pInfo->ObjectInfo.DescriptorSet.numBindings; s++) {
-                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pImageInfo != nullptr) {
-                    delete[] pInfo->ObjectInfo.DescriptorSet
-                        .pWriteDescriptorSets[s]
-                        .pImageInfo;
-                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pImageInfo = nullptr;
+            for (uint32_t s = 0; s < pInfo->ObjectInfo.DescriptorSet.numBindings; s++) {
+                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr) {
+                    delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo;
+                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo = nullptr;
                 }
-                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pBufferInfo != nullptr) {
-                    delete[] pInfo->ObjectInfo.DescriptorSet
-                        .pWriteDescriptorSets[s]
-                        .pBufferInfo;
-                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pBufferInfo = nullptr;
+                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo != nullptr) {
+                    delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo;
+                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pBufferInfo = nullptr;
                 }
-                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pTexelBufferView != nullptr) {
-                    delete[] pInfo->ObjectInfo.DescriptorSet
-                        .pWriteDescriptorSets[s]
-                        .pTexelBufferView;
-                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s]
-                        .pTexelBufferView = nullptr;
+                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView != nullptr) {
+                    delete[] pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView;
+                    pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pTexelBufferView = nullptr;
                 }
             }
 
@@ -1737,8 +1522,7 @@ void StateTracker::remove_DescriptorSet(const VkDescriptorSet var) {
 void StateTracker::remove_Framebuffer(const VkFramebuffer var) {
     ObjectInfo *pInfo = get_Framebuffer(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(
-            &pInfo->ObjectInfo.Framebuffer.pCreatePacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.Framebuffer.pCreatePacket);
     }
     createdFramebuffers.erase(var);
 }

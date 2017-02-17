@@ -48,8 +48,7 @@ vktrace_trace_file_header* vktrace_create_trace_file_header();
 // deletes the trace file header and sets pointer to NULL
 void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader);
 
-static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
-{
+static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo) {
     FILE* tracefp = NULL;
     vktrace_trace_file_header* pHeader = NULL;
     size_t items_written = 0;
@@ -57,13 +56,10 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
 
     // open trace file
     tracefp = fopen(pProcInfo->traceFilename, "wb");
-    if (tracefp == NULL)
-    {
+    if (tracefp == NULL) {
         vktrace_LogError("Cannot open trace file for writing %s.", pProcInfo->traceFilename);
         return tracefp;
-    }
-    else
-    {
+    } else {
         vktrace_LogDebug("Creating trace file: '%s'", pProcInfo->traceFilename);
     }
 
@@ -71,7 +67,6 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
     pHeader = vktrace_create_trace_file_header();
     pHeader->first_packet_offset = sizeof(vktrace_trace_file_header);
     pHeader->tracer_count = 1;
-
 
     pHeader->tracer_id_array[0].id = pProcInfo->pCaptureThreads[0].tracerId;
     pHeader->tracer_id_array[0].is_64_bit = (sizeof(intptr_t) == 8) ? 1 : 0;
@@ -83,8 +78,7 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
     vktrace_enter_critical_section(&pProcInfo->traceFileCriticalSection);
     items_written = fwrite(pHeader, sizeof(vktrace_trace_file_header), 1, tracefp);
     vktrace_leave_critical_section(&pProcInfo->traceFileCriticalSection);
-    if (items_written != 1)
-    {
+    if (items_written != 1) {
         vktrace_LogError("Failed to write trace file header.");
         vktrace_delete_critical_section(&pProcInfo->traceFileCriticalSection);
         fclose(tracefp);
@@ -94,7 +88,6 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
     return tracefp;
 };
 
-
 //=============================================================================
 // trace packets
 // There is a trace_packet_header before every trace_packet_body.
@@ -103,9 +96,11 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo)
 //=============================================================================
 // Methods for creating, populating, and writing trace packets
 
-// \param packet_size should include the total bytes for the specific type of packet, and any additional buffers needed by the packet.
+// \param packet_size should include the total bytes for the specific type of packet, and any additional buffers needed by the
+// packet.
 //        The size of the header will be added automatically within the function.
-vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size, uint64_t additional_buffers_size);
+vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
+                                                         uint64_t additional_buffers_size);
 
 // deletes a trace packet and sets pointer to NULL
 void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader);
@@ -115,7 +110,8 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
 
 // copies buffer data into a trace packet at the specified offset (from the end of the header).
 // it is up to the caller to ensure that buffers do not overlap.
-void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size, const void* pBuffer);
+void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
+                                        const void* pBuffer);
 
 // converts buffer pointers into byte offset so that pointer can be interpretted after being read into memory
 void vktrace_finalize_buffer_address(vktrace_trace_packet_header* pHeader, void** ptr_address);
@@ -123,7 +119,8 @@ void vktrace_finalize_buffer_address(vktrace_trace_packet_header* pHeader, void*
 // sets entrypoint end time
 void vktrace_set_packet_entrypoint_end_time(vktrace_trace_packet_header* pHeader);
 
-//void initialize_trace_packet_header(vktrace_trace_packet_header* pHeader, uint8_t tracer_id, uint16_t packet_id, uint64_t total_packet_size);
+// void initialize_trace_packet_header(vktrace_trace_packet_header* pHeader, uint8_t tracer_id, uint16_t packet_id, uint64_t
+// total_packet_size);
 void vktrace_finalize_trace_packet(vktrace_trace_packet_header* pHeader);
 
 // Write the trace packet to the filelike thing.
@@ -144,10 +141,9 @@ void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header*
 // Interpretting a trace_packet_message should be done only when:
 // 1) a trace_packet is first created and most of the contents are empty.
 // 2) immediately after the packet was read from memory
-// All other conversions of the trace packet body from the header should 
+// All other conversions of the trace packet body from the header should
 // be performed using a C-style cast.
-static vktrace_trace_packet_message* vktrace_interpret_body_as_trace_packet_message(vktrace_trace_packet_header* pHeader)
-{
+static vktrace_trace_packet_message* vktrace_interpret_body_as_trace_packet_message(vktrace_trace_packet_header* pHeader) {
     vktrace_trace_packet_message* pPacket = (vktrace_trace_packet_message*)pHeader->pBody;
     // update pointers
     pPacket->pHeader = pHeader;

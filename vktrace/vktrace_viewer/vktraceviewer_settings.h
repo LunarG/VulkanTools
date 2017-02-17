@@ -30,25 +30,24 @@ extern "C" {
 extern vktrace_SettingGroup* g_pAllSettings;
 extern unsigned int g_numAllSettings;
 
-typedef struct vktraceviewer_settings
-{
-    char * trace_file_to_open;
+typedef struct vktraceviewer_settings {
+    char* trace_file_to_open;
     int window_position_left;
     int window_position_top;
     int window_size_width;
     int window_size_height;
-    char * gentrace_application;
-    char * gentrace_arguments;
-    char * gentrace_working_dir;
-    char * gentrace_vk_layer_path;
-    char * gentrace_output_file;
+    char* gentrace_application;
+    char* gentrace_arguments;
+    char* gentrace_working_dir;
+    char* gentrace_vk_layer_path;
+    char* gentrace_output_file;
     int settings_dialog_width;
     int settings_dialog_height;
-    //unsigned int trim_large_trace_prompt_size;
+    // unsigned int trim_large_trace_prompt_size;
 
-    //bool groups_state_render;
-    //bool groups_push_pop_markers;
-    //bool groups_nested_calls;
+    // bool groups_state_render;
+    // bool groups_push_pop_markers;
+    // bool groups_nested_calls;
 } vktraceviewer_settings;
 
 extern vktraceviewer_settings g_settings;
@@ -64,4 +63,4 @@ QString vktraceviewer_get_settings_file_path();
 QString vktraceviewer_get_settings_directory();
 QString vktraceviewer_get_sessions_directory();
 
-#endif // VKTRACEVIEWER_SETTINGS_H
+#endif  // VKTRACEVIEWER_SETTINGS_H

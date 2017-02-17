@@ -26,46 +26,32 @@ extern "C" {
 }
 
 vktraceviewer_vk_QFileModel::vktraceviewer_vk_QFileModel(QObject* parent, vktraceviewer_trace_file_info* pTraceFileInfo)
-        : vktraceviewer_QTraceFileModel(parent, pTraceFileInfo)
-{
-}
+    : vktraceviewer_QTraceFileModel(parent, pTraceFileInfo) {}
 
-vktraceviewer_vk_QFileModel::~vktraceviewer_vk_QFileModel()
-{
-}
+vktraceviewer_vk_QFileModel::~vktraceviewer_vk_QFileModel() {}
 
-QString vktraceviewer_vk_QFileModel::get_packet_string(const vktrace_trace_packet_header* pHeader) const
-{
-    if (pHeader->packet_id < VKTRACE_TPI_BEGIN_API_HERE)
-    {
+QString vktraceviewer_vk_QFileModel::get_packet_string(const vktrace_trace_packet_header* pHeader) const {
+    if (pHeader->packet_id < VKTRACE_TPI_BEGIN_API_HERE) {
         return vktraceviewer_QTraceFileModel::get_packet_string(pHeader);
-    }
-    else
-    {
-        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader);
+    } else {
+        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id, pHeader);
         return packetString;
     }
 }
 
-QString vktraceviewer_vk_QFileModel::get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const
-{
-    if (pHeader->packet_id < VKTRACE_TPI_BEGIN_API_HERE)
-    {
+QString vktraceviewer_vk_QFileModel::get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const {
+    if (pHeader->packet_id < VKTRACE_TPI_BEGIN_API_HERE) {
         return vktraceviewer_QTraceFileModel::get_packet_string_multiline(pHeader);
-    }
-    else
-    {
-        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK) pHeader->packet_id, pHeader);
+    } else {
+        QString packetString = vktrace_stringify_vk_packet_id((const enum VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id, pHeader);
         return packetString;
     }
 }
 
-bool vktraceviewer_vk_QFileModel::isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const
-{
+bool vktraceviewer_vk_QFileModel::isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const {
     // TODO : Update this based on latest API updates
     bool isDraw = false;
-    switch((VKTRACE_TRACE_PACKET_ID_VK)packetId)
-    {
+    switch ((VKTRACE_TRACE_PACKET_ID_VK)packetId) {
         case VKTRACE_TPI_VK_vkCmdDraw:
         case VKTRACE_TPI_VK_vkCmdDrawIndexed:
         case VKTRACE_TPI_VK_vkCmdDrawIndirect:
@@ -81,15 +67,11 @@ bool vktraceviewer_vk_QFileModel::isDrawCall(const VKTRACE_TRACE_PACKET_ID packe
         case VKTRACE_TPI_VK_vkCmdClearColorImage:
         case VKTRACE_TPI_VK_vkCmdClearDepthStencilImage:
         case VKTRACE_TPI_VK_vkCmdClearAttachments:
-        case VKTRACE_TPI_VK_vkCmdResolveImage:
-        {
+        case VKTRACE_TPI_VK_vkCmdResolveImage: {
             isDraw = true;
             break;
         }
-        default:
-        {
-            isDraw = false;
-        }
+        default: { isDraw = false; }
     }
     return isDraw;
 }

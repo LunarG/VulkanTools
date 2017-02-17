@@ -23,8 +23,7 @@
 #ifndef VKREPLAY__VK_SETTINGS_H
 #define VKREPLAY__VK_SETTINGS_H
 
-extern "C"
-{
+extern "C" {
 #include "vktrace_settings.h"
 #include "vkreplay_main.h"
 }
@@ -36,4 +35,4 @@ extern vktrace_SettingGroup g_vkReplaySettingGroup;
 
 void apply_layerSettings_overrides();
 
-#endif // VKREPLAY__VK_SETTINGS_H
+#endif  // VKREPLAY__VK_SETTINGS_H

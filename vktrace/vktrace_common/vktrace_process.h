@@ -26,8 +26,7 @@
 
 typedef struct vktrace_process_capture_trace_thread_info vktrace_process_capture_trace_thread_info;
 
-typedef struct vktrace_process_info
-{
+typedef struct vktrace_process_info {
     char* exeName;
     char* processArgs;
     char* fullProcessCmdLine;
@@ -51,16 +50,13 @@ typedef struct vktrace_process_info
     vktrace_thread watchdogThread;
 } vktrace_process_info;
 
-
-typedef struct vktrace_process_tracer_dll
-{
-    char * dllPath;
+typedef struct vktrace_process_tracer_dll {
+    char* dllPath;
     BOOL bLoaded;
     VKTRACE_TRACER_ID tid;
 } vktrace_process_tracer_dll;
 
-struct vktrace_process_capture_trace_thread_info
-{
+struct vktrace_process_capture_trace_thread_info {
     vktrace_thread recordingThread;
     vktrace_process_info* pProcessInfo;
     VKTRACE_TRACER_ID tracerId;

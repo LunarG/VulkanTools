@@ -30,44 +30,45 @@
 #include "vktrace_pageguard_memorycopy.h"
 #include "vktrace_lib_pagestatusarray.h"
 
-typedef class PageGuardMappedMemory
-{
+typedef class PageGuardMappedMemory {
     friend class PageGuardCapture;
 
-private:
+   private:
     VkDevice MappedDevice;
     VkDeviceMemory MappedMemory;
     VkDeviceSize MappedOffset;
-    PBYTE pMappedData; /// point to mapped memory in app process, if pRealMappedData==nullptr, pMappedData point to real mapped memory,
+    PBYTE pMappedData;  /// point to mapped memory in app process, if pRealMappedData==nullptr, pMappedData point to real mapped
+                        /// memory,
     /// if pRealMappedData!=nullptr, pMappedData point to real mapped memory copy, the copy can be added page guard
-    PBYTE pRealMappedData; /// point to real mapped memory in app process
-    PBYTE pChangedDataPackage; /// if not nullptr, it point to a package which include changed info array and changed data block, allocated by this class
-    VkDeviceSize MappedSize; /// the size of range
+    PBYTE pRealMappedData;      /// point to real mapped memory in app process
+    PBYTE pChangedDataPackage;  /// if not nullptr, it point to a package which include changed info array and changed data block,
+                                /// allocated by this class
+    VkDeviceSize MappedSize;    /// the size of range
 
-    VkDeviceSize PageGuardSize; /// size for one block
+    VkDeviceSize PageGuardSize;  /// size for one block
 
-protected:
+   protected:
     PageStatusArray *pPageStatus;
-    bool BlockConflictError; /// record if any block has been read by host and also write by host
+    bool BlockConflictError;  /// record if any block has been read by host and also write by host
     VkDeviceSize PageSizeLeft;
     uint64_t PageGuardAmount;
     uint64_t *pPageChecksum;
 
-  public:
+   public:
     static const uint64_t CHECKSUM_INVALID = ~0UL;
 
     PageGuardMappedMemory();
     ~PageGuardMappedMemory();
 
-    VkDevice& getMappedDevice();
+    VkDevice &getMappedDevice();
 
-    VkDeviceMemory& getMappedMemory();
+    VkDeviceMemory &getMappedMemory();
 
-    VkDeviceSize& getMappedOffset();
+    VkDeviceSize &getMappedOffset();
 
-    PBYTE& getRealMappedDataPointer(); /// get pointer to real mapped memory in app process
+    PBYTE &getRealMappedDataPointer();  /// get pointer to real mapped memory in app process
 
-    VkDeviceSize& getMappedSize(); /// get the size of range
+    VkDeviceSize &getMappedSize();  /// get the size of range
 
     bool isUseCopyForRealMappedMemory();
 
@@ -93,9 +94,10 @@ protected:
 
     bool setAllPageGuardAndFlag(bool bSetPageGuard, bool bSetBlockChanged);
 
-    bool vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkFlags flags, void** ppData);
+    bool vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkFlags flags,
+                                    void **ppData);
 
-    void vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void** MappedData);
+    void vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void **MappedData);
 
     void backupBlockChangedArraySnapshot();
 
@@ -104,31 +106,41 @@ protected:
     DWORD getChangedBlockAmount(int useWhich);
 
     /// is RangeLimit cover or partly cover Range
-    bool isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDeviceSize RangeSizeLimit, VkDeviceSize RangeOffset, VkDeviceSize RangeSize);
+    bool isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDeviceSize RangeSizeLimit, VkDeviceSize RangeOffset,
+                         VkDeviceSize RangeSize);
 
     /// for output,
-    /// if pData!=nullptr,the pData + Offset is head addr of an array of PageGuardChangedBlockInfo, the [0] is block amount, size (size for all changed blocks which amount is block amount),then block1 offset,block1 size...., 
-    ///               the block? offset is  this changed block offset to mapped memory head addr,the array followed by changed blocks data
+    /// if pData!=nullptr,the pData + Offset is head addr of an array of PageGuardChangedBlockInfo, the [0] is block amount, size
+    /// (size for all changed blocks which amount is block amount),then block1 offset,block1 size....,
+    ///               the block? offset is  this changed block offset to mapped memory head addr,the array followed by changed
+    ///               blocks data
     ///
     /// if pData==nullptr, only get size
     /// DWORD *pdwSaveSize, the size of all changed blocks
     /// DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo
-    /// VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is RangeSize, if RangeOffset<0, consider whole mapped memory
+    /// VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
+    /// RangeSize, if RangeOffset<0, consider whole mapped memory
     /// return the amount of changed blocks.
-    DWORD getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, DWORD *pdwSaveSize, DWORD *pInfoSize, PBYTE pData, DWORD DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
+    DWORD getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, DWORD *pdwSaveSize, DWORD *pInfoSize, PBYTE pData,
+                              DWORD DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
 
     /// return: if memory already changed;
-    ///        evenif no change to mmeory, it will still allocate memory for info array which only include one PageGuardChangedBlockInfo,its  offset and length are all 0;
+    ///        evenif no change to mmeory, it will still allocate memory for info array which only include one
+    ///        PageGuardChangedBlockInfo,its  offset and length are all 0;
     /// VkDeviceSize       *pChangedSize, the size of all changed data block
     /// VkDeviceSize       *pDataPackageSize, size for ChangedDataPackage
-    /// PBYTE              *ppChangedDataPackage, is an array of PageGuardChangedBlockInfo + all changed data, the [0] offset is blocks amount, length is size amount of these blocks(not include this info array),then block1 offset,block1 size....
-    ///                     allocate needed memory in the method, ppChangedDataPackage point to returned pointer, if ppChangedDataPackage==null, only calculate size
-    bool vkFlushMappedMemoryRangePageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkDeviceSize  *pChangedSize, VkDeviceSize  *pDataPackageSize, PBYTE   *ppChangedDataPackage);
+    /// PBYTE              *ppChangedDataPackage, is an array of PageGuardChangedBlockInfo + all changed data, the [0] offset is
+    /// blocks amount, length is size amount of these blocks(not include this info array),then block1 offset,block1 size....
+    ///                     allocate needed memory in the method, ppChangedDataPackage point to returned pointer, if
+    ///                     ppChangedDataPackage==null, only calculate size
+    bool vkFlushMappedMemoryRangePageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size,
+                                                 VkDeviceSize *pChangedSize, VkDeviceSize *pDataPackageSize,
+                                                 PBYTE *ppChangedDataPackage);
 
     void clearChangedDataPackage();
 
     /// get ptr and size of OPTChangedDataPackage;
-    PBYTE getChangedDataPackage(VkDeviceSize  *pSize);
+    PBYTE getChangedDataPackage(VkDeviceSize *pSize);
 
     uint64_t getPageChecksum(uint64_t index);
 

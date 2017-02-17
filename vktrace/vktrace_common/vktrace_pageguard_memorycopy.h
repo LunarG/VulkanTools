@@ -19,7 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//use PPL parallel_invoke call(on windows for now, but PPL also has a PPLx for Linux), or use cross-platform memcpy multithread which exclude PPL
+// use PPL parallel_invoke call(on windows for now, but PPL also has a PPLx for Linux), or use cross-platform memcpy multithread
+// which exclude PPL
 //#define PAGEGUARD_MEMCPY_USE_PPL_LIB
 #include "vktrace_platform.h"
 
@@ -35,18 +36,16 @@
 
 #define USE_PAGEGUARD_SPEEDUP
 #if defined(WIN32)
-    #if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
-        #include <ppl.h>
-        using namespace concurrency;
-    #endif
+#if defined(PAGEGUARD_MEMCPY_USE_PPL_LIB)
+#include <ppl.h>
+using namespace concurrency;
+#endif
 #else
-    #include <semaphore.h>
-    #include <pthread.h>
+#include <semaphore.h>
+#include <pthread.h>
 #endif
 
-
-typedef struct __PageGuardChangedBlockInfo
-{
+typedef struct __PageGuardChangedBlockInfo {
     uint32_t offset;
     uint32_t length;
     uint32_t reserve0;
@@ -67,11 +66,9 @@ void vktrace_sem_delete(vktrace_sem_id sid);
 void vktrace_sem_wait(vktrace_sem_id sid);
 void vktrace_sem_post(vktrace_sem_id sid);
 void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n);
-extern "C" void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size);
+extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, size_t size);
 #else
-void *vktrace_pageguard_memcpy(void * destination, const void * source, size_t size);
+void* vktrace_pageguard_memcpy(void* destination, const void* source, size_t size);
 #endif
-
-
 
 #define PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES 0X00000001

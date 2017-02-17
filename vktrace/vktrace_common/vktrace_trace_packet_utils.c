@@ -27,7 +27,7 @@
 
 #ifdef WIN32
 #include <rpc.h>
-#pragma comment (lib, "Rpcrt4.lib")
+#pragma comment(lib, "Rpcrt4.lib")
 #endif
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
@@ -44,18 +44,11 @@
 
 static VKTRACE_CRITICAL_SECTION s_packet_index_lock;
 
-void vktrace_initialize_trace_packet_utils()
-{
-    vktrace_create_critical_section(&s_packet_index_lock);
-}
+void vktrace_initialize_trace_packet_utils() { vktrace_create_critical_section(&s_packet_index_lock); }
 
-void vktrace_deinitialize_trace_packet_utils()
-{
-    vktrace_delete_critical_section(&s_packet_index_lock);
-}
+void vktrace_deinitialize_trace_packet_utils() { vktrace_delete_critical_section(&s_packet_index_lock); }
 
-uint64_t vktrace_get_unique_packet_index()
-{
+uint64_t vktrace_get_unique_packet_index() {
     // Keep the s_packet_index scope to within this method, to ensure this method is always used to get a unique packet index.
     static uint64_t s_packet_index = 0;
 
@@ -69,10 +62,9 @@ uint64_t vktrace_get_unique_packet_index()
     return index;
 }
 
-void vktrace_gen_uuid(uint32_t* pUuid)
-{
-    uint32_t buf[] = { 0xABCDEF, 0x12345678, 0xFFFECABC, 0xABCDDEF0 };
-    vktrace_platform_rand_s(buf, sizeof(buf)/sizeof(uint32_t));
+void vktrace_gen_uuid(uint32_t* pUuid) {
+    uint32_t buf[] = {0xABCDEF, 0x12345678, 0xFFFECABC, 0xABCDDEF0};
+    vktrace_platform_rand_s(buf, sizeof(buf) / sizeof(uint32_t));
 
     pUuid[0] = buf[0];
     pUuid[1] = buf[1];
@@ -81,15 +73,13 @@ void vktrace_gen_uuid(uint32_t* pUuid)
 }
 
 #if defined(PLATFORM_LINUX)
-uint64_t vktrace_get_time()
-{
+uint64_t vktrace_get_time() {
     struct timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
     return ((uint64_t)time.tv_sec * 1000000000) + time.tv_nsec;
 }
 #elif defined(PLATFORM_OSX)
-uint64_t vktrace_get_time()
-{
+uint64_t vktrace_get_time() {
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -99,8 +89,7 @@ uint64_t vktrace_get_time()
     return ((uint64_t)mts.tv_sec * 1000000000) + mts.tv_nsec;
 }
 #elif defined(PLATFORM_WINDOWS)
-uint64_t vktrace_get_time()
-{
+uint64_t vktrace_get_time() {
     // Should really avoid using RDTSC here since for RDTSC to be
     // accurate, the process needs to stay on the same CPU and the CPU
     // needs to stay at the same clock rate, which isn't always the case
@@ -121,17 +110,13 @@ uint64_t vktrace_get_time()
     return (uint64_t)(((count.QuadPart - start.QuadPart) * 1000000000) / freq.QuadPart);
 }
 #else
-uint64_t vktrace_get_time()
-{
-    return 0;
-}
+uint64_t vktrace_get_time() { return 0; }
 #endif
 
 //=============================================================================
 // trace file header
 
-vktrace_trace_file_header* vktrace_create_trace_file_header()
-{
+vktrace_trace_file_header* vktrace_create_trace_file_header() {
     vktrace_trace_file_header* pHeader = VKTRACE_NEW(vktrace_trace_file_header);
     memset(pHeader, 0, sizeof(vktrace_trace_file_header));
     pHeader->trace_file_version = VKTRACE_TRACE_FILE_VERSION;
@@ -141,8 +126,7 @@ vktrace_trace_file_header* vktrace_create_trace_file_header()
     return pHeader;
 }
 
-void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader)
-{
+void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader) {
     vktrace_free(*ppHeader);
     *ppHeader = NULL;
 }
@@ -150,8 +134,8 @@ void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader)
 //=============================================================================
 // Methods for creating, populating, and writing trace packets
 
-vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size, uint64_t additional_buffers_size)
-{
+vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
+                                                         uint64_t additional_buffers_size) {
     // Always allocate at least enough space for the packet header
     uint64_t total_packet_size = sizeof(vktrace_trace_packet_header) + packet_size + additional_buffers_size;
     void* pMemory = vktrace_malloc((size_t)total_packet_size);
@@ -163,38 +147,32 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
     pHeader->tracer_id = tracer_id;
     pHeader->thread_id = vktrace_platform_get_thread_id();
     pHeader->packet_id = packet_id;
-    if (pHeader->vktrace_begin_time == 0)
-        pHeader->vktrace_begin_time = vktrace_get_time();
+    if (pHeader->vktrace_begin_time == 0) pHeader->vktrace_begin_time = vktrace_get_time();
     pHeader->entrypoint_begin_time = pHeader->vktrace_begin_time;
     pHeader->entrypoint_end_time = 0;
     pHeader->vktrace_end_time = 0;
-    pHeader->next_buffers_offset = sizeof(vktrace_trace_packet_header) + packet_size; // initial offset is from start of header to after the packet body
-    if (total_packet_size > sizeof(vktrace_trace_packet_header))
-    {
+    pHeader->next_buffers_offset =
+        sizeof(vktrace_trace_packet_header) + packet_size;  // initial offset is from start of header to after the packet body
+    if (total_packet_size > sizeof(vktrace_trace_packet_header)) {
         pHeader->pBody = (uintptr_t)(((char*)pMemory) + sizeof(vktrace_trace_packet_header));
     }
     return pHeader;
 }
 
-void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader)
-{
-    if (ppHeader == NULL)
-        return;
-    if (*ppHeader == NULL)
-        return;
+void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader) {
+    if (ppHeader == NULL) return;
+    if (*ppHeader == NULL) return;
 
     VKTRACE_DELETE(*ppHeader);
     *ppHeader = NULL;
 }
 
-void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* pHeader, uint64_t byteCount)
-{
+void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* pHeader, uint64_t byteCount) {
     void* pBufferStart;
     assert(byteCount > 0);
-    assert((byteCount&0x3) == 0);  // All buffer sizes should be multiple of 4 so structs in packet are kept aligned
+    assert((byteCount & 0x3) == 0);  // All buffer sizes should be multiple of 4 so structs in packet are kept aligned
     assert(pHeader->size >= pHeader->next_buffers_offset + byteCount);
-    if (pHeader->size < pHeader->next_buffers_offset + byteCount || byteCount == 0)
-    {
+    if (pHeader->size < pHeader->next_buffers_offset + byteCount || byteCount == 0) {
         // not enough memory left in packet to hold buffer
         // or request is for 0 bytes
         return NULL;
@@ -205,61 +183,50 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     return pBufferStart;
 }
 
-void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size, const void* pBuffer)
-{
-
+void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
+                                        const void* pBuffer) {
     // Make sure we have valid pointers and sizes. All pointers and sizes must be 4 byte aligned.
     assert(ptr_address != NULL);
-    assert((size&0x3) == 0);
+    assert((size & 0x3) == 0);
 
-    if (pBuffer == NULL || size == 0)
-    {
+    if (pBuffer == NULL || size == 0) {
         *ptr_address = NULL;
-    }
-    else
-    {
+    } else {
         // set ptr to the location of the added buffer
         *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, size);
 
         // address of buffer in packet adding must be 4 byte aligned
-        assert(((uint64_t)*ptr_address&0x3) == 0);
+        assert(((uint64_t)*ptr_address & 0x3) == 0);
 
         // copy buffer to the location
         vktrace_pageguard_memcpy(*ptr_address, pBuffer, (size_t)size);
     }
 }
 
-void vktrace_finalize_buffer_address(vktrace_trace_packet_header* pHeader, void** ptr_address)
-{
+void vktrace_finalize_buffer_address(vktrace_trace_packet_header* pHeader, void** ptr_address) {
     assert(ptr_address != NULL);
 
-    if (*ptr_address != NULL)
-    {
+    if (*ptr_address != NULL) {
         // turn ptr into an offset from the packet body
-        uint64_t offset = (uint64_t)*ptr_address - (uint64_t) (pHeader->pBody);
+        uint64_t offset = (uint64_t)*ptr_address - (uint64_t)(pHeader->pBody);
         *ptr_address = (void*)offset;
     }
 }
 
-void vktrace_set_packet_entrypoint_end_time(vktrace_trace_packet_header* pHeader)
-{
+void vktrace_set_packet_entrypoint_end_time(vktrace_trace_packet_header* pHeader) {
     pHeader->entrypoint_end_time = vktrace_get_time();
 }
 
-void vktrace_finalize_trace_packet(vktrace_trace_packet_header* pHeader)
-{
-    if (pHeader->entrypoint_end_time == 0)
-    {
+void vktrace_finalize_trace_packet(vktrace_trace_packet_header* pHeader) {
+    if (pHeader->entrypoint_end_time == 0) {
         vktrace_set_packet_entrypoint_end_time(pHeader);
     }
     pHeader->vktrace_end_time = vktrace_get_time();
 }
 
-void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, FileLike* pFile)
-{
+void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, FileLike* pFile) {
     BOOL res = vktrace_FileLike_WriteRaw(pFile, pHeader, (size_t)pHeader->size);
-    if (!res && pHeader->packet_id != VKTRACE_TPI_MARKER_TERMINATE_PROCESS)
-    {
+    if (!res && pHeader->packet_id != VKTRACE_TPI_MARKER_TERMINATE_PROCESS) {
         // We don't retry on failure because vktrace_FileLike_WriteRaw already retried and gave up.
         vktrace_LogWarning("Failed to write trace packet.");
         exit(1);
@@ -269,49 +236,43 @@ void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, File
 //=============================================================================
 // Methods for Reading and interpretting trace packets
 
-vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile)
-{
+vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
     // read size
     // allocate space
     // offset to after size
     // read the rest of the packet
     uint64_t total_packet_size = 0;
 
-    if (vktrace_FileLike_ReadRaw(pFile, &total_packet_size, sizeof(uint64_t)) == FALSE)
-    {
+    if (vktrace_FileLike_ReadRaw(pFile, &total_packet_size, sizeof(uint64_t)) == FALSE) {
         return NULL;
     }
 
     // allocate space
-    vktrace_trace_packet_header *pHeader = (vktrace_trace_packet_header*)vktrace_malloc((size_t)total_packet_size);
+    vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)vktrace_malloc((size_t)total_packet_size);
 
-    if (pHeader != NULL)
-    {
+    if (pHeader != NULL) {
         pHeader->size = total_packet_size;
-        if (vktrace_FileLike_ReadRaw(pFile, (char*)pHeader + sizeof(uint64_t), (size_t)total_packet_size - sizeof(uint64_t)) == FALSE)
-        {
+        if (vktrace_FileLike_ReadRaw(pFile, (char*)pHeader + sizeof(uint64_t), (size_t)total_packet_size - sizeof(uint64_t)) ==
+            FALSE) {
             vktrace_LogError("Failed to read trace packet with size of %u.", total_packet_size);
             return NULL;
         }
 
         pHeader->pBody = (uintptr_t)pHeader + sizeof(vktrace_trace_packet_header);
-    }
-    else {
+    } else {
         vktrace_LogError("Malloc failed in vktrace_read_trace_packet of size %u.", total_packet_size);
     }
 
     return pHeader;
 }
 
-void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable)
-{
+void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable) {
     // the pointer variable actually contains a byte offset from the packet body to the start of the buffer.
     uint64_t offset = ptr_variable;
     void* buffer_location;
 
     // if the offset is 0, then we know the pointer to the buffer was NULL, so no buffer exists and we return NULL.
-    if (offset == 0)
-        return NULL;
+    if (offset == 0) return NULL;
 
     buffer_location = (char*)(pHeader->pBody) + offset;
     return buffer_location;

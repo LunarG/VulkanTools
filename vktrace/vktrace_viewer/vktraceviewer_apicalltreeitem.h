@@ -31,30 +31,28 @@ class glvdebug_apiCallItem;
 
 class glvdebug_QApiCallTreeModel;
 
-
 const QString cTREEITEM_STATECHANGES("State changes");
 // TODO: Maybe think about a more unique name so as not to be confused with,
 //       e.g., a marker_push entrypoint that has also been named "Render"
 const QString cTREEITEM_RENDER("Render");
 
-class glvdebug_apiCallTreeItem
-{
-public:
+class glvdebug_apiCallTreeItem {
+   public:
     // Constructor for the root node
     glvdebug_apiCallTreeItem(int columnCount, glvdebug_QApiCallTreeModel *pModel);
 
     //// Constructor for frame nodes
-    //glvdebug_apiCallTreeItem(glvdebug_frameItem *frameItem, glvdebug_apiCallTreeItem *parent);
+    // glvdebug_apiCallTreeItem(glvdebug_frameItem *frameItem, glvdebug_apiCallTreeItem *parent);
 
     //// Constructor for group nodes
-    //glvdebug_apiCallTreeItem(glvdebug_groupItem *groupItem, glvdebug_apiCallTreeItem *parent);
+    // glvdebug_apiCallTreeItem(glvdebug_groupItem *groupItem, glvdebug_apiCallTreeItem *parent);
 
     // Constructor for apiCall nodes
     glvdebug_apiCallTreeItem(glvdebug_apiCallItem *apiCallItem);
 
     ~glvdebug_apiCallTreeItem();
 
-    void setParent(glvdebug_apiCallTreeItem* pParent);
+    void setParent(glvdebug_apiCallTreeItem *pParent);
     glvdebug_apiCallTreeItem *parent() const;
 
     void appendChild(glvdebug_apiCallTreeItem *pChild);
@@ -67,31 +65,31 @@ public:
     glvdebug_apiCallItem *apiCallItem() const;
     glvdebug_groupItem *groupItem() const;
     glvdebug_frameItem *frameItem() const;
-    
+
     int columnCount() const;
 
     QVariant columnData(int column, int role) const;
 
     int row() const;
 
-    //bool isApiCall() const;
-    //bool isGroup() const;
-    //bool isFrame() const;
-    //bool isRoot() const;
+    // bool isApiCall() const;
+    // bool isGroup() const;
+    // bool isFrame() const;
+    // bool isRoot() const;
 
-private:
-//    void setColumnData(QVariant data, int column);
+   private:
+    //    void setColumnData(QVariant data, int column);
 
-private:
+   private:
     QList<glvdebug_apiCallTreeItem *> m_childItems;
-    QVariant* m_columnData;
+    QVariant *m_columnData;
     int m_columnCount;
     glvdebug_apiCallTreeItem *m_parentItem;
-    //glvdebug_apiCallItem *m_pApiCallItem;
-    //glvdebug_groupItem *m_pGroupItem;
-    //glvdebug_frameItem *m_pFrameItem;
+    // glvdebug_apiCallItem *m_pApiCallItem;
+    // glvdebug_groupItem *m_pGroupItem;
+    // glvdebug_frameItem *m_pFrameItem;
     glvdebug_QApiCallTreeModel *m_pModel;
     int m_localRowIndex;
 };
 
-#endif // GLVDEBUG_APICALLTREEITEM_H
+#endif  // GLVDEBUG_APICALLTREEITEM_H

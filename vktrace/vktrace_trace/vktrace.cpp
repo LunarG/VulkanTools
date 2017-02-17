@@ -40,13 +40,7 @@ vktrace_settings g_default_settings;
 
 vktrace_SettingInfo g_settings_info[] = {
     // common command options
-    {"p",
-     "Program",
-     VKTRACE_SETTING_STRING,
-     {&g_settings.program},
-     {&g_default_settings.program},
-     TRUE,
-     "The program to trace."},
+    {"p", "Program", VKTRACE_SETTING_STRING, {&g_settings.program}, {&g_default_settings.program}, TRUE, "The program to trace."},
     {"a",
      "Arguments",
      VKTRACE_SETTING_STRING,
@@ -77,7 +71,7 @@ vktrace_SettingInfo g_settings_info[] = {
      "Generate screenshots. <string> is one of:\n\
                                          comma separated list of frames\n\
                                          <start>-<count>-<interval>\n\
-                                         \"all\"" },
+                                         \"all\""},
     {"ptm",
      "PrintTraceMessages",
      VKTRACE_SETTING_BOOL,
@@ -126,27 +120,17 @@ vktrace_SettingInfo g_settings_info[] = {
     // can be attached)" },
 };
 
-vktrace_SettingGroup g_settingGroup =
-{
-    "vktrace",
-    sizeof(g_settings_info) / sizeof(g_settings_info[0]),
-    &g_settings_info[0]
-};
+vktrace_SettingGroup g_settingGroup = {"vktrace", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
 
 // ------------------------------------------------------------------------------------------------
 #if defined(WIN32)
-uint64_t MessageLoop()
-{
-    MSG msg = { 0 };
+uint64_t MessageLoop() {
+    MSG msg = {0};
     bool quit = false;
-    while (!quit)
-    {
-        if (GetMessage(&msg, NULL, 0, 0) == FALSE)
-        {
+    while (!quit) {
+        if (GetMessage(&msg, NULL, 0, 0) == FALSE) {
             quit = true;
-        }
-        else
-        {
+        } else {
             quit = (msg.message == VKTRACE_WM_COMPLETE);
         }
     }
@@ -154,8 +138,7 @@ uint64_t MessageLoop()
 }
 #endif
 
-int PrepareTracers(vktrace_process_capture_trace_thread_info** ppTracerInfo)
-{
+int PrepareTracers(vktrace_process_capture_trace_thread_info** ppTracerInfo) {
     unsigned int num_tracers = 1;
 
     assert(ppTracerInfo != NULL && *ppTracerInfo == NULL);
@@ -168,8 +151,7 @@ int PrepareTracers(vktrace_process_capture_trace_thread_info** ppTracerInfo)
     return num_tracers;
 }
 
-bool InjectTracersIntoProcess(vktrace_process_info* pInfo)
-{
+bool InjectTracersIntoProcess(vktrace_process_info* pInfo) {
     bool bRecordingThreadsCreated = true;
     vktrace_thread tracingThread;
     if (vktrace_platform_remote_load_library(pInfo->hProcess, NULL, &tracingThread, NULL)) {
@@ -178,7 +160,8 @@ bool InjectTracersIntoProcess(vktrace_process_info* pInfo)
         pInfo->pCaptureThreads[0].recordingThread = VKTRACE_NULL_THREAD;
 
         // create thread to record trace packets from the tracer
-        pInfo->pCaptureThreads[0].recordingThread = vktrace_platform_create_thread(Process_RunRecordTraceThread, &(pInfo->pCaptureThreads[0]));
+        pInfo->pCaptureThreads[0].recordingThread =
+            vktrace_platform_create_thread(Process_RunRecordTraceThread, &(pInfo->pCaptureThreads[0]));
         if (pInfo->pCaptureThreads[0].recordingThread == VKTRACE_NULL_THREAD) {
             vktrace_LogError("Failed to create trace recording thread.");
             bRecordingThreadsCreated = false;
@@ -191,19 +174,25 @@ bool InjectTracersIntoProcess(vktrace_process_info* pInfo)
     return bRecordingThreadsCreated;
 }
 
-void loggingCallback(VktraceLogLevel level, const char* pMessage)
-{
-    if (level == VKTRACE_LOG_NONE)
-        return;
+void loggingCallback(VktraceLogLevel level, const char* pMessage) {
+    if (level == VKTRACE_LOG_NONE) return;
 
-    switch(level)
-    {
-    case VKTRACE_LOG_DEBUG: printf("vktrace debug: %s\n", pMessage); break;
-    case VKTRACE_LOG_ERROR: printf("vktrace error: %s\n", pMessage); break;
-    case VKTRACE_LOG_WARNING: printf("vktrace warning: %s\n", pMessage); break;
-    case VKTRACE_LOG_VERBOSE: printf("vktrace info: %s\n", pMessage); break;
-    default:
-        printf("%s\n", pMessage); break;
+    switch (level) {
+        case VKTRACE_LOG_DEBUG:
+            printf("vktrace debug: %s\n", pMessage);
+            break;
+        case VKTRACE_LOG_ERROR:
+            printf("vktrace error: %s\n", pMessage);
+            break;
+        case VKTRACE_LOG_WARNING:
+            printf("vktrace warning: %s\n", pMessage);
+            break;
+        case VKTRACE_LOG_VERBOSE:
+            printf("vktrace info: %s\n", pMessage);
+            break;
+        default:
+            printf("%s\n", pMessage);
+            break;
     }
     fflush(stdout);
 
@@ -215,8 +204,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage)
 }
 
 // ------------------------------------------------------------------------------------------------
-char* append_index_to_filename(const char* base, uint32_t index, const char* extension)
-{
+char* append_index_to_filename(const char* base, uint32_t index, const char* extension) {
     char num[17];
 #ifdef PLATFORM_LINUX
     snprintf(num, 17, "-%u", index);
@@ -228,32 +216,29 @@ char* append_index_to_filename(const char* base, uint32_t index, const char* ext
 
 // ------------------------------------------------------------------------------------------------
 static uint32_t s_fileIndex = 0;
-char* find_available_filename(const char* originalFilename, bool bForceOverwrite)
-{
+char* find_available_filename(const char* originalFilename, bool bForceOverwrite) {
     char* pOutputFilename = NULL;
 
-    if (bForceOverwrite)
-    {
-        if (s_fileIndex == 0)
-        {
+    if (bForceOverwrite) {
+        if (s_fileIndex == 0) {
             pOutputFilename = vktrace_allocate_and_copy(g_settings.output_trace);
-        }
-        else
-        {
-            const char *pExtension = strrchr(g_settings.output_trace, '.');
-            char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
+        } else {
+            const char* pExtension = strrchr(g_settings.output_trace, '.');
+            char* basename = vktrace_allocate_and_copy_n(
+                g_settings.output_trace,
+                (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
             pOutputFilename = append_index_to_filename(basename, s_fileIndex, pExtension);
             vktrace_free(basename);
         }
-    }
-    else // don't overwrite
+    } else  // don't overwrite
     {
-        const char *pExtension = strrchr(g_settings.output_trace, '.');
-        char *basename = vktrace_allocate_and_copy_n(g_settings.output_trace, (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
+        const char* pExtension = strrchr(g_settings.output_trace, '.');
+        char* basename = vktrace_allocate_and_copy_n(
+            g_settings.output_trace,
+            (int)((pExtension == NULL) ? strlen(g_settings.output_trace) : pExtension - g_settings.output_trace));
         pOutputFilename = vktrace_allocate_and_copy(g_settings.output_trace);
         FILE* pFile = NULL;
-        while ((pFile = fopen(pOutputFilename, "rb")) != NULL)
-        {
+        while ((pFile = fopen(pOutputFilename, "rb")) != NULL) {
             fclose(pFile);
             ++s_fileIndex;
 
@@ -269,9 +254,8 @@ char* find_available_filename(const char* originalFilename, bool bForceOverwrite
 }
 
 // ------------------------------------------------------------------------------------------------
-int main(int argc, char* argv[])
-{
-    uint64_t exitval=0;
+int main(int argc, char* argv[]) {
+    uint64_t exitval = 0;
     memset(&g_settings, 0, sizeof(vktrace_settings));
 
     vktrace_LogSetCallback(loggingCallback);
@@ -284,20 +268,16 @@ int main(int argc, char* argv[])
     g_default_settings.screenshotList = NULL;
     g_default_settings.enable_pmb = true;
 
-    if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0)
-    {
+    if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0) {
         // invalid cmd-line parameters
         vktrace_SettingGroup_delete(&g_settingGroup);
         vktrace_free(g_default_settings.output_trace);
         return -1;
-    }
-    else
-    {
+    } else {
         // Validate vktrace inputs
         BOOL validArgs = TRUE;
 
-        if (g_settings.output_trace == NULL || strlen (g_settings.output_trace) == 0)
-        {
+        if (g_settings.output_trace == NULL || strlen(g_settings.output_trace) == 0) {
             validArgs = FALSE;
         }
 
@@ -313,15 +293,13 @@ int main(int argc, char* argv[])
         else if (strcmp(g_settings.verbosity, "debug") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif
-        else
-        {
+        else {
             vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
             validArgs = FALSE;
         }
         vktrace_set_global_var("_VK_TRACE_VERBOSITY", g_settings.verbosity);
 
-        if (g_settings.screenshotList)
-        {
+        if (g_settings.screenshotList) {
             if (!screenshot::checkParsingFrameRange(g_settings.screenshotList)) {
                 vktrace_LogError("Screenshot range error");
                 validArgs = FALSE;
@@ -329,29 +307,22 @@ int main(int argc, char* argv[])
                 // Export list to screenshot layer
                 vktrace_set_global_var("_VK_SCREENSHOT", g_settings.screenshotList);
             }
-        }
-        else
-        {
-            vktrace_set_global_var("_VK_SCREENSHOT","");
+        } else {
+            vktrace_set_global_var("_VK_SCREENSHOT", "");
         }
 
-        if (validArgs == FALSE)
-        {
+        if (validArgs == FALSE) {
             vktrace_SettingGroup_print(&g_settingGroup);
             return -1;
         }
 
-        if (g_settings.program == NULL || strlen(g_settings.program) == 0)
-        {
+        if (g_settings.program == NULL || strlen(g_settings.program) == 0) {
             vktrace_LogWarning("No program (-p) parameter found: Will run vktrace as server.");
             printf("Running vktrace as server...\n");
             fflush(stdout);
             g_settings.arguments = NULL;
-        }
-        else
-        {
-            if (g_settings.working_dir == NULL || strlen(g_settings.working_dir) == 0)
-            {
+        } else {
+            if (g_settings.working_dir == NULL || strlen(g_settings.working_dir) == 0) {
                 CHAR* buf = VKTRACE_NEW_ARRAY(CHAR, 4096);
                 vktrace_LogVerbose("No working directory (-w) parameter found: Assuming executable's path as working directory.");
                 vktrace_platform_full_path(g_settings.program, 4096, buf);
@@ -360,24 +331,19 @@ int main(int argc, char* argv[])
             }
 
             vktrace_LogVerbose("Running vktrace as parent process will spawn child process: %s", g_settings.program);
-            if (g_settings.arguments != NULL && strlen(g_settings.arguments) > 0)
-            {
+            if (g_settings.arguments != NULL && strlen(g_settings.arguments) > 0) {
                 vktrace_LogVerbose("Args to be passed to child process: '%s'", g_settings.arguments);
             }
         }
     }
 
-    vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb?"1":"0");
-    if (g_settings.traceTrigger)
-    {
+    vktrace_set_global_var("_VKTRACE_OPTIMIZE_PMB", g_settings.enable_pmb ? "1" : "0");
+    if (g_settings.traceTrigger) {
         // Export list to screenshot layer
         vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", g_settings.traceTrigger);
-    }
-    else
-    {
+    } else {
         vktrace_set_global_var("VKTRACE_TRIM_TRIGGER", "");
     }
-
 
     unsigned int serverIndex = 0;
     do {
@@ -386,16 +352,13 @@ int main(int argc, char* argv[])
         BOOL procStarted = TRUE;
         vktrace_process_info procInfo;
         memset(&procInfo, 0, sizeof(vktrace_process_info));
-        if (g_settings.program != NULL)
-        {
+        if (g_settings.program != NULL) {
             procInfo.exeName = vktrace_allocate_and_copy(g_settings.program);
             procInfo.processArgs = vktrace_allocate_and_copy(g_settings.arguments);
             procInfo.fullProcessCmdLine = vktrace_copy_and_append(g_settings.program, " ", g_settings.arguments);
             procInfo.workingDirectory = vktrace_allocate_and_copy(g_settings.working_dir);
             procInfo.traceFilename = vktrace_allocate_and_copy(g_settings.output_trace);
-        }
-        else
-        {
+        } else {
             procInfo.traceFilename = find_available_filename(g_settings.output_trace, true);
         }
 
@@ -404,64 +367,49 @@ int main(int argc, char* argv[])
         // setup tracer, only Vulkan tracer suppported
         PrepareTracers(&procInfo.pCaptureThreads);
 
-        if (g_settings.program != NULL)
-        {
-            char *instEnv = vktrace_get_global_var("VK_INSTANCE_LAYERS");
+        if (g_settings.program != NULL) {
+            char* instEnv = vktrace_get_global_var("VK_INSTANCE_LAYERS");
             // Add ScreenShot layer if enabled
-            if (g_settings.screenshotList && (!instEnv || !strstr(instEnv, "VK_LAYER_LUNARG_screenshot")))
-            {
-                if (!instEnv || strlen(instEnv)  == 0)
+            if (g_settings.screenshotList && (!instEnv || !strstr(instEnv, "VK_LAYER_LUNARG_screenshot"))) {
+                if (!instEnv || strlen(instEnv) == 0)
                     vktrace_set_global_var("VK_INSTANCE_LAYERS", "VK_LAYER_LUNARG_screenshot");
-                else
-                {
-                    char *newEnv = vktrace_copy_and_append(instEnv, VKTRACE_LIST_SEPARATOR, "VK_LAYER_LUNARG_screenshot");
+                else {
+                    char* newEnv = vktrace_copy_and_append(instEnv, VKTRACE_LIST_SEPARATOR, "VK_LAYER_LUNARG_screenshot");
                     vktrace_set_global_var("VK_INSTANCE_LAYERS", newEnv);
                 }
                 instEnv = vktrace_get_global_var("VK_INSTANCE_LAYERS");
             }
-            char *devEnv = vktrace_get_global_var("VK_DEVICE_LAYERS");
-            if (g_settings.screenshotList && (!devEnv || !strstr(devEnv, "VK_LAYER_LUNARG_screenshot")))
-            {
+            char* devEnv = vktrace_get_global_var("VK_DEVICE_LAYERS");
+            if (g_settings.screenshotList && (!devEnv || !strstr(devEnv, "VK_LAYER_LUNARG_screenshot"))) {
                 if (!devEnv || strlen(devEnv) == 0)
                     vktrace_set_global_var("VK_DEVICE_LAYERS", "VK_LAYER_LUNARG_screenshot");
-                else
-                {
-                    char *newEnv = vktrace_copy_and_append(devEnv, VKTRACE_LIST_SEPARATOR, "VK_LAYER_LUNARG_screenshot");
+                else {
+                    char* newEnv = vktrace_copy_and_append(devEnv, VKTRACE_LIST_SEPARATOR, "VK_LAYER_LUNARG_screenshot");
                     vktrace_set_global_var("VK_DEVICE_LAYERS", newEnv);
                 }
                 devEnv = vktrace_get_global_var("VK_DEVICE_LAYERS");
             }
             // Add vktrace_layer enable env var if needed
-            if (!instEnv || strlen(instEnv) == 0)
-            {
+            if (!instEnv || strlen(instEnv) == 0) {
                 vktrace_set_global_var("VK_INSTANCE_LAYERS", "VK_LAYER_LUNARG_vktrace");
-            }
-            else if (instEnv != strstr(instEnv, "VK_LAYER_LUNARG_vktrace"))
-            {
-                char *newEnv = vktrace_copy_and_append("VK_LAYER_LUNARG_vktrace", VKTRACE_LIST_SEPARATOR, instEnv);
+            } else if (instEnv != strstr(instEnv, "VK_LAYER_LUNARG_vktrace")) {
+                char* newEnv = vktrace_copy_and_append("VK_LAYER_LUNARG_vktrace", VKTRACE_LIST_SEPARATOR, instEnv);
                 vktrace_set_global_var("VK_INSTANCE_LAYERS", newEnv);
             }
-            if (!devEnv || strlen(devEnv) == 0)
-            {
+            if (!devEnv || strlen(devEnv) == 0) {
                 vktrace_set_global_var("VK_DEVICE_LAYERS", "VK_LAYER_LUNARG_vktrace");
-            }
-            else if (devEnv != strstr(devEnv, "VK_LAYER_LUNARG_vktrace"))
-            {
-                char *newEnv = vktrace_copy_and_append("VK_LAYER_LUNARG_vktrace", VKTRACE_LIST_SEPARATOR, devEnv);
+            } else if (devEnv != strstr(devEnv, "VK_LAYER_LUNARG_vktrace")) {
+                char* newEnv = vktrace_copy_and_append("VK_LAYER_LUNARG_vktrace", VKTRACE_LIST_SEPARATOR, devEnv);
                 vktrace_set_global_var("VK_DEVICE_LAYERS", newEnv);
             }
             // call CreateProcess to launch the application
             procStarted = vktrace_process_spawn(&procInfo);
         }
-        if (procStarted == FALSE)
-        {
+        if (procStarted == FALSE) {
             vktrace_LogError("Failed to set up remote process.");
             exit(1);
-        }
-        else
-        {
-            if (InjectTracersIntoProcess(&procInfo) == FALSE)
-            {
+        } else {
+            if (InjectTracersIntoProcess(&procInfo) == FALSE) {
                 vktrace_LogError("Failed to set up tracer communication threads.");
                 exit(1);
             }
@@ -473,11 +421,9 @@ int main(int argc, char* argv[])
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 
             // Sync wait for local threads and remote process to complete.
-            if (g_settings.program != NULL)
-            {
-                exitval=vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
-                if (exitval != 0)
-                    exit(exitval);
+            if (g_settings.program != NULL) {
+                exitval = vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
+                if (exitval != 0) exit(exitval);
             }
 
             vktrace_linux_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));
@@ -497,6 +443,5 @@ int main(int argc, char* argv[])
     vktrace_SettingGroup_delete(&g_settingGroup);
     vktrace_free(g_default_settings.output_trace);
 
-    exit (exitval);
+    exit(exitval);
 }
-

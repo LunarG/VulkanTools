@@ -27,16 +27,10 @@
 #include <QGraphicsView>
 #include <QWheelEvent>
 
-class vktraceviewer_qsvgviewer : public QGraphicsView
-{
+class vktraceviewer_qsvgviewer : public QGraphicsView {
     Q_OBJECT
-public:
-    vktraceviewer_qsvgviewer(QWidget* parent = 0) :
-        QGraphicsView(parent),
-        disabledScene(NULL),
-        enabledScene(NULL),
-        autoFit(false)
-    {
+   public:
+    vktraceviewer_qsvgviewer(QWidget* parent = 0) : QGraphicsView(parent), disabledScene(NULL), enabledScene(NULL), autoFit(false) {
         // The destructor for QGraphicsScene will be called when this QGraphicsView is
         // destroyed.
         enabledScene = new QGraphicsScene(this);
@@ -54,17 +48,12 @@ public:
         this->setViewportUpdateMode(FullViewportUpdate);
     }
 
-    void changeEvent(QEvent* event)
-    {
-        switch(event->type())
-        {
+    void changeEvent(QEvent* event) {
+        switch (event->type()) {
             case QEvent::EnabledChange:
-                if(this->isEnabled())
-                {
+                if (this->isEnabled()) {
                     this->setScene(enabledScene);
-                }
-                else
-                {
+                } else {
                     this->setScene(disabledScene);
                 }
                 break;
@@ -73,12 +62,10 @@ public:
         }
     }
 
-    void paintEvent(QPaintEvent* event)
-    {
+    void paintEvent(QPaintEvent* event) {
         // Resize the scene to fit the widget. This is deferred until the first paint
         // event (when the widget size is known).
-        if(autoFit)
-        {
+        if (autoFit) {
             this->fitInView(enabledScene->itemsBoundingRect(), Qt::KeepAspectRatio);
             autoFit = false;
         }
@@ -86,10 +73,8 @@ public:
         QGraphicsView::paintEvent(event);
     }
 
-    void wheelEvent(QWheelEvent* event)
-    {
-        if(event->orientation() == Qt::Vertical)
-        {
+    void wheelEvent(QWheelEvent* event) {
+        if (event->orientation() == Qt::Vertical) {
             // The delta value is in units of eighths of a degree.
             qreal const degrees = event->delta() / 8.0;
 
@@ -104,11 +89,9 @@ public:
         }
     }
 
-    bool load(QString const& fileName)
-    {
+    bool load(QString const& fileName) {
         QFileInfo fileInfo(fileName);
-        if(!fileInfo.exists() || !fileInfo.isFile())
-        {
+        if (!fileInfo.exists() || !fileInfo.isFile()) {
             return false;
         }
 
@@ -125,11 +108,11 @@ public:
         return true;
     }
 
-private:
+   private:
     QGraphicsScene* disabledScene;
     QGraphicsScene* enabledScene;
 
     bool autoFit;
 };
 
-#endif // _VKTRACEVIEWER_QSVGVIEWER_H_
+#endif  // _VKTRACEVIEWER_QSVGVIEWER_H_

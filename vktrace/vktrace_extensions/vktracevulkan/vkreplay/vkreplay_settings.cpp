@@ -26,27 +26,57 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = { NULL, 1, -1, -1, NULL, NULL };
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL};
 
-vktrace_SettingInfo g_vk_settings_info[] =
-{
-    { "o", "Open", VKTRACE_SETTING_STRING, { &g_vkReplaySettings.pTraceFilePath }, { &s_defaultVkReplaySettings.pTraceFilePath }, TRUE, "The trace file to open and replay." },
-    { "t", "TraceFile", VKTRACE_SETTING_STRING, { &g_vkReplaySettings.pTraceFilePath }, { &s_defaultVkReplaySettings.pTraceFilePath }, TRUE, "(Deprecated, use -o or --Open instead) The trace file to replay." },
-    { "l", "NumLoops", VKTRACE_SETTING_UINT, { &g_vkReplaySettings.numLoops }, { &s_defaultVkReplaySettings.numLoops }, TRUE, "The number of times to replay the trace file or loop range." },
-    { "lsf", "LoopStartFrame", VKTRACE_SETTING_INT, { &g_vkReplaySettings.loopStartFrame }, { &s_defaultVkReplaySettings.loopStartFrame }, TRUE, "The start frame number of the loop range." },
-    { "lef", "LoopEndFrame", VKTRACE_SETTING_INT, { &g_vkReplaySettings.loopEndFrame }, { &s_defaultVkReplaySettings.loopEndFrame }, TRUE, "The end frame number of the loop range." },
-    { "s", "Screenshot", VKTRACE_SETTING_STRING, { &g_vkReplaySettings.screenshotList }, { &s_defaultVkReplaySettings.screenshotList }, TRUE, "Comma separated list of frames to take a take snapshots of" },
+vktrace_SettingInfo g_vk_settings_info[] = {
+    {"o",
+     "Open",
+     VKTRACE_SETTING_STRING,
+     {&g_vkReplaySettings.pTraceFilePath},
+     {&s_defaultVkReplaySettings.pTraceFilePath},
+     TRUE,
+     "The trace file to open and replay."},
+    {"t",
+     "TraceFile",
+     VKTRACE_SETTING_STRING,
+     {&g_vkReplaySettings.pTraceFilePath},
+     {&s_defaultVkReplaySettings.pTraceFilePath},
+     TRUE,
+     "(Deprecated, use -o or --Open instead) The trace file to replay."},
+    {"l",
+     "NumLoops",
+     VKTRACE_SETTING_UINT,
+     {&g_vkReplaySettings.numLoops},
+     {&s_defaultVkReplaySettings.numLoops},
+     TRUE,
+     "The number of times to replay the trace file or loop range."},
+    {"lsf",
+     "LoopStartFrame",
+     VKTRACE_SETTING_INT,
+     {&g_vkReplaySettings.loopStartFrame},
+     {&s_defaultVkReplaySettings.loopStartFrame},
+     TRUE,
+     "The start frame number of the loop range."},
+    {"lef",
+     "LoopEndFrame",
+     VKTRACE_SETTING_INT,
+     {&g_vkReplaySettings.loopEndFrame},
+     {&s_defaultVkReplaySettings.loopEndFrame},
+     TRUE,
+     "The end frame number of the loop range."},
+    {"s",
+     "Screenshot",
+     VKTRACE_SETTING_STRING,
+     {&g_vkReplaySettings.screenshotList},
+     {&s_defaultVkReplaySettings.screenshotList},
+     TRUE,
+     "Comma separated list of frames to take a take snapshots of"},
 };
 
-vktrace_SettingGroup g_vkReplaySettingGroup =
-{
-    "vkreplay_vk",
-    sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),
-    &g_vk_settings_info[0]
-};
+vktrace_SettingGroup g_vkReplaySettingGroup = {"vkreplay_vk", sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),
+                                               &g_vk_settings_info[0]};
 
-void apply_layerSettings_overrides()
-{
+void apply_layerSettings_overrides() {
 #if 0
     setLayerOptionEnum("DrawStateReportFlags", g_vkReplaySettings.drawStateReportFlags);
     setLayerOptionEnum("DrawStateDebugAction", g_vkReplaySettings.drawStateDebugAction);

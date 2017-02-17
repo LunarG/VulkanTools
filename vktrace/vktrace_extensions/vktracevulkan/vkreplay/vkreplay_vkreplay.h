@@ -33,7 +33,7 @@
 #include <android_native_app_glue.h>
 #else
 #include <xcb/xcb.h>
-#endif // ANDROID
+#endif  // ANDROID
 #endif
 #include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"
@@ -55,30 +55,34 @@ extern "C" {
 
 #define CHECK_RETURN_VALUE(entrypoint) returnValue = handle_replay_errors(#entrypoint, replayResult, pPacket->result, returnValue);
 
-extern vkreplayer_settings *g_pReplaySettings;
+extern vkreplayer_settings* g_pReplaySettings;
 
 class vkReplay {
-public:
+   public:
     ~vkReplay();
-    vkReplay(vkreplayer_settings *pReplaySettings);
+    vkReplay(vkreplayer_settings* pReplaySettings);
 
-    int init(vktrace_replay::ReplayDisplay & disp);
-    vkDisplay * get_display() {return m_display;}
-    vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header *packet);
-    vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall, const VkResult resTrace, const vktrace_replay::VKTRACE_REPLAY_RESULT resIn);
+    int init(vktrace_replay::ReplayDisplay& disp);
+    vkDisplay* get_display() { return m_display; }
+    vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header* packet);
+    vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall,
+                                                               const VkResult resTrace,
+                                                               const vktrace_replay::VKTRACE_REPLAY_RESULT resIn);
 
-    void push_validation_msg(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObjectHandle, size_t location, int32_t msgCode, const char* pLayerPrefix, const char* pMsg, const void* pUserData);
+    void push_validation_msg(VkFlags msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObjectHandle, size_t location,
+                             int32_t msgCode, const char* pLayerPrefix, const char* pMsg, const void* pUserData);
     vktrace_replay::VKTRACE_REPLAY_RESULT pop_validation_msgs();
     int dump_validation_data();
     int get_frame_number() { return m_frameNumber; }
     void reset_frame_number() { m_frameNumber = 0; }
-private:
+
+   private:
     struct vkFuncs m_vkFuncs;
     vkReplayObjMapper m_objMapper;
     void (*m_pDSDump)(char*);
     void (*m_pCBDump)(char*);
-    //VKTRACESNAPSHOT_PRINT_OBJECTS m_pVktraceSnapshotPrint;
-    vkDisplay *m_display;
+    // VKTRACESNAPSHOT_PRINT_OBJECTS m_pVktraceSnapshotPrint;
+    vkDisplay* m_display;
 
     int m_frameNumber;
 
@@ -104,13 +108,13 @@ private:
     VkResult manually_replay_vkCreateCommandPool(packet_vkCreateCommandPool* pPacket);
     VkResult manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumeratePhysicalDevices* pPacket);
     // TODO138 : Many new functions in API now that we need to assess if manual code needed
-    //VkResult manually_replay_vkGetPhysicalDeviceInfo(packet_vkGetPhysicalDeviceInfo* pPacket);
-    //VkResult manually_replay_vkGetGlobalExtensionInfo(packet_vkGetGlobalExtensionInfo* pPacket);
-    //VkResult manually_replay_vkGetPhysicalDeviceExtensionInfo(packet_vkGetPhysicalDeviceExtensionInfo* pPacket);
+    // VkResult manually_replay_vkGetPhysicalDeviceInfo(packet_vkGetPhysicalDeviceInfo* pPacket);
+    // VkResult manually_replay_vkGetGlobalExtensionInfo(packet_vkGetGlobalExtensionInfo* pPacket);
+    // VkResult manually_replay_vkGetPhysicalDeviceExtensionInfo(packet_vkGetPhysicalDeviceExtensionInfo* pPacket);
     VkResult manually_replay_vkQueueSubmit(packet_vkQueueSubmit* pPacket);
     VkResult manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse* pPacket);
-    //VkResult manually_replay_vkGetObjectInfo(packet_vkGetObjectInfo* pPacket);
-    //VkResult manually_replay_vkGetImageSubresourceInfo(packet_vkGetImageSubresourceInfo* pPacket);
+    // VkResult manually_replay_vkGetObjectInfo(packet_vkGetObjectInfo* pPacket);
+    // VkResult manually_replay_vkGetImageSubresourceInfo(packet_vkGetImageSubresourceInfo* pPacket);
     void manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorSets* pPacket);
     VkResult manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDescriptorSetLayout* pPacket);
     void manually_replay_vkDestroyDescriptorSetLayout(packet_vkDestroyDescriptorSetLayout* pPacket);
@@ -146,17 +150,19 @@ private:
     VkResult manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchainImagesKHR* pPacket);
     VkResult manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* pPacket);
     VkResult manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfaceKHR* pPacket);
-    VkBool32 manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket);
+    VkBool32 manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(
+        packet_vkGetPhysicalDeviceXcbPresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSurfaceKHR* pPacket);
-    VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
+    VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(
+        packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32SurfaceKHR* pPacket);
-    VkBool32 manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket);
+    VkBool32 manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(
+        packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndroidSurfaceKHR* pPacket);
     VkResult manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreateDebugReportCallbackEXT* pPacket);
     void manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyDebugReportCallbackEXT* pPacket);
 
-    void process_screenshot_list(const char *list)
-    {
+    void process_screenshot_list(const char* list) {
         std::string spec(list), word;
         size_t start = 0, comma = 0;
 
@@ -169,11 +175,9 @@ private:
                 word = std::string(spec, start, comma - start);
 
             m_screenshotFrames.push_back(atoi(word.c_str()));
-            if (comma == std::string::npos)
-                break;
+            if (comma == std::string::npos) break;
 
             start = comma + 1;
-
         }
     }
 
@@ -202,18 +206,9 @@ private:
     std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> traceMemoryProperties;
     std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> replayMemoryProperties;
 
-    bool getMemoryTypeIdx(VkDevice traceDevice,
-                          VkDevice replayDevice,
-                          uint32_t traceIdx,
-                          uint32_t* pReplayIdx);
+    bool getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, uint32_t* pReplayIdx);
 
-    bool getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice,
-                           VkPhysicalDevice replayPhysicalDevice,
-                           uint32_t traceIdx,
+    bool getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysicalDevice replayPhysicalDevice, uint32_t traceIdx,
                            uint32_t* pReplayIdx);
-    bool getQueueFamilyIdx(VkDevice traceDevice,
-        VkDevice replayDevice,
-        uint32_t traceIdx,
-        uint32_t* pReplayIdx);
-
+    bool getQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, uint32_t* pReplayIdx);
 };

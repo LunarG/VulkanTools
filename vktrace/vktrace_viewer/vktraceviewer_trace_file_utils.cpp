@@ -21,14 +21,12 @@
 #include "vktraceviewer_trace_file_utils.h"
 #include "vktrace_memory.h"
 
-BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo)
-{
+BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo) {
     assert(pTraceFileInfo != NULL);
     assert(pTraceFileInfo->pFile != NULL);
 
     // read trace file header
-    if (1 != fread(&(pTraceFileInfo->header), sizeof(vktrace_trace_file_header), 1, pTraceFileInfo->pFile))
-    {
+    if (1 != fread(&(pTraceFileInfo->header), sizeof(vktrace_trace_file_header), 1, pTraceFileInfo->pFile)) {
         vktraceviewer_output_error("Unable to read header from file.");
         return FALSE;
     }
@@ -41,15 +39,13 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
     // Seek to first packet
     long first_offset = pTraceFileInfo->header.first_packet_offset;
     int seekResult = fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
-    if (seekResult != 0)
-    {
+    if (seekResult != 0) {
         vktraceviewer_output_warning("Failed to seek to the first packet offset in the trace file.");
     }
 
     uint64_t fileOffset = pTraceFileInfo->header.first_packet_offset;
     uint64_t packetSize = 0;
-    while(1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile))
-    {
+    while (1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile)) {
         // success!
         pTraceFileInfo->packetCount++;
         fileOffset += packetSize;
@@ -57,61 +53,52 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
         fseek(pTraceFileInfo->pFile, fileOffset, SEEK_SET);
     }
 
-    if (pTraceFileInfo->packetCount == 0)
-    {
-        if (ferror(pTraceFileInfo->pFile) != 0)
-        {
+    if (pTraceFileInfo->packetCount == 0) {
+        if (ferror(pTraceFileInfo->pFile) != 0) {
             perror("File Read error:");
             vktraceviewer_output_warning("There was an error reading the trace file.");
             return FALSE;
-        }
-        else if (feof(pTraceFileInfo->pFile) != 0)
-        {
+        } else if (feof(pTraceFileInfo->pFile) != 0) {
             vktraceviewer_output_warning("Reached the end of the file.");
         }
         vktraceviewer_output_warning("There are no trace packets in this trace file.");
         pTraceFileInfo->pPacketOffsets = NULL;
-    }
-    else
-    {
+    } else {
         pTraceFileInfo->pPacketOffsets = VKTRACE_NEW_ARRAY(vktraceviewer_trace_file_packet_offsets, pTraceFileInfo->packetCount);
 
         // rewind to first packet and this time, populate the packet offsets
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0)
-        {
+        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktraceviewer_output_error("Unable to rewind trace file to gather packet offsets.");
             return FALSE;
         }
 
         unsigned int packetIndex = 0;
         fileOffset = first_offset;
-        while(1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile))
-        {
+        while (1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile)) {
             // the fread confirms that this packet exists
             // NOTE: We do not actually read the entire packet into memory right now.
             pTraceFileInfo->pPacketOffsets[packetIndex].fileOffset = fileOffset;
 
             // rewind slightly
-            fseek(pTraceFileInfo->pFile, -1*(long)sizeof(uint64_t), SEEK_CUR);
+            fseek(pTraceFileInfo->pFile, -1 * (long)sizeof(uint64_t), SEEK_CUR);
 
             // allocate space for the packet and read it in
             pTraceFileInfo->pPacketOffsets[packetIndex].pHeader = (vktrace_trace_packet_header*)vktrace_malloc(packetSize);
-            if (1 != fread(pTraceFileInfo->pPacketOffsets[packetIndex].pHeader, packetSize, 1, pTraceFileInfo->pFile))
-            {
+            if (1 != fread(pTraceFileInfo->pPacketOffsets[packetIndex].pHeader, packetSize, 1, pTraceFileInfo->pFile)) {
                 vktraceviewer_output_error("Unable to read in a trace packet.");
                 return FALSE;
             }
 
             // adjust pointer to body of the packet
-            pTraceFileInfo->pPacketOffsets[packetIndex].pHeader->pBody = (uintptr_t)pTraceFileInfo->pPacketOffsets[packetIndex].pHeader + sizeof(vktrace_trace_packet_header);
+            pTraceFileInfo->pPacketOffsets[packetIndex].pHeader->pBody =
+                (uintptr_t)pTraceFileInfo->pPacketOffsets[packetIndex].pHeader + sizeof(vktrace_trace_packet_header);
 
             // now seek to what should be the next packet
             fileOffset += packetSize;
             packetIndex++;
         }
 
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0)
-        {
+        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktraceviewer_output_error("Unable to rewind trace file to restore position.");
             return FALSE;
         }

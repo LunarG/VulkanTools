@@ -23,15 +23,8 @@
 #include "vulkan/vk_layer.h"
 #include "vktrace_lib_helpers.h"
 
-void ext_init_create_instance(
-        layer_instance_data             *instData,
-        VkInstance                      inst,
-        uint32_t                        extension_count,
-        const char*const*               ppEnabledExtensions);
+void ext_init_create_instance(layer_instance_data* instData, VkInstance inst, uint32_t extension_count,
+                              const char* const* ppEnabledExtensions);
 
-void ext_init_create_device(
-        layer_device_data               *devData,
-        VkDevice                        dev,
-        PFN_vkGetDeviceProcAddr         gpa,
-        uint32_t                        extension_count,
-        const char*const*               ppEnabledExtensions);
+void ext_init_create_device(layer_device_data* devData, VkDevice dev, PFN_vkGetDeviceProcAddr gpa, uint32_t extension_count,
+                            const char* const* ppEnabledExtensions);
