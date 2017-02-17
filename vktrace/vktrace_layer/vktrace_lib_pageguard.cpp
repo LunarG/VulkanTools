@@ -135,13 +135,13 @@ bool getPageGuardEnableFlag() {
     static bool FirstTimeRun = true;
     if (FirstTimeRun) {
         FirstTimeRun = false;
-        const char* env_pageguard = vktrace_get_global_var(PAGEGUARD_PAGEGUARD_ENABLE_ENV);
+        const char* env_pageguard = vktrace_get_global_var(VKTRACE_PMB_ENABLE_ENV);
         if (env_pageguard) {
             int envvalue;
             if (sscanf(env_pageguard, "%d", &envvalue) == 1) {
                 if (envvalue) {
                     EnablePageGuard = true;
-                    const char* env_target_range_size = vktrace_get_global_var(PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV);
+                    const char* env_target_range_size = vktrace_get_global_var(_VKTRACE_PMB_TARGET_RANGE_SIZE_ENV);
                     if (env_target_range_size) {
                         VkDeviceSize rangesize;
                         if (sscanf(env_target_range_size, "%" PRIx64, &rangesize) == 1) {
@@ -170,8 +170,8 @@ bool getEnableReadProcessFlag(const char* name) {
     }
     return EnableReadPMB;
 }
-bool getEnableReadPMBFlag() { return getEnableReadProcessFlag(PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV); }
-bool getEnableReadPMBPostProcessFlag() { return getEnableReadProcessFlag(PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV); }
+bool getEnableReadPMBFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_PMB_ENV); }
+bool getEnableReadPMBPostProcessFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV); }
 
 #if defined(WIN32)
 void setPageGuardExceptionHandler() {

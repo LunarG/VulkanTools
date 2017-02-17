@@ -81,31 +81,6 @@
 
 #include "vktrace_pageguard_memorycopy.h"
 
-// VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1, other
-// values disable PMB tracking. If this env var is undefined, PMB tracking
-// is enabled.
-#define PAGEGUARD_PAGEGUARD_ENABLE_ENV "VKTRACE_PMB_ENABLE"
-
-// VKTRACE_PMB_TARGETSIZE env var specify the mapped size of memory
-// objects managed by page guard, vktrace only adds pageguard for memory
-// object of which mapped memory size > this value. If this env var is
-// not defined, page guard manages all mapped memory, this is the default
-// option. There is no need for user to specify this env variable except
-// for debug.
-#define PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_ENV "VKTRACE_PMB_TARGETSIZE"
-
-// VKTRACE_PAGEGUARD_ENABLE_READ_PMB env var enables read PMB support. Only
-// supported on Windows. Some PMB data change come from GPU side and cannot
-// be captured by writes page guard, such data change may affect target
-// application running if target application read it. the env var is used
-// to enable capture such PMB data change.
-#define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB"
-
-// PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV env var enables post process for read PMB support. Only
-// supported on Windows. page guard process miss following write access if read access happen on same page for some titles which
-// need read PMB support, the env var is used to enable post process to fix missed pmb writes.
-#define PAGEGUARD_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_PMB_POST_PROCESS"
-
 // Usefull macro for handling fatal errors during tracing
 #define VKTRACE_FATAL_ERROR(_m)               \
     do {                                      \

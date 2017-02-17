@@ -125,7 +125,7 @@ extern VKTRACER_ENTRY _Load(void) {
     if (vktrace_is_loaded_into_vktrace() == FALSE) {
         char *verbosity;
         vktrace_LogSetCallback(loggingCallback);
-        verbosity = vktrace_layer_getenv("_VK_TRACE_VERBOSITY");
+        verbosity = vktrace_layer_getenv(_VKTRACE_VERBOSITY_ENV);
         if (verbosity && !strcmp(verbosity, "quiet"))
             vktrace_LogSetLevel(VKTRACE_LOG_NONE);
         else if (verbosity && !strcmp(verbosity, "warnings"))
