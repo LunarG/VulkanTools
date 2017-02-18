@@ -2839,9 +2839,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
         } else if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::frameCounter)) {
             g_trimFrameCounter++;
             if (g_trimFrameCounter == g_trimStartFrame) {
+                vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
                 trim::start();
             }
             if (g_trimEndFrame < UINT64_MAX && g_trimFrameCounter == g_trimEndFrame + 1) {
+                vktrace_LogAlways("Trim stopping now at frame: %d", g_trimEndFrame);
                 trim::stop();
             }
         }
