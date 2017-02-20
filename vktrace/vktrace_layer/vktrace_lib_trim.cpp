@@ -1290,9 +1290,11 @@ void snapshot_state_tracker() {
             VkMemoryMapFlags flags = 0;
             void *pData = iter->second.ObjectInfo.DeviceMemory.mappedAddress;
 
-            vktrace_trace_packet_header *pPersistentlyMapMemory =
-                generate::vkMapMemory(false, device, deviceMemory, offset, size, flags, &pData);
-            iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = pPersistentlyMapMemory;
+            if (size != 0) {
+                vktrace_trace_packet_header *pPersistentlyMapMemory =
+                                                   generate::vkMapMemory(false, device, deviceMemory, offset, size, flags, &pData);
+                iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = pPersistentlyMapMemory;
+            }
         }
     }
 
