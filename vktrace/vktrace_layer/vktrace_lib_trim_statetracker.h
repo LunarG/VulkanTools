@@ -205,8 +205,8 @@ typedef struct _Trim_ObjectInfo {
             uint32_t attachmentCount;
             ImageTransition *pAttachments;
         } RenderPass;
-        struct _ShaderModule {  // VkShaderModule
-            vktrace_trace_packet_header *pCreatePacket;
+        struct _ShaderModule { // VkShaderModule
+            VkShaderModuleCreateInfo createInfo;
             const VkAllocationCallbacks *pAllocator;
         } ShaderModule;
         struct _PipelineCache {  // VkPipelineCache
@@ -220,6 +220,8 @@ typedef struct _Trim_ObjectInfo {
             VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
             VkComputePipelineCreateInfo computePipelineCreateInfo;
             uint32_t renderPassVersion;
+            uint32_t shaderModuleCreateInfoCount;
+            VkShaderModuleCreateInfo* pShaderModuleCreateInfos;
         } Pipeline;
         struct _DescriptorPool {  // VkDescriptorPool
             vktrace_trace_packet_header *pCreatePacket;
@@ -390,11 +392,23 @@ class StateTracker {
 
     static void copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst, const VkRenderPassCreateInfo &src);
 
-    static void copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo *pDst, const VkGraphicsPipelineCreateInfo &src);
-    static void copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo *pDst, const VkComputePipelineCreateInfo &src);
-    static void copy_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo *pDstStage,
-                                                     const VkPipelineShaderStageCreateInfo &srcStage);
-    static void delete_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageCreateInfo *pStage);
+    static void
+        copy_VkShaderModuleCreateInfo(VkShaderModuleCreateInfo *pDst,
+            const VkShaderModuleCreateInfo &src);
+
+    static void delete_VkShaderModuleCreateInfo(VkShaderModuleCreateInfo *pModule);
+
+    static void
+    copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo *pDst,
+                                      const VkGraphicsPipelineCreateInfo &src);
+    static void
+    copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo *pDst,
+                                     const VkComputePipelineCreateInfo &src);
+    static void copy_VkPipelineShaderStageCreateInfo(
+        VkPipelineShaderStageCreateInfo *pDstStage,
+        const VkPipelineShaderStageCreateInfo &srcStage);
+    static void delete_VkPipelineShaderStageCreateInfo(
+        VkPipelineShaderStageCreateInfo *pStage);
 
     // Map relating a command buffer object to all the calls that have been
     // made on that command buffer since it was started or last reset.
