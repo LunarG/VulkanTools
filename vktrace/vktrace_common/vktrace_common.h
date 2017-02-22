@@ -61,6 +61,12 @@
 #define ROUNDUP_TO_8(_len) ((((_len) + 7) >> 3) << 3)
 #define ROUNDUP_TO_16(_len) ((((_len) + 15) >> 4) << 4)
 
+#if defined(NDEBUG) && defined(__GNUC__)
+#define U_ASSERT_ONLY __attribute__((unused))
+#else
+#define U_ASSERT_ONLY
+#endif
+
 // Enviroment variables used by vktrace/replay
 
 // VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1.

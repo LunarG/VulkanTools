@@ -51,12 +51,6 @@ VKTRACE_CRITICAL_SECTION trimRecordedPacketLock;
 VKTRACE_CRITICAL_SECTION trimStateTrackerLock;
 VKTRACE_CRITICAL_SECTION trimCommandBufferPacketLock;
 
-#if defined(NDEBUG) && defined(__GNUC__)
-#define U_ASSERT_ONLY __attribute__((unused))
-#else
-#define U_ASSERT_ONLY
-#endif
-
 //=========================================================================
 // Information necessary to create the staged buffer and memory for DEVICE_LOCAL
 // buffers.
