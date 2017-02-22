@@ -2671,7 +2671,7 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     // Get the list of VkFormats that are supported:
     VkPhysicalDevice remappedPhysicalDevice = replayPhysicalDevices[remappeddevice];
     uint32_t formatCount;
-    VkResult res;
+    VkResult U_ASSERT_ONLY res;
     // Note that pPacket->pCreateInfo->surface has been remapped above
     res = vkGetPhysicalDeviceSurfaceFormatsKHR(remappedPhysicalDevice, pPacket->pCreateInfo->surface, &formatCount, NULL);
     assert(!res);
