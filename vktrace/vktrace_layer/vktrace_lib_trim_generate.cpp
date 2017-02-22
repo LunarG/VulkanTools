@@ -1196,6 +1196,34 @@ vktrace_trace_packet_header *vkDestroyPipelineLayout(bool makeCall, VkDevice dev
 }
 
 //=====================================================================
+vktrace_trace_packet_header *vkCreateShaderModule(bool makeCall, VkDevice device, const VkShaderModuleCreateInfo *pCreateInfo,
+                                                  const VkAllocationCallbacks *pAllocator, VkShaderModule *pShaderModule) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkCreateShaderModule *pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCreateShaderModule,
+                        get_struct_chain_size((void *)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkShaderModule));
+    if (makeCall) {
+        result = mdd(device)->devTable.CreateShaderModule(device, pCreateInfo, pAllocator, pShaderModule);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateShaderModule(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfo), sizeof(VkShaderModuleCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfo->pCode), pPacket->pCreateInfo->codeSize,
+                                       pCreateInfo->pCode);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pShaderModule), sizeof(VkShaderModule), pShaderModule);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pCreateInfo->pCode));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pShaderModule));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=====================================================================
 vktrace_trace_packet_header *vkDestroyShaderModule(bool makeCall, VkDevice device, VkShaderModule shaderModule,
                                                    const VkAllocationCallbacks *pAllocator) {
     vktrace_trace_packet_header *pHeader;

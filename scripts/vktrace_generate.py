@@ -1160,7 +1160,7 @@ memoryTypeBits=%0x08X}",
         elif 'CreateShaderModule' is proto.name:
             trim_instructions.append("        trim::ObjectInfo &info = trim::add_ShaderModule_object(*pShaderModule);")
             trim_instructions.append("        info.belongsToDevice = device;")
-            trim_instructions.append("        info.ObjectInfo.ShaderModule.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        trim::StateTracker::copy_VkShaderModuleCreateInfo(&info.ObjectInfo.ShaderModule.createInfo, *pCreateInfo);")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            info.ObjectInfo.ShaderModule.pAllocator = pAllocator;")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
@@ -1174,12 +1174,9 @@ memoryTypeBits=%0x08X}",
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
         elif 'DestroyShaderModule' is proto.name:
-            trim_instructions.append("        //During pre-trim, we don't want to remove shader modules because they can be deleted after the pipeline is created, and we don't track that properly yet")
-            trim_instructions.append("        //trim_remove_ShaderModule_object(shaderModule);")
-            trim_instructions.append("        //Remove the shadermodule if we've recorded this in-trim, because we don't want to delete it twice.")
+            trim_instructions.append("        trim::remove_ShaderModule_object(shaderModule);")
             trim_instructions.append('        if (g_trimIsInTrim)')
             trim_instructions.append('        {')
-            trim_instructions.append("            trim::remove_ShaderModule_object(shaderModule);")
             trim_instructions.append('            trim::add_recorded_packet(pHeader);')
             trim_instructions.append('        }')
             trim_instructions.append('        else')

@@ -545,8 +545,11 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdShaderModules = other.createdShaderModules;
-    for (auto obj = createdShaderModules.begin(); obj != createdShaderModules.end(); obj++) {
-        COPY_PACKET(obj->second.ObjectInfo.ShaderModule.pCreatePacket);
+    for (auto obj = createdShaderModules.begin();
+         obj != createdShaderModules.end(); obj++) {
+        uint32_t* pCodeCopy = static_cast<uint32_t*>(malloc(obj->second.ObjectInfo.ShaderModule.createInfo.codeSize));
+        memcpy(pCodeCopy, obj->second.ObjectInfo.ShaderModule.createInfo.pCode, obj->second.ObjectInfo.ShaderModule.createInfo.codeSize);
+        obj->second.ObjectInfo.ShaderModule.createInfo.pCode = pCodeCopy;
     }
 
     createdPipelineLayouts = other.createdPipelineLayouts;
@@ -680,7 +683,39 @@ void StateTracker::delete_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageC
 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
-void StateTracker::copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInfo *pDst, const VkGraphicsPipelineCreateInfo &src) {
+void StateTracker::copy_VkShaderModuleCreateInfo(VkShaderModuleCreateInfo *pDst,
+    const VkShaderModuleCreateInfo &src) {
+    if (pDst != nullptr) {
+        *pDst = src;
+
+        if (src.pCode != nullptr) {
+            uint32_t* pCodeCopy = static_cast<uint32_t*>(malloc(src.codeSize));
+            memcpy(pCodeCopy, src.pCode, src.codeSize);
+            pDst->pCode = pCodeCopy;
+        }
+        pDst->pNext = nullptr;
+    }
+}
+
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+void StateTracker::delete_VkShaderModuleCreateInfo(VkShaderModuleCreateInfo *pModule) {
+    if (pModule != nullptr) {
+        if (pModule->pCode != nullptr) {
+            uint32_t *pCode = const_cast<uint32_t *>(pModule->pCode);
+            free(pCode);
+            pModule->pCode = nullptr;
+        }
+        pModule->codeSize = 0;
+        pModule->pNext = nullptr;
+    }
+}
+
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+void StateTracker::copy_VkGraphicsPipelineCreateInfo(
+    VkGraphicsPipelineCreateInfo *pDst,
+    const VkGraphicsPipelineCreateInfo &src) {
     *pDst = src;
 
     if (src.pStages != nullptr) {
@@ -1407,7 +1442,9 @@ void StateTracker::remove_RenderPass(const VkRenderPass var) {
 void StateTracker::remove_ShaderModule(const VkShaderModule var) {
     ObjectInfo *pInfo = get_ShaderModule(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
+        uint32_t* pCode = const_cast<uint32_t*>(pInfo->ObjectInfo.ShaderModule.createInfo.pCode);
+        free(pCode);
+        pInfo->ObjectInfo.ShaderModule.createInfo.pCode = nullptr;
     }
     createdShaderModules.erase(var);
 }
@@ -1423,6 +1460,11 @@ void StateTracker::remove_PipelineCache(const VkPipelineCache var) {
 void StateTracker::remove_Pipeline(const VkPipeline var) {
     ObjectInfo *pInfo = get_Pipeline(var);
     if (pInfo != nullptr) {
+        for (uint32_t i = 0; i < pInfo->ObjectInfo.Pipeline.shaderModuleCreateInfoCount; i++) {
+            delete_VkShaderModuleCreateInfo(&pInfo->ObjectInfo.Pipeline.pShaderModuleCreateInfos[i]);
+        }
+        VKTRACE_DELETE(pInfo->ObjectInfo.Pipeline.pShaderModuleCreateInfos);
+
         delete_VkPipelineShaderStageCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
 
         if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages != nullptr) {

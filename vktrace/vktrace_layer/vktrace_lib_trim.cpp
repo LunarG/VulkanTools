@@ -2241,6 +2241,9 @@ TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSetLayout)
 // Recreate all objects
 //=========================================================================
 void write_all_referenced_object_calls() {
+
+    vktrace_LogDebug("vktrace recreating objects for trim.");
+
     vktrace_enter_critical_section(&trimStateTrackerLock);
     // write the referenced objects from the snapshot
     StateTracker &stateTracker = s_trimStateTrackerSnapshot;
@@ -2448,6 +2451,7 @@ void write_all_referenced_object_calls() {
         }
     }
 
+    vktrace_LogDebug("Recreating Images.");
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
         VkImage image = obj->first;
         VkDevice device = obj->second.belongsToDevice;
@@ -2738,6 +2742,7 @@ void write_all_referenced_object_calls() {
             }
         }
     }
+    vktrace_LogDebug("Recreating Images (Done).");
 
     // ImageView
     for (auto obj = stateTracker.createdImageViews.begin(); obj != stateTracker.createdImageViews.end(); obj++) {
@@ -2746,6 +2751,7 @@ void write_all_referenced_object_calls() {
     }
 
     // Buffer
+    vktrace_LogDebug("Recreating Buffers.");
     for (auto obj = stateTracker.createdBuffers.begin(); obj != stateTracker.createdBuffers.end(); obj++) {
         VkBuffer buffer = (VkBuffer)obj->first;
         VkDevice device = obj->second.belongsToDevice;
@@ -2885,6 +2891,7 @@ void write_all_referenced_object_calls() {
             }
         }
     }
+    vktrace_LogDebug("Recreating Buffers (Done).");
 
     // DeviceMemory
     for (auto obj = stateTracker.createdDeviceMemorys.begin(); obj != stateTracker.createdDeviceMemorys.end(); obj++) {
@@ -2927,9 +2934,14 @@ void write_all_referenced_object_calls() {
     }
 
     // ShaderModule
-    for (auto obj = stateTracker.createdShaderModules.begin(); obj != stateTracker.createdShaderModules.end(); obj++) {
-        vktrace_write_trace_packet(obj->second.ObjectInfo.ShaderModule.pCreatePacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.ShaderModule.pCreatePacket));
+    for (auto obj = stateTracker.createdShaderModules.begin();
+         obj != stateTracker.createdShaderModules.end(); obj++) {
+        VkShaderModule shaderModule = static_cast<VkShaderModule>(obj->first);
+        vktrace_trace_packet_header *pHeader = generate::vkCreateShaderModule(false, 
+            obj->second.belongsToDevice, &obj->second.ObjectInfo.ShaderModule.createInfo,
+            obj->second.ObjectInfo.ShaderModule.pAllocator, &shaderModule);
+        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&pHeader);
     }
 
     // PipelineCache
@@ -2944,6 +2956,23 @@ void write_all_referenced_object_calls() {
         VkDevice device = obj->second.belongsToDevice;
         VkPipelineCache pipelineCache = obj->second.ObjectInfo.Pipeline.pipelineCache;
         vktrace_trace_packet_header *pHeader = nullptr;
+
+        // Create necessary shader modules
+        for (uint32_t moduleIndex = 0; moduleIndex < obj->second.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; moduleIndex++) {
+            VkShaderModule module = (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline)
+                                        ? obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[moduleIndex].module
+                                        : obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo.stage.module;
+
+            if (stateTracker.createdShaderModules.find(module) == stateTracker.createdShaderModules.end()) {
+                // the shader module does not yet exist, so create it specifically for this pipeline
+                vktrace_trace_packet_header *pCreateShaderModule = generate::vkCreateShaderModule(
+                    false, device, &obj->second.ObjectInfo.Pipeline.pShaderModuleCreateInfos[moduleIndex], nullptr, &module);
+                vktrace_write_trace_packet(pCreateShaderModule, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pCreateShaderModule);
+            }
+        }
+
+        // Create appropriate pipeline object
         if (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline) {
             // Sometimes the original RenderPass is deleted, and a new one is
             // created that has the same handle, even if it has different
@@ -2983,6 +3012,20 @@ void write_all_referenced_object_calls() {
                 false, device, pipelineCache, 1, &obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo, nullptr, &pipeline);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
+        }
+
+        // Destroy ShaderModule objects
+        for (uint32_t moduleIndex = 0; moduleIndex < obj->second.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; moduleIndex++) {
+            VkShaderModule module = (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline)
+                                        ? obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[moduleIndex].module
+                                        : obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo.stage.module;
+
+            if (stateTracker.createdShaderModules.find(module) == stateTracker.createdShaderModules.end()) {
+                // the shader module did not previously exist, so delete it.
+                vktrace_trace_packet_header *pDestroyShaderModule = generate::vkDestroyShaderModule(false, device, module, nullptr);
+                vktrace_write_trace_packet(pDestroyShaderModule, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pDestroyShaderModule);
+            }
         }
     }
 
@@ -3216,6 +3259,8 @@ void write_all_referenced_object_calls() {
     }
 
     VKTRACE_DELETE(pSignalSemaphores);
+
+    vktrace_LogDebug("vktrace done recreating objects for trim.");
 }
 
 //=========================================================================
@@ -3590,6 +3635,8 @@ void add_destroy_device_object_packets(VkDevice device) {
 // object to destroy!
 //===============================================
 void write_destroy_packets() {
+    vktrace_LogDebug("vktrace destroying objects after trim.");
+
     vktrace_enter_critical_section(&trimStateTrackerLock);
     // Make sure all queues have completed before trying to delete anything
     for (auto obj = s_trimGlobalStateTracker.createdQueues.begin(); obj != s_trimGlobalStateTracker.createdQueues.end(); obj++) {
@@ -3631,6 +3678,8 @@ void write_destroy_packets() {
         vktrace_delete_trace_packet(&pHeader);
     }
     vktrace_leave_critical_section(&trimStateTrackerLock);
+
+    vktrace_LogDebug("vktrace done destroying objects after trim.");
 }
 
 //=========================================================================

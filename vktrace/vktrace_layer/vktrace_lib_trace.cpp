@@ -2394,6 +2394,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
             info.ObjectInfo.Pipeline.isGraphicsPipeline = true;
             info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
             info.ObjectInfo.Pipeline.renderPassVersion = trim::get_RenderPassVersion(pCreateInfos[i].renderPass);
+            info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount = pCreateInfos[i].stageCount;
+            info.ObjectInfo.Pipeline.pShaderModuleCreateInfos = VKTRACE_NEW_ARRAY(VkShaderModuleCreateInfo, pCreateInfos[i].stageCount);
+
+            for (uint32_t stageIndex = 0; stageIndex < info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; stageIndex++) {
+                trim::ObjectInfo* pShaderModuleInfo = trim::get_ShaderModule_objectInfo(pCreateInfos[i].pStages[stageIndex].module);
+                if (pShaderModuleInfo != nullptr) {
+                    trim::StateTracker::copy_VkShaderModuleCreateInfo(
+                        &info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex],
+                        pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+                }
+            }
 
             trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&info.ObjectInfo.Pipeline.graphicsPipelineCreateInfo,
                                                                   pCreateInfos[i]);
@@ -2468,6 +2479,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             info.belongsToDevice = device;
             info.ObjectInfo.Pipeline.isGraphicsPipeline = false;
             info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+            info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount = 1;
+            info.ObjectInfo.Pipeline.pShaderModuleCreateInfos = VKTRACE_NEW(VkShaderModuleCreateInfo);
+
+            for (uint32_t stageIndex = 0; stageIndex < info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; stageIndex++) {
+                trim::ObjectInfo* pShaderModuleInfo = trim::get_ShaderModule_objectInfo(pCreateInfos[i].stage.module);
+                if (pShaderModuleInfo != nullptr) {
+                    trim::StateTracker::copy_VkShaderModuleCreateInfo(
+                        &info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex],
+                        pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+                }
+            }
 
             trim::StateTracker::copy_VkComputePipelineCreateInfo(&info.ObjectInfo.Pipeline.computePipelineCreateInfo,
                                                                  pCreateInfos[i]);
