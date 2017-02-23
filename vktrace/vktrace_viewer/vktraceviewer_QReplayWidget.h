@@ -43,13 +43,13 @@ class vktraceviewer_QReplayWidget : public QWidget {
 
         m_pPlayButton = new QToolButton(m_pToolBar);
         m_pPlayButton->setText("Play");
-        m_pPlayButton->setEnabled(true);
+        m_pPlayButton->setEnabled(ENABLE_REPLAY);
         m_pToolBar->addWidget(m_pPlayButton);
         connect(m_pPlayButton, SIGNAL(clicked()), this, SLOT(onPlayButtonClicked()));
 
         m_pStepButton = new QToolButton(m_pToolBar);
         m_pStepButton->setText("Step");
-        m_pStepButton->setEnabled(true);
+        m_pStepButton->setEnabled(ENABLE_REPLAY);
         m_pToolBar->addWidget(m_pStepButton);
         connect(m_pStepButton, SIGNAL(clicked()), this, SLOT(onStepButtonClicked()));
 
@@ -73,7 +73,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
 
         m_pDetachCheckBox = new QCheckBox(m_pToolBar);
         m_pDetachCheckBox->setText("Detach");
-        m_pDetachCheckBox->setEnabled(true);
+        m_pDetachCheckBox->setEnabled(ENABLE_REPLAY);
         m_pToolBar->addWidget(m_pDetachCheckBox);
         connect(m_pDetachCheckBox, SIGNAL(clicked(bool)), this, SLOT(onDetachCheckBoxClicked(bool)));
 
