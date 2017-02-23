@@ -110,6 +110,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_VIA "Build via" ON)
     option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
     option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT BUILD_WSI_XCB_SUPPORT)
+        option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
+    else()
+        option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
+    endif()
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
@@ -349,12 +354,6 @@ endif()
 
 if(UNIX)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    if(NOT BUILD_WSI_XCB_SUPPORT)
-        set(BUILD_VKTRACE OFF)
-        if (NOT BUILD_WSI_XLIB_SUPPORT)
-            set(BUILD_LAYERSVT OFF)
-        endif()
-    endif()
 endif()
 
 # loader: Generic VULKAN ICD loader
