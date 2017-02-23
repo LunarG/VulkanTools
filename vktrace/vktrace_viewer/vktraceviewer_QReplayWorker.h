@@ -25,6 +25,9 @@
 #include "vktraceviewer_view.h"
 #include "vkreplay_factory.h"
 
+// Replay from vktraceviewer doesn't work yet. Disable it for now.
+#define ENABLE_REPLAY false
+
 class vktraceviewer_QReplayWorker : public QObject {
     Q_OBJECT
    public:

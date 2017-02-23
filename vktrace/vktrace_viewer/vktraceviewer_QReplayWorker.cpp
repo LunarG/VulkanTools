@@ -199,7 +199,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         return false;
     }
 
-    if (bReplayerLoaded) {
+    if (ENABLE_REPLAY && bReplayerLoaded) {
         m_pActionRunToHere = new QAction("Play to here", NULL);
         connect(m_pActionRunToHere, SIGNAL(triggered()), this, SLOT(onPlayToHere()));
         m_pView->add_calltree_contextmenu_item(m_pActionRunToHere);
