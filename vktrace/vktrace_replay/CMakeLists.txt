@@ -3,18 +3,25 @@ project(vkreplay)
 
 include("${SRC_DIR}/build_options.cmake")
 
+if(WIN32)
+  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
+elseif(UNIX)
+  set (LIBRARIES "${API_LOWERCASE}")
+else()
+endif()
+
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs     VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h)
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-replay-c            VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp)
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    set(OS_REPLAYER_LIBS xcb vulkan)
+    set(OS_REPLAYER_LIBS xcb  ${LIBRARIES})
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
     ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-set(OS_REPLAYER_LIBS  )
+    set(OS_REPLAYER_LIBS ${LIBRARIES})
 endif()
 set(SRC_LIST
     ${SRC_LIST}
