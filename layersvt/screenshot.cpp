@@ -364,18 +364,58 @@ static void writePPM(const char *filename, VkImage image1) {
     // Gather incoming image info and check image format for compatibility with
     // the target format.
     // This function supports both 24-bit and 32-bit swapchain images.
-    VkFormat const target32bitFormat = VK_FORMAT_R8G8B8A8_UNORM;
-    VkFormat const target24bitFormat = VK_FORMAT_R8G8B8_UNORM;
     uint32_t const width = imageMap[image1]->imageExtent.width;
     uint32_t const height = imageMap[image1]->imageExtent.height;
     VkFormat const format = imageMap[image1]->format;
     uint32_t const numChannels = vk_format_get_channel_count(format);
-    if ((vk_format_get_compatibility_class(target24bitFormat) != vk_format_get_compatibility_class(format)) &&
-        (vk_format_get_compatibility_class(target32bitFormat) != vk_format_get_compatibility_class(format))) {
+
+    if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
         return;
     }
-    if ((3 != numChannels) && (4 != numChannels)) {
+
+    // Here we reserve swapchain color space only as RGBA swizzle will be later.
+    //
+    // One Potential optimization here would be: set destination to RGB all the
+    // time instead RGBA. PPM does not support Alpha channel, so we can write
+    // RGB one row by row but RGBA written one pixel at a time.
+    // This requires BLIT operation to get involved but current drivers (mostly)
+    // does not support BLIT operations on 3 Channel rendertargets.
+    // So format conversion gets costly.
+    VkFormat destformat = VK_FORMAT_R8G8B8A8_UNORM;
+    if (numChannels == 4) {
+        if (vk_format_is_unorm(format))
+            destformat = VK_FORMAT_R8G8B8A8_UNORM;
+        else if (vk_format_is_srgb(format))
+            destformat = VK_FORMAT_R8G8B8A8_SRGB;
+        else if (vk_format_is_snorm(format))
+            destformat = VK_FORMAT_R8G8B8A8_SNORM;
+        else if (vk_format_is_uscaled(format))
+            destformat = VK_FORMAT_R8G8B8A8_USCALED;
+        else if (vk_format_is_sscaled(format))
+            destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+        else if (vk_format_is_uint(format))
+            destformat = VK_FORMAT_R8G8B8A8_UINT;
+        else if (vk_format_is_sint(format))
+            destformat = VK_FORMAT_R8G8B8A8_SINT;
+    } else if (numChannels == 3) {
+        if (vk_format_is_unorm(format))
+            destformat = VK_FORMAT_R8G8B8_UNORM;
+        else if (vk_format_is_srgb(format))
+            destformat = VK_FORMAT_R8G8B8_SRGB;
+        else if (vk_format_is_snorm(format))
+            destformat = VK_FORMAT_R8G8B8_SNORM;
+        else if (vk_format_is_uscaled(format))
+            destformat = VK_FORMAT_R8G8B8_USCALED;
+        else if (vk_format_is_sscaled(format))
+            destformat = VK_FORMAT_R8G8B8_SSCALED;
+        else if (vk_format_is_uint(format))
+            destformat = VK_FORMAT_R8G8B8_UINT;
+        else if (vk_format_is_sint(format))
+            destformat = VK_FORMAT_R8G8B8_SINT;
+    }
+
+    if ((vk_format_get_compatibility_class(destformat) != vk_format_get_compatibility_class(format))) {
         assert(0);
         return;
     }
@@ -414,11 +454,10 @@ static void writePPM(const char *filename, VkImage image1) {
     // the same.  In this case, just do a COPY.
 
     VkFormatProperties targetFormatProps;
-    pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, (3 == numChannels) ? target24bitFormat : target32bitFormat,
-                                                      &targetFormatProps);
+    pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, destformat, &targetFormatProps);
     bool need2steps = false;
     bool copyOnly = false;
-    if ((target24bitFormat == format) || (target32bitFormat == format)) {
+    if (destformat == format) {
         copyOnly = true;
     } else {
         bool const bltLinear = targetFormatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT ? true : false;
@@ -450,7 +489,7 @@ static void writePPM(const char *filename, VkImage image1) {
         NULL,
         0,
         VK_IMAGE_TYPE_2D,
-        VK_FORMAT_R8G8B8A8_UNORM,
+        destformat,
         {width, height, 1},
         1,
         1,
