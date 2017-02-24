@@ -105,13 +105,18 @@ endif()
 # Platform specific compile flags.
 if (NOT MSVC)
     add_compiler_flag("-fPIC")
+    add_executable(${PROJECT_NAME} ${SRC_LIST} ${HEADER_LIST}
+        ${QT_GEN_HEADER_MOC_LIST}
+        ${QT_GEN_FORM_HEADER_LIST}
+        ${QT_GEN_RESOURCE_RCC_LIST}
+       )
+else()
+    add_executable(${PROJECT_NAME} WIN32 ${SRC_LIST} ${HEADER_LIST}
+        ${QT_GEN_HEADER_MOC_LIST}
+        ${QT_GEN_FORM_HEADER_LIST}
+        ${QT_GEN_RESOURCE_RCC_LIST}
+       )
 endif()
-
-add_executable(${PROJECT_NAME} ${SRC_LIST} ${HEADER_LIST}
-    ${QT_GEN_HEADER_MOC_LIST}
-    ${QT_GEN_FORM_HEADER_LIST}
-    ${QT_GEN_RESOURCE_RCC_LIST}
-   )
 
 if (TARGET SDL)
     add_dependencies(${PROJECT_NAME} SDL)

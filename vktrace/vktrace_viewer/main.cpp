@@ -24,7 +24,18 @@
 #include "vktraceviewer.h"
 #include "vktraceviewer_settings.h"
 
-int main(int argc, char *argv[]) {
+#if defined(WIN32)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
+#else
+int main(int argc, char *argv[])
+#endif
+{
+
+#if defined(WIN32)
+    int argc=1;
+    char *argv[1];
+    argv[0] = "vktraceviewer";
+#endif
     // Initialize QApplication before initializing settings
     QApplication a(argc, argv);
 
