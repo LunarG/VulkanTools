@@ -99,11 +99,9 @@ void stop();
 
 // Outputs object-related trace packets to the trace file.
 void write_all_referenced_object_calls();
-void add_recorded_packet(vktrace_trace_packet_header *pHeader);
+void write_packet(vktrace_trace_packet_header *pHeader);
 void add_destroy_device_object_packets(VkDevice device);
-void write_recorded_packets();
 void write_destroy_packets();
-void delete_all_packets();
 
 void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo);
 uint32_t get_RenderPassVersion(VkRenderPass renderPass);

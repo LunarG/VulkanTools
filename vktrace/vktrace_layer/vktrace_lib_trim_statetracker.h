@@ -89,6 +89,7 @@ typedef struct _Trim_ObjectInfo {
         struct _SurfaceKHR {  // VkSurfaceKHR
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
+            uint32_t queueFamilyCount;
         } SurfaceKHR;
         struct _Device {  // VkDevice
             vktrace_trace_packet_header *pCreatePacket;
