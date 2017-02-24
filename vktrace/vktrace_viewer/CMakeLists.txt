@@ -3,7 +3,21 @@ cmake_minimum_required(VERSION 3.0)
 
 include("${SRC_DIR}/build_options.cmake")
 
+add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
+
+if(WIN32)
+  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
+elseif(UNIX)
+  set (LIBRARIES "${API_LOWERCASE}")
+else()
+endif()
+
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${SRC_DIR}/cmake/Modules/")
+set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
+
+# Run a codegen script to generate vktrace-specific vulkan utils
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-packet-id VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-core-trace-packets VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h)
 
 # we want cmake to link the Qt libs into the binary
 # This policy was introduced in 2.8.11, so on newer versions, use the OLD policy to maintain consistent behavior
@@ -28,8 +42,6 @@ include_directories(
     ${SRC_DIR}
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/vktrace_replay
-    ${SRC_DIR}/vktrace_extensions/vktracevulkan/vkreplay
-    ${SRC_DIR}/vktrace_extensions/vktracevulkan/vktraceviewer
     ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
@@ -37,6 +49,7 @@ include_directories(
 )
 
 set(SRC_LIST
+    ${SRC_LIST}
     main.cpp
     vktraceviewer.cpp
     vktraceviewer_settings.cpp
@@ -48,14 +61,28 @@ set(SRC_LIST
     vktraceviewer_qtracefileloader.cpp
     vktraceviewer_QReplayWorker.cpp
     vktraceviewer_controller_factory.cpp
+    vktraceviewer_vk.cpp
+    vktraceviewer_vk_settings.cpp
+    vktraceviewer_vk_qcontroller.cpp
+    vktraceviewer_vk_qfile_model.cpp
+    vktraceviewer_vk_qgroupframesproxymodel.cpp
     ${SRC_DIR}/vktrace_replay/vkreplay_seq.cpp
     ${SRC_DIR}/vktrace_replay/vkreplay_factory.cpp
+    ${SRC_DIR}/vktrace_replay/vkreplay.cpp
+    ${SRC_DIR}/vktrace_replay/vkreplay_settings.cpp
+    ${SRC_DIR}/vktrace_replay/vkreplay_vkreplay.cpp
+    ${SRC_DIR}/vktrace_replay/vkreplay_vkdisplay.cpp
+    ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp
    )
 
 # This should only contain headers that define a QOBJECT
 # Typically that means just headers for UI objects
 set(UI_HEADER_LIST
     vktraceviewer.h
+    vktraceviewer_vk_qcontroller.h
+    vktraceviewer_vk_qfile_model.h
+    vktraceviewer_vk_qgroupframesproxymodel.h
+    vktraceviewer_qgroupthreadsproxymodel.h
     vktraceviewer_qgeneratetracedialog.h
     vktraceviewer_qsettingsdialog.h
     vktraceviewer_qtimelineview.h
@@ -71,6 +98,9 @@ set(UI_HEADER_LIST
 set(HEADER_LIST
     vktraceviewer.h
     vktraceviewer_settings.h
+    vktraceviewer_vk_settings.h
+    vktraceviewer_vk_qgroupframesproxymodel.h
+    vktraceviewer_qgroupthreadsproxymodel.h
     vktraceviewer_output.h
     vktraceviewer_controller.h
     vktraceviewer_controller_factory.h
@@ -85,14 +115,30 @@ set(HEADER_LIST
     vktraceviewer_QTraceFileModel.h
     vktraceviewer_trace_file_utils.h
     vktraceviewer_view.h
+    ${SRC_DIR}/vktrace_replay/vkreplay_factory.h
+    ${SRC_DIR}/vktrace_replay/vkreplay.h
+    ${SRC_DIR}/vktrace_replay/vkreplay_settings.h
+    ${SRC_DIR}/vktrace_replay/vkreplay_vkreplay.h
+    ${SRC_DIR}/vktrace_replay/vkreplay_vkdisplay.h
+    ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
+    ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h
+    ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
+    ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h
    )
 
-set(FORM_LIST
-    vktraceviewer.ui
-   )
+set(FORM_LIST vktraceviewer.ui)
 
-set(RESOURCE_LIST
-   )
+set(RESOURCE_LIST)
+
+include_directories(
+    ${GENERATED_FILES_DIR}
+    ${SRC_DIR}/vktrace_common
+    ${SRC_DIR}/vktrace_replay
+    ${SRC_DIR}/thirdparty
+    ${VKTRACE_VULKAN_INCLUDE_DIR}
+    ${Qt5Widgets_INCLUDE_DIRS}
+    ${CMAKE_BINARY_DIR}
+)
 
 QT5_WRAP_CPP(QT_GEN_HEADER_MOC_LIST ${UI_HEADER_LIST})
 QT5_WRAP_UI(QT_GEN_FORM_HEADER_LIST ${FORM_LIST})
@@ -122,15 +168,15 @@ if (TARGET SDL)
     add_dependencies(${PROJECT_NAME} SDL)
 endif ()
 
-add_dependencies(${PROJECT_NAME} generate_helper_files vktraceviewer_vk)
+add_dependencies(${PROJECT_NAME} generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Core
     Qt5::Svg
+    ${VKTRACE_VULKAN_LIB}
+    ${LIBRARIES}
     vktrace_common
-    vulkan_replay
-    vktraceviewer_vk
     ${CMAKE_DL_LIBS}
     ${X11_X11_LIB}
 )
