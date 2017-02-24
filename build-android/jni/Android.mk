@@ -296,10 +296,10 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_common/vktrace_pageguard_memorycop
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_factory.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_main.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_seq.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_settings.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkdisplay.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay/vkreplay_vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_settings.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_vkdisplay.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_vkreplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/common/vulkan_wrapper.cpp
 LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
@@ -310,7 +310,6 @@ LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/vktrace/vktrace_common \
                     $(SRC_DIR)/vktrace/vktrace_layer \
                     $(SRC_DIR)/vktrace/vktrace_replay \
-                    $(SRC_DIR)/vktrace/vktrace_extensions/vktracevulkan/vkreplay \
                     $(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DAPI_LOWERCASE=\"vulkan\" --include=$(SRC_DIR)/common/vulkan_wrapper.h -fexceptions
