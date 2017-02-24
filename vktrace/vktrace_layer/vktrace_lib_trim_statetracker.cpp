@@ -459,8 +459,17 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     }
 
     createdPipelines = other.createdPipelines;
-    for (auto obj = createdPipelines.begin(); obj != createdPipelines.end(); obj++) {
-        VkGraphicsPipelineCreateInfo *pCreateInfo = &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
+    for (auto obj = createdPipelines.begin();
+         obj != createdPipelines.end(); obj++) {
+
+        VkShaderModuleCreateInfo *pShaderModuleCreateInfos = VKTRACE_NEW_ARRAY(VkShaderModuleCreateInfo, obj->second.ObjectInfo.Pipeline.shaderModuleCreateInfoCount);
+        for (uint32_t stageIndex = 0; stageIndex < obj->second.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; stageIndex++) {
+            trim::StateTracker::copy_VkShaderModuleCreateInfo(&pShaderModuleCreateInfos[stageIndex], obj->second.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex]);
+        }
+        obj->second.ObjectInfo.Pipeline.pShaderModuleCreateInfos = pShaderModuleCreateInfos;
+
+        VkGraphicsPipelineCreateInfo *pCreateInfo =
+            &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
 
         // note: Using the same memory as both the destination and the source.
         // We're copying what is currently there, which will properly result in
@@ -1464,6 +1473,7 @@ void StateTracker::remove_Pipeline(const VkPipeline var) {
             delete_VkShaderModuleCreateInfo(&pInfo->ObjectInfo.Pipeline.pShaderModuleCreateInfos[i]);
         }
         VKTRACE_DELETE(pInfo->ObjectInfo.Pipeline.pShaderModuleCreateInfos);
+        pInfo->ObjectInfo.Pipeline.shaderModuleCreateInfoCount = 0;
 
         delete_VkPipelineShaderStageCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
 

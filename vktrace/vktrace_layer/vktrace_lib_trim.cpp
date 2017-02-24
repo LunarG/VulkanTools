@@ -107,17 +107,15 @@ static std::unordered_map<const void *, VkAllocationCallbacks> s_trimAllocatorMa
 static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
 
 //=========================================================================
-// List of all the packets that have been recorded for the frames of interest.
-//=========================================================================
-std::list<vktrace_trace_packet_header *> recorded_packets;
-
-//=========================================================================
 // Start trimming
 //=========================================================================
 void start() {
     g_trimIsPreTrim = false;
     g_trimIsInTrim = true;
     snapshot_state_tracker();
+
+    // This will write packets to recreate all objects (but not command buffers)
+    write_all_referenced_object_calls();
 }
 
 //=========================================================================
@@ -127,17 +125,11 @@ void stop() {
     g_trimIsInTrim = false;
     g_trimIsPostTrim = true;
 
-    // This will write packets to recreate ONLY THE REFERENCED objects.
-    write_all_referenced_object_calls();
-
-    // write the packets that were recorded during the trim frames
-    write_recorded_packets();
-
     // write packets to destroy all created objects
     write_destroy_packets();
 
     // clean up
-    delete_all_packets();
+    s_trimStateTrackerSnapshot.clear();
 
     g_trimAlreadyFinished = true;
 }
@@ -413,8 +405,6 @@ void initialize() {
 
 //=========================================================================
 void deinitialize() {
-    delete_all_packets();
-
     s_trimStateTrackerSnapshot.clear();
     s_trimGlobalStateTracker.clear();
 
@@ -2209,12 +2199,23 @@ ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
         vktrace_leave_critical_section(&trimStateTrackerLock);             \
     }
 
+void mark_CommandBuffer_reference(VkCommandBuffer var) {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        auto iter = s_trimStateTrackerSnapshot.createdCommandBuffers.find(var);
+        if (iter != s_trimStateTrackerSnapshot.createdCommandBuffers.end()) {
+            ObjectInfo *info = &iter->second;
+            if (info != nullptr) {
+                info->bReferencedInTrim = true;
+            }
+        }
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+
 TRIM_MARK_OBJECT_REFERENCE(Instance);
 TRIM_MARK_OBJECT_REFERENCE(PhysicalDevice);
 TRIM_MARK_OBJECT_REFERENCE(Device);
 
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandPool)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandBuffer)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorPool)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSet)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(RenderPass)
@@ -3205,27 +3206,16 @@ void write_all_referenced_object_calls() {
         }
     }
 
-    // write out the packets to recreate the command buffers that were just
-    // allocated
+    // write out the packets to recreate the command buffers that were allocated
     vktrace_enter_critical_section(&trimCommandBufferPacketLock);
     for (auto cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end();
          ++cmdBuffer) {
-        // TODO: need to clean this up somewhere else.
         std::list<vktrace_trace_packet_header *> &packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
 
-        if (cmdBuffer->second.bReferencedInTrim) {
-            // write the packets
-            for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end(); ++packet) {
-                vktrace_trace_packet_header *pHeader = *packet;
-                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pHeader);
-            }
-        } else {
-            // just delete the packets
-            for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end(); ++packet) {
-                vktrace_trace_packet_header *pHeader = *packet;
-                vktrace_delete_trace_packet(&pHeader);
-            }
+        for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end(); ++packet) {
+            vktrace_trace_packet_header *pHeader = *packet;
+            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&pHeader);
         }
         packets.clear();
     }
@@ -3316,20 +3306,9 @@ void reset_DescriptorPool(VkDescriptorPool descriptorPool) {
 //===============================================
 // Packet Recording for frames of interest
 //===============================================
-void add_recorded_packet(vktrace_trace_packet_header *pHeader) {
-    vktrace_enter_critical_section(&trimRecordedPacketLock);
-    recorded_packets.push_back(pHeader);
-    vktrace_leave_critical_section(&trimRecordedPacketLock);
-}
-
-//=========================================================================
-void write_recorded_packets() {
-    vktrace_enter_critical_section(&trimRecordedPacketLock);
-    for (std::list<vktrace_trace_packet_header *>::iterator call = recorded_packets.begin(); call != recorded_packets.end();
-         call++) {
-        vktrace_write_trace_packet(*call, vktrace_trace_get_trace_file());
-    }
-    vktrace_leave_critical_section(&trimRecordedPacketLock);
+void write_packet(vktrace_trace_packet_header *pHeader) {
+    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+    vktrace_delete_trace_packet(&pHeader);
 }
 
 //=============================================================================
@@ -3682,17 +3661,4 @@ void write_destroy_packets() {
     vktrace_LogDebug("vktrace done destroying objects after trim.");
 }
 
-//=========================================================================
-// Delete all the created packets
-//=========================================================================
-void delete_all_packets() {
-    // delete all recorded packets
-    for (std::list<vktrace_trace_packet_header *>::iterator call = recorded_packets.begin(); call != recorded_packets.end();
-         call++) {
-        vktrace_delete_trace_packet(&(*call));
-    }
-    recorded_packets.clear();
-
-    s_trimStateTrackerSnapshot.clear();
-}
 }  // namespace trim
