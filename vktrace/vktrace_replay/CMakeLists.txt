@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(vkreplay)
 
-include("${SRC_DIR}/build_options.cmake")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
 if(WIN32)
   set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
