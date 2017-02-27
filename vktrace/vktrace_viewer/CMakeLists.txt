@@ -13,6 +13,16 @@ elseif(UNIX)
 else()
 endif()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(OS_REPLAYER_LIBS xcb  ${LIBRARIES})
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
+    ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(OS_REPLAYER_LIBS ${LIBRARIES})
+endif()
+
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${SRC_DIR}/cmake/Modules/")
 set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
 
@@ -176,7 +186,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Core
     Qt5::Svg
     ${VKTRACE_VULKAN_LIB}
-    ${LIBRARIES}
+    ${OS_REPLAYER_LIBS}
     vktrace_common
     ${CMAKE_DL_LIBS}
     ${X11_X11_LIB}
