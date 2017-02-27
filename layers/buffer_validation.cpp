@@ -983,7 +983,7 @@ static inline VkExtent3D GetScaledItg(layer_data *device_data, const GLOBAL_CB_N
         granularity =
             GetPhysDevProperties(device_data)->queue_family_properties[pPool->queueFamilyIndex].minImageTransferGranularity;
         if (vk_format_is_compressed(img->createInfo.format)) {
-            auto block_size = vk_format_compressed_block_size(img->createInfo.format);
+            auto block_size = vk_format_compressed_texel_block_extents(img->createInfo.format);
             granularity.width *= block_size.width;
             granularity.height *= block_size.height;
         }
@@ -1392,8 +1392,8 @@ bool PreCallValidateCmdClearAttachments(layer_data *device_data, VkCommandBuffer
         if (!hasDrawCmd(cb_node) && (cb_node->activeRenderPassBeginInfo.renderArea.extent.width == pRects[0].rect.extent.width) &&
             (cb_node->activeRenderPassBeginInfo.renderArea.extent.height == pRects[0].rect.extent.height)) {
             // There are times where app needs to use ClearAttachments (generally when reusing a buffer inside of a render pass)
-            // Can we make this warning more specific? I'd like to avoid triggering this test if we can tell it's a use that must
-            // call CmdClearAttachments. Otherwise this seems more like a performance warning.
+            // This warning should be made more specific. It'd be best to avoid triggering this test if it's a use that must call
+            // CmdClearAttachments.
             skip |=
                 log_msg(report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                         reinterpret_cast<uint64_t &>(commandBuffer), 0, DRAWSTATE_CLEAR_CMD_BEFORE_DRAW, "DS",
@@ -1470,7 +1470,9 @@ bool PreCallValidateCmdClearAttachments(layer_data *device_data, VkCommandBuffer
                 for (uint32_t j = 0; j < rectCount; j++) {
                     // The rectangular region specified by a given element of pRects must be contained within the render area of
                     // the current render pass instance
-                    if (false == ContainsRect(cb_node->activeRenderPassBeginInfo.renderArea, pRects[j].rect)) {
+                    // TODO: This check should be moved to CmdExecuteCommands or QueueSubmit to cover secondary CB cases
+                    if ((cb_node->createInfo.level == VK_COMMAND_BUFFER_LEVEL_PRIMARY) &&
+                        (false == ContainsRect(cb_node->activeRenderPassBeginInfo.renderArea, pRects[j].rect))) {
                         skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
                                         __LINE__, VALIDATION_ERROR_01115, "DS",
                                         "vkCmdClearAttachments(): The area defined by pRects[%d] is not contained in the area of "
@@ -2570,7 +2572,7 @@ bool ValidateBufferImageCopyData(const debug_report_data *report_data, uint32_t 
             //       reserves a place for these compressed image checks.  This block of code could move there once the image
             //       stuff is moved into core validation.
             if (vk_format_is_compressed(image_state->createInfo.format)) {
-                VkExtent2D block_size = vk_format_compressed_block_size(image_state->createInfo.format);
+                VkExtent2D block_size = vk_format_compressed_texel_block_extents(image_state->createInfo.format);
 
                 //  BufferRowLength must be a multiple of block width
                 if (vk_safe_modulo(pRegions[i].bufferRowLength, block_size.width) != 0) {
@@ -2603,12 +2605,12 @@ bool ValidateBufferImageCopyData(const debug_report_data *report_data, uint32_t 
                 }
 
                 // bufferOffset must be a multiple of block size (linear bytes)
-                int block_size_in_bytes = block_size.width * block_size.height;
+                size_t block_size_in_bytes = vk_format_get_size(image_state->createInfo.format);
                 if (vk_safe_modulo(pRegions[i].bufferOffset, block_size_in_bytes) != 0) {
                     skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                                     reinterpret_cast<uint64_t &>(image_state->image), __LINE__, VALIDATION_ERROR_01274, "IMAGE",
                                     "%s(): pRegion[%d] bufferOffset (0x%" PRIxLEAST64 ") must be a multiple of the compressed image's texel block "
-                                    "size (0x%x). %s.",
+                                    "size (" PRINTF_SIZE_T_SPECIFIER "). %s.",
                                     function, i, pRegions[i].bufferOffset, block_size_in_bytes,
                                     validation_error_map[VALIDATION_ERROR_01274]);
                 }
@@ -2629,10 +2631,9 @@ static bool ValidateImageBounds(const debug_report_data *report_data, const VkIm
         VkOffset3D offset = pRegions[i].imageOffset;
         VkExtent3D image_extent = image_info->extent;
 
-        // for compressed images, the image createInfo.extent is in texel blocks
-        // convert to texels here
+        // for compressed images, the image createInfo.extent is in texel blocks convert to texels here
         if (vk_format_is_compressed(image_info->format)) {
-            VkExtent2D texel_block_extent = vk_format_compressed_block_size(image_info->format);
+            VkExtent2D texel_block_extent = vk_format_compressed_texel_block_extents(image_info->format);
             image_extent.width *= texel_block_extent.width;
             image_extent.height *= texel_block_extent.height;
         }
@@ -2685,8 +2686,29 @@ static inline bool ValidtateBufferBounds(const debug_report_data *report_data, I
         VkDeviceSize buffer_height = (0 == pRegions[i].bufferImageHeight ? copy_extent.height : pRegions[i].bufferImageHeight);
         VkDeviceSize unit_size = vk_format_get_size(image_state->createInfo.format);  // size (bytes) of texel or block
 
+        // Handle special buffer packing rules for specific depth/stencil formats
+        if (pRegions[i].imageSubresource.aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT) {
+            unit_size = vk_format_get_size(VK_FORMAT_S8_UINT);
+        } else if (pRegions[i].imageSubresource.aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT) {
+            switch (image_state->createInfo.format) {
+                case VK_FORMAT_D16_UNORM_S8_UINT:
+                    unit_size = vk_format_get_size(VK_FORMAT_D16_UNORM);
+                    break;
+                case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                    unit_size = vk_format_get_size(VK_FORMAT_D32_SFLOAT);
+                    break;
+                case VK_FORMAT_X8_D24_UNORM_PACK32:
+                    // Intentionally fall through
+                case VK_FORMAT_D24_UNORM_S8_UINT:
+                    unit_size = 4;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         if (vk_format_is_compressed(image_state->createInfo.format)) {
-            VkExtent2D texel_block_extent = vk_format_compressed_block_size(image_state->createInfo.format);
+            VkExtent2D texel_block_extent = vk_format_compressed_texel_block_extents(image_state->createInfo.format);
             buffer_width /= texel_block_extent.width;  // switch to texel block units
             buffer_height /= texel_block_extent.height;
             copy_extent.width /= texel_block_extent.width;
@@ -2845,4 +2867,70 @@ void PreCallRecordCmdCopyBufferToImage(layer_data *device_data, GLOBAL_CB_NODE *
     cb_node->validate_functions.push_back(function);
 
     core_validation::UpdateCmdBufferLastCmd(cb_node, CMD_COPYBUFFERTOIMAGE);
+}
+
+bool PreCallValidateGetImageSubresourceLayout(layer_data *device_data, VkImage image, const VkImageSubresource *pSubresource) {
+    const auto report_data = core_validation::GetReportData(device_data);
+    bool skip = false;
+    const VkImageAspectFlags sub_aspect = pSubresource->aspectMask;
+
+    // VU 00733: The aspectMask member of pSubresource must only have a single bit set
+    const int num_bits = sizeof(sub_aspect) * CHAR_BIT;
+    std::bitset<num_bits> aspect_mask_bits(sub_aspect);
+    if (aspect_mask_bits.count() != 1) {
+        skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                        VALIDATION_ERROR_00733, "IMAGE",
+                        "vkGetImageSubresourceLayout(): VkImageSubresource.aspectMask must have exactly 1 bit set. %s",
+                        validation_error_map[VALIDATION_ERROR_00733]);
+    }
+
+    IMAGE_STATE *image_entry = GetImageState(device_data, image);
+    if (!image_entry) {
+        return skip;
+    }
+
+    // VU 00732: image must have been created with tiling equal to VK_IMAGE_TILING_LINEAR
+    if (image_entry->createInfo.tiling != VK_IMAGE_TILING_LINEAR) {
+        skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, (uint64_t)image,
+                        __LINE__, VALIDATION_ERROR_00732, "IMAGE",
+                        "vkGetImageSubresourceLayout(): Image must have tiling of VK_IMAGE_TILING_LINEAR. %s",
+                        validation_error_map[VALIDATION_ERROR_00732]);
+    }
+
+    // VU 00739: mipLevel must be less than the mipLevels specified in VkImageCreateInfo when the image was created
+    if (pSubresource->mipLevel >= image_entry->createInfo.mipLevels) {
+        skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, (uint64_t)image,
+                        __LINE__, VALIDATION_ERROR_00739, "IMAGE",
+                        "vkGetImageSubresourceLayout(): pSubresource.mipLevel (%d) must be less than %d. %s",
+                        pSubresource->mipLevel, image_entry->createInfo.mipLevels, validation_error_map[VALIDATION_ERROR_00739]);
+    }
+
+    // VU 00740: arrayLayer must be less than the arrayLayers specified in VkImageCreateInfo when the image was created
+    if (pSubresource->arrayLayer >= image_entry->createInfo.arrayLayers) {
+        skip |= log_msg(
+            report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, (uint64_t)image, __LINE__,
+            VALIDATION_ERROR_00740, "IMAGE", "vkGetImageSubresourceLayout(): pSubresource.arrayLayer (%d) must be less than %d. %s",
+            pSubresource->arrayLayer, image_entry->createInfo.arrayLayers, validation_error_map[VALIDATION_ERROR_00740]);
+    }
+
+    // VU 00741: subresource's aspect must be compatible with image's format.
+    const VkFormat img_format = image_entry->createInfo.format;
+    if (vk_format_is_color(img_format)) {
+        if (sub_aspect != VK_IMAGE_ASPECT_COLOR_BIT) {
+            skip |= log_msg(
+                report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, (uint64_t)image, __LINE__,
+                VALIDATION_ERROR_00741, "IMAGE",
+                "vkGetImageSubresourceLayout(): For color formats, VkImageSubresource.aspectMask must be VK_IMAGE_ASPECT_COLOR. %s",
+                validation_error_map[VALIDATION_ERROR_00741]);
+        }
+    } else if (vk_format_is_depth_or_stencil(img_format)) {
+        if ((sub_aspect != VK_IMAGE_ASPECT_DEPTH_BIT) && (sub_aspect != VK_IMAGE_ASPECT_STENCIL_BIT)) {
+            skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, (uint64_t)image,
+                            __LINE__, VALIDATION_ERROR_00741, "IMAGE",
+                            "vkGetImageSubresourceLayout(): For depth/stencil formats, VkImageSubresource.aspectMask must be "
+                            "either VK_IMAGE_ASPECT_DEPTH_BIT or VK_IMAGE_ASPECT_STENCIL_BIT. %s",
+                            validation_error_map[VALIDATION_ERROR_00741]);
+        }
+    }
+    return skip;
 }

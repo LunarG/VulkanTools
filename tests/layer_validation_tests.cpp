@@ -2408,6 +2408,45 @@ TEST_F(VkLayerTest, CreateUnknownObject) {
     m_errorMonitor->VerifyFound();
 }
 
+TEST_F(VkLayerTest, UseObjectWithWrongDevice) {
+    TEST_DESCRIPTION(
+        "Try to destroy a render pass object using a device other than the one it was created on. "
+        "This should generate a distinct error from the invalid handle error.");
+    // Create first device and renderpass
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    // Create second device
+    float priorities[] = {1.0f};
+    VkDeviceQueueCreateInfo queue_info{};
+    queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_info.pNext = NULL;
+    queue_info.flags = 0;
+    queue_info.queueFamilyIndex = 0;
+    queue_info.queueCount = 1;
+    queue_info.pQueuePriorities = &priorities[0];
+
+    VkDeviceCreateInfo device_create_info = {};
+    auto features = m_device->phy().features();
+    device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    device_create_info.pNext = NULL;
+    device_create_info.queueCreateInfoCount = 1;
+    device_create_info.pQueueCreateInfos = &queue_info;
+    device_create_info.enabledLayerCount = 0;
+    device_create_info.ppEnabledLayerNames = NULL;
+    device_create_info.pEnabledFeatures = &features;
+
+    VkDevice second_device;
+    ASSERT_VK_SUCCESS(vkCreateDevice(gpu(), &device_create_info, NULL, &second_device));
+
+    // Try to destroy the renderpass from the first device using the second device
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00399);
+    vkDestroyRenderPass(second_device, m_renderPass, NULL);
+    m_errorMonitor->VerifyFound();
+
+    vkDestroyDevice(second_device, NULL);
+}
+
 TEST_F(VkLayerTest, PipelineNotBound) {
     VkResult err;
 
@@ -9069,8 +9108,6 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     // Now test stencil-only
     vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), VK_FORMAT_S8_UINT, &format_props);
     if (format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                             "Stencil-only image formats must have the VK_IMAGE_ASPECT_STENCIL_BIT set.");
         VkDepthStencilObj s_image(m_device);
         s_image.Init(m_device, 128, 128, VK_FORMAT_S8_UINT);
         ASSERT_TRUE(s_image.initialized());
@@ -9078,6 +9115,8 @@ TEST_F(VkLayerTest, InvalidBarriers) {
         img_barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
         img_barrier.image = s_image.handle();
         // Use of COLOR aspect on depth image is error
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             "Stencil-only image formats must have the VK_IMAGE_ASPECT_STENCIL_BIT set.");
         img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         vkCmdPipelineBarrier(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0,
                              0, nullptr, 0, nullptr, 1, &img_barrier);
@@ -15918,6 +15957,11 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
     VkImageObj image_64k(m_device);        // 128^2 texels, 64k
     VkImageObj image_16k(m_device);        // 64^2 texels, 16k
     VkImageObj image_16k_depth(m_device);  // 64^2 texels, depth, 16k
+    VkImageObj ds_image_4D_1S(m_device);   // 256^2 texels, 512kb (256k depth, 64k stencil, 192k pack)
+    VkImageObj ds_image_3D_1S(m_device);   // 256^2 texels, 256kb (192k depth, 64k stencil)
+    VkImageObj ds_image_2D(m_device);      // 256^2 texels, 128k (128k depth)
+    VkImageObj ds_image_1S(m_device);      // 256^2 texels, 64k (64k stencil)
+
     image_64k.init(128, 128, VK_FORMAT_R8G8B8A8_UINT,
                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
@@ -15930,10 +15974,51 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
     ASSERT_TRUE(image_16k.initialized());
     ASSERT_TRUE(image_16k_depth.initialized());
 
-    vk_testing::Buffer buffer_64k, buffer_16k;
+    // Verify all needed Depth/Stencil formats are supported
+    bool missing_ds_support = false;
+    VkFormatProperties props = {0, 0, 0};
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), VK_FORMAT_D32_SFLOAT_S8_UINT, &props);
+    missing_ds_support |= (props.bufferFeatures == 0 && props.linearTilingFeatures == 0 && props.optimalTilingFeatures == 0);
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), VK_FORMAT_D24_UNORM_S8_UINT, &props);
+    missing_ds_support |= (props.bufferFeatures == 0 && props.linearTilingFeatures == 0 && props.optimalTilingFeatures == 0);
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), VK_FORMAT_D16_UNORM, &props);
+    missing_ds_support |= (props.bufferFeatures == 0 && props.linearTilingFeatures == 0 && props.optimalTilingFeatures == 0);
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), VK_FORMAT_S8_UINT, &props);
+    missing_ds_support |= (props.bufferFeatures == 0 && props.linearTilingFeatures == 0 && props.optimalTilingFeatures == 0);
+
+    if (!missing_ds_support) {
+        ds_image_4D_1S.init(
+            256, 256, VK_FORMAT_D32_SFLOAT_S8_UINT,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_IMAGE_TILING_OPTIMAL, 0);
+        ASSERT_TRUE(ds_image_4D_1S.initialized());
+
+        ds_image_3D_1S.init(
+            256, 256, VK_FORMAT_D24_UNORM_S8_UINT,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_IMAGE_TILING_OPTIMAL, 0);
+        ASSERT_TRUE(ds_image_3D_1S.initialized());
+
+        ds_image_2D.init(
+            256, 256, VK_FORMAT_D16_UNORM,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_IMAGE_TILING_OPTIMAL, 0);
+        ASSERT_TRUE(ds_image_2D.initialized());
+
+        ds_image_1S.init(
+            256, 256, VK_FORMAT_S8_UINT,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_IMAGE_TILING_OPTIMAL, 0);
+        ASSERT_TRUE(ds_image_1S.initialized());
+    }
+
+    // Allocate buffers
+    vk_testing::Buffer buffer_256k, buffer_128k, buffer_64k, buffer_16k;
     VkMemoryPropertyFlags reqs = 0;
-    buffer_64k.init_as_src_and_dst(*m_device, 128 * 128 * 4, reqs);  // 64k
-    buffer_16k.init_as_src_and_dst(*m_device, 64 * 64 * 4, reqs);    // 16k
+    buffer_256k.init_as_src_and_dst(*m_device, 262144, reqs);  // 256k
+    buffer_128k.init_as_src_and_dst(*m_device, 131072, reqs);  // 128k
+    buffer_64k.init_as_src_and_dst(*m_device, 65536, reqs);    // 64k
+    buffer_16k.init_as_src_and_dst(*m_device, 16384, reqs);    // 16k
 
     VkBufferImageCopy region = {};
     region.bufferRowLength = 0;
@@ -16048,11 +16133,105 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
                            buffer_16k.handle(), 1, &region);
     m_errorMonitor->VerifyFound();
 
+    // Test Depth/Stencil copies
+    if (missing_ds_support) {
+        printf("             Depth / Stencil formats unsupported - skipping D/S tests.\n");
+    } else {
+        VkBufferImageCopy ds_region = {};
+        ds_region.bufferOffset = 0;
+        ds_region.bufferRowLength = 0;
+        ds_region.bufferImageHeight = 0;
+        ds_region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        ds_region.imageSubresource.mipLevel = 0;
+        ds_region.imageSubresource.baseArrayLayer = 0;
+        ds_region.imageSubresource.layerCount = 1;
+        ds_region.imageOffset = {0, 0, 0};
+        ds_region.imageExtent = {256, 256, 1};
+
+        // Depth copies that should succeed
+        m_errorMonitor->ExpectSuccess();  // Extract 4b depth per texel, pack into 256k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_4D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_256k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyNotFound();
+
+        m_errorMonitor->ExpectSuccess();  // Extract 3b depth per texel, pack (loose) into 256k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_3D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_256k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyNotFound();
+
+        m_errorMonitor->ExpectSuccess();  // Copy 2b depth per texel, into 128k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_2D.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_128k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyNotFound();
+
+        // Depth copies that should fail
+        ds_region.bufferOffset = 4;
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VALIDATION_ERROR_01246);  // Extract 4b depth per texel, pack into 256k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_4D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_256k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyFound();
+
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VALIDATION_ERROR_01246);  // Extract 3b depth per texel, pack (loose) into 256k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_3D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_256k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyFound();
+
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VALIDATION_ERROR_01246);  // Copy 2b depth per texel, into 128k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_2D.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_128k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyFound();
+
+        // Stencil copies that should succeed
+        ds_region.bufferOffset = 0;
+        ds_region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+        m_errorMonitor->ExpectSuccess();  // Extract 1b stencil per texel, pack into 64k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_4D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_64k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyNotFound();
+
+        m_errorMonitor->ExpectSuccess();  // Extract 1b stencil per texel, pack into 64k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_3D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_64k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyNotFound();
+
+        m_errorMonitor->ExpectSuccess();  // Copy 1b depth per texel, into 64k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_64k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyNotFound();
+
+        // Stencil copies that should fail
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VALIDATION_ERROR_01246);  // Extract 1b stencil per texel, pack into 64k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_4D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_16k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyFound();
+
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VALIDATION_ERROR_01246);  // Extract 1b stencil per texel, pack into 64k buffer
+        ds_region.bufferRowLength = 260;
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_3D_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_64k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyFound();
+
+        ds_region.bufferRowLength = 0;
+        ds_region.bufferOffset = 4;
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             VALIDATION_ERROR_01246);  // Copy 1b depth per texel, into 64k buffer
+        vkCmdCopyImageToBuffer(m_commandBuffer->GetBufferHandle(), ds_image_1S.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer_64k.handle(), 1, &ds_region);
+        m_errorMonitor->VerifyFound();
+    }
+
     // Test compressed formats, if supported
     VkPhysicalDeviceFeatures device_features;
     ASSERT_NO_FATAL_FAILURE(GetPhysicalDeviceFeatures(&device_features));
-    if (device_features.textureCompressionBC || device_features.textureCompressionETC2 ||
-        device_features.textureCompressionASTC_LDR) {
+    if (!(device_features.textureCompressionBC || device_features.textureCompressionETC2 ||
+          device_features.textureCompressionASTC_LDR)) {
+        printf("             No compressed formats supported - block compression tests skipped.\n");
+    } else {
         VkImageObj image_16k_4x4comp(m_device);  // 128^2 texels as 32^2 compressed (4x4) blocks, 16k
         if (device_features.textureCompressionBC) {
             image_16k_4x4comp.init(32, 32, VK_FORMAT_BC5_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
@@ -17556,6 +17735,42 @@ TEST_F(VkWsiEnabledLayerTest, TestEnabledWsi) {
 //
 // These tests do not expect to encounter ANY validation errors pass only if this is true
 
+TEST_F(VkPositiveLayerTest, SecondaryCommandBufferClearColorAttachments) {
+    TEST_DESCRIPTION("Create a secondary command buffer and record a CmdClearAttachments call into it");
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
+    command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    command_buffer_allocate_info.commandPool = m_commandPool;
+    command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+    command_buffer_allocate_info.commandBufferCount = 1;
+
+    VkCommandBuffer secondary_command_buffer;
+    ASSERT_VK_SUCCESS(vkAllocateCommandBuffers(m_device->device(), &command_buffer_allocate_info, &secondary_command_buffer));
+    VkCommandBufferBeginInfo command_buffer_begin_info = {};
+    VkCommandBufferInheritanceInfo command_buffer_inheritance_info = {};
+    command_buffer_inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    command_buffer_inheritance_info.renderPass = m_renderPass;
+    command_buffer_inheritance_info.framebuffer = m_framebuffer;
+
+    command_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    command_buffer_begin_info.flags =
+        VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+    command_buffer_begin_info.pInheritanceInfo = &command_buffer_inheritance_info;
+
+    vkBeginCommandBuffer(secondary_command_buffer, &command_buffer_begin_info);
+    VkClearAttachment color_attachment;
+    color_attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    color_attachment.clearValue.color.float32[0] = 0;
+    color_attachment.clearValue.color.float32[1] = 0;
+    color_attachment.clearValue.color.float32[2] = 0;
+    color_attachment.clearValue.color.float32[3] = 0;
+    color_attachment.colorAttachment = 0;
+    VkClearRect clear_rect = {{{0, 0}, {32, 32}}};
+    vkCmdClearAttachments(secondary_command_buffer, 1, &color_attachment, 1, &clear_rect);
+}
+
 TEST_F(VkPositiveLayerTest, SecondaryCommandBufferImageLayoutTransitions) {
     TEST_DESCRIPTION(
         "Perform an image layout transition in a secondary command buffer followed "
@@ -18272,7 +18487,7 @@ TEST_F(VkPositiveLayerTest, TestAliasedMemoryTracking) {
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     alloc_info.pNext = NULL;
     alloc_info.memoryTypeIndex = 0;
-
+    
     // Ensure memory is big enough for both bindings
     alloc_info.allocationSize = 0x10000;
 
