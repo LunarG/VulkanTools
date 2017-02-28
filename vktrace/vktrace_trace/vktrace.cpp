@@ -330,7 +330,7 @@ int main(int argc, char* argv[]) {
             vktrace_set_global_var("VK_SCREENSHOT_FORMAT", g_settings.screenshotColorFormat);
             vktrace_free((char*)g_settings.screenshotColorFormat);
         }else if (g_settings.screenshotColorFormat != NULL && g_settings.screenshotList == NULL) {
-            vktrace_LogError("Screenshot format should be used when screenshot enabled!");
+            vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
             vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
             vktrace_free((char*)g_settings.screenshotColorFormat);
         } else {
