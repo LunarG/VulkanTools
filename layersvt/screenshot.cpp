@@ -83,6 +83,7 @@ static inline void local_free_getenv(const char *val) {}
 
 const char *env_var_old = "_VK_SCREENSHOT";
 const char *env_var = "VK_SCREENSHOT_FRAMES";
+const char *env_var_format = "VK_SCREENSHOT_FORMAT";
 
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
@@ -92,6 +93,7 @@ static inline void local_free_getenv(const char *val) {}
 
 const char *env_var_old = "_VK_SCREENSHOT";
 const char *env_var = "VK_SCREENSHOT_FRAMES";
+const char *env_var_format = "VK_SCREENSHOT_FORMAT";
 
 static inline char *local_getenv(const char *name) {
     char *retVal;
@@ -374,45 +376,102 @@ static void writePPM(const char *filename, VkImage image1) {
         return;
     }
 
-    // Here we reserve swapchain color space only as RGBA swizzle will be later.
-    //
-    // One Potential optimization here would be: set destination to RGB all the
-    // time instead RGBA. PPM does not support Alpha channel, so we can write
-    // RGB one row by row but RGBA written one pixel at a time.
-    // This requires BLIT operation to get involved but current drivers (mostly)
-    // does not support BLIT operations on 3 Channel rendertargets.
-    // So format conversion gets costly.
-    VkFormat destformat = VK_FORMAT_R8G8B8A8_UNORM;
-    if (numChannels == 4) {
-        if (vk_format_is_unorm(format))
+    // Initial dest format is undefined as we will look for one
+    VkFormat destformat = VK_FORMAT_UNDEFINED;
+
+    //Get users request is specific color space format required
+    const char *vk_screenshot_format = local_getenv(env_var_format);
+    if (vk_screenshot_format && *vk_screenshot_format) {
+        if (!strcmp(vk_screenshot_format, "UNORM")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_UNORM;
+           else
+                destformat = VK_FORMAT_R8G8B8_UNORM;
+        } else if (!strcmp(vk_screenshot_format, "SRGB")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_SRGB;
+            else
+                destformat = VK_FORMAT_R8G8B8_SRGB;
+        } else if (!strcmp(vk_screenshot_format, "SNORM")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_SNORM;
+            else
+                destformat = VK_FORMAT_R8G8B8_SNORM;
+        } else if (!strcmp(vk_screenshot_format, "USCALED")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_USCALED;
+            else
+                destformat = VK_FORMAT_R8G8B8_USCALED;
+        } else if (!strcmp(vk_screenshot_format, "SSCALED")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+            else
+                destformat = VK_FORMAT_R8G8B8_SSCALED;
+        } else if (!strcmp(vk_screenshot_format, "UINT")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_UINT;
+            else
+                destformat = VK_FORMAT_R8G8B8_UINT;
+        } else if (!strcmp(vk_screenshot_format, "SINT")) {
+            if (numChannels == 4)
+                destformat = VK_FORMAT_R8G8B8A8_SINT;
+            else
+                destformat = VK_FORMAT_R8G8B8_SINT;
+        }
+    }
+    local_free_getenv(vk_screenshot_format);
+
+    // User did not require sepecific format so we use same colorspace with
+    // swapchain format
+    if (destformat == VK_FORMAT_UNDEFINED) {
+        // Here we reserve swapchain color space only as RGBA swizzle will be later.
+        //
+        // One Potential optimization here would be: set destination to RGB all the
+        // time instead RGBA. PPM does not support Alpha channel, so we can write
+        // RGB one row by row but RGBA written one pixel at a time.
+        // This requires BLIT operation to get involved but current drivers (mostly)
+        // does not support BLIT operations on 3 Channel rendertargets.
+        // So format conversion gets costly.
+        if (numChannels == 4) {
+            if (vk_format_is_unorm(format))
+                destformat = VK_FORMAT_R8G8B8A8_UNORM;
+            else if (vk_format_is_srgb(format))
+                destformat = VK_FORMAT_R8G8B8A8_SRGB;
+            else if (vk_format_is_snorm(format))
+                destformat = VK_FORMAT_R8G8B8A8_SNORM;
+            else if (vk_format_is_uscaled(format))
+                destformat = VK_FORMAT_R8G8B8A8_USCALED;
+            else if (vk_format_is_sscaled(format))
+                destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+            else if (vk_format_is_uint(format))
+                destformat = VK_FORMAT_R8G8B8A8_UINT;
+            else if (vk_format_is_sint(format))
+                destformat = VK_FORMAT_R8G8B8A8_SINT;
+        } else { //numChannels 3
+            if (vk_format_is_unorm(format))
+                destformat = VK_FORMAT_R8G8B8_UNORM;
+            else if (vk_format_is_srgb(format))
+                destformat = VK_FORMAT_R8G8B8_SRGB;
+            else if (vk_format_is_snorm(format))
+                destformat = VK_FORMAT_R8G8B8_SNORM;
+            else if (vk_format_is_uscaled(format))
+                destformat = VK_FORMAT_R8G8B8_USCALED;
+            else if (vk_format_is_sscaled(format))
+                destformat = VK_FORMAT_R8G8B8_SSCALED;
+            else if (vk_format_is_uint(format))
+                destformat = VK_FORMAT_R8G8B8_UINT;
+            else if (vk_format_is_sint(format))
+                destformat = VK_FORMAT_R8G8B8_SINT;
+        }
+    }
+
+    //Still could not find the right format then we use UNORM
+    if (destformat == VK_FORMAT_UNDEFINED)
+    {
+        if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
-        else if (vk_format_is_srgb(format))
-            destformat = VK_FORMAT_R8G8B8A8_SRGB;
-        else if (vk_format_is_snorm(format))
-            destformat = VK_FORMAT_R8G8B8A8_SNORM;
-        else if (vk_format_is_uscaled(format))
-            destformat = VK_FORMAT_R8G8B8A8_USCALED;
-        else if (vk_format_is_sscaled(format))
-            destformat = VK_FORMAT_R8G8B8A8_SSCALED;
-        else if (vk_format_is_uint(format))
-            destformat = VK_FORMAT_R8G8B8A8_UINT;
-        else if (vk_format_is_sint(format))
-            destformat = VK_FORMAT_R8G8B8A8_SINT;
-    } else if (numChannels == 3) {
-        if (vk_format_is_unorm(format))
+        else
             destformat = VK_FORMAT_R8G8B8_UNORM;
-        else if (vk_format_is_srgb(format))
-            destformat = VK_FORMAT_R8G8B8_SRGB;
-        else if (vk_format_is_snorm(format))
-            destformat = VK_FORMAT_R8G8B8_SNORM;
-        else if (vk_format_is_uscaled(format))
-            destformat = VK_FORMAT_R8G8B8_USCALED;
-        else if (vk_format_is_sscaled(format))
-            destformat = VK_FORMAT_R8G8B8_SSCALED;
-        else if (vk_format_is_uint(format))
-            destformat = VK_FORMAT_R8G8B8_UINT;
-        else if (vk_format_is_sint(format))
-            destformat = VK_FORMAT_R8G8B8_SINT;
     }
 
     if ((vk_format_get_compatibility_class(destformat) != vk_format_get_compatibility_class(format))) {
