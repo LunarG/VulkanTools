@@ -417,6 +417,12 @@ static void writePPM(const char *filename, VkImage image1) {
                 destformat = VK_FORMAT_R8G8B8A8_SINT;
             else
                 destformat = VK_FORMAT_R8G8B8_SINT;
+        } else {
+#ifdef ANDROID
+#else
+            fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                            "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
+#endif
         }
     }
     local_free_getenv(vk_screenshot_format);
@@ -468,6 +474,11 @@ static void writePPM(const char *filename, VkImage image1) {
     //Still could not find the right format then we use UNORM
     if (destformat == VK_FORMAT_UNDEFINED)
     {
+#ifdef ANDROID
+#else
+        fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                        "UNORM colorspace will be used instead\n");
+#endif
         if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
         else
@@ -808,6 +819,8 @@ static void writePPM(const char *filename, VkImage image1) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_DEBUG, "screenshot",
                             "Failed to open output file: %s.  Be sure to grant read and write permissions.", filename);
+#else
+        fprintf(stderr, "Failed to open output file:%s,  Be sure to grant read and write permissions\n", filename);
 #endif
         return;
     }
@@ -1127,6 +1140,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             fileName = base + ".ppm";
 #else
             fileName = to_string(frameNumber) + ".ppm";
+            printf("Screen Capture file is: %s \n", fileName.c_str());
 #endif
 
             VkImage image;
