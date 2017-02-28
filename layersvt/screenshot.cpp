@@ -120,8 +120,20 @@ static loader_platform_thread_mutex globalLock;
 
 const char *vk_screenshot_format = nullptr;
 
-bool printFormatWarning1 = true;
-bool printFormatWarning2 = true;
+bool printFormatWarning = true;
+
+typedef enum colorSpaceFormat {
+    UNDEFINED = 0,
+    UNORM = 1,
+    SNORM = 2,
+    USCALED = 3,
+    SSCALED = 4,
+    UINT = 5,
+    SINT = 6,
+    SRGB = 7
+} colorSpaceFormat;
+
+colorSpaceFormat userColorSpaceFormat = UNDEFINED;
 
 // unordered map: associates a swap chain with a device, image extent, format,
 // and list of images
@@ -214,6 +226,29 @@ void readScreenShotFormatENV(void) {
 #ifndef ANDROID
     vk_screenshot_format = local_getenv(env_var_format);
 #endif
+    if (vk_screenshot_format && *vk_screenshot_format) {
+        if (!strcmp(vk_screenshot_format, "UNORM")) {
+            userColorSpaceFormat = UNORM;
+        } else if (!strcmp(vk_screenshot_format, "SRGB")) {
+            userColorSpaceFormat = SRGB;
+        } else if (!strcmp(vk_screenshot_format, "SNORM")) {
+            userColorSpaceFormat = SNORM;
+        } else if (!strcmp(vk_screenshot_format, "USCALED")) {
+            userColorSpaceFormat = USCALED;
+        } else if (!strcmp(vk_screenshot_format, "SSCALED")) {
+            userColorSpaceFormat = SSCALED;
+        } else if (!strcmp(vk_screenshot_format, "UINT")) {
+            userColorSpaceFormat = UINT;
+        } else if (!strcmp(vk_screenshot_format, "SINT")) {
+            userColorSpaceFormat = SINT;
+        } else {
+#ifdef ANDROID
+#else
+            fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                            "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
+#endif
+        }
+    }
 }
 
 // detect if frameNumber reach or beyond the right edge for screenshot in the range.
@@ -390,51 +425,53 @@ static void writePPM(const char *filename, VkImage image1) {
     VkFormat destformat = VK_FORMAT_UNDEFINED;
 
     //This variable set by readScreenShotFormatENV func during init
-    if (vk_screenshot_format && *vk_screenshot_format) {
-        if (!strcmp(vk_screenshot_format, "UNORM")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_UNORM;
-           else
-                destformat = VK_FORMAT_R8G8B8_UNORM;
-        } else if (!strcmp(vk_screenshot_format, "SRGB")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_SRGB;
-            else
-                destformat = VK_FORMAT_R8G8B8_SRGB;
-        } else if (!strcmp(vk_screenshot_format, "SNORM")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_SNORM;
-            else
-                destformat = VK_FORMAT_R8G8B8_SNORM;
-        } else if (!strcmp(vk_screenshot_format, "USCALED")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_USCALED;
-            else
-                destformat = VK_FORMAT_R8G8B8_USCALED;
-        } else if (!strcmp(vk_screenshot_format, "SSCALED")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_SSCALED;
-            else
-                destformat = VK_FORMAT_R8G8B8_SSCALED;
-        } else if (!strcmp(vk_screenshot_format, "UINT")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_UINT;
-            else
-                destformat = VK_FORMAT_R8G8B8_UINT;
-        } else if (!strcmp(vk_screenshot_format, "SINT")) {
-            if (numChannels == 4)
-                destformat = VK_FORMAT_R8G8B8A8_SINT;
-            else
-                destformat = VK_FORMAT_R8G8B8_SINT;
-        } else {
-#ifdef ANDROID
-#else
-            if (printFormatWarning1) {
-                fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
-                                "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
-                printFormatWarning1 = false;
-            }
-#endif
+    if (userColorSpaceFormat != UNDEFINED) {
+        switch (userColorSpaceFormat) {
+            case UNORM:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_UNORM;
+                else
+                    destformat = VK_FORMAT_R8G8B8_UNORM;
+                break;
+            case SRGB:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SRGB;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SRGB;
+                break;
+            case SNORM:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SNORM;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SNORM;
+                break;
+            case USCALED:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_USCALED;
+                else
+                    destformat = VK_FORMAT_R8G8B8_USCALED;
+                break;
+            case SSCALED:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SSCALED;
+                break;
+            case UINT:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_UINT;
+                else
+                    destformat = VK_FORMAT_R8G8B8_UINT;
+                break;
+            case SINT:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SINT;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SINT;
+                break;
+            default:
+                destformat = VK_FORMAT_UNDEFINED;
+                break;
         }
     }
 
@@ -487,10 +524,10 @@ static void writePPM(const char *filename, VkImage image1) {
     {
 #ifdef ANDROID
 #else
-        if (printFormatWarning2) {
+        if (printFormatWarning) {
             fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                             "UNORM colorspace will be used instead\n");
-            printFormatWarning2 = false;
+            printFormatWarning = false;
         }
 #endif
         if (numChannels == 4)
