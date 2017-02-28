@@ -121,6 +121,8 @@ namespace screenshot {
 static int globalLockInitialized = 0;
 static loader_platform_thread_mutex globalLock;
 
+const char *vk_screenshot_format = nullptr;
+
 // unordered map: associates a swap chain with a device, image extent, format,
 // and list of images
 typedef struct {
@@ -205,6 +207,11 @@ static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, b
         *pScreenShotFrame = screenShotFrame;
     }
     return inRange;
+}
+
+//Get users request is specific color space format required
+void readScreenShotFormatENV(void) {
+    vk_screenshot_format = local_getenv(env_var_format);
 }
 
 // detect if frameNumber reach or beyond the right edge for screenshot in the range.
@@ -297,6 +304,7 @@ static void init_screenshot() {
         loader_platform_thread_create_mutex(&globalLock);
         globalLockInitialized = 1;
     }
+    readScreenShotFormatENV();
 }
 
 // Track allocated resources in writePPM()
@@ -379,8 +387,7 @@ static void writePPM(const char *filename, VkImage image1) {
     // Initial dest format is undefined as we will look for one
     VkFormat destformat = VK_FORMAT_UNDEFINED;
 
-    //Get users request is specific color space format required
-    const char *vk_screenshot_format = local_getenv(env_var_format);
+    //This variable set by readScreenShotFormatENV func during init
     if (vk_screenshot_format && *vk_screenshot_format) {
         if (!strcmp(vk_screenshot_format, "UNORM")) {
             if (numChannels == 4)
@@ -425,7 +432,6 @@ static void writePPM(const char *filename, VkImage image1) {
 #endif
         }
     }
-    local_free_getenv(vk_screenshot_format);
 
     // User did not require sepecific format so we use same colorspace with
     // swapchain format
@@ -961,6 +967,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
     pDisp->DestroyDevice(device, pAllocator);
 
+    local_free_getenv(vk_screenshot_format);
     loader_platform_thread_lock_mutex(&globalLock);
     delete pDisp;
     delete devMap;
