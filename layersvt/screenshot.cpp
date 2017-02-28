@@ -52,7 +52,13 @@ using namespace std;
 static char android_env[64] = {};
 const char *env_var = "debug.vulkan.screenshot";
 const char *env_var_old = env_var;
+#else  //Linux or Windows
+const char *env_var_old = "_VK_SCREENSHOT";
+const char *env_var = "VK_SCREENSHOT_FRAMES";
+const char *env_var_format = "VK_SCREENSHOT_FORMAT";
+#endif
 
+#ifdef ANDROID
 char *android_exec(const char *cmd) {
     FILE *pipe = popen(cmd, "r");
     if (pipe != nullptr) {
@@ -80,20 +86,11 @@ static inline char *local_getenv(const char *name) { return android_getenv(name)
 static inline void local_free_getenv(const char *val) {}
 
 #elif defined(__linux__)
-
-const char *env_var_old = "_VK_SCREENSHOT";
-const char *env_var = "VK_SCREENSHOT_FRAMES";
-const char *env_var_format = "VK_SCREENSHOT_FORMAT";
-
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}
 
 #elif defined(_WIN32)
-
-const char *env_var_old = "_VK_SCREENSHOT";
-const char *env_var = "VK_SCREENSHOT_FRAMES";
-const char *env_var_format = "VK_SCREENSHOT_FORMAT";
 
 static inline char *local_getenv(const char *name) {
     char *retVal;
