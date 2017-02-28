@@ -26,7 +26,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -71,6 +71,13 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.screenshotList},
      TRUE,
      "Comma separated list of frames to take a take snapshots of"},
+    {"sf",
+     "ScreenshotFormat",
+     VKTRACE_SETTING_STRING,
+     {&g_vkReplaySettings.screenshotColorFormat},
+     {&s_defaultVkReplaySettings.screenshotColorFormat},
+     TRUE,
+     "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
 };
 
 vktrace_SettingGroup g_vkReplaySettingGroup = {"vkreplay_vk", sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),

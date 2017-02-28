@@ -39,7 +39,7 @@
 #include "vkreplay_window.h"
 #include "screenshot_parsing.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
@@ -87,6 +87,13 @@ vktrace_SettingInfo g_settings_info[] = {
                                          comma separated list of frames\n\
                                          <start>-<count>-<interval>\n\
                                          \"all\""},
+    {"sf",
+     "ScreenshotFormat",
+     VKTRACE_SETTING_STRING,
+     {&replaySettings.screenshotColorFormat},
+     {&replaySettings.screenshotColorFormat},
+     TRUE,
+     "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
 #if _DEBUG
     {"v",
      "Verbosity",
@@ -339,6 +346,18 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         }
     } else {
         vktrace_set_global_var("VK_SCREENSHOT_FRAMES", "");
+    }
+
+    // Set up environment for screenshot color space format
+    if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList != NULL) {
+        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", replaySettings.screenshotColorFormat);
+        vktrace_free((char*)replaySettings.screenshotColorFormat);
+    }else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
+        vktrace_LogError("Screenshot format should be used when screenshot enabled!");
+        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+        vktrace_free((char*)replaySettings.screenshotColorFormat);
+    } else {
+        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
     }
 
     // open trace file and read in header
