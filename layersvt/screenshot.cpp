@@ -211,7 +211,9 @@ static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, b
 
 //Get users request is specific color space format required
 void readScreenShotFormatENV(void) {
+#ifndef ANDROID
     vk_screenshot_format = local_getenv(env_var_format);
+#endif
 }
 
 // detect if frameNumber reach or beyond the right edge for screenshot in the range.
