@@ -353,7 +353,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_set_global_var("VK_SCREENSHOT_FORMAT", replaySettings.screenshotColorFormat);
         vktrace_free((char*)replaySettings.screenshotColorFormat);
     }else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
-        vktrace_LogError("Screenshot format should be used when screenshot enabled!");
+        vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
         vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
         vktrace_free((char*)replaySettings.screenshotColorFormat);
     } else {
