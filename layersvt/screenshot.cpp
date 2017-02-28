@@ -120,6 +120,9 @@ static loader_platform_thread_mutex globalLock;
 
 const char *vk_screenshot_format = nullptr;
 
+bool printFormatWarning1 = true;
+bool printFormatWarning2 = true;
+
 // unordered map: associates a swap chain with a device, image extent, format,
 // and list of images
 typedef struct {
@@ -424,8 +427,11 @@ static void writePPM(const char *filename, VkImage image1) {
         } else {
 #ifdef ANDROID
 #else
-            fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
-                            "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
+            if (printFormatWarning1) {
+                fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                                "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
+                printFormatWarning1 = false;
+            }
 #endif
         }
     }
@@ -479,8 +485,11 @@ static void writePPM(const char *filename, VkImage image1) {
     {
 #ifdef ANDROID
 #else
-        fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
-                        "UNORM colorspace will be used instead\n");
+        if (printFormatWarning2) {
+            fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                            "UNORM colorspace will be used instead\n");
+            printFormatWarning2 = false;
+        }
 #endif
         if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
