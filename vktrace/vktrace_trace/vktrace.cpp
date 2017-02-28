@@ -72,6 +72,13 @@ vktrace_SettingInfo g_settings_info[] = {
                                          comma separated list of frames\n\
                                          <start>-<count>-<interval>\n\
                                          \"all\""},
+    {"sf",
+     "ScreenshotFormat",
+     VKTRACE_SETTING_STRING,
+     {&g_settings.screenshotColorFormat},
+     {&g_default_settings.screenshotColorFormat},
+     TRUE,
+     "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
     {"ptm",
      "PrintTraceMessages",
      VKTRACE_SETTING_BOOL,
@@ -266,6 +273,7 @@ int main(int argc, char* argv[]) {
     g_default_settings.output_trace = vktrace_allocate_and_copy("vktrace_out.vktrace");
     g_default_settings.verbosity = "errors";
     g_default_settings.screenshotList = NULL;
+    g_default_settings.screenshotColorFormat = NULL;
     g_default_settings.enable_pmb = true;
 
     // Check to see if the PAGEGUARD_PAGEGUARD_ENABLE_ENV env var is set.
@@ -315,6 +323,18 @@ int main(int argc, char* argv[]) {
             }
         } else {
             vktrace_set_global_var("VK_SCREENSHOT_FRAMES", "");
+        }
+
+        // Set up environment for screenshot color space format
+        if (g_settings.screenshotColorFormat != NULL && g_settings.screenshotList != NULL) {
+            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", g_settings.screenshotColorFormat);
+            vktrace_free((char*)g_settings.screenshotColorFormat);
+        }else if (g_settings.screenshotColorFormat != NULL && g_settings.screenshotList == NULL) {
+            vktrace_LogError("Screenshot format should be used when screenshot enabled!");
+            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+            vktrace_free((char*)g_settings.screenshotColorFormat);
+        } else {
+            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
         }
 
         if (validArgs == FALSE) {
