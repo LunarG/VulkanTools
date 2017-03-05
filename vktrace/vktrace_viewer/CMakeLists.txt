@@ -158,7 +158,7 @@ QT5_WRAP_CPP(QT_GEN_HEADER_MOC_LIST ${UI_HEADER_LIST})
 QT5_WRAP_UI(QT_GEN_FORM_HEADER_LIST ${FORM_LIST})
 QT5_ADD_RESOURCES(QT_GEN_RESOURCE_RCC_LIST ${RESOURCE_LIST})
 
-if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     add_compiler_flag("-Wno-global-constructors -Wno-used-but-marked-unused")
 endif()
 
