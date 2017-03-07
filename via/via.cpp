@@ -1570,6 +1570,38 @@ out:
     return found_json;
 }
 
+void PrintDriverRegInfo(HKEY reg_folder, const char *reg_key_loc, const char *system_path, bool found_this_lib,
+     char *cur_vulkan_driver_json, char *generic_string, bool &found_registry, bool &found_json, bool &found_lib) {
+    // Find the registry settings indicating the location of the driver
+    // JSON files.
+    uint32_t i = 0;
+    uint32_t returned_value = 0;
+    while (
+        FindNextRegValue(reg_folder, reg_key_loc, "", i, MAX_STRING_LENGTH - 1, cur_vulkan_driver_json, &returned_value)) {
+        found_registry |= true;
+
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
+
+        PrintBeginTableRow();
+        PrintTableElement(generic_string, ALIGN_RIGHT);
+        PrintTableElement(cur_vulkan_driver_json);
+
+        if (returned_value != 0) {
+            PrintTableElement("DISABLED");
+        }
+        else {
+            PrintTableElement("ENABLED");
+        }
+        PrintEndTableRow();
+
+        // Parse the driver JSON file.
+        if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
+            found_json |= true;
+            found_lib |= found_this_lib;
+        }
+    }
+}
+
 // Print out the information for every driver in the appropriate
 // Windows registry location and its corresponding JSON file.
 ErrorResults PrintDriverInfo(void) {
@@ -1609,32 +1641,10 @@ ErrorResults PrintDriverInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    // Find the registry settings indicating the location of the driver
-    // JSON files.
-    uint32_t returned_value = 0;
-    while (
-        FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i, MAX_STRING_LENGTH - 1, cur_vulkan_driver_json, &returned_value)) {
-        found_registry = true;
-
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
-
-        PrintBeginTableRow();
-        PrintTableElement(generic_string, ALIGN_RIGHT);
-        PrintTableElement(cur_vulkan_driver_json);
-
-        if (returned_value != 0) {
-            PrintTableElement("DISABLED");
-        } else {
-            PrintTableElement("ENABLED");
-        }
-        PrintEndTableRow();
-
-        // Parse the driver JSON file.
-        if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
-            found_json = true;
-            found_lib |= found_this_lib;
-        }
-    }
+    PrintDriverRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, system_path, found_this_lib, cur_vulkan_driver_json,
+        generic_string, found_registry, found_json, found_lib);
+    PrintDriverRegInfo(HKEY_CURRENT_USER, reg_key_loc, system_path, found_this_lib, cur_vulkan_driver_json,
+        generic_string, found_registry, found_json, found_lib);
 
     // The user can override the drivers path manually
     if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value, MAX_STRING_LENGTH - 1) && 0 != strlen(env_value)) {
@@ -1773,6 +1783,34 @@ ErrorResults PrintDriverInfo(void) {
     return res;
 }
 
+void PrintUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_string, char *generic_string, char *version_string, unsigned int& install_count) {
+    uint32_t i = 0;
+    // Find all Vulkan Runtime keys in the registry, and loop through each.
+    while (FindNextRegKey(reg_folder, g_uninstall_reg_path, "VulkanRT", i, MAX_STRING_LENGTH - 1, output_string)) {
+        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
+
+        // Get the version from the registry
+        if (ReadRegKeyString(reg_folder, generic_string, "DisplayVersion", MAX_STRING_LENGTH - 1, version_string)) {
+        } else {
+            strncpy(version_string, output_string, MAX_STRING_LENGTH - 1);
+        }
+
+        // Get the install count for this runtime from the registry
+        if (ReadRegKeyDword(reg_folder, generic_string, "InstallCount", &install_count)) {
+            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s  [Install Count = %d]", version_string, install_count);
+        } else {
+            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s", version_string);
+        }
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement(count_string, ALIGN_RIGHT);
+        PrintTableElement(output_string);
+        PrintEndTableRow();
+    }
+}
+
 // Print out whatever Vulkan runtime information we can gather from the system
 // using the registry, standard system paths, etc.
 ErrorResults PrintRunTimeInfo(void) {
@@ -1796,30 +1834,8 @@ ErrorResults PrintRunTimeInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    // Find all Vulkan Runtime keys in the registry, and loop through each.
-    while (FindNextRegKey(HKEY_LOCAL_MACHINE, g_uninstall_reg_path, "VulkanRT", i, MAX_STRING_LENGTH - 1, output_string)) {
-        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
-
-        // Get the version from the registry
-        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, generic_string, "DisplayVersion", MAX_STRING_LENGTH - 1, version_string)) {
-        } else {
-            strncpy(version_string, output_string, MAX_STRING_LENGTH - 1);
-        }
-
-        // Get the install count for this runtime from the registry
-        if (ReadRegKeyDword(HKEY_LOCAL_MACHINE, generic_string, "InstallCount", &install_count)) {
-            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s  [Install Count = %d]", version_string, install_count);
-        } else {
-            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s", version_string);
-        }
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement(count_string, ALIGN_RIGHT);
-        PrintTableElement(output_string);
-        PrintEndTableRow();
-    }
+    PrintUninstallRegInfo(HKEY_LOCAL_MACHINE, output_string, count_string, generic_string, version_string, install_count);
+    PrintUninstallRegInfo(HKEY_CURRENT_USER, output_string, count_string, generic_string, version_string, install_count);
 
     i = 0;
     GetEnvironmentVariableA("SYSTEMROOT", generic_string, MAX_STRING_LENGTH);
@@ -1906,6 +1922,80 @@ ErrorResults PrintRunTimeInfo(void) {
     return res;
 }
 
+bool PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_string, char *generic_string) {
+    uint32_t i = 0;
+    bool found = false;
+    while (FindNextRegKey(reg_folder, g_uninstall_reg_path, "VulkanSDK", i, MAX_STRING_LENGTH, output_string)) {
+        found = true;
+        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
+        if (ReadRegKeyString(reg_folder, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string)) {
+        }
+
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement(count_string, ALIGN_RIGHT);
+        PrintTableElement(output_string);
+        PrintEndTableRow();
+    }
+    return found;
+}
+
+bool PrintExplicitLayersRegInfo(HKEY reg_folder, const char *reg_key_loc, const char *sdk_env_dir,
+     char *output_string, char *count_string, char *cur_vulkan_layer_json, ErrorResults& res) {
+    bool found = false;
+    uint32_t i = 0;
+    uint32_t returned_value = 0;
+    while (FindNextRegValue(reg_folder, reg_key_loc, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json, &returned_value)) {
+        found = true;
+
+        // Create a short json file name so we don't use up too much space
+        snprintf(output_string, MAX_STRING_LENGTH - 1, ".%s", &cur_vulkan_layer_json[strlen(sdk_env_dir)]);
+
+        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+        PrintBeginTableRow();
+        PrintTableElement(count_string, ALIGN_RIGHT);
+        PrintTableElement(output_string);
+
+        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
+        PrintTableElement(output_string);
+        PrintEndTableRow();
+
+        std::ifstream *stream = NULL;
+        stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
+        if (nullptr == stream || stream->fail()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("ERROR reading JSON file!");
+            PrintTableElement("");
+            PrintEndTableRow();
+            res = MISSING_LAYER_JSON;
+        }
+        else {
+            Json::Value root = Json::nullValue;
+            Json::Reader reader;
+            if (!reader.parse(*stream, root, false) || root.isNull()) {
+                // Report to the user the failure and their locations in the
+                // document.
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("ERROR parsing JSON file!");
+                PrintTableElement(reader.getFormattedErrorMessages());
+                PrintEndTableRow();
+                res = LAYER_JSON_PARSING_ERROR;
+            }
+            else {
+                PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root, 3);
+            }
+
+            stream->close();
+            delete stream;
+            stream = NULL;
+        }
+    }
+    return found;
+}
+
 // Print out information on whatever LunarG Vulkan SDKs we can find on
 // the system using the registry, and environmental variables.  This
 // includes listing what layers are available from the SDK.
@@ -1931,19 +2021,9 @@ ErrorResults PrintSDKInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    while (FindNextRegKey(HKEY_LOCAL_MACHINE, g_uninstall_reg_path, "VulkanSDK", i, MAX_STRING_LENGTH, output_string)) {
-        found = true;
-        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
-        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string)) {
-        }
+    found |= PrintSdkUninstallRegInfo(HKEY_LOCAL_MACHINE, output_string, count_string, generic_string);
+    found |= PrintSdkUninstallRegInfo(HKEY_CURRENT_USER, output_string, count_string, generic_string);
 
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement(count_string, ALIGN_RIGHT);
-        PrintTableElement(output_string);
-        PrintEndTableRow();
-    }
     if (!found) {
         PrintBeginTableRow();
         PrintTableElement("");
@@ -1993,53 +2073,11 @@ ErrorResults PrintSDKInfo(void) {
     PrintEndTableRow();
 
     found = false;
-    i = 0;
-    uint32_t returned_value = 0;
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json, &returned_value)) {
-        found = true;
+    found |= PrintExplicitLayersRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, sdk_env_dir, output_string, 
+                                        count_string, cur_vulkan_layer_json, res);
+    found |= PrintExplicitLayersRegInfo(HKEY_CURRENT_USER, reg_key_loc, sdk_env_dir, output_string, 
+                                        count_string, cur_vulkan_layer_json, res);
 
-        // Create a short json file name so we don't use up too much space
-        snprintf(output_string, MAX_STRING_LENGTH - 1, ".%s", &cur_vulkan_layer_json[strlen(sdk_env_dir)]);
-
-        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-        PrintBeginTableRow();
-        PrintTableElement(count_string, ALIGN_RIGHT);
-        PrintTableElement(output_string);
-
-        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
-        PrintTableElement(output_string);
-        PrintEndTableRow();
-
-        std::ifstream *stream = NULL;
-        stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
-        if (nullptr == stream || stream->fail()) {
-            PrintBeginTableRow();
-            PrintTableElement("");
-            PrintTableElement("ERROR reading JSON file!");
-            PrintTableElement("");
-            PrintEndTableRow();
-            res = MISSING_LAYER_JSON;
-        } else {
-            Json::Value root = Json::nullValue;
-            Json::Reader reader;
-            if (!reader.parse(*stream, root, false) || root.isNull()) {
-                // Report to the user the failure and their locations in the
-                // document.
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("ERROR parsing JSON file!");
-                PrintTableElement(reader.getFormattedErrorMessages());
-                PrintEndTableRow();
-                res = LAYER_JSON_PARSING_ERROR;
-            } else {
-                PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root, 3);
-            }
-
-            stream->close();
-            delete stream;
-            stream = NULL;
-        }
-    }
     if (!found) {
         PrintBeginTableRow();
         PrintTableElement("");
@@ -2051,6 +2089,58 @@ ErrorResults PrintSDKInfo(void) {
     PrintEndTable();
 
     return res;
+}
+
+void PrintImplicitLayersRegInfo(HKEY reg_folder, const char *vulkan_impl_layer_reg_key, char *cur_vulkan_layer_json, 
+     char *generic_string, ErrorResults &res) {
+    // For each implicit layer listed in the registry, find its JSON and
+    // print out the useful information stored in it.
+    uint32_t i = 0;
+    uint32_t returned_value = 0;
+    while (FindNextRegValue(reg_folder, vulkan_impl_layer_reg_key, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json,
+        &returned_value)) {
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+
+        PrintBeginTableRow();
+        PrintTableElement(generic_string, ALIGN_RIGHT);
+        PrintTableElement(cur_vulkan_layer_json);
+        PrintTableElement("");
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
+        PrintTableElement(generic_string);
+        PrintEndTableRow();
+
+        std::ifstream *stream = NULL;
+        stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
+        if (nullptr == stream || stream->fail()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("ERROR reading JSON file!");
+            PrintTableElement("");
+            PrintEndTableRow();
+            res = MISSING_LAYER_JSON;
+        }
+        else {
+            Json::Value root = Json::nullValue;
+            Json::Reader reader;
+            if (!reader.parse(*stream, root, false) || root.isNull()) {
+                // Report to the user the failure and their locations in the
+                // document.
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("ERROR parsing JSON file!");
+                PrintTableElement(reader.getFormattedErrorMessages());
+                PrintEndTableRow();
+                res = LAYER_JSON_PARSING_ERROR;
+            }
+            else {
+                PrintImplicitLayerJsonInfo(cur_vulkan_layer_json, root);
+            }
+
+            stream->close();
+            delete stream;
+            stream = NULL;
+        }
+    }
 }
 
 // Print out whatever layers we can find out from the Windows'
@@ -2088,51 +2178,9 @@ ErrorResults PrintLayerInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    // For each implicit layer listed in the registry, find its JSON and
-    // print out the useful information stored in it.
-    uint32_t returned_value = 0;
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, vulkan_impl_layer_reg_key, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json,
-                            &returned_value)) {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+    PrintImplicitLayersRegInfo(HKEY_LOCAL_MACHINE, vulkan_impl_layer_reg_key, cur_vulkan_layer_json, generic_string, res);
+    PrintImplicitLayersRegInfo(HKEY_CURRENT_USER, vulkan_impl_layer_reg_key, cur_vulkan_layer_json, generic_string, res);
 
-        PrintBeginTableRow();
-        PrintTableElement(generic_string, ALIGN_RIGHT);
-        PrintTableElement(cur_vulkan_layer_json);
-        PrintTableElement("");
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
-        PrintTableElement(generic_string);
-        PrintEndTableRow();
-
-        std::ifstream *stream = NULL;
-        stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
-        if (nullptr == stream || stream->fail()) {
-            PrintBeginTableRow();
-            PrintTableElement("");
-            PrintTableElement("ERROR reading JSON file!");
-            PrintTableElement("");
-            PrintEndTableRow();
-            res = MISSING_LAYER_JSON;
-        } else {
-            Json::Value root = Json::nullValue;
-            Json::Reader reader;
-            if (!reader.parse(*stream, root, false) || root.isNull()) {
-                // Report to the user the failure and their locations in the
-                // document.
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("ERROR parsing JSON file!");
-                PrintTableElement(reader.getFormattedErrorMessages());
-                PrintEndTableRow();
-                res = LAYER_JSON_PARSING_ERROR;
-            } else {
-                PrintImplicitLayerJsonInfo(cur_vulkan_layer_json, root);
-            }
-
-            stream->close();
-            delete stream;
-            stream = NULL;
-        }
-    }
     PrintEndTable();
 
     // If the user's system has VK_LAYER_PATH set, dump out the layer
