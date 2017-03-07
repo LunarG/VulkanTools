@@ -111,7 +111,6 @@ static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
 //=========================================================================
 std::list<vktrace_trace_packet_header *> recorded_packets;
 
-
 //=========================================================================
 // Start trimming
 //=========================================================================
