@@ -23,17 +23,15 @@
 
 #include <QString>
 #include <QTextBrowser>
-extern "C"
-{
+extern "C" {
 #include "vktrace_platform.h"
 #include "vktrace_tracelog.h"
 }
 
 class QTextEdit;
 
-class vktraceviewer_output
-{
-public:
+class vktraceviewer_output {
+   public:
     vktraceviewer_output();
     ~vktraceviewer_output();
 
@@ -43,7 +41,7 @@ public:
     void warning(uint64_t packetIndex, const QString& warning);
     void error(uint64_t packetIndex, const QString& error);
 
-private:
+   private:
     QString convertToHtml(QString message);
     void moveCursorToEnd();
     QTextBrowser* m_pTextEdit;
@@ -63,4 +61,4 @@ inline void vktraceviewer_output_error(uint64_t packetIndex, const QString& erro
 inline void vktraceviewer_output_error(const QString& error) { gs_OUTPUT.error(-1, error); }
 inline void vktraceviewer_output_deinit() { gs_OUTPUT.init(0); }
 
-#endif // VKTRACEVIEWER_OUTPUT_H
+#endif  // VKTRACEVIEWER_OUTPUT_H

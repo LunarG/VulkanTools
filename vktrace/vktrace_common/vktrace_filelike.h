@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  */
@@ -24,7 +24,7 @@
 #ifdef WIN32
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#pragma comment (lib, "Ws2_32.lib")
+#pragma comment(lib, "Ws2_32.lib")
 #endif
 
 #include "vktrace_common.h"
@@ -34,16 +34,14 @@ typedef struct MessageStream MessageStream;
 
 struct FileLike;
 typedef struct FileLike FileLike;
-typedef struct FileLike
-{
+typedef struct FileLike {
     enum { File, Socket } mMode;
     FILE* mFile;
     MessageStream* mMessageStream;
 } FileLike;
 
 // For creating checkpoints (consistency checks) in the various streams we're interacting with.
-typedef struct Checkpoint
-{
+typedef struct Checkpoint {
     const char* mToken;
     size_t mTokenLength;
 } Checkpoint;
@@ -57,7 +55,7 @@ void vktrace_Checkpoint_write(Checkpoint* pCheckpoint, FileLike* _out);
 BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in);
 
 // An interface for interacting with sockets, files, and memory streams with a file-like interface.
-// This is a simple file-like interface--it doesn't support rewinding or anything fancy, just fifo 
+// This is a simple file-like interface--it doesn't support rewinding or anything fancy, just fifo
 // reads and writes.
 
 // create a filelike interface for file streaming
@@ -76,7 +74,7 @@ BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len);
 // write _len and then the buffer of size _len
 void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len);
 
-// Normally, Write outputs the _len to the stream first--with WriteRaw the bytes are simply written, 
+// Normally, Write outputs the _len to the stream first--with WriteRaw the bytes are simply written,
 // no size parameter first.
 BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len);
 

@@ -733,8 +733,7 @@ struct Demo {
 
         char const *const instance_validation_layers_alt2[] = {
             "VK_LAYER_GOOGLE_threading",     "VK_LAYER_LUNARG_parameter_validation", "VK_LAYER_LUNARG_object_tracker",
-            "VK_LAYER_LUNARG_image",         "VK_LAYER_LUNARG_core_validation",      "VK_LAYER_LUNARG_swapchain",
-            "VK_LAYER_GOOGLE_unique_objects"};
+            "VK_LAYER_LUNARG_core_validation",      "VK_LAYER_LUNARG_swapchain", "VK_LAYER_GOOGLE_unique_objects"};
 
         // Look for validation layers
         vk::Bool32 validation_found = VK_FALSE;
@@ -1447,8 +1446,8 @@ struct Demo {
         depth.mem_alloc.setAllocationSize(mem_reqs.size);
         depth.mem_alloc.setMemoryTypeIndex(0);
 
-        auto const pass =
-            memory_type_from_properties(mem_reqs.memoryTypeBits, vk::MemoryPropertyFlagBits(0), &depth.mem_alloc.memoryTypeIndex);
+        auto const pass = memory_type_from_properties(mem_reqs.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal,
+                                                      &depth.mem_alloc.memoryTypeIndex);
         VERIFY(pass);
 
         result = device.allocateMemory(&depth.mem_alloc, nullptr, &depth.mem);

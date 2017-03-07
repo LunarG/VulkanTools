@@ -16,6 +16,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(PythonInterp 3 REQUIRED)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
+        "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
+    set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
+        "Search path to use when XDG_DATA_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
+
     include(FindPkgConfig)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
@@ -33,7 +38,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     if (BUILD_WSI_WAYLAND_SUPPORT)
         find_package(Wayland REQUIRED)
-        include_directories(${WAYLAND_CLIENT_INCLUDE_DIR})
     endif()
 
     if (BUILD_WSI_MIR_SUPPORT)
@@ -105,6 +109,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_VIA "Build via" ON)
     option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
     option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT BUILD_WSI_XCB_SUPPORT)
+        option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
+    else()
+        option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
+    endif()
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
@@ -313,26 +322,35 @@ endmacro()
 
 # Custom target for generated vulkan helper file dependencies
 add_custom_target(generate_helper_files DEPENDS
-    vk_dispatch_table_helper.h
     vk_enum_string_helper.h
     vk_struct_size_helper.h
     vk_struct_size_helper.c
     vk_safe_struct.h
     vk_safe_struct.cpp
+    vk_layer_dispatch_table.h
+    vk_dispatch_table_helper.h
+    vk_loader_extensions.h
+    vk_loader_extensions.c
     )
 
 # Rules to build generated helper files
+run_vk_xml_generate(loader_extension_generator.py vk_loader_extensions.c)
+run_vk_xml_generate(loader_extension_generator.py vk_loader_extensions.h)
+run_vk_xml_generate(loader_extension_generator.py vk_layer_dispatch_table.h)
+run_vk_xml_generate(dispatch_table_helper_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(helper_file_generator.py vk_safe_struct.h)
 run_vk_xml_generate(helper_file_generator.py vk_safe_struct.cpp)
 run_vk_xml_generate(helper_file_generator.py vk_struct_size_helper.h)
 run_vk_xml_generate(helper_file_generator.py vk_struct_size_helper.c)
 run_vk_xml_generate(helper_file_generator.py vk_enum_string_helper.h)
-run_vk_xml_generate(dispatch_table_generator.py vk_dispatch_table_helper.h)
 
 if(NOT WIN32)
     include(GNUInstallDirs)
 
+    add_definitions(-DFALLBACK_CONFIG_DIRS="${FALLBACK_CONFIG_DIRS}")
+    add_definitions(-DFALLBACK_DATA_DIRS="${FALLBACK_DATA_DIRS}")
     add_definitions(-DSYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+
     # Make sure /etc is searched by the loader
     if(NOT (CMAKE_INSTALL_FULL_SYSCONFDIR STREQUAL "/etc"))
         add_definitions(-DEXTRASYSCONFDIR="/etc")
@@ -341,12 +359,6 @@ endif()
 
 if(UNIX)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    if(NOT BUILD_WSI_XCB_SUPPORT)
-        set(BUILD_VKTRACE OFF)
-        if (NOT BUILD_WSI_XLIB_SUPPORT)
-            set(BUILD_LAYERSVT OFF)
-        endif()
-    endif()
 endif()
 
 # loader: Generic VULKAN ICD loader

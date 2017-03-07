@@ -21,8 +21,7 @@
 #ifndef VKTRACEVIEWER_QGENERATETRACEDIALOG_H
 #define VKTRACEVIEWER_QGENERATETRACEDIALOG_H
 
-extern "C"
-{
+extern "C" {
 #include "vktrace_platform.h"
 #include "vktrace_tracelog.h"
 }
@@ -44,26 +43,24 @@ extern "C"
 #include <QPushButton>
 #include <QSpacerItem>
 
-class vktraceviewer_QGenerateTraceDialog : public QDialog
-{
+class vktraceviewer_QGenerateTraceDialog : public QDialog {
     Q_OBJECT
-public:
+   public:
     explicit vktraceviewer_QGenerateTraceDialog(QWidget *parent = 0);
     virtual ~vktraceviewer_QGenerateTraceDialog();
 
     virtual int exec();
 
-    enum DialogCode {Cancelled, Succeeded, Failed};
+    enum DialogCode { Cancelled, Succeeded, Failed };
 
     QString get_trace_file_path();
 
-signals:
-    void OutputMessage(VktraceLogLevel level, const QString& message);
+   signals:
+    void OutputMessage(VktraceLogLevel level, const QString &message);
 
-public slots:
+   public slots:
 
-private
-slots:
+   private slots:
     void on_applicationLineEdit_textChanged(const QString &text);
     void on_traceFileLineEdit_textChanged(const QString &text);
     void on_vkLayerPathLineEdit_textChanged(const QString &text);
@@ -73,7 +70,8 @@ slots:
 
     void on_readStandardOutput();
     void on_readStandardError();
-private:
+
+   private:
     bool launch_application_to_generate_trace();
 
     void check_inputs();
@@ -101,4 +99,4 @@ private:
     QSpacerItem *m_pButtonHSpacer2;
 };
 
-#endif // VKTRACEVIEWER_QGENERATETRACEDIALOG_H
+#endif  // VKTRACEVIEWER_QGENERATETRACEDIALOG_H

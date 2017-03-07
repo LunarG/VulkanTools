@@ -33,16 +33,12 @@
 #include "glvdebug_settings.h"
 
 glvdebug_QApiCallTreeModel::glvdebug_QApiCallTreeModel(int columnCount, QObject *parent)
-    : QAbstractItemModel(parent),
-      m_columnCount(columnCount)
-{
+    : QAbstractItemModel(parent), m_columnCount(columnCount) {
     m_rootItem = new glvdebug_apiCallTreeItem(columnCount, this);
 }
 
-glvdebug_QApiCallTreeModel::~glvdebug_QApiCallTreeModel()
-{
-    if (m_rootItem != NULL)
-    {
+glvdebug_QApiCallTreeModel::~glvdebug_QApiCallTreeModel() {
+    if (m_rootItem != NULL) {
         delete m_rootItem;
         m_rootItem = NULL;
     }
@@ -50,11 +46,8 @@ glvdebug_QApiCallTreeModel::~glvdebug_QApiCallTreeModel()
     m_itemList.clear();
 }
 
-
-QModelIndex glvdebug_QApiCallTreeModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!hasIndex(row, column, parent))
-        return QModelIndex();
+QModelIndex glvdebug_QApiCallTreeModel::index(int row, int column, const QModelIndex &parent) const {
+    if (!hasIndex(row, column, parent)) return QModelIndex();
 
     glvdebug_apiCallTreeItem *parentItem;
 
@@ -70,7 +63,7 @@ QModelIndex glvdebug_QApiCallTreeModel::index(int row, int column, const QModelI
         return QModelIndex();
 }
 //
-//QModelIndex glvdebug_QApiCallTreeModel::indexOf(const glvdebug_apiCallTreeItem *pItem) const
+// QModelIndex glvdebug_QApiCallTreeModel::indexOf(const glvdebug_apiCallTreeItem *pItem) const
 //{
 //    if (pItem != NULL)
 //        return createIndex(pItem->row(), /*VOGL_ACTC_APICALL*/ 0, (void *)pItem);
@@ -78,28 +71,22 @@ QModelIndex glvdebug_QApiCallTreeModel::index(int row, int column, const QModelI
 //        return QModelIndex();
 //}
 
-QModelIndex glvdebug_QApiCallTreeModel::parent(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return QModelIndex();
+QModelIndex glvdebug_QApiCallTreeModel::parent(const QModelIndex &index) const {
+    if (!index.isValid()) return QModelIndex();
 
     glvdebug_apiCallTreeItem *childItem = static_cast<glvdebug_apiCallTreeItem *>(index.internalPointer());
-    if (childItem == m_rootItem)
-        return QModelIndex();
+    if (childItem == m_rootItem) return QModelIndex();
 
     glvdebug_apiCallTreeItem *parentItem = childItem->parent();
 
-    if (parentItem == m_rootItem || parentItem == NULL)
-        return QModelIndex();
+    if (parentItem == m_rootItem || parentItem == NULL) return QModelIndex();
 
     return createIndex(parentItem->row(), /*VOGL_ACTC_APICALL*/ 0, parentItem);
 }
 
-int glvdebug_QApiCallTreeModel::rowCount(const QModelIndex &parent) const
-{
+int glvdebug_QApiCallTreeModel::rowCount(const QModelIndex &parent) const {
     glvdebug_apiCallTreeItem *parentItem;
-    if (parent.column() > 0)
-        return 0;
+    if (parent.column() > 0) return 0;
 
     if (!parent.isValid())
         parentItem = m_rootItem;
@@ -109,26 +96,23 @@ int glvdebug_QApiCallTreeModel::rowCount(const QModelIndex &parent) const
     return parentItem->childCount();
 }
 
-int glvdebug_QApiCallTreeModel::columnCount(const QModelIndex &parent) const
-{
-    //VOGL_NOTE_UNUSED(parent);
+int glvdebug_QApiCallTreeModel::columnCount(const QModelIndex &parent) const {
+    // VOGL_NOTE_UNUSED(parent);
     return m_columnCount;
 }
 
-QVariant glvdebug_QApiCallTreeModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
+QVariant glvdebug_QApiCallTreeModel::data(const QModelIndex &index, int role) const {
+    if (!index.isValid()) return QVariant();
 
     glvdebug_apiCallTreeItem *pItem = static_cast<glvdebug_apiCallTreeItem *>(index.internalPointer());
 
-    if (pItem == NULL)
-    {
+    if (pItem == NULL) {
         return QVariant();
     }
 
     //// make draw call rows appear in bold
-    //if (role == Qt::FontRole && pItem->apiCallItem() != NULL && vogl_is_frame_buffer_write_entrypoint((gl_entrypoint_id_t)pItem->apiCallItem()->getGLPacket()->m_entrypoint_id))
+    // if (role == Qt::FontRole && pItem->apiCallItem() != NULL &&
+    // vogl_is_frame_buffer_write_entrypoint((gl_entrypoint_id_t)pItem->apiCallItem()->getGLPacket()->m_entrypoint_id))
     //{
     //    QFont font;
     //    font.setBold(true);
@@ -136,7 +120,7 @@ QVariant glvdebug_QApiCallTreeModel::data(const QModelIndex &index, int role) co
     //}
 
     //// highlight the API call cell if it has a substring which matches the searchString
-    //if (role == Qt::BackgroundRole && index.column() == VOGL_ACTC_APICALL)
+    // if (role == Qt::BackgroundRole && index.column() == VOGL_ACTC_APICALL)
     //{
     //    if (!m_searchString.isEmpty())
     //    {
@@ -152,29 +136,24 @@ QVariant glvdebug_QApiCallTreeModel::data(const QModelIndex &index, int role) co
     return pItem->columnData(index.column(), role);
 }
 
-Qt::ItemFlags glvdebug_QApiCallTreeModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
+Qt::ItemFlags glvdebug_QApiCallTreeModel::flags(const QModelIndex &index) const {
+    if (!index.isValid()) return 0;
 
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation orientation,
-                                                  int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return m_rootItem->columnData(section, role);
+QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) return m_rootItem->columnData(section, role);
 
     return QVariant();
 }
 
-//void glvdebug_QApiCallTreeModel::set_highlight_search_string(const QString searchString)
+// void glvdebug_QApiCallTreeModel::set_highlight_search_string(const QString searchString)
 //{
 //    m_searchString = searchString;
 //}
 //
-//QModelIndex glvdebug_QApiCallTreeModel::find_prev_search_result(glvdebug_apiCallTreeItem *start, const QString searchText)
+// QModelIndex glvdebug_QApiCallTreeModel::find_prev_search_result(glvdebug_apiCallTreeItem *start, const QString searchText)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -215,7 +194,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return indexOf(pFound);
 //}
 //
-//QModelIndex glvdebug_QApiCallTreeModel::find_next_search_result(glvdebug_apiCallTreeItem *start, const QString searchText)
+// QModelIndex glvdebug_QApiCallTreeModel::find_next_search_result(glvdebug_apiCallTreeItem *start, const QString searchText)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -248,7 +227,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return indexOf(pFound);
 //}
 //
-//glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_prev_snapshot(glvdebug_apiCallTreeItem *start)
+// glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_prev_snapshot(glvdebug_apiCallTreeItem *start)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -286,7 +265,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return pFound;
 //}
 //
-//glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_next_snapshot(glvdebug_apiCallTreeItem *start)
+// glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_next_snapshot(glvdebug_apiCallTreeItem *start)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -317,7 +296,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return pFound;
 //}
 //
-//glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_prev_drawcall(glvdebug_apiCallTreeItem *start)
+// glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_prev_drawcall(glvdebug_apiCallTreeItem *start)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -360,7 +339,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return pFound;
 //}
 //
-//glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_next_drawcall(glvdebug_apiCallTreeItem *start)
+// glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_next_drawcall(glvdebug_apiCallTreeItem *start)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -392,7 +371,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return pFound;
 //}
 //
-//glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_call_number(unsigned int callNumber)
+// glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_call_number(unsigned int callNumber)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //
@@ -415,7 +394,7 @@ QVariant glvdebug_QApiCallTreeModel::headerData(int section, Qt::Orientation ori
 //    return pFound;
 //}
 //
-//glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_frame_number(unsigned int frameNumber)
+// glvdebug_apiCallTreeItem *glvdebug_QApiCallTreeModel::find_frame_number(unsigned int frameNumber)
 //{
 //    QLinkedListIterator<glvdebug_apiCallTreeItem *> iter(m_itemList);
 //

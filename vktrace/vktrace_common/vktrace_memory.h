@@ -26,51 +26,42 @@
 #include <stdarg.h>
 
 #define VKTRACE_NEW(type) (type*)vktrace_malloc(sizeof(type))
-#define VKTRACE_NEW_ARRAY(type, count) (type*)vktrace_malloc(sizeof(type)*count)
+#define VKTRACE_NEW_ARRAY(type, count) (type*)vktrace_malloc(sizeof(type) * count)
 #define VKTRACE_DELETE(ptr) vktrace_free(ptr);
 #define VKTRACE_REALLOC(ptr, size) vktrace_realloc(ptr, size);
 
-static void* vktrace_malloc(size_t size)
-{
+static void* vktrace_malloc(size_t size) {
     void* pMemory;
-    if (size == 0)
-        return NULL;
+    if (size == 0) return NULL;
 
     pMemory = malloc(size);
 
     return pMemory;
 }
 
-static void vktrace_free(void* ptr)
-{
+static void vktrace_free(void* ptr) {
     free(ptr);
     ptr = NULL;
 }
 
-static void * vktrace_realloc(void *ptr,size_t size)
-{
-    void *pMemory;
-    if (size == 0)
-        return NULL;
+static void* vktrace_realloc(void* ptr, size_t size) {
+    void* pMemory;
+    if (size == 0) return NULL;
 
     pMemory = realloc(ptr, size);
     return pMemory;
 }
 
-static char* vktrace_allocate_and_copy(const char* _src)
-{
-    if (_src == NULL)
-    {
+static char* vktrace_allocate_and_copy(const char* _src) {
+    if (_src == NULL) {
         return NULL;
-    }
-    else
-    {
+    } else {
         size_t bufferSize = 1 + strlen(_src);
 
         char* retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
 #ifdef WIN32
         strcpy_s(retVal, bufferSize, _src);
-#else // linux
+#else  // linux
         strncpy(retVal, _src, bufferSize);
 #endif
 
@@ -78,15 +69,14 @@ static char* vktrace_allocate_and_copy(const char* _src)
     }
 }
 
-static char* vktrace_allocate_and_copy_n(const char* _src, int _count)
-{
+static char* vktrace_allocate_and_copy_n(const char* _src, int _count) {
     size_t bufferSize = 1 + _count;
 
     char* retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
 
 #ifdef WIN32
     strncpy_s(retVal, bufferSize, _src, _count);
-#else // linux
+#else  // linux
     strncpy(retVal, _src, _count);
     retVal[_count] = '\0';
 #endif
@@ -94,32 +84,29 @@ static char* vktrace_allocate_and_copy_n(const char* _src, int _count)
     return retVal;
 }
 
-static char* vktrace_copy_and_append(const char* pBaseString, const char* pSeparator, const char* pAppendString)
-{
+static char* vktrace_copy_and_append(const char* pBaseString, const char* pSeparator, const char* pAppendString) {
     size_t baseSize = (pBaseString != NULL) ? strlen(pBaseString) : 0;
-    size_t separatorSize = ((pAppendString != NULL) && strlen(pAppendString) && (pSeparator != NULL)) ?
-                           strlen(pSeparator) : 0;
+    size_t separatorSize = ((pAppendString != NULL) && strlen(pAppendString) && (pSeparator != NULL)) ? strlen(pSeparator) : 0;
     size_t appendSize = (pAppendString != NULL) ? strlen(pAppendString) : 0;
     size_t bufferSize = baseSize + separatorSize + appendSize + 1;
     char* retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
-    if (retVal != NULL)
-    {
+    if (retVal != NULL) {
 #ifdef WIN32
         strncpy_s(retVal, bufferSize, pBaseString, baseSize);
-        strncpy_s(&retVal[baseSize], bufferSize-baseSize, pSeparator, separatorSize);
-        strncpy_s(&retVal[baseSize+separatorSize], bufferSize-baseSize-separatorSize, pAppendString, appendSize);
-#else // linux
+        strncpy_s(&retVal[baseSize], bufferSize - baseSize, pSeparator, separatorSize);
+        strncpy_s(&retVal[baseSize + separatorSize], bufferSize - baseSize - separatorSize, pAppendString, appendSize);
+#else  // linux
         strncpy(retVal, pBaseString, baseSize);
         strncpy(&retVal[baseSize], pSeparator, separatorSize);
-        strncpy(&retVal[baseSize+separatorSize], pAppendString, appendSize);
+        strncpy(&retVal[baseSize + separatorSize], pAppendString, appendSize);
 #endif
     }
-    retVal[bufferSize-1] = '\0';
+    retVal[bufferSize - 1] = '\0';
     return retVal;
 }
 
-static char* vktrace_copy_and_append_args(const char* pBaseString, const char* pSeparator, const char* pAppendFormat, va_list args)
-{
+static char* vktrace_copy_and_append_args(const char* pBaseString, const char* pSeparator, const char* pAppendFormat,
+                                          va_list args) {
     size_t baseSize = (pBaseString != NULL) ? strlen(pBaseString) : 0;
     size_t separatorSize = (pSeparator != NULL) ? strlen(pSeparator) : 0;
     size_t appendSize = 0;
@@ -137,18 +124,16 @@ static char* vktrace_copy_and_append_args(const char* pBaseString, const char* p
 
     bufferSize = baseSize + separatorSize + appendSize + 1;
     retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
-    if (retVal != NULL)
-    {
+    if (retVal != NULL) {
 #ifdef WIN32
         strncpy_s(retVal, bufferSize, pBaseString, baseSize);
-        strncpy_s(&retVal[baseSize], bufferSize-baseSize, pSeparator, separatorSize);
-        _vsnprintf_s(&retVal[baseSize+separatorSize], bufferSize-baseSize-separatorSize, appendSize, pAppendFormat, args);
-#else // linux
+        strncpy_s(&retVal[baseSize], bufferSize - baseSize, pSeparator, separatorSize);
+        _vsnprintf_s(&retVal[baseSize + separatorSize], bufferSize - baseSize - separatorSize, appendSize, pAppendFormat, args);
+#else  // linux
         strncpy(retVal, pBaseString, baseSize);
         strncpy(&retVal[baseSize], pSeparator, separatorSize);
-        vsnprintf(&retVal[baseSize+separatorSize], appendSize, pAppendFormat, args);
+        vsnprintf(&retVal[baseSize + separatorSize], appendSize, pAppendFormat, args);
 #endif
     }
     return retVal;
 }
-

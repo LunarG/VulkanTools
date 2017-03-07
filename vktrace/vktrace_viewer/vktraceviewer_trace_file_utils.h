@@ -29,8 +29,7 @@ extern "C" {
 }
 #include "vktraceviewer_output.h"
 
-struct vktraceviewer_trace_file_packet_offsets
-{
+struct vktraceviewer_trace_file_packet_offsets {
     // the file offset to this particular packet
     unsigned int fileOffset;
 
@@ -38,8 +37,7 @@ struct vktraceviewer_trace_file_packet_offsets
     vktrace_trace_packet_header* pHeader;
 };
 
-struct vktraceviewer_trace_file_info
-{
+struct vktraceviewer_trace_file_info {
     // the trace file name & path
     char* filename;
 
@@ -58,4 +56,4 @@ struct vktraceviewer_trace_file_info
 
 BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo);
 
-#endif //VKTRACEVIEWER_TRACE_FILE_UTILS_H_
+#endif  // VKTRACEVIEWER_TRACE_FILE_UTILS_H_

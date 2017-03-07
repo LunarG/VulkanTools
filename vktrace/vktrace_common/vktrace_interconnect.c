@@ -44,8 +44,7 @@ BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes
 void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optional);
 
 // public functions
-MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char* _address, const char* _port)
-{
+MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char* _address, const char* _port) {
     MessageStream* pStream;
     // make sure the strings are shorter than the destination buffer we have to store them!
     assert(strlen(_address) + 1 <= 64);
@@ -63,8 +62,7 @@ MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char
     pStream->mSocket = INVALID_SOCKET;
     pStream->mSendBuffer = NULL;
 
-    if (vktrace_MessageStream_SetupSocket(pStream) == FALSE)
-    {
+    if (vktrace_MessageStream_SetupSocket(pStream) == FALSE) {
         VKTRACE_DELETE(pStream);
         pStream = NULL;
     }
@@ -72,24 +70,21 @@ MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char
     return pStream;
 }
 
-MessageStream* vktrace_MessageStream_create(BOOL _isHost, const char* _address, unsigned int _port)
-{
+MessageStream* vktrace_MessageStream_create(BOOL _isHost, const char* _address, unsigned int _port) {
     char portBuf[32];
     memset(portBuf, 0, 32 * sizeof(char));
     sprintf(portBuf, "%u", _port);
     return vktrace_MessageStream_create_port_string(_isHost, _address, portBuf);
 }
 
-void vktrace_MessageStream_destroy(MessageStream** ppStream)
-{
+void vktrace_MessageStream_destroy(MessageStream** ppStream) {
     if ((*ppStream)->mSendBuffer != NULL) {
         // Try to get our data out.
         vktrace_MessageStream_FlushSendBuffer(*ppStream, TRUE);
         vktrace_SimpleBuffer_destroy(&(*ppStream)->mSendBuffer);
     }
 
-    if ((*ppStream)->mHostAddressInfo != NULL)
-    {
+    if ((*ppStream)->mHostAddressInfo != NULL) {
         freeaddrinfo((*ppStream)->mHostAddressInfo);
         (*ppStream)->mHostAddressInfo = NULL;
     }
@@ -106,16 +101,14 @@ void vktrace_MessageStream_destroy(MessageStream** ppStream)
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // private function implementations
-BOOL vktrace_MessageStream_SetupSocket(MessageStream* pStream)
-{
+BOOL vktrace_MessageStream_SetupSocket(MessageStream* pStream) {
     BOOL result = TRUE;
 #if defined(WIN32)
     WSADATA wsaData;
 
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR) {
         result = FALSE;
-    }
-    else
+    } else
 #endif
     {
         if (pStream->mHost) {
@@ -127,13 +120,12 @@ BOOL vktrace_MessageStream_SetupSocket(MessageStream* pStream)
     return result;
 }
 
-BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream)
-{
+BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream) {
     int hr = 0;
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     int yes = 1;
 #endif
-    struct addrinfo hostAddrInfo = { 0 };
+    struct addrinfo hostAddrInfo = {0};
     SOCKET listenSocket;
 
     vktrace_create_critical_section(&gSendLock);
@@ -148,7 +140,8 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream)
         return FALSE;
     }
 
-    listenSocket = socket(pStream->mHostAddressInfo->ai_family, pStream->mHostAddressInfo->ai_socktype, pStream->mHostAddressInfo->ai_protocol);
+    listenSocket = socket(pStream->mHostAddressInfo->ai_family, pStream->mHostAddressInfo->ai_socktype,
+                          pStream->mHostAddressInfo->ai_protocol);
     if (listenSocket == INVALID_SOCKET) {
         // TODO: Figure out errors
         vktrace_LogError("Host: Failed creating a listen socket.");
@@ -191,29 +184,24 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream)
     }
 
     vktrace_LogVerbose("Connected on port %s.", pStream->mPort);
-    if (vktrace_MessageStream_Handshake(pStream))
-    {
+    if (vktrace_MessageStream_Handshake(pStream)) {
         // TODO: The SendBuffer can cause big delays in sending messages back to the client.
         // We haven't verified if this improves performance in real applications,
         // so disable it for now.
-        //pStream->mSendBuffer = vktrace_SimpleBuffer_create(kSendBufferSize);
+        // pStream->mSendBuffer = vktrace_SimpleBuffer_create(kSendBufferSize);
         pStream->mSendBuffer = NULL;
-    }
-    else
-    {
+    } else {
         vktrace_LogError("vktrace_MessageStream_SetupHostSocket failed handshake.");
     }
     return TRUE;
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
-{
+BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream) {
     int hr = 0;
     unsigned int attempt = 0;
     BOOL bConnected = FALSE;
-    struct addrinfo hostAddrInfo = { 0 },
-        *currentAttempt = NULL;
+    struct addrinfo hostAddrInfo = {0}, *currentAttempt = NULL;
     vktrace_create_critical_section(&gSendLock);
 
 #if defined(ANDROID)
@@ -228,10 +216,9 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
     namelen = sizeof(addr.sun_family) + strlen(pStream->mPort) + 1;
 
     pStream->mSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-    hr = connect(pStream->mSocket, (struct sockaddr *) &addr, namelen);
+    hr = connect(pStream->mSocket, (struct sockaddr*)&addr, namelen);
 
-    if (hr == SOCKET_ERROR)
-    {
+    if (hr == SOCKET_ERROR) {
         vktrace_LogError("Client: Failed connect to abstract socket.");
         closesocket(pStream->mSocket);
         pStream->mSocket = INVALID_SOCKET;
@@ -250,15 +237,12 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
     }
 
     // make several attempts to connect before bailing out
-    for (attempt = 0; attempt < 10 && !bConnected; attempt++)
-    {
-        for (currentAttempt = pStream->mHostAddressInfo; currentAttempt != NULL; currentAttempt = currentAttempt->ai_next)
-        {
+    for (attempt = 0; attempt < 10 && !bConnected; attempt++) {
+        for (currentAttempt = pStream->mHostAddressInfo; currentAttempt != NULL; currentAttempt = currentAttempt->ai_next) {
             pStream->mSocket = socket(currentAttempt->ai_family, currentAttempt->ai_socktype, currentAttempt->ai_protocol);
 
             hr = connect(pStream->mSocket, currentAttempt->ai_addr, (int)currentAttempt->ai_addrlen);
-            if (hr == SOCKET_ERROR)
-            {
+            if (hr == SOCKET_ERROR) {
                 vktrace_LogVerbose("Client: Failed connect. Possibly non-fatal.");
                 closesocket(pStream->mSocket);
                 pStream->mSocket = INVALID_SOCKET;
@@ -269,13 +253,10 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
             break;
         }
 
-        if (!bConnected)
-        {
+        if (!bConnected) {
             Sleep(1);
             vktrace_LogVerbose("Client: Connect attempt %u on port %s failed, trying again.", attempt, pStream->mPort);
-        }
-        else
-        {
+        } else {
             vktrace_LogVerbose("Client: Connected to port %s successfully.", pStream->mPort);
         }
     }
@@ -290,8 +271,7 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
         return FALSE;
     }
 
-    if (!vktrace_MessageStream_Handshake(pStream))
-    {
+    if (!vktrace_MessageStream_Handshake(pStream)) {
         vktrace_LogError("Client: Failed handshake with host.");
         return FALSE;
     }
@@ -299,8 +279,7 @@ BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream)
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_Handshake(MessageStream* pStream)
-{
+BOOL vktrace_MessageStream_Handshake(MessageStream* pStream) {
     BOOL result = TRUE;
     FileLike* fileLike = vktrace_FileLike_create_msg(pStream);
     Checkpoint* syn = vktrace_Checkpoint_create("It's a trap!");
@@ -310,19 +289,15 @@ BOOL vktrace_MessageStream_Handshake(MessageStream* pStream)
         vktrace_Checkpoint_write(syn, fileLike);
         result = vktrace_Checkpoint_read(ack, fileLike);
     } else {
-        if (vktrace_Checkpoint_read(syn, fileLike))
-        {
+        if (vktrace_Checkpoint_read(syn, fileLike)) {
             vktrace_Checkpoint_write(ack, fileLike);
-        }
-        else
-        {
+        } else {
             result = FALSE;
         }
     }
 
     // Turn on non-blocking modes for sockets now.
-    if (result)
-    {
+    if (result) {
 #if defined(WIN32)
         u_long asyncMode = 1;
         ioctlsocket(pStream->mSocket, FIONBIO, &asyncMode);
@@ -339,8 +314,7 @@ BOOL vktrace_MessageStream_Handshake(MessageStream* pStream)
 }
 
 // ------------------------------------------------------------------------------------------------
-void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optional)
-{
+void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optional) {
     size_t bufferedByteSize = 0;
     const void* bufferBytes = vktrace_SimpleBuffer_GetBytes(pStream->mSendBuffer, &bufferedByteSize);
     if (bufferedByteSize > 0) {
@@ -351,24 +325,21 @@ void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optiona
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional)
-{
+BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional) {
     BOOL result = TRUE;
     if (pStream->mSendBuffer == NULL) {
         result = vktrace_MessageStream_ReallySend(pStream, _bytes, _size, _optional);
-    }
-    else
-    {
+    } else {
         if (!vktrace_SimpleBuffer_WouldOverflow(pStream->mSendBuffer, _size)) {
             result = vktrace_SimpleBuffer_AddBytes(pStream->mSendBuffer, _bytes, _size);
         } else {
             // Time to flush the cache.
             vktrace_MessageStream_FlushSendBuffer(pStream, FALSE);
 
-            // Check to see if the packet is larger than the send buffer 
-            if (vktrace_SimpleBuffer_WouldOverflow(pStream->mSendBuffer, _size)) { 
-                result = vktrace_MessageStream_ReallySend(pStream, _bytes, _size, _optional); 
-            } else { 
+            // Check to see if the packet is larger than the send buffer
+            if (vktrace_SimpleBuffer_WouldOverflow(pStream->mSendBuffer, _size)) {
+                result = vktrace_MessageStream_ReallySend(pStream, _bytes, _size, _optional);
+            } else {
                 result = vktrace_SimpleBuffer_AddBytes(pStream->mSendBuffer, _bytes, _size);
             }
         }
@@ -377,14 +348,12 @@ BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _byt
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, size_t _len)
-{
+BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, size_t _len) {
     return vktrace_MessageStream_BufferedSend(pStream, _bytes, _len, FALSE);
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional)
-{
+BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional) {
     size_t bytesSent = 0;
     assert(_size > 0);
 
@@ -401,7 +370,7 @@ BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes
             if (!_optional) {
                 vktrace_leave_critical_section(&gSendLock);
                 return FALSE;
-            } 
+            }
         }
         if (sentThisTime == 0) {
             if (!_optional) {
@@ -420,8 +389,7 @@ BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
-{
+BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len) {
     unsigned int totalDataRead = 0;
     unsigned int attempts = 0;
     do {
@@ -434,7 +402,8 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
                     return FALSE;
                 } else {
                     // I don't do partial reads--once I start receiving I wait for everything.
-                    vktrace_LogDebug("Sleep on partial socket recv (%u bytes / %u), error num %d.", totalDataRead, _len, pStream->mErrorNum);
+                    vktrace_LogDebug("Sleep on partial socket recv (%u bytes / %u), error num %d.", totalDataRead, _len,
+                                     pStream->mErrorNum);
                     Sleep(1);
                 }
                 // I've split these into two blocks because one of them is expected and the other isn't.
@@ -454,15 +423,13 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
                 vktrace_LogDebug("Sleep on socket recv of 0 (%u bytes / %u).", totalDataRead, _len);
                 Sleep(1);
             }
-            if (attempts == 200)
-            {
+            if (attempts == 200) {
                 // Give up
                 pStream->mErrorNum = WSAECONNRESET;
                 vktrace_LogDebug("Connection was reset by client.");
                 return FALSE;
             }
-        }
-        else {
+        } else {
             totalDataRead += dataRead;
         }
     } while (totalDataRead < _len);
@@ -471,11 +438,9 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, size_t _len)
-{
+BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, size_t _len) {
     while (!vktrace_MessageStream_Recv(pStream, _outBuffer, _len)) {
-        if (pStream->mErrorNum == WSAECONNRESET)
-        {
+        if (pStream->mErrorNum == WSAECONNRESET) {
             return FALSE;
         }
         Sleep(1);
@@ -486,12 +451,10 @@ BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-SimpleBuffer* vktrace_SimpleBuffer_create(size_t _bufferSize)
-{
+SimpleBuffer* vktrace_SimpleBuffer_create(size_t _bufferSize) {
     SimpleBuffer* pBuffer = VKTRACE_NEW(SimpleBuffer);
     pBuffer->mBuffer = (unsigned char*)vktrace_malloc(_bufferSize);
-    if (pBuffer->mBuffer == NULL)
-    {
+    if (pBuffer->mBuffer == NULL) {
         VKTRACE_DELETE(pBuffer);
         return NULL;
     }
@@ -502,16 +465,13 @@ SimpleBuffer* vktrace_SimpleBuffer_create(size_t _bufferSize)
     return pBuffer;
 }
 
-void vktrace_SimpleBuffer_destroy(SimpleBuffer** ppBuffer)
-{
+void vktrace_SimpleBuffer_destroy(SimpleBuffer** ppBuffer) {
     vktrace_free((*ppBuffer)->mBuffer);
     VKTRACE_DELETE(*ppBuffer);
 }
 
-BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, size_t _size)
-{
-    if (vktrace_SimpleBuffer_WouldOverflow(pBuffer, _size))
-    { 
+BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, size_t _size) {
+    if (vktrace_SimpleBuffer_WouldOverflow(pBuffer, _size)) {
         return FALSE;
     }
 
@@ -521,24 +481,19 @@ BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, si
     return TRUE;
 }
 
-void vktrace_SimpleBuffer_EmptyBuffer(SimpleBuffer* pBuffer)
-{
-    pBuffer->mEnd = 0;
-}
+void vktrace_SimpleBuffer_EmptyBuffer(SimpleBuffer* pBuffer) { pBuffer->mEnd = 0; }
 
-BOOL vktrace_SimpleBuffer_WouldOverflow(SimpleBuffer* pBuffer, size_t _requestedSize)
-{
+BOOL vktrace_SimpleBuffer_WouldOverflow(SimpleBuffer* pBuffer, size_t _requestedSize) {
     return pBuffer->mEnd + _requestedSize > pBuffer->mSize;
 }
 
-const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, size_t* _outByteCount)
-{
-    (*_outByteCount) = pBuffer->mEnd; 
-    return pBuffer->mBuffer; 
+const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, size_t* _outByteCount) {
+    (*_outByteCount) = pBuffer->mEnd;
+    return pBuffer->mBuffer;
 }
 
 //// ------------------------------------------------------------------------------------------------
-//void RemoteCommand::Read(FileLike* _fileLike)
+// void RemoteCommand::Read(FileLike* _fileLike)
 //{
 //    unsigned int myCommand = 0;
 //    _fileLike->Read(&myCommand);
@@ -546,7 +501,7 @@ const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, size_t* _outByt
 //}
 //
 //// ------------------------------------------------------------------------------------------------
-//void RemoteCommand::Write(FileLike* _fileLike) const
+// void RemoteCommand::Write(FileLike* _fileLike) const
 //{
 //    _fileLike->Write((unsigned int)mRemoteCommandType);
 //}

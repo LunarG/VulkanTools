@@ -50,11 +50,17 @@ using namespace std;
 #include <sys/system_properties.h>
 
 static char android_env[64] = {};
-const char* env_var = "debug.vulkan.screenshot";
+const char *env_var = "debug.vulkan.screenshot";
 const char *env_var_old = env_var;
+#else  //Linux or Windows
+const char *env_var_old = "_VK_SCREENSHOT";
+const char *env_var = "VK_SCREENSHOT_FRAMES";
+const char *env_var_format = "VK_SCREENSHOT_FORMAT";
+#endif
 
-char* android_exec(const char* cmd) {
-    FILE* pipe = popen(cmd, "r");
+#ifdef ANDROID
+char *android_exec(const char *cmd) {
+    FILE *pipe = popen(cmd, "r");
     if (pipe != nullptr) {
         fgets(android_env, 64, pipe);
         pclose(pipe);
@@ -69,32 +75,22 @@ char* android_exec(const char* cmd) {
     return nullptr;
 }
 
-char* android_getenv(const char *key)
-{
+char *android_getenv(const char *key) {
     std::string command("getprop ");
     command += key;
     return android_exec(command.c_str());
 }
 
-static inline char *local_getenv(const char *name) {
-    return android_getenv(name);
-}
+static inline char *local_getenv(const char *name) { return android_getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}
 
 #elif defined(__linux__)
-
-const char *env_var_old = "_VK_SCREENSHOT";
-const char *env_var = "VK_SCREENSHOT_FRAMES";
-
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}
 
 #elif defined(_WIN32)
-
-const char *env_var_old = "_VK_SCREENSHOT";
-const char *env_var = "VK_SCREENSHOT_FRAMES";
 
 static inline char *local_getenv(const char *name) {
     char *retVal;
@@ -104,8 +100,7 @@ static inline char *local_getenv(const char *name) {
 
     // valSize DOES include the null terminator, so for any set variable
     // will always be at least 1. If it's 0, the variable wasn't set.
-    if (valSize == 0)
-        return NULL;
+    if (valSize == 0) return NULL;
 
     // TODO; FIXME This should be using any app defined memory allocation
     retVal = (char *)malloc(valSize);
@@ -122,6 +117,23 @@ namespace screenshot {
 
 static int globalLockInitialized = 0;
 static loader_platform_thread_mutex globalLock;
+
+const char *vk_screenshot_format = nullptr;
+
+bool printFormatWarning = true;
+
+typedef enum colorSpaceFormat {
+    UNDEFINED = 0,
+    UNORM = 1,
+    SNORM = 2,
+    USCALED = 3,
+    SSCALED = 4,
+    UINT = 5,
+    SINT = 6,
+    SRGB = 7
+} colorSpaceFormat;
+
+colorSpaceFormat userColorSpaceFormat = UNDEFINED;
 
 // unordered map: associates a swap chain with a device, image extent, format,
 // and list of images
@@ -209,6 +221,36 @@ static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, b
     return inRange;
 }
 
+//Get users request is specific color space format required
+void readScreenShotFormatENV(void) {
+#ifndef ANDROID
+    vk_screenshot_format = local_getenv(env_var_format);
+#endif
+    if (vk_screenshot_format && *vk_screenshot_format) {
+        if (!strcmp(vk_screenshot_format, "UNORM")) {
+            userColorSpaceFormat = UNORM;
+        } else if (!strcmp(vk_screenshot_format, "SRGB")) {
+            userColorSpaceFormat = SRGB;
+        } else if (!strcmp(vk_screenshot_format, "SNORM")) {
+            userColorSpaceFormat = SNORM;
+        } else if (!strcmp(vk_screenshot_format, "USCALED")) {
+            userColorSpaceFormat = USCALED;
+        } else if (!strcmp(vk_screenshot_format, "SSCALED")) {
+            userColorSpaceFormat = SSCALED;
+        } else if (!strcmp(vk_screenshot_format, "UINT")) {
+            userColorSpaceFormat = UINT;
+        } else if (!strcmp(vk_screenshot_format, "SINT")) {
+            userColorSpaceFormat = SINT;
+        } else {
+#ifdef ANDROID
+#else
+            fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                            "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
+#endif
+        }
+    }
+}
+
 // detect if frameNumber reach or beyond the right edge for screenshot in the range.
 // return:
 //       if frameNumber is already the last screenshot frame of the range(mean no another screenshot frame number >frameNumber and
@@ -251,8 +293,7 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
             if (*(word.c_str()) >= '0' && *(word.c_str()) <= '9') {
                 screenshotFrames.insert(frameToAdd);
             }
-            if (comma == string::npos)
-                break;
+            if (comma == string::npos) break;
             start = comma + 1;
         }
     } else {
@@ -265,16 +306,13 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
     screenshotFramesReceived = true;
 }
 
-static bool
-memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory_properties,
-                            uint32_t typeBits, VkFlags requirements_mask,
-                            uint32_t *typeIndex) {
+static bool memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory_properties, uint32_t typeBits,
+                                        VkFlags requirements_mask, uint32_t *typeIndex) {
     // Search memtypes to find first index with those properties
     for (uint32_t i = 0; i < 32; i++) {
         if ((typeBits & 1) == 1) {
             // Type is available, does it match user properties?
-            if ((memory_properties->memoryTypes[i].propertyFlags &
-                 requirements_mask) == requirements_mask) {
+            if ((memory_properties->memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
                 *typeIndex = i;
                 return true;
             }
@@ -303,6 +341,7 @@ static void init_screenshot() {
         loader_platform_thread_create_mutex(&globalLock);
         globalLockInitialized = 1;
     }
+    readScreenShotFormatENV();
 }
 
 // Track allocated resources in writePPM()
@@ -322,23 +361,15 @@ struct WritePPMCleanupData {
 };
 
 WritePPMCleanupData::~WritePPMCleanupData() {
-    if (mem2mapped)
-        pTableDevice->UnmapMemory(device, mem2);
-    if (mem2)
-        pTableDevice->FreeMemory(device, mem2, NULL);
-    if (image2)
-        pTableDevice->DestroyImage(device, image2, NULL);
+    if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
+    if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
+    if (image2) pTableDevice->DestroyImage(device, image2, NULL);
 
-    if (mem3mapped)
-        pTableDevice->UnmapMemory(device, mem3);
-    if (mem3)
-        pTableDevice->FreeMemory(device, mem3, NULL);
-    if (image3)
-        pTableDevice->DestroyImage(device, image3, NULL);
+    if (mem3mapped) pTableDevice->UnmapMemory(device, mem3);
+    if (mem3) pTableDevice->FreeMemory(device, mem3, NULL);
+    if (image3) pTableDevice->DestroyImage(device, image3, NULL);
 
-    if (commandBuffer)
-        pTableDevice->FreeCommandBuffers(device, commandPool, 1,
-                                         &commandBuffer);
+    if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
 // Save an image to a PPM image file.
@@ -355,13 +386,11 @@ WritePPMCleanupData::~WritePPMCleanupData() {
 // allocation failures.
 // (TODO) It would be nice to pass any failure info to DebugReport or something.
 static void writePPM(const char *filename, VkImage image1) {
-
     VkResult err;
     bool pass;
 
     // Bail immediately if we can't find the image.
-    if (imageMap.empty() || imageMap.find(image1) == imageMap.end())
-        return;
+    if (imageMap.empty() || imageMap.find(image1) == imageMap.end()) return;
 
     // Collect object info from maps.  This info is generally recorded
     // by the other functions hooked in this layer.
@@ -375,29 +404,139 @@ static void writePPM(const char *filename, VkImage image1) {
         return;
     }
     VkLayerDispatchTable *pTableDevice = devMap->device_dispatch_table;
-    VkLayerDispatchTable *pTableQueue =
-        get_dev_info(static_cast<VkDevice>(static_cast<void *>(queue)))
-            ->device_dispatch_table;
+    VkLayerDispatchTable *pTableQueue = get_dev_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
     VkLayerInstanceDispatchTable *pInstanceTable;
     pInstanceTable = instance_dispatch_table(instance);
 
     // Gather incoming image info and check image format for compatibility with
     // the target format.
     // This function supports both 24-bit and 32-bit swapchain images.
-    VkFormat const target32bitFormat = VK_FORMAT_R8G8B8A8_UNORM;
-    VkFormat const target24bitFormat = VK_FORMAT_R8G8B8_UNORM;
     uint32_t const width = imageMap[image1]->imageExtent.width;
     uint32_t const height = imageMap[image1]->imageExtent.height;
     VkFormat const format = imageMap[image1]->format;
     uint32_t const numChannels = vk_format_get_channel_count(format);
-    if ((vk_format_get_compatibility_class(target24bitFormat) !=
-         vk_format_get_compatibility_class(format)) &&
-        (vk_format_get_compatibility_class(target32bitFormat) !=
-         vk_format_get_compatibility_class(format))) {
+
+    if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
         return;
     }
-    if ((3 != numChannels) && (4 != numChannels)) {
+
+    // Initial dest format is undefined as we will look for one
+    VkFormat destformat = VK_FORMAT_UNDEFINED;
+
+    //This variable set by readScreenShotFormatENV func during init
+    if (userColorSpaceFormat != UNDEFINED) {
+        switch (userColorSpaceFormat) {
+            case UNORM:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_UNORM;
+                else
+                    destformat = VK_FORMAT_R8G8B8_UNORM;
+                break;
+            case SRGB:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SRGB;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SRGB;
+                break;
+            case SNORM:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SNORM;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SNORM;
+                break;
+            case USCALED:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_USCALED;
+                else
+                    destformat = VK_FORMAT_R8G8B8_USCALED;
+                break;
+            case SSCALED:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SSCALED;
+                break;
+            case UINT:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_UINT;
+                else
+                    destformat = VK_FORMAT_R8G8B8_UINT;
+                break;
+            case SINT:
+                if (numChannels == 4)
+                    destformat = VK_FORMAT_R8G8B8A8_SINT;
+                else
+                    destformat = VK_FORMAT_R8G8B8_SINT;
+                break;
+            default:
+                destformat = VK_FORMAT_UNDEFINED;
+                break;
+        }
+    }
+
+    // User did not require sepecific format so we use same colorspace with
+    // swapchain format
+    if (destformat == VK_FORMAT_UNDEFINED) {
+        // Here we reserve swapchain color space only as RGBA swizzle will be later.
+        //
+        // One Potential optimization here would be: set destination to RGB all the
+        // time instead RGBA. PPM does not support Alpha channel, so we can write
+        // RGB one row by row but RGBA written one pixel at a time.
+        // This requires BLIT operation to get involved but current drivers (mostly)
+        // does not support BLIT operations on 3 Channel rendertargets.
+        // So format conversion gets costly.
+        if (numChannels == 4) {
+            if (vk_format_is_unorm(format))
+                destformat = VK_FORMAT_R8G8B8A8_UNORM;
+            else if (vk_format_is_srgb(format))
+                destformat = VK_FORMAT_R8G8B8A8_SRGB;
+            else if (vk_format_is_snorm(format))
+                destformat = VK_FORMAT_R8G8B8A8_SNORM;
+            else if (vk_format_is_uscaled(format))
+                destformat = VK_FORMAT_R8G8B8A8_USCALED;
+            else if (vk_format_is_sscaled(format))
+                destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+            else if (vk_format_is_uint(format))
+                destformat = VK_FORMAT_R8G8B8A8_UINT;
+            else if (vk_format_is_sint(format))
+                destformat = VK_FORMAT_R8G8B8A8_SINT;
+        } else { //numChannels 3
+            if (vk_format_is_unorm(format))
+                destformat = VK_FORMAT_R8G8B8_UNORM;
+            else if (vk_format_is_srgb(format))
+                destformat = VK_FORMAT_R8G8B8_SRGB;
+            else if (vk_format_is_snorm(format))
+                destformat = VK_FORMAT_R8G8B8_SNORM;
+            else if (vk_format_is_uscaled(format))
+                destformat = VK_FORMAT_R8G8B8_USCALED;
+            else if (vk_format_is_sscaled(format))
+                destformat = VK_FORMAT_R8G8B8_SSCALED;
+            else if (vk_format_is_uint(format))
+                destformat = VK_FORMAT_R8G8B8_UINT;
+            else if (vk_format_is_sint(format))
+                destformat = VK_FORMAT_R8G8B8_SINT;
+        }
+    }
+
+    //Still could not find the right format then we use UNORM
+    if (destformat == VK_FORMAT_UNDEFINED)
+    {
+#ifdef ANDROID
+#else
+        if (printFormatWarning) {
+            fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                            "UNORM colorspace will be used instead\n");
+            printFormatWarning = false;
+        }
+#endif
+        if (numChannels == 4)
+            destformat = VK_FORMAT_R8G8B8A8_UNORM;
+        else
+            destformat = VK_FORMAT_R8G8B8_UNORM;
+    }
+
+    if ((vk_format_get_compatibility_class(destformat) != vk_format_get_compatibility_class(format))) {
         assert(0);
         return;
     }
@@ -436,23 +575,14 @@ static void writePPM(const char *filename, VkImage image1) {
     // the same.  In this case, just do a COPY.
 
     VkFormatProperties targetFormatProps;
-    pInstanceTable->GetPhysicalDeviceFormatProperties(
-        physicalDevice,
-        (3 == numChannels) ? target24bitFormat : target32bitFormat,
-        &targetFormatProps);
+    pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, destformat, &targetFormatProps);
     bool need2steps = false;
     bool copyOnly = false;
-    if ((target24bitFormat == format) || (target32bitFormat == format)) {
+    if (destformat == format) {
         copyOnly = true;
     } else {
-        bool const bltLinear = targetFormatProps.linearTilingFeatures &
-                                       VK_FORMAT_FEATURE_BLIT_DST_BIT
-                                   ? true
-                                   : false;
-        bool const bltOptimal = targetFormatProps.optimalTilingFeatures &
-                                        VK_FORMAT_FEATURE_BLIT_DST_BIT
-                                    ? true
-                                    : false;
+        bool const bltLinear = targetFormatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT ? true : false;
+        bool const bltOptimal = targetFormatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT ? true : false;
         if (!bltLinear && !bltOptimal) {
             // Cannot blit to either target tiling type.  It should be pretty
             // unlikely to have a device that cannot blit to either type.
@@ -480,7 +610,7 @@ static void writePPM(const char *filename, VkImage image1) {
         NULL,
         0,
         VK_IMAGE_TYPE_2D,
-        VK_FORMAT_R8G8B8A8_UNORM,
+        destformat,
         {width, height, 1},
         1,
         1,
@@ -497,86 +627,65 @@ static void writePPM(const char *filename, VkImage image1) {
     // If we need both images, set up image2 to be read/write and tiled.
     if (need2steps) {
         imgCreateInfo2.tiling = VK_IMAGE_TILING_OPTIMAL;
-        imgCreateInfo2.usage =
-            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        imgCreateInfo2.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
 
     VkMemoryAllocateInfo memAllocInfo = {
         VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, NULL,
-        0, // allocationSize, queried later
-        0  // memoryTypeIndex, queried later
+        0,  // allocationSize, queried later
+        0   // memoryTypeIndex, queried later
     };
     VkMemoryRequirements memRequirements;
     VkPhysicalDeviceMemoryProperties memoryProperties;
 
     // Create image2 and allocate its memory.  It could be the intermediate or
     // final image.
-    err =
-        pTableDevice->CreateImage(device, &imgCreateInfo2, NULL, &data.image2);
+    err = pTableDevice->CreateImage(device, &imgCreateInfo2, NULL, &data.image2);
     assert(!err);
-    if (VK_SUCCESS != err)
-        return;
-    pTableDevice->GetImageMemoryRequirements(device, data.image2,
-                                             &memRequirements);
+    if (VK_SUCCESS != err) return;
+    pTableDevice->GetImageMemoryRequirements(device, data.image2, &memRequirements);
     memAllocInfo.allocationSize = memRequirements.size;
-    pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice,
-                                                      &memoryProperties);
-    pass = memory_type_from_properties(
-        &memoryProperties, memRequirements.memoryTypeBits,
-        need2steps ? VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-                   : VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-        &memAllocInfo.memoryTypeIndex);
+    pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+    pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits,
+                                       need2steps ? VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT : VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                       &memAllocInfo.memoryTypeIndex);
     assert(pass);
     err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem2);
     assert(!err);
-    if (VK_SUCCESS != err)
-        return;
+    if (VK_SUCCESS != err) return;
     err = pTableQueue->BindImageMemory(device, data.image2, data.mem2, 0);
     assert(!err);
-    if (VK_SUCCESS != err)
-        return;
+    if (VK_SUCCESS != err) return;
 
     // Create image3 and allocate its memory, if needed.
     if (need2steps) {
-        err = pTableDevice->CreateImage(device, &imgCreateInfo3, NULL,
-                                        &data.image3);
+        err = pTableDevice->CreateImage(device, &imgCreateInfo3, NULL, &data.image3);
         assert(!err);
-        if (VK_SUCCESS != err)
-            return;
-        pTableDevice->GetImageMemoryRequirements(device, data.image3,
-                                                 &memRequirements);
+        if (VK_SUCCESS != err) return;
+        pTableDevice->GetImageMemoryRequirements(device, data.image3, &memRequirements);
         memAllocInfo.allocationSize = memRequirements.size;
-        pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice,
-                                                          &memoryProperties);
-        pass = memory_type_from_properties(
-            &memoryProperties, memRequirements.memoryTypeBits,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memAllocInfo.memoryTypeIndex);
+        pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+        pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                           &memAllocInfo.memoryTypeIndex);
         assert(pass);
-        err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL,
-                                           &data.mem3);
+        err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem3);
         assert(!err);
-        if (VK_SUCCESS != err)
-            return;
+        if (VK_SUCCESS != err) return;
         err = pTableQueue->BindImageMemory(device, data.image3, data.mem3, 0);
         assert(!err);
-        if (VK_SUCCESS != err)
-            return;
+        if (VK_SUCCESS != err) return;
     }
 
     // Set up the command buffer.  We get a command buffer from a pool we saved
     // in a hooked function, which would be the application's pool.
-    const VkCommandBufferAllocateInfo allocCommandBufferInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
-        deviceMap[device]->commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
+    const VkCommandBufferAllocateInfo allocCommandBufferInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
+                                                                deviceMap[device]->commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
     data.commandPool = deviceMap[device]->commandPool;
-    err = pTableDevice->AllocateCommandBuffers(device, &allocCommandBufferInfo,
-                                               &data.commandBuffer);
+    err = pTableDevice->AllocateCommandBuffers(device, &allocCommandBufferInfo, &data.commandBuffer);
     assert(!err);
-    if (VK_SUCCESS != err)
-        return;
+    if (VK_SUCCESS != err) return;
 
-    VkDevice cmdBuf =
-        static_cast<VkDevice>(static_cast<void *>(data.commandBuffer));
+    VkDevice cmdBuf = static_cast<VkDevice>(static_cast<void *>(data.commandBuffer));
     deviceMap.emplace(cmdBuf, devMap);
     VkLayerDispatchTable *pTableCommandBuffer;
     pTableCommandBuffer = get_dev_info(cmdBuf)->device_dispatch_table;
@@ -593,79 +702,66 @@ static void writePPM(const char *filename, VkImage image1) {
     }
 
     const VkCommandBufferBeginInfo commandBufferBeginInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, NULL,
-        VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, NULL, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
     };
-    err = pTableCommandBuffer->BeginCommandBuffer(data.commandBuffer,
-                                                  &commandBufferBeginInfo);
+    err = pTableCommandBuffer->BeginCommandBuffer(data.commandBuffer, &commandBufferBeginInfo);
     assert(!err);
 
     // This barrier is used to transition from/to present Layout
-    VkImageMemoryBarrier presentMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        NULL,
-        VK_ACCESS_TRANSFER_WRITE_BIT,
-        VK_ACCESS_TRANSFER_READ_BIT,
-        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        VK_QUEUE_FAMILY_IGNORED,
-        VK_QUEUE_FAMILY_IGNORED,
-        image1,
-        {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
+    VkImageMemoryBarrier presentMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                                                 NULL,
+                                                 VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                 VK_ACCESS_TRANSFER_READ_BIT,
+                                                 VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                 VK_QUEUE_FAMILY_IGNORED,
+                                                 VK_QUEUE_FAMILY_IGNORED,
+                                                 image1,
+                                                 {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
 
     // This barrier is used to transition from a newly-created layout to a blt
     // or copy destination layout.
-    VkImageMemoryBarrier destMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        NULL,
-        0,
-        VK_ACCESS_TRANSFER_WRITE_BIT,
-        VK_IMAGE_LAYOUT_UNDEFINED,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        VK_QUEUE_FAMILY_IGNORED,
-        VK_QUEUE_FAMILY_IGNORED,
-        data.image2,
-        {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
+    VkImageMemoryBarrier destMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                                              NULL,
+                                              0,
+                                              VK_ACCESS_TRANSFER_WRITE_BIT,
+                                              VK_IMAGE_LAYOUT_UNDEFINED,
+                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                              VK_QUEUE_FAMILY_IGNORED,
+                                              VK_QUEUE_FAMILY_IGNORED,
+                                              data.image2,
+                                              {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
 
     // This barrier is used to transition a dest layout to general layout.
-    VkImageMemoryBarrier generalMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        NULL,
-        VK_ACCESS_TRANSFER_WRITE_BIT,
-        VK_ACCESS_TRANSFER_READ_BIT,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        VK_IMAGE_LAYOUT_GENERAL,
-        VK_QUEUE_FAMILY_IGNORED,
-        VK_QUEUE_FAMILY_IGNORED,
-        data.image2,
-        {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
+    VkImageMemoryBarrier generalMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                                                 NULL,
+                                                 VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                 VK_ACCESS_TRANSFER_READ_BIT,
+                                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                 VK_IMAGE_LAYOUT_GENERAL,
+                                                 VK_QUEUE_FAMILY_IGNORED,
+                                                 VK_QUEUE_FAMILY_IGNORED,
+                                                 data.image2,
+                                                 {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}};
 
     VkPipelineStageFlags srcStages = VK_PIPELINE_STAGE_TRANSFER_BIT;
     VkPipelineStageFlags dstStages = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
     // The source image needs to be transitioned from present to transfer
     // source.
-    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages,
-                                            dstStages, 0, 0, NULL, 0, NULL, 1,
+    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
                                             &presentMemoryBarrier);
 
     // image2 needs to be transitioned from its undefined state to transfer
     // destination.
-    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages,
-                                            dstStages, 0, 0, NULL, 0, NULL, 1,
-                                            &destMemoryBarrier);
+    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1, &destMemoryBarrier);
 
-    const VkImageCopy imageCopyRegion = {{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
-                                         {0, 0, 0},
-                                         {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
-                                         {0, 0, 0},
-                                         {width, height, 1}};
+    const VkImageCopy imageCopyRegion = {
+        {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {width, height, 1}};
 
     if (copyOnly) {
-        pTableCommandBuffer->CmdCopyImage(
-            data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            data.image2, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
-            &imageCopyRegion);
+        pTableCommandBuffer->CmdCopyImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
+                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
     } else {
         VkImageBlit imageBlitRegion = {};
         imageBlitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -683,17 +779,14 @@ static void writePPM(const char *filename, VkImage image1) {
         imageBlitRegion.dstOffsets[1].y = height;
         imageBlitRegion.dstOffsets[1].z = 1;
 
-        pTableCommandBuffer->CmdBlitImage(
-            data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            data.image2, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
-            &imageBlitRegion, VK_FILTER_NEAREST);
+        pTableCommandBuffer->CmdBlitImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
+                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlitRegion, VK_FILTER_NEAREST);
         if (need2steps) {
             // image 3 needs to be transitioned from its undefined state to a
             // transfer destination.
             destMemoryBarrier.image = data.image3;
-            pTableCommandBuffer->CmdPipelineBarrier(
-                data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL,
-                1, &destMemoryBarrier);
+            pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
+                                                    &destMemoryBarrier);
 
             // Transition image2 so that it can be read for the upcoming copy to
             // image 3.
@@ -702,23 +795,19 @@ static void writePPM(const char *filename, VkImage image1) {
             destMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             destMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
             destMemoryBarrier.image = data.image2;
-            pTableCommandBuffer->CmdPipelineBarrier(
-                data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL,
-                1, &destMemoryBarrier);
+            pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
+                                                    &destMemoryBarrier);
 
             // This step essentially untiles the image.
-            pTableCommandBuffer->CmdCopyImage(
-                data.commandBuffer, data.image2,
-                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image3,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+            pTableCommandBuffer->CmdCopyImage(data.commandBuffer, data.image2, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image3,
+                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
             generalMemoryBarrier.image = data.image3;
         }
     }
 
     // The destination needs to be transitioned from the optimal copy format to
     // the format we can read with the CPU.
-    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages,
-                                            dstStages, 0, 0, NULL, 0, NULL, 1,
+    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
                                             &generalMemoryBarrier);
 
     // Restore the swap chain image layout to what it was before.
@@ -728,8 +817,7 @@ static void writePPM(const char *filename, VkImage image1) {
     presentMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     presentMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     presentMemoryBarrier.dstAccessMask = 0;
-    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages,
-                                            dstStages, 0, 0, NULL, 0, NULL, 1,
+    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
                                             &presentMemoryBarrier);
 
     err = pTableCommandBuffer->EndCommandBuffer(data.commandBuffer);
@@ -761,22 +849,16 @@ static void writePPM(const char *filename, VkImage image1) {
     VkSubresourceLayout srLayout;
     const char *ptr;
     if (!need2steps) {
-        pTableDevice->GetImageSubresourceLayout(device, data.image2, &sr,
-                                                &srLayout);
-        err = pTableDevice->MapMemory(device, data.mem2, 0, VK_WHOLE_SIZE, 0,
-                                      (void **)&ptr);
+        pTableDevice->GetImageSubresourceLayout(device, data.image2, &sr, &srLayout);
+        err = pTableDevice->MapMemory(device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
         assert(!err);
-        if (VK_SUCCESS != err)
-            return;
+        if (VK_SUCCESS != err) return;
         data.mem2mapped = true;
     } else {
-        pTableDevice->GetImageSubresourceLayout(device, data.image3, &sr,
-                                                &srLayout);
-        err = pTableDevice->MapMemory(device, data.mem3, 0, VK_WHOLE_SIZE, 0,
-                                      (void **)&ptr);
+        pTableDevice->GetImageSubresourceLayout(device, data.image3, &sr, &srLayout);
+        err = pTableDevice->MapMemory(device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
         assert(!err);
-        if (VK_SUCCESS != err)
-            return;
+        if (VK_SUCCESS != err) return;
         data.mem3mapped = true;
     }
 
@@ -786,9 +868,12 @@ static void writePPM(const char *filename, VkImage image1) {
 
     if (!file.is_open()) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s.  Be sure to grant read and write permissions.", filename);
+        __android_log_print(ANDROID_LOG_DEBUG, "screenshot",
+                            "Failed to open output file: %s.  Be sure to grant read and write permissions.", filename);
+#else
+        fprintf(stderr, "Failed to open output file:%s,  Be sure to grant read and write permissions\n", filename);
 #endif
-       return;
+        return;
     }
 
     file << "P6\n";
@@ -817,19 +902,14 @@ static void writePPM(const char *filename, VkImage image1) {
     // Clean up handled by ~WritePPMCleanupData()
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-CreateInstance(const VkInstanceCreateInfo *pCreateInfo,
-               const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
-    VkLayerInstanceCreateInfo *chain_info =
-        get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                              VkInstance *pInstance) {
+    VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
-    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr =
-        chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     assert(fpGetInstanceProcAddr);
-    PFN_vkCreateInstance fpCreateInstance =
-        (PFN_vkCreateInstance)fpGetInstanceProcAddr(VK_NULL_HANDLE,
-                                                    "vkCreateInstance");
+    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance)fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance");
     if (fpCreateInstance == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -838,8 +918,7 @@ CreateInstance(const VkInstanceCreateInfo *pCreateInfo,
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
     VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-    if (result != VK_SUCCESS)
-        return result;
+    if (result != VK_SUCCESS) return result;
 
     initInstanceTable(*pInstance, fpGetInstanceProcAddr);
 
@@ -850,43 +929,30 @@ CreateInstance(const VkInstanceCreateInfo *pCreateInfo,
 
 // TODO hook DestroyInstance to cleanup
 
-static void
-createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
-                               VkDevice device) {
+static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo, VkDevice device) {
     uint32_t i;
     DeviceMapStruct *devMap = get_dev_info(device);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
     PFN_vkGetDeviceProcAddr gpa = pDisp->GetDeviceProcAddr;
-    pDisp->CreateSwapchainKHR =
-        (PFN_vkCreateSwapchainKHR)gpa(device, "vkCreateSwapchainKHR");
-    pDisp->GetSwapchainImagesKHR =
-        (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
-    pDisp->AcquireNextImageKHR =
-        (PFN_vkAcquireNextImageKHR)gpa(device, "vkAcquireNextImageKHR");
-    pDisp->QueuePresentKHR =
-        (PFN_vkQueuePresentKHR)gpa(device, "vkQueuePresentKHR");
+    pDisp->CreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)gpa(device, "vkCreateSwapchainKHR");
+    pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
+    pDisp->AcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)gpa(device, "vkAcquireNextImageKHR");
+    pDisp->QueuePresentKHR = (PFN_vkQueuePresentKHR)gpa(device, "vkQueuePresentKHR");
     devMap->wsi_enabled = false;
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i],
-                   VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0)
-            devMap->wsi_enabled = true;
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) devMap->wsi_enabled = true;
     }
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
-             const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
-    VkLayerDeviceCreateInfo *chain_info =
-        get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
+                                            const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
+    VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
-    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr =
-        chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr =
-        chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
     VkInstance instance = physDeviceMap[gpu]->instance;
-    PFN_vkCreateDevice fpCreateDevice =
-        (PFN_vkCreateDevice)fpGetInstanceProcAddr(instance, "vkCreateDevice");
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(instance, "vkCreateDevice");
     if (fpCreateDevice == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -905,8 +971,7 @@ CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
 
     // Setup device dispatch table
     deviceMapElem->device_dispatch_table = new VkLayerDispatchTable;
-    layer_init_device_dispatch_table(
-        *pDevice, deviceMapElem->device_dispatch_table, fpGetDeviceProcAddr);
+    layer_init_device_dispatch_table(*pDevice, deviceMapElem->device_dispatch_table, fpGetDeviceProcAddr);
 
     createDeviceRegisterExtensions(pCreateInfo, *pDevice);
     // Create a mapping from a device to a physicalDevice
@@ -922,20 +987,17 @@ CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
-                         VkPhysicalDevice *pPhysicalDevices) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
+                                                        VkPhysicalDevice *pPhysicalDevices) {
     VkResult result;
 
     VkLayerInstanceDispatchTable *pTable = instance_dispatch_table(instance);
-    result = pTable->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount,
-                                              pPhysicalDevices);
+    result = pTable->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
     if (result == VK_SUCCESS && *pPhysicalDeviceCount > 0 && pPhysicalDevices) {
         for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
             // Create a mapping from a physicalDevice to an instance
             if (physDeviceMap[pPhysicalDevices[i]] == NULL) {
-                PhysDeviceMapStruct *physDeviceMapElem =
-                    new PhysDeviceMapStruct;
+                PhysDeviceMapStruct *physDeviceMapElem = new PhysDeviceMapStruct;
                 physDeviceMap[pPhysicalDevices[i]] = physDeviceMapElem;
             }
             physDeviceMap[pPhysicalDevices[i]]->instance = instance;
@@ -944,13 +1006,13 @@ EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
     return result;
 }
 
-VKAPI_ATTR void VKAPI_CALL
-DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
+VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     DeviceMapStruct *devMap = get_dev_info(device);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
     pDisp->DestroyDevice(device, pAllocator);
 
+    local_free_getenv(vk_screenshot_format);
     loader_platform_thread_lock_mutex(&globalLock);
     delete pDisp;
     delete devMap;
@@ -959,10 +1021,7 @@ DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 
-VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device,
-                                          uint32_t queueNodeIndex,
-                                          uint32_t queueIndex,
-                                          VkQueue *pQueue) {
+VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueNodeIndex, uint32_t queueIndex, VkQueue *pQueue) {
     DeviceMapStruct *devMap = get_dev_info(device);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
@@ -984,14 +1043,12 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device,
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
-    VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool) {
+VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
+                                                 const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool) {
     DeviceMapStruct *devMap = get_dev_info(device);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    VkResult result =
-        pDisp->CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
+    VkResult result = pDisp->CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
 
     // Save the command pool on a map if we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
@@ -1007,10 +1064,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
-    VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
-
+VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
+                                                  const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
     DeviceMapStruct *devMap = get_dev_info(device);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
@@ -1019,8 +1074,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     // transfer src bit to be on.
     VkSwapchainCreateInfoKHR myCreateInfo = *pCreateInfo;
     myCreateInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    VkResult result = pDisp->CreateSwapchainKHR(device, &myCreateInfo,
-                                                pAllocator, pSwapchain);
+    VkResult result = pDisp->CreateSwapchainKHR(device, &myCreateInfo, pAllocator, pSwapchain);
 
     // Save the swapchain in a map of we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
@@ -1048,14 +1102,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
-                      uint32_t *pCount, VkImage *pSwapchainImages) {
+VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pCount,
+                                                     VkImage *pSwapchainImages) {
     DeviceMapStruct *devMap = get_dev_info(device);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount,
-                                                   pSwapchainImages);
+    VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
 
     // Save the swapchain images in a map if we are taking screenshots
     loader_platform_thread_lock_mutex(&globalLock);
@@ -1065,8 +1117,7 @@ GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
         return result;
     }
 
-    if (result == VK_SUCCESS && pSwapchainImages && !swapchainMap.empty() &&
-        swapchainMap.find(swapchain) != swapchainMap.end()) {
+    if (result == VK_SUCCESS && pSwapchainImages && !swapchainMap.empty() && swapchainMap.find(swapchain) != swapchainMap.end()) {
         unsigned i;
 
         for (i = 0; i < *pCount; i++) {
@@ -1076,12 +1127,9 @@ GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
                 ImageMapStruct *imageMapElem = new ImageMapStruct;
                 imageMap[pSwapchainImages[i]] = imageMapElem;
             }
-            imageMap[pSwapchainImages[i]]->device =
-                swapchainMap[swapchain]->device;
-            imageMap[pSwapchainImages[i]]->imageExtent =
-                swapchainMap[swapchain]->imageExtent;
-            imageMap[pSwapchainImages[i]]->format =
-                swapchainMap[swapchain]->format;
+            imageMap[pSwapchainImages[i]]->device = swapchainMap[swapchain]->device;
+            imageMap[pSwapchainImages[i]]->imageExtent = swapchainMap[swapchain]->imageExtent;
+            imageMap[pSwapchainImages[i]]->format = swapchainMap[swapchain]->format;
         }
 
         // Add list of images to swapchain to image map
@@ -1098,8 +1146,7 @@ GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
+VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     static int frameNumber = 0;
     if (frameNumber == 10) {
         fflush(stdout); /* *((int*)0)=0; */
@@ -1139,20 +1186,20 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
 
 #ifdef ANDROID
             // std::to_string is not supported currently
-            char buffer [64];
+            char buffer[64];
             snprintf(buffer, sizeof(buffer), "/sdcard/Android/%d", frameNumber);
             std::string base(buffer);
             fileName = base + ".ppm";
 #else
             fileName = to_string(frameNumber) + ".ppm";
+            printf("Screen Capture file is: %s \n", fileName.c_str());
 #endif
 
             VkImage image;
             VkSwapchainKHR swapchain;
             // We'll dump only one image: the first
             swapchain = pPresentInfo->pSwapchains[0];
-            image = swapchainMap[swapchain]
-                        ->imageList[pPresentInfo->pImageIndices[0]];
+            image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
             writePPM(fileName.c_str(), image);
             if (inScreenShotFrames) {
                 screenshotFrames.erase(it);
@@ -1160,8 +1207,7 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
 
             if (screenshotFrames.empty() && isEndOfScreenShotFrameRange(frameNumber, &screenShotFrameRange)) {
                 // Free all our maps since we are done with them.
-                for (auto it = swapchainMap.begin(); it != swapchainMap.end();
-                     it++) {
+                for (auto it = swapchainMap.begin(); it != swapchainMap.end(); it++) {
                     SwapchainMapStruct *swapchainMapElem = it->second;
                     delete swapchainMapElem;
                 }
@@ -1169,8 +1215,7 @@ QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
                     ImageMapStruct *imageMapElem = it->second;
                     delete imageMapElem;
                 }
-                for (auto it = physDeviceMap.begin(); it != physDeviceMap.end();
-                     it++) {
+                for (auto it = physDeviceMap.begin(); it != physDeviceMap.end(); it++) {
                     PhysDeviceMapStruct *physDeviceMapElem = it->second;
                     delete physDeviceMapElem;
                 }
@@ -1194,122 +1239,91 @@ VKAPI_ATTR VkResult VKAPI_CALL SpecifyScreenshotFrames(const char *frameList) {
 }
 
 static const VkLayerProperties global_layer = {
-    "VK_LAYER_LUNARG_screenshot", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1,
-    "Layer: screenshot",
+    "VK_LAYER_LUNARG_screenshot", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "Layer: screenshot",
 };
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(
-    uint32_t *pCount, VkLayerProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
     return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(
-    VkPhysicalDevice physicalDevice, uint32_t *pCount,
-    VkLayerProperties *pProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount,
+                                                              VkLayerProperties *pProperties) {
     return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL
-EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
-                                     VkExtensionProperties *pProperties) {
-    if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
-        return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                    VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName)) return util_GetExtensionProperties(0, NULL, pCount, pProperties);
 
     return VK_ERROR_LAYER_NOT_PRESENT;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(
-    VkPhysicalDevice physicalDevice, const char *pLayerName, uint32_t *pCount,
-    VkExtensionProperties *pProperties) {
-    if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
-        return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char *pLayerName,
+                                                                  uint32_t *pCount, VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName)) return util_GetExtensionProperties(0, NULL, pCount, pProperties);
 
     assert(physicalDevice);
 
-    VkLayerInstanceDispatchTable *pTable =
-        instance_dispatch_table(physicalDevice);
-    return pTable->EnumerateDeviceExtensionProperties(
-        physicalDevice, pLayerName, pCount, pProperties);
+    VkLayerInstanceDispatchTable *pTable = instance_dispatch_table(physicalDevice);
+    return pTable->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
 }
 
 static PFN_vkVoidFunction intercept_core_instance_command(const char *name);
 
 static PFN_vkVoidFunction intercept_core_device_command(const char *name);
 
-static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name,
-                                                          VkDevice dev);
+static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDevice dev);
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-GetDeviceProcAddr(VkDevice dev, const char *funcName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
-    if (proc)
-        return proc;
+    if (proc) return proc;
 
     if (dev == NULL) {
         return NULL;
     }
 
     proc = intercept_khr_swapchain_command(funcName, dev);
-    if (proc)
-        return proc;
+    if (proc) return proc;
 
     DeviceMapStruct *devMap = get_dev_info(dev);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
 
-    if (pDisp->GetDeviceProcAddr == NULL)
-        return NULL;
+    if (pDisp->GetDeviceProcAddr == NULL) return NULL;
     return pDisp->GetDeviceProcAddr(dev, funcName);
 }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-GetInstanceProcAddr(VkInstance instance, const char *funcName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_instance_command(funcName);
-    if (proc)
-        return proc;
+    if (proc) return proc;
 
     assert(instance);
 
     proc = intercept_core_device_command(funcName);
-    if (!proc)
-        proc = intercept_khr_swapchain_command(funcName, VK_NULL_HANDLE);
-    if (proc)
-        return proc;
+    if (!proc) proc = intercept_khr_swapchain_command(funcName, VK_NULL_HANDLE);
+    if (proc) return proc;
 
     VkLayerInstanceDispatchTable *pTable = instance_dispatch_table(instance);
-    if (pTable->GetInstanceProcAddr == NULL)
-        return NULL;
+    if (pTable->GetInstanceProcAddr == NULL) return NULL;
     return pTable->GetInstanceProcAddr(instance, funcName);
 }
 
 static PFN_vkVoidFunction intercept_core_instance_command(const char *name) {
-
     static const struct {
         const char *name;
         PFN_vkVoidFunction proc;
     } core_instance_commands[] = {
-        {"vkGetInstanceProcAddr",
-         reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr)},
-        {"vkCreateInstance",
-         reinterpret_cast<PFN_vkVoidFunction>(CreateInstance)},
+        {"vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr)},
+        {"vkCreateInstance", reinterpret_cast<PFN_vkVoidFunction>(CreateInstance)},
         {"vkCreateDevice", reinterpret_cast<PFN_vkVoidFunction>(CreateDevice)},
-        {"vkEnumeratePhysicalDevices",
-         reinterpret_cast<PFN_vkVoidFunction>(EnumeratePhysicalDevices)},
-        {"vkEnumerateInstanceLayerProperties",
-         reinterpret_cast<PFN_vkVoidFunction>(
-             EnumerateInstanceLayerProperties)},
-        {"vkEnumerateDeviceLayerProperties",
-         reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceLayerProperties)},
-        {"vkEnumerateInstanceExtensionProperties",
-         reinterpret_cast<PFN_vkVoidFunction>(
-             EnumerateInstanceExtensionProperties)},
-        {"vkEnumerateDeviceExtensionProperties",
-         reinterpret_cast<PFN_vkVoidFunction>(
-             EnumerateDeviceExtensionProperties)}};
+        {"vkEnumeratePhysicalDevices", reinterpret_cast<PFN_vkVoidFunction>(EnumeratePhysicalDevices)},
+        {"vkEnumerateInstanceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceLayerProperties)},
+        {"vkEnumerateDeviceLayerProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceLayerProperties)},
+        {"vkEnumerateInstanceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateInstanceExtensionProperties)},
+        {"vkEnumerateDeviceExtensionProperties", reinterpret_cast<PFN_vkVoidFunction>(EnumerateDeviceExtensionProperties)}};
 
     for (size_t i = 0; i < ARRAY_SIZE(core_instance_commands); i++) {
-        if (!strcmp(core_instance_commands[i].name, name))
-            return core_instance_commands[i].proc;
+        if (!strcmp(core_instance_commands[i].name, name)) return core_instance_commands[i].proc;
     }
 
     return nullptr;
@@ -1320,94 +1334,74 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
         const char *name;
         PFN_vkVoidFunction proc;
     } core_device_commands[] = {
-        {"vkGetDeviceProcAddr",
-         reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
-        {"vkGetDeviceQueue",
-         reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
-        {"vkCreateCommandPool",
-         reinterpret_cast<PFN_vkVoidFunction>(CreateCommandPool)},
-        {"vkDestroyDevice",
-         reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
+        {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
+        {"vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
+        {"vkCreateCommandPool", reinterpret_cast<PFN_vkVoidFunction>(CreateCommandPool)},
+        {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(core_device_commands); i++) {
-        if (!strcmp(core_device_commands[i].name, name))
-            return core_device_commands[i].proc;
+        if (!strcmp(core_device_commands[i].name, name)) return core_device_commands[i].proc;
     }
 
     return nullptr;
 }
 
-static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name,
-                                                          VkDevice dev) {
+static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDevice dev) {
     static const struct {
         const char *name;
         PFN_vkVoidFunction proc;
     } khr_swapchain_commands[] = {
-        {"vkCreateSwapchainKHR",
-         reinterpret_cast<PFN_vkVoidFunction>(CreateSwapchainKHR)},
-        {"vkGetSwapchainImagesKHR",
-         reinterpret_cast<PFN_vkVoidFunction>(GetSwapchainImagesKHR)},
-        {"vkQueuePresentKHR",
-         reinterpret_cast<PFN_vkVoidFunction>(QueuePresentKHR)},
+        {"vkCreateSwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateSwapchainKHR)},
+        {"vkGetSwapchainImagesKHR", reinterpret_cast<PFN_vkVoidFunction>(GetSwapchainImagesKHR)},
+        {"vkQueuePresentKHR", reinterpret_cast<PFN_vkVoidFunction>(QueuePresentKHR)},
     };
 
     if (dev) {
         DeviceMapStruct *devMap = get_dev_info(dev);
-        if (!devMap->wsi_enabled)
-            return nullptr;
+        if (!devMap->wsi_enabled) return nullptr;
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(khr_swapchain_commands); i++) {
-        if (!strcmp(khr_swapchain_commands[i].name, name))
-            return khr_swapchain_commands[i].proc;
+        if (!strcmp(khr_swapchain_commands[i].name, name)) return khr_swapchain_commands[i].proc;
     }
 
     return nullptr;
 }
 
-} // namespace screenshot
+}  // namespace screenshot
 
 // loader-layer interface v0, just wrappers since there is only a layer
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceLayerProperties(uint32_t *pCount,
-                                   VkLayerProperties *pProperties) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pCount,
+                                                                                  VkLayerProperties *pProperties) {
     return screenshot::EnumerateInstanceLayerProperties(pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
-    VkPhysicalDevice physicalDevice, uint32_t *pCount,
-    VkLayerProperties *pProperties) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount,
+                                                                                VkLayerProperties *pProperties) {
     // the layer command handles VK_NULL_HANDLE just fine internally
     assert(physicalDevice == VK_NULL_HANDLE);
-    return screenshot::EnumerateDeviceLayerProperties(VK_NULL_HANDLE, pCount,
-                                                      pProperties);
+    return screenshot::EnumerateDeviceLayerProperties(VK_NULL_HANDLE, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
-                                       VkExtensionProperties *pProperties) {
-    return screenshot::EnumerateInstanceExtensionProperties(pLayerName, pCount,
-                                                            pProperties);
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                                      VkExtensionProperties *pProperties) {
+    return screenshot::EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
-                                     const char *pLayerName, uint32_t *pCount,
-                                     VkExtensionProperties *pProperties) {
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                                    const char *pLayerName, uint32_t *pCount,
+                                                                                    VkExtensionProperties *pProperties) {
     // the layer command handles VK_NULL_HANDLE just fine internally
     assert(physicalDevice == VK_NULL_HANDLE);
-    return screenshot::EnumerateDeviceExtensionProperties(
-        VK_NULL_HANDLE, pLayerName, pCount, pProperties);
+    return screenshot::EnumerateDeviceExtensionProperties(VK_NULL_HANDLE, pLayerName, pCount, pProperties);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-vkGetDeviceProcAddr(VkDevice dev, const char *funcName) {
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice dev, const char *funcName) {
     return screenshot::GetDeviceProcAddr(dev, funcName);
 }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-vkGetInstanceProcAddr(VkInstance instance, const char *funcName) {
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *funcName) {
     return screenshot::GetInstanceProcAddr(instance, funcName);
 }

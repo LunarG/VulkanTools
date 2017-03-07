@@ -22,7 +22,6 @@
  **************************************************************************/
 #pragma once
 
-
 #if defined(PLATFORM_LINUX)
 #define _GNU_SOURCE 1
 #include <unistd.h>
@@ -122,19 +121,19 @@ BOOL vktrace_is_loaded_into_vktrace();
 vktrace_thread_id vktrace_platform_get_thread_id();
 
 // Get the Registry or Environment variable
-char *vktrace_get_global_var(const char *);
+char* vktrace_get_global_var(const char*);
 
 // Set the Registry or Environment variable
-void vktrace_set_global_var(const char *, const char *);
+void vktrace_set_global_var(const char*, const char*);
 
 // Provides out_array_length uint32s of random data from a secure service
 size_t vktrace_platform_rand_s(uint32_t* out_array, size_t byteCount);
 
 // Alternatives to loading libraries, getting proc addresses, etc
-void * vktrace_platform_open_library(const char* libPath);
-void * vktrace_platform_get_library_entrypoint(void * libHandle, const char *name);
+void* vktrace_platform_open_library(const char* libPath);
+void* vktrace_platform_get_library_entrypoint(void* libHandle, const char* name);
 void vktrace_platform_close_library(void* plibrary);
-BOOL vktrace_platform_get_next_lib_sym(void * *ppFunc, const char * name);
+BOOL vktrace_platform_get_next_lib_sym(void** ppFunc, const char* name);
 
 // Returns the partial path appended to the current directory to provide a full path.
 // Note the resulting string may not point to an existing file.
@@ -149,16 +148,17 @@ char* vktrace_platform_get_settings_path();
 // returns platform specific path for all data files
 char* vktrace_platform_get_data_path();
 
-vktrace_thread vktrace_platform_create_thread(VKTRACE_THREAD_ROUTINE_RETURN_TYPE(*start_routine)(LPVOID), void* args);
+vktrace_thread vktrace_platform_create_thread(VKTRACE_THREAD_ROUTINE_RETURN_TYPE (*start_routine)(LPVOID), void* args);
 void vktrace_platform_resume_thread(vktrace_thread* pThread);
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 int64_t vktrace_linux_sync_wait_for_thread(vktrace_thread* pThread);
 #endif
 void vktrace_platform_delete_thread(vktrace_thread* pThread);
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
-void vktrace_platform_thread_once(void *ctl, void (* func) (void));
+void vktrace_platform_thread_once(void* ctl, void (*func)(void));
 #elif defined(WIN32)
-void vktrace_platform_thread_once(void *ctl, BOOL (CALLBACK * func) (_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext));
+void vktrace_platform_thread_once(void* ctl, BOOL(CALLBACK* func)(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param,
+                                                                  _Out_opt_ PVOID* lpContext));
 #endif
 
 void vktrace_create_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
@@ -167,13 +167,14 @@ void vktrace_leave_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
-#define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4)? "lib"#projname"32.so" : "lib"#projname".so"
+#define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4) ? "lib" #projname "32.so" : "lib" #projname ".so"
 #endif
 #if defined(WIN32)
-#define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4)? #projname"32.dll" : #projname".dll"
+#define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4) ? #projname "32.dll" : #projname ".dll"
 #endif
 
-BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle, const char* dllPath, vktrace_thread* pTracingThread, char **ldPreload);
+BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle, const char* dllPath,
+                                          vktrace_thread* pTracingThread, char** ldPreload);
 
 #ifdef __cplusplus
 }

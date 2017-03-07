@@ -116,15 +116,12 @@ ErrorResults PrintVulkanInfo(void);
 ErrorResults PrintDriverInfo(void);
 ErrorResults PrintRunTimeInfo(void);
 ErrorResults PrintSDKInfo(void);
-void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
-                                Json::Value root, uint32_t num_cols);
-void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
-                                Json::Value root);
+void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value root, uint32_t num_cols);
+void PrintImplicitLayerJsonInfo(const char *layer_json_filename, Json::Value root);
 ErrorResults PrintLayerInfo(void);
 ErrorResults PrintLayerSettingsFileInfo(void);
 ErrorResults PrintTestResults(void);
-std::string TrimWhitespace(const std::string &str,
-                           const std::string &whitespace = " \t\n\r");
+std::string TrimWhitespace(const std::string &str, const std::string &whitespace = " \t\n\r");
 
 int main(int argc, char **argv) {
     int err_val = 0;
@@ -148,29 +145,27 @@ int main(int argc, char **argv) {
         for (int iii = 1; iii < argc; iii++) {
             if (0 == strcmp("--unique_output", argv[iii])) {
                 generate_unique_file = true;
-            } else if (0 == strcmp("--output_path", argv[iii]) &&
-                       argc > (iii + 1)) {
+            } else if (0 == strcmp("--output_path", argv[iii]) && argc > (iii + 1)) {
                 output_path = argv[iii + 1];
                 ++iii;
             } else {
-                std::cout
-                    << "Usage of via.exe:" << std::endl
-                    << "    via.exe [--unique_output] "
-                       "[--output_path <path>]"
-                    << std::endl
-                    << "          [--unique_output] Optional "
-                       "parameter to generate a unique html"
-                    << std::endl
-                    << "                            "
-                       "output file in the form "
-                       "\'via_YYYY_MM_DD_HH_MM.html\'"
-                    << std::endl
-                    << "          [--output_path <path>"
-                       "] Optional parameter to generate the output at"
-                    << std::endl
-                    << "                               "
-                       "  a given path"
-                    << std::endl;
+                std::cout << "Usage of via.exe:" << std::endl
+                          << "    via.exe [--unique_output] "
+                             "[--output_path <path>]"
+                          << std::endl
+                          << "          [--unique_output] Optional "
+                             "parameter to generate a unique html"
+                          << std::endl
+                          << "                            "
+                             "output file in the form "
+                             "\'via_YYYY_MM_DD_HH_MM.html\'"
+                          << std::endl
+                          << "          [--output_path <path>"
+                             "] Optional parameter to generate the output at"
+                          << std::endl
+                          << "                               "
+                             "  a given path"
+                          << std::endl;
                 goto out;
             }
         }
@@ -182,11 +177,9 @@ int main(int argc, char **argv) {
         file_name_offset = strlen(output_path) + 1;
         strncpy(html_file_name, output_path, MAX_STRING_LENGTH - 1);
 #ifdef _WIN32
-        strncpy(html_file_name + file_name_offset - 1, "\\",
-                MAX_STRING_LENGTH - file_name_offset);
+        strncpy(html_file_name + file_name_offset - 1, "\\", MAX_STRING_LENGTH - file_name_offset);
 #else
-        strncpy(html_file_name + file_name_offset - 1, "/",
-                MAX_STRING_LENGTH - file_name_offset);
+        strncpy(html_file_name + file_name_offset - 1, "/", MAX_STRING_LENGTH - file_name_offset);
 #endif
     }
 
@@ -195,15 +188,12 @@ int main(int argc, char **argv) {
     if (generate_unique_file) {
         time(&time_raw_format);
         ptr_time = localtime(&time_raw_format);
-        if (strftime(html_file_name + file_name_offset,
-                     MAX_STRING_LENGTH - 1, "via_%Y_%m_%d_%H_%M.html",
-                     ptr_time) == 0) {
+        if (strftime(html_file_name + file_name_offset, MAX_STRING_LENGTH - 1, "via_%Y_%m_%d_%H_%M.html", ptr_time) == 0) {
             std::cerr << "Couldn't prepare formatted string" << std::endl;
             goto out;
         }
     } else {
-        strncpy(html_file_name + file_name_offset, "via.html",
-                MAX_STRING_LENGTH - 1 - file_name_offset);
+        strncpy(html_file_name + file_name_offset, "via.html", MAX_STRING_LENGTH - 1 - file_name_offset);
     }
 
     // Write the output file to the current executing directory, or, if
@@ -213,15 +203,13 @@ int main(int argc, char **argv) {
 #ifdef _WIN32
         char home_drive[32];
         if (0 != GetEnvironmentVariableA("HOMEDRIVE", home_drive, 31) ||
-            0 != GetEnvironmentVariableA("HOMEPATH", temp,
-                                         MAX_STRING_LENGTH - 1)) {
+            0 != GetEnvironmentVariableA("HOMEPATH", temp, MAX_STRING_LENGTH - 1)) {
             std::cerr << "Error failed to get either HOMEDRIVE or HOMEPATH "
                          "from environment settings!"
                       << std::endl;
             goto out;
         }
-        snprintf(full_file, MAX_STRING_LENGTH - 1, "%s%s\\%s", home_drive,
-                 temp, html_file_name);
+        snprintf(full_file, MAX_STRING_LENGTH - 1, "%s%s\\%s", home_drive, temp, html_file_name);
 #else
         snprintf(full_file, MAX_STRING_LENGTH - 1, "~/%s", html_file_name);
 #endif
@@ -230,8 +218,7 @@ int main(int argc, char **argv) {
             std::cerr << "Error failed opening html file stream to "
                          "either current"
                          " folder as "
-                      << html_file_name << " or home folder as "
-                      << full_file << std::endl;
+                      << html_file_name << " or home folder as " << full_file << std::endl;
             goto out;
         }
     }
@@ -243,8 +230,7 @@ int main(int argc, char **argv) {
     bytes = GetModuleFileName(NULL, temp, MAX_STRING_LENGTH - 1);
     if (0 < bytes) {
         std::string exe_location = temp;
-        global_items.exe_directory =
-            exe_location.substr(0, exe_location.rfind("\\"));
+        global_items.exe_directory = exe_location.substr(0, exe_location.rfind("\\"));
 
         size_t index = 0;
         while (true) {
@@ -263,8 +249,7 @@ int main(int argc, char **argv) {
     len = ::readlink("/proc/self/exe", temp, MAX_STRING_LENGTH - 1);
     if (0 < len) {
         std::string exe_location = temp;
-        global_items.exe_directory =
-            exe_location.substr(0, exe_location.rfind("/"));
+        global_items.exe_directory = exe_location.substr(0, exe_location.rfind("/"));
     } else {
         global_items.exe_directory = "";
     }
@@ -287,71 +272,61 @@ out:
 
     // Print out a useful message for any common errors.
     switch (res) {
-    case SUCCESSFUL:
-        std::cout << "SUCCESS: Validation completed properly." << std::endl;
-        break;
-    case SYSTEM_CALL_FAILURE:
-        std::cout << "ERROR: Failure occurred during system call." << std::endl;
-        break;
-    case MISSING_DRIVER_REGISTRY:
-        std::cout << "ERROR: Failed to find Vulkan Driver JSON in registry."
-                  << std::endl;
-        break;
-    case MISSING_DRIVER_JSON:
-        std::cout << "ERROR: Failed to find Vulkan Driver JSON."
-                  << std::endl;
-        break;
-    case DRIVER_JSON_PARSING_ERROR:
-        std::cout << "ERROR: Failed to properly parse Vulkan Driver JSON."
-                  << std::endl;
-        break;
-    case MISSING_DRIVER_LIB:
-        std::cout << "ERROR: Failed to find Vulkan Driver Lib." << std::endl;
-        break;
-    case MISSING_LAYER_JSON:
-        std::cout << "ERROR: Failed to find Vulkan Layer JSON."
-                  << std::endl;
-        break;
-    case LAYER_JSON_PARSING_ERROR:
-        std::cout << "ERROR: Failed to properly parse Vulkan Layer JSON."
-                  << std::endl;
-        break;
-    case MISSING_LAYER_LIB:
-        std::cout << "ERROR: Failed to find Vulkan Layer Lib." << std::endl;
-        break;
-    case VULKAN_CANT_FIND_RUNTIME:
-        std::cout << "ERROR: Vulkan failed to find a Vulkan Runtime to use."
-                  << std::endl;
-        break;
-    case VULKAN_CANT_FIND_DRIVER:
-        std::cout << "ERROR: Vulkan failed to find a compatible driver."
-                  << std::endl;
-        break;
-    case VULKAN_CANT_FIND_EXTENSIONS:
-        std::cout << "ERROR: Failed to find expected Vulkan Extensions."
-                  << "  This may indicate a bad driver install." << std::endl;
-        break;
-    case VULKAN_FAILED_CREATE_INSTANCE:
-        std::cout << "ERROR: Unknown error while attempting to create Vulkan Instance."
-                  << std::endl;
-        break;
-    case VULKAN_FAILED_CREATE_DEVICE:
-        std::cout << "ERROR: Unknown error while attempting to create Vulkan Device."
-                  << std::endl;
-        break;
-    case VULKAN_FAILED_OUT_OF_MEM:
-        std::cout << "ERROR: Vulkan Loader, Layer, or Driver ran out of memory."
-                  << std::endl;
-        break;
-    case TEST_FAILED:
-        std::cout << "ERROR: Unknown Test failure occurred." << std::endl;
-        break;
-    case UNKNOWN_ERROR:
-    default:
-        std::cout << "ERROR: Uknown failure occurred.  Refer to HTML for "
-                     "more info"
-                  << std::endl;
-        break;
+        case SUCCESSFUL:
+            std::cout << "SUCCESS: Validation completed properly." << std::endl;
+            break;
+        case SYSTEM_CALL_FAILURE:
+            std::cout << "ERROR: Failure occurred during system call." << std::endl;
+            break;
+        case MISSING_DRIVER_REGISTRY:
+            std::cout << "ERROR: Failed to find Vulkan Driver JSON in registry." << std::endl;
+            break;
+        case MISSING_DRIVER_JSON:
+            std::cout << "ERROR: Failed to find Vulkan Driver JSON." << std::endl;
+            break;
+        case DRIVER_JSON_PARSING_ERROR:
+            std::cout << "ERROR: Failed to properly parse Vulkan Driver JSON." << std::endl;
+            break;
+        case MISSING_DRIVER_LIB:
+            std::cout << "ERROR: Failed to find Vulkan Driver Lib." << std::endl;
+            break;
+        case MISSING_LAYER_JSON:
+            std::cout << "ERROR: Failed to find Vulkan Layer JSON." << std::endl;
+            break;
+        case LAYER_JSON_PARSING_ERROR:
+            std::cout << "ERROR: Failed to properly parse Vulkan Layer JSON." << std::endl;
+            break;
+        case MISSING_LAYER_LIB:
+            std::cout << "ERROR: Failed to find Vulkan Layer Lib." << std::endl;
+            break;
+        case VULKAN_CANT_FIND_RUNTIME:
+            std::cout << "ERROR: Vulkan failed to find a Vulkan Runtime to use." << std::endl;
+            break;
+        case VULKAN_CANT_FIND_DRIVER:
+            std::cout << "ERROR: Vulkan failed to find a compatible driver." << std::endl;
+            break;
+        case VULKAN_CANT_FIND_EXTENSIONS:
+            std::cout << "ERROR: Failed to find expected Vulkan Extensions."
+                      << "  This may indicate a bad driver install." << std::endl;
+            break;
+        case VULKAN_FAILED_CREATE_INSTANCE:
+            std::cout << "ERROR: Unknown error while attempting to create Vulkan Instance." << std::endl;
+            break;
+        case VULKAN_FAILED_CREATE_DEVICE:
+            std::cout << "ERROR: Unknown error while attempting to create Vulkan Device." << std::endl;
+            break;
+        case VULKAN_FAILED_OUT_OF_MEM:
+            std::cout << "ERROR: Vulkan Loader, Layer, or Driver ran out of memory." << std::endl;
+            break;
+        case TEST_FAILED:
+            std::cout << "ERROR: Unknown Test failure occurred." << std::endl;
+            break;
+        case UNKNOWN_ERROR:
+        default:
+            std::cout << "ERROR: Uknown failure occurred.  Refer to HTML for "
+                         "more info"
+                      << std::endl;
+            break;
     }
     err_val = static_cast<int>(res);
 
@@ -371,116 +346,107 @@ void StartOutput(std::string output) {
     global_items.html_file_stream << "<HTML lang=\"en\" xml:lang=\"en\" "
                                      "xmlns=\"http://www.w3.org/1999/xhtml\">"
                                   << std::endl;
-    global_items.html_file_stream << std::endl
-                                  << "<HEAD>" << std::endl
-                                  << "    <TITLE>" << output << "</TITLE>"
-                                  << std::endl;
+    global_items.html_file_stream << std::endl << "<HEAD>" << std::endl << "    <TITLE>" << output << "</TITLE>" << std::endl;
 
-    global_items.html_file_stream
-        << "    <META charset=\"UTF-8\">" << std::endl
-        << "    <style media=\"screen\" type=\"text/css\">" << std::endl
-        << "        html {" << std::endl
-        // By defining the color first, this won't override the background image
-        // (unless the images aren't there).
-        << "            background-color: #0b1e48;" << std::endl
-        // The following changes try to load the text image twice (locally, then
-        // off the web) followed by the background image twice (locally, then
-        // off the web).  The background color will only show if both background
-        // image loads fail.  In this way, a user will see their local copy on
-        // their machine, while a person they share it with will see the web
-        // images (or the background color).
-        << "            background-image: url(\"file:///"
-        << global_items.exe_directory << "/images/lunarg_via.png\"), "
-        << "url(\"https://vulkan.lunarg.com/img/lunarg_via.png\"), "
-           "url(\"file:///"
-        << global_items.exe_directory << "/images/bg-starfield.jpg\"), "
-        << "url(\"https://vulkan.lunarg.com/img/bg-starfield.jpg\");"
-        << std::endl
-        << "            background-position: center top, center top, center, "
-           "center;"
-        << std::endl
-        << "            -webkit-background-size: auto, auto, cover, cover;"
-        << std::endl
-        << "            -moz-background-size: auto, auto, cover, cover;"
-        << std::endl
-        << "            -o-background-size: auto, auto, cover, cover;"
-        << std::endl
-        << "            background-size: auto, auto, cover, cover;" << std::endl
-        << "            background-attachment: scroll, scroll, fixed, fixed;"
-        << std::endl
-        << "            background-repeat: no-repeat, no-repeat, no-repeat, "
-           "no-repeat;"
-        << std::endl
-        << "        }" << std::endl
-        // h1.section is used for section headers, and h1.version is used to
-        // print out the application version text (which shows up just under
-        // the title).
-        << "        h1.section {" << std::endl
-        << "            font-family: sans-serif;" << std::endl
-        << "            font-size: 35px;" << std::endl
-        << "            color: #FFFFFF;" << std::endl
-        << "        }" << std::endl
-        << "        h1.version {" << std::endl
-        << "            font-family: sans-serif;" << std::endl
-        << "            font-size: 25px;" << std::endl
-        << "            color: #FFFFFF;" << std::endl
-        << "        }" << std::endl
-        << "        h2.note {" << std::endl
-        << "            font-family: sans-serif;" << std::endl
-        << "            font-size: 22px;" << std::endl
-        << "            color: #FFFFFF;" << std::endl
-        << "        }" << std::endl
-        << "        table {" << std::endl
-        << "            min-width: 600px;" << std::endl
-        << "            width: 70%;" << std::endl
-        << "            border-collapse: collapse;" << std::endl
-        << "            border-color: grey;" << std::endl
-        << "            font-family: sans-serif;" << std::endl
-        << "        }" << std::endl
-        << "        td.header {" << std::endl
-        << "            padding: 18px;" << std::endl
-        << "            border: 1px solid #ccc;" << std::endl
-        << "            font-size: 18px;" << std::endl
-        << "            color: #fff;" << std::endl
-        << "        }" << std::endl
-        << "        td.odd {" << std::endl
-        << "            padding: 10px;" << std::endl
-        << "            border: 1px solid #ccc;" << std::endl
-        << "            font-size: 16px;" << std::endl
-        << "            color: rgb(255, 255, 255);" << std::endl
-        << "        }" << std::endl
-        << "        td.even {" << std::endl
-        << "            padding: 10px;" << std::endl
-        << "            border: 1px solid #ccc;" << std::endl
-        << "            font-size: 16px;" << std::endl
-        << "            color: rgb(220, 220, 220);" << std::endl
-        << "        }" << std::endl
-        << "        tr.header {" << std::endl
-        << "            background-color: rgba(255,255,255,0.5);" << std::endl
-        << "        }" << std::endl
-        << "        tr.odd {" << std::endl
-        << "            background-color: rgba(0,0,0,0.6);" << std::endl
-        << "        }" << std::endl
-        << "        tr.even {" << std::endl
-        << "            background-color: rgba(0,0,0,0.7);" << std::endl
-        << "        }" << std::endl
-        << "    </style>" << std::endl
-        << "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/"
-        << "2.2.4/jquery.min.js\"></script>" << std::endl
-        << "    <script type=\"text/javascript\">" << std::endl
-        << "        $( document ).ready(function() {" << std::endl
-        << "            $('table tr:not(.header)').hide();" << std::endl
-        << "            $('.header').click(function() {" << std::endl
-        << "                "
-           "$(this).nextUntil('tr.header').slideToggle(300);"
-        << std::endl
-        << "            });" << std::endl
-        << "        });" << std::endl
-        << "    </script>" << std::endl
-        << "</HEAD>" << std::endl
-        << std::endl
-        << "<BODY>" << std::endl
-        << std::endl;
+    global_items.html_file_stream << "    <META charset=\"UTF-8\">" << std::endl
+                                  << "    <style media=\"screen\" type=\"text/css\">" << std::endl
+                                  << "        html {" << std::endl
+                                  // By defining the color first, this won't override the background image
+                                  // (unless the images aren't there).
+                                  << "            background-color: #0b1e48;" << std::endl
+                                  // The following changes try to load the text image twice (locally, then
+                                  // off the web) followed by the background image twice (locally, then
+                                  // off the web).  The background color will only show if both background
+                                  // image loads fail.  In this way, a user will see their local copy on
+                                  // their machine, while a person they share it with will see the web
+                                  // images (or the background color).
+                                  << "            background-image: url(\"file:///" << global_items.exe_directory
+                                  << "/images/lunarg_via.png\"), "
+                                  << "url(\"https://vulkan.lunarg.com/img/lunarg_via.png\"), "
+                                     "url(\"file:///"
+                                  << global_items.exe_directory << "/images/bg-starfield.jpg\"), "
+                                  << "url(\"https://vulkan.lunarg.com/img/bg-starfield.jpg\");" << std::endl
+                                  << "            background-position: center top, center top, center, "
+                                     "center;"
+                                  << std::endl
+                                  << "            -webkit-background-size: auto, auto, cover, cover;" << std::endl
+                                  << "            -moz-background-size: auto, auto, cover, cover;" << std::endl
+                                  << "            -o-background-size: auto, auto, cover, cover;" << std::endl
+                                  << "            background-size: auto, auto, cover, cover;" << std::endl
+                                  << "            background-attachment: scroll, scroll, fixed, fixed;" << std::endl
+                                  << "            background-repeat: no-repeat, no-repeat, no-repeat, "
+                                     "no-repeat;"
+                                  << std::endl
+                                  << "        }" << std::endl
+                                  // h1.section is used for section headers, and h1.version is used to
+                                  // print out the application version text (which shows up just under
+                                  // the title).
+                                  << "        h1.section {" << std::endl
+                                  << "            font-family: sans-serif;" << std::endl
+                                  << "            font-size: 35px;" << std::endl
+                                  << "            color: #FFFFFF;" << std::endl
+                                  << "        }" << std::endl
+                                  << "        h1.version {" << std::endl
+                                  << "            font-family: sans-serif;" << std::endl
+                                  << "            font-size: 25px;" << std::endl
+                                  << "            color: #FFFFFF;" << std::endl
+                                  << "        }" << std::endl
+                                  << "        h2.note {" << std::endl
+                                  << "            font-family: sans-serif;" << std::endl
+                                  << "            font-size: 22px;" << std::endl
+                                  << "            color: #FFFFFF;" << std::endl
+                                  << "        }" << std::endl
+                                  << "        table {" << std::endl
+                                  << "            min-width: 600px;" << std::endl
+                                  << "            width: 70%;" << std::endl
+                                  << "            border-collapse: collapse;" << std::endl
+                                  << "            border-color: grey;" << std::endl
+                                  << "            font-family: sans-serif;" << std::endl
+                                  << "        }" << std::endl
+                                  << "        td.header {" << std::endl
+                                  << "            padding: 18px;" << std::endl
+                                  << "            border: 1px solid #ccc;" << std::endl
+                                  << "            font-size: 18px;" << std::endl
+                                  << "            color: #fff;" << std::endl
+                                  << "        }" << std::endl
+                                  << "        td.odd {" << std::endl
+                                  << "            padding: 10px;" << std::endl
+                                  << "            border: 1px solid #ccc;" << std::endl
+                                  << "            font-size: 16px;" << std::endl
+                                  << "            color: rgb(255, 255, 255);" << std::endl
+                                  << "        }" << std::endl
+                                  << "        td.even {" << std::endl
+                                  << "            padding: 10px;" << std::endl
+                                  << "            border: 1px solid #ccc;" << std::endl
+                                  << "            font-size: 16px;" << std::endl
+                                  << "            color: rgb(220, 220, 220);" << std::endl
+                                  << "        }" << std::endl
+                                  << "        tr.header {" << std::endl
+                                  << "            background-color: rgba(255,255,255,0.5);" << std::endl
+                                  << "        }" << std::endl
+                                  << "        tr.odd {" << std::endl
+                                  << "            background-color: rgba(0,0,0,0.6);" << std::endl
+                                  << "        }" << std::endl
+                                  << "        tr.even {" << std::endl
+                                  << "            background-color: rgba(0,0,0,0.7);" << std::endl
+                                  << "        }" << std::endl
+                                  << "    </style>" << std::endl
+                                  << "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/"
+                                  << "2.2.4/jquery.min.js\"></script>" << std::endl
+                                  << "    <script type=\"text/javascript\">" << std::endl
+                                  << "        $( document ).ready(function() {" << std::endl
+                                  << "            $('table tr:not(.header)').hide();" << std::endl
+                                  << "            $('.header').click(function() {" << std::endl
+                                  << "                "
+                                     "$(this).nextUntil('tr.header').slideToggle(300);"
+                                  << std::endl
+                                  << "            });" << std::endl
+                                  << "        });" << std::endl
+                                  << "    </script>" << std::endl
+                                  << "</HEAD>" << std::endl
+                                  << std::endl
+                                  << "<BODY>" << std::endl
+                                  << std::endl;
     // We need space from the top for the VIA texture
     for (uint32_t space = 0; space < 15; space++) {
         global_items.html_file_stream << "    <BR />" << std::endl;
@@ -491,48 +457,33 @@ void StartOutput(std::string output) {
     for (uint32_t space = 0; space < 65; space++) {
         global_items.html_file_stream << "&nbsp;";
     }
-    global_items.html_file_stream << APP_VERSION << "</center></h1>"
+    global_items.html_file_stream << APP_VERSION << "</center></h1>" << std::endl << "    <BR />" << std::endl;
+
+    global_items.html_file_stream << "<center><h2 class=\"note\">< NOTE: Click on section name to expand "
+                                     "table ></h2></center>"
                                   << std::endl
                                   << "    <BR />" << std::endl;
-
-    global_items.html_file_stream
-        << "<center><h2 class=\"note\">< NOTE: Click on section name to expand "
-           "table ></h2></center>"
-        << std::endl
-        << "    <BR />" << std::endl;
 }
 
 // Close out writing to the HTML file.
-void EndOutput() {
-    global_items.html_file_stream << "</BODY>" << std::endl
-                                  << std::endl
-                                  << "</HTML>" << std::endl;
-}
+void EndOutput() { global_items.html_file_stream << "</BODY>" << std::endl << std::endl << "</HTML>" << std::endl; }
 
 void BeginSection(std::string section_str) {
-    global_items.html_file_stream << "    <H1 class=\"section\"><center>"
-                                  << section_str << "</center></h1>"
-                                  << std::endl;
+    global_items.html_file_stream << "    <H1 class=\"section\"><center>" << section_str << "</center></h1>" << std::endl;
 }
 
-void EndSection() {
-    global_items.html_file_stream << "    <BR/>" << std::endl
-                                  << "    <BR/>" << std::endl;
-}
+void EndSection() { global_items.html_file_stream << "    <BR/>" << std::endl << "    <BR/>" << std::endl; }
 
 void PrintStandardText(std::string section) {
-    global_items.html_file_stream << "    <H2><font color=\"White\">" << section
-                                  << "</font></H2>" << std::endl;
+    global_items.html_file_stream << "    <H2><font color=\"White\">" << section << "</font></H2>" << std::endl;
 }
 
 void PrintBeginTable(const char *table_name, uint32_t num_cols) {
-
-    global_items.html_file_stream
-        << "    <table align=\"center\">" << std::endl
-        << "        <tr class=\"header\">" << std::endl
-        << "            <td colspan=\"" << num_cols << "\" class=\"header\">"
-        << table_name << "</td>" << std::endl
-        << "         </tr>" << std::endl;
+    global_items.html_file_stream << "    <table align=\"center\">" << std::endl
+                                  << "        <tr class=\"header\">" << std::endl
+                                  << "            <td colspan=\"" << num_cols << "\" class=\"header\">" << table_name << "</td>"
+                                  << std::endl
+                                  << "         </tr>" << std::endl;
 
     global_items.is_odd_row = true;
 }
@@ -544,8 +495,7 @@ void PrintBeginTableRow() {
     } else {
         class_str = " class=\"even\"";
     }
-    global_items.html_file_stream << "        <tr" << class_str << ">"
-                                  << std::endl;
+    global_items.html_file_stream << "        <tr" << class_str << ">" << std::endl;
 }
 
 void PrintTableElement(std::string element, ElementAlign align = ALIGN_LEFT) {
@@ -561,8 +511,7 @@ void PrintTableElement(std::string element, ElementAlign align = ALIGN_LEFT) {
     } else {
         class_str = " class=\"even\"";
     }
-    global_items.html_file_stream << "            <td" << align_str << class_str
-                                  << ">" << element << "</td>" << std::endl;
+    global_items.html_file_stream << "            <td" << align_str << class_str << ">" << element << "</td>" << std::endl;
 }
 
 void PrintEndTableRow() {
@@ -570,23 +519,18 @@ void PrintEndTableRow() {
     global_items.is_odd_row = !global_items.is_odd_row;
 }
 
-void PrintEndTable() {
-    global_items.html_file_stream << "    </table>" << std::endl;
-}
+void PrintEndTable() { global_items.html_file_stream << "    </table>" << std::endl; }
 
 // Generate the full library location for a file based on the location of
 // the JSON file referencing it, and the library location contained in that
 // JSON file.
-bool GenerateLibraryPath(const char *json_location, const char *library_info,
-                         const uint32_t max_length, char *library_location) {
+bool GenerateLibraryPath(const char *json_location, const char *library_info, const uint32_t max_length, char *library_location) {
     bool success = false;
     char final_path[MAX_STRING_LENGTH];
     char *working_string_ptr;
-    uint32_t len =
-        (max_length > MAX_STRING_LENGTH) ? MAX_STRING_LENGTH : max_length;
+    uint32_t len = (max_length > MAX_STRING_LENGTH) ? MAX_STRING_LENGTH : max_length;
 
-    if (NULL == json_location || NULL == library_info ||
-        NULL == library_location) {
+    if (NULL == json_location || NULL == library_info || NULL == library_location) {
         goto out;
     }
 
@@ -602,8 +546,7 @@ bool GenerateLibraryPath(const char *json_location, const char *library_info,
     }
 
     // Determine if the library is relative or absolute
-    if (library_info[0] == '\\' || library_info[0] == '/' ||
-        library_info[1] == ':') {
+    if (library_info[0] == '\\' || library_info[0] == '/' || library_info[1] == ':') {
         // Absolute path
         strncpy(library_location, library_info, len);
         success = true;
@@ -623,8 +566,7 @@ bool GenerateLibraryPath(const char *json_location, const char *library_info,
                 *working_string_ptr = '\0';
             }
         }
-        while (library_info[i] == '.' &&
-               (library_info[i + 1] == '\\' || library_info[i + 1] == '/')) {
+        while (library_info[i] == '.' && (library_info[i + 1] == '\\' || library_info[i + 1] == '/')) {
             i += 2;
         }
         strncpy(library_location, final_path, MAX_STRING_LENGTH - 1);
@@ -640,12 +582,9 @@ out:
 // Registry utility fuctions to simplify reading data from the
 // Windows registry.
 
-const char g_uninstall_reg_path[] =
-    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+const char g_uninstall_reg_path[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
 
-bool ReadRegKeyString(HKEY regFolder, const char *keyPath,
-                      const char *valueName, const int maxLength,
-                      char *retString) {
+bool ReadRegKeyString(HKEY regFolder, const char *keyPath, const char *valueName, const int maxLength, char *retString) {
     bool retVal = false;
     DWORD bufLen = maxLength;
     DWORD keyFlags = KEY_READ;
@@ -659,8 +598,7 @@ bool ReadRegKeyString(HKEY regFolder, const char *keyPath,
     *retString = '\0';
     lret = RegOpenKeyExA(regFolder, keyPath, 0, keyFlags, &hKey);
     if (lret == ERROR_SUCCESS) {
-        lret = RegQueryValueExA(hKey, valueName, NULL, NULL, (BYTE *)retString,
-                                &bufLen);
+        lret = RegQueryValueExA(hKey, valueName, NULL, NULL, (BYTE *)retString, &bufLen);
         if (lret == ERROR_SUCCESS) {
             retVal = true;
         }
@@ -670,8 +608,7 @@ bool ReadRegKeyString(HKEY regFolder, const char *keyPath,
     return retVal;
 }
 
-bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName,
-                       char *valueValue) {
+bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName, char *valueValue) {
     bool retVal = false;
     DWORD keyFlags = KEY_WRITE;
     HKEY hKey;
@@ -683,8 +620,7 @@ bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName,
 
     lret = RegOpenKeyExA(regFolder, keyPath, 0, keyFlags, &hKey);
     if (lret == ERROR_SUCCESS) {
-        lret = RegSetKeyValueA(hKey, NULL, valueName, REG_SZ,
-                               (BYTE *)valueValue, (DWORD)(strlen(valueValue)));
+        lret = RegSetKeyValueA(hKey, NULL, valueName, REG_SZ, (BYTE *)valueValue, (DWORD)(strlen(valueValue)));
         if (lret == ERROR_SUCCESS) {
             retVal = true;
         }
@@ -716,8 +652,7 @@ bool DeleteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName) {
     return retVal;
 }
 
-bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName,
-                     unsigned int *returnInt) {
+bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName, unsigned int *returnInt) {
     bool retVal = false;
     DWORD bufLen = sizeof(DWORD);
     DWORD keyFlags = KEY_READ;
@@ -731,8 +666,7 @@ bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName,
     *returnInt = 0;
     lret = RegOpenKeyExA(regFolder, keyPath, 0, keyFlags, &hKey);
     if (lret == ERROR_SUCCESS) {
-        lret = RegQueryValueExA(hKey, valueName, NULL, NULL, (BYTE *)returnInt,
-                                &bufLen);
+        lret = RegQueryValueExA(hKey, valueName, NULL, NULL, (BYTE *)returnInt, &bufLen);
         if (lret == ERROR_SUCCESS) {
             retVal = true;
         }
@@ -742,8 +676,8 @@ bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName,
     return retVal;
 }
 
-bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
-                    const int itemIndex, const int maxLength, char *retString) {
+bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch, const int itemIndex, const int maxLength,
+                    char *retString) {
     bool retVal = false;
     DWORD bufLen = MAX_STRING_LENGTH - 1;
     DWORD keyFlags = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
@@ -762,8 +696,7 @@ bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
         char keyName[MAX_STRING_LENGTH];
 
         do {
-            lret = RegEnumKeyExA(hKey, index, keyName, &bufLen, NULL, NULL,
-                                 NULL, NULL);
+            lret = RegEnumKeyExA(hKey, index, keyName, &bufLen, NULL, NULL, NULL, NULL);
             if (ERROR_SUCCESS != lret) {
                 break;
             }
@@ -784,10 +717,8 @@ bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
     return retVal;
 }
 
-bool FindNextRegValue(HKEY regFolder, const char *keyPath,
-                      const char *valueSearch, const int startIndex,
-                      const int maxLength, char *retString,
-                      uint32_t *retValue) {
+bool FindNextRegValue(HKEY regFolder, const char *keyPath, const char *valueSearch, const int startIndex, const int maxLength,
+                      char *retString, uint32_t *retValue) {
     bool retVal = false;
     DWORD bufLen = MAX_STRING_LENGTH - 1;
     DWORD keyFlags = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
@@ -811,16 +742,14 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
             DWORD len = 4;
             valueName[0] = '\0';
 
-            lret = RegEnumValueA(hKey, index, valueName, &bufLen, NULL, &type,
-                                 (LPBYTE)&value, &len);
+            lret = RegEnumValueA(hKey, index, valueName, &bufLen, NULL, &type, (LPBYTE)&value, &len);
             if (ERROR_SUCCESS != lret) {
                 break;
             }
             if (type == REG_DWORD) {
                 *retValue = value;
             }
-            if (strlen(valueSearch) == 0 ||
-                NULL != strstr(valueName, valueSearch)) {
+            if (strlen(valueSearch) == 0 || NULL != strstr(valueName, valueSearch)) {
                 strncpy_s(retString, maxLength, valueName, bufLen);
                 retVal = true;
                 break;
@@ -835,18 +764,13 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath,
 }
 
 // Registry prototypes for Windows
-bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName,
-                     unsigned int *returnInt);
-bool ReadRegKeyString(HKEY regFolder, const char *keyPath,
-                      const char *valueName, const int maxLength,
-                      char *retString);
-bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch,
-                    const int startIndex, const int maxLength, char *retString);
-bool FindNextRegValue(HKEY regFolder, const char *keyPath,
-                      const char *valueSearch, const int startIndex,
-                      const int maxLength, char *retString, uint32_t *retValue);
-bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName,
-                       char *valueValue);
+bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName, unsigned int *returnInt);
+bool ReadRegKeyString(HKEY regFolder, const char *keyPath, const char *valueName, const int maxLength, char *retString);
+bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch, const int startIndex, const int maxLength,
+                    char *retString);
+bool FindNextRegValue(HKEY regFolder, const char *keyPath, const char *valueSearch, const int startIndex, const int maxLength,
+                      char *retString, uint32_t *retValue);
+bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName, char *valueValue);
 bool DeleteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName);
 
 // Functionality to determine if this 32-bit process is running on Windows 64.
@@ -858,8 +782,7 @@ void IsWow64() {
     // Use GetModuleHandle to get a handle to the DLL that contains the function
     // and GetProcAddress to get a pointer to the function if available.
 
-    LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
-        GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+    LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
 
     if (NULL != fnIsWow64Process) {
         BOOL isWOW = FALSE;
@@ -877,13 +800,11 @@ void IsWow64() {
 // command-line arguments.
 // Returns 0 on no error, 1 if test file wasn't found, and -1
 // on any other errors.
-int RunTestInDirectory(std::string path, std::string test,
-                       std::string cmd_line) {
+int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) {
     int err_code = -1;
     char orig_dir[MAX_STRING_LENGTH];
     orig_dir[0] = '\0';
-    if (0 != GetCurrentDirectoryA(MAX_STRING_LENGTH - 1, orig_dir) &&
-        TRUE == SetCurrentDirectoryA(path.c_str())) {
+    if (0 != GetCurrentDirectoryA(MAX_STRING_LENGTH - 1, orig_dir) && TRUE == SetCurrentDirectoryA(path.c_str())) {
         if (TRUE == PathFileExists(test.c_str())) {
             err_code = system(cmd_line.c_str());
         } else {
@@ -952,121 +873,18 @@ ErrorResults PrintSystemInfo(void) {
     // Windows registry.
     if (TRUE == GetVersionEx((LPOSVERSIONINFO)(&os_info))) {
         switch (os_info.dwMajorVersion) {
-        case 10:
-            if (os_info.wProductType == VER_NT_WORKSTATION) {
-                if (ReadRegKeyString(
-                        HKEY_LOCAL_MACHINE,
-                        "Software\\Microsoft\\Windows NT\\CurrentVersion",
-                        "ProductName", MAX_STRING_LENGTH - 1, generic_string)) {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement(generic_string);
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
-
-                    if (ReadRegKeyString(
-                            HKEY_LOCAL_MACHINE,
-                            "Software\\Microsoft\\Windows NT\\CurrentVersion",
-                            "CurrentBuild", MAX_STRING_LENGTH - 1,
-                            output_string)) {
-                        PrintBeginTableRow();
-                        PrintTableElement("");
-                        PrintTableElement("Build");
-                        PrintTableElement(output_string);
-                        PrintEndTableRow();
-                        if (ReadRegKeyString(
-                                HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windo"
-                                                    "ws NT\\CurrentVersion",
-                                "BuildBranch", MAX_STRING_LENGTH - 1,
-                                output_string)) {
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("Branch");
-                            PrintTableElement(output_string);
-                            PrintEndTableRow();
-                        }
-                    }
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement("Windows 10 (or newer)");
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
-                }
-            } else {
-                PrintBeginTableRow();
-                PrintTableElement("Windows");
-                PrintTableElement("Windows Server 2016 (or newer)");
-                PrintTableElement(os_size);
-                PrintEndTableRow();
-            }
-            break;
-        case 6:
-            switch (os_info.dwMinorVersion) {
-            case 3:
+            case 10:
                 if (os_info.wProductType == VER_NT_WORKSTATION) {
-                    if (ReadRegKeyString(
-                            HKEY_LOCAL_MACHINE,
-                            "Software\\Microsoft\\Windows NT\\CurrentVersion",
-                            "ProductName", MAX_STRING_LENGTH - 1,
-                            generic_string)) {
+                    if (ReadRegKeyString(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion", "ProductName",
+                                         MAX_STRING_LENGTH - 1, generic_string)) {
                         PrintBeginTableRow();
                         PrintTableElement("Windows");
                         PrintTableElement(generic_string);
                         PrintTableElement(os_size);
                         PrintEndTableRow();
 
-                        if (ReadRegKeyString(
-                                HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windo"
-                                                    "ws NT\\CurrentVersion",
-                                "CurrentBuild", MAX_STRING_LENGTH - 1,
-                                output_string)) {
-                            PrintBeginTableRow();
-                            PrintTableElement("");
-                            PrintTableElement("Build");
-                            PrintTableElement(output_string);
-                            PrintEndTableRow();
-
-                            if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
-                                                 "Software\\Microsoft\\Windo"
-                                                 "ws NT\\CurrentVersion",
-                                                 "BuildBranch",
-                                                 MAX_STRING_LENGTH - 1,
-                                                 output_string)) {
-                                PrintBeginTableRow();
-                                PrintTableElement("");
-                                PrintTableElement("Branch");
-                                PrintTableElement(output_string);
-                                PrintEndTableRow();
-                            }
-                        }
-                    }
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement("Windows Server 2012 R2 (or newer)");
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
-                }
-                break;
-            case 2:
-                if (os_info.wProductType == VER_NT_WORKSTATION) {
-                    if (ReadRegKeyString(
-                            HKEY_LOCAL_MACHINE,
-                            "Software\\Microsoft\\Windows NT\\CurrentVersion",
-                            "ProductName", MAX_STRING_LENGTH - 1,
-                            generic_string)) {
-                        PrintBeginTableRow();
-                        PrintTableElement("Windows");
-                        PrintTableElement(generic_string);
-                        PrintTableElement(os_size);
-                        PrintEndTableRow();
-
-                        if (ReadRegKeyString(
-                                HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windo"
-                                                    "ws NT\\CurrentVersion",
-                                "CurrentBuild", MAX_STRING_LENGTH - 1,
-                                output_string)) {
+                        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion", "CurrentBuild",
+                                             MAX_STRING_LENGTH - 1, output_string)) {
                             PrintBeginTableRow();
                             PrintTableElement("");
                             PrintTableElement("Build");
@@ -1075,9 +893,7 @@ ErrorResults PrintSystemInfo(void) {
                             if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
                                                  "Software\\Microsoft\\Windo"
                                                  "ws NT\\CurrentVersion",
-                                                 "BuildBranch",
-                                                 MAX_STRING_LENGTH - 1,
-                                                 output_string)) {
+                                                 "BuildBranch", MAX_STRING_LENGTH - 1, output_string)) {
                                 PrintBeginTableRow();
                                 PrintTableElement("");
                                 PrintTableElement("Branch");
@@ -1085,95 +901,177 @@ ErrorResults PrintSystemInfo(void) {
                                 PrintEndTableRow();
                             }
                         }
+                    } else {
+                        PrintBeginTableRow();
+                        PrintTableElement("Windows");
+                        PrintTableElement("Windows 10 (or newer)");
+                        PrintTableElement(os_size);
+                        PrintEndTableRow();
                     }
                 } else {
                     PrintBeginTableRow();
                     PrintTableElement("Windows");
-                    PrintTableElement("Windows Server 2012 (or newer)");
+                    PrintTableElement("Windows Server 2016 (or newer)");
                     PrintTableElement(os_size);
                     PrintEndTableRow();
                 }
                 break;
-            case 1:
-                if (os_info.wProductType == VER_NT_WORKSTATION) {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement("Windows 7 (or newer)");
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement("Windows Server 2008 R2 (or newer)");
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
+            case 6:
+                switch (os_info.dwMinorVersion) {
+                    case 3:
+                        if (os_info.wProductType == VER_NT_WORKSTATION) {
+                            if (ReadRegKeyString(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion",
+                                                 "ProductName", MAX_STRING_LENGTH - 1, generic_string)) {
+                                PrintBeginTableRow();
+                                PrintTableElement("Windows");
+                                PrintTableElement(generic_string);
+                                PrintTableElement(os_size);
+                                PrintEndTableRow();
+
+                                if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
+                                                     "Software\\Microsoft\\Windo"
+                                                     "ws NT\\CurrentVersion",
+                                                     "CurrentBuild", MAX_STRING_LENGTH - 1, output_string)) {
+                                    PrintBeginTableRow();
+                                    PrintTableElement("");
+                                    PrintTableElement("Build");
+                                    PrintTableElement(output_string);
+                                    PrintEndTableRow();
+
+                                    if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
+                                                         "Software\\Microsoft\\Windo"
+                                                         "ws NT\\CurrentVersion",
+                                                         "BuildBranch", MAX_STRING_LENGTH - 1, output_string)) {
+                                        PrintBeginTableRow();
+                                        PrintTableElement("");
+                                        PrintTableElement("Branch");
+                                        PrintTableElement(output_string);
+                                        PrintEndTableRow();
+                                    }
+                                }
+                            }
+                        } else {
+                            PrintBeginTableRow();
+                            PrintTableElement("Windows");
+                            PrintTableElement("Windows Server 2012 R2 (or newer)");
+                            PrintTableElement(os_size);
+                            PrintEndTableRow();
+                        }
+                        break;
+                    case 2:
+                        if (os_info.wProductType == VER_NT_WORKSTATION) {
+                            if (ReadRegKeyString(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion",
+                                                 "ProductName", MAX_STRING_LENGTH - 1, generic_string)) {
+                                PrintBeginTableRow();
+                                PrintTableElement("Windows");
+                                PrintTableElement(generic_string);
+                                PrintTableElement(os_size);
+                                PrintEndTableRow();
+
+                                if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
+                                                     "Software\\Microsoft\\Windo"
+                                                     "ws NT\\CurrentVersion",
+                                                     "CurrentBuild", MAX_STRING_LENGTH - 1, output_string)) {
+                                    PrintBeginTableRow();
+                                    PrintTableElement("");
+                                    PrintTableElement("Build");
+                                    PrintTableElement(output_string);
+                                    PrintEndTableRow();
+                                    if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
+                                                         "Software\\Microsoft\\Windo"
+                                                         "ws NT\\CurrentVersion",
+                                                         "BuildBranch", MAX_STRING_LENGTH - 1, output_string)) {
+                                        PrintBeginTableRow();
+                                        PrintTableElement("");
+                                        PrintTableElement("Branch");
+                                        PrintTableElement(output_string);
+                                        PrintEndTableRow();
+                                    }
+                                }
+                            }
+                        } else {
+                            PrintBeginTableRow();
+                            PrintTableElement("Windows");
+                            PrintTableElement("Windows Server 2012 (or newer)");
+                            PrintTableElement(os_size);
+                            PrintEndTableRow();
+                        }
+                        break;
+                    case 1:
+                        if (os_info.wProductType == VER_NT_WORKSTATION) {
+                            PrintBeginTableRow();
+                            PrintTableElement("Windows");
+                            PrintTableElement("Windows 7 (or newer)");
+                            PrintTableElement(os_size);
+                            PrintEndTableRow();
+                        } else {
+                            PrintBeginTableRow();
+                            PrintTableElement("Windows");
+                            PrintTableElement("Windows Server 2008 R2 (or newer)");
+                            PrintTableElement(os_size);
+                            PrintEndTableRow();
+                        }
+                        break;
+                    default:
+                        if (os_info.wProductType == VER_NT_WORKSTATION) {
+                            PrintBeginTableRow();
+                            PrintTableElement("Windows");
+                            PrintTableElement("Windows Vista (or newer)");
+                            PrintTableElement(os_size);
+                            PrintEndTableRow();
+                        } else {
+                            PrintBeginTableRow();
+                            PrintTableElement("Windows");
+                            PrintTableElement("Windows Server 2008 (or newer)");
+                            PrintTableElement(os_size);
+                            PrintEndTableRow();
+                        }
+                        break;
                 }
                 break;
-            default:
-                if (os_info.wProductType == VER_NT_WORKSTATION) {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement("Windows Vista (or newer)");
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
-                } else {
-                    PrintBeginTableRow();
-                    PrintTableElement("Windows");
-                    PrintTableElement("Windows Server 2008 (or newer)");
-                    PrintTableElement(os_size);
-                    PrintEndTableRow();
+            case 5:
+                ser_ver = GetSystemMetrics(SM_SERVERR2);
+                switch (os_info.dwMinorVersion) {
+                    case 2:
+                        if ((os_info.wProductType == VER_NT_WORKSTATION) &&
+                            (sys_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)) {
+                            strncpy(generic_string, "Windows XP Professional x64", MAX_STRING_LENGTH - 1);
+                        } else if (os_info.wSuiteMask & VER_SUITE_WH_SERVER) {
+                            strncpy(generic_string, "Windows Home Server", MAX_STRING_LENGTH - 1);
+                        } else if (ser_ver != 0) {
+                            strncpy(generic_string, "Windows Server 2003 R2", MAX_STRING_LENGTH - 1);
+                        } else {
+                            strncpy(generic_string, "Windows Server 2003", MAX_STRING_LENGTH - 1);
+                        }
+                        PrintBeginTableRow();
+                        PrintTableElement("Windows");
+                        PrintTableElement(generic_string);
+                        PrintTableElement(os_size);
+                        PrintEndTableRow();
+                        break;
+                    case 1:
+                        PrintBeginTableRow();
+                        PrintTableElement("Windows");
+                        PrintTableElement("Windows XP");
+                        PrintTableElement(os_size);
+                        PrintEndTableRow();
+                        break;
+                    case 0:
+                        PrintBeginTableRow();
+                        PrintTableElement("Windows");
+                        PrintTableElement("Windows 2000");
+                        PrintTableElement(os_size);
+                        PrintEndTableRow();
+                        break;
+                    default:
+                        PrintBeginTableRow();
+                        PrintTableElement("Windows");
+                        PrintTableElement("Unknown Windows OS");
+                        PrintTableElement(os_size);
+                        PrintEndTableRow();
+                        break;
                 }
                 break;
-            }
-            break;
-        case 5:
-            ser_ver = GetSystemMetrics(SM_SERVERR2);
-            switch (os_info.dwMinorVersion) {
-            case 2:
-                if ((os_info.wProductType == VER_NT_WORKSTATION) &&
-                    (sys_info.wProcessorArchitecture ==
-                     PROCESSOR_ARCHITECTURE_AMD64)) {
-                    strncpy(generic_string, "Windows XP Professional x64",
-                            MAX_STRING_LENGTH - 1);
-                } else if (os_info.wSuiteMask & VER_SUITE_WH_SERVER) {
-                    strncpy(generic_string, "Windows Home Server",
-                            MAX_STRING_LENGTH - 1);
-                } else if (ser_ver != 0) {
-                    strncpy(generic_string, "Windows Server 2003 R2",
-                            MAX_STRING_LENGTH - 1);
-                } else {
-                    strncpy(generic_string, "Windows Server 2003",
-                            MAX_STRING_LENGTH - 1);
-                }
-                PrintBeginTableRow();
-                PrintTableElement("Windows");
-                PrintTableElement(generic_string);
-                PrintTableElement(os_size);
-                PrintEndTableRow();
-                break;
-            case 1:
-                PrintBeginTableRow();
-                PrintTableElement("Windows");
-                PrintTableElement("Windows XP");
-                PrintTableElement(os_size);
-                PrintEndTableRow();
-                break;
-            case 0:
-                PrintBeginTableRow();
-                PrintTableElement("Windows");
-                PrintTableElement("Windows 2000");
-                PrintTableElement(os_size);
-                PrintEndTableRow();
-                break;
-            default:
-                PrintBeginTableRow();
-                PrintTableElement("Windows");
-                PrintTableElement("Unknown Windows OS");
-                PrintTableElement(os_size);
-                PrintEndTableRow();
-                break;
-            }
-            break;
         }
     } else {
         PrintBeginTableRow();
@@ -1185,48 +1083,42 @@ ErrorResults PrintSystemInfo(void) {
         goto out;
     }
 
-    if (0 != GetEnvironmentVariableA("SYSTEMROOT", system_root_dir,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("SYSTEMROOT", system_root_dir, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("System Root");
         PrintTableElement(system_root_dir);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("PROGRAMDATA", generic_string,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("PROGRAMDATA", generic_string, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Program Data");
         PrintTableElement(generic_string);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("PROGRAMFILES", generic_string,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("PROGRAMFILES", generic_string, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Program Files");
         PrintTableElement(generic_string);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("PROGRAMFILES(X86)", generic_string,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("PROGRAMFILES(X86)", generic_string, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Program Files (x86)");
         PrintTableElement(generic_string);
         PrintEndTableRow();
     }
-    if (0 != GetEnvironmentVariableA("TEMP", generic_string,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("TEMP", generic_string, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("TEMP");
         PrintTableElement(generic_string);
         PrintEndTableRow();
     }
-    if (0 !=
-        GetEnvironmentVariableA("TMP", generic_string, MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("TMP", generic_string, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("TMP");
@@ -1240,8 +1132,7 @@ ErrorResults PrintSystemInfo(void) {
     // system.  Including how much memory and disk space is available.
     PrintBeginTable("Hardware", 3);
 
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u",
-             sys_info.dwNumberOfProcessors);
+    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u", sys_info.dwNumberOfProcessors);
     PrintBeginTableRow();
     PrintTableElement("CPUs");
     PrintTableElement("Number of Logical Cores");
@@ -1249,79 +1140,74 @@ ErrorResults PrintSystemInfo(void) {
     PrintEndTableRow();
 
     switch (sys_info.wProcessorArchitecture) {
-    case PROCESSOR_ARCHITECTURE_AMD64:
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Type");
-        PrintTableElement("x86_64");
-        PrintEndTableRow();
-        break;
-    case PROCESSOR_ARCHITECTURE_ARM:
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Type");
-        PrintTableElement("ARM");
-        PrintEndTableRow();
-        break;
-    case PROCESSOR_ARCHITECTURE_IA64:
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Type");
-        PrintTableElement("IA64");
-        PrintEndTableRow();
-        break;
-    case PROCESSOR_ARCHITECTURE_INTEL:
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Type");
-        PrintTableElement("x86");
-        PrintEndTableRow();
-        break;
-    default:
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Type");
-        PrintTableElement("Unknown");
-        PrintEndTableRow();
-        break;
+        case PROCESSOR_ARCHITECTURE_AMD64:
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Type");
+            PrintTableElement("x86_64");
+            PrintEndTableRow();
+            break;
+        case PROCESSOR_ARCHITECTURE_ARM:
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Type");
+            PrintTableElement("ARM");
+            PrintEndTableRow();
+            break;
+        case PROCESSOR_ARCHITECTURE_IA64:
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Type");
+            PrintTableElement("IA64");
+            PrintEndTableRow();
+            break;
+        case PROCESSOR_ARCHITECTURE_INTEL:
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Type");
+            PrintTableElement("x86");
+            PrintEndTableRow();
+            break;
+        default:
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Type");
+            PrintTableElement("Unknown");
+            PrintEndTableRow();
+            break;
     }
 
     if (TRUE == GlobalMemoryStatusEx(&mem_stat)) {
         if ((mem_stat.ullTotalPhys >> 40) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB",
-                     static_cast<uint32_t>(mem_stat.ullTotalPhys >> 40));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 40));
             PrintBeginTableRow();
             PrintTableElement("Memory");
             PrintTableElement("Physical");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((mem_stat.ullTotalPhys >> 30) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB",
-                     static_cast<uint32_t>(mem_stat.ullTotalPhys >> 30));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 30));
             PrintBeginTableRow();
             PrintTableElement("Memory");
             PrintTableElement("Physical");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((mem_stat.ullTotalPhys >> 20) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB",
-                     static_cast<uint32_t>(mem_stat.ullTotalPhys >> 20));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 20));
             PrintBeginTableRow();
             PrintTableElement("Memory");
             PrintTableElement("Physical");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((mem_stat.ullTotalPhys >> 10) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB",
-                     static_cast<uint32_t>(mem_stat.ullTotalPhys >> 10));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 10));
             PrintBeginTableRow();
             PrintTableElement("Memory");
             PrintTableElement("Physical");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u bytes",
-                     static_cast<uint32_t>(mem_stat.ullTotalPhys));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u bytes", static_cast<uint32_t>(mem_stat.ullTotalPhys));
             PrintBeginTableRow();
             PrintTableElement("Memory");
             PrintTableElement("Physical");
@@ -1330,53 +1216,42 @@ ErrorResults PrintSystemInfo(void) {
         }
     }
 
-    if (TRUE == GetDiskFreeSpaceA(NULL, &sect_per_cluster, &bytes_per_sect,
-                                  &num_free_cluster, &total_num_cluster)) {
-        uint64_t bytes_free = (uint64_t)bytes_per_sect *
-                              (uint64_t)sect_per_cluster *
-                              (uint64_t)num_free_cluster;
-        uint64_t bytes_total = (uint64_t)bytes_per_sect *
-                               (uint64_t)sect_per_cluster *
-                               (uint64_t)total_num_cluster;
+    if (TRUE == GetDiskFreeSpaceA(NULL, &sect_per_cluster, &bytes_per_sect, &num_free_cluster, &total_num_cluster)) {
+        uint64_t bytes_free = (uint64_t)bytes_per_sect * (uint64_t)sect_per_cluster * (uint64_t)num_free_cluster;
+        uint64_t bytes_total = (uint64_t)bytes_per_sect * (uint64_t)sect_per_cluster * (uint64_t)total_num_cluster;
         double perc_free = (double)bytes_free / (double)bytes_total;
         if ((bytes_total >> 40) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB",
-                     static_cast<uint32_t>(bytes_total >> 40));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB", static_cast<uint32_t>(bytes_total >> 40));
             PrintBeginTableRow();
             PrintTableElement("Disk Space");
             PrintTableElement("Total");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((bytes_total >> 30) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB",
-                     static_cast<uint32_t>(bytes_total >> 30));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB", static_cast<uint32_t>(bytes_total >> 30));
             PrintBeginTableRow();
             PrintTableElement("Disk Space");
             PrintTableElement("Total");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((bytes_total >> 20) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB",
-                     static_cast<uint32_t>(bytes_total >> 20));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB", static_cast<uint32_t>(bytes_total >> 20));
             PrintBeginTableRow();
             PrintTableElement("Disk Space");
             PrintTableElement("Total");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((bytes_total >> 10) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB",
-                     static_cast<uint32_t>(bytes_total >> 10));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB", static_cast<uint32_t>(bytes_total >> 10));
             PrintBeginTableRow();
             PrintTableElement("Disk Space");
             PrintTableElement("Total");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         }
-        snprintf(output_string, MAX_STRING_LENGTH - 1, "%4.2f%%",
-                 (static_cast<float>(perc_free) * 100.f));
+        snprintf(output_string, MAX_STRING_LENGTH - 1, "%4.2f%%", (static_cast<float>(perc_free) * 100.f));
         if ((bytes_free >> 40) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB",
-                     static_cast<uint32_t>(bytes_free >> 40));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB", static_cast<uint32_t>(bytes_free >> 40));
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Free");
@@ -1388,8 +1263,7 @@ ErrorResults PrintSystemInfo(void) {
             PrintTableElement(output_string);
             PrintEndTableRow();
         } else if ((bytes_free >> 30) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB",
-                     static_cast<uint32_t>(bytes_free >> 30));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB", static_cast<uint32_t>(bytes_free >> 30));
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Free");
@@ -1401,8 +1275,7 @@ ErrorResults PrintSystemInfo(void) {
             PrintTableElement(output_string);
             PrintEndTableRow();
         } else if ((bytes_free >> 20) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB",
-                     static_cast<uint32_t>(bytes_free >> 20));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB", static_cast<uint32_t>(bytes_free >> 20));
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Free");
@@ -1414,8 +1287,7 @@ ErrorResults PrintSystemInfo(void) {
             PrintTableElement(output_string);
             PrintEndTableRow();
         } else if ((bytes_free >> 10) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB",
-                     static_cast<uint32_t>(bytes_free >> 10));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB", static_cast<uint32_t>(bytes_free >> 10));
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Free");
@@ -1454,8 +1326,7 @@ ErrorResults PrintSystemInfo(void) {
     uint32_t major = VK_VERSION_MAJOR(VK_API_VERSION_1_0);
     uint32_t minor = VK_VERSION_MINOR(VK_API_VERSION_1_0);
     uint32_t patch = VK_VERSION_PATCH(VK_HEADER_VERSION);
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", major, minor,
-             patch);
+    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", major, minor, patch);
     PrintTableElement(generic_string);
     PrintEndTableRow();
 
@@ -1487,8 +1358,7 @@ out:
 }
 
 // Determine what version an executable or library file is.
-bool GetFileVersion(const char *filename, const uint32_t max_len,
-                    char *version_string) {
+bool GetFileVersion(const char *filename, const uint32_t max_len, char *version_string) {
     DWORD ver_handle;
     UINT size = 0;
     LPBYTE buffer = NULL;
@@ -1499,17 +1369,13 @@ bool GetFileVersion(const char *filename, const uint32_t max_len,
         LPSTR ver_data = (LPSTR)malloc(sizeof(char) * ver_size);
 
         if (GetFileVersionInfo(filename, ver_handle, ver_size, ver_data)) {
-            if (VerQueryValue(ver_data, "\\", (VOID FAR * FAR *)&buffer,
-                              &size)) {
+            if (VerQueryValue(ver_data, "\\", (VOID FAR * FAR *)&buffer, &size)) {
                 if (size) {
                     VS_FIXEDFILEINFO *ver_info = (VS_FIXEDFILEINFO *)buffer;
                     if (ver_info->dwSignature == 0xfeef04bd) {
-                        DWORD max_size =
-                            ver_size > max_len ? max_len : ver_size;
-                        snprintf(version_string, max_len, "%d.%d.%d.%d",
-                                 (ver_info->dwFileVersionMS >> 16) & 0xffff,
-                                 (ver_info->dwFileVersionMS >> 0) & 0xffff,
-                                 (ver_info->dwFileVersionLS >> 16) & 0xffff,
+                        DWORD max_size = ver_size > max_len ? max_len : ver_size;
+                        snprintf(version_string, max_len, "%d.%d.%d.%d", (ver_info->dwFileVersionMS >> 16) & 0xffff,
+                                 (ver_info->dwFileVersionMS >> 0) & 0xffff, (ver_info->dwFileVersionLS >> 16) & 0xffff,
                                  (ver_info->dwFileVersionLS >> 0) & 0xffff);
                         success = true;
                     }
@@ -1522,8 +1388,7 @@ bool GetFileVersion(const char *filename, const uint32_t max_len,
     return success;
 }
 
-bool ReadDriverJson(std::string cur_driver_json, std::string system_path,
-                    bool &found_lib) {
+bool ReadDriverJson(std::string cur_driver_json, std::string system_path, bool &found_lib) {
     bool found_json = false;
     std::ifstream *stream = NULL;
     Json::Value root = Json::nullValue;
@@ -1592,16 +1457,13 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path,
         PrintTableElement(driver_name);
         PrintEndTableRow();
 
-        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(),
-                                MAX_STRING_LENGTH, full_driver_path)) {
+        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(), MAX_STRING_LENGTH, full_driver_path)) {
             std::string driver_name = root["ICD"]["library_path"].asString();
             std::string system_name = system_path;
             system_name += "\\";
             system_name += driver_name;
 
-            if (GetFileVersion(full_driver_path, MAX_STRING_LENGTH - 1,
-                               generic_string)) {
-
+            if (GetFileVersion(full_driver_path, MAX_STRING_LENGTH - 1, generic_string)) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Library File Version");
@@ -1609,9 +1471,7 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path,
                 PrintEndTableRow();
 
                 found_lib = true;
-            } else if (GetFileVersion(system_name.c_str(),
-                                      MAX_STRING_LENGTH - 1, generic_string)) {
-
+            } else if (GetFileVersion(system_name.c_str(), MAX_STRING_LENGTH - 1, generic_string)) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Library File Version");
@@ -1623,8 +1483,7 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path,
                 snprintf(generic_string, MAX_STRING_LENGTH - 1,
                          "Failed to find driver %s "
                          " or %sreferenced by JSON %s",
-                         root["ICD"]["library_path"].asString().c_str(),
-                         full_driver_path, cur_driver_json.c_str());
+                         root["ICD"]["library_path"].asString().c_str(), full_driver_path, cur_driver_json.c_str());
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("");
@@ -1658,8 +1517,7 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path,
         PrintTableElement(count_str);
         PrintEndTableRow();
 
-        for (Json::ValueIterator dev_ext_it = dev_exts.begin();
-             dev_ext_it != dev_exts.end(); dev_ext_it++) {
+        for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
             Json::Value dev_ext = (*dev_ext_it);
             Json::Value dev_ext_name = dev_ext["name"];
             if (!dev_ext_name.isNull()) {
@@ -1717,8 +1575,7 @@ out:
 ErrorResults PrintDriverInfo(void) {
     ErrorResults res = SUCCESSFUL;
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
-    const char vulkan_reg_base_wow64[] =
-        "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
+    const char vulkan_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
     char reg_key_loc[MAX_STRING_LENGTH];
     char cur_vulkan_driver_json[MAX_STRING_LENGTH];
     char generic_string[MAX_STRING_LENGTH];
@@ -1733,21 +1590,15 @@ ErrorResults PrintDriverInfo(void) {
 
     GetEnvironmentVariableA("SYSTEMROOT", generic_string, MAX_STRING_LENGTH);
 #if _WIN64 || __x86_64__ || __ppc64__
-    snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
-             generic_string);
-    snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
-             vulkan_reg_base);
+    snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\", generic_string);
+    snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers", vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
-        snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\",
-                 generic_string);
-        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
-                 vulkan_reg_base_wow64);
+        snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\", generic_string);
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers", vulkan_reg_base_wow64);
     } else {
-        snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\",
-                 generic_string);
-        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers",
-                 vulkan_reg_base);
+        snprintf(system_path, MAX_STRING_LENGTH - 1, "%s\\system32\\", generic_string);
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\Drivers", vulkan_reg_base);
     }
 #endif
 
@@ -1761,9 +1612,8 @@ ErrorResults PrintDriverInfo(void) {
     // Find the registry settings indicating the location of the driver
     // JSON files.
     uint32_t returned_value = 0;
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i,
-                            MAX_STRING_LENGTH - 1, cur_vulkan_driver_json,
-                            &returned_value)) {
+    while (
+        FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i, MAX_STRING_LENGTH - 1, cur_vulkan_driver_json, &returned_value)) {
         found_registry = true;
 
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
@@ -1780,17 +1630,14 @@ ErrorResults PrintDriverInfo(void) {
         PrintEndTableRow();
 
         // Parse the driver JSON file.
-        if (ReadDriverJson(cur_vulkan_driver_json, system_path,
-                           found_this_lib)) {
+        if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
             found_json = true;
             found_lib |= found_this_lib;
         }
     }
 
     // The user can override the drivers path manually
-    if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value,
-                                     MAX_STRING_LENGTH - 1) &&
-        0 != strlen(env_value)) {
+    if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value, MAX_STRING_LENGTH - 1) && 0 != strlen(env_value)) {
         WIN32_FIND_DATAA ffd;
         HANDLE hFind;
         char *tok = NULL;
@@ -1822,17 +1669,13 @@ ErrorResults PrintDriverInfo(void) {
             PrintEndTableRow();
 
             // Look for any JSON files in that folder.
-            snprintf(full_driver_path, MAX_STRING_LENGTH - 1, "%s\\*.json",
-                     cur_driver_path);
+            snprintf(full_driver_path, MAX_STRING_LENGTH - 1, "%s\\*.json", cur_driver_path);
             hFind = FindFirstFileA(full_driver_path, &ffd);
             if (hFind != INVALID_HANDLE_VALUE) {
                 do {
-                    if (0 ==
-                        (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                        snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                                 "Driver %d", i++);
-                        snprintf(cur_vulkan_driver_json, MAX_STRING_LENGTH - 1,
-                                 "%s\\%s", cur_driver_path, ffd.cFileName);
+                    if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
+                        snprintf(cur_vulkan_driver_json, MAX_STRING_LENGTH - 1, "%s\\%s", cur_driver_path, ffd.cFileName);
 
                         PrintBeginTableRow();
                         PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -1841,8 +1684,7 @@ ErrorResults PrintDriverInfo(void) {
                         PrintEndTableRow();
 
                         // Parse the driver JSON file.
-                        if (ReadDriverJson(cur_vulkan_driver_json, system_path,
-                                           found_this_lib)) {
+                        if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
                             found_json = true;
                             found_lib |= found_this_lib;
                         }
@@ -1861,9 +1703,7 @@ ErrorResults PrintDriverInfo(void) {
     }
 
     // The user can override the driver file manually
-    if (0 != GetEnvironmentVariableA("VK_ICD_FILENAMES", env_value,
-                                     MAX_STRING_LENGTH - 1) &&
-        0 != strlen(env_value)) {
+    if (0 != GetEnvironmentVariableA("VK_ICD_FILENAMES", env_value, MAX_STRING_LENGTH - 1) && 0 != strlen(env_value)) {
         WIN32_FIND_DATAA ffd;
         HANDLE hFind;
         char *tok = NULL;
@@ -1897,8 +1737,7 @@ ErrorResults PrintDriverInfo(void) {
                 if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
                     strcpy(cur_vulkan_driver_json, full_driver_path);
                     // Parse the driver JSON file.
-                    if (ReadDriverJson(cur_vulkan_driver_json, system_path,
-                                       found_this_lib)) {
+                    if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
                         found_json = true;
                         found_lib |= found_this_lib;
                     }
@@ -1958,29 +1797,22 @@ ErrorResults PrintRunTimeInfo(void) {
     PrintEndTableRow();
 
     // Find all Vulkan Runtime keys in the registry, and loop through each.
-    while (FindNextRegKey(HKEY_LOCAL_MACHINE, g_uninstall_reg_path, "VulkanRT",
-                          i, MAX_STRING_LENGTH - 1, output_string)) {
+    while (FindNextRegKey(HKEY_LOCAL_MACHINE, g_uninstall_reg_path, "VulkanRT", i, MAX_STRING_LENGTH - 1, output_string)) {
         snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
 
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s",
-                 g_uninstall_reg_path, output_string);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
 
         // Get the version from the registry
-        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, generic_string,
-                             "DisplayVersion", MAX_STRING_LENGTH - 1,
-                             version_string)) {
+        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, generic_string, "DisplayVersion", MAX_STRING_LENGTH - 1, version_string)) {
         } else {
             strncpy(version_string, output_string, MAX_STRING_LENGTH - 1);
         }
 
         // Get the install count for this runtime from the registry
-        if (ReadRegKeyDword(HKEY_LOCAL_MACHINE, generic_string, "InstallCount",
-                            &install_count)) {
-            snprintf(output_string, MAX_STRING_LENGTH - 1,
-                     "%s  [Install Count = %d]", version_string, install_count);
+        if (ReadRegKeyDword(HKEY_LOCAL_MACHINE, generic_string, "InstallCount", &install_count)) {
+            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s  [Install Count = %d]", version_string, install_count);
         } else {
-            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s",
-                     version_string);
+            snprintf(output_string, MAX_STRING_LENGTH - 1, "%s", version_string);
         }
         PrintBeginTableRow();
         PrintTableElement("");
@@ -1992,15 +1824,12 @@ ErrorResults PrintRunTimeInfo(void) {
     i = 0;
     GetEnvironmentVariableA("SYSTEMROOT", generic_string, MAX_STRING_LENGTH);
 #if _WIN64 || __x86_64__ || __ppc64__
-    snprintf(dll_prefix, MAX_STRING_LENGTH - 1, "%s\\system32\\",
-             generic_string);
+    snprintf(dll_prefix, MAX_STRING_LENGTH - 1, "%s\\system32\\", generic_string);
 #else
     if (global_items.is_wow64) {
-        snprintf(dll_prefix, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\",
-                 generic_string);
+        snprintf(dll_prefix, MAX_STRING_LENGTH - 1, "%s\\sysWOW64\\", generic_string);
     } else {
-        snprintf(dll_prefix, MAX_STRING_LENGTH - 1, "%s\\system32\\",
-                 generic_string);
+        snprintf(dll_prefix, MAX_STRING_LENGTH - 1, "%s\\system32\\", generic_string);
     }
 #endif
 
@@ -2024,12 +1853,9 @@ ErrorResults PrintRunTimeInfo(void) {
                 PrintTableElement(count_string, ALIGN_RIGHT);
                 PrintTableElement(ffd.cFileName);
 
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s",
-                         dll_prefix, ffd.cFileName);
-                if (GetFileVersion(generic_string, MAX_STRING_LENGTH - 1,
-                                   version_string)) {
-                    snprintf(output_string, MAX_STRING_LENGTH - 1, "Version %s",
-                             version_string);
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", dll_prefix, ffd.cFileName);
+                if (GetFileVersion(generic_string, MAX_STRING_LENGTH - 1, version_string)) {
+                    snprintf(output_string, MAX_STRING_LENGTH - 1, "Version %s", version_string);
                     PrintTableElement(output_string);
                 } else {
                     PrintTableElement("");
@@ -2047,14 +1873,13 @@ ErrorResults PrintRunTimeInfo(void) {
         if (NULL != fp) {
             if (NULL != fgets(generic_string, MAX_STRING_LENGTH - 1, fp)) {
                 int i = (int)strlen(generic_string) - 1;
-                while (generic_string[i] == '\n' || generic_string[i] == '\r' ||
-                       generic_string[i] == '\t' || generic_string[i] == ' ') {
+                while (generic_string[i] == '\n' || generic_string[i] == '\r' || generic_string[i] == '\t' ||
+                       generic_string[i] == ' ') {
                     generic_string[i] = '\0';
                     i--;
                 }
 
-                if (GetFileVersion(generic_string, MAX_STRING_LENGTH - 1,
-                                   version_string)) {
+                if (GetFileVersion(generic_string, MAX_STRING_LENGTH - 1, version_string)) {
                     PrintTableElement(generic_string);
                     PrintTableElement(version_string);
                 } else {
@@ -2087,8 +1912,7 @@ ErrorResults PrintRunTimeInfo(void) {
 ErrorResults PrintSDKInfo(void) {
     ErrorResults res = SUCCESSFUL;
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
-    const char vulkan_reg_base_wow64[] =
-        "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
+    const char vulkan_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
     char generic_string[MAX_STRING_LENGTH];
     char count_string[MAX_STRING_LENGTH];
     char output_string[MAX_STRING_LENGTH];
@@ -2107,14 +1931,11 @@ ErrorResults PrintSDKInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    while (FindNextRegKey(HKEY_LOCAL_MACHINE, g_uninstall_reg_path, "VulkanSDK",
-                          i, MAX_STRING_LENGTH, output_string)) {
+    while (FindNextRegKey(HKEY_LOCAL_MACHINE, g_uninstall_reg_path, "VulkanSDK", i, MAX_STRING_LENGTH, output_string)) {
         found = true;
         snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s",
-                 g_uninstall_reg_path, output_string);
-        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, generic_string, "InstallDir",
-                             MAX_STRING_LENGTH, output_string)) {
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
+        if (ReadRegKeyString(HKEY_LOCAL_MACHINE, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string)) {
         }
 
         PrintBeginTableRow();
@@ -2131,8 +1952,7 @@ ErrorResults PrintSDKInfo(void) {
         PrintEndTableRow();
     }
 
-    if (0 != GetEnvironmentVariableA("VK_SDK_PATH", sdk_env_dir,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("VK_SDK_PATH", sdk_env_dir, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("VK_SDK_PATH");
         global_items.sdk_found = true;
@@ -2140,8 +1960,7 @@ ErrorResults PrintSDKInfo(void) {
         PrintTableElement(sdk_env_dir);
         PrintTableElement("");
         PrintEndTableRow();
-    } else if (0 != GetEnvironmentVariableA("VULKAN_SDK", sdk_env_dir,
-                                            MAX_STRING_LENGTH - 1)) {
+    } else if (0 != GetEnvironmentVariableA("VULKAN_SDK", sdk_env_dir, MAX_STRING_LENGTH - 1)) {
         PrintBeginTableRow();
         PrintTableElement("VULKAN_SDK");
         global_items.sdk_found = true;
@@ -2158,15 +1977,12 @@ ErrorResults PrintSDKInfo(void) {
     }
 
 #if _WIN64 || __x86_64__ || __ppc64__
-    snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
-             vulkan_reg_base);
+    snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers", vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
-        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
-                 vulkan_reg_base_wow64);
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers", vulkan_reg_base_wow64);
     } else {
-        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers",
-                 vulkan_reg_base);
+        snprintf(reg_key_loc, MAX_STRING_LENGTH - 1, "%s\\ExplicitLayers", vulkan_reg_base);
     }
 #endif
 
@@ -2179,22 +1995,18 @@ ErrorResults PrintSDKInfo(void) {
     found = false;
     i = 0;
     uint32_t returned_value = 0;
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i,
-                            MAX_STRING_LENGTH, cur_vulkan_layer_json,
-                            &returned_value)) {
+    while (FindNextRegValue(HKEY_LOCAL_MACHINE, reg_key_loc, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json, &returned_value)) {
         found = true;
 
         // Create a short json file name so we don't use up too much space
-        snprintf(output_string, MAX_STRING_LENGTH - 1, ".%s",
-                 &cur_vulkan_layer_json[strlen(sdk_env_dir)]);
+        snprintf(output_string, MAX_STRING_LENGTH - 1, ".%s", &cur_vulkan_layer_json[strlen(sdk_env_dir)]);
 
         snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
         PrintBeginTableRow();
         PrintTableElement(count_string, ALIGN_RIGHT);
         PrintTableElement(output_string);
 
-        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x",
-                 returned_value);
+        snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
         PrintTableElement(output_string);
         PrintEndTableRow();
 
@@ -2247,8 +2059,7 @@ ErrorResults PrintSDKInfo(void) {
 ErrorResults PrintLayerInfo(void) {
     ErrorResults res = SUCCESSFUL;
     const char vulkan_reg_base[] = "SOFTWARE\\Khronos\\Vulkan";
-    const char vulkan_reg_base_wow64[] =
-        "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
+    const char vulkan_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan";
     char vulkan_impl_layer_reg_key[MAX_STRING_LENGTH];
     char cur_vulkan_layer_json[MAX_STRING_LENGTH];
     char generic_string[MAX_STRING_LENGTH];
@@ -2260,15 +2071,12 @@ ErrorResults PrintLayerInfo(void) {
 
 // Dump implicit layer information first.
 #if _WIN64 || __x86_64__ || __ppc64__
-    snprintf(vulkan_impl_layer_reg_key, MAX_STRING_LENGTH - 1,
-             "%s\\ImplicitLayers", vulkan_reg_base);
+    snprintf(vulkan_impl_layer_reg_key, MAX_STRING_LENGTH - 1, "%s\\ImplicitLayers", vulkan_reg_base);
 #else
     if (global_items.is_wow64) {
-        snprintf(vulkan_impl_layer_reg_key, MAX_STRING_LENGTH - 1,
-                 "%s\\ImplicitLayers", vulkan_reg_base_wow64);
+        snprintf(vulkan_impl_layer_reg_key, MAX_STRING_LENGTH - 1, "%s\\ImplicitLayers", vulkan_reg_base_wow64);
     } else {
-        snprintf(vulkan_impl_layer_reg_key, MAX_STRING_LENGTH - 1,
-                 "%s\\ImplicitLayers", vulkan_reg_base);
+        snprintf(vulkan_impl_layer_reg_key, MAX_STRING_LENGTH - 1, "%s\\ImplicitLayers", vulkan_reg_base);
     }
 #endif
 
@@ -2283,18 +2091,15 @@ ErrorResults PrintLayerInfo(void) {
     // For each implicit layer listed in the registry, find its JSON and
     // print out the useful information stored in it.
     uint32_t returned_value = 0;
-    while (FindNextRegValue(HKEY_LOCAL_MACHINE, vulkan_impl_layer_reg_key, "",
-                            i, MAX_STRING_LENGTH, cur_vulkan_layer_json,
+    while (FindNextRegValue(HKEY_LOCAL_MACHINE, vulkan_impl_layer_reg_key, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json,
                             &returned_value)) {
-
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
 
         PrintBeginTableRow();
         PrintTableElement(generic_string, ALIGN_RIGHT);
         PrintTableElement(cur_vulkan_layer_json);
         PrintTableElement("");
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x",
-                 returned_value);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
         PrintTableElement(generic_string);
         PrintEndTableRow();
 
@@ -2334,8 +2139,7 @@ ErrorResults PrintLayerInfo(void) {
     // information found in that folder.  This is important because if
     // a user is having problems with the layers, they may be using
     // non-standard layers.
-    if (0 != GetEnvironmentVariableA("VK_LAYER_PATH", env_value,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("VK_LAYER_PATH", env_value, MAX_STRING_LENGTH - 1)) {
         WIN32_FIND_DATAA ffd;
         HANDLE hFind;
         std::string cur_layer_path;
@@ -2370,19 +2174,14 @@ ErrorResults PrintLayerInfo(void) {
             }
 
             // Look for any JSON files in that folder.
-            snprintf(full_layer_path, MAX_STRING_LENGTH - 1, "%s\\*.json",
-                     cur_layer_path.c_str());
+            snprintf(full_layer_path, MAX_STRING_LENGTH - 1, "%s\\*.json", cur_layer_path.c_str());
             i = 0;
             hFind = FindFirstFileA(full_layer_path, &ffd);
             if (hFind != INVALID_HANDLE_VALUE) {
                 do {
-                    if (0 ==
-                        (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                                 i++);
-                        snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1,
-                                 "%s\\%s", cur_layer_path.c_str(),
-                                 ffd.cFileName);
+                    if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+                        snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1, "%s\\%s", cur_layer_path.c_str(), ffd.cFileName);
 
                         PrintBeginTableRow();
                         PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -2391,8 +2190,7 @@ ErrorResults PrintLayerInfo(void) {
                         PrintEndTableRow();
 
                         std::ifstream *stream = NULL;
-                        stream = new std::ifstream(cur_vulkan_layer_json,
-                                                   std::ifstream::in);
+                        stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
                         if (nullptr == stream || stream->fail()) {
                             PrintBeginTableRow();
                             PrintTableElement("");
@@ -2403,20 +2201,17 @@ ErrorResults PrintLayerInfo(void) {
                         } else {
                             Json::Value root = Json::nullValue;
                             Json::Reader reader;
-                            if (!reader.parse(*stream, root, false) ||
-                                root.isNull()) {
+                            if (!reader.parse(*stream, root, false) || root.isNull()) {
                                 // Report to the user the failure and their
                                 // locations in the document.
                                 PrintBeginTableRow();
                                 PrintTableElement("");
                                 PrintTableElement("ERROR parsing JSON file!");
-                                PrintTableElement(
-                                    reader.getFormattedErrorMessages());
+                                PrintTableElement(reader.getFormattedErrorMessages());
                                 PrintEndTableRow();
                                 res = LAYER_JSON_PARSING_ERROR;
                             } else {
-                                PrintExplicitLayerJsonInfo(
-                                    cur_vulkan_layer_json, root, 3);
+                                PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root, 3);
                             }
 
                             stream->close();
@@ -2460,46 +2255,44 @@ bool CheckDriver(std::string &folder_loc, std::string &object_name) {
 }
 
 // Pointer to a function sed to validate if the system object is found
-typedef bool (*PFN_CheckIfValid)(std::string &folder_loc,
-                                 std::string &object_name);
+typedef bool (*PFN_CheckIfValid)(std::string &folder_loc, std::string &object_name);
 
-bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func,
-                           bool break_on_first) {
+bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func, bool break_on_first) {
     bool found_one = false;
     std::string path_to_check;
     char *env_value = getenv("LD_LIBRARY_PATH");
 
     for (uint32_t iii = 0; iii < 5; iii++) {
         switch (iii) {
-        case 0:
-            path_to_check = "/usr/lib";
-            break;
-        case 1:
+            case 0:
+                path_to_check = "/usr/lib";
+                break;
+            case 1:
 #if __x86_64__ || __ppc64__
-            path_to_check = "/usr/lib/x86_64-linux-gnu";
+                path_to_check = "/usr/lib/x86_64-linux-gnu";
 #else
-            path_to_check = "/usr/lib/i386-linux-gnu";
+                path_to_check = "/usr/lib/i386-linux-gnu";
 #endif
-            break;
-        case 2:
+                break;
+            case 2:
 #if __x86_64__ || __ppc64__
-            path_to_check = "/usr/lib64";
+                path_to_check = "/usr/lib64";
 #else
-            path_to_check = "/usr/lib32";
+                path_to_check = "/usr/lib32";
 #endif
-            break;
-        case 3:
-            path_to_check = "/usr/local/lib";
-            break;
-        case 4:
+                break;
+            case 3:
+                path_to_check = "/usr/local/lib";
+                break;
+            case 4:
 #if __x86_64__ || __ppc64__
-            path_to_check = "/usr/local/lib64";
+                path_to_check = "/usr/local/lib64";
 #else
-            path_to_check = "/usr/local/lib32";
+                path_to_check = "/usr/local/lib32";
 #endif
-            break;
-        default:
-            continue;
+                break;
+            default:
+                continue;
         }
 
         if (func(path_to_check, object_name)) {
@@ -2567,15 +2360,13 @@ ErrorResults PrintSystemInfo(void) {
             if (NULL != strstr(path, "PRETTY_NAME")) {
                 uint32_t index;
                 index = strlen(path) - 1;
-                while (path[index] == ' ' || path[index] == '\t' ||
-                       path[index] == '\r' || path[index] == '\n' ||
+                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\r' || path[index] == '\n' ||
                        path[index] == '\"') {
                     path[index] = '\0';
                     index = strlen(path) - 1;
                 }
                 index = 13;
-                while (path[index] == ' ' || path[index] == '\t' ||
-                       path[index] == '\"') {
+                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
                     index++;
                 }
                 PrintBeginTableRow();
@@ -2696,18 +2487,14 @@ ErrorResults PrintSystemInfo(void) {
     if ((memory >> 10) > 0) {
         memory >>= 10;
         if ((memory >> 20) > 0) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB",
-                     static_cast<uint32_t>(memory >> 20));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB", static_cast<uint32_t>(memory >> 20));
         } else if ((memory >> 10) > 0) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB",
-                     static_cast<uint32_t>(memory >> 10));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB", static_cast<uint32_t>(memory >> 10));
         } else {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB",
-                     static_cast<uint32_t>(memory));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB", static_cast<uint32_t>(memory));
         }
     } else {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB",
-                 static_cast<uint32_t>(memory));
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB", static_cast<uint32_t>(memory));
     }
     PrintBeginTableRow();
     PrintTableElement("Memory");
@@ -2717,42 +2504,36 @@ ErrorResults PrintSystemInfo(void) {
 
     // Print system disk space usage
     if (0 == statvfs("/etc/os-release", &fs_stats)) {
-        uint64_t bytes_total =
-            (uint64_t)fs_stats.f_bsize * (uint64_t)fs_stats.f_bavail;
+        uint64_t bytes_total = (uint64_t)fs_stats.f_bsize * (uint64_t)fs_stats.f_bavail;
         if ((bytes_total >> 40) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB",
-                     static_cast<uint32_t>(bytes_total >> 40));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u TB", static_cast<uint32_t>(bytes_total >> 40));
             PrintBeginTableRow();
             PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((bytes_total >> 30) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB",
-                     static_cast<uint32_t>(bytes_total >> 30));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u GB", static_cast<uint32_t>(bytes_total >> 30));
             PrintBeginTableRow();
             PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
         } else if ((bytes_total >> 20) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB",
-                     static_cast<uint32_t>(bytes_total >> 20));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u MB", static_cast<uint32_t>(bytes_total >> 20));
             PrintBeginTableRow();
             PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else if ((bytes_total >> 10) > 0x0ULL) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB",
-                     static_cast<uint32_t>(bytes_total >> 10));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u KB", static_cast<uint32_t>(bytes_total >> 10));
             PrintBeginTableRow();
             PrintTableElement("System Disk Space");
             PrintTableElement("Free");
             PrintTableElement(generic_string);
             PrintEndTableRow();
         } else {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u bytes",
-                     static_cast<uint32_t>(bytes_total));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%u bytes", static_cast<uint32_t>(bytes_total));
             PrintBeginTableRow();
             PrintTableElement("System Disk Space");
             PrintTableElement("Free");
@@ -2762,16 +2543,13 @@ ErrorResults PrintSystemInfo(void) {
     }
 
     // Print current directory disk space info
-    sprintf(generic_string,
-            "df -h \'%s\' | awk \'{ print $4 } \' | tail -n 1",
-            cur_directory.c_str());
+    sprintf(generic_string, "df -h \'%s\' | awk \'{ print $4 } \' | tail -n 1", cur_directory.c_str());
     fp = popen(generic_string, "r");
     if (fp == NULL) {
         PrintBeginTableRow();
         PrintTableElement("Current Dir Disk Space");
         PrintTableElement("WARNING");
-        PrintTableElement(
-            "Failed to determine current directory disk space");
+        PrintTableElement("Failed to determine current directory disk space");
         PrintEndTableRow();
     } else {
         PrintBeginTableRow();
@@ -2780,8 +2558,7 @@ ErrorResults PrintSystemInfo(void) {
         if (fgets(path, sizeof(path) - 1, fp) != NULL) {
             PrintTableElement(path);
         } else {
-            PrintTableElement(
-                "Failed to determine current directory disk space");
+            PrintTableElement("Failed to determine current directory disk space");
         }
         PrintEndTableRow();
         pclose(fp);
@@ -2809,8 +2586,7 @@ ErrorResults PrintSystemInfo(void) {
     uint32_t major = VK_VERSION_MAJOR(VK_API_VERSION_1_0);
     uint32_t minor = VK_VERSION_MINOR(VK_API_VERSION_1_0);
     uint32_t patch = VK_VERSION_PATCH(VK_HEADER_VERSION);
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", major, minor,
-             patch);
+    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", major, minor, patch);
 
     PrintBeginTableRow();
     PrintTableElement("Vulkan API Version");
@@ -2908,8 +2684,7 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
         PrintTableElement(driver_name);
         PrintEndTableRow();
 
-        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(),
-                                MAX_STRING_LENGTH, full_driver_path)) {
+        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(), MAX_STRING_LENGTH, full_driver_path)) {
             // First try the generated path.
             if (access(full_driver_path, R_OK) != -1) {
                 found_lib = true;
@@ -2921,9 +2696,7 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
         }
         if (!found_lib) {
             FILE *fp;
-            sprintf(generic_string,
-                    "/sbin/ldconfig -v -N -p | grep %s | awk \'{ print $4 }\'",
-                    driver_name.c_str());
+            sprintf(generic_string, "/sbin/ldconfig -v -N -p | grep %s | awk \'{ print $4 }\'", driver_name.c_str());
             fp = popen(generic_string, "r");
             if (fp == NULL) {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1,
@@ -2967,8 +2740,7 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
         PrintTableElement(count_str);
         PrintEndTableRow();
 
-        for (Json::ValueIterator dev_ext_it = dev_exts.begin();
-             dev_ext_it != dev_exts.end(); dev_ext_it++) {
+        for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
             Json::Value dev_ext = (*dev_ext_it);
             Json::Value dev_ext_name = dev_ext["name"];
             if (!dev_ext_name.isNull()) {
@@ -3074,7 +2846,6 @@ ErrorResults PrintDriverInfo(void) {
 
     // Loop through all folders discovered above.
     for (size_t dir = 0; dir < driver_paths.size(); dir++) {
-
         // Just to make things clear, make sure to add a
         // identifier before the drivers path results.
         if (dir == 0) {
@@ -3083,8 +2854,7 @@ ErrorResults PrintDriverInfo(void) {
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
-        } else if (drivers_path_index >= 0 &&
-                   dir == static_cast<size_t>(drivers_path_index)) {
+        } else if (drivers_path_index >= 0 && dir == static_cast<size_t>(drivers_path_index)) {
             PrintBeginTableRow();
             PrintTableElement("VK_DRIVERS_PATH");
             PrintTableElement(drivers_env_value);
@@ -3095,7 +2865,6 @@ ErrorResults PrintDriverInfo(void) {
         // Make sure the directory exists.
         DIR *driver_dir = opendir(driver_paths[dir].c_str());
         if (NULL == driver_dir) {
-
             PrintBeginTableRow();
             PrintTableElement(driver_paths[dir], ALIGN_RIGHT);
             PrintTableElement("No such folder");
@@ -3116,8 +2885,7 @@ ErrorResults PrintDriverInfo(void) {
         while ((cur_ent = readdir(driver_dir)) != NULL) {
             if (NULL != strstr(cur_ent->d_name, ".json")) {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-                snprintf(cur_vulkan_driver_json, MAX_STRING_LENGTH - 1, "%s/%s",
-                         driver_paths[dir].c_str(), cur_ent->d_name);
+                snprintf(cur_vulkan_driver_json, MAX_STRING_LENGTH - 1, "%s/%s", driver_paths[dir].c_str(), cur_ent->d_name);
 
                 PrintBeginTableRow();
                 PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -3200,8 +2968,7 @@ ErrorResults PrintDriverInfo(void) {
 
 // Print out all the runtime files found in a given location.  This way we
 // capture the full state of the system.
-ErrorResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name,
-                           bool print_header = true) {
+ErrorResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header = true) {
     DIR *runtime_dir;
     ErrorResults res = SUCCESSFUL;
 
@@ -3224,9 +2991,7 @@ ErrorResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_
         }
 
         while ((cur_ent = readdir(runtime_dir)) != NULL) {
-            if (NULL != strstr(cur_ent->d_name, object_name.c_str()) &&
-                strlen(cur_ent->d_name) == 14) {
-
+            if (NULL != strstr(cur_ent->d_name, object_name.c_str()) && strlen(cur_ent->d_name) == 14) {
                 // Get the source of this symbolic link
                 command_str = "stat -c%N \'";
                 command_str += folder_loc;
@@ -3251,19 +3016,15 @@ ErrorResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_
                         std::string cmd = path;
                         size_t arrow_loc = cmd.find("->");
                         if (arrow_loc == std::string::npos) {
-                            std::string trimmed_path =
-                                TrimWhitespace(path, " \t\n\r\'\"");
+                            std::string trimmed_path = TrimWhitespace(path, " \t\n\r\'\"");
 
                             PrintTableElement(trimmed_path);
                             PrintTableElement("");
                         } else {
                             std::string before_arrow = cmd.substr(0, arrow_loc);
-                            std::string trim_before =
-                                TrimWhitespace(before_arrow, " \t\n\r\'\"");
-                            std::string after_arrow =
-                                cmd.substr(arrow_loc + 2, std::string::npos);
-                            std::string trim_after =
-                                TrimWhitespace(after_arrow, " \t\n\r\'\"");
+                            std::string trim_before = TrimWhitespace(before_arrow, " \t\n\r\'\"");
+                            std::string after_arrow = cmd.substr(arrow_loc + 2, std::string::npos);
+                            std::string trim_after = TrimWhitespace(after_arrow, " \t\n\r\'\"");
                             PrintTableElement(trim_before);
                             PrintTableElement(trim_after);
                         }
@@ -3345,8 +3106,7 @@ ErrorResults PrintRunTimeInfo(void) {
                     std::string cmd = path;
                     size_t arrow_loc = cmd.find("=>");
                     if (arrow_loc == std::string::npos) {
-                        std::string trimmed_path =
-                            TrimWhitespace(path, " \t\n\r\'\"");
+                        std::string trimmed_path = TrimWhitespace(path, " \t\n\r\'\"");
                         PrintBeginTableRow();
                         PrintTableElement(runtime_dir_id);
                         PrintTableElement(trimmed_path);
@@ -3354,10 +3114,8 @@ ErrorResults PrintRunTimeInfo(void) {
                         PrintEndTableRow();
                     } else {
                         std::string after_arrow = cmd.substr(arrow_loc + 2);
-                        std::string before_slash =
-                            after_arrow.substr(0, after_arrow.rfind("/"));
-                        std::string trimmed =
-                            TrimWhitespace(before_slash, " \t\n\r\'\"");
+                        std::string before_slash = after_arrow.substr(0, after_arrow.rfind("/"));
+                        std::string trimmed = TrimWhitespace(before_slash, " \t\n\r\'\"");
 
                         PrintBeginTableRow();
                         PrintTableElement(runtime_dir_id);
@@ -3502,25 +3260,25 @@ ErrorResults PrintSDKInfo(void) {
 
     for (uint32_t dir = 0; dir < 2; dir++) {
         switch (dir) {
-        case 0:
-            sdk_env_name = "VK_SDK_PATH";
-            env_value = getenv(sdk_env_name.c_str());
-            if (env_value == NULL) {
+            case 0:
+                sdk_env_name = "VK_SDK_PATH";
+                env_value = getenv(sdk_env_name.c_str());
+                if (env_value == NULL) {
+                    continue;
+                }
+                sdk_path = env_value;
+                break;
+            case 1:
+                sdk_env_name = "VULKAN_SDK";
+                env_value = getenv(sdk_env_name.c_str());
+                if (env_value == NULL) {
+                    continue;
+                }
+                sdk_path = env_value;
+                break;
+            default:
+                res = UNKNOWN_ERROR;
                 continue;
-            }
-            sdk_path = env_value;
-            break;
-        case 1:
-            sdk_env_name = "VULKAN_SDK";
-            env_value = getenv(sdk_env_name.c_str());
-            if (env_value == NULL) {
-                continue;
-            }
-            sdk_path = env_value;
-            break;
-        default:
-            res = UNKNOWN_ERROR;
-            continue;
         }
 
         std::string explicit_layer_path = sdk_path;
@@ -3529,14 +3287,12 @@ ErrorResults PrintSDKInfo(void) {
         sdk_dir = opendir(explicit_layer_path.c_str());
         if (NULL != sdk_dir) {
             while ((cur_ent = readdir(sdk_dir)) != NULL) {
-                if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) &&
-                    strlen(cur_ent->d_name) == 14) {
+                if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
                 }
             }
             closedir(sdk_dir);
 
-            res = PrintExplicitLayersInFolder(sdk_env_name,
-                                              explicit_layer_path);
+            res = PrintExplicitLayersInFolder(sdk_env_name, explicit_layer_path);
 
             global_items.sdk_found = true;
             global_items.sdk_path = sdk_path;
@@ -3577,29 +3333,29 @@ ErrorResults PrintLayerInfo(void) {
     for (uint32_t dir = 0; dir < 5; dir++) {
         std::string cur_layer_path;
         switch (dir) {
-        case 0:
-            cur_layer_path = "/etc/vulkan/implicit_layer.d";
-            break;
-        case 1:
-            cur_layer_path = "/usr/share/vulkan/implicit_layer.d";
-            break;
-        case 2:
-            cur_layer_path = "/usr/local/etc/vulkan/implicit_layer.d";
-            break;
-        case 3:
-            cur_layer_path = "/usr/local/share/vulkan/implicit_layer.d";
-            break;
-        case 4:
-            env_value = getenv("HOME");
-            if (NULL == env_value) {
-                cur_layer_path = "~/.local/share/vulkan/implicit_layer.d";
-            } else {
-                cur_layer_path = env_value;
-                cur_layer_path += "/.local/share/vulkan/implicit_layer.d";
-            }
-            break;
-        default:
-            continue;
+            case 0:
+                cur_layer_path = "/etc/vulkan/implicit_layer.d";
+                break;
+            case 1:
+                cur_layer_path = "/usr/share/vulkan/implicit_layer.d";
+                break;
+            case 2:
+                cur_layer_path = "/usr/local/etc/vulkan/implicit_layer.d";
+                break;
+            case 3:
+                cur_layer_path = "/usr/local/share/vulkan/implicit_layer.d";
+                break;
+            case 4:
+                env_value = getenv("HOME");
+                if (NULL == env_value) {
+                    cur_layer_path = "~/.local/share/vulkan/implicit_layer.d";
+                } else {
+                    cur_layer_path = env_value;
+                    cur_layer_path += "/.local/share/vulkan/implicit_layer.d";
+                }
+                break;
+            default:
+                continue;
         }
 
         layer_dir = opendir(cur_layer_path.c_str());
@@ -3611,10 +3367,8 @@ ErrorResults PrintLayerInfo(void) {
             PrintEndTableRow();
             while ((cur_ent = readdir(layer_dir)) != NULL) {
                 if (NULL != strstr(cur_ent->d_name, ".json")) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                             i++);
-                    snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1,
-                             "%s/%s", cur_layer_path.c_str(), cur_ent->d_name);
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+                    snprintf(cur_vulkan_layer_json, MAX_STRING_LENGTH - 1, "%s/%s", cur_layer_path.c_str(), cur_ent->d_name);
 
                     PrintBeginTableRow();
                     PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -3623,8 +3377,7 @@ ErrorResults PrintLayerInfo(void) {
                     PrintEndTableRow();
 
                     std::ifstream *stream = NULL;
-                    stream = new std::ifstream(cur_vulkan_layer_json,
-                                               std::ifstream::in);
+                    stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
                     if (nullptr == stream || stream->fail()) {
                         PrintBeginTableRow();
                         PrintTableElement("");
@@ -3635,20 +3388,17 @@ ErrorResults PrintLayerInfo(void) {
                     } else {
                         Json::Value root = Json::nullValue;
                         Json::Reader reader;
-                        if (!reader.parse(*stream, root, false) ||
-                            root.isNull()) {
+                        if (!reader.parse(*stream, root, false) || root.isNull()) {
                             // Report to the user the failure and their
                             // locations in the document.
                             PrintBeginTableRow();
                             PrintTableElement("");
                             PrintTableElement("ERROR parsing JSON file!");
-                            PrintTableElement(
-                                reader.getFormattedErrorMessages());
+                            PrintTableElement(reader.getFormattedErrorMessages());
                             PrintEndTableRow();
                             res = LAYER_JSON_PARSING_ERROR;
                         } else {
-                            PrintExplicitLayerJsonInfo(cur_vulkan_layer_json,
-                                                       root, 3);
+                            PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root, 3);
                         }
 
                         stream->close();
@@ -3685,34 +3435,34 @@ ErrorResults PrintLayerInfo(void) {
         std::string explicit_layer_path = cur_layer_path;
         char *env_value = NULL;
         switch (dir) {
-        case 0:
-            cur_layer_path = "/etc/vulkan/explicit_layer.d";
-            explicit_layer_id = "/etc/vulkan";
-            break;
-        case 1:
-            cur_layer_path = "/usr/share/vulkan/explicit_layer.d";
-            explicit_layer_id = "/usr/share/vulkan";
-            break;
-        case 2:
-            cur_layer_path = "/usr/local/etc/vulkan/explicit_layer.d";
-            explicit_layer_id = "/usr/local/etc/vulkan";
-            break;
-        case 3:
-            cur_layer_path = "/usr/local/share/vulkan/explicit_layer.d";
-            explicit_layer_id = "/usr/local/share/vulkan";
-            break;
-        case 4:
-            explicit_layer_id = "$HOME/.local/share/vulkan/explicit_layer.d";
-            env_value = getenv("HOME");
-            if (NULL == env_value) {
-                cur_layer_path = "~/.local/share/vulkan/explicit_layer.d";
-            } else {
-                cur_layer_path = env_value;
-                cur_layer_path += "/.local/share/vulkan/explicit_layer.d";
-            }
-            break;
-        default:
-            continue;
+            case 0:
+                cur_layer_path = "/etc/vulkan/explicit_layer.d";
+                explicit_layer_id = "/etc/vulkan";
+                break;
+            case 1:
+                cur_layer_path = "/usr/share/vulkan/explicit_layer.d";
+                explicit_layer_id = "/usr/share/vulkan";
+                break;
+            case 2:
+                cur_layer_path = "/usr/local/etc/vulkan/explicit_layer.d";
+                explicit_layer_id = "/usr/local/etc/vulkan";
+                break;
+            case 3:
+                cur_layer_path = "/usr/local/share/vulkan/explicit_layer.d";
+                explicit_layer_id = "/usr/local/share/vulkan";
+                break;
+            case 4:
+                explicit_layer_id = "$HOME/.local/share/vulkan/explicit_layer.d";
+                env_value = getenv("HOME");
+                if (NULL == env_value) {
+                    cur_layer_path = "~/.local/share/vulkan/explicit_layer.d";
+                } else {
+                    cur_layer_path = env_value;
+                    cur_layer_path += "/.local/share/vulkan/explicit_layer.d";
+                }
+                break;
+            default:
+                continue;
         }
 
         res = PrintExplicitLayersInFolder(explicit_layer_id, cur_layer_path);
@@ -3757,8 +3507,7 @@ ErrorResults PrintLayerInfo(void) {
 // command-line arguments.
 // Returns 0 on no error, 1 if test file wasn't found, and -1
 // on any other errors.
-int RunTestInDirectory(std::string path, std::string test,
-                       std::string cmd_line) {
+int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) {
     char orig_dir[MAX_STRING_LENGTH];
     int err_code = -1;
     orig_dir[0] = '\0';
@@ -3791,11 +3540,10 @@ int RunTestInDirectory(std::string path, std::string test,
 // content inside of a string.  The actual items labeled
 // as whitespace are passed in as the second set of
 // parameters.
-std::string TrimWhitespace(const std::string &str,
-                           const std::string &whitespace) {
+std::string TrimWhitespace(const std::string &str, const std::string &whitespace) {
     const auto strBegin = str.find_first_not_of(whitespace);
     if (strBegin == std::string::npos) {
-        return ""; // no content
+        return "";  // no content
     }
 
     const auto strEnd = str.find_last_not_of(whitespace);
@@ -3818,8 +3566,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
 // If the settings path environment variable is set, use that.
 #ifdef _WIN32
     char generic_string[MAX_STRING_LENGTH];
-    if (0 != GetEnvironmentVariableA("VK_LAYER_SETTINGS_PATH", generic_string,
-                                     MAX_STRING_LENGTH - 1)) {
+    if (0 != GetEnvironmentVariableA("VK_LAYER_SETTINGS_PATH", generic_string, MAX_STRING_LENGTH - 1)) {
         settings_path = generic_string;
         settings_file = settings_path;
         settings_file += '\\';
@@ -3848,8 +3595,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
     PrintBeginTableRow();
     PrintTableElement("Settings File");
     PrintTableElement("vk_layer_settings.txt");
-    std::ifstream *settings_stream =
-        new std::ifstream(settings_file, std::ifstream::in);
+    std::ifstream *settings_stream = new std::ifstream(settings_file, std::ifstream::in);
     if (nullptr == settings_stream || settings_stream->fail()) {
         // No file was found.  This is NOT an error.
         PrintTableElement("Not Found");
@@ -3884,8 +3630,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
             SettingPair new_pair;
 
             std::string before_equal = trimmed_line.substr(0, equal_loc);
-            std::string after_equal =
-                trimmed_line.substr(equal_loc + 1, std::string::npos);
+            std::string after_equal = trimmed_line.substr(equal_loc + 1, std::string::npos);
             new_pair.value = TrimWhitespace(after_equal);
 
             std::string trimmed_setting = TrimWhitespace(before_equal);
@@ -3898,8 +3643,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
                 setting_name = trimmed_setting;
             } else {
                 setting_layer = trimmed_setting.substr(0, period_loc);
-                setting_name =
-                    trimmed_setting.substr(period_loc + 1, std::string::npos);
+                setting_name = trimmed_setting.substr(period_loc + 1, std::string::npos);
             }
             new_pair.name = setting_name;
 
@@ -3919,8 +3663,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
         // Now that all items have been grouped in the settings map
         // appropriately, print
         // them out
-        for (auto layer_iter = settings.begin(); layer_iter != settings.end();
-             layer_iter++) {
+        for (auto layer_iter = settings.begin(); layer_iter != settings.end(); layer_iter++) {
             std::vector<SettingPair> &cur_vector = layer_iter->second;
             PrintBeginTableRow();
             PrintTableElement("");
@@ -3928,8 +3671,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
-            for (uint32_t cur_item = 0; cur_item < cur_vector.size();
-                 cur_item++) {
+            for (uint32_t cur_item = 0; cur_item < cur_vector.size(); cur_item++) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("");
@@ -3948,8 +3690,7 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
 }
 
 // Print out the information stored in an explicit layer's JSON file.
-void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
-                                Json::Value root, uint32_t num_cols) {
+void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value root, uint32_t num_cols) {
     char generic_string[MAX_STRING_LENGTH];
     uint32_t cur_col;
     uint32_t ext;
@@ -4029,12 +3770,9 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
 #ifdef _WIN32
             // On Windows, we can query the file version, so do so.
             char full_layer_path[MAX_STRING_LENGTH];
-            if (GenerateLibraryPath(
-                    layer_json_filename,
-                    root["layer"]["library_path"].asString().c_str(),
-                    MAX_STRING_LENGTH, full_layer_path) &&
-                GetFileVersion(full_layer_path, MAX_STRING_LENGTH,
-                               generic_string)) {
+            if (GenerateLibraryPath(layer_json_filename, root["layer"]["library_path"].asString().c_str(), MAX_STRING_LENGTH,
+                                    full_layer_path) &&
+                GetFileVersion(full_layer_path, MAX_STRING_LENGTH, generic_string)) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Layer File Version");
@@ -4073,13 +3811,11 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
             }
             PrintEndTableRow();
 
-            for (Json::ValueIterator dev_ext_it = dev_exts.begin();
-                 dev_ext_it != dev_exts.end(); dev_ext_it++) {
+            for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
                 Json::Value dev_ext = (*dev_ext_it);
                 Json::Value dev_ext_name = dev_ext["name"];
                 if (!dev_ext_name.isNull()) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                             ext);
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", ext);
                     PrintBeginTableRow();
                     PrintTableElement("");
                     PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -4108,13 +3844,11 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
             }
             PrintEndTableRow();
 
-            for (Json::ValueIterator inst_ext_it = inst_exts.begin();
-                 inst_ext_it != inst_exts.end(); inst_ext_it++) {
+            for (Json::ValueIterator inst_ext_it = inst_exts.begin(); inst_ext_it != inst_exts.end(); inst_ext_it++) {
                 Json::Value inst_ext = (*inst_ext_it);
                 Json::Value inst_ext_name = inst_ext["name"];
                 if (!inst_ext_name.isNull()) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                             ext);
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", ext);
                     PrintBeginTableRow();
                     PrintTableElement("");
                     PrintTableElement(generic_string, ALIGN_RIGHT);
@@ -4149,8 +3883,7 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename,
 // to disable the layer by default.  Additionally, some implicit
 // layers have an ENABLE environment variable so that they are
 // disabled by default, but can be enabled.
-void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
-                                Json::Value root) {
+void PrintImplicitLayerJsonInfo(const char *layer_json_filename, Json::Value root) {
     bool enabled = true;
     std::string enable_env_variable = "--NONE--";
     bool enable_var_set = false;
@@ -4163,8 +3896,7 @@ void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
 
     Json::Value enable = root["layer"]["enable_environment"];
     if (!enable.isNull()) {
-        for (Json::Value::iterator en_iter = enable.begin();
-             en_iter != enable.end(); en_iter++) {
+        for (Json::Value::iterator en_iter = enable.begin(); en_iter != enable.end(); en_iter++) {
             if (en_iter.key().isNull()) {
                 continue;
             }
@@ -4172,8 +3904,7 @@ void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
             // If an enable define exists, set it to disabled by default.
             enabled = false;
 #ifdef _WIN32
-            if (0 != GetEnvironmentVariableA(enable_env_variable.c_str(),
-                                             enable_env_value, 15)) {
+            if (0 != GetEnvironmentVariableA(enable_env_variable.c_str(), enable_env_value, 15)) {
 #else
             char *enable_env = getenv(enable_env_variable.c_str());
             if (NULL != enable_env) {
@@ -4190,15 +3921,13 @@ void PrintImplicitLayerJsonInfo(const char *layer_json_filename,
     }
     Json::Value disable = root["layer"]["disable_environment"];
     if (!disable.isNull()) {
-        for (Json::Value::iterator dis_iter = disable.begin();
-             dis_iter != disable.end(); dis_iter++) {
+        for (Json::Value::iterator dis_iter = disable.begin(); dis_iter != disable.end(); dis_iter++) {
             if (dis_iter.key().isNull()) {
                 continue;
             }
             disable_env_variable = dis_iter.key().asString();
 #ifdef _WIN32
-            if (0 != GetEnvironmentVariableA(disable_env_variable.c_str(),
-                                             disable_env_value, 15)) {
+            if (0 != GetEnvironmentVariableA(disable_env_variable.c_str(), disable_env_value, 15)) {
 #else
             char *disable_env = getenv(disable_env_variable.c_str());
             if (NULL != disable_env) {
@@ -4279,27 +4008,23 @@ ErrorResults PrintInstanceInfo(void) {
     PrintTableElement("vkEnumerateInstanceExtensionProperties");
     status = vkEnumerateInstanceExtensionProperties(NULL, &ext_count, NULL);
     if (status) {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                 "ERROR: Failed to determine num inst extensions - %d", status);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to determine num inst extensions - %d", status);
         PrintTableElement(generic_string);
         PrintTableElement("");
         PrintEndTableRow();
         res = VULKAN_CANT_FIND_EXTENSIONS;
     } else {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d extensions found",
-                 ext_count);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d extensions found", ext_count);
         PrintTableElement(generic_string);
         PrintTableElement("");
         PrintEndTableRow();
 
         ext_props.resize(ext_count);
-        status = vkEnumerateInstanceExtensionProperties(NULL, &ext_count,
-                                                        ext_props.data());
+        status = vkEnumerateInstanceExtensionProperties(NULL, &ext_count, ext_props.data());
         if (status) {
             PrintBeginTableRow();
             PrintTableElement("");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                     "ERROR: Failed to enumerate inst extensions - %d", status);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to enumerate inst extensions - %d", status);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
@@ -4310,8 +4035,7 @@ ErrorResults PrintInstanceInfo(void) {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", iii);
                 PrintTableElement(generic_string, ALIGN_RIGHT);
                 PrintTableElement(ext_props[iii].extensionName);
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "Spec Vers %d",
-                         ext_props[iii].specVersion);
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "Spec Vers %d", ext_props[iii].specVersion);
                 PrintTableElement(generic_string);
                 PrintEndTableRow();
             }
@@ -4328,8 +4052,7 @@ ErrorResults PrintInstanceInfo(void) {
         PrintTableElement("ERROR: Out of memory");
         res = VULKAN_FAILED_OUT_OF_MEM;
     } else if (status) {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                 "ERROR: Failed to create - %d", status);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to create - %d", status);
         PrintTableElement(generic_string);
         res = VULKAN_FAILED_CREATE_INSTANCE;
     } else {
@@ -4359,11 +4082,9 @@ ErrorResults PrintPhysDevInfo(void) {
 
     PrintBeginTableRow();
     PrintTableElement("vkEnumeratePhysicalDevices");
-    status =
-        vkEnumeratePhysicalDevices(global_items.instance, &gpu_count, NULL);
+    status = vkEnumeratePhysicalDevices(global_items.instance, &gpu_count, NULL);
     if (status) {
-        snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                 "ERROR: Failed to query - %d", status);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to query - %d", status);
         PrintTableElement(generic_string);
         res = VULKAN_CANT_FIND_DRIVER;
         goto out;
@@ -4377,8 +4098,7 @@ ErrorResults PrintPhysDevInfo(void) {
 
     phys_devices.resize(gpu_count);
     global_items.phys_devices.resize(gpu_count);
-    status = vkEnumeratePhysicalDevices(global_items.instance, &gpu_count,
-                                        phys_devices.data());
+    status = vkEnumeratePhysicalDevices(global_items.instance, &gpu_count, phys_devices.data());
     if (VK_SUCCESS != status && VK_INCOMPLETE != status) {
         PrintBeginTableRow();
         PrintTableElement("");
@@ -4395,15 +4115,13 @@ ErrorResults PrintPhysDevInfo(void) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", iii);
         PrintTableElement(generic_string, ALIGN_RIGHT);
         if (status) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                     "ERROR: Failed to query - %d", status);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to query - %d", status);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
         } else {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%p",
-                     phys_devices[iii]);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%p", phys_devices[iii]);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintTableElement("");
@@ -4415,39 +4133,32 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintTableElement("");
             PrintTableElement("Vendor");
             switch (props.vendorID) {
-            case 0x8086:
-            case 0x8087:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                         "Intel [0x%04x]", props.vendorID);
-                break;
-            case 0x1002:
-            case 0x1022:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "AMD [0x%04x]",
-                         props.vendorID);
-                break;
-            case 0x10DE:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                         "Nvidia [0x%04x]", props.vendorID);
-                break;
-            case 0x1EB5:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "ARM [0x%04x]",
-                         props.vendorID);
-                break;
-            case 0x5143:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                         "Qualcomm [0x%04x]", props.vendorID);
-                break;
-            case 0x1099:
-            case 0x10C3:
-            case 0x1249:
-            case 0x4E8:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                         "Samsung [0x%04x]", props.vendorID);
-                break;
-            default:
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%04x",
-                         props.vendorID);
-                break;
+                case 0x8086:
+                case 0x8087:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "Intel [0x%04x]", props.vendorID);
+                    break;
+                case 0x1002:
+                case 0x1022:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "AMD [0x%04x]", props.vendorID);
+                    break;
+                case 0x10DE:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "Nvidia [0x%04x]", props.vendorID);
+                    break;
+                case 0x1EB5:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "ARM [0x%04x]", props.vendorID);
+                    break;
+                case 0x5143:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "Qualcomm [0x%04x]", props.vendorID);
+                    break;
+                case 0x1099:
+                case 0x10C3:
+                case 0x1249:
+                case 0x4E8:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "Samsung [0x%04x]", props.vendorID);
+                    break;
+                default:
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%04x", props.vendorID);
+                    break;
             }
             PrintTableElement(generic_string);
             PrintTableElement("");
@@ -4463,8 +4174,7 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Device ID");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                     props.deviceID);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x", props.deviceID);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
@@ -4473,24 +4183,24 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintTableElement("");
             PrintTableElement("Device Type");
             switch (props.deviceType) {
-            case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-                PrintTableElement("Integrated GPU");
-                break;
-            case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-                PrintTableElement("Discrete GPU");
-                break;
-            case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-                PrintTableElement("Virtual GPU");
-                break;
-            case VK_PHYSICAL_DEVICE_TYPE_CPU:
-                PrintTableElement("CPU");
-                break;
-            case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-                PrintTableElement("Other");
-                break;
-            default:
-                PrintTableElement("INVALID!");
-                break;
+                case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+                    PrintTableElement("Integrated GPU");
+                    break;
+                case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+                    PrintTableElement("Discrete GPU");
+                    break;
+                case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+                    PrintTableElement("Virtual GPU");
+                    break;
+                case VK_PHYSICAL_DEVICE_TYPE_CPU:
+                    PrintTableElement("CPU");
+                    break;
+                case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+                    PrintTableElement("Other");
+                    break;
+                default:
+                    PrintTableElement("INVALID!");
+                    break;
             }
             PrintTableElement("");
             PrintEndTableRow();
@@ -4498,10 +4208,8 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Driver Version");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d",
-                     VK_VERSION_MAJOR(props.driverVersion),
-                     VK_VERSION_MINOR(props.driverVersion),
-                     VK_VERSION_PATCH(props.driverVersion));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", VK_VERSION_MAJOR(props.driverVersion),
+                     VK_VERSION_MINOR(props.driverVersion), VK_VERSION_PATCH(props.driverVersion));
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
@@ -4509,43 +4217,34 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("API Version");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d",
-                     VK_VERSION_MAJOR(props.apiVersion),
-                     VK_VERSION_MINOR(props.apiVersion),
-                     VK_VERSION_PATCH(props.apiVersion));
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", VK_VERSION_MAJOR(props.apiVersion),
+                     VK_VERSION_MINOR(props.apiVersion), VK_VERSION_PATCH(props.apiVersion));
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
 
             uint32_t queue_fam_count;
-            vkGetPhysicalDeviceQueueFamilyProperties(phys_devices[iii],
-                                                     &queue_fam_count, NULL);
+            vkGetPhysicalDeviceQueueFamilyProperties(phys_devices[iii], &queue_fam_count, NULL);
             if (queue_fam_count > 0) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Queue Families");
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                         queue_fam_count);
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", queue_fam_count);
                 PrintTableElement(generic_string);
                 PrintTableElement("");
                 PrintEndTableRow();
 
-                global_items.phys_devices[iii].queue_fam_props.resize(
-                    queue_fam_count);
-                vkGetPhysicalDeviceQueueFamilyProperties(
-                    phys_devices[iii], &queue_fam_count,
-                    global_items.phys_devices[iii].queue_fam_props.data());
+                global_items.phys_devices[iii].queue_fam_props.resize(queue_fam_count);
+                vkGetPhysicalDeviceQueueFamilyProperties(phys_devices[iii], &queue_fam_count,
+                                                         global_items.phys_devices[iii].queue_fam_props.data());
                 for (jjj = 0; jjj < queue_fam_count; jjj++) {
                     PrintBeginTableRow();
                     PrintTableElement("");
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                             jjj);
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", jjj);
                     PrintTableElement(generic_string, ALIGN_RIGHT);
                     PrintTableElement("Queue Count");
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                             global_items.phys_devices[iii]
-                                 .queue_fam_props[jjj]
-                                 .queueCount);
+                             global_items.phys_devices[iii].queue_fam_props[jjj].queueCount);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4555,53 +4254,33 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("Queue Flags");
                     generic_string[0] = '\0';
                     bool prev_set = false;
-                    if (global_items.phys_devices[iii]
-                            .queue_fam_props[jjj]
-                            .queueFlags &
-                        VK_QUEUE_GRAPHICS_BIT) {
-                        strncat(generic_string, "GRAPHICS",
-                                MAX_STRING_LENGTH - 1);
+                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                        strncat(generic_string, "GRAPHICS", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
-                    if (global_items.phys_devices[iii]
-                            .queue_fam_props[jjj]
-                            .queueFlags &
-                        VK_QUEUE_COMPUTE_BIT) {
+                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_COMPUTE_BIT) {
                         if (prev_set) {
-                            strncat(generic_string, " | ",
-                                    MAX_STRING_LENGTH - 1);
+                            strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                         }
-                        strncat(generic_string, "COMPUTE",
-                                MAX_STRING_LENGTH - 1);
+                        strncat(generic_string, "COMPUTE", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
-                    if (global_items.phys_devices[iii]
-                            .queue_fam_props[jjj]
-                            .queueFlags &
-                        VK_QUEUE_TRANSFER_BIT) {
+                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_TRANSFER_BIT) {
                         if (prev_set) {
-                            strncat(generic_string, " | ",
-                                    MAX_STRING_LENGTH - 1);
+                            strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                         }
-                        strncat(generic_string, "TRANSFER",
-                                MAX_STRING_LENGTH - 1);
+                        strncat(generic_string, "TRANSFER", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
-                    if (global_items.phys_devices[iii]
-                            .queue_fam_props[jjj]
-                            .queueFlags &
-                        VK_QUEUE_SPARSE_BINDING_BIT) {
+                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) {
                         if (prev_set) {
-                            strncat(generic_string, " | ",
-                                    MAX_STRING_LENGTH - 1);
+                            strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                         }
-                        strncat(generic_string, "SPARSE_BINDING",
-                                MAX_STRING_LENGTH - 1);
+                        strncat(generic_string, "SPARSE_BINDING", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
                     if (!prev_set) {
-                        strncat(generic_string, "--NONE--",
-                                MAX_STRING_LENGTH - 1);
+                        strncat(generic_string, "--NONE--", MAX_STRING_LENGTH - 1);
                     }
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
@@ -4611,9 +4290,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Timestamp Valid Bits");
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii]
-                                 .queue_fam_props[jjj]
-                                 .timestampValidBits);
+                             global_items.phys_devices[iii].queue_fam_props[jjj].timestampValidBits);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4629,9 +4306,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Width", ALIGN_RIGHT);
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii]
-                                 .queue_fam_props[jjj]
-                                 .minImageTransferGranularity.width);
+                             global_items.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.width);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4640,9 +4315,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Height", ALIGN_RIGHT);
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii]
-                                 .queue_fam_props[jjj]
-                                 .minImageTransferGranularity.height);
+                             global_items.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.height);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4651,9 +4324,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Depth", ALIGN_RIGHT);
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii]
-                                 .queue_fam_props[jjj]
-                                 .minImageTransferGranularity.depth);
+                             global_items.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.depth);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
                 }
@@ -4667,14 +4338,12 @@ ErrorResults PrintPhysDevInfo(void) {
             }
 
             VkPhysicalDeviceMemoryProperties memory_props;
-            vkGetPhysicalDeviceMemoryProperties(phys_devices[iii],
-                                                &memory_props);
+            vkGetPhysicalDeviceMemoryProperties(phys_devices[iii], &memory_props);
 
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Memory Heaps");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                     memory_props.memoryHeapCount);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", memory_props.memoryHeapCount);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
@@ -4687,10 +4356,8 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintTableElement("Property Flags");
                 generic_string[0] = '\0';
                 bool prev_set = false;
-                if (memory_props.memoryHeaps[jjj].flags &
-                    VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
-                    strncat(generic_string, "DEVICE_LOCAL",
-                            MAX_STRING_LENGTH - 1);
+                if (memory_props.memoryHeaps[jjj].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+                    strncat(generic_string, "DEVICE_LOCAL", MAX_STRING_LENGTH - 1);
                     prev_set = true;
                 }
                 if (!prev_set) {
@@ -4703,9 +4370,8 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintTableElement("");
                 PrintTableElement("");
                 PrintTableElement("Heap Size");
-                snprintf(
-                    generic_string, MAX_STRING_LENGTH - 1, "%" PRIu64 "",
-                    static_cast<uint64_t>(memory_props.memoryHeaps[jjj].size));
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%" PRIu64 "",
+                         static_cast<uint64_t>(memory_props.memoryHeaps[jjj].size));
                 PrintTableElement(generic_string);
                 PrintEndTableRow();
             }
@@ -4713,8 +4379,7 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Memory Types");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                     memory_props.memoryTypeCount);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", memory_props.memoryTypeCount);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintEndTableRow();
@@ -4727,46 +4392,36 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintTableElement("Property Flags");
                 generic_string[0] = '\0';
                 bool prev_set = false;
-                if (memory_props.memoryTypes[jjj].propertyFlags &
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
-                    strncat(generic_string, "DEVICE_LOCAL",
-                            MAX_STRING_LENGTH - 1);
+                if (memory_props.memoryTypes[jjj].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+                    strncat(generic_string, "DEVICE_LOCAL", MAX_STRING_LENGTH - 1);
                     prev_set = true;
                 }
-                if (memory_props.memoryTypes[jjj].propertyFlags &
-                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
+                if (memory_props.memoryTypes[jjj].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
                     if (prev_set) {
                         strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                     }
-                    strncat(generic_string, "HOST_VISIBLE",
-                            MAX_STRING_LENGTH - 1);
+                    strncat(generic_string, "HOST_VISIBLE", MAX_STRING_LENGTH - 1);
                     prev_set = true;
                 }
-                if (memory_props.memoryTypes[jjj].propertyFlags &
-                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
+                if (memory_props.memoryTypes[jjj].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
                     if (prev_set) {
                         strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                     }
-                    strncat(generic_string, "HOST_COHERENT",
-                            MAX_STRING_LENGTH - 1);
+                    strncat(generic_string, "HOST_COHERENT", MAX_STRING_LENGTH - 1);
                     prev_set = true;
                 }
-                if (memory_props.memoryTypes[jjj].propertyFlags &
-                    VK_MEMORY_PROPERTY_HOST_CACHED_BIT) {
+                if (memory_props.memoryTypes[jjj].propertyFlags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) {
                     if (prev_set) {
                         strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                     }
-                    strncat(generic_string, "HOST_CACHED",
-                            MAX_STRING_LENGTH - 1);
+                    strncat(generic_string, "HOST_CACHED", MAX_STRING_LENGTH - 1);
                     prev_set = true;
                 }
-                if (memory_props.memoryTypes[jjj].propertyFlags &
-                    VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT) {
+                if (memory_props.memoryTypes[jjj].propertyFlags & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT) {
                     if (prev_set) {
                         strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                     }
-                    strncat(generic_string, "LAZILY_ALLOC",
-                            MAX_STRING_LENGTH - 1);
+                    strncat(generic_string, "LAZILY_ALLOC", MAX_STRING_LENGTH - 1);
                     prev_set = true;
                 }
                 if (!prev_set) {
@@ -4779,8 +4434,7 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintTableElement("");
                 PrintTableElement("");
                 PrintTableElement("Heap Index");
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                         memory_props.memoryTypes[jjj].heapIndex);
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", memory_props.memoryTypes[jjj].heapIndex);
                 PrintTableElement(generic_string);
                 PrintEndTableRow();
             }
@@ -4791,8 +4445,7 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Device Extensions");
-            status = vkEnumerateDeviceExtensionProperties(
-                phys_devices[iii], NULL, &num_ext_props, NULL);
+            status = vkEnumerateDeviceExtensionProperties(phys_devices[iii], NULL, &num_ext_props, NULL);
             if (VK_SUCCESS != status) {
                 PrintTableElement("FAILED querying number of extensions");
                 PrintTableElement("");
@@ -4800,12 +4453,10 @@ ErrorResults PrintPhysDevInfo(void) {
 
                 res = VULKAN_CANT_FIND_EXTENSIONS;
             } else {
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                         num_ext_props);
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", num_ext_props);
                 PrintTableElement(generic_string);
                 ext_props.resize(num_ext_props);
-                status = vkEnumerateDeviceExtensionProperties(
-                    phys_devices[iii], NULL, &num_ext_props, ext_props.data());
+                status = vkEnumerateDeviceExtensionProperties(phys_devices[iii], NULL, &num_ext_props, ext_props.data());
                 if (VK_SUCCESS != status) {
                     PrintTableElement("FAILED querying actual extension info");
                     PrintEndTableRow();
@@ -4818,12 +4469,10 @@ ErrorResults PrintPhysDevInfo(void) {
                     for (jjj = 0; jjj < num_ext_props; jjj++) {
                         PrintBeginTableRow();
                         PrintTableElement("");
-                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]",
-                                 jjj);
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", jjj);
                         PrintTableElement(generic_string, ALIGN_RIGHT);
                         PrintTableElement(ext_props[jjj].extensionName);
-                        snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                                 "Spec Vers %d", ext_props[jjj].specVersion);
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "Spec Vers %d", ext_props[jjj].specVersion);
                         PrintTableElement(generic_string);
                         PrintEndTableRow();
                     }
@@ -4846,8 +4495,7 @@ ErrorResults PrintLogicalDeviceInfo(void) {
     VkDeviceCreateInfo device_create_info;
     VkDeviceQueueCreateInfo queue_create_info;
     VkResult status = VK_SUCCESS;
-    uint32_t dev_count =
-        static_cast<uint32_t>(global_items.phys_devices.size());
+    uint32_t dev_count = static_cast<uint32_t>(global_items.phys_devices.size());
     char generic_string[MAX_STRING_LENGTH];
     bool found_driver = false;
 
@@ -4884,13 +4532,8 @@ ErrorResults PrintLogicalDeviceInfo(void) {
         queue_create_info.queueCount = 1;
         queue_create_info.pQueuePriorities = &queue_priority;
 
-        for (uint32_t queue = 0;
-             queue < global_items.phys_devices[dev].queue_fam_props.size();
-             queue++) {
-            if (0 != (global_items.phys_devices[dev]
-                          .queue_fam_props[queue]
-                          .queueFlags &
-                      VK_QUEUE_GRAPHICS_BIT)) {
+        for (uint32_t queue = 0; queue < global_items.phys_devices[dev].queue_fam_props.size(); queue++) {
+            if (0 != (global_items.phys_devices[dev].queue_fam_props[queue].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
                 queue_create_info.queueFamilyIndex = queue;
                 break;
             }
@@ -4902,8 +4545,7 @@ ErrorResults PrintLogicalDeviceInfo(void) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
         PrintTableElement(generic_string);
 
-        status = vkCreateDevice(global_items.phys_devices[dev].vulkan_phys_dev,
-                                &device_create_info, NULL,
+        status = vkCreateDevice(global_items.phys_devices[dev].vulkan_phys_dev, &device_create_info, NULL,
                                 &global_items.log_devices[dev]);
         if (VK_ERROR_INCOMPATIBLE_DRIVER == status) {
             PrintTableElement("FAILED: Incompatible Driver");
@@ -4917,8 +4559,7 @@ ErrorResults PrintLogicalDeviceInfo(void) {
                 res = VULKAN_FAILED_OUT_OF_MEM;
             }
         } else if (VK_SUCCESS != status) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                     "FAILED : VkResult code = 0x%x", status);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "FAILED : VkResult code = 0x%x", status);
             PrintTableElement(generic_string);
             // If we haven't already found a driver, set an error
             if (!found_driver) {
@@ -4943,8 +4584,7 @@ ErrorResults PrintLogicalDeviceInfo(void) {
 // out if there are any problems.
 void PrintCleanupInfo(void) {
     char generic_string[MAX_STRING_LENGTH];
-    uint32_t dev_count =
-        static_cast<uint32_t>(global_items.phys_devices.size());
+    uint32_t dev_count = static_cast<uint32_t>(global_items.phys_devices.size());
 
     PrintBeginTable("Cleanup", 3);
 
@@ -4993,7 +4633,7 @@ ErrorResults PrintTestResults(void) {
 #else
         path += "\\Bin32";
 #endif
-#else // gcc
+#else  // gcc
         cube_exe = "./cube";
         path += "/../examples/build";
 #endif

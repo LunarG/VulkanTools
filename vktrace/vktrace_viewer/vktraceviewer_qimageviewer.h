@@ -31,17 +31,11 @@
 #include <QWheelEvent>
 
 // Pretend an image is a QScrollArea with some some special event handling.
-class vktraceviewer_qimageviewer : public QScrollArea
-{
+class vktraceviewer_qimageviewer : public QScrollArea {
     Q_OBJECT
-public:
+   public:
     explicit vktraceviewer_qimageviewer(QWidget* parent = 0)
-        : QScrollArea(parent),
-          m_pImageLabel(NULL),
-          m_pPanStart(0, 0),
-          m_pPan(false),
-          m_pAutoFit(false)
-    {
+        : QScrollArea(parent), m_pImageLabel(NULL), m_pPanStart(0, 0), m_pPan(false), m_pAutoFit(false) {
         // Create a basic image viewer using a QLabel to display the image.
         m_pImageLabel = new QLabel;
         assert(m_pImageLabel != NULL);
@@ -55,24 +49,18 @@ public:
         this->setWidget(m_pImageLabel);
     }
 
-    virtual ~vktraceviewer_qimageviewer()
-    {
-        if (m_pImageLabel != NULL)
-        {
+    virtual ~vktraceviewer_qimageviewer() {
+        if (m_pImageLabel != NULL) {
             delete m_pImageLabel;
             m_pImageLabel = NULL;
         }
     }
 
-    void mouseMoveEvent(QMouseEvent* event)
-    {
-        if(m_pPan)
-        {
-            this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() -
-                (event->x() - m_pPanStart.x()));
-            this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() -
-                (event->y() - m_pPanStart.y()));
-            m_pPanStart =  event->pos();
+    void mouseMoveEvent(QMouseEvent* event) {
+        if (m_pPan) {
+            this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() - (event->x() - m_pPanStart.x()));
+            this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() - (event->y() - m_pPanStart.y()));
+            m_pPanStart = event->pos();
 
             event->accept();
             return;
@@ -81,10 +69,8 @@ public:
         event->ignore();
     }
 
-    void mousePressEvent(QMouseEvent* event)
-    {
-        if(event->button() == Qt::MiddleButton)
-        {
+    void mousePressEvent(QMouseEvent* event) {
+        if (event->button() == Qt::MiddleButton) {
             m_pPan = true;
             setCursor(Qt::ClosedHandCursor);
             m_pPanStart = event->pos();
@@ -96,10 +82,8 @@ public:
         event->ignore();
     }
 
-    void mouseReleaseEvent(QMouseEvent* event)
-    {
-        if(event->button() == Qt::MiddleButton)
-        {
+    void mouseReleaseEvent(QMouseEvent* event) {
+        if (event->button() == Qt::MiddleButton) {
             m_pPan = false;
             setCursor(Qt::ArrowCursor);
 
@@ -110,23 +94,19 @@ public:
         event->ignore();
     }
 
-    void resizeEvent(QResizeEvent* event)
-    {
+    void resizeEvent(QResizeEvent* event) {
         QSize const size = computeMinimumSize();
         m_pImageLabel->setMinimumSize(size);
 
-        if(m_pAutoFit)
-        {
+        if (m_pAutoFit) {
             m_pImageLabel->resize(size);
         }
 
         event->accept();
     }
 
-    void wheelEvent(QWheelEvent* event)
-    {
-        if(event->orientation() == Qt::Vertical)
-        {
+    void wheelEvent(QWheelEvent* event) {
+        if (event->orientation() == Qt::Vertical) {
             // Stop automatically resizing the image when zoom is requested.
             m_pAutoFit = false;
 
@@ -147,17 +127,14 @@ public:
         event->ignore();
     }
 
-    bool loadImage(QString const& fileName)
-    {
+    bool loadImage(QString const& fileName) {
         QFileInfo fileInfo(fileName);
-        if(!fileInfo.exists() || !fileInfo.isFile())
-        {
+        if (!fileInfo.exists() || !fileInfo.isFile()) {
             return false;
         }
 
         QImage image(fileName);
-        if(image.isNull())
-        {
+        if (image.isNull()) {
             return false;
         }
 
@@ -171,34 +148,26 @@ public:
         return true;
     }
 
-private:
-    QSize computeMinimumSize() const
-    {
-        if(m_pImageLabel->pixmap() == NULL)
-        {
+   private:
+    QSize computeMinimumSize() const {
+        if (m_pImageLabel->pixmap() == NULL) {
             return QSize(0, 0);
         }
 
-        double const aspect = m_pImageLabel->pixmap()->width() /
-            m_pImageLabel->pixmap()->height();
-        if(aspect > 1.0)
-        {
+        double const aspect = m_pImageLabel->pixmap()->width() / m_pImageLabel->pixmap()->height();
+        if (aspect > 1.0) {
             int const minWidth = this->width() - 2 * this->frameWidth();
             int const minHeight = minWidth * 1.0 / aspect;
             return QSize(minWidth, minHeight);
-        }
-        else
-        {
+        } else {
             int const minHeight = this->height() - 2 * this->frameWidth();
             int const minWidth = minHeight * aspect;
             return QSize(minWidth, minHeight);
         }
     }
 
-    void zoomScrollBar(QScrollBar* scrollBar, double const& factor)
-    {
-        int const value = static_cast<int>(factor * scrollBar->value() +
-            ((factor - 1.0) * scrollBar->pageStep() / 2));
+    void zoomScrollBar(QScrollBar* scrollBar, double const& factor) {
+        int const value = static_cast<int>(factor * scrollBar->value() + ((factor - 1.0) * scrollBar->pageStep() / 2));
         scrollBar->setValue(value);
     }
 
@@ -208,4 +177,4 @@ private:
     bool m_pAutoFit;
 };
 
-#endif //_VKTRACEVIEWER_QIMAGEVIEWER_H_
+#endif  //_VKTRACEVIEWER_QIMAGEVIEWER_H_

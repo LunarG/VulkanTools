@@ -30,14 +30,11 @@
 
 #include "vktraceviewer_QReplayWorker.h"
 
-class vktraceviewer_QReplayWidget : public QWidget
-{
+class vktraceviewer_QReplayWidget : public QWidget {
     Q_OBJECT
-public:
-    explicit vktraceviewer_QReplayWidget(vktraceviewer_QReplayWorker* pWorker, QWidget *parent = 0)
-        : QWidget(parent),
-          m_pWorker(pWorker)
-    {
+   public:
+    explicit vktraceviewer_QReplayWidget(vktraceviewer_QReplayWorker* pWorker, QWidget* parent = 0)
+        : QWidget(parent), m_pWorker(pWorker) {
         QVBoxLayout* pLayout = new QVBoxLayout(this);
         setLayout(pLayout);
 
@@ -104,28 +101,23 @@ public:
         connect(m_pWorker, SIGNAL(ReplayContinued()), this, SLOT(slotReplayContinued()), Qt::QueuedConnection);
         connect(m_pWorker, SIGNAL(ReplayStopped(uint64_t)), this, SLOT(slotReplayStopped(uint64_t)), Qt::QueuedConnection);
         connect(m_pWorker, SIGNAL(ReplayFinished(uint64_t)), this, SLOT(slotReplayFinished(uint64_t)), Qt::QueuedConnection);
-        connect(m_pWorker, SIGNAL(ReplayProgressUpdate(uint64_t)), this, SIGNAL(ReplayProgressUpdate(uint64_t)), Qt::QueuedConnection);
+        connect(m_pWorker, SIGNAL(ReplayProgressUpdate(uint64_t)), this, SIGNAL(ReplayProgressUpdate(uint64_t)),
+                Qt::QueuedConnection);
 
-        connect(m_pWorker, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)), this, SLOT(OnOutputMessage(VktraceLogLevel, uint64_t, const QString&)), Qt::QueuedConnection);
+        connect(m_pWorker, SIGNAL(OutputMessage(VktraceLogLevel, uint64_t, const QString&)), this,
+                SLOT(OnOutputMessage(VktraceLogLevel, uint64_t, const QString&)), Qt::QueuedConnection);
     }
 
-    virtual ~vktraceviewer_QReplayWidget()
-    {
+    virtual ~vktraceviewer_QReplayWidget() {
         m_replayThread.quit();
         m_replayThread.wait();
     }
 
-    virtual QPaintEngine* paintEngine() const
-    {
-        return NULL;
-    }
+    virtual QPaintEngine* paintEngine() const { return NULL; }
 
-    QWidget* GetReplayWindow() const
-    {
-        return m_pReplayWindow;
-    }
+    QWidget* GetReplayWindow() const { return m_pReplayWindow; }
 
-signals:
+   signals:
     void PlayButtonClicked();
     void StepButtonClicked();
     void PauseButtonClicked();
@@ -143,10 +135,9 @@ signals:
     void OutputMessage(VktraceLogLevel level, const QString& msg);
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& msg);
 
-private slots:
+   private slots:
 
-    void slotReplayStarted()
-    {
+    void slotReplayStarted() {
         m_pPlayButton->setEnabled(false);
         m_pStepButton->setEnabled(false);
         m_pPauseButton->setEnabled(true);
@@ -157,8 +148,7 @@ private slots:
         emit ReplayStarted();
     }
 
-    void slotReplayPaused(uint64_t packetIndex)
-    {
+    void slotReplayPaused(uint64_t packetIndex) {
         m_pPlayButton->setEnabled(false);
         m_pStepButton->setEnabled(true);
         m_pPauseButton->setEnabled(false);
@@ -169,8 +159,7 @@ private slots:
         emit ReplayPaused(packetIndex);
     }
 
-    void slotReplayContinued()
-    {
+    void slotReplayContinued() {
         m_pPlayButton->setEnabled(false);
         m_pStepButton->setEnabled(false);
         m_pPauseButton->setEnabled(true);
@@ -181,8 +170,7 @@ private slots:
         emit ReplayContinued();
     }
 
-    void slotReplayStopped(uint64_t packetIndex)
-    {
+    void slotReplayStopped(uint64_t packetIndex) {
         m_pPlayButton->setEnabled(true);
         m_pStepButton->setEnabled(true);
         m_pPauseButton->setEnabled(false);
@@ -193,8 +181,7 @@ private slots:
         emit ReplayStopped(packetIndex);
     }
 
-    void slotReplayFinished(uint64_t packetIndex)
-    {
+    void slotReplayFinished(uint64_t packetIndex) {
         m_pPlayButton->setEnabled(true);
         m_pStepButton->setEnabled(true);
         m_pPauseButton->setEnabled(false);
@@ -205,24 +192,16 @@ private slots:
         emit ReplayFinished(packetIndex);
     }
 
-    void OnOutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& msg)
-    {
+    void OnOutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& msg) {
         emit OutputMessage(level, packetIndex, msg);
     }
 
-public slots:
-    void onPlayButtonClicked()
-    {
-        emit PlayButtonClicked();
-    }
+   public slots:
+    void onPlayButtonClicked() { emit PlayButtonClicked(); }
 
-    void onStepButtonClicked()
-    {
-        emit StepButtonClicked();
-    }
+    void onStepButtonClicked() { emit StepButtonClicked(); }
 
-    void onPauseButtonClicked()
-    {
+    void onPauseButtonClicked() {
         m_pPlayButton->setEnabled(false);
         m_pPauseButton->setEnabled(false);
         m_pContinueButton->setEnabled(false);
@@ -231,22 +210,13 @@ public slots:
         emit PauseButtonClicked();
     }
 
-    void onContinueButtonClicked()
-    {
-        emit ContinueButtonClicked();
-    }
+    void onContinueButtonClicked() { emit ContinueButtonClicked(); }
 
-    void onStopButtonClicked()
-    {
-        emit StopButtonClicked();
-    }
+    void onStopButtonClicked() { emit StopButtonClicked(); }
 
-    void onDetachCheckBoxClicked(bool checked)
-    {
-        emit DetachCheckBoxClicked(checked);
-    }
+    void onDetachCheckBoxClicked(bool checked) { emit DetachCheckBoxClicked(checked); }
 
-private:
+   private:
     vktraceviewer_QReplayWorker* m_pWorker;
     QWidget* m_pReplayWindow;
     QToolBar* m_pToolBar;
@@ -259,4 +229,4 @@ private:
     QThread m_replayThread;
 };
 
-#endif //_VKTRACEVIEWER_QREPLAYWIDGET_H_
+#endif  //_VKTRACEVIEWER_QREPLAYWIDGET_H_

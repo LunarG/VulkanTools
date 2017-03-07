@@ -1,7 +1,8 @@
 project(vktrace_common)
 cmake_minimum_required(VERSION 2.8)
 
-include(${SRC_DIR}/build_options.cmake)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
 include_directories(
     ${SRC_DIR}/vktrace_common

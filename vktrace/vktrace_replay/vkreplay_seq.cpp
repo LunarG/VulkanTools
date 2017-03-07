@@ -26,27 +26,17 @@ extern "C" {
 
 namespace vktrace_replay {
 
-vktrace_trace_packet_header * Sequencer::get_next_packet()
-{
+vktrace_trace_packet_header *Sequencer::get_next_packet() {
     vktrace_free(m_lastPacket);
-    if (!m_pFile)
-        return (NULL);
+    if (!m_pFile) return (NULL);
     m_lastPacket = vktrace_read_trace_packet(m_pFile);
-    return(m_lastPacket);
+    return (m_lastPacket);
 }
 
-void Sequencer::get_bookmark(seqBookmark &bookmark) {
-    bookmark.file_offset = m_bookmark.file_offset;
-}
+void Sequencer::get_bookmark(seqBookmark &bookmark) { bookmark.file_offset = m_bookmark.file_offset; }
 
+void Sequencer::set_bookmark(const seqBookmark &bookmark) { fseek(m_pFile->mFile, m_bookmark.file_offset, SEEK_SET); }
 
-void Sequencer::set_bookmark(const seqBookmark &bookmark) {
-    fseek(m_pFile->mFile, m_bookmark.file_offset, SEEK_SET);
-}
-
-void Sequencer::record_bookmark()
-{
-    m_bookmark.file_offset = ftell(m_pFile->mFile);
-}
+void Sequencer::record_bookmark() { m_bookmark.file_offset = ftell(m_pFile->mFile); }
 
 } /* namespace vktrace_replay */

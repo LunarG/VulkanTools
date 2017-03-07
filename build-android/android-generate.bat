@@ -29,6 +29,7 @@ py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_dispatc
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml thread_check.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_layer_dispatch_table.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h
 
@@ -55,14 +56,14 @@ copy /Y ..\layers\buffer_validation.cpp generated\common\
 REM create build-script root directory
 mkdir generated\gradle-build
 cd generated\gradle-build
-mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
+mkdir  core_validation object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
 cd ..\..
 mkdir generated\layer-src
 cd generated\layer-src
-mkdir  core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
+mkdir  core_validation object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot
 cd ..\..
 xcopy /s gradle-templates\*   generated\gradle-build\
-for %%G in (core_validation image object_tracker parameter_validation swapchain threading unique_objects) Do (
+for %%G in (core_validation object_tracker parameter_validation swapchain threading unique_objects) Do (
     copy ..\layers\%%G.cpp   generated\layer-src\%%G
     echo apply from: "../common.gradle"  > generated\gradle-build\%%G\build.gradle
 )

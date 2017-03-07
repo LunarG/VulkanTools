@@ -27,16 +27,13 @@
 #include "vktrace_vk_exts.h"
 #include <stdio.h>
 
-
-
 static const int BLOCK_FLAG_ARRAY_CHANGED = 0;
-static const int  BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT = 1;
-static const int  BLOCK_FLAG_ARRAY_READ = 2;
-static const int  BLOCK_FLAG_ARRAY_READ_SNAPSHOT = 3;
+static const int BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT = 1;
+static const int BLOCK_FLAG_ARRAY_READ = 2;
+static const int BLOCK_FLAG_ARRAY_READ_SNAPSHOT = 3;
 
-typedef class PageStatusArray
-{
-public:
+typedef class PageStatusArray {
+   public:
     PageStatusArray(uint64_t pageCount);
     ~PageStatusArray();
 
@@ -54,7 +51,8 @@ public:
     void backupChangedArray();
     void backupReadArray();
     void clearAll();
-private:
+
+   private:
     const static uint64_t PAGE_FLAG_AMOUNT_PER_BYTE;
     const static uint64_t PAGE_NUMBER_FROM_BIT_SHIFT;
     uint64_t ByteCount;
@@ -62,6 +60,9 @@ private:
     uint8_t *capturedChangesArray;
     uint8_t *activeReadArray;
     uint8_t *capturedReadArray;
-    uint8_t *pChangedArray[2]; /// include two array, one for page guard handler to record which block has been changed from vkMap.. or last time vkFlush..., the other one for flush data and reset pageguard
-    uint8_t *pReadArray[2]; /// include two array, one for page guard handler to record which block has been read by host from vkMap.. or last time vkinvalidate or vkpipelinebarrier with specific para..., the other one for reset page guard
+    uint8_t *pChangedArray[2];  /// include two array, one for page guard handler to record which block has been changed from
+                                /// vkMap.. or last time vkFlush..., the other one for flush data and reset pageguard
+    uint8_t *pReadArray[2];     /// include two array, one for page guard handler to record which block has been read by host from
+                                /// vkMap.. or last time vkinvalidate or vkpipelinebarrier with specific para..., the other one for
+                                /// reset page guard
 } PageStatusArray;

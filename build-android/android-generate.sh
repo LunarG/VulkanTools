@@ -30,6 +30,9 @@ mkdir -p generated/include generated/common
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml thread_check.h )
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.h )
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_loader_extensions.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_loader_extensions.c )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_layer_dispatch_table.h )
 
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp )
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h )
@@ -55,8 +58,8 @@ cp -f ../layers/buffer_validation.cpp generated/common/
 # layer names and their original source files directory
 # 1 to 1 correspondence -- one layer one source file; additional files are copied
 # at fixup step
-declare layers=(core_validation image object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot)
-declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers ../layers generated/include ../layersvt)
+declare layers=(core_validation object_tracker parameter_validation swapchain threading unique_objects api_dump screenshot)
+declare src_dirs=(../layers ../layers ../layers ../layers ../layers ../layers generated/include ../layersvt)
 
 SRC_ROOT=generated/layer-src
 BUILD_ROOT=generated/gradle-build

@@ -31,7 +31,6 @@
 extern "C" {
 #endif
 
-
 // Define types needed for cross-platform vkreplay.
 // Unfortunately, some of these are duplicated from vulkan.h
 // and platform-specific header files. Haven't figured out how
@@ -42,17 +41,21 @@ typedef struct xcb_connection_t xcb_connection_t;
 typedef uint32_t xcb_window_t;
 typedef uint32_t xcb_visualid_t;
 typedef struct VkXcbSurfaceCreateInfoKHR {
-    VkStructureType               sType;
-    const void*                   pNext;
-    VkXcbSurfaceCreateFlagsKHR    flags;
-    xcb_connection_t*             connection;
-    xcb_window_t                  window;
+    VkStructureType sType;
+    const void* pNext;
+    VkXcbSurfaceCreateFlagsKHR flags;
+    xcb_connection_t* connection;
+    xcb_window_t window;
 } VkXcbSurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateXcbSurfaceKHR)(VkInstance instance, const VkXcbSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, xcb_connection_t* connection, xcb_visualid_t visual_id);
+typedef VkResult(VKAPI_PTR* PFN_vkCreateXcbSurfaceKHR)(VkInstance instance, const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                       const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                              uint32_t queueFamilyIndex,
+                                                                              xcb_connection_t* connection,
+                                                                              xcb_visualid_t visual_id);
 typedef struct {
     VkIcdSurfaceBase base;
-    xcb_connection_t *connection;
+    xcb_connection_t* connection;
     xcb_window_t window;
 } VkIcdSurfaceXcb;
 #endif
@@ -66,17 +69,20 @@ typedef CARD32 XID;
 typedef XID Window;
 typedef CARD32 VisualID;
 typedef struct VkXlibSurfaceCreateInfoKHR {
-    VkStructureType                sType;
-    const void*                    pNext;
-    VkXlibSurfaceCreateFlagsKHR    flags;
-    Display*                       dpy;
-    Window                         window;
+    VkStructureType sType;
+    const void* pNext;
+    VkXlibSurfaceCreateFlagsKHR flags;
+    Display* dpy;
+    Window window;
 } VkXlibSurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateXlibSurfaceKHR)(VkInstance instance, const VkXlibSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, Display* dpy, VisualID visualID);
+typedef VkResult(VKAPI_PTR* PFN_vkCreateXlibSurfaceKHR)(VkInstance instance, const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                                        const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                               uint32_t queueFamilyIndex, Display* dpy,
+                                                                               VisualID visualID);
 typedef struct {
     VkIcdSurfaceBase base;
-    Display *dpy;
+    Display* dpy;
     Window window;
 } VkIcdSurfaceXlib;
 #endif
@@ -85,15 +91,14 @@ typedef struct {
 typedef VkFlags VkAndroidSurfaceCreateFlagsKHR;
 typedef uint32_t* ANativeWindow;
 typedef struct VkAndroidSurfaceCreateInfoKHR {
-    VkStructureType                   sType;
-    const void*                       pNext;
-    VkAndroidSurfaceCreateFlagsKHR    flags;
-    ANativeWindow*                    window;
+    VkStructureType sType;
+    const void* pNext;
+    VkAndroidSurfaceCreateFlagsKHR flags;
+    ANativeWindow* window;
 } VkAndroidSurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateAndroidSurfaceKHR)(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef struct {
-  ANativeWindow* window;
-} VkIcdSurfaceAndroid;
+typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
+                                                           const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef struct { ANativeWindow* window; } VkIcdSurfaceAndroid;
 #endif
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
@@ -102,18 +107,19 @@ typedef void* HWND;
 typedef void* HANDLE;
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
 typedef struct VkWin32SurfaceCreateInfoKHR {
-    VkStructureType                sType;
-    const void*                    pNext;
-    VkWin32SurfaceCreateFlagsKHR   flags;
-    HINSTANCE                      hinstance;
-    HWND                           window;
+    VkStructureType sType;
+    const void* pNext;
+    VkWin32SurfaceCreateFlagsKHR flags;
+    HINSTANCE hinstance;
+    HWND window;
 } VkWin32SurfaceCreateInfoKHR;
-typedef VkResult (VKAPI_PTR *PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, const VkWin32SurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32 (VKAPI_PTR *PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
+typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+                                                         const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                                uint32_t queueFamilyIndex);
 
 #endif
 
 #ifdef __cplusplus
 }
 #endif
-

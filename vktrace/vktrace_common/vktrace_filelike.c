@@ -2,7 +2,7 @@
  * Copyright (c) 2013, NVIDIA CORPORATION. All rights reserved.
  * Copyright (c) 2014-2016 Valve Corporation. All rights reserved.
  * Copyright (C) 2014-2016 LunarG, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  */
@@ -28,8 +28,7 @@
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-Checkpoint* vktrace_Checkpoint_create(const char* _str)
-{
+Checkpoint* vktrace_Checkpoint_create(const char* _str) {
     Checkpoint* pCheckpoint = VKTRACE_NEW(Checkpoint);
     pCheckpoint->mToken = _str;
     pCheckpoint->mTokenLength = strlen(_str) + 1;
@@ -37,14 +36,12 @@ Checkpoint* vktrace_Checkpoint_create(const char* _str)
 }
 
 // ------------------------------------------------------------------------------------------------
-void vktrace_Checkpoint_write(Checkpoint* pCheckpoint, FileLike* _out)
-{
+void vktrace_Checkpoint_write(Checkpoint* pCheckpoint, FileLike* _out) {
     vktrace_FileLike_Write(_out, pCheckpoint->mToken, pCheckpoint->mTokenLength);
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in)
-{
+BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in) {
     if (pCheckpoint->mTokenLength < 64) {
         char buffer[64];
         vktrace_FileLike_Read(_in, buffer, pCheckpoint->mTokenLength);
@@ -66,11 +63,9 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in)
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-FileLike* vktrace_FileLike_create_file(FILE* fp)
-{
+FileLike* vktrace_FileLike_create_file(FILE* fp) {
     FileLike* pFile = NULL;
-    if (fp != NULL)
-    {
+    if (fp != NULL) {
         pFile = VKTRACE_NEW(FileLike);
         pFile->mMode = File;
         pFile->mFile = fp;
@@ -80,11 +75,9 @@ FileLike* vktrace_FileLike_create_file(FILE* fp)
 }
 
 // ------------------------------------------------------------------------------------------------
-FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream)
-{
+FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream) {
     FileLike* pFile = NULL;
-    if (_msgStream != NULL)
-    {
+    if (_msgStream != NULL) {
         pFile = VKTRACE_NEW(FileLike);
         pFile->mMode = Socket;
         pFile->mFile = NULL;
@@ -94,61 +87,50 @@ FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream)
 }
 
 // ------------------------------------------------------------------------------------------------
-size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len)
-{
+size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len) {
     size_t minSize = 0;
     size_t bytesInStream = 0;
-    if (vktrace_FileLike_ReadRaw(pFileLike, &bytesInStream, sizeof(bytesInStream)) == FALSE)
-        return 0;
+    if (vktrace_FileLike_ReadRaw(pFileLike, &bytesInStream, sizeof(bytesInStream)) == FALSE) return 0;
 
-    minSize = (_len < bytesInStream) ? _len: bytesInStream;
+    minSize = (_len < bytesInStream) ? _len : bytesInStream;
     if (bytesInStream > 0) {
         assert(_len >= bytesInStream);
-        if (vktrace_FileLike_ReadRaw(pFileLike, _bytes, minSize) == FALSE)
-            return 0;
+        if (vktrace_FileLike_ReadRaw(pFileLike, _bytes, minSize) == FALSE) return 0;
     }
 
     return minSize;
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len)
-{
+BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len) {
     BOOL result = TRUE;
     assert((pFileLike->mFile != 0) ^ (pFileLike->mMessageStream != 0));
 
-    switch(pFileLike->mMode) {
-    case File:
-        {
-            if (1 != fread(_bytes, _len, 1, pFileLike->mFile))
-            {
-                if (ferror(pFileLike->mFile) != 0)
-                {
+    switch (pFileLike->mMode) {
+        case File: {
+            if (1 != fread(_bytes, _len, 1, pFileLike->mFile)) {
+                if (ferror(pFileLike->mFile) != 0) {
                     perror("fread error");
-                }
-                else if (feof(pFileLike->mFile) != 0)
-                {
+                } else if (feof(pFileLike->mFile) != 0) {
                     vktrace_LogVerbose("Reached end of file.");
                 }
                 result = FALSE;
-            } 
+            }
             break;
         }
-    case Socket:
-        {
+        case Socket: {
             result = vktrace_MessageStream_BlockingRecv(pFileLike->mMessageStream, _bytes, _len);
             break;
         }
 
-        default: 
+        default:
             assert(!"Invalid mode in FileLike_ReadRaw");
             result = FALSE;
     }
     return result;
 }
 
-void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len)
-{
+void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len) {
     vktrace_FileLike_WriteRaw(pFileLike, &_len, sizeof(_len));
     if (_len) {
         vktrace_FileLike_WriteRaw(pFileLike, _bytes, _len);
@@ -156,15 +138,12 @@ void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len)
-{
+BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len) {
     BOOL result = TRUE;
     assert((pFile->mFile != 0) ^ (pFile->mMessageStream != 0));
-    switch (pFile->mMode)
-    {
+    switch (pFile->mMode) {
         case File:
-            if (1 != fwrite(_bytes, _len, 1, pFile->mFile))
-            {
+            if (1 != fwrite(_bytes, _len, 1, pFile->mFile)) {
                 result = FALSE;
             }
             break;

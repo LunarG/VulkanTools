@@ -21,19 +21,13 @@
 #include "vktraceviewer_controller_factory.h"
 #include "vktrace_platform.h"
 
-vktraceviewer_controller_factory::vktraceviewer_controller_factory()
-{
-}
+vktraceviewer_controller_factory::vktraceviewer_controller_factory() {}
 
-vktraceviewer_controller_factory::~vktraceviewer_controller_factory()
-{
-}
+vktraceviewer_controller_factory::~vktraceviewer_controller_factory() {}
 
-vktraceviewer_QController *vktraceviewer_controller_factory::Load(const char* filename)
-{
+vktraceviewer_QController* vktraceviewer_controller_factory::Load(const char* filename) {
     void* pLibrary = vktrace_platform_open_library(filename);
-    if (pLibrary == NULL)
-    {
+    if (pLibrary == NULL) {
         vktrace_LogError("Failed to load controller '%s'", filename);
 #if defined(PLATFORM_LINUX)
         char* error = dlerror();
@@ -43,46 +37,39 @@ vktraceviewer_QController *vktraceviewer_controller_factory::Load(const char* fi
     }
 
     vktraceviewer_QController* pController = NULL;
-    funcptr_vktraceviewer_CreateQController CreateQController = (funcptr_vktraceviewer_CreateQController)vktrace_platform_get_library_entrypoint(pLibrary, "vtvCreateQController");
-    funcptr_vktraceviewer_DeleteQController DeleteQController = (funcptr_vktraceviewer_DeleteQController)vktrace_platform_get_library_entrypoint(pLibrary, "vtvDeleteQController");
-    if (CreateQController == NULL)
-    {
+    funcptr_vktraceviewer_CreateQController CreateQController =
+        (funcptr_vktraceviewer_CreateQController)vktrace_platform_get_library_entrypoint(pLibrary, "vtvCreateQController");
+    funcptr_vktraceviewer_DeleteQController DeleteQController =
+        (funcptr_vktraceviewer_DeleteQController)vktrace_platform_get_library_entrypoint(pLibrary, "vtvDeleteQController");
+    if (CreateQController == NULL) {
         vktrace_LogError("Controller '%s' is missing entrypoint 'vtvCreateQController'.\n", filename);
     }
-    if (DeleteQController == NULL)
-    {
+    if (DeleteQController == NULL) {
         vktrace_LogError("Controller '%s' is missing entrypoint 'vtvDeleteQController'.\n", filename);
     }
 
-    if (CreateQController != NULL &&
-        DeleteQController != NULL)
-    {
+    if (CreateQController != NULL && DeleteQController != NULL) {
         pController = CreateQController();
     }
 
-    if (pController != NULL)
-    {
+    if (pController != NULL) {
         m_controllerToLibraryMap[pController] = pLibrary;
     }
 
     return pController;
 }
 
-void vktraceviewer_controller_factory::Unload(vktraceviewer_QController** ppController)
-{
+void vktraceviewer_controller_factory::Unload(vktraceviewer_QController** ppController) {
     assert(ppController != NULL);
     assert(*ppController != NULL);
 
     void* pLibrary = m_controllerToLibraryMap[*ppController];
-    if (pLibrary == NULL)
-    {
+    if (pLibrary == NULL) {
         vktrace_LogError("NULL Library encountered while unloading controller.");
-    }
-    else
-    {
-        funcptr_vktraceviewer_DeleteQController DeleteQController = (funcptr_vktraceviewer_DeleteQController)vktrace_platform_get_library_entrypoint(pLibrary, "vtvDeleteQController");
-        if (DeleteQController != NULL)
-        {
+    } else {
+        funcptr_vktraceviewer_DeleteQController DeleteQController =
+            (funcptr_vktraceviewer_DeleteQController)vktrace_platform_get_library_entrypoint(pLibrary, "vtvDeleteQController");
+        if (DeleteQController != NULL) {
             DeleteQController(*ppController);
             *ppController = NULL;
         }

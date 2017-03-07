@@ -24,7 +24,6 @@ extern "C" {
 #include "vktrace_settings.h"
 }
 
-
 #if defined(WIN32)
 #define VKTRACE_WM_COMPLETE (WM_USER + 0)
 #endif
@@ -32,17 +31,17 @@ extern "C" {
 //----------------------------------------------------------------------------------------------------------------------
 // globals
 //----------------------------------------------------------------------------------------------------------------------
-typedef struct vktrace_settings
-{
+typedef struct vktrace_settings {
     const char* program;
     const char* arguments;
     const char* working_dir;
     char* output_trace;
     BOOL print_trace_messages;
     const char* screenshotList;
+    const char* screenshotColorFormat;
     BOOL enable_pmb;
-    const char *verbosity;
-    const char *traceTrigger;
+    const char* verbosity;
+    const char* traceTrigger;
 
 } vktrace_settings;
 

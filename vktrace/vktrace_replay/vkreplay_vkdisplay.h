@@ -27,9 +27,10 @@
 #include "vkreplay_vkreplay.h"
 #include "vk_icd.h"
 
-class vkDisplay: public vktrace_replay::ReplayDisplayImp {
-friend class vkReplay;
-public:
+class vkDisplay : public vktrace_replay::ReplayDisplayImp {
+    friend class vkReplay;
+
+   public:
     vkDisplay();
     ~vkDisplay();
     int init(const unsigned int gpu_idx);
@@ -41,8 +42,8 @@ public:
     void set_pause_status(bool pause) { m_pause = pause; }
     bool get_quit_status() { return m_quit; }
     void set_quit_status(bool quit) { m_quit = quit; }
-    VkSurfaceKHR get_surface() { return (VkSurfaceKHR) &m_surface; };
-    // VK_DEVICE get_device() { return m_dev[m_gpuIdx];}
+    VkSurfaceKHR get_surface() { return (VkSurfaceKHR)&m_surface; };
+// VK_DEVICE get_device() { return m_dev[m_gpuIdx];}
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     ANativeWindow* get_window_handle() { return m_window; }
@@ -55,7 +56,7 @@ public:
     HWND get_window_handle() { return m_windowHandle; }
     HINSTANCE get_connection_handle() { return m_connection; }
 #endif
-private:
+   private:
     VkResult init_vk(const unsigned int gpu_idx);
     bool m_initedVK;
 #if defined(PLATFORM_LINUX)
@@ -68,7 +69,7 @@ private:
     xcb_screen_t *m_pXcbScreen;
     xcb_window_t m_XcbWindow;
     xcb_intern_atom_reply_t *atom_wm_delete_window;
-    //VkPlatformHandleXcbKHR m_XcbPlatformHandle;
+// VkPlatformHandleXcbKHR m_XcbPlatformHandle;
 #endif
 #elif defined(WIN32)
     VkIcdSurfaceWin32 m_surface;
@@ -89,7 +90,7 @@ private:
     VK_PHYSICAL_GPU m_gpus[VK_MAX_PHYSICAL_GPUS];
     VK_PHYSICAL_GPU_PROPERTIES m_gpuProps[VK_MAX_PHYSICAL_GPUS];
 #endif
-    std::vector<char *>m_extensions;
+    std::vector<char*> m_extensions;
     bool m_pause = false;
     bool m_quit = false;
 };

@@ -24,22 +24,30 @@
 #include "vktraceviewer.h"
 #include "vktraceviewer_settings.h"
 
+#if defined(WIN32)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
+#else
 int main(int argc, char *argv[])
+#endif
 {
+
+#if defined(WIN32)
+    int argc=1;
+    char *argv[1];
+    argv[0] = "vktraceviewer";
+#endif
     // Initialize QApplication before initializing settings
     QApplication a(argc, argv);
 
     // initialize settings
-    if (vktraceviewer_initialize_settings(argc, argv) == false)
-    {
+    if (vktraceviewer_initialize_settings(argc, argv) == false) {
         return -1;
     }
 
     vktraceviewer w;
     w.show();
 
-    if (g_settings.trace_file_to_open != NULL && strlen(g_settings.trace_file_to_open) > 0)
-    {
+    if (g_settings.trace_file_to_open != NULL && strlen(g_settings.trace_file_to_open) > 0) {
         w.open_trace_file_threaded(QString(g_settings.trace_file_to_open));
     }
 

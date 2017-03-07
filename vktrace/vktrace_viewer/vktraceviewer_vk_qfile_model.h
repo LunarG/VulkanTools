@@ -23,18 +23,16 @@
 #include "vktraceviewer_QTraceFileModel.h"
 #include <QObject>
 
-class vktraceviewer_vk_QFileModel : public vktraceviewer_QTraceFileModel
-{
+class vktraceviewer_vk_QFileModel : public vktraceviewer_QTraceFileModel {
     Q_OBJECT
-public:
-    vktraceviewer_vk_QFileModel(QObject * parent, vktraceviewer_trace_file_info *);
+   public:
+    vktraceviewer_vk_QFileModel(QObject* parent, vktraceviewer_trace_file_info*);
     virtual ~vktraceviewer_vk_QFileModel();
 
     virtual QString get_packet_string(const vktrace_trace_packet_header* pHeader) const;
     virtual QString get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const;
 
     virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const;
-
 };
 
-#endif //VKTRACEVIEWER_VK_QFILE_MODEL_H_
+#endif  // VKTRACEVIEWER_VK_QFILE_MODEL_H_

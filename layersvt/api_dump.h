@@ -44,32 +44,28 @@ enum class ApiDumpFormat {
 };
 
 class ApiDumpSettings {
-  public:
+   public:
     ApiDumpSettings() {
         // Get the output file settings and create a stream for it
         const char *file_option = getLayerOption("lunarg_api_dump.file");
         if (file_option != NULL && strcmp(file_option, "TRUE") == 0) {
             use_cout = false;
-            const char *filename_option =
-                getLayerOption("lunarg_api_dump.log_filename");
+            const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
             if (filename_option != NULL && strcmp(filename_option, "") != 0)
-                output_stream.open(filename_option,
-                                   std::ofstream::out | std::ostream::trunc);
+                output_stream.open(filename_option, std::ofstream::out | std::ostream::trunc);
             else
-                output_stream.open("vk_apidump.txt",
-                                   std::ofstream::out | std::ostream::trunc);
+                output_stream.open("vk_apidump.txt", std::ofstream::out | std::ostream::trunc);
         } else {
             use_cout = true;
         }
-        
+
         output_format = ApiDumpFormat::Text;
 
         // Get the remaining settings
         show_params = readBoolOption("lunarg_api_dump.detailed", true);
         show_address = !readBoolOption("lunarg_api_dump.no_addr", false);
         should_flush = readBoolOption("lunarg_api_dump.flush", true);
-        indent_size =
-            std::max(readIntOption("lunarg_api_dump.indent_size", 4), 0);
+        indent_size = std::max(readIntOption("lunarg_api_dump.indent_size", 4), 0);
         show_type = readBoolOption("lunarg_api_dump.show_types", true);
         name_size = std::max(readIntOption("lunarg_api_dump.name_size", 32), 0);
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
@@ -78,28 +74,23 @@ class ApiDumpSettings {
     }
 
     ~ApiDumpSettings() {
-        if (!use_cout)
-            output_stream.close();
+        if (!use_cout) output_stream.close();
     }
-    
+
     inline ApiDumpFormat format() const { return output_format; }
 
-    std::ostream &formatNameType(std::ostream &stream, int indents,
-                                 const char *name, const char *type) const {
+    std::ostream &formatNameType(std::ostream &stream, int indents, const char *name, const char *type) const {
         stream << indentation(indents) << name << ": ";
 
         if (use_spaces)
             stream << spaces(name_size - (int)strlen(name) - 2);
         else
-            stream << tabs((name_size - (int)strlen(name) - 3 + indent_size) /
-                           indent_size);
+            stream << tabs((name_size - (int)strlen(name) - 3 + indent_size) / indent_size);
 
         if (show_type && use_spaces)
             stream << type << spaces(type_size - (int)strlen(type));
         else if (show_type && !use_spaces)
-            stream << type
-                   << tabs((type_size - (int)strlen(type) - 1 + indent_size) /
-                           indent_size);
+            stream << type << tabs((type_size - (int)strlen(type) - 1 + indent_size) / indent_size);
 
         return stream << " = ";
     }
@@ -116,14 +107,12 @@ class ApiDumpSettings {
     inline bool showAddress() const { return show_address; }
 
     inline bool showParams() const { return show_params; }
-    
+
     inline bool showShader() const { return show_shader; }
 
-    inline std::ostream &stream() const {
-        return use_cout ? std::cout : *(std::ofstream *)&output_stream;
-    }
+    inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
-  private:
+   private:
     inline static bool readBoolOption(const char *option, bool default_value) {
         const char *string_option = getLayerOption(option);
         if (string_option != NULL && strcmp(string_option, "TRUE") == 0)
@@ -144,13 +133,9 @@ class ApiDumpSettings {
         }
     }
 
-    inline static const char *spaces(int count) {
-        return SPACES + (MAX_SPACES - std::max(count, 0));
-    }
+    inline static const char *spaces(int count) { return SPACES + (MAX_SPACES - std::max(count, 0)); }
 
-    inline static const char *tabs(int count) {
-        return TABS + (MAX_TABS - std::max(count, 0));
-    }
+    inline static const char *tabs(int count) { return TABS + (MAX_TABS - std::max(count, 0)); }
 
     bool use_cout;
     std::ofstream output_stream;
@@ -172,24 +157,20 @@ class ApiDumpSettings {
     static const int MAX_TABS = 18;
 };
 
-const char *const ApiDumpSettings::SPACES =
-    "                                                                        ";
-const char *const ApiDumpSettings::TABS =
-    "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+const char *const ApiDumpSettings::SPACES = "                                                                        ";
+const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
 class ApiDumpInstance {
-  public:
-    inline ApiDumpInstance()
-        : dump_settings(NULL), frame_count(0), thread_count(0) {
+   public:
+    inline ApiDumpInstance() : dump_settings(NULL), frame_count(0), thread_count(0) {
         loader_platform_thread_create_mutex(&output_mutex);
         loader_platform_thread_create_mutex(&frame_mutex);
         loader_platform_thread_create_mutex(&thread_mutex);
     }
 
     inline ~ApiDumpInstance() {
-        if (dump_settings != NULL)
-            delete dump_settings;
-        
+        if (dump_settings != NULL) delete dump_settings;
+
         loader_platform_thread_delete_mutex(&thread_mutex);
         loader_platform_thread_delete_mutex(&frame_mutex);
         loader_platform_thread_delete_mutex(&output_mutex);
@@ -211,8 +192,7 @@ class ApiDumpInstance {
     inline loader_platform_thread_mutex *outputMutex() { return &output_mutex; }
 
     inline const ApiDumpSettings &settings() {
-        if (dump_settings == NULL)
-            dump_settings = new ApiDumpSettings();
+        if (dump_settings == NULL) dump_settings = new ApiDumpSettings();
 
         return *dump_settings;
     }
@@ -236,7 +216,7 @@ class ApiDumpInstance {
 
     static inline ApiDumpInstance &current() { return current_instance; }
 
-  private:
+   private:
     static ApiDumpInstance current_instance;
 
     ApiDumpSettings *dump_settings;
@@ -255,11 +235,9 @@ ApiDumpInstance ApiDumpInstance::current_instance;
 //==================================== Text Backend Helpers ======================================//
 
 template <typename T>
-inline void
-dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings,
-                const char *type_string, const char *child_type,
-                const char *name, int indents,
-                std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                            const char *child_type, const char *name, int indents,
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
@@ -274,17 +252,14 @@ dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings,
         std::stringstream stream;
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
-        dump_text_value(array[i], settings, child_type, indexName.c_str(),
-                        indents + 1, dump);
+        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
     }
 }
 
 template <typename T>
-inline void dump_text_array(
-    const T *array, size_t len, const ApiDumpSettings &settings,
-    const char *type_string, const char *child_type, const char *name,
-    int indents,
-    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                            const char *child_type, const char *name, int indents,
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
@@ -299,16 +274,13 @@ inline void dump_text_array(
         std::stringstream stream;
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
-        dump_text_value(array[i], settings, child_type, indexName.c_str(),
-                        indents + 1, dump);
+        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
     }
 }
 
 template <typename T>
-inline void dump_text_pointer(
-    const T *pointer, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents,
-    std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+inline void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
     if (pointer == NULL) {
         settings.formatNameType(settings.stream(), indents, name, type_string);
         settings.stream() << "NULL\n";
@@ -318,10 +290,8 @@ inline void dump_text_pointer(
 }
 
 template <typename T>
-inline void dump_text_pointer(
-    const T *pointer, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents,
-    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+inline void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
     if (pointer == NULL) {
         settings.formatNameType(settings.stream(), indents, name, type_string);
         settings.stream() << "NULL\n";
@@ -331,32 +301,26 @@ inline void dump_text_pointer(
 }
 
 template <typename T>
-inline void
-dump_text_value(const T object, const ApiDumpSettings &settings,
-                const char *type_string, const char *name, int indents,
-                std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+inline void dump_text_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     dump(object, settings, indents) << "\n";
 }
 
 template <typename T>
-inline void dump_text_value(
-    const T &object, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents,
-    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+inline void dump_text_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                            int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     dump(object, settings, indents);
 }
 
-inline void dump_text_special(
-    const char *text, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents) {
+inline void dump_text_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     settings.stream() << text << "\n";
 }
 
-inline bool dump_text_bitmaskOption(const std::string &option,
-                                    std::ostream &stream, bool isFirst) {
+inline bool dump_text_bitmaskOption(const std::string &option, std::ostream &stream, bool isFirst) {
     if (isFirst)
         stream << " (";
     else
@@ -365,22 +329,22 @@ inline bool dump_text_bitmaskOption(const std::string &option,
     return false;
 }
 
-inline std::ostream &dump_text_cstring(const char *object,
-                                       const ApiDumpSettings &settings,
-                                       int indents) {
+inline std::ostream &dump_text_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL)
         return settings.stream() << "NULL";
     else
         return settings.stream() << "\"" << object << "\"";
 }
 
-inline std::ostream &dump_text_void(const void *object,
-                                    const ApiDumpSettings &settings,
-                                    int indents) {
+inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL)
         return settings.stream() << "NULL";
     else if (settings.showAddress())
         return settings.stream() << object;
     else
         return settings.stream() << "address";
+}
+
+inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, int indents) {
+    return settings.stream() << object;
 }

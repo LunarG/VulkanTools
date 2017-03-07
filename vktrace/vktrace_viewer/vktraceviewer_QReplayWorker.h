@@ -25,10 +25,9 @@
 #include "vktraceviewer_view.h"
 #include "vkreplay_factory.h"
 
-class vktraceviewer_QReplayWorker : public QObject
-{
+class vktraceviewer_QReplayWorker : public QObject {
     Q_OBJECT
-public:
+   public:
     vktraceviewer_QReplayWorker();
     virtual ~vktraceviewer_QReplayWorker();
 
@@ -45,17 +44,16 @@ public:
 
     void setView(vktraceviewer_view* pView);
 
-    bool load_replayers(vktraceviewer_trace_file_info* pTraceFileInfo,
-        QWidget* pReplayWindow, int const replayWindowWidth,
-        int const replayWindowHeight, bool const separateReplayWindow);
+    bool load_replayers(vktraceviewer_trace_file_info* pTraceFileInfo, QWidget* pReplayWindow, int const replayWindowWidth,
+                        int const replayWindowHeight, bool const separateReplayWindow);
 
     void unloadReplayers();
 
-protected slots:
+   protected slots:
     virtual void playCurrentTraceFile(uint64_t startPacketIndex);
     virtual void onPlayToHere();
 
-public slots:
+   public slots:
     void StartReplay();
     void StepReplay();
     void PauseReplay();
@@ -68,7 +66,7 @@ public slots:
 
     void DetachReplay(bool detach);
 
-signals:
+   signals:
     void ReplayStarted();
     void ReplayPaused(uint64_t packetIndex);
     void ReplayContinued();
@@ -80,7 +78,7 @@ signals:
     void OutputMessage(VktraceLogLevel level, const QString& msg);
     void OutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& msg);
 
-private:
+   private:
     volatile bool m_bPauseReplay;
     volatile bool m_bStopReplay;
     volatile bool m_bReplayInProgress;
@@ -110,4 +108,4 @@ private:
     void doReplayFinished(uint64_t packetIndex);
 };
 
-#endif // VKTRACEVIEWER_QREPLAYWORKER_H
+#endif  // VKTRACEVIEWER_QREPLAYWORKER_H

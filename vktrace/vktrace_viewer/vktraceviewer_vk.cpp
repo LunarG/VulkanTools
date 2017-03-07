@@ -21,22 +21,17 @@
 #include "vktraceviewer_vk_qcontroller.h"
 #include "vktraceviewer_controller.h"
 
-extern "C"
-{
-VKTRACER_EXPORT vktraceviewer_QController* VKTRACER_CDECL vtvCreateQController()
-{
+extern "C" {
+VKTRACER_EXPORT vktraceviewer_QController* VKTRACER_CDECL vtvCreateQController() {
     vktraceviewer_vk_QController* pController = new vktraceviewer_vk_QController();
 
-    return (vktraceviewer_QController*) pController;
+    return (vktraceviewer_QController*)pController;
 }
 
-VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController** ppController)
-{
-    if (ppController != NULL && *ppController != NULL)
-    {
+VKTRACER_EXPORT void VKTRACER_CDECL vtvDeleteQController(vktraceviewer_QController** ppController) {
+    if (ppController != NULL && *ppController != NULL) {
         delete *ppController;
         *ppController = NULL;
     }
 }
-
 }

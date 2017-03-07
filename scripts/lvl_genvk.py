@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 #
 # Copyright (c) 2013-2017 The Khronos Group Inc.
-# Copyright (c) 2015-2017 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,14 +17,14 @@
 import argparse, cProfile, pdb, string, sys, time
 from reg import *
 from generator import write
-
-#
-# LoaderAndValidationLayer Generator Additions
+from cgenerator import CGeneratorOptions, COutputGenerator
+# LoaderAndValidationLayer Generator Modifications
 from threading_generator import  ThreadGeneratorOptions, ThreadOutputGenerator
 from parameter_validation_generator import ParamCheckerGeneratorOptions, ParamCheckerOutputGenerator
 from unique_objects_generator import UniqueObjectsGeneratorOptions, UniqueObjectsOutputGenerator
-from dispatch_table_generator import DispatchTableOutputGenerator, DispatchTableOutputGeneratorOptions
+from dispatch_table_helper_generator import DispatchTableHelperOutputGenerator, DispatchTableHelperOutputGeneratorOptions
 from helper_file_generator import HelperFileOutputGenerator, HelperFileOutputGeneratorOptions
+from loader_extension_generator import LoaderExtensionOutputGenerator, LoaderExtensionGeneratorOptions
 from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN
 
 # Simple timer functions
@@ -68,7 +67,7 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
-        '** Copyright (c) 2015-2016 The Khronos Group Inc.',
+        '** Copyright (c) 2015-2017 The Khronos Group Inc.',
         '**',
         '** Licensed under the Apache License, Version 2.0 (the "License");',
         '** you may not use this file except in compliance with the License.',
@@ -99,7 +98,8 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
     protectFeature = protect
     protectProto = protect
 
-    #
+
+        #
     # LoaderAndValidationLayer Generators
     # Options for threading layer
     genOpts['thread_check.h'] = [
@@ -164,12 +164,74 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             alignFuncParam    = 48)
         ]
 
-
     # Options for dispatch table helper generator
     genOpts['vk_dispatch_table_helper.h'] = [
-          DispatchTableOutputGenerator,
-          DispatchTableOutputGeneratorOptions(
+          DispatchTableHelperOutputGenerator,
+          DispatchTableHelperOutputGeneratorOptions(
             filename          = 'vk_dispatch_table_helper.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Options for Layer dispatch table generator
+    genOpts['vk_layer_dispatch_table.h'] = [
+          LoaderExtensionOutputGenerator,
+          LoaderExtensionGeneratorOptions(
+            filename          = 'vk_layer_dispatch_table.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Options for loader extension source generator
+    genOpts['vk_loader_extensions.h'] = [
+          LoaderExtensionOutputGenerator,
+          LoaderExtensionGeneratorOptions(
+            filename          = 'vk_loader_extensions.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Options for loader extension source generator
+    genOpts['vk_loader_extensions.c'] = [
+          LoaderExtensionOutputGenerator,
+          LoaderExtensionGeneratorOptions(
+            filename          = 'vk_loader_extensions.c',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
@@ -447,7 +509,7 @@ if __name__ == '__main__':
 
     if (args.dump):
         write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle = open('regdump.txt','w', encoding='utf-8'))
+        reg.dumpReg(filehandle = open('regdump.txt', 'w', encoding='utf-8'))
 
     # create error/warning & diagnostic files
     if (args.errfile):

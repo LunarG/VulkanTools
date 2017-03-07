@@ -25,8 +25,8 @@ static const int SCREEN_SHOT_FRAMES_UNLIMITED = -1;
 
 typedef struct {
     bool valid;
-    int startFrame; // the range begin from (include) this frame.
-    int count;      // if the value is SCREEN_SHOT_FRAMES_UNLIMITED, it means unlimited screenshots until capture/playback to end.
+    int startFrame;  // the range begin from (include) this frame.
+    int count;       // if the value is SCREEN_SHOT_FRAMES_UNLIMITED, it means unlimited screenshots until capture/playback to end.
     int interval;
 } FrameRange;
 

@@ -22,12 +22,16 @@
 #include "vktrace_lib_trim_statetracker.h"
 #include "vulkan.h"
 
-#ifdef PLATFORM_LINUX // VK_USE_PLATFORM_XCB_KHR
+#ifdef PLATFORM_LINUX  // VK_USE_PLATFORM_XCB_KHR
+#if defined(ANDROID)
+// TODO
+#else
 #include <xcb/xcb.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <xcb/xcb_keysyms.h>
 #include <vector>
+#endif  // ANDROID
 #endif
 
 // Trim support
@@ -49,8 +53,8 @@ void deinitialize();
 
 enum enum_trim_trigger {
     none = 0,
-    frameCounter, // trim trigger base on startFrame and endFrame
-    hotKey        // trim trigger base on hotKey
+    frameCounter,  // trim trigger base on startFrame and endFrame
+    hotKey         // trim trigger base on hotKey
 };
 
 // when the funtion first time run, it Check ENV viarable VKTRACE_TRIM_TRIGGER
@@ -67,11 +71,15 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType);
 bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType);
 
 #ifdef PLATFORM_LINUX
+#if defined(ANDROID)
+// TODO
+#else
 // on Linux platform, xcb calls need Connection which is connected to target
 // server, because hotkey process is supposed to insert into target application,
 // so we need to capture the connection that target app use. the function is
 // used to insert into Vulkan call to capture and save the connection.
 void set_keyboard_connection(xcb_connection_t *pConnection);
+#endif  // ANDROID
 #endif
 
 enum enum_key_state {
@@ -96,27 +104,23 @@ void write_recorded_packets();
 void write_destroy_packets();
 void delete_all_packets();
 
-void add_RenderPassCreateInfo(VkRenderPass renderPass,
-                              const VkRenderPassCreateInfo *pCreateInfo);
+void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo);
 uint32_t get_RenderPassVersion(VkRenderPass renderPass);
 
 //-----------------------
 // the following calls are pass-through to the StateTracker
-void add_CommandBuffer_call(VkCommandBuffer commandBuffer,
-                            vktrace_trace_packet_header *pHeader);
+void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_header *pHeader);
 void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 
 #if TRIM_USE_ORDERED_IMAGE_CREATION
 void add_Image_call(vktrace_trace_packet_header *pHeader);
-#endif // TRIM_USE_ORDERED_IMAGE_CREATION
+#endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
-void AddImageTransition(VkCommandBuffer commandBuffer,
-                        ImageTransition transition);
+void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
 std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer);
 void ClearImageTransitions(VkCommandBuffer commandBuffer);
 
-void AddBufferTransition(VkCommandBuffer commandBuffer,
-                         BufferTransition transition);
+void AddBufferTransition(VkCommandBuffer commandBuffer, BufferTransition transition);
 std::list<BufferTransition> GetBufferTransitions(VkCommandBuffer commandBuffer);
 void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 // The above calls are pass-through to the StateTracker
@@ -124,8 +128,7 @@ void ClearBufferTransitions(VkCommandBuffer commandBuffer);
 
 void reset_DescriptorPool(VkDescriptorPool descriptorPool);
 
-VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device,
-                                             uint32_t memoryTypeIndex);
+VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTypeIndex);
 
 // check if a memory type on the physical device is only DEVICE_LOCAL and not
 // HOST_VISIBLE
@@ -222,31 +225,31 @@ ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var);
 ObjectInfo &add_DescriptorSet_object(VkDescriptorSet var);
 ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var);
 
-void remove_Instance_object(VkInstance var);
-void remove_PhysicalDevice_object(VkPhysicalDevice var);
-void remove_Device_object(VkDevice var);
-void remove_SurfaceKHR_object(VkSurfaceKHR var);
-void remove_CommandPool_object(VkCommandPool var);
-void remove_CommandBuffer_object(VkCommandBuffer var);
-void remove_DescriptorPool_object(VkDescriptorPool var);
-void remove_RenderPass_object(VkRenderPass var);
-void remove_PipelineCache_object(VkPipelineCache var);
-void remove_Pipeline_object(VkPipeline var);
-void remove_Queue_object(VkQueue var);
-void remove_Semaphore_object(VkSemaphore var);
-void remove_DeviceMemory_object(VkDeviceMemory var);
-void remove_Fence_object(VkFence var);
-void remove_SwapchainKHR_object(VkSwapchainKHR var);
-void remove_Image_object(VkImage var);
-void remove_ImageView_object(VkImageView var);
-void remove_Buffer_object(VkBuffer var);
-void remove_BufferView_object(VkBufferView var);
-void remove_Framebuffer_object(VkFramebuffer var);
-void remove_Event_object(VkEvent var);
-void remove_QueryPool_object(VkQueryPool var);
-void remove_ShaderModule_object(VkShaderModule var);
-void remove_PipelineLayout_object(VkPipelineLayout var);
-void remove_Sampler_object(VkSampler var);
-void remove_DescriptorSetLayout_object(VkDescriptorSetLayout var);
-void remove_DescriptorSet_object(VkDescriptorSet var);
-} // namespace trim
+void remove_Instance_object(const VkInstance var);
+void remove_PhysicalDevice_object(const VkPhysicalDevice var);
+void remove_Device_object(const VkDevice var);
+void remove_SurfaceKHR_object(const VkSurfaceKHR var);
+void remove_CommandPool_object(const VkCommandPool var);
+void remove_CommandBuffer_object(const VkCommandBuffer var);
+void remove_DescriptorPool_object(const VkDescriptorPool var);
+void remove_RenderPass_object(const VkRenderPass var);
+void remove_PipelineCache_object(const VkPipelineCache var);
+void remove_Pipeline_object(const VkPipeline var);
+void remove_Queue_object(const VkQueue var);
+void remove_Semaphore_object(const VkSemaphore var);
+void remove_DeviceMemory_object(const VkDeviceMemory var);
+void remove_Fence_object(const VkFence var);
+void remove_SwapchainKHR_object(const VkSwapchainKHR var);
+void remove_Image_object(const VkImage var);
+void remove_ImageView_object(const VkImageView var);
+void remove_Buffer_object(const VkBuffer var);
+void remove_BufferView_object(const VkBufferView var);
+void remove_Framebuffer_object(const VkFramebuffer var);
+void remove_Event_object(const VkEvent var);
+void remove_QueryPool_object(const VkQueryPool var);
+void remove_ShaderModule_object(const VkShaderModule var);
+void remove_PipelineLayout_object(const VkPipelineLayout var);
+void remove_Sampler_object(const VkSampler var);
+void remove_DescriptorSetLayout_object(const VkDescriptorSetLayout var);
+void remove_DescriptorSet_object(const VkDescriptorSet var);
+}  // namespace trim

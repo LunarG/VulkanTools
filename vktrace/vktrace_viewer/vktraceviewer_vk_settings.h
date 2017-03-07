@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * Copyright 2014-2016 Valve Corporation, Inc.
+ * Copyright 2014-2016 Valve Corporation
  * Copyright (C) 2014-2016 LunarG, Inc.
  * All Rights Reserved.
  *
@@ -16,24 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Peter Lohrmann <peterl@valvesoftware.com>
- * Author: Jon Ashburn <jon@lunarg.com>
- * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
+ * Author: Peter Lohrmann <peterl@valvesoftware.com> <plohrmann@gmail.com>
  **************************************************************************/
-#ifndef VKREPLAY__VK_SETTINGS_H
-#define VKREPLAY__VK_SETTINGS_H
+#ifndef VKTRACEVIEWER_VK_SETTINGS_H
+#define VKTRACEVIEWER_VK_SETTINGS_H
 
-extern "C"
-{
+extern "C" {
 #include "vktrace_settings.h"
-#include "vkreplay_main.h"
 }
 
-#include <vulkan/vulkan.h>
+typedef struct vktraceviewer_vk_settings {
+    BOOL printReplayInfoMsgs;
+    BOOL printReplayWarningMsgs;
+    BOOL printReplayErrorMsgs;
+    BOOL pauseOnReplayInfo;
+    BOOL pauseOnReplayWarning;
+    BOOL pauseOnReplayError;
+    BOOL groupByFrame;
+    BOOL groupByThread;
+    int replay_window_width;
+    int replay_window_height;
+    BOOL separate_replay_window;
+} vktraceviewer_vk_settings;
 
-extern vkreplayer_settings g_vkReplaySettings;
-extern vktrace_SettingGroup g_vkReplaySettingGroup;
+extern vktraceviewer_vk_settings g_vkTraceViewerSettings;
+extern vktrace_SettingGroup g_vkTraceViewerSettingGroup;
 
-void apply_layerSettings_overrides();
+void initialize_default_settings();
 
-#endif // VKREPLAY__VK_SETTINGS_H
+#endif  // VKTRACEVIEWER_VK_SETTINGS_H

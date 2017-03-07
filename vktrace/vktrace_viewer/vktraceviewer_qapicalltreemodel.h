@@ -25,18 +25,16 @@
 
 #include "glv_common.h"
 
-
 class QVariant;
 class glvdebug_apiCallTreeItem;
-//class glvdebug_groupItem;
-//class glvdebug_frameItem;
+// class glvdebug_groupItem;
+// class glvdebug_frameItem;
 class glvdebug_apiCallItem;
 
-class glvdebug_QApiCallTreeModel : public QAbstractItemModel
-{
+class glvdebug_QApiCallTreeModel : public QAbstractItemModel {
     Q_OBJECT
 
-public:
+   public:
     glvdebug_QApiCallTreeModel(int columnCount, QObject *parent = 0);
     ~glvdebug_QApiCallTreeModel();
 
@@ -47,57 +45,56 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-    //void appendChild(glvdebug_apiCallTreeItem* pItem)
+    // void appendChild(glvdebug_apiCallTreeItem* pItem)
     //{
     //    m_rootItem->appendChild(pItem);
     //}
 
-    //virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    //virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    // virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    // virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    //QModelIndex indexOf(const glvdebug_apiCallTreeItem *pItem) const;
+    // QModelIndex indexOf(const glvdebug_apiCallTreeItem *pItem) const;
 
-    //glvdebug_apiCallTreeItem *root() const
+    // glvdebug_apiCallTreeItem *root() const
     //{
     //    return m_rootItem;
     //}
 
-    //glvdebug_apiCallTreeItem *create_group(glvdebug_frameItem *pFrameObj,
+    // glvdebug_apiCallTreeItem *create_group(glvdebug_frameItem *pFrameObj,
     //                                         glvdebug_groupItem *&pGroupObj,
     //                                         glvdebug_apiCallTreeItem *pParentNode);
-    //void set_highlight_search_string(const QString searchString);
-    //QModelIndex find_prev_search_result(glvdebug_apiCallTreeItem *start, const QString searchText);
-    //QModelIndex find_next_search_result(glvdebug_apiCallTreeItem *start, const QString searchText);
+    // void set_highlight_search_string(const QString searchString);
+    // QModelIndex find_prev_search_result(glvdebug_apiCallTreeItem *start, const QString searchText);
+    // QModelIndex find_next_search_result(glvdebug_apiCallTreeItem *start, const QString searchText);
 
-    //glvdebug_apiCallTreeItem *find_prev_snapshot(glvdebug_apiCallTreeItem *start);
-    //glvdebug_apiCallTreeItem *find_next_snapshot(glvdebug_apiCallTreeItem *start);
+    // glvdebug_apiCallTreeItem *find_prev_snapshot(glvdebug_apiCallTreeItem *start);
+    // glvdebug_apiCallTreeItem *find_next_snapshot(glvdebug_apiCallTreeItem *start);
 
-    //glvdebug_apiCallTreeItem *find_prev_drawcall(glvdebug_apiCallTreeItem *start);
-    //glvdebug_apiCallTreeItem *find_next_drawcall(glvdebug_apiCallTreeItem *start);
+    // glvdebug_apiCallTreeItem *find_prev_drawcall(glvdebug_apiCallTreeItem *start);
+    // glvdebug_apiCallTreeItem *find_next_drawcall(glvdebug_apiCallTreeItem *start);
 
-    //glvdebug_apiCallTreeItem *find_call_number(unsigned int callNumber);
-    //glvdebug_apiCallTreeItem *find_frame_number(unsigned int frameNumber);
+    // glvdebug_apiCallTreeItem *find_call_number(unsigned int callNumber);
+    // glvdebug_apiCallTreeItem *find_frame_number(unsigned int frameNumber);
 
-signals:
+   signals:
 
-public
-slots:
+   public slots:
 
-private:
-    //gl_entrypoint_id_t itemApiCallId(glvdebug_apiCallTreeItem *apiCall) const;
-    //gl_entrypoint_id_t lastItemApiCallId() const;
+   private:
+    // gl_entrypoint_id_t itemApiCallId(glvdebug_apiCallTreeItem *apiCall) const;
+    // gl_entrypoint_id_t lastItemApiCallId() const;
 
-    //bool processMarkerPushEntrypoint(gl_entrypoint_id_t id);
-    //bool processMarkerPopEntrypoint(gl_entrypoint_id_t id);
-    //bool processStartNestedEntrypoint(gl_entrypoint_id_t id);
-    //bool processEndNestedEntrypoint(gl_entrypoint_id_t id);
-    //bool processFrameBufferWriteEntrypoint(gl_entrypoint_id_t id);
+    // bool processMarkerPushEntrypoint(gl_entrypoint_id_t id);
+    // bool processMarkerPopEntrypoint(gl_entrypoint_id_t id);
+    // bool processStartNestedEntrypoint(gl_entrypoint_id_t id);
+    // bool processEndNestedEntrypoint(gl_entrypoint_id_t id);
+    // bool processFrameBufferWriteEntrypoint(gl_entrypoint_id_t id);
 
-private:
+   private:
     int m_columnCount;
     glvdebug_apiCallTreeItem *m_rootItem;
     QLinkedList<glvdebug_apiCallTreeItem *> m_itemList;
-//    QString m_searchString;
+    //    QString m_searchString;
 };
 
-#endif // GLVDEBUG_QAPICALLTREEMODEL_H
+#endif  // GLVDEBUG_QAPICALLTREEMODEL_H

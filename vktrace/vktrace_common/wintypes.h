@@ -20,11 +20,11 @@
  **************************************************************************/
 #pragma once
 
-#if  defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <stdint.h>
 #include <stddef.h>
-typedef void * LPVOID;
-typedef void * PVOID;
+typedef void *LPVOID;
+typedef void *PVOID;
 typedef void VOID;
 typedef char CHAR;
 typedef char TCHAR;
@@ -38,14 +38,14 @@ typedef unsigned char *PBYTE;
 typedef unsigned short USHORT;
 typedef unsigned char UCHAR;
 typedef unsigned short WORD;
-typedef DWORD * DWORD_PTR;
+typedef DWORD *DWORD_PTR;
 typedef DWORD *PDWORD;
 typedef DWORD_PTR *PDWORD_PTR;
 typedef int32_t INT32;
 typedef int64_t LONG64;
 typedef uint64_t ULONG64;
-typedef const char * PCSTR;
-typedef const wchar_t * PCWSTR;
+typedef const char *PCSTR;
+typedef const wchar_t *PCWSTR;
 #ifndef MAX_PATH
 #include <limits.h>
 #ifndef PATH_MAX
@@ -64,4 +64,3 @@ typedef const wchar_t * PCWSTR;
 #elif WIN32
 #include <windows.h>
 #endif
-

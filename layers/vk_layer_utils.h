@@ -1,6 +1,6 @@
-/* Copyright (c) 2015-2016 The Khronos Group Inc.
- * Copyright (c) 2015-2016 Valve Corporation
- * Copyright (c) 2015-2016 LunarG, Inc.
+/* Copyright (c) 2015-2017 The Khronos Group Inc.
+ * Copyright (c) 2015-2017 Valve Corporation
+ * Copyright (c) 2015-2017 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  *
  * Author: Mark Lobodzinski <mark@lunarg.com>
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
+ * Author: Dave Houlton <daveh@lunarg.com>
  */
 
 #pragma once
@@ -104,14 +105,26 @@ static inline bool vk_format_is_color(VkFormat format) {
     return !(vk_format_is_undef(format) || vk_format_is_depth_or_stencil(format));
 }
 
+static inline bool vk_format_has_depth(VkFormat format) {
+    return (vk_format_is_depth_only(format) || vk_format_is_depth_and_stencil(format));
+}
+
+static inline bool vk_format_has_stencil(VkFormat format) {
+    return (vk_format_is_stencil_only(format) || vk_format_is_depth_and_stencil(format));
+}
+
 VK_LAYER_EXPORT bool vk_format_is_norm(VkFormat format);
+VK_LAYER_EXPORT bool vk_format_is_unorm(VkFormat format);
+VK_LAYER_EXPORT bool vk_format_is_snorm(VkFormat format);
 VK_LAYER_EXPORT bool vk_format_is_int(VkFormat format);
 VK_LAYER_EXPORT bool vk_format_is_sint(VkFormat format);
 VK_LAYER_EXPORT bool vk_format_is_uint(VkFormat format);
 VK_LAYER_EXPORT bool vk_format_is_float(VkFormat format);
 VK_LAYER_EXPORT bool vk_format_is_srgb(VkFormat format);
+VK_LAYER_EXPORT bool vk_format_is_uscaled(VkFormat format);
+VK_LAYER_EXPORT bool vk_format_is_sscaled(VkFormat format);
 VK_LAYER_EXPORT bool vk_format_is_compressed(VkFormat format);
-VK_LAYER_EXPORT VkExtent2D vk_format_compressed_block_size(VkFormat format);
+VK_LAYER_EXPORT VkExtent2D vk_format_compressed_texel_block_extents(VkFormat format);
 VK_LAYER_EXPORT size_t vk_format_get_size(VkFormat format);
 VK_LAYER_EXPORT unsigned int vk_format_get_channel_count(VkFormat format);
 VK_LAYER_EXPORT VkFormatCompatibilityClass vk_format_get_compatibility_class(VkFormat format);

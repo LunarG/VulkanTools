@@ -20,7 +20,7 @@
  **************************************************************************/
 #pragma once
 
-extern "C"{
+extern "C" {
 #include "vktrace_platform.h"
 }
 
@@ -43,7 +43,7 @@ typedef HWND vktrace_window_handle;
 namespace vktrace_replay {
 
 class ReplayDisplayImp {
-public:
+   public:
     virtual ~ReplayDisplayImp() {}
     virtual int init(const unsigned int gpu_idx) = 0;
     virtual int set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) = 0;
@@ -56,82 +56,33 @@ public:
 };
 
 class ReplayDisplay {
-public:
-    ReplayDisplay()
-        : m_imp(NULL),
-        m_width(0),
-        m_height(0),
-        m_gpu(0),
-        m_fullscreen(false),
-        m_hWindow(0)
-    {
+   public:
+    ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0), m_fullscreen(false), m_hWindow(0) {}
 
-    }
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen)
+        : m_imp(NULL), m_width(width), m_height(height), m_gpu(gpu), m_fullscreen(fullscreen), m_hWindow(0) {}
 
-    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen) :
-        m_imp(NULL),
-        m_width(width),
-        m_height(height),
-        m_gpu(gpu),
-        m_fullscreen(fullscreen),
-        m_hWindow(0)
-    {
-    }
+    ReplayDisplay(vktrace_window_handle hWindow, unsigned int width, unsigned int height)
+        : m_imp(NULL), m_width(width), m_height(height), m_gpu(0), m_fullscreen(false), m_hWindow(hWindow) {}
 
-    ReplayDisplay(vktrace_window_handle hWindow, unsigned int width, unsigned int height) :
-        m_imp(NULL),
-        m_width(width),
-        m_height(height),
-        m_gpu(0),
-        m_fullscreen(false),
-        m_hWindow(hWindow)
-    {
-    }
+    virtual ~ReplayDisplay() {}
 
-    virtual ~ReplayDisplay()
-    {
-    }
-
-    void set_implementation(ReplayDisplayImp & disp)
-    {
-        m_imp = & disp;
-    }
-    void set_implementation(ReplayDisplayImp * disp)
-    {
-        m_imp = disp;
-    }
-    int init()
-    {
+    void set_implementation(ReplayDisplayImp& disp) { m_imp = &disp; }
+    void set_implementation(ReplayDisplayImp* disp) { m_imp = disp; }
+    int init() {
         if (m_imp)
             return m_imp->init(m_gpu);
         else
             return -1;
     }
-    void process_event()
-    {
-        if(m_imp)
-            m_imp->process_event();
+    void process_event() {
+        if (m_imp) m_imp->process_event();
     }
-    unsigned int get_gpu()
-    {
-        return m_gpu;
-    }
-    unsigned int get_width()
-    {
-        return m_width;
-    }
-    unsigned int get_height()
-    {
-        return m_height;
-    }
-    bool get_fullscreen()
-    {
-        return m_fullscreen;
-    }
-    vktrace_window_handle get_window_handle()
-    {
-        return m_hWindow;
-    }
+    unsigned int get_gpu() { return m_gpu; }
+    unsigned int get_width() { return m_width; }
+    unsigned int get_height() { return m_height; }
+    bool get_fullscreen() { return m_fullscreen; }
+    vktrace_window_handle get_window_handle() { return m_hWindow; }
     bool get_pause_status() {
         if (m_imp) {
             return m_imp->get_pause_status();
@@ -139,8 +90,7 @@ public:
         return false;
     }
     void set_pause_status(bool pause) {
-        if (m_imp)
-            m_imp->set_pause_status(pause);
+        if (m_imp) m_imp->set_pause_status(pause);
     }
     bool get_quit_status() {
         if (m_imp) {
@@ -149,12 +99,11 @@ public:
         return false;
     }
     void set_quit_status(bool quit) {
-        if (m_imp)
-            m_imp->set_quit_status(quit);
+        if (m_imp) m_imp->set_quit_status(quit);
     }
 
-  private:
-    ReplayDisplayImp *m_imp;
+   private:
+    ReplayDisplayImp* m_imp;
     unsigned int m_width;
     unsigned int m_height;
     unsigned int m_gpu;
@@ -162,4 +111,4 @@ public:
     vktrace_window_handle m_hWindow;
 };
 
-}   // namespace vktrace_replay
+}  // namespace vktrace_replay

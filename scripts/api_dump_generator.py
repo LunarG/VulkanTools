@@ -1020,8 +1020,8 @@ class VulkanVariable:
             self.lengthMember = True
         if self.arrayLength != None and self.arrayLength.startswith('latexmath'):
             code = self.arrayLength[10:len(self.arrayLength)]
-            code = re.sub('\\[\\$', '', code)
-            code = re.sub('\\$\\]', '', code)
+            code = re.sub('\\[', '', code)
+            code = re.sub('\\]', '', code)
             code = re.sub('\\\\(lceil|rceil)', '', code)
             code = re.sub('{|}', '', code)
             code = re.sub('\\\\mathit', '', code)
