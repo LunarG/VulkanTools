@@ -168,7 +168,7 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream) {
 
     hr = listen(listenSocket, 1);
     if (hr == SOCKET_ERROR) {
-        vktrace_LogError("Host: Failed listening on socket err=%d.");
+        vktrace_LogError("Host: Failed listening on socket err=%d.", VKTRACE_WSAGetLastError());
         closesocket(listenSocket);
         return FALSE;
     }
