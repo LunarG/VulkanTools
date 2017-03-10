@@ -111,12 +111,10 @@ static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
 //=========================================================================
 std::list<vktrace_trace_packet_header *> recorded_packets;
 
-
 //=========================================================================
 // Start trimming
 //=========================================================================
-void start()
-{
+void start() {
     g_trimIsPreTrim = false;
     g_trimIsInTrim = true;
     snapshot_state_tracker();
@@ -125,8 +123,7 @@ void start()
 //=========================================================================
 // Stop trimming
 //=========================================================================
-void stop()
-{
+void stop() {
     g_trimIsInTrim = false;
     g_trimIsPostTrim = true;
 

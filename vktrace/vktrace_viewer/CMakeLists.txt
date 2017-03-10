@@ -29,6 +29,9 @@ set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
 # Run a codegen script to generate vktrace-specific vulkan utils
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-packet-id VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h)
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-core-trace-packets VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs     VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-replay-c            VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h)
 
 # we want cmake to link the Qt libs into the binary
 # This policy was introduced in 2.8.11, so on newer versions, use the OLD policy to maintain consistent behavior
@@ -155,7 +158,7 @@ QT5_WRAP_CPP(QT_GEN_HEADER_MOC_LIST ${UI_HEADER_LIST})
 QT5_WRAP_UI(QT_GEN_FORM_HEADER_LIST ${FORM_LIST})
 QT5_ADD_RESOURCES(QT_GEN_RESOURCE_RCC_LIST ${RESOURCE_LIST})
 
-if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     add_compiler_flag("-Wno-global-constructors -Wno-used-but-marked-unused")
 endif()
 
