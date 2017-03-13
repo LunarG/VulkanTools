@@ -258,6 +258,8 @@ class VkImageObj : public vk_testing::Image {
     void init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage, VkImageTiling tiling = VK_IMAGE_TILING_LINEAR,
               VkMemoryPropertyFlags reqs = 0);
 
+    void init(const VkImageCreateInfo *create_info);
+
     void init_no_layout(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage, VkImageTiling tiling = VK_IMAGE_TILING_LINEAR,
                         VkMemoryPropertyFlags reqs = 0);
 
@@ -435,4 +437,5 @@ class VkPipelineObj : public vk_testing::Pipeline {
     vector<VkPipelineColorBlendAttachmentState> m_colorAttachments;
     int m_vertexBufferCount;
 };
+VkFormat find_depth_stencil_format(VkDeviceObj *device);
 #endif  // VKRENDERFRAMEWORK_H

@@ -66,6 +66,17 @@ bool vk_format_is_depth_only(VkFormat format) {
     return is_depth;
 }
 
+VkFormat find_depth_stencil_format(VkDeviceObj *device) {
+    VkFormat ds_formats[] = {VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D32_SFLOAT_S8_UINT};
+    for (uint32_t i = 0; i < sizeof(ds_formats); i++) {
+        VkFormatProperties format_props = device->format_properties(ds_formats[i]);
+        if (format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+            return ds_formats[i];
+        }
+    }
+    return (VkFormat)0;
+}
+
 VkRenderFramework::VkRenderFramework()
     : inst(VK_NULL_HANDLE),
       m_device(NULL),
@@ -757,6 +768,41 @@ void VkImageObj::init(uint32_t w, uint32_t h, VkFormat fmt, VkFlags usage, VkIma
         image_aspect = VK_IMAGE_ASPECT_COLOR_BIT;
     }
     SetLayout(image_aspect, newLayout);
+}
+
+void VkImageObj::init(const VkImageCreateInfo *create_info) {
+    VkFormatProperties image_fmt;
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), create_info->format, &image_fmt);
+
+    switch (create_info->tiling) {
+        case VK_IMAGE_TILING_OPTIMAL:
+            if (!IsCompatible(create_info->usage, image_fmt.optimalTilingFeatures)) {
+                ASSERT_TRUE(false) << "VkImageObj::init() error: unsupported tiling configuration";
+            }
+            break;
+        case VK_IMAGE_TILING_LINEAR:
+            if (!IsCompatible(create_info->usage, image_fmt.optimalTilingFeatures)) {
+                ASSERT_TRUE(false) << "VkImageObj::init() error: unsupported tiling configuration";
+            }
+            break;
+        default:
+            break;
+    }
+    layout(create_info->initialLayout);
+
+    vk_testing::Image::init(*m_device, *create_info, 0);
+
+    VkImageAspectFlags image_aspect = 0;
+    if (vk_format_is_depth_and_stencil(create_info->format)) {
+        image_aspect = VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_DEPTH_BIT;
+    } else if (vk_format_is_depth_only(create_info->format)) {
+        image_aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+    } else if (vk_format_is_stencil_only(create_info->format)) {
+        image_aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
+    } else {  // color
+        image_aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+    SetLayout(image_aspect, VK_IMAGE_LAYOUT_GENERAL);
 }
 
 VkResult VkImageObj::CopyImage(VkImageObj &src_image) {

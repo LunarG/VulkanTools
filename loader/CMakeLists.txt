@@ -5,6 +5,12 @@ include_directories(
     ${CMAKE_BINARY_DIR}
 )
 
+# Check for the existance of the secure_getenv or __secure_getenv commands
+include(CheckFunctionExists)
+CHECK_FUNCTION_EXISTS(secure_getenv HAVE_SECURE_GETENV)
+CHECK_FUNCTION_EXISTS(__secure_getenv HAVE___SECURE_GETENV)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/loader_cmake_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/loader_cmake_config.h)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
     set(DisplayServer Win32)
@@ -66,6 +72,12 @@ set(OPT_LOADER_SRCS
 
 add_definitions(-DAPI_NAME="${API_NAME}")
 
+run_vk_xml_generate(loader_extension_generator.py vk_loader_extensions.h)
+run_vk_xml_generate(loader_extension_generator.py vk_loader_extensions.c)
+add_custom_target(loader_gen_files DEPENDS
+        vk_loader_extensions.h
+        vk_loader_extensions.c
+    )
 
 if (WIN32)
     # Use static MSVCRT libraries
@@ -85,11 +97,11 @@ if (WIN32)
     separate_arguments(LOCAL_C_FLAGS_REL WINDOWS_COMMAND ${CMAKE_C_FLAGS_RELEASE})
 
     add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
-    add_dependencies(loader-norm generate_helper_files)
+    add_dependencies(loader-norm generate_helper_files loader_gen_files)
 
     target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
     add_library(loader-opt OBJECT ${OPT_LOADER_SRCS})
-    add_dependencies(loader-opt generate_helper_files)
+    add_dependencies(loader-opt generate_helper_files loader_gen_files)
 
     target_compile_options(loader-opt PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_REL}>")
     add_library(${API_LOWERCASE}-${MAJOR} SHARED $<TARGET_OBJECTS:loader-opt> $<TARGET_OBJECTS:loader-norm> ${CMAKE_CURRENT_BINARY_DIR}/${API_LOWERCASE}-${MAJOR}.def ${CMAKE_CURRENT_SOURCE_DIR}/loader.rc)
@@ -98,7 +110,7 @@ if (WIN32)
     set_target_properties(${API_LOWERCASE}-${MAJOR} PROPERTIES LINK_FLAGS_DEBUG /ignore:4098)
     set_target_properties(VKstatic.${MAJOR} PROPERTIES OUTPUT_NAME VKstatic.${MAJOR})
     target_link_libraries(${API_LOWERCASE}-${MAJOR} shlwapi)
-    add_dependencies(${API_LOWERCASE}-${MAJOR} generate_helper_files)
+    add_dependencies(${API_LOWERCASE}-${MAJOR} generate_helper_files loader_gen_files)
 
     target_link_libraries(VKstatic.${MAJOR} shlwapi)
     if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
@@ -119,7 +131,7 @@ else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 
     add_library(${API_LOWERCASE} SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
-    add_dependencies(${API_LOWERCASE} generate_helper_files)
+    add_dependencies(${API_LOWERCASE} generate_helper_files loader_gen_files)
     set_target_properties(${API_LOWERCASE} PROPERTIES SOVERSION "1" VERSION "1.0.42")
     target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
 
