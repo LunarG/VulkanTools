@@ -408,6 +408,22 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdDevices = other.createdDevices;
     for (auto obj = createdDevices.begin(); obj != createdDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Device.pCreatePacket);
+        
+        trim::QueueFamily* pExistingFamilies = obj->second.ObjectInfo.Device.pQueueFamilies;
+
+        obj->second.ObjectInfo.Device.pQueueFamilies = VKTRACE_NEW_ARRAY(trim::QueueFamily, obj->second.ObjectInfo.Device.queueFamilyCount);
+        for (uint32_t family = 0; family < obj->second.ObjectInfo.Device.queueFamilyCount; family++)
+        {
+            uint32_t count = pExistingFamilies[family].count;
+            obj->second.ObjectInfo.Device.pQueueFamilies[family].count = count;
+            obj->second.ObjectInfo.Device.pQueueFamilies[family].queues = VKTRACE_NEW_ARRAY(VkQueue, count);
+
+            for (uint32_t q = 0; q < count; q++)
+            {
+                VkQueue queue = pExistingFamilies[family].queues[q];
+                obj->second.ObjectInfo.Device.pQueueFamilies[family].queues[q] = queue;
+            }
+        }
     }
 
     createdSurfaceKHRs = other.createdSurfaceKHRs;
@@ -1251,6 +1267,13 @@ void StateTracker::remove_Device(const VkDevice var) {
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
     }
+
+    for (uint32_t family = 0; family < pInfo->ObjectInfo.Device.queueFamilyCount; family++)
+    {
+        VKTRACE_DELETE(pInfo->ObjectInfo.Device.pQueueFamilies[family].queues);
+    }
+    VKTRACE_DELETE(pInfo->ObjectInfo.Device.pQueueFamilies);
+
     createdDevices.erase(var);
 }
 

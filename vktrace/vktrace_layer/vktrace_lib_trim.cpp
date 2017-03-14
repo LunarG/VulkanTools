@@ -92,7 +92,7 @@ static std::unordered_map<VkImage, StagingInfo> s_imageToStagedInfoMap;
 //=========================================================================
 // Associates a Device to a trim-specific CommandPool
 //=========================================================================
-static std::unordered_map<VkDevice, VkCommandPool> s_deviceToCommandPoolMap;
+static std::unordered_map<VkDevice, std::unordered_map<uint32_t, VkCommandPool>> s_deviceToCommandPoolMap;
 
 //=========================================================================
 // Typically an application will have one VkAllocationCallbacks struct and
@@ -528,8 +528,23 @@ VkImageAspectFlags getImageAspectFromFormat(VkFormat format) {
 VkCommandPool getCommandPoolFromDevice(VkDevice device, uint32_t queueFamilyIndex = 0) {
     assert(device != VK_NULL_HANDLE);
 
-    VkCommandPool commandPool = VK_NULL_HANDLE;
-    if (s_deviceToCommandPoolMap.find(device) == s_deviceToCommandPoolMap.end()) {
+    if (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
+        queueFamilyIndex = 0;
+    } 
+
+    auto deviceIter = s_deviceToCommandPoolMap.find(device);
+    if (deviceIter == s_deviceToCommandPoolMap.end()) {
+
+        // need to add device to map
+        std::unordered_map<uint32_t, VkCommandPool> queueIndexToCommandPoolMap;
+        s_deviceToCommandPoolMap[device] = queueIndexToCommandPoolMap;
+
+        deviceIter = s_deviceToCommandPoolMap.find(device);
+    }
+
+    auto queueFamilyIter = deviceIter->second.find(queueFamilyIndex);
+    if (queueFamilyIter == deviceIter->second.end())
+    {
         // create a new command pool on the device
         VkCommandPoolCreateInfo cmdPoolCreateInfo;
         cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -537,28 +552,34 @@ VkCommandPool getCommandPoolFromDevice(VkDevice device, uint32_t queueFamilyInde
         cmdPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
         cmdPoolCreateInfo.flags = 0;
 
-        VkResult result = mdd(device)->devTable.CreateCommandPool(device, &cmdPoolCreateInfo, NULL, &commandPool);
+        VkCommandPool commandPool = VK_NULL_HANDLE;
+        VkResult result = mdd(device)->devTable.CreateCommandPool(
+            device, &cmdPoolCreateInfo, NULL, &commandPool);
         assert(result == VK_SUCCESS);
         if (result == VK_SUCCESS) {
-            s_deviceToCommandPoolMap[device] = commandPool;
+            s_deviceToCommandPoolMap[device][queueFamilyIndex] = commandPool;
         }
-    } else {
-        commandPool = s_deviceToCommandPoolMap[device];
+
+        queueFamilyIter = deviceIter->second.find(queueFamilyIndex);
     }
-    return commandPool;
+    
+    return queueFamilyIter->second;
 }
 
 //=========================================================================
 // Find existing trim-specific CommandBuffer from the Device, or
 // create a new one.
 //=========================================================================
-VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool commandPool = VK_NULL_HANDLE) {
+VkCommandBuffer
+getCommandBufferFromDevice(VkDevice device, 
+                           VkCommandPool commandPool = VK_NULL_HANDLE,
+                           uint32_t queueFamilyIndex = 0) {
     assert(device != VK_NULL_HANDLE);
 
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
     if (s_deviceToCommandBufferMap.find(device) == s_deviceToCommandBufferMap.end()) {
         if (commandPool == VK_NULL_HANDLE) {
-            commandPool = getCommandPoolFromDevice(device, 0);
+            commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
         }
 
         // allocate a new command buffer on the device
@@ -582,12 +603,17 @@ VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool comman
 }
 
 //=========================================================================
-StagingInfo createStagingBuffer(VkDevice device, VkCommandPool commandPool, VkCommandBuffer commandBuffer, VkDeviceSize size) {
+StagingInfo createStagingBuffer(VkDevice device, VkCommandPool commandPool,
+                                VkCommandBuffer commandBuffer,
+                                uint32_t queueFamilyIndex,
+                                VkDeviceSize size) {
     StagingInfo stagingInfo = {};
 
     stagingInfo.commandPool = commandPool;
     stagingInfo.commandBuffer = commandBuffer;
-    stagingInfo.queue = trim::get_DeviceQueue(device, 0, 0);
+
+    VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+    stagingInfo.queue = queue;
 
     stagingInfo.bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     stagingInfo.bufferCreateInfo.pNext = NULL;
@@ -801,39 +827,15 @@ void snapshot_state_tracker() {
     s_trimStateTrackerSnapshot = s_trimGlobalStateTracker;
 
     // Copying all the buffers is a length process:
-    // 1) Create a cmd pool and cmd buffer on each device; begin the command
-    // buffer.
-    // 2a) Transition all images into host-readable state.
-    // 2b) Transition all buffers into host-readable state.
-    // 3) End the cmd buffers and submit them on the right queue.
-    // 4a) Map, copy, unmap each image.
-    // 4b) Map, copy, unmap each buffer.
-    // 5) Begin the cmd buffers again.
-    // 6a) Transition all the images back to their previous state.
-    // 6b) Transition all the images back to their previous state.
-    // 7) End the cmd buffers, submit, and wait for them.
-    // 8) destroy the command pools, command buffers, and fences.
+    // 1a) Transition all images into host-readable state.
+    // 1b) Transition all buffers into host-readable state.
+    // 2a) Map, copy, unmap each image.
+    // 2b) Map, copy, unmap each buffer.
+    // 3a) Transition all the images back to their previous state.
+    // 3b) Transition all the images back to their previous state.
+    // 4) Destroy the command pools, command buffers, and fences.
 
-    // 1) Create a cmd pool and cmd buffer on each device; begin the command
-    // buffer.
-    for (auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin();
-         deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++) {
-        VkDevice U_ASSERT_ONLY device = deviceIter->first;
-
-        // Find or create an existing command buffer
-        VkCommandBuffer U_ASSERT_ONLY commandBuffer = getCommandBufferFromDevice(device);
-
-        // Begin the command buffer
-        VkCommandBufferBeginInfo commandBufferBeginInfo;
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext = NULL;
-        commandBufferBeginInfo.pInheritanceInfo = NULL;
-        commandBufferBeginInfo.flags = 0;
-        VkResult U_ASSERT_ONLY result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-        assert(result == VK_SUCCESS);
-    }
-
-    // 2a) Transition all images into host-readable state.
+    // 1a) Transition all images into host-readable state.
     for (auto imageIter = s_trimStateTrackerSnapshot.createdImages.begin();
          imageIter != s_trimStateTrackerSnapshot.createdImages.end(); imageIter++) {
         VkDevice device = imageIter->second.belongsToDevice;
@@ -845,17 +847,34 @@ void snapshot_state_tracker() {
             continue;
         }
 
-        uint32_t queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-        if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
+        uint32_t queueFamilyIndex =
+            imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+
+        if (imageIter->second.ObjectInfo.Image.sharingMode ==
+            VK_SHARING_MODE_CONCURRENT) {
             queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         }
 
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
+        VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
+
+        // Begin the command buffer
+        VkCommandBufferBeginInfo commandBufferBeginInfo;
+        commandBufferBeginInfo.sType =
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.pNext = NULL;
+        commandBufferBeginInfo.pInheritanceInfo = NULL;
+        commandBufferBeginInfo.flags = 0;
+        VkResult result = mdd(device)->devTable.BeginCommandBuffer(
+            commandBuffer, &commandBufferBeginInfo);
+        assert(result == VK_SUCCESS);
+
 
         if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
-            VkCommandPool commandPool = getCommandPoolFromDevice(device);
-            StagingInfo stagingInfo =
-                createStagingBuffer(device, commandPool, commandBuffer, imageIter->second.ObjectInfo.Image.memorySize);
+
+            StagingInfo stagingInfo = createStagingBuffer(
+                device, commandPool, commandBuffer, (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
+                imageIter->second.ObjectInfo.Image.memorySize);
 
             // From Docs: srcImage must have a sample count equal to
             // VK_SAMPLE_COUNT_1_BIT
@@ -983,15 +1002,52 @@ void snapshot_state_tracker() {
                             imageIter->second.ObjectInfo.Image.mostRecentLayout, imageIter->second.ObjectInfo.Image.aspectMask,
                             imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
         }
+
+        // End the CommandBuffer
+        mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+
+        // now submit the command buffer
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.pNext = NULL;
+        submitInfo.waitSemaphoreCount = 0;
+        submitInfo.pWaitSemaphores = NULL;
+        submitInfo.pWaitDstStageMask = NULL;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = NULL;
+
+        // Submit the queue and wait for it to complete
+        VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+
+        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo,
+            VK_NULL_HANDLE);
+        VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+        assert(waitResult == VK_SUCCESS);
     }
 
-    // 2b) Transition all buffers into host-readable state.
+    // 1b) Transition all buffers into host-readable state.
     for (auto bufferIter = s_trimStateTrackerSnapshot.createdBuffers.begin();
          bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end(); bufferIter++) {
         VkDevice device = bufferIter->second.belongsToDevice;
-        VkBuffer buffer = bufferIter->first;
+        VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
+        uint32_t queueFamilyIndex =
+            bufferIter->second.ObjectInfo.Buffer.queueFamilyIndex;
 
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
+        VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
+
+        // Begin the command buffer
+        VkCommandBufferBeginInfo commandBufferBeginInfo;
+        commandBufferBeginInfo.sType =
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.pNext = NULL;
+        commandBufferBeginInfo.pInheritanceInfo = NULL;
+        commandBufferBeginInfo.flags = 0;
+        VkResult result = mdd(device)->devTable.BeginCommandBuffer(
+            commandBuffer, &commandBufferBeginInfo);
+        assert(result == VK_SUCCESS);
 
         // If the buffer needs a staging buffer, it's because it's on
         // DEVICE_LOCAL memory that is not HOST_VISIBLE.
@@ -1003,9 +1059,9 @@ void snapshot_state_tracker() {
         // trace file in order to recreate
         // the DEVICE_LOCAL buffer.
         if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
-            VkCommandPool commandPool = getCommandPoolFromDevice(device);
             StagingInfo stagingInfo =
-                createStagingBuffer(device, commandPool, commandBuffer, bufferIter->second.ObjectInfo.Buffer.size);
+                createStagingBuffer(device, commandPool, commandBuffer, queueFamilyIndex,
+                                    bufferIter->second.ObjectInfo.Buffer.size);
 
             // Copy from device_local buffer to host_visible buffer
             stagingInfo.copyRegion.srcOffset = 0;
@@ -1024,14 +1080,9 @@ void snapshot_state_tracker() {
             transitionBuffer(device, commandBuffer, buffer, bufferIter->second.ObjectInfo.Buffer.accessFlags,
                              VK_ACCESS_HOST_READ_BIT, 0, bufferIter->second.ObjectInfo.Buffer.size);
         }
-    }
 
-    // 3) End the cmd buffers and submit them on the right queue.
-    for (auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin();
-         deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++) {
-        VkDevice device = static_cast<VkDevice>(deviceIter->first);
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
-
+        // TODO: LESS THAN IDEAL TO END & SUBMIT these super small command buffers
+        // End the CommandBuffer
         mdd(device)->devTable.EndCommandBuffer(commandBuffer);
 
         // now submit the command buffer
@@ -1047,16 +1098,15 @@ void snapshot_state_tracker() {
         submitInfo.pSignalSemaphores = NULL;
 
         // Submit the queue and wait for it to complete
-        VkQueue queue = VK_NULL_HANDLE;
-        queue = trim::get_DeviceQueue(device, 0, 0);
+        VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
 
         mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo,
-                                          VK_NULL_HANDLE);
+            VK_NULL_HANDLE);
         VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
         assert(waitResult == VK_SUCCESS);
     }
-
-    // 4a) Map, copy, unmap each image.
+    
+    // 2a) Map, copy, unmap each image.
     for (auto imageIter = s_trimStateTrackerSnapshot.createdImages.begin();
          imageIter != s_trimStateTrackerSnapshot.createdImages.end(); imageIter++) {
         VkDevice device = imageIter->second.belongsToDevice;
@@ -1118,7 +1168,7 @@ void snapshot_state_tracker() {
         }
     }
 
-    // 4b) Map, copy, unmap each buffer.
+    // 2b) Map, copy, unmap each buffer.
     for (auto bufferIter = s_trimStateTrackerSnapshot.createdBuffers.begin();
          bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end(); bufferIter++) {
         VkDevice device = bufferIter->second.belongsToDevice;
@@ -1171,23 +1221,7 @@ void snapshot_state_tracker() {
         }
     }
 
-    // 5) Begin the cmd buffers again.
-    for (auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin();
-         deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++) {
-        VkDevice device = static_cast<VkDevice>(deviceIter->first);
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
-
-        // Begin the command buffer
-        VkCommandBufferBeginInfo commandBufferBeginInfo;
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext = NULL;
-        commandBufferBeginInfo.pInheritanceInfo = NULL;
-        commandBufferBeginInfo.flags = 0;
-        VkResult U_ASSERT_ONLY result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-        assert(result == VK_SUCCESS);
-    }
-
-    // 6a) Transition all the images back to their previous state.
+    // 3a) Transition all the images back to their previous state.
     for (auto imageIter = s_trimStateTrackerSnapshot.createdImages.begin();
          imageIter != s_trimStateTrackerSnapshot.createdImages.end(); imageIter++) {
         VkDevice device = imageIter->second.belongsToDevice;
@@ -1199,6 +1233,30 @@ void snapshot_state_tracker() {
             continue;
         }
 
+        uint32_t queueFamilyIndex =
+            imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+
+        if (imageIter->second.ObjectInfo.Image.sharingMode ==
+            VK_SHARING_MODE_CONCURRENT) {
+            queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        }
+
+        VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
+
+        // Begin the command buffer
+        VkCommandBufferBeginInfo commandBufferBeginInfo;
+        commandBufferBeginInfo.sType =
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.pNext = NULL;
+        commandBufferBeginInfo.pInheritanceInfo = NULL;
+        commandBufferBeginInfo.flags = 0;
+        VkResult result = mdd(device)->devTable.BeginCommandBuffer(
+            commandBuffer, &commandBufferBeginInfo);
+        assert(result == VK_SUCCESS);
+
+
+
         // only need to restore the images that did NOT need a staging buffer
         if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
             // delete the staging objects
@@ -1206,26 +1264,68 @@ void snapshot_state_tracker() {
             mdd(device)->devTable.DestroyBuffer(device, staged.buffer, NULL);
             mdd(device)->devTable.FreeMemory(device, staged.memory, NULL);
         } else {
-            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
-
-            uint32_t queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-            if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
-                queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            }
-
             transitionImage(device, commandBuffer, image, VK_ACCESS_HOST_READ_BIT, imageIter->second.ObjectInfo.Image.accessFlags,
                             queueFamilyIndex, imageIter->second.ObjectInfo.Image.mostRecentLayout,
                             imageIter->second.ObjectInfo.Image.mostRecentLayout, imageIter->second.ObjectInfo.Image.aspectMask,
                             imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
         }
+
+        // End the CommandBuffer
+        mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+
+        // now submit the command buffer
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.pNext = NULL;
+        submitInfo.waitSemaphoreCount = 0;
+        submitInfo.pWaitSemaphores = NULL;
+        submitInfo.pWaitDstStageMask = NULL;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = NULL;
+
+        // Submit the queue and wait for it to complete
+        VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+
+        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo,
+            VK_NULL_HANDLE);
+        VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+        assert(waitResult == VK_SUCCESS);
     }
 
-    // 6b) Transition all the buffers back to their previous state.
-    for (auto bufferIter = s_trimStateTrackerSnapshot.createdBuffers.begin();
-         bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end(); bufferIter++) {
+    // 3b) Transition all the buffers back to their previous state.
+    for (auto bufferIter =
+             s_trimStateTrackerSnapshot.createdBuffers.begin();
+         bufferIter != s_trimStateTrackerSnapshot.createdBuffers.end();
+         bufferIter++) {
+        
         VkDevice device = bufferIter->second.belongsToDevice;
-        VkBuffer buffer = bufferIter->first;
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
+        VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
+        
+
+        uint32_t queueFamilyIndex =
+            bufferIter->second.ObjectInfo.Buffer.queueFamilyIndex;
+
+        //if (imageIter->second.ObjectInfo.Image.sharingMode ==
+        //    VK_SHARING_MODE_CONCURRENT) {
+        //    queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        //}
+
+        VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
+
+        // Begin the command buffer
+        VkCommandBufferBeginInfo commandBufferBeginInfo;
+        commandBufferBeginInfo.sType =
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.pNext = NULL;
+        commandBufferBeginInfo.pInheritanceInfo = NULL;
+        commandBufferBeginInfo.flags = 0;
+        VkResult result = mdd(device)->devTable.BeginCommandBuffer(
+            commandBuffer, &commandBufferBeginInfo);
+        assert(result == VK_SUCCESS);
+
 
         if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
             // if this buffer had a staging buffer, then we only need to do
@@ -1237,18 +1337,12 @@ void snapshot_state_tracker() {
             transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_HOST_READ_BIT,
                              bufferIter->second.ObjectInfo.Buffer.accessFlags, 0, bufferIter->second.ObjectInfo.Buffer.size);
         }
-    }
 
-    // 7) End the cmd buffers, submit, and wait for them
-    for (auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin();
-         deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++) {
-        VkDevice device = reinterpret_cast<VkDevice>(deviceIter->first);
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device);
-
+        // End the CommandBuffer
         mdd(device)->devTable.EndCommandBuffer(commandBuffer);
 
         // now submit the command buffer
-        VkSubmitInfo submitInfo;
+        VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.pNext = NULL;
         submitInfo.waitSemaphoreCount = 0;
@@ -1259,15 +1353,16 @@ void snapshot_state_tracker() {
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = NULL;
 
-        VkQueue queue = VK_NULL_HANDLE;
-        queue = trim::get_DeviceQueue(device, 0, 0);
+        // Submit the queue and wait for it to complete
+        VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
 
-        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        VkResult U_ASSERT_ONLY waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo,
+            VK_NULL_HANDLE);
+        VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
         assert(waitResult == VK_SUCCESS);
     }
 
-    // 8) Destroy the command pools / command buffers and fences
+    // 4) Destroy the command pools / command buffers and fences
     for (auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin();
          deviceIter != s_trimStateTrackerSnapshot.createdDevices.end(); deviceIter++) {
         VkDevice device = reinterpret_cast<VkDevice>(deviceIter->first);
@@ -1373,17 +1468,28 @@ ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var) {
 }
 
 //=========================================================================
-std::map<VkDevice, VkQueue> deviceQueueMap;
-
-//=========================================================================
-void set_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue queue) {
-    deviceQueueMap[device] = queue;
-}
-
-//=========================================================================
 VkQueue get_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex) {
-    std::map<VkDevice, VkQueue>::iterator queueIter = deviceQueueMap.find(device);
-    return (queueIter == deviceQueueMap.end()) ? VK_NULL_HANDLE : queueIter->second;
+    auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.find(device);
+    if (deviceIter == s_trimStateTrackerSnapshot.createdDevices.end()) {
+        // Invalid device
+        return VK_NULL_HANDLE;
+    }
+
+    if (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) {
+        queueFamilyIndex = 0;
+    }
+
+    if (queueFamilyIndex >= deviceIter->second.ObjectInfo.Device.queueFamilyCount) {
+        // Invalid queueFamilyIndex
+        return VK_NULL_HANDLE;
+    }
+
+    if (queueIndex >= deviceIter->second.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].count) {
+        // Invalid queueIndex
+        return VK_NULL_HANDLE;
+    }
+
+    return deviceIter->second.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues[queueIndex];
 }
 
 //=========================================================================
@@ -3012,8 +3118,8 @@ void write_all_referenced_object_calls() {
             vktrace_write_trace_packet(pEndCB, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pEndCB);
 
-            VkQueue queue = VK_NULL_HANDLE;
-            queue = trim::get_DeviceQueue(device, 0, 0);
+            ObjectInfo* cbInfo = s_trimStateTrackerSnapshot.get_CommandBuffer(commandBuffer);
+            VkQueue queue = cbInfo->ObjectInfo.CommandBuffer.submitQueue;
 
             VkSubmitInfo submitInfo = {};
             submitInfo.commandBufferCount = 1;

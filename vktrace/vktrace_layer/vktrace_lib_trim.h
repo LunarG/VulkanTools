@@ -151,7 +151,6 @@ ObjectInfo *get_Instance_objectInfo(VkInstance var);
 ObjectInfo &add_PhysicalDevice_object(VkPhysicalDevice var);
 ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var);
 
-void set_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue queue);
 VkQueue get_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex);
 
 ObjectInfo &add_Device_object(VkDevice var);
