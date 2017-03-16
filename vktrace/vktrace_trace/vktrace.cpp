@@ -29,11 +29,14 @@ extern "C" {
 #include "vktrace_interconnect.h"
 #include "vktrace_trace_packet_identifiers.h"
 #include "vktrace_trace_packet_utils.h"
+#include "vktrace_vk_packet_id.h"
 }
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "screenshot_parsing.h"
+
+#include <vector>
 
 vktrace_settings g_settings;
 vktrace_settings g_default_settings;
@@ -260,6 +263,77 @@ char* find_available_filename(const char* originalFilename, bool bForceOverwrite
     return pOutputFilename;
 }
 
+// TODO: Avoid scanning the file. Create this table packet as packets arrive from trace process,
+// then simply append the table to the file.
+static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
+    vktrace_trace_file_header fileHeader;
+    vktrace_trace_packet_header packet;
+    size_t fileOffset = 0;
+    size_t readSize;
+    int rval;
+    uint32_t lastPacketThreadId;
+    uint64_t lastPacketIndex;
+    uint64_t lastPacketEndTime;
+    std::vector<size_t> packetTable;
+
+    // Sleep for a short while so log messages from traced process appear before this one
+    Sleep(200);
+    vktrace_LogAlways("Post processing trace file");
+
+    // Read the trace file, and create a table of offsets to packets containing:
+    //    vkBindImageMemory              vkBindBufferMemory
+    //    vkGetImageMemoryRequirements   vkGetBufferMemoryRequirements
+    //    vkAllocateMemory               vkDestroyImage
+    //    vkDestroyBuffer                vkFreeMemory
+
+    // First read the header
+    rval = fseek(pTraceFile, fileOffset, SEEK_SET);
+    readSize = fread(&fileHeader, 1, sizeof(fileHeader), pTraceFile);
+    if (rval != 0 || readSize != sizeof(fileHeader)) {
+        vktrace_LogError("Error in trace file post processing, trace file may be corrupt");
+        return;
+    }
+    fileOffset += fileHeader.first_packet_offset;
+
+    while (fseek(pTraceFile, fileOffset, SEEK_SET) == 0 && fread(&packet, 1, sizeof(packet), pTraceFile) == sizeof(packet)) {
+        // If the packet is one we need to track, add it to the table
+        if (packet.packet_id == VKTRACE_TPI_VK_vkBindImageMemory || packet.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory ||
+            packet.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
+            packet.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements ||
+            packet.packet_id == VKTRACE_TPI_VK_vkAllocateMemory || packet.packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
+            packet.packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || packet.packet_id == VKTRACE_TPI_VK_vkFreeMemory) {
+            packetTable.push_back(fileOffset);
+        }
+        lastPacketIndex = packet.global_packet_index;
+        lastPacketThreadId = packet.thread_id;
+        lastPacketEndTime = packet.vktrace_end_time;
+        fileOffset += packet.size;
+    }
+
+    // Add a word containing the size of the table to the table.
+    packetTable.push_back(packetTable.size());
+
+    // Append the table packet to the trace file.  If the last packet in
+    // the file was not complete, we will overwrite the incomplete packet.
+    packet.size = sizeof(packet) + packetTable.size() * sizeof(size_t);
+    packet.global_packet_index = lastPacketIndex + 1;
+    packet.tracer_id = VKTRACE_TID_VULKAN;
+    packet.packet_id = VKTRACE_TPI_PORTABILITY_TABLE;
+    packet.thread_id = lastPacketThreadId;
+    packet.vktrace_begin_time = packet.entrypoint_begin_time = packet.entrypoint_end_time = packet.vktrace_end_time =
+        lastPacketEndTime;
+    packet.next_buffers_offset = 0;
+    packet.pBody = (uintptr_t)NULL;
+    if (0 == fseek(pTraceFile, fileOffset, SEEK_SET) && 1 == fwrite(&packet, sizeof(packet), 1, pTraceFile) &&
+        packetTable.size() == fwrite(&packetTable[0], sizeof(size_t), packetTable.size(), pTraceFile)) {
+        // Set the flag the file header that indicates portability table has been written
+        fileHeader.portability_table_valid = 1;
+        if (0 == fseek(pTraceFile, 0, SEEK_SET)) fwrite(&fileHeader, sizeof(fileHeader), 1, pTraceFile);
+    }
+
+    vktrace_LogVerbose("Post processing of trace file completed");
+}
+
 // ------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[]) {
     uint64_t exitval = 0;
@@ -447,8 +521,7 @@ int main(int argc, char* argv[]) {
 
             // Sync wait for local threads and remote process to complete.
             if (g_settings.program != NULL) {
-                exitval = vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
-                if (exitval != 0) exit(exitval);
+                vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
             }
 
             vktrace_linux_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));
@@ -460,7 +533,7 @@ int main(int argc, char* argv[]) {
             exitval = MessageLoop();
 #endif
         }
-
+        vktrace_appendPortabilityPacket(procInfo.pTraceFile);
         vktrace_process_info_delete(&procInfo);
         serverIndex++;
     } while (g_settings.program == NULL);

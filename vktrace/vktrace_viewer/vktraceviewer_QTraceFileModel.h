@@ -48,6 +48,7 @@ class vktraceviewer_QTraceFileModel : public QAbstractItemModel {
             case VKTRACE_TPI_MARKER_API_GROUP_BEGIN:
             case VKTRACE_TPI_MARKER_API_GROUP_END:
             case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
+            case VKTRACE_TPI_PORTABILITY_TABLE:
             default: { return QString("%1").arg(pHeader->packet_id); }
         }
     }

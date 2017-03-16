@@ -33,6 +33,7 @@
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 #include <fcntl.h>
 #include <time.h>
+#include <sys/utsname.h>
 #endif
 
 #if defined(PLATFORM_OSX)
@@ -113,6 +114,147 @@ uint64_t vktrace_get_time() {
 uint64_t vktrace_get_time() { return 0; }
 #endif
 
+uint64_t get_endianess() {
+    uint64_t x = 1;
+    return *((char*)&x) ? VKTRACE_BIG_ENDIAN : VKTRACE_LITTLE_ENDIAN;
+}
+
+uint64_t get_arch() {
+    uint64_t rval;
+#if defined(PLATFORM_LINUX)
+    struct utsname buf;
+    uname(&buf);
+    strncpy((char*)&rval, buf.machine, sizeof(uint64_t));
+#else
+    SYSTEM_INFO systemInfo;
+    char* arch;
+    GetSystemInfo(&systemInfo);
+    switch (systemInfo.wProcessorArchitecture) {
+        case PROCESSOR_ARCHITECTURE_AMD64:
+            arch = "x86_64";
+            break;
+        case PROCESSOR_ARCHITECTURE_ARM:
+            arch = "ARM";
+            break;
+        case PROCESSOR_ARCHITECTURE_IA64:
+            arch = "ia64";
+            break;
+        case PROCESSOR_ARCHITECTURE_INTEL:
+            arch = "x86";
+            break;
+        default:
+            arch = "";
+            break;
+    }
+    strncpy((char*)&rval, arch, sizeof(uint64_t));
+#endif
+    return rval;
+}
+
+uint64_t get_os() {
+    uint64_t rval;
+#if defined(ANDROID)
+    strncpy((char*)&rval, "Android", sizeof(uint64_t));
+#elif defined(PLATFORM_LINUX)
+    strncpy((char*)&rval, "Linux", sizeof(uint64_t));
+#else
+    strncpy((char*)&rval, "Windows", sizeof(uint64_t));
+#endif
+    return rval;
+}
+
+static VkPhysicalDeviceProperties* get_physicalDeviceProperties() {
+    VkPhysicalDeviceProperties* rval = NULL;
+
+    VkInstanceCreateInfo createInfo;
+    VkInstance instance;
+    uint32_t physDevCount;
+    VkPhysicalDevice physDevice;
+
+    static bool devPropertiesValid = false;
+    static VkPhysicalDeviceProperties devProperties;
+
+    if (devPropertiesValid) {
+        rval = &devProperties;
+        goto allDone;
+    }
+
+    // Save VK_DEVICE_LAYERS and VK_INSTANCE_LAYERS.
+    // We can't just save the pointer to the value, because getenv returns
+    // a pointer to where the value is stored, but we are going to change it.
+    char* pDL = vktrace_get_global_var("VK_DEVICE_LAYERS");
+    char* pIL = vktrace_get_global_var("VK_INSTANCE_LAYERS");
+    char *pSaveDL = NULL, *pSaveIL = NULL;
+    char* pEnvSave;
+    int lenDL = pDL ? strlen(pDL) : 0;
+    int lenIL = pIL ? strlen(pIL) : 0;
+    pEnvSave = vktrace_malloc(lenDL + lenIL + 2);
+    if (!pEnvSave) goto allDone;
+    if (pDL) {
+        pSaveDL = pEnvSave;
+        strncpy(pSaveDL, pDL, lenDL + 1);
+    }
+    if (pIL) {
+        pSaveIL = pEnvSave + lenDL + 1;
+        strncpy(pSaveIL, pIL, lenIL + 1);
+    }
+
+    // Set VK_DEVICE_LAYERS and VK_INSTANCE_LAYERS to null.
+    // We don't want any layers for this call to vKCreateInstance,
+    // especially the trace layer!
+    if (pDL) vktrace_set_global_var("VK_DEVICE_LAYERS", "");
+    if (pIL) vktrace_set_global_var("VK_INSTANCE_LAYERS", "");
+
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    if (VK_SUCCESS != vkCreateInstance(&createInfo, NULL, &instance)) goto restoreEnv;
+
+    if (VK_SUCCESS != vkEnumeratePhysicalDevices(instance, &physDevCount, NULL) || physDevCount != 1) {
+        // vktrace/replay doesn't handle multiple physical devices yet
+        goto destroyInstance;
+    }
+    if (VK_SUCCESS != vkEnumeratePhysicalDevices(instance, &physDevCount, &physDevice)) {
+        goto destroyInstance;
+    }
+
+    vkGetPhysicalDeviceProperties(physDevice, &devProperties);
+    devPropertiesValid = true;
+    rval = &devProperties;
+
+destroyInstance:
+    vkDestroyInstance(instance, NULL);
+
+restoreEnv:
+    if (pSaveDL) vktrace_set_global_var("VK_DEVICE_LAYERS", pSaveDL);
+    if (pSaveIL) vktrace_set_global_var("VK_INSTANCE_LAYERS", pSaveIL);
+    vktrace_free(pEnvSave);
+
+allDone:
+    return rval;
+}
+
+uint64_t get_gpu() {
+    VkPhysicalDeviceProperties* pDevProperties;
+
+    pDevProperties = get_physicalDeviceProperties();
+
+    if (pDevProperties)
+        return ((uint64_t)pDevProperties->vendorID << 32) | (uint64_t)pDevProperties->deviceID;
+    else
+        return 0;
+}
+
+uint64_t get_driver_version() {
+    VkPhysicalDeviceProperties* pDevProperties;
+
+    pDevProperties = get_physicalDeviceProperties();
+
+    if (pDevProperties)
+        return (uint64_t)pDevProperties->driverVersion;
+    else
+        return 0;
+}
+
 //=============================================================================
 // trace file header
 
@@ -120,9 +262,15 @@ vktrace_trace_file_header* vktrace_create_trace_file_header() {
     vktrace_trace_file_header* pHeader = VKTRACE_NEW(vktrace_trace_file_header);
     memset(pHeader, 0, sizeof(vktrace_trace_file_header));
     pHeader->trace_file_version = VKTRACE_TRACE_FILE_VERSION;
+    pHeader->magic = VKTRACE_FILE_MAGIC;
     vktrace_gen_uuid(pHeader->uuid);
     pHeader->trace_start_time = vktrace_get_time();
-
+    pHeader->endianess = get_endianess();
+    pHeader->ptrsize = sizeof(void*);
+    pHeader->arch = get_arch();
+    pHeader->os = get_os();
+    pHeader->gpu = get_gpu();
+    pHeader->drv_vers = get_driver_version();
     return pHeader;
 }
 
@@ -137,7 +285,7 @@ void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader) {
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size) {
     // Always allocate at least enough space for the packet header
-    uint64_t total_packet_size = sizeof(vktrace_trace_packet_header) + packet_size + additional_buffers_size;
+    uint64_t total_packet_size = ROUNDUP_TO_4(sizeof(vktrace_trace_packet_header) + packet_size + additional_buffers_size);
     void* pMemory = vktrace_malloc((size_t)total_packet_size);
     memset(pMemory, 0, (size_t)total_packet_size);
 

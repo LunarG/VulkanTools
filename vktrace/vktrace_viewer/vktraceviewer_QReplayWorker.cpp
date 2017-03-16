@@ -183,7 +183,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
                 m_pReplayers[tracerId]->UpdateFromSettings(pGlobalSettings, numGlobalSettings);
 
                 // Initialize the replayer
-                int err = m_pReplayers[tracerId]->Initialize(&disp, NULL);
+                int err = m_pReplayers[tracerId]->Initialize(&disp, NULL, &pTraceFileInfo->header);
                 if (err) {
                     emit OutputMessage(VKTRACE_LOG_ERROR, QString("Couldn't Initialize replayer for TracerId %1.").arg(tracerId));
                     return false;
@@ -252,6 +252,8 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
             case VKTRACE_TPI_MARKER_API_GROUP_END:
                 break;
             case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
+                break;
+            case VKTRACE_TPI_PORTABILITY_TABLE:
                 break;
             // TODO processing code for all the above cases
             default: {
@@ -442,7 +444,7 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
                 disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
             }
 
-            int err = m_pReplayers[i]->Initialize(&disp, NULL);
+            int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
             assert(err == 0);
         }
     }
