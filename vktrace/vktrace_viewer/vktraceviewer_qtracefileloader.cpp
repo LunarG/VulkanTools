@@ -90,6 +90,8 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename) {
                             break;
                         case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
                             break;
+                        case VKTRACE_TPI_PORTABILITY_TABLE:
+                            break;
                         // TODO processing code for all the above cases
                         default: {
                             vktrace_trace_packet_header* pHeader = m_pController->InterpretTracePacket(pOffsets->pHeader);
@@ -259,6 +261,12 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
             // now seek to what should be the next packet
             fileOffset += packetSize;
             packetIndex++;
+        }
+
+        // If the last packet is the portability table, remove it
+        if (pTraceFileInfo->pPacketOffsets[pTraceFileInfo->packetCount - 1].pHeader->packet_id == VKTRACE_TPI_PORTABILITY_TABLE) {
+            vktrace_free(pTraceFileInfo->pPacketOffsets[pTraceFileInfo->packetCount - 1].pHeader);
+            pTraceFileInfo->packetCount--;
         }
 
         if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {

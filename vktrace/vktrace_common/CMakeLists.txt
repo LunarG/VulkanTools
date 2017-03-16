@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
+if(WIN32)
+  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
+elseif(UNIX)
+  set (LIBRARIES "${API_LOWERCASE}")
+else()
+endif()
+
 include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
@@ -45,9 +52,11 @@ add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${CXX_SRC_LIST} ${HDRS})
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 target_link_libraries(${PROJECT_NAME}
     Rpcrt4.lib
+    ${LIBRARIES}
 )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 target_link_Libraries(${PROJECT_NAME}
+    ${LIBRARIES}
     dl
     pthread
 )

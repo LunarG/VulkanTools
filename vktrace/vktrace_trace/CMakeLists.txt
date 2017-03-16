@@ -18,6 +18,8 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/vktrace_trace
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
+    ${CMAKE_BINARY_DIR}
+    ${GENERATED_FILES_DIR}
 )
 
 if (NOT WIN32)

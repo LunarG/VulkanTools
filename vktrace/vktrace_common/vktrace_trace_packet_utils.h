@@ -42,6 +42,13 @@ void vktrace_deinitialize_trace_packet_utils();
 //=============================================================================
 // trace file header
 
+// Utils for querying platform information for the trace file header
+uint64_t get_endianess();
+uint64_t get_arch();
+uint64_t get_os();
+uint64_t get_gpu();
+uint64_t get_driver_version();
+
 // there is a file header at the start of every trace file
 vktrace_trace_file_header* vktrace_create_trace_file_header();
 
@@ -55,7 +62,7 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo) {
     assert(pProcInfo != NULL);
 
     // open trace file
-    tracefp = fopen(pProcInfo->traceFilename, "wb");
+    tracefp = fopen(pProcInfo->traceFilename, "w+b");
     if (tracefp == NULL) {
         vktrace_LogError("Cannot open trace file for writing %s.", pProcInfo->traceFilename);
         return tracefp;

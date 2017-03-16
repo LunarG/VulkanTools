@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string>
 #if defined(ANDROID)
-#include <vector>
 #include <sstream>
 #include <android/log.h>
 #include <android_native_app_glue.h>
@@ -162,6 +161,8 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                     break;
                 case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
                     break;
+                case VKTRACE_TPI_PORTABILITY_TABLE:
+                    break;
                 // TODO processing code for all the above cases
                 default: {
                     if (packet->tracer_id >= VKTRACE_MAX_TRACER_ID_ARRAY_SIZE || packet->tracer_id == VKTRACE_TID_RESERVED) {
@@ -288,6 +289,25 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 #endif  // ANDROID
 }
 
+static bool readPortabilityTable() {
+    size_t tableSize;
+    int originalFilePos;
+
+    originalFilePos = ftell(tracefp);
+    if (-1 == originalFilePos) return false;
+    if (0 != fseek(tracefp, -sizeof(size_t), SEEK_END)) return false;
+    if (1 != fread(&tableSize, sizeof(size_t), 1, tracefp)) return false;
+    if (0 != fseek(tracefp, -(tableSize + 1) * sizeof(size_t), SEEK_END)) return false;
+    portabilityTable.resize(tableSize);
+    if (tableSize != fread(&portabilityTable[0], sizeof(size_t), tableSize, tracefp)) return false;
+    if (0 != fseek(tracefp, originalFilePos, SEEK_SET)) return false;
+
+    vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
+    for (size_t i = 0; i < tableSize; i++) vktrace_LogDebug("   %p %ld", &portabilityTable[i], portabilityTable[i]);
+
+    return true;
+}
+
 int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
@@ -361,7 +381,6 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     // open trace file and read in header
     char* pTraceFile = replaySettings.pTraceFilePath;
     vktrace_trace_file_header fileHeader;
-    FILE* tracefp;
 
     if (pTraceFile != NULL && strlen(pTraceFile) > 0) {
         tracefp = fopen(pTraceFile, "rb");
@@ -404,7 +423,25 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             "Trace file version %u is older than minimum compatible version (%u).\nYou'll need to make a new trace file, or use an "
             "older replayer.",
             fileHeader.trace_file_version, VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE);
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
     }
+
+    // Make sure magic number in trace file is valid
+    if (fileHeader.magic != VKTRACE_FILE_MAGIC) {
+        vktrace_LogError("%s does not appear to be a valid Vulkan trace file.", pTraceFile);
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // read portability table if it exists
+    if (fileHeader.portability_table_valid) fileHeader.portability_table_valid = readPortabilityTable();
+    if (!fileHeader.portability_table_valid)
+        vktrace_LogAlways("Trace file does not appear to contain portability table. Will not attempt to map memoryType indices.");
 
     // load any API specific driver libraries and init replayer objects
     uint8_t tidApi = VKTRACE_TID_RESERVED;
@@ -430,7 +467,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         replayer[i] = NULL;
     }
 
-    for (int i = 0; i < fileHeader.tracer_count; i++) {
+    for (uint64_t i = 0; i < fileHeader.tracer_count; i++) {
         uint8_t tracerId = fileHeader.tracer_id_array[i].id;
         tidApi = tracerId;
 
@@ -462,7 +499,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             replayer[tracerId]->UpdateFromSettings(pAllSettings, numAllSettings);
 
             // Initialize the replayer
-            err = replayer[tracerId]->Initialize(&disp, &replaySettings);
+            err = replayer[tracerId]->Initialize(&disp, &replaySettings, &fileHeader);
             if (err) {
                 vktrace_LogError("Couldn't Initialize replayer for TracerId %d.", tracerId);
                 if (pAllSettings != NULL) {

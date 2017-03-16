@@ -109,6 +109,10 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
 }
 
 // ------------------------------------------------------------------------------------------------
+bool terminationSignalArrived = false;
+void terminationSignalHandler(int sig) { terminationSignalArrived = true; }
+
+// ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadInfo) {
     vktrace_process_capture_trace_thread_info* pInfo = (vktrace_process_capture_trace_thread_info*)_threadInfo;
 
@@ -129,17 +133,30 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     }
 
     FileLike* fileLikeSocket = vktrace_FileLike_create_msg(pMessageStream);
-    unsigned int total_packet_count = 0;
     vktrace_trace_packet_header* pHeader = NULL;
     size_t bytes_written;
 
-    while (pInfo->pProcessInfo->serverRequestsTermination == FALSE) {
+#if defined(WIN32)
+    BOOL rval;
+    rval = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, TRUE);
+    assert(rval);
+#else
+    sighandler_t rval;
+    rval = signal(SIGHUP, terminationSignalHandler);
+    assert(rval != SIG_ERR);
+    rval = signal(SIGINT, terminationSignalHandler);
+    assert(rval != SIG_ERR);
+    rval = signal(SIGTERM, terminationSignalHandler);
+    assert(rval != SIG_ERR);
+#endif
+
+    while (!terminationSignalArrived && pInfo->pProcessInfo->serverRequestsTermination == FALSE) {
         // get a packet
         // vktrace_LogDebug("Waiting for a packet...");
 
         // read entire packet in
         pHeader = vktrace_read_trace_packet(fileLikeSocket);
-        ++total_packet_count;
+
         if (pHeader == NULL) {
             if (pMessageStream->mErrorNum == WSAECONNRESET) {
                 vktrace_LogVerbose("Network connection closed");
