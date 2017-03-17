@@ -3345,11 +3345,11 @@ static void CheckDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHX_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME) == 0) {
             device_data->enables.khx_external_semaphore_fd = true;
         }
-#ifdef VK_USE_PLATFORM_WIN32_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHX
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHX_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME) == 0) {
             device_data->enables.khx_external_semaphore_win32 = true;
         }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
+#endif  // VK_USE_PLATFORM_WIN32_KHX
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_EXT_DISCARD_RECTANGLES_EXTENSION_NAME) == 0) {
             device_data->enables.ext_discard_rectangles = true;
         }
@@ -3604,7 +3604,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoC
     ValidateQueueFlags(queue, "QueueBindSparse");
 
     ValidateObject(queue, queue, VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT, false, VALIDATION_ERROR_01648, VALIDATION_ERROR_UNDEFINED);
-    ValidateObject(queue, fence, VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT, true, VALIDATION_ERROR_01650, VALIDATION_ERROR_01652);
+    ValidateObject(queue, fence, VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT, true, VALIDATION_ERROR_01650, VALIDATION_ERROR_01652);
 
     for (uint32_t i = 0; i < bindInfoCount; i++) {
         for (uint32_t j = 0; j < pBindInfo[i].bufferBindCount; j++) {
@@ -4498,38 +4498,6 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHX(
     }
 }
 
-VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHX(VkPhysicalDevice physicalDevice,
-                                                           VkPhysicalDeviceProperties2KHX *pProperties) {
-    bool skip = false;
-    {
-        std::unique_lock<std::mutex> lock(global_lock);
-        skip |= ValidateObject(physicalDevice, physicalDevice, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, false,
-                               VALIDATION_ERROR_UNDEFINED, VALIDATION_ERROR_UNDEFINED);
-    }
-    if (!skip) {
-        get_dispatch_table(ot_instance_table_map, physicalDevice)->GetPhysicalDeviceProperties2KHX(physicalDevice, pProperties);
-    }
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHX(
-    VkPhysicalDevice physicalDevice, const VkPhysicalDeviceImageFormatInfo2KHX *pImageFormatInfo,
-    VkImageFormatProperties2KHX *pImageFormatProperties) {
-    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
-    bool skip = false;
-    {
-        std::unique_lock<std::mutex> lock(global_lock);
-        skip |= ValidateObject(physicalDevice, physicalDevice, VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, false,
-                               VALIDATION_ERROR_UNDEFINED, VALIDATION_ERROR_UNDEFINED);
-    }
-    if (skip) {
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
-    result = get_dispatch_table(ot_instance_table_map, physicalDevice)
-                 ->GetPhysicalDeviceImageFormatProperties2KHX(physicalDevice, pImageFormatInfo, pImageFormatProperties);
-
-    return result;
-}
-
 // VK_KHX_external_memory_fd Extension
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHX(VkDevice device, VkDeviceMemory memory,
                                               VkExternalMemoryHandleTypeFlagBitsKHX handleType, int *pFd) {
@@ -5178,6 +5146,64 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX(VkPhy
     }
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(VkDevice device, VkSwapchainKHR swapchain,
+                                                               uint32_t *pPresentationTimingCount,
+                                                               VkPastPresentationTimingGOOGLE *pPresentationTimings) {
+    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
+    bool skip = false;
+    {
+        std::unique_lock<std::mutex> lock(global_lock);
+        skip |= ValidateObject(device, device, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, false, VALIDATION_ERROR_UNDEFINED,
+                               VALIDATION_ERROR_UNDEFINED);
+        skip |= ValidateObject(device, swapchain, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT, false, VALIDATION_ERROR_UNDEFINED,
+                               VALIDATION_ERROR_UNDEFINED);
+    }
+
+    if (!skip) {
+        result = get_dispatch_table(ot_device_table_map, device)
+                     ->GetPastPresentationTimingGOOGLE(device, swapchain, pPresentationTimingCount, pPresentationTimings);
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(VkDevice device, VkSwapchainKHR swapchain,
+                                                             VkRefreshCycleDurationGOOGLE *pDisplayTimingProperties) {
+    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
+    bool skip = false;
+    {
+        std::unique_lock<std::mutex> lock(global_lock);
+        skip |= ValidateObject(device, device, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, false, VALIDATION_ERROR_UNDEFINED,
+                               VALIDATION_ERROR_UNDEFINED);
+        skip |= ValidateObject(device, swapchain, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT, false, VALIDATION_ERROR_UNDEFINED,
+                               VALIDATION_ERROR_UNDEFINED);
+    }
+
+    if (!skip) {
+        result = get_dispatch_table(ot_device_table_map, device)
+                     ->GetRefreshCycleDurationGOOGLE(device, swapchain, pDisplayTimingProperties);
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(VkDevice device, uint32_t swapchainCount, const VkSwapchainKHR *pSwapchains,
+                                             const VkHdrMetadataEXT *pMetadata) {
+    bool skip = false;
+    {
+        std::lock_guard<std::mutex> lock(global_lock);
+        if (pSwapchains) {
+            for (uint32_t idx0 = 0; idx0 < swapchainCount; ++idx0) {
+                skip |= ValidateObject(device, pSwapchains[idx0], VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT, false,
+                                       VALIDATION_ERROR_UNDEFINED, VALIDATION_ERROR_UNDEFINED);
+            }
+        }
+        skip |= ValidateObject(device, device, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT, false, VALIDATION_ERROR_UNDEFINED,
+                               VALIDATION_ERROR_UNDEFINED);
+    }
+    if (!skip) {
+        get_dispatch_table(ot_device_table_map, device)->SetHdrMetadataEXT(device, swapchainCount, pSwapchains, pMetadata);
+    }
+}
+
 static inline PFN_vkVoidFunction InterceptCoreDeviceCommand(const char *name) {
     if (!name || name[0] != 'v' || name[1] != 'k') return NULL;
 
@@ -5313,6 +5339,9 @@ static inline PFN_vkVoidFunction InterceptCoreDeviceCommand(const char *name) {
 #endif  // VK_USE_PLATFORM_WIN32_KHR
     if (!strcmp(name, "CmdDrawIndirectCountAMD")) return (PFN_vkVoidFunction)CmdDrawIndirectCountAMD;
     if (!strcmp(name, "CmdDrawIndexedIndirectCountAMD")) return (PFN_vkVoidFunction)CmdDrawIndexedIndirectCountAMD;
+    if (!strcmp(name, "GetPastPresentationTimingGOOGLE")) return (PFN_vkVoidFunction)GetPastPresentationTimingGOOGLE;
+    if (!strcmp(name, "GetRefreshCycleDurationGOOGLE")) return (PFN_vkVoidFunction)GetRefreshCycleDurationGOOGLE;
+    if (!strcmp(name, "SetHdrMetadataEXT")) return (PFN_vkVoidFunction)SetHdrMetadataEXT;
 
     return NULL;
 }
@@ -5364,9 +5393,6 @@ static inline PFN_vkVoidFunction InterceptInstanceExtensionCommand(const char *n
     // VK_KHX_external_memory_capabilities Extension
     if (!strcmp(name, "GetPhysicalDeviceExternalBufferPropertiesKHX"))
         return (PFN_vkVoidFunction)GetPhysicalDeviceExternalBufferPropertiesKHX;
-    if (!strcmp(name, "GetPhysicalDeviceProperties2KHX")) return (PFN_vkVoidFunction)GetPhysicalDeviceProperties2KHX;
-    if (!strcmp(name, "GetPhysicalDeviceImageFormatProperties2KHX"))
-        return (PFN_vkVoidFunction)GetPhysicalDeviceImageFormatProperties2KHX;
     // VK_KHX_external_semaphore_capabilities Extension
     if (!strcmp(name, "GetPhysicalDeviceExternalSemaphorePropertiesKHX"))
         return (PFN_vkVoidFunction)GetPhysicalDeviceExternalSemaphorePropertiesKHX;

@@ -729,6 +729,8 @@ struct CHECK_DISABLED {
     bool get_query_pool_results;
     bool destroy_buffer;
     bool shader_validation;         // Skip validation for shaders
+
+    void SetAll(bool value) { std::fill(&command_buffer_state, &shader_validation + 1, value); }
 };
 
 struct MT_FB_ATTACHMENT_INFO {
@@ -767,6 +769,7 @@ RENDER_PASS_STATE *GetRenderPassState(layer_data const *my_data, VkRenderPass re
 FRAMEBUFFER_STATE *GetFramebufferState(const layer_data *my_data, VkFramebuffer framebuffer);
 COMMAND_POOL_NODE *GetCommandPoolNode(layer_data *dev_data, VkCommandPool pool);
 const PHYS_DEV_PROPERTIES_NODE *GetPhysDevProperties(const layer_data *device_data);
+const VkPhysicalDeviceFeatures *GetEnabledFeatures(const layer_data *device_data);
 
 void invalidateCommandBuffers(const layer_data *, std::unordered_set<GLOBAL_CB_NODE *> const &, VK_OBJECT);
 bool ValidateMemoryIsBoundToBuffer(const layer_data *, const BUFFER_STATE *, const char *, UNIQUE_VALIDATION_ERROR_CODE);
@@ -803,7 +806,7 @@ const VkFormatProperties *GetFormatProperties(core_validation::layer_data *devic
 const VkImageFormatProperties *GetImageFormatProperties(core_validation::layer_data *device_data, VkFormat format,
                                                         VkImageType image_type, VkImageTiling tiling, VkImageUsageFlags usage,
                                                         VkImageCreateFlags flags);
-const debug_report_data *GetReportData(layer_data *);
+const debug_report_data *GetReportData(const layer_data *);
 const VkPhysicalDeviceProperties *GetPhysicalDeviceProperties(layer_data *);
 const CHECK_DISABLED *GetDisables(layer_data *);
 std::unordered_map<VkImage, std::unique_ptr<IMAGE_STATE>> *GetImageMap(core_validation::layer_data *);

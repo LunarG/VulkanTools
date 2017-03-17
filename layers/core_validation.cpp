@@ -107,6 +107,7 @@ struct devExts {
     bool wsi_display_swapchain_enabled;
     bool nv_glsl_shader_enabled;
     bool khr_descriptor_update_template_enabled;
+    bool khr_shader_draw_parameters_enabled;
     unordered_map<VkSwapchainKHR, unique_ptr<SWAPCHAIN_NODE>> swapchainMap;
     unordered_map<VkImage, VkSwapchainKHR> imageToSwapchainMap;
 };
@@ -2390,9 +2391,25 @@ static bool require_feature(debug_report_data *report_data, VkBool32 feature, ch
     return true;
 }
 
-static bool validate_shader_capabilities(debug_report_data *report_data, shader_module const *src,
-                                         VkPhysicalDeviceFeatures const *enabledFeatures) {
+static bool require_extension(debug_report_data *report_data, VkBool32 extension, char const *extension_name) {
+    if (!extension) {
+        if (log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0, __LINE__,
+                    SHADER_CHECKER_FEATURE_NOT_ENABLED, "SC",
+                    "Shader requires extension %s but is not "
+                    "enabled on the device",
+                    extension_name)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool validate_shader_capabilities(layer_data *dev_data, shader_module const *src) {
     bool pass = true;
+
+    auto report_data = dev_data->report_data;
+    auto const & enabledFeatures = dev_data->enabled_features;
 
     for (auto insn : *src) {
         if (insn.opcode() == spv::OpCapability) {
@@ -2410,110 +2427,115 @@ static bool validate_shader_capabilities(debug_report_data *report_data, shader_
                     break;
 
                 case spv::CapabilityGeometry:
-                    pass &= require_feature(report_data, enabledFeatures->geometryShader, "geometryShader");
+                    pass &= require_feature(report_data, enabledFeatures.geometryShader, "geometryShader");
                     break;
 
                 case spv::CapabilityTessellation:
-                    pass &= require_feature(report_data, enabledFeatures->tessellationShader, "tessellationShader");
+                    pass &= require_feature(report_data, enabledFeatures.tessellationShader, "tessellationShader");
                     break;
 
                 case spv::CapabilityFloat64:
-                    pass &= require_feature(report_data, enabledFeatures->shaderFloat64, "shaderFloat64");
+                    pass &= require_feature(report_data, enabledFeatures.shaderFloat64, "shaderFloat64");
                     break;
 
                 case spv::CapabilityInt64:
-                    pass &= require_feature(report_data, enabledFeatures->shaderInt64, "shaderInt64");
+                    pass &= require_feature(report_data, enabledFeatures.shaderInt64, "shaderInt64");
                     break;
 
                 case spv::CapabilityTessellationPointSize:
                 case spv::CapabilityGeometryPointSize:
-                    pass &= require_feature(report_data, enabledFeatures->shaderTessellationAndGeometryPointSize,
+                    pass &= require_feature(report_data, enabledFeatures.shaderTessellationAndGeometryPointSize,
                                             "shaderTessellationAndGeometryPointSize");
                     break;
 
                 case spv::CapabilityImageGatherExtended:
-                    pass &= require_feature(report_data, enabledFeatures->shaderImageGatherExtended, "shaderImageGatherExtended");
+                    pass &= require_feature(report_data, enabledFeatures.shaderImageGatherExtended, "shaderImageGatherExtended");
                     break;
 
                 case spv::CapabilityStorageImageMultisample:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageImageMultisample,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageImageMultisample,
                                             "shaderStorageImageMultisample");
                     break;
 
                 case spv::CapabilityUniformBufferArrayDynamicIndexing:
-                    pass &= require_feature(report_data, enabledFeatures->shaderUniformBufferArrayDynamicIndexing,
+                    pass &= require_feature(report_data, enabledFeatures.shaderUniformBufferArrayDynamicIndexing,
                                             "shaderUniformBufferArrayDynamicIndexing");
                     break;
 
                 case spv::CapabilitySampledImageArrayDynamicIndexing:
-                    pass &= require_feature(report_data, enabledFeatures->shaderSampledImageArrayDynamicIndexing,
+                    pass &= require_feature(report_data, enabledFeatures.shaderSampledImageArrayDynamicIndexing,
                                             "shaderSampledImageArrayDynamicIndexing");
                     break;
 
                 case spv::CapabilityStorageBufferArrayDynamicIndexing:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageBufferArrayDynamicIndexing,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageBufferArrayDynamicIndexing,
                                             "shaderStorageBufferArrayDynamicIndexing");
                     break;
 
                 case spv::CapabilityStorageImageArrayDynamicIndexing:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageImageArrayDynamicIndexing,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageImageArrayDynamicIndexing,
                                             "shaderStorageImageArrayDynamicIndexing");
                     break;
 
                 case spv::CapabilityClipDistance:
-                    pass &= require_feature(report_data, enabledFeatures->shaderClipDistance, "shaderClipDistance");
+                    pass &= require_feature(report_data, enabledFeatures.shaderClipDistance, "shaderClipDistance");
                     break;
 
                 case spv::CapabilityCullDistance:
-                    pass &= require_feature(report_data, enabledFeatures->shaderCullDistance, "shaderCullDistance");
+                    pass &= require_feature(report_data, enabledFeatures.shaderCullDistance, "shaderCullDistance");
                     break;
 
                 case spv::CapabilityImageCubeArray:
-                    pass &= require_feature(report_data, enabledFeatures->imageCubeArray, "imageCubeArray");
+                    pass &= require_feature(report_data, enabledFeatures.imageCubeArray, "imageCubeArray");
                     break;
 
                 case spv::CapabilitySampleRateShading:
-                    pass &= require_feature(report_data, enabledFeatures->sampleRateShading, "sampleRateShading");
+                    pass &= require_feature(report_data, enabledFeatures.sampleRateShading, "sampleRateShading");
                     break;
 
                 case spv::CapabilitySparseResidency:
-                    pass &= require_feature(report_data, enabledFeatures->shaderResourceResidency, "shaderResourceResidency");
+                    pass &= require_feature(report_data, enabledFeatures.shaderResourceResidency, "shaderResourceResidency");
                     break;
 
                 case spv::CapabilityMinLod:
-                    pass &= require_feature(report_data, enabledFeatures->shaderResourceMinLod, "shaderResourceMinLod");
+                    pass &= require_feature(report_data, enabledFeatures.shaderResourceMinLod, "shaderResourceMinLod");
                     break;
 
                 case spv::CapabilitySampledCubeArray:
-                    pass &= require_feature(report_data, enabledFeatures->imageCubeArray, "imageCubeArray");
+                    pass &= require_feature(report_data, enabledFeatures.imageCubeArray, "imageCubeArray");
                     break;
 
                 case spv::CapabilityImageMSArray:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageImageMultisample,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageImageMultisample,
                                             "shaderStorageImageMultisample");
                     break;
 
                 case spv::CapabilityStorageImageExtendedFormats:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageImageExtendedFormats,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageImageExtendedFormats,
                                             "shaderStorageImageExtendedFormats");
                     break;
 
                 case spv::CapabilityInterpolationFunction:
-                    pass &= require_feature(report_data, enabledFeatures->sampleRateShading, "sampleRateShading");
+                    pass &= require_feature(report_data, enabledFeatures.sampleRateShading, "sampleRateShading");
                     break;
 
                 case spv::CapabilityStorageImageReadWithoutFormat:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageImageReadWithoutFormat,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageImageReadWithoutFormat,
                                             "shaderStorageImageReadWithoutFormat");
                     break;
 
                 case spv::CapabilityStorageImageWriteWithoutFormat:
-                    pass &= require_feature(report_data, enabledFeatures->shaderStorageImageWriteWithoutFormat,
+                    pass &= require_feature(report_data, enabledFeatures.shaderStorageImageWriteWithoutFormat,
                                             "shaderStorageImageWriteWithoutFormat");
                     break;
 
                 case spv::CapabilityMultiViewport:
-                    pass &= require_feature(report_data, enabledFeatures->multiViewport, "multiViewport");
+                    pass &= require_feature(report_data, enabledFeatures.multiViewport, "multiViewport");
+                    break;
+
+                case spv::CapabilityDrawParameters:
+                    pass &= require_extension(report_data, dev_data->device_extensions.khr_shader_draw_parameters_enabled,
+                                              VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME);
                     break;
 
                 default:
@@ -2569,19 +2591,19 @@ static uint32_t descriptor_type_to_reqs(shader_module const *module, uint32_t ty
 }
 
 static bool validate_pipeline_shader_stage(
-    debug_report_data *report_data, VkPipelineShaderStageCreateInfo const *pStage, PIPELINE_STATE *pipeline,
-    shader_module **out_module, spirv_inst_iter *out_entrypoint, VkPhysicalDeviceFeatures const *enabledFeatures,
-    std::unordered_map<VkShaderModule, std::unique_ptr<shader_module>> const &shaderModuleMap) {
+    layer_data *dev_data, VkPipelineShaderStageCreateInfo const *pStage, PIPELINE_STATE *pipeline,
+    shader_module **out_module, spirv_inst_iter *out_entrypoint) {
     bool pass = true;
-    auto module_it = shaderModuleMap.find(pStage->module);
+    auto module_it = dev_data->shaderModuleMap.find(pStage->module);
     auto module = *out_module = module_it->second.get();
+    auto report_data = dev_data->report_data;
 
     if (!module->has_valid_spirv) return pass;
 
     // Find the entrypoint
     auto entrypoint = *out_entrypoint = find_entrypoint(module, pStage->pName, pStage->stage);
     if (entrypoint == module->end()) {
-        if (log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0, __LINE__, VALIDATION_ERROR_00510,
+        if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0, __LINE__, VALIDATION_ERROR_00510,
                     "SC", "No entrypoint found named `%s` for stage %s. %s.", pStage->pName,
                     string_VkShaderStageFlagBits(pStage->stage), validation_error_map[VALIDATION_ERROR_00510])) {
             return false;  // no point continuing beyond here, any analysis is just going to be garbage.
@@ -2589,7 +2611,7 @@ static bool validate_pipeline_shader_stage(
     }
 
     // Validate shader capabilities against enabled device features
-    pass &= validate_shader_capabilities(report_data, module, enabledFeatures);
+    pass &= validate_shader_capabilities(dev_data, module);
 
     // Mark accessible ids
     auto accessible_ids = mark_accessible_ids(module, entrypoint);
@@ -2685,9 +2707,7 @@ static bool validate_pipeline_shader_stage(
 
 // Validate that the shaders used by the given pipeline and store the active_slots
 //  that are actually used by the pipeline into pPipeline->active_slots
-static bool validate_and_capture_pipeline_shader_state(
-    debug_report_data *report_data, PIPELINE_STATE *pPipeline, VkPhysicalDeviceFeatures const *enabledFeatures,
-    std::unordered_map<VkShaderModule, unique_ptr<shader_module>> const &shaderModuleMap) {
+static bool validate_and_capture_pipeline_shader_state(layer_data *dev_data, PIPELINE_STATE *pPipeline) {
     auto pCreateInfo = pPipeline->graphicsPipelineCI.ptr();
     int vertex_stage = get_shader_stage_id(VK_SHADER_STAGE_VERTEX_BIT);
     int fragment_stage = get_shader_stage_id(VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -2696,27 +2716,25 @@ static bool validate_and_capture_pipeline_shader_state(
     memset(shaders, 0, sizeof(shaders));
     spirv_inst_iter entrypoints[5];
     memset(entrypoints, 0, sizeof(entrypoints));
-    VkPipelineVertexInputStateCreateInfo const *vi = 0;
     bool pass = true;
 
     for (uint32_t i = 0; i < pCreateInfo->stageCount; i++) {
         auto pStage = &pCreateInfo->pStages[i];
         auto stage_id = get_shader_stage_id(pStage->stage);
-        pass &= validate_pipeline_shader_stage(report_data, pStage, pPipeline, &shaders[stage_id], &entrypoints[stage_id],
-                                               enabledFeatures, shaderModuleMap);
+        pass &= validate_pipeline_shader_stage(dev_data, pStage, pPipeline, &shaders[stage_id], &entrypoints[stage_id]);
     }
 
     // if the shader stages are no good individually, cross-stage validation is pointless.
     if (!pass) return false;
 
-    vi = pCreateInfo->pVertexInputState;
+    auto vi = pCreateInfo->pVertexInputState;
 
     if (vi) {
-        pass &= validate_vi_consistency(report_data, vi);
+        pass &= validate_vi_consistency(dev_data->report_data, vi);
     }
 
     if (shaders[vertex_stage] && shaders[vertex_stage]->has_valid_spirv) {
-        pass &= validate_vi_against_vs_inputs(report_data, vi, shaders[vertex_stage], entrypoints[vertex_stage]);
+        pass &= validate_vi_against_vs_inputs(dev_data->report_data, vi, shaders[vertex_stage], entrypoints[vertex_stage]);
     }
 
     int producer = get_shader_stage_id(VK_SHADER_STAGE_VERTEX_BIT);
@@ -2730,7 +2748,7 @@ static bool validate_and_capture_pipeline_shader_state(
     for (; producer != fragment_stage && consumer <= fragment_stage; consumer++) {
         assert(shaders[producer]);
         if (shaders[consumer] && shaders[consumer]->has_valid_spirv && shaders[producer]->has_valid_spirv) {
-            pass &= validate_interface_between_stages(report_data, shaders[producer], entrypoints[producer],
+            pass &= validate_interface_between_stages(dev_data->report_data, shaders[producer], entrypoints[producer],
                                                       &shader_stage_attribs[producer], shaders[consumer], entrypoints[consumer],
                                                       &shader_stage_attribs[consumer]);
 
@@ -2739,23 +2757,20 @@ static bool validate_and_capture_pipeline_shader_state(
     }
 
     if (shaders[fragment_stage] && shaders[fragment_stage]->has_valid_spirv) {
-        pass &= validate_fs_outputs_against_render_pass(report_data, shaders[fragment_stage], entrypoints[fragment_stage],
+        pass &= validate_fs_outputs_against_render_pass(dev_data->report_data, shaders[fragment_stage], entrypoints[fragment_stage],
                                                         pPipeline->render_pass_ci.ptr(), pCreateInfo->subpass);
     }
 
     return pass;
 }
 
-static bool validate_compute_pipeline(debug_report_data *report_data, PIPELINE_STATE *pPipeline,
-                                      VkPhysicalDeviceFeatures const *enabledFeatures,
-                                      std::unordered_map<VkShaderModule, unique_ptr<shader_module>> const &shaderModuleMap) {
+static bool validate_compute_pipeline(layer_data *dev_data, PIPELINE_STATE *pPipeline) {
     auto pCreateInfo = pPipeline->computePipelineCI.ptr();
 
     shader_module *module;
     spirv_inst_iter entrypoint;
 
-    return validate_pipeline_shader_stage(report_data, &pCreateInfo->stage, pPipeline, &module, &entrypoint, enabledFeatures,
-                                          shaderModuleMap);
+    return validate_pipeline_shader_stage(dev_data, &pCreateInfo->stage, pPipeline, &module, &entrypoint);
 }
 // Return Set node ptr for specified set or else NULL
 cvdescriptorset::DescriptorSet *GetSetNode(const layer_data *dev_data, VkDescriptorSet set) {
@@ -3148,8 +3163,7 @@ static bool verifyPipelineCreateState(layer_data *dev_data, std::vector<PIPELINE
     }
 
     if (!GetDisables(dev_data)->shader_validation &&
-        !validate_and_capture_pipeline_shader_state(dev_data->report_data, pPipeline, &dev_data->enabled_features,
-                                                    dev_data->shaderModuleMap)) {
+        !validate_and_capture_pipeline_shader_state(dev_data, pPipeline)) {
         skip_call = true;
     }
     // Each shader's stage must be unique
@@ -3240,9 +3254,37 @@ static bool verifyPipelineCreateState(layer_data *dev_data, std::vector<PIPELINE
                                          pPipeline->graphicsPipelineCI.pRasterizationState->lineWidth);
         }
 
+        if ((pPipeline->graphicsPipelineCI.pRasterizationState->depthClampEnable == VK_TRUE) &&
+            (!dev_data->enabled_features.depthClamp)) {
+            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
+                                 __LINE__, VALIDATION_ERROR_01455, "DS",
+                                 "vkCreateGraphicsPipelines(): the depthClamp device feature is disabled: the depthClampEnable "
+                                 "member of the VkPipelineRasterizationStateCreateInfo structure must be set to VK_FALSE. %s",
+                                 validation_error_map[VALIDATION_ERROR_01455]);
+        }
+
+        if (!isDynamic(pPipeline, VK_DYNAMIC_STATE_DEPTH_BIAS) &&
+            (pPipeline->graphicsPipelineCI.pRasterizationState->depthBiasClamp != 0.0) &&
+            (!dev_data->enabled_features.depthBiasClamp)) {
+            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
+                                 __LINE__, DRAWSTATE_INVALID_FEATURE, "DS",
+                                 "vkCreateGraphicsPipelines(): the depthBiasClamp device feature is disabled: the depthBiasClamp "
+                                 "member of the VkPipelineRasterizationStateCreateInfo structure must be set to 0.0 unless the "
+                                 "VK_DYNAMIC_STATE_DEPTH_BIAS dynamic state is enabled");
+        }
+
         // If rasterization is enabled...
         if (pPipeline->graphicsPipelineCI.pRasterizationState->rasterizerDiscardEnable == VK_FALSE) {
             auto subpass_desc = renderPass ? &renderPass->createInfo.pSubpasses[pPipeline->graphicsPipelineCI.subpass] : nullptr;
+
+            if ((pPipeline->graphicsPipelineCI.pMultisampleState->alphaToOneEnable == VK_TRUE) &&
+                (!dev_data->enabled_features.alphaToOne)) {
+                skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT,
+                                     0, __LINE__, VALIDATION_ERROR_01464, "DS",
+                                     "vkCreateGraphicsPipelines(): the alphaToOne device feature is disabled: the alphaToOneEnable "
+                                     "member of the VkPipelineMultisampleStateCreateInfo structure must be set to VK_FALSE. %s",
+                                     validation_error_map[VALIDATION_ERROR_01464]);
+            }
 
             // If subpass uses a depth/stencil attachment, pDepthStencilState must be a pointer to a valid structure
             if (subpass_desc && subpass_desc->pDepthStencilAttachment &&
@@ -3253,6 +3295,14 @@ static bool verifyPipelineCreateState(layer_data *dev_data, std::vector<PIPELINE
                                          "Invalid Pipeline CreateInfo State: pDepthStencilState is NULL when rasterization is "
                                          "enabled and subpass uses a depth/stencil attachment. %s",
                                          validation_error_map[VALIDATION_ERROR_02115]);
+
+                } else if ((pPipeline->graphicsPipelineCI.pDepthStencilState->depthBoundsTestEnable == VK_TRUE) &&
+                           (!dev_data->enabled_features.depthBounds)) {
+                    skip_call |= log_msg(
+                        dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                        DRAWSTATE_INVALID_FEATURE, "DS",
+                        "vkCreateGraphicsPipelines(): the depthBounds device feature is disabled: the depthBoundsTestEnable "
+                        "member of the VkPipelineDepthStencilStateCreateInfo structure must be set to VK_FALSE.");
                 }
             }
 
@@ -3773,6 +3823,20 @@ static void checkInstanceRegisterExtensions(const VkInstanceCreateInfo *pCreateI
     }
 }
 
+// For the given ValidationCheck enum, set all relevant instance disabled flags to true
+void SetDisabledFlags(instance_layer_data *instance_data, VkValidationFlagsEXT *val_flags_struct) {
+    for (uint32_t i = 0; i < val_flags_struct->disabledValidationCheckCount; ++i) {
+        switch (val_flags_struct->pDisabledValidationChecks[i]) {
+            case VK_VALIDATION_CHECK_ALL_EXT:
+                // Set all disabled flags to true
+                instance_data->disabled.SetAll(true);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                               VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
@@ -3797,6 +3861,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     init_core_validation(instance_data, pAllocator);
 
     ValidateLayerOrdering(*pCreateInfo);
+    // Parse any pNext chains
+    if (pCreateInfo->pNext) {
+        GENERIC_HEADER *struct_header = (GENERIC_HEADER *)pCreateInfo->pNext;
+        while (struct_header) {
+            // Check for VkValidationFlagsExt
+            if (VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT == struct_header->sType) {
+                SetDisabledFlags(instance_data, (VkValidationFlagsEXT *)struct_header);
+            }
+            struct_header = (GENERIC_HEADER *)struct_header->pNext;
+        }
+    }
 
     return result;
 }
@@ -3830,6 +3905,7 @@ static void checkDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
     dev_data->device_extensions.wsi_display_swapchain_enabled = false;
     dev_data->device_extensions.nv_glsl_shader_enabled = false;
     dev_data->device_extensions.khr_descriptor_update_template_enabled = false;
+    dev_data->device_extensions.khr_shader_draw_parameters_enabled = false;
 
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
@@ -3843,6 +3919,9 @@ static void checkDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
         }
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME) == 0) {
             dev_data->device_extensions.khr_descriptor_update_template_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.khr_shader_draw_parameters_enabled = true;
         }
     }
 }
@@ -6122,7 +6201,7 @@ const VkImageFormatProperties *GetImageFormatProperties(core_validation::layer_d
     return image_format_properties;
 }
 
-const debug_report_data *GetReportData(core_validation::layer_data *device_data) { return device_data->report_data; }
+const debug_report_data *GetReportData(const core_validation::layer_data *device_data) { return device_data->report_data; }
 
 const VkPhysicalDeviceProperties *GetPhysicalDeviceProperties(core_validation::layer_data *device_data) {
     return &device_data->phys_dev_props;
@@ -6156,6 +6235,10 @@ std::unordered_map<VkImageView, std::unique_ptr<IMAGE_VIEW_STATE>> *GetImageView
 
 const PHYS_DEV_PROPERTIES_NODE *GetPhysDevProperties(const layer_data *device_data) {
     return &device_data->phys_dev_properties;
+}
+
+const VkPhysicalDeviceFeatures *GetEnabledFeatures(const layer_data *device_data) {
+    return &device_data->enabled_features;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo,
@@ -6251,6 +6334,32 @@ void set_pipeline_state(PIPELINE_STATE *pPipe) {
             }
         }
     }
+}
+
+bool validate_dual_src_blend_feature(layer_data *device_data, PIPELINE_STATE *pipe_state) {
+    bool skip = false;
+    if (pipe_state->graphicsPipelineCI.pColorBlendState) {
+        for (size_t i = 0; i < pipe_state->attachments.size(); ++i) {
+            if (!device_data->enabled_features.dualSrcBlend) {
+                if ((pipe_state->attachments[i].dstAlphaBlendFactor == VK_BLEND_FACTOR_SRC1_COLOR) ||
+                    (pipe_state->attachments[i].dstAlphaBlendFactor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR) ||
+                    (pipe_state->attachments[i].dstAlphaBlendFactor == VK_BLEND_FACTOR_SRC1_ALPHA) ||
+                    (pipe_state->attachments[i].dstAlphaBlendFactor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA) ||
+                    (pipe_state->attachments[i].srcAlphaBlendFactor == VK_BLEND_FACTOR_SRC1_COLOR) ||
+                    (pipe_state->attachments[i].srcAlphaBlendFactor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR) ||
+                    (pipe_state->attachments[i].srcAlphaBlendFactor == VK_BLEND_FACTOR_SRC1_ALPHA) ||
+                    (pipe_state->attachments[i].srcAlphaBlendFactor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA)) {
+                    skip |=
+                        log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
+                                reinterpret_cast<uint64_t &>(pipe_state->pipeline), __LINE__, DRAWSTATE_INVALID_FEATURE, "DS",
+                                "CmdBindPipeline: vkPipeline (0x%" PRIxLEAST64 ") attachment[" PRINTF_SIZE_T_SPECIFIER
+                                "] has a dual-source blend factor but this device feature is not enabled.",
+                                reinterpret_cast<uint64_t &>(pipe_state->pipeline), i);
+                }
+            }
+        }
+    }
+    return skip;
 }
 
 static bool PreCallCreateGraphicsPipelines(layer_data *device_data, uint32_t count,
@@ -6349,8 +6458,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice device, VkPipelin
         pPipeState[i]->pipeline_layout = *getPipelineLayout(dev_data, pCreateInfos[i].layout);
 
         // TODO: Add Compute Pipeline Verification
-        skip |= !validate_compute_pipeline(dev_data->report_data, pPipeState[i], &dev_data->enabled_features,
-                                           dev_data->shaderModuleMap);
+        skip |= !validate_compute_pipeline(dev_data, pPipeState[i]);
         // skip |= verifyPipelineCreateState(dev_data, pPipeState[i]);
     }
 
@@ -6616,9 +6724,11 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(VkDevice device, VkDescriptor
 // as well as DescriptorSetLayout ptrs used for later update.
 static bool PreCallValidateAllocateDescriptorSets(layer_data *dev_data, const VkDescriptorSetAllocateInfo *pAllocateInfo,
                                                   cvdescriptorset::AllocateDescriptorSetsData *common_data) {
+    // Always update common data
+    cvdescriptorset::UpdateAllocateDescriptorSetsData(dev_data, pAllocateInfo, common_data);
     if (dev_data->instance_data->disabled.allocate_descriptor_sets) return false;
     // All state checks for AllocateDescriptorSets is done in single function
-    return cvdescriptorset::ValidateAllocateDescriptorSets(dev_data->report_data, pAllocateInfo, dev_data, common_data);
+    return cvdescriptorset::ValidateAllocateDescriptorSets(dev_data, pAllocateInfo, common_data);
 }
 // Allocation state was good and call down chain was made so update state based on allocating descriptor sets
 static void PostCallRecordAllocateDescriptorSets(layer_data *dev_data, const VkDescriptorSetAllocateInfo *pAllocateInfo,
@@ -7015,6 +7125,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(VkCommandBuffer commandBuffer, VkPipe
             cb_state->lastBound[pipelineBindPoint].pipeline_state = pipe_state;
             set_cb_pso_status(cb_state, pipe_state);
             set_pipeline_state(pipe_state);
+            skip |= validate_dual_src_blend_feature(dev_data, pipe_state);
         } else {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
                             (uint64_t)pipeline, __LINE__, VALIDATION_ERROR_00600, "DS",
@@ -7100,8 +7211,17 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(VkCommandBuffer commandBuffer, float 
     GLOBAL_CB_NODE *pCB = GetCBNode(dev_data, commandBuffer);
     if (pCB) {
         skip_call |= ValidateCmd(dev_data, pCB, CMD_SETDEPTHBIASSTATE, "vkCmdSetDepthBias()");
-        UpdateCmdBufferLastCmd(pCB, CMD_SETDEPTHBIASSTATE);
-        pCB->status |= CBSTATUS_DEPTH_BIAS_SET;
+        if ((depthBiasClamp != 0.0) && (!dev_data->enabled_features.depthBiasClamp)) {
+            skip_call |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
+                                 __LINE__, VALIDATION_ERROR_01482, "DS",
+                                 "vkCmdSetDepthBias(): the depthBiasClamp device feature is disabled: the depthBiasClamp "
+                                 "parameter must be set to 0.0. %s",
+                                 validation_error_map[VALIDATION_ERROR_01482]);
+        }
+        if (!skip_call) {
+            UpdateCmdBufferLastCmd(pCB, CMD_SETDEPTHBIASSTATE);
+            pCB->status |= CBSTATUS_DEPTH_BIAS_SET;
+        }
     }
     lock.unlock();
     if (!skip_call)
@@ -7539,6 +7659,8 @@ static bool PreCallValidateCmdDrawIndirect(layer_data *dev_data, VkCommandBuffer
                                     VALIDATION_ERROR_01381, VALIDATION_ERROR_02234);
     *buffer_state = GetBufferState(dev_data, buffer);
     skip |= ValidateMemoryIsBoundToBuffer(dev_data, *buffer_state, caller, VALIDATION_ERROR_02544);
+    // TODO: If the drawIndirectFirstInstance feature is not enabled, all the firstInstance members of the
+    // VkDrawIndirectCommand structures accessed by this command must be 0, which will require access to the contents of 'buffer'.
     return skip;
 }
 
@@ -7572,6 +7694,9 @@ static bool PreCallValidateCmdDrawIndexedIndirect(layer_data *dev_data, VkComman
                                     VALIDATION_ERROR_01393, VALIDATION_ERROR_02272);
     *buffer_state = GetBufferState(dev_data, buffer);
     skip |= ValidateMemoryIsBoundToBuffer(dev_data, *buffer_state, caller, VALIDATION_ERROR_02545);
+    // TODO: If the drawIndirectFirstInstance feature is not enabled, all the firstInstance members of the
+    // VkDrawIndexedIndirectCommand structures accessed by this command must be 0, which will require access to the contents of
+    // 'buffer'.
     return skip;
 }
 
@@ -8305,7 +8430,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(VkCommandBuffer commandBuffer, uint32_t
         cb_state->eventUpdates.push_back(event_update);
         skip |= ValidateCmd(dev_data, cb_state, CMD_WAITEVENTS, "vkCmdWaitEvents()");
         UpdateCmdBufferLastCmd(cb_state, CMD_WAITEVENTS);
-        skip |= ValidateImageLayouts(dev_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
+        skip |=
+            ValidateBarriersToImages(dev_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers, "vkCmdWaitEvents()");
         if (!skip) {
             TransitionImageLayouts(dev_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
         }
@@ -8333,7 +8459,8 @@ static bool PreCallValidateCmdPipelineBarrier(layer_data *device_data, GLOBAL_CB
                                          VALIDATION_ERROR_00267);
     skip |= ValidateStageMaskGsTsEnables(device_data, dstStageMask, "vkCmdPipelineBarrier()", VALIDATION_ERROR_00266,
                                          VALIDATION_ERROR_00268);
-    skip |= ValidateImageLayouts(device_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
+    skip |= ValidateBarriersToImages(device_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers,
+                                     "vkCmdPipelineBarrier()");
     skip |= ValidateBarriers("vkCmdPipelineBarrier()", commandBuffer, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount,
                              pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
     return skip;
@@ -8810,14 +8937,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(VkDevice device, const VkFrameb
     return result;
 }
 
-static bool FindDependency(const int index, const int dependent, const std::vector<DAGNode> &subpass_to_node,
+static bool FindDependency(const uint32_t index, const uint32_t dependent, const std::vector<DAGNode> &subpass_to_node,
                            std::unordered_set<uint32_t> &processed_nodes) {
     // If we have already checked this node we have not found a dependency path so return false.
     if (processed_nodes.count(index)) return false;
     processed_nodes.insert(index);
     const DAGNode &node = subpass_to_node[index];
     // Look for a dependency path. If one exists return true else recurse on the previous nodes.
-    if (std::find(node.prev.begin(), node.prev.end(), static_cast<uint32_t>(dependent)) == node.prev.end()) {
+    if (std::find(node.prev.begin(), node.prev.end(), dependent) == node.prev.end()) {
         for (auto elem : node.prev) {
             if (FindDependency(elem, dependent, subpass_to_node, processed_nodes)) return true;
         }
@@ -8827,7 +8954,8 @@ static bool FindDependency(const int index, const int dependent, const std::vect
     return false;
 }
 
-static bool CheckDependencyExists(const layer_data *dev_data, const int subpass, const std::vector<uint32_t> &dependent_subpasses,
+static bool CheckDependencyExists(const layer_data *dev_data, const uint32_t subpass,
+                                  const std::vector<uint32_t> &dependent_subpasses,
                                   const std::vector<DAGNode> &subpass_to_node, bool &skip_call) {
     bool result = true;
     // Loop through all subpasses that share the same attachment and make sure a dependency exists
@@ -10169,7 +10297,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoC
     skip_call |= ValidateFenceForSubmit(dev_data, pFence);
 
     if (pFence) {
-        SubmitFence(pQueue, pFence, bindInfoCount);
+        SubmitFence(pQueue, pFence, std::max(1u, bindInfoCount));
     }
 
     for (uint32_t bindIdx = 0; bindIdx < bindInfoCount; ++bindIdx) {
@@ -11430,18 +11558,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(VkDevice device
                                                                  const VkAllocationCallbacks *pAllocator,
                                                                  VkDescriptorUpdateTemplateKHR *pDescriptorUpdateTemplate) {
     layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
-    safe_VkDescriptorUpdateTemplateCreateInfoKHR *local_create_info = NULL;
-    {
-        std::lock_guard<std::mutex> lock(global_lock);
-        if (pCreateInfo) {
-            local_create_info = new safe_VkDescriptorUpdateTemplateCreateInfoKHR(pCreateInfo);
-        }
-    }
-    VkResult result = dev_data->dispatch_table.CreateDescriptorUpdateTemplateKHR(
-        device, (const VkDescriptorUpdateTemplateCreateInfoKHR *)local_create_info, pAllocator, pDescriptorUpdateTemplate);
+    VkResult result =
+        dev_data->dispatch_table.CreateDescriptorUpdateTemplateKHR(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     if (VK_SUCCESS == result) {
         std::lock_guard<std::mutex> lock(global_lock);
         // Shadow template createInfo for later updates
+        safe_VkDescriptorUpdateTemplateCreateInfoKHR *local_create_info =
+            new safe_VkDescriptorUpdateTemplateCreateInfoKHR(pCreateInfo);
         std::unique_ptr<TEMPLATE_STATE> template_state(new TEMPLATE_STATE(*pDescriptorUpdateTemplate, local_create_info));
         dev_data->desc_template_map[*pDescriptorUpdateTemplate] = std::move(template_state);
     }
@@ -11458,78 +11581,16 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(VkDevice device,
     dev_data->dispatch_table.DestroyDescriptorUpdateTemplateKHR(device, descriptorUpdateTemplate, pAllocator);
 }
 
-void PostCallRecordUpdateDescriptorSetWithTemplateKHR(layer_data *device_data, VkDescriptorSet descriptorSet,
-                                                      VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, const void *pData) {
+// PostCallRecord* handles recording state updates following call down chain to UpdateDescriptorSetsWithTemplate()
+static void PostCallRecordUpdateDescriptorSetWithTemplateKHR(layer_data *device_data, VkDescriptorSet descriptorSet,
+                                                             VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate,
+                                                             const void *pData) {
     auto const template_map_entry = device_data->desc_template_map.find(descriptorUpdateTemplate);
     if (template_map_entry == device_data->desc_template_map.end()) {
         assert(0);
     }
 
-    auto const &create_info = template_map_entry->second->create_info;
-
-    // Create a vector of write structs
-    std::vector<VkWriteDescriptorSet> desc_writes;
-    auto layout_obj = GetDescriptorSetLayout(device_data, create_info.descriptorSetLayout);
-
-    // Create a WriteDescriptorSet struct for each template update entry
-    for (uint32_t i = 0; i < create_info.descriptorUpdateEntryCount; i++) {
-        auto binding_count = layout_obj->GetDescriptorCountFromBinding(create_info.pDescriptorUpdateEntries[i].dstBinding);
-        auto binding_being_updated = create_info.pDescriptorUpdateEntries[i].dstBinding;
-        auto dst_array_element = create_info.pDescriptorUpdateEntries[i].dstArrayElement;
-
-        for (uint32_t j = 0; j < create_info.pDescriptorUpdateEntries[i].descriptorCount; j++) {
-            desc_writes.emplace_back();
-            auto &write_entry = desc_writes.back();
-
-            size_t offset = create_info.pDescriptorUpdateEntries[i].offset + j * create_info.pDescriptorUpdateEntries[i].stride;
-            char *update_entry = (char *)(pData) + offset;
-
-            if (dst_array_element >= binding_count) {
-                dst_array_element = 0;
-                // Move to next binding having a non-zero binding count
-                do {
-                    binding_being_updated++;
-                    binding_count = layout_obj->GetDescriptorCountFromBinding(binding_being_updated);
-                } while (binding_count == 0);
-            }
-
-            write_entry.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write_entry.pNext = NULL;
-            write_entry.dstSet = descriptorSet;
-            write_entry.dstBinding = binding_being_updated;
-            write_entry.dstArrayElement = dst_array_element;
-            write_entry.descriptorCount = 1;
-            write_entry.descriptorType = create_info.pDescriptorUpdateEntries[i].descriptorType;
-
-            switch (create_info.pDescriptorUpdateEntries[i].descriptorType) {
-                case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                    write_entry.pImageInfo = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
-                    break;
-
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                    write_entry.pBufferInfo = reinterpret_cast<VkDescriptorBufferInfo *>(update_entry);
-                    break;
-
-                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                    write_entry.pTexelBufferView = reinterpret_cast<VkBufferView *>(update_entry);
-                    break;
-                default:
-                    assert(0);
-                    break;
-            }
-            dst_array_element++;
-        }
-    }
-    cvdescriptorset::PerformUpdateDescriptorSets(device_data, static_cast<uint32_t>(desc_writes.size()), desc_writes.data(), 0,
-                                                 NULL);
+    cvdescriptorset::PerformUpdateDescriptorSetsWithTemplateKHR(device_data, descriptorSet, template_map_entry->second, pData);
 }
 
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice device, VkDescriptorSet descriptorSet,
@@ -11539,7 +11600,6 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice device, V
     device_data->dispatch_table.UpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, pData);
 
     PostCallRecordUpdateDescriptorSetWithTemplateKHR(device_data, descriptorSet, descriptorUpdateTemplate, pData);
-
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer commandBuffer,

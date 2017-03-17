@@ -391,6 +391,7 @@ struct demo {
     int32_t curFrame;
     int32_t frameCount;
     bool validate;
+    bool validate_checks_disabled;
     bool use_break;
     bool suppress_popups;
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallback;
@@ -949,6 +950,21 @@ static void demo_prepare_buffers(struct demo *demo) {
         preTransform = surfCapabilities.currentTransform;
     }
 
+    // Find a supported composite alpha mode - one of these is guaranteed to be set
+    VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    VkCompositeAlphaFlagBitsKHR compositeAlphaFlags[4] = {
+        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+        VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+        VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+    };
+    for (uint32_t i = 0; i < sizeof(compositeAlphaFlags); i++) {
+        if (surfCapabilities.supportedCompositeAlpha & compositeAlphaFlags[i]) {
+            compositeAlpha = compositeAlphaFlags[i];
+            break;
+        }
+    }
+
     VkSwapchainCreateInfoKHR swapchain_ci = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .pNext = NULL,
@@ -962,7 +978,7 @@ static void demo_prepare_buffers(struct demo *demo) {
             },
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
         .preTransform = preTransform,
-        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .compositeAlpha = compositeAlpha,
         .imageArrayLayers = 1,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
@@ -1118,9 +1134,9 @@ bool loadTexture(const char *filename, uint8_t *rgba_data,
                  VkSubresourceLayout *layout, int32_t *width, int32_t *height) {
 
 #if (defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK))
-	filename =[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @(filename)].UTF8String;
+    filename =[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @(filename)].UTF8String;
 #endif
-	
+
 #ifdef __ANDROID__
 #include <lunarg.ppm.h>
     char *cPtr;
@@ -1635,9 +1651,9 @@ char *demo_read_spv(const char *filename, size_t *psize) {
     void *shader_code;
 
 #if (defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK))
-	filename =[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @(filename)].UTF8String;
+    filename =[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent: @(filename)].UTF8String;
 #endif
-	
+
     FILE *fp = fopen(filename, "rb");
     if (!fp)
         return NULL;
@@ -2621,6 +2637,22 @@ static VkResult demo_create_display_surface(struct demo *demo) {
 
     free(plane_props);
 
+    VkDisplayPlaneCapabilitiesKHR planeCaps;
+    vkGetDisplayPlaneCapabilitiesKHR(demo->gpu, mode_props.displayMode, plane_index, &planeCaps);
+    // Find a supported alpha mode
+    VkCompositeAlphaFlagBitsKHR alphaMode = VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR;
+    VkCompositeAlphaFlagBitsKHR alphaModes[4] = {
+        VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR,
+        VK_DISPLAY_PLANE_ALPHA_GLOBAL_BIT_KHR,
+        VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_BIT_KHR,
+        VK_DISPLAY_PLANE_ALPHA_PER_PIXEL_PREMULTIPLIED_BIT_KHR,
+    };
+    for (uint32_t i = 0; i < sizeof(alphaModes); i++) {
+        if (planeCaps.supportedAlpha & alphaModes[i]) {
+            alphaMode = alphaModes[i];
+            break;
+        }
+    }
     image_extent.width = mode_props.parameters.visibleRegion.width;
     image_extent.height = mode_props.parameters.visibleRegion.height;
 
@@ -2631,7 +2663,7 @@ static VkResult demo_create_display_surface(struct demo *demo) {
     create_info.planeIndex = plane_index;
     create_info.planeStackIndex = plane_props[plane_index].currentStackIndex;
     create_info.transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-    create_info.alphaMode = VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR;
+    create_info.alphaMode = alphaMode;
     create_info.globalAlpha = 1.0f;
     create_info.imageExtent = image_extent;
 
@@ -2851,19 +2883,19 @@ static void demo_init_vk(struct demo *demo) {
                  "information.\n",
                  "vkCreateInstance Failure");
 #elif defined(VK_USE_PLATFORM_IOS_MVK)
-		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find the "
-				 VK_MVK_IOS_SURFACE_EXTENSION_NAME" extension.\n\nDo you have a compatible "
-				 "Vulkan installable client driver (ICD) installed?\nPlease "
-				 "look at the Getting Started guide for additional "
-				 "information.\n",
-				 "vkCreateInstance Failure");
+        ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find the "
+                 VK_MVK_IOS_SURFACE_EXTENSION_NAME" extension.\n\nDo you have a compatible "
+                 "Vulkan installable client driver (ICD) installed?\nPlease "
+                 "look at the Getting Started guide for additional "
+                 "information.\n",
+                 "vkCreateInstance Failure");
 #elif defined(VK_USE_PLATFORM_MACOS_MVK)
-		ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find the "
-				 VK_MVK_MACOS_SURFACE_EXTENSION_NAME" extension.\n\nDo you have a compatible "
-				 "Vulkan installable client driver (ICD) installed?\nPlease "
-				 "look at the Getting Started guide for additional "
-				 "information.\n",
-				 "vkCreateInstance Failure");
+        ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find the "
+                 VK_MVK_MACOS_SURFACE_EXTENSION_NAME" extension.\n\nDo you have a compatible "
+                 "Vulkan installable client driver (ICD) installed?\nPlease "
+                 "look at the Getting Started guide for additional "
+                 "information.\n",
+                 "vkCreateInstance Failure");
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
         ERR_EXIT("vkEnumerateInstanceExtensionProperties failed to find "
                  "the " VK_KHR_XCB_SURFACE_EXTENSION_NAME
@@ -2932,6 +2964,7 @@ static void demo_init_vk(struct demo *demo) {
      * function to register the final callback.
      */
     VkDebugReportCallbackCreateInfoEXT dbgCreateInfoTemp;
+    VkValidationFlagsEXT val_flags;
     if (demo->validate) {
         dbgCreateInfoTemp.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
         dbgCreateInfoTemp.pNext = NULL;
@@ -2939,6 +2972,14 @@ static void demo_init_vk(struct demo *demo) {
         dbgCreateInfoTemp.pUserData = demo;
         dbgCreateInfoTemp.flags =
             VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+        if (demo->validate_checks_disabled) {
+            val_flags.sType = VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT;
+            val_flags.pNext = NULL;
+            val_flags.disabledValidationCheckCount = 1;
+            VkValidationCheckEXT disabled_check = VK_VALIDATION_CHECK_ALL_EXT;
+            val_flags.pDisabledValidationChecks = &disabled_check;
+            dbgCreateInfoTemp.pNext = (void*)&val_flags;
+        }
         inst_info.pNext = &dbgCreateInfoTemp;
     }
 
@@ -3423,6 +3464,11 @@ static void demo_init(struct demo *demo, int argc, char **argv) {
             demo->validate = true;
             continue;
         }
+        if (strcmp(argv[i], "--validate-checks-disabled") == 0) {
+            demo->validate = true;
+            demo->validate_checks_disabled = true;
+            continue;
+        }
         if (strcmp(argv[i], "--xlib") == 0) {
             fprintf(stderr, "--xlib is deprecated and no longer does anything");
             continue;
@@ -3441,7 +3487,7 @@ static void demo_init(struct demo *demo, int argc, char **argv) {
 #if defined(ANDROID)
         ERR_EXIT("Usage: cube [--validate]\n", "Usage");
 #else
-        fprintf(stderr, "Usage:\n  %s [--use_staging] [--validate] [--break] "
+        fprintf(stderr, "Usage:\n  %s [--use_staging] [--validate] [--validate-checks-disabled] [--break] "
                         "[--c <framecount>] [--suppress_popups] [--present_mode <present mode enum>]\n"
                         "VK_PRESENT_MODE_IMMEDIATE_KHR = %d\n"
                         "VK_PRESENT_MODE_MAILBOX_KHR = %d\n"
@@ -3483,6 +3529,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     bool done; // flag saying when app is complete
     int argc;
     char **argv;
+
+    // Ensure wParam is initialized.
+    msg.wParam = 0;
 
     // Use the CommandLine functions to get the command line arguments.
     // Unfortunately, Microsoft outputs
@@ -3557,22 +3606,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
 #elif defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK)
 static void demo_main(struct demo *demo, void* view) {
-	const char* argv[] = { "CubeSample" };
-	int argc = sizeof(argv) / sizeof(char*);
+        const char* argv[] = { "CubeSample" };
+    int argc = sizeof(argv) / sizeof(char*);
 
-	demo_init(demo, argc, (char**)argv);
-	demo->window = view;
-	demo_init_vk_swapchain(demo);
-	demo_prepare(demo);
-	demo->spin_angle = 0.4f;
+    demo_init(demo, argc, (char**)argv);
+    demo->window = view;
+    demo_init_vk_swapchain(demo);
+    demo_prepare(demo);
+    demo->spin_angle = 0.4f;
 }
 
 static void demo_update_and_draw(struct demo *demo) {
-	// Wait for work to finish before updating MVP.
-	vkDeviceWaitIdle(demo->device);
-	demo_update_data_buffer(demo);
+    // Wait for work to finish before updating MVP.
+    vkDeviceWaitIdle(demo->device);
+    demo_update_data_buffer(demo);
 
-	demo_draw(demo);
+    demo_draw(demo);
 }
 
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
