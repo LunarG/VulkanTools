@@ -398,8 +398,6 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
 
     createdPhysicalDevices = other.createdPhysicalDevices;
     for (auto obj = createdPhysicalDevices.begin(); obj != createdPhysicalDevices.end(); obj++) {
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
@@ -1253,8 +1251,6 @@ void StateTracker::remove_Instance(const VkInstance var) {
 void StateTracker::remove_PhysicalDevice(const VkPhysicalDevice var) {
     ObjectInfo *pInfo = get_PhysicalDevice(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);

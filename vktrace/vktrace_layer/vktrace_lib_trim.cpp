@@ -2264,26 +2264,8 @@ void write_all_referenced_object_calls() {
         }
     }
 
-    // SurfaceKHR
-    for (auto obj = stateTracker.createdSurfaceKHRs.begin(); obj != stateTracker.createdSurfaceKHRs.end(); obj++) {
-        vktrace_write_trace_packet(obj->second.ObjectInfo.SurfaceKHR.pCreatePacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.SurfaceKHR.pCreatePacket));
-    }
-
-    // Get PhysicalDevice properties, etc
+    // PhysicalDevice memory and queue family properties
     for (auto obj = stateTracker.createdPhysicalDevices.begin(); obj != stateTracker.createdPhysicalDevices.end(); obj++) {
-        if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket != nullptr) {
-            vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket,
-                                       vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket));
-        }
-
-        if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket != nullptr) {
-            vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket,
-                                       vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket));
-        }
-
         if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket != nullptr) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket,
                                        vktrace_trace_get_trace_file());
@@ -2292,22 +2274,68 @@ void write_all_referenced_object_calls() {
 
         if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket != nullptr) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket,
-                                       vktrace_trace_get_trace_file());
+                vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(
                 &(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket));
         }
 
         if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket != nullptr) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket,
-                                       vktrace_trace_get_trace_file());
+                vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket));
         }
     }
 
-    // Devices
-    for (auto obj = stateTracker.createdDevices.begin(); obj != stateTracker.createdDevices.end(); obj++) {
-        vktrace_write_trace_packet(obj->second.ObjectInfo.Device.pCreatePacket, vktrace_trace_get_trace_file());
-        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Device.pCreatePacket));
+    // SurfaceKHR and surface properties
+    for (auto obj = stateTracker.createdSurfaceKHRs.begin(); obj != stateTracker.createdSurfaceKHRs.end(); obj++) {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.SurfaceKHR.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.SurfaceKHR.pCreatePacket));
+
+        VkSurfaceKHR surface = obj->first;
+
+        for (auto physicalDeviceInfo = stateTracker.createdPhysicalDevices.begin();
+             physicalDeviceInfo != stateTracker.createdPhysicalDevices.end(); physicalDeviceInfo++) {
+            if (physicalDeviceInfo->second.belongsToInstance == obj->second.belongsToInstance) {
+                VkPhysicalDevice physicalDevice = physicalDeviceInfo->first;
+
+                uint32_t surfaceFormatCount = 0;
+                VkSurfaceFormatKHR *pSurfaceFormats;
+                vktrace_trace_packet_header *pSurfaceFormatsCountHeader =
+                    generate::vkGetPhysicalDeviceSurfaceFormatsKHR(true, physicalDevice, surface, &surfaceFormatCount, NULL);
+                vktrace_write_trace_packet(pSurfaceFormatsCountHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pSurfaceFormatsCountHeader);
+
+                if (surfaceFormatCount > 0) {
+                    pSurfaceFormats = VKTRACE_NEW_ARRAY(VkSurfaceFormatKHR, surfaceFormatCount);
+
+                    vktrace_trace_packet_header *pSurfaceFormatsHeader = generate::vkGetPhysicalDeviceSurfaceFormatsKHR(
+                        true, physicalDevice, surface, &surfaceFormatCount, pSurfaceFormats);
+                    vktrace_write_trace_packet(pSurfaceFormatsHeader, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pSurfaceFormatsHeader);
+                }
+
+                VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
+                vktrace_trace_packet_header *pSurfaceCapabilitiesHeader =
+                    generate::vkGetPhysicalDeviceSurfaceCapabilitiesKHR(true, physicalDevice, surface, &surfaceCapabilities);
+                vktrace_write_trace_packet(pSurfaceCapabilitiesHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pSurfaceCapabilitiesHeader);
+
+                for (uint32_t queueFamilyIndex = 0;
+                     queueFamilyIndex < physicalDeviceInfo->second.ObjectInfo.PhysicalDevice.queueFamilyCount; queueFamilyIndex++) {
+                        VkBool32 supported;
+                        vktrace_trace_packet_header *pHeader = generate::vkGetPhysicalDeviceSurfaceSupportKHR(
+                            true, physicalDevice, queueFamilyIndex, surface, &supported);
+                        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&pHeader);
+                    }
+                }
+            }
+        }
+
+        // Devices
+        for (auto obj = stateTracker.createdDevices.begin(); obj != stateTracker.createdDevices.end(); obj++) {
+            vktrace_write_trace_packet(obj->second.ObjectInfo.Device.pCreatePacket, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Device.pCreatePacket));
     }
 
     // Queue
