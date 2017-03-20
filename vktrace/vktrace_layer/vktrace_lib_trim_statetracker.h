@@ -80,8 +80,6 @@ typedef struct _Trim_ObjectInfo {
             vktrace_trace_packet_header *pEnumeratePhysicalDevicesPacket;
         } Instance;
         struct _PhysicalDevice {  // VkPhysicalDevice
-            vktrace_trace_packet_header *pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket;
-            vktrace_trace_packet_header *pGetPhysicalDeviceSurfaceSupportKHRPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceMemoryPropertiesPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyPropertiesCountPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyPropertiesPacket;
