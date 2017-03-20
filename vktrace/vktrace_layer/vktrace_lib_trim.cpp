@@ -704,7 +704,7 @@ void generateTransitionImage(VkDevice device, VkCommandBuffer commandBuffer, VkI
 
 //=========================================================================
 void transitionBuffer(VkDevice device, VkCommandBuffer commandBuffer, VkBuffer buffer, VkAccessFlags srcAccessMask,
-                      VkAccessFlags dstAccessMask, VkDeviceSize offset, VkDeviceSize size) {
+    VkAccessFlags dstAccessMask, VkDeviceSize offset, VkDeviceSize size, bool largeScopeBarrier = false) {
     // Create a pipeline barrier to make it host readable
     VkBufferMemoryBarrier bufferMemoryBarrier;
     bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -716,9 +716,18 @@ void transitionBuffer(VkDevice device, VkCommandBuffer commandBuffer, VkBuffer b
     bufferMemoryBarrier.buffer = buffer;
     bufferMemoryBarrier.offset = offset;
     bufferMemoryBarrier.size = size;
-
-    mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0,
-                                             0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
+    if (largeScopeBarrier) {
+        // when trim copy buffer to a staging buffer, that buffer might be used by
+        // target app with any usage at that time, so we need make sure memory
+        // synchronization on that buffer for any action.
+        // so here expand the barrier scope to VK_PIPELINE_STAGE_FLAG_BITS_MAX_ENUM.
+        mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FLAG_BITS_MAX_ENUM,
+                                                 VK_PIPELINE_STAGE_FLAG_BITS_MAX_ENUM, 0, 0, NULL, 1, &bufferMemoryBarrier, 0,
+                                                 NULL);
+    } else {
+        mdd(device)->devTable.CmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, NULL, 1, &bufferMemoryBarrier, 0, NULL);
+    }
 };
 
 //=========================================================================
@@ -1003,7 +1012,11 @@ void snapshot_state_tracker() {
             stagingInfo.copyRegion.dstOffset = 0;
             stagingInfo.copyRegion.size = bufferIter->second.ObjectInfo.Buffer.size;
 
+            transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_FLAG_BITS_MAX_ENUM, VK_ACCESS_TRANSFER_READ_BIT, 0,
+                             bufferIter->second.ObjectInfo.Buffer.size, true);
             mdd(device)->devTable.CmdCopyBuffer(commandBuffer, buffer, stagingInfo.buffer, 1, &stagingInfo.copyRegion);
+            transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_TRANSFER_READ_BIT,
+                bufferIter->second.ObjectInfo.Buffer.accessFlags, 0, bufferIter->second.ObjectInfo.Buffer.size, true);
 
             // save the staging info for later
             s_bufferToStagedInfoMap[buffer] = stagingInfo;
