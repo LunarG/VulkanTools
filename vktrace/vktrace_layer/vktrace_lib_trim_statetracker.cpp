@@ -231,29 +231,29 @@ void StateTracker::clear() {
         for (uint32_t i = 0; i < versions.size(); i++) {
             VkRenderPassCreateInfo *pCreateInfo = versions[i];
 
-            for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
-                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0 &&
-                    pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pInputAttachments));
+            for (uint32_t subpass = 0; subpass < pCreateInfo->subpassCount; subpass++) {
+                if (pCreateInfo->pSubpasses[subpass].inputAttachmentCount > 0 &&
+                    pCreateInfo->pSubpasses[subpass].pInputAttachments != nullptr) {
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pInputAttachments));
                 }
 
-                if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
-                    if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr) {
-                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pColorAttachments));
+                if (pCreateInfo->pSubpasses[subpass].colorAttachmentCount > 0) {
+                    if (pCreateInfo->pSubpasses[subpass].pColorAttachments != nullptr) {
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pColorAttachments));
                     }
 
-                    if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pResolveAttachments));
+                    if (pCreateInfo->pSubpasses[subpass].pResolveAttachments != nullptr) {
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pResolveAttachments));
                     }
                 }
 
-                if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pDepthStencilAttachment));
+                if (pCreateInfo->pSubpasses[subpass].pDepthStencilAttachment != nullptr) {
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pDepthStencilAttachment));
                 }
 
-                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0 &&
-                    pCreateInfo->pSubpasses[i].pPreserveAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<uint32_t *>(pCreateInfo->pSubpasses[i].pPreserveAttachments));
+                if (pCreateInfo->pSubpasses[subpass].preserveAttachmentCount > 0 &&
+                    pCreateInfo->pSubpasses[subpass].pPreserveAttachments != nullptr) {
+                    VKTRACE_DELETE(const_cast<uint32_t *>(pCreateInfo->pSubpasses[subpass].pPreserveAttachments));
                 }
             }
 
