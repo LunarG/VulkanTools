@@ -115,6 +115,11 @@ void terminationSignalHandler(int sig) { terminationSignalArrived = true; }
 // ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadInfo) {
     vktrace_process_capture_trace_thread_info* pInfo = (vktrace_process_capture_trace_thread_info*)_threadInfo;
+    FileLike* fileLikeSocket;
+    uint64_t fileHeaderSize;
+    vktrace_trace_file_header file_header;
+    vktrace_trace_packet_header* pHeader = NULL;
+    size_t bytes_written;
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
     if (pMessageStream == NULL) {
@@ -123,18 +128,54 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     }
 
     // create trace file
-    pInfo->pProcessInfo->pTraceFile = vktrace_write_trace_file_header(pInfo->pProcessInfo);
+    pInfo->pProcessInfo->pTraceFile = vktrace_open_trace_file(pInfo->pProcessInfo);
 
     if (pInfo->pProcessInfo->pTraceFile == NULL) {
-        // writing trace file generated an error, no sense in continuing.
-        vktrace_LogError("Error cannot create trace file and write header.");
+        // open of trace file generated an error, no sense in continuing.
+        vktrace_LogError("Error cannot create trace file.");
         vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
-    FileLike* fileLikeSocket = vktrace_FileLike_create_msg(pMessageStream);
-    vktrace_trace_packet_header* pHeader = NULL;
-    size_t bytes_written;
+    // Open the socket
+    fileLikeSocket = vktrace_FileLike_create_msg(pMessageStream);
+
+    // Read the size of the header packet from the socket
+    fileHeaderSize = 0;
+    vktrace_FileLike_ReadRaw(fileLikeSocket, &fileHeaderSize, sizeof(fileHeaderSize));
+
+    // Read the header, not including gpu_info
+    file_header.first_packet_offset = 0;
+    vktrace_FileLike_ReadRaw(fileLikeSocket, &file_header, sizeof(file_header));
+    if (fileHeaderSize != sizeof(fileHeaderSize) + sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo) ||
+        file_header.first_packet_offset != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
+        // Trace file header we received is the wrong size
+        vktrace_LogError("Error creating trace file header. Are vktrace and trace layer the same version?");
+        vktrace_process_info_delete(pInfo->pProcessInfo);
+        return 1;
+    }
+
+    vktrace_enter_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
+
+    // Write the trace file header to the file
+    bytes_written = fwrite(&file_header, 1, sizeof(file_header), pInfo->pProcessInfo->pTraceFile);
+
+    // Read and write the gpu_info structs
+    struct_gpuinfo gpuinfo;
+    for (uint64_t i = 0; i < file_header.n_gpuinfo; i++) {
+        vktrace_FileLike_ReadRaw(fileLikeSocket, &gpuinfo, sizeof(struct_gpuinfo));
+        bytes_written += fwrite(&gpuinfo, 1, sizeof(struct_gpuinfo), pInfo->pProcessInfo->pTraceFile);
+    }
+
+    fflush(pInfo->pProcessInfo->pTraceFile);
+    vktrace_leave_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
+
+    if (bytes_written != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
+        vktrace_LogError("Unable to write trace file header - fwrite failed.");
+        vktrace_process_info_delete(pInfo->pProcessInfo);
+        return 1;
+    }
+
 
 #if defined(WIN32)
     BOOL rval;

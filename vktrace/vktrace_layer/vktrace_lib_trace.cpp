@@ -1041,6 +1041,72 @@ extern "C" BOOL vktrace_pageguard_init_multi_threads_memcpy();
 extern "C" void vktrace_pageguard_done_multi_threads_memcpy();
 #endif
 
+static bool send_vk_trace_file_header(VkInstance instance) {
+    bool rval = false;
+    uint64_t packet_size;
+    vktrace_trace_file_header* pHeader;
+    uint32_t physDevCount;
+    size_t header_size;
+    VkPhysicalDevice* pPhysDevice;
+    VkPhysicalDeviceProperties devProperties;
+    struct_gpuinfo* pGpuinfo;
+
+    // Find out how many physical devices we have
+    if (VK_SUCCESS != mid(instance)->instTable.EnumeratePhysicalDevices(instance, &physDevCount, NULL) || physDevCount < 1) {
+        return false;
+    }
+    header_size = sizeof(vktrace_trace_file_header) + physDevCount * sizeof(struct_gpuinfo);
+    packet_size = header_size + sizeof(packet_size);
+    if (!(pPhysDevice = (VkPhysicalDevice*)vktrace_malloc(header_size + sizeof(VkPhysicalDevice) * physDevCount))) {
+        return false;
+    }
+    pHeader = (vktrace_trace_file_header*)((PBYTE)pPhysDevice + sizeof(VkPhysicalDevice) * physDevCount);
+    pGpuinfo = (struct_gpuinfo*)((PBYTE)pHeader + sizeof(vktrace_trace_file_header));
+
+    // Get information about all physical devices
+    if (VK_SUCCESS != mid(instance)->instTable.EnumeratePhysicalDevices(instance, &physDevCount, pPhysDevice)) {
+        goto cleanupAndReturn;
+    }
+
+    memset(pHeader, 0, header_size);
+    pHeader->trace_file_version = VKTRACE_TRACE_FILE_VERSION;
+    pHeader->magic = VKTRACE_FILE_MAGIC;
+    vktrace_gen_uuid(pHeader->uuid);
+    pHeader->first_packet_offset = header_size;
+    pHeader->tracer_count = 1;
+    pHeader->tracer_id_array[0].id = VKTRACE_TID_VULKAN;
+    pHeader->tracer_id_array[0].is_64_bit = (sizeof(intptr_t) == 8) ? 1 : 0;
+    pHeader->trace_start_time = vktrace_get_time();
+    pHeader->endianess = get_endianess();
+    pHeader->ptrsize = sizeof(void*);
+    pHeader->arch = get_arch();
+    pHeader->os = get_os();
+    pHeader->n_gpuinfo = physDevCount;
+    for (size_t i = 0; i < physDevCount; i++) {
+        mid(*(pPhysDevice + i))->instTable.GetPhysicalDeviceProperties(*(pPhysDevice + i), &devProperties);
+        pGpuinfo[i].gpu_id = ((uint64_t)devProperties.vendorID << 32) | (uint64_t)devProperties.deviceID;
+        pGpuinfo[i].gpu_drv_vers = (uint64_t)devProperties.driverVersion;
+    }
+
+    vktrace_FileLike_WriteRaw(vktrace_trace_get_trace_file(), &packet_size, sizeof(packet_size));
+    vktrace_FileLike_WriteRaw(vktrace_trace_get_trace_file(), pHeader, header_size);
+    rval = true;
+
+cleanupAndReturn:
+    vktrace_free(pPhysDevice);
+    return rval;
+}
+
+static void send_vk_api_version_packet() {
+    packet_vkApiVersion* pPacket;
+    vktrace_trace_packet_header* pHeader;
+    pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_vkApiVersion, sizeof(packet_vkApiVersion), 0);
+    pPacket = interpret_body_as_vkApiVersion(pHeader);
+    pPacket->version = VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    FINISH_TRACE_PACKET();
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkInstance* pInstance) {
@@ -1105,6 +1171,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
             // Copy pointer and increment write pointer for everything else
             *ppName++ = (char*)pCreateInfo->ppEnabledLayerNames[i];
         }
+    }
+
+    // If this is the first vkCreateInstance call, we haven't written the file header
+    // packets to the trace file yet because we need the instance to first be be created
+    // so we can query information needed for the file header.  So write the headers now.
+    // We can do this because vkCreateInstance must always be the first Vulkan API call.
+    static bool firstCreateInstance = true;
+    if (firstCreateInstance) {
+        if (!send_vk_trace_file_header(*pInstance)) vktrace_LogError("Failed to write trace file header");
+        send_vk_api_version_packet();
+        firstCreateInstance = false;
     }
 
     // localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);

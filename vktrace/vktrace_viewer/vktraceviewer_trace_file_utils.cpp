@@ -22,28 +22,53 @@
 #include "vktrace_memory.h"
 
 BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTraceFileInfo) {
+    vktrace_trace_file_header header;
+
     assert(pTraceFileInfo != NULL);
     assert(pTraceFileInfo->pFile != NULL);
 
     // read trace file header
-    if (1 != fread(&(pTraceFileInfo->header), sizeof(vktrace_trace_file_header), 1, pTraceFileInfo->pFile)) {
+    if (1 != fread(&header, sizeof(vktrace_trace_file_header), 1, pTraceFileInfo->pFile)) {
+        vktraceviewer_output_error("Unable to read header from file.");
+        return FALSE;
+    }
+
+    // Make sure there is at least one gpuinfo struct in header
+    if (header.n_gpuinfo < 1) {
+        vktraceviewer_output_error("Trace file head may be corrupt - gpu info missing.");
+        return FALSE;
+    }
+
+    // allocate trace file header that includes space for gpuinfo array
+    pTraceFileInfo->pHeader =
+        (vktrace_trace_file_header*)vktrace_malloc(sizeof(vktrace_trace_file_header) + header.n_gpuinfo * sizeof(struct_gpuinfo));
+    if (!pTraceFileInfo->pHeader) {
+        vktraceviewer_output_error("Unable to allocate memory for file read header.");
+        return FALSE;
+    }
+    *pTraceFileInfo->pHeader = header;
+    pTraceFileInfo->pGpuinfo = (struct_gpuinfo*)(pTraceFileInfo->pHeader + 1);
+
+    // read the gpuinfo array
+    if (1 != fread(pTraceFileInfo->pGpuinfo, header.n_gpuinfo * sizeof(struct_gpuinfo), 1, pTraceFileInfo->pFile)) {
+        vktrace_free(pTraceFileInfo->pHeader);
         vktraceviewer_output_error("Unable to read header from file.");
         return FALSE;
     }
 
     // Set global version num
-    vktrace_set_trace_version(pTraceFileInfo->header.trace_file_version);
+    vktrace_set_trace_version(pTraceFileInfo->pHeader->trace_file_version);
 
     // Find out how many trace packets there are.
 
     // Seek to first packet
-    long first_offset = pTraceFileInfo->header.first_packet_offset;
+    long first_offset = pTraceFileInfo->pHeader->first_packet_offset;
     int seekResult = fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
     if (seekResult != 0) {
         vktraceviewer_output_warning("Failed to seek to the first packet offset in the trace file.");
     }
 
-    uint64_t fileOffset = pTraceFileInfo->header.first_packet_offset;
+    uint64_t fileOffset = pTraceFileInfo->pHeader->first_packet_offset;
     uint64_t packetSize = 0;
     while (1 == fread(&packetSize, sizeof(uint64_t), 1, pTraceFileInfo->pFile)) {
         // success!
@@ -57,6 +82,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
         if (ferror(pTraceFileInfo->pFile) != 0) {
             perror("File Read error:");
             vktraceviewer_output_warning("There was an error reading the trace file.");
+            vktrace_free(pTraceFileInfo->pHeader);
             return FALSE;
         } else if (feof(pTraceFileInfo->pFile) != 0) {
             vktraceviewer_output_warning("Reached the end of the file.");
@@ -69,6 +95,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
         // rewind to first packet and this time, populate the packet offsets
         if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktraceviewer_output_error("Unable to rewind trace file to gather packet offsets.");
+            vktrace_free(pTraceFileInfo->pHeader);
             return FALSE;
         }
 
@@ -86,6 +113,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
             pTraceFileInfo->pPacketOffsets[packetIndex].pHeader = (vktrace_trace_packet_header*)vktrace_malloc(packetSize);
             if (1 != fread(pTraceFileInfo->pPacketOffsets[packetIndex].pHeader, packetSize, 1, pTraceFileInfo->pFile)) {
                 vktraceviewer_output_error("Unable to read in a trace packet.");
+                vktrace_free(pTraceFileInfo->pHeader);
                 return FALSE;
             }
 
@@ -100,6 +128,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
 
         if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktraceviewer_output_error("Unable to rewind trace file to restore position.");
+            vktrace_free(pTraceFileInfo->pHeader);
             return FALSE;
         }
     }
