@@ -2603,6 +2603,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pImage), sizeof(VkImage), pImage);
     pPacket->result = result;
+
+    if (g_trimEnabled) {
+        VkImageCreateInfo* pCreateInfo = const_cast<VkImageCreateInfo*>(pPacket->pCreateInfo);
+        pCreateInfo->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    }
+
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
