@@ -2434,7 +2434,6 @@ void write_all_referenced_object_calls() {
 
             // Need to make sure images have the correct VkImageLayout.
             if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false) {
-                VkDevice device = obj->second.belongsToDevice;
                 uint32_t mipLevels = obj->second.ObjectInfo.Image.mipLevels;
                 uint32_t arrayLayers = obj->second.ObjectInfo.Image.arrayLayers;
                 VkFormat format = obj->second.ObjectInfo.Image.format;
