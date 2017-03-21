@@ -1281,8 +1281,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(VkDev
                                        dependencyCount * sizeof(VkSubpassDependency), pCreateInfo->pDependencies);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses),
                                        subpassCount * sizeof(VkSubpassDescription), pCreateInfo->pSubpasses);
-    uint32_t i;
-    for (i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
+    for (uint32_t i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
         VkSubpassDescription* pSubpass = (VkSubpassDescription*)&pPacket->pCreateInfo->pSubpasses[i];
         const VkSubpassDescription* pSp = &pCreateInfo->pSubpasses[i];
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pInputAttachments),
@@ -1738,13 +1737,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
     packet_vkUpdateDescriptorSets* pPacket = NULL;
     // begin custom code
     size_t arrayByteCount = 0;
-    size_t i;
 
-    for (i = 0; i < descriptorWriteCount; i++) {
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
         arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
     }
 
-    for (i = 0; i < descriptorCopyCount; i++) {
+    for (uint32_t i = 0; i < descriptorCopyCount; i++) {
         arrayByteCount += get_struct_chain_size(&pDescriptorCopies[i]);
     }
 
@@ -1760,7 +1758,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
     // begin custom code
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites),
                                        descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
-    for (i = 0; i < descriptorWriteCount; i++) {
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
         switch (pPacket->pDescriptorWrites[i].descriptorType) {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1890,8 +1888,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     vktrace_trace_packet_header* pHeader;
     packet_vkQueueSubmit* pPacket = NULL;
     size_t arrayByteCount = 0;
-    uint32_t i = 0;
-    for (i = 0; i < submitCount; ++i) {
+    for (uint32_t i = 0; i < submitCount; ++i) {
         arrayByteCount += vk_size_vksubmitinfo(&pSubmits[i]);
     }
     CREATE_TRACE_PACKET(vkQueueSubmit, arrayByteCount);
@@ -1903,7 +1900,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     pPacket->fence = fence;
     pPacket->result = result;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits), submitCount * sizeof(VkSubmitInfo), pSubmits);
-    for (i = 0; i < submitCount; ++i) {
+    for (uint32_t i = 0; i < submitCount; ++i) {
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pCommandBuffers),
                                            pPacket->pSubmits[i].commandBufferCount * sizeof(VkCommandBuffer),
                                            pSubmits[i].pCommandBuffers);
@@ -2325,8 +2322,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateGraphicsPipelines* pPacket = NULL;
     size_t total_size = 0;
-    uint32_t i;
-    for (i = 0; i < createInfoCount; i++) {
+    for (uint32_t i = 0; i < createInfoCount; i++) {
         total_size += get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(&pCreateInfos[i]);
     }
     CREATE_TRACE_PACKET(vkCreateGraphicsPipelines,
