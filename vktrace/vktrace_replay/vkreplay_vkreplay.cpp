@@ -35,11 +35,65 @@
 #include "vktrace_vk_vk_packets.h"
 #include "vk_enum_string_helper.h"
 #include "vktrace_vk_packet_id.h"
+#include "vktrace_trace_packet_utils.h"
 
 using namespace std;
 #include "vktrace_pageguard_memorycopy.h"
 
 vkreplayer_settings *g_pReplaySettings;
+
+static VkPhysicalDeviceProperties *get_physicalDeviceProperties() {
+    VkPhysicalDeviceProperties *rval = NULL;
+
+    VkInstanceCreateInfo createInfo;
+    VkInstance instance;
+    uint32_t physDevCount;
+    VkPhysicalDevice physDevice;
+
+    static bool devPropertiesValid = false;
+    static VkPhysicalDeviceProperties devProperties;
+
+    if (devPropertiesValid) return &devProperties;
+
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    if (VK_SUCCESS != vkCreateInstance(&createInfo, NULL, &instance)) return NULL;
+
+    if (VK_SUCCESS != vkEnumeratePhysicalDevices(instance, &physDevCount, NULL) || physDevCount < 1) goto destroyInstance;
+    // vktrace/replay doesn't handle multipe gpus yet, so we'll use the first one
+    physDevCount = 1;
+    if (VK_SUCCESS != vkEnumeratePhysicalDevices(instance, &physDevCount, &physDevice)) goto destroyInstance;
+
+    vkGetPhysicalDeviceProperties(physDevice, &devProperties);
+    devPropertiesValid = true;
+    rval = &devProperties;
+
+destroyInstance:
+    vkDestroyInstance(instance, NULL);
+    return rval;
+}
+
+uint64_t get_vk_gpu() {
+    VkPhysicalDeviceProperties *pDevProperties;
+
+    pDevProperties = get_physicalDeviceProperties();
+
+    if (pDevProperties)
+        return ((uint64_t)pDevProperties->vendorID << 32) | (uint64_t)pDevProperties->deviceID;
+    else
+        return 0;
+}
+
+uint64_t get_vk_driver_version() {
+    VkPhysicalDeviceProperties *pDevProperties;
+
+    pDevProperties = get_physicalDeviceProperties();
+
+    if (pDevProperties)
+        return (uint64_t)pDevProperties->driverVersion;
+    else
+        return 0;
+}
 
 vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_header *pFileHeader) {
     g_pReplaySettings = pReplaySettings;
@@ -50,7 +104,8 @@ vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_head
     m_objMapper.m_adjustForGPU = false;
 
     m_frameNumber = 0;
-    m_fileHeader = *pFileHeader;
+    m_pFileHeader = pFileHeader;
+    m_pGpuinfo = (struct_gpuinfo *)(pFileHeader + 1);
 }
 
 std::vector<size_t> portabilityTable;
@@ -95,8 +150,8 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
     m_replay_ptrsize = sizeof(void *);
     m_replay_arch = get_arch();
     m_replay_os = get_os();
-    m_replay_gpu = get_gpu();
-    m_replay_drv_vers = get_driver_version();
+    m_replay_gpu = get_vk_gpu();
+    m_replay_drv_vers = get_vk_driver_version();
 
     return 0;
 }
@@ -2090,9 +2145,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     uint32_t replayMemTypeIndex;
     vktrace_trace_packet_header packetHeader1, packetHeader2;
     VkDeviceMemory traceAllocateMemoryRval;
-    packet_vkBindImageMemory bimPacket;  // Note: we rely on the fact that packet_vkBindBufferMemory is the same size.....
-    packet_vkGetImageMemoryRequirements
-        gimrPacket;  // Note: we rely on the fact that packet_vkGetBufferMemoryRequires is the same size.....
+    packet_vkBindImageMemory bimPacket;              // We rely on the fact that packet_vkBindBufferMemory is the same size
+    packet_vkGetImageMemoryRequirements gimrPacket;  // We rely on the fact that packet_vkGetBufferMemoryRequires is the same size
     packet_vkFreeMemory freeMemoryPacket;
     packet_vkDestroyImage destroyImagePacket;
     bool foundBindMem;
@@ -2112,27 +2166,22 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         }
     }
 
-    if ((uint64_t)pPacket->pMemory == (uint64_t)0x22a5caeb580) {
-        pPacket->pMemory = pPacket->pMemory;
-    }
-
     // Determine if the trace and replay platforms are identical.
     // If they are we don't have to translate memory type indices.
     static int platformMatch = -1;  // -1: Not initialized. 0: No match. 1: Match.
     if (platformMatch == -1) {
         // Compare trace file platform to replay platform.
-        // If any of the strings are null, the value is unknown, and we'll consider the platform to not match
-        platformMatch = ((m_replay_endianess == m_fileHeader.endianess) ? 1 : 0) &
-                        ((m_replay_ptrsize == m_fileHeader.ptrsize) ? 1 : 0) & ((m_replay_arch == m_fileHeader.arch) ? 1 : 0) &
-                        ((m_replay_os == m_fileHeader.os) ? 1 : 0) & ((m_replay_gpu == m_fileHeader.gpu) ? 1 : 0) &
-                        ((m_replay_drv_vers == m_fileHeader.drv_vers) ? 1 : 0) & ((strlen((char *)&m_replay_arch) == 0) ? 0 : 1) &
-                        ((strlen((char *)&m_replay_os) == 0) ? 0 : 1) & ((strlen((char *)&m_replay_gpu) == 0) ? 0 : 1) &
-                        ((strlen((char *)&m_replay_drv_vers) == 0) ? 0 : 1) & ((strlen((char *)&m_fileHeader.arch) == 0) ? 0 : 1) &
-                        ((strlen((char *)&m_fileHeader.os) == 0) ? 0 : 1) & ((strlen((char *)&m_fileHeader.gpu) == 0) ? 0 : 1) &
-                        ((strlen((char *)&m_fileHeader.drv_vers) == 0) ? 0 : 1);
+        // If any of the values are null/zero, it is unknown, and we'll consider the platform to not match
+        platformMatch = (m_replay_endianess == m_pFileHeader->endianess) & (m_replay_ptrsize == m_pFileHeader->ptrsize) &
+                        (m_replay_arch == m_pFileHeader->arch) & (m_replay_os == m_pFileHeader->os) &
+                        (m_replay_gpu == m_pGpuinfo->gpu_id) & (m_replay_drv_vers == m_pGpuinfo->gpu_drv_vers) &
+                        (m_replay_gpu != 0) & (m_replay_drv_vers != 0) & (m_pGpuinfo->gpu_id != 0) &
+                        (m_pGpuinfo->gpu_drv_vers != 0) & (strlen((char *)&m_replay_arch) != 0) &
+                        (strlen((char *)&m_replay_os) != 0) & (strlen((char *)&m_pFileHeader->arch) != 0) &
+                        (strlen((char *)&m_pFileHeader->os) != 0);
     }
 
-    if (m_fileHeader.portability_table_valid && platformMatch != 1) {
+    if (m_pFileHeader->portability_table_valid && platformMatch != 1) {
         long saveFilePos;
         size_t amIdx;
         static size_t amSearchPos = 0;
@@ -2199,38 +2248,44 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 foundBindMem = true;
 
                 // Search backwards for the vkGIMR/vkGBMR call.
-                int64_t j;
-                for (j = amIdx - 1; j >= 0; j--) {
-                    FSEEK(tracefp, (long)portabilityTable[j], SEEK_SET);
-                    FREAD(&packetHeader2, sizeof(vktrace_trace_packet_header), 1, tracefp);  // Read the packet header
-                    if (packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
-                        packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) {
-                        assert(packetHeader2.size >= sizeof(packetHeader2) + sizeof(gimrPacket) + sizeof(VkMemoryRequirements));
-                        FREAD(&gimrPacket, sizeof(gimrPacket), 1, tracefp);
-                    }
-                    if ((packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
-                         packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) &&
-                        gimrPacket.image == bimPacket.image) {
-                        // Found the corresponding gimr/gbmr packet
-                        FSEEK(tracefp, (long)portabilityTable[j] + sizeof(packetHeader2) + (long)gimrPacket.pMemoryRequirements,
-                              SEEK_SET);
-                        FREAD(&memRequirements, sizeof(memRequirements), 1, tracefp);
+                bool found = false;
+                if (amIdx > 0) {
+                    for (size_t j = amIdx - 1; !found; j--) {
+                        FSEEK(tracefp, (long)portabilityTable[j], SEEK_SET);
+                        FREAD(&packetHeader2, sizeof(vktrace_trace_packet_header), 1, tracefp);  // Read the packet header
+                        if (packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
+                            packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) {
+                            assert(packetHeader2.size >= sizeof(packetHeader2) + sizeof(gimrPacket) + sizeof(VkMemoryRequirements));
+                            FREAD(&gimrPacket, sizeof(gimrPacket), 1, tracefp);
+                        }
+                        if ((packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
+                             packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) &&
+                            gimrPacket.image == bimPacket.image) {
+                            // Found the corresponding gimr/gbmr packet
+                            FSEEK(tracefp, (long)portabilityTable[j] + sizeof(packetHeader2) + (long)gimrPacket.pMemoryRequirements,
+                                  SEEK_SET);
+                            FREAD(&memRequirements, sizeof(memRequirements), 1, tracefp);
 
-                        gimrSizeSum += memRequirements.size;
-                        if (memRequirements.alignment > alignment) alignment = memRequirements.alignment;
-                        break;
-                    }
+                            gimrSizeSum += memRequirements.size;
+                            if (memRequirements.alignment > alignment) alignment = memRequirements.alignment;
+                            break;
+                        }
 
-                    if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
-                        packetHeader1.packet_id == VKTRACE_TPI_VK_vkDestroyBuffer) {
-                        FREAD(&destroyImagePacket, sizeof(destroyImagePacket), 1, tracefp);
-                        if (destroyImagePacket.image == bimPacket.image) {
-                            // Found a destroy of this Buffer/Image, stop the back search.
+                        if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
+                            packetHeader1.packet_id == VKTRACE_TPI_VK_vkDestroyBuffer) {
+                            FREAD(&destroyImagePacket, sizeof(destroyImagePacket), 1, tracefp);
+                            if (destroyImagePacket.image == bimPacket.image) {
+                                // Found a destroy of this Buffer/Image, stop the back search.
+                                break;
+                            }
+                        }
+                        if (j == 0) {
+                            // Got to the beginning of the list w/o finding the vkGIMR/vkGBMR call
                             break;
                         }
                     }
                 }
-                if (j < 0) {
+                if (!found) {
                     // Didn't find corresponding gimr call.
                     // vkAllocateMemory and vkBind{Image|Buffer}Memory were called without first calling
                     // vkGet{Image|Buffer}MemoryRequirements.

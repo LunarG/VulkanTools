@@ -150,8 +150,8 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         m_pReplayers[i] = NULL;
     }
 
-    for (int i = 0; i < pTraceFileInfo->header.tracer_count; i++) {
-        uint8_t tracerId = pTraceFileInfo->header.tracer_id_array[i].id;
+    for (int i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
+        uint8_t tracerId = pTraceFileInfo->pHeader->tracer_id_array[i].id;
         tidApi = tracerId;
 
         const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);
@@ -183,7 +183,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
                 m_pReplayers[tracerId]->UpdateFromSettings(pGlobalSettings, numGlobalSettings);
 
                 // Initialize the replayer
-                int err = m_pReplayers[tracerId]->Initialize(&disp, NULL, &pTraceFileInfo->header);
+                int err = m_pReplayers[tracerId]->Initialize(&disp, NULL, pTraceFileInfo->pHeader);
                 if (err) {
                     emit OutputMessage(VKTRACE_LOG_ERROR, QString("Couldn't Initialize replayer for TracerId %1.").arg(tracerId));
                     return false;

@@ -378,9 +378,10 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
     }
 
-    // open trace file and read in header
+    // open the trace file
     char* pTraceFile = replaySettings.pTraceFilePath;
     vktrace_trace_file_header fileHeader;
+    vktrace_trace_file_header* pFileHeader;  // File header, including gpuinfo structs
 
     if (pTraceFile != NULL && strlen(pTraceFile) > 0) {
         tracefp = fopen(pTraceFile, "rb");
@@ -402,6 +403,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    // read the header
     FileLike* traceFile = vktrace_FileLike_create_file(tracefp);
     if (vktrace_FileLike_ReadRaw(traceFile, &fileHeader, sizeof(fileHeader)) == false) {
         vktrace_LogError("Unable to read header from file.");
@@ -429,8 +431,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
-    // Make sure magic number in trace file is valid
-    if (fileHeader.magic != VKTRACE_FILE_MAGIC) {
+    // Make sure magic number in trace file is valid and we have at least one gpuinfo struct
+    if (fileHeader.magic != VKTRACE_FILE_MAGIC || fileHeader.n_gpuinfo < 1) {
         vktrace_LogError("%s does not appear to be a valid Vulkan trace file.", pTraceFile);
         fclose(tracefp);
         vktrace_free(pTraceFile);
@@ -438,9 +440,35 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    // Allocate a new header that includes space for all gpuinfo structs
+    if (!(pFileHeader = (vktrace_trace_file_header*)vktrace_malloc(sizeof(vktrace_trace_file_header) +
+                                                                   fileHeader.n_gpuinfo * sizeof(struct_gpuinfo)))) {
+        vktrace_LogError("Can't allocate space for trace file header.");
+        if (pAllSettings != NULL) {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // Copy the file header, and append the gpuinfo array
+    *pFileHeader = fileHeader;
+    if (vktrace_FileLike_ReadRaw(traceFile, pFileHeader + 1, pFileHeader->n_gpuinfo * sizeof(struct_gpuinfo)) == false) {
+        vktrace_LogError("Unable to read header from file.");
+        if (pAllSettings != NULL) {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
     // read portability table if it exists
-    if (fileHeader.portability_table_valid) fileHeader.portability_table_valid = readPortabilityTable();
-    if (!fileHeader.portability_table_valid)
+    if (pFileHeader->portability_table_valid) pFileHeader->portability_table_valid = readPortabilityTable();
+    if (!pFileHeader->portability_table_valid)
         vktrace_LogAlways("Trace file does not appear to contain portability table. Will not attempt to map memoryType indices.");
 
     // load any API specific driver libraries and init replayer objects
@@ -467,8 +495,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         replayer[i] = NULL;
     }
 
-    for (uint64_t i = 0; i < fileHeader.tracer_count; i++) {
-        uint8_t tracerId = fileHeader.tracer_id_array[i].id;
+    for (uint64_t i = 0; i < pFileHeader->tracer_count; i++) {
+        uint8_t tracerId = pFileHeader->tracer_id_array[i].id;
         tidApi = tracerId;
 
         const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);
@@ -499,7 +527,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             replayer[tracerId]->UpdateFromSettings(pAllSettings, numAllSettings);
 
             // Initialize the replayer
-            err = replayer[tracerId]->Initialize(&disp, &replaySettings, &fileHeader);
+            err = replayer[tracerId]->Initialize(&disp, &replaySettings, pFileHeader);
             if (err) {
                 vktrace_LogError("Couldn't Initialize replayer for TracerId %d.", tracerId);
                 if (pAllSettings != NULL) {

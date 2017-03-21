@@ -85,7 +85,8 @@ class vkReplay {
     vkDisplay* m_display;
 
     int m_frameNumber;
-    vktrace_trace_file_header m_fileHeader;
+    vktrace_trace_file_header* m_pFileHeader;
+    struct_gpuinfo* m_pGpuinfo;
 
     // Replay platform description
     uint64_t m_replay_endianess;

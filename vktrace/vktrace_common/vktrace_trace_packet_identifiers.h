@@ -92,41 +92,55 @@ typedef struct {
 // by both host and target CPU, which can be different architectures.
 // All fields in these structs are 64-bit aligned.
 
+#if defined(WIN32)
+#define ALIGN8 __declspec(align(8))
+#else
+#define ALIGN8 __attribute__((aligned(8)))
+#endif
+
+typedef struct {
+    ALIGN8 uint64_t gpu_id;
+    ALIGN8 uint64_t gpu_drv_vers;
+} struct_gpuinfo;
+
 typedef struct {
     uint16_t trace_file_version;
-    uint16_t reserved1;
-    uint16_t reserved2;
-    uint16_t reserved3;
-    uint64_t magic;
+    uint16_t reserved1[3];
+    ALIGN8 uint64_t magic;
     uint32_t uuid[4];
-    uint64_t first_packet_offset;  // will be size of header including size of tracer_id_array and state_snapshot_path/binary
-    uint64_t tracer_count;         // number of tracers referenced in this trace file
+    ALIGN8 uint64_t first_packet_offset;  // Size of header including gpu array below
+    ALIGN8 uint64_t tracer_count;         // number of tracers referenced in this trace file
     vktrace_tracer_info
         tracer_id_array[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];  // array of tracer_ids and values which are referenced in the trace file
-    uint64_t trace_start_time;
-    uint64_t portability_table_valid;
+    ALIGN8 uint64_t trace_start_time;
+    ALIGN8 uint64_t portability_table_valid;
 
     // Description of platform on which this trace was created
-    uint64_t endianess;
-    uint64_t ptrsize;
-    uint64_t arch;
-    uint64_t os;
-    uint64_t gpu;
-    uint64_t drv_vers;
+    ALIGN8 uint64_t endianess;
+    ALIGN8 uint64_t ptrsize;
+    ALIGN8 uint64_t arch;
+    ALIGN8 uint64_t os;
+
+    // Reserve some spaece in case more fields need to be added in the future
+    ALIGN8 uint64_t reserved2[8];
+
+    // The header ends with number of gpus and a gpu_id/drv_vers pair for each gpu
+    ALIGN8 uint64_t n_gpuinfo;
+    // A struct_gpuinfo array of length n_gpuinfo follows this
 } vktrace_trace_file_header;
 
 typedef struct {
-    uint64_t size;  // total size, including extra data, needed to get to the next packet_header
-    uint64_t global_packet_index;
-    uint64_t tracer_id;  // TODO: need to uniquely identify tracers in a way that is known by the replayer
-    uint64_t packet_id;  // VKTRACE_TRACE_PACKET_ID (or one of the api-specific IDs)
-    uint64_t thread_id;
-    uint64_t vktrace_begin_time;  // start of measuring vktrace's overhead related to this packet
-    uint64_t entrypoint_begin_time;
-    uint64_t entrypoint_end_time;
-    uint64_t vktrace_end_time;     // end of measuring vktrace's overhead related to this packet
-    uint64_t next_buffers_offset;  // used for tracking the addition of buffers to the trace packet
-    uintptr_t pBody;               // points to the body of the packet
+    ALIGN8 uint64_t size;  // total size, including extra data, needed to get to the next packet_header
+    ALIGN8 uint64_t global_packet_index;
+    uint8_t tracer_id;   // TODO: need to uniquely identify tracers in a way that is known by the replayer
+    uint16_t packet_id;  // VKTRACE_TRACE_PACKET_ID (or one of the api-specific IDs)
+    uint32_t thread_id;
+    ALIGN8 uint64_t vktrace_begin_time;  // start of measuring vktrace's overhead related to this packet
+    ALIGN8 uint64_t entrypoint_begin_time;
+    ALIGN8 uint64_t entrypoint_end_time;
+    ALIGN8 uint64_t vktrace_end_time;     // end of measuring vktrace's overhead related to this packet
+    ALIGN8 uint64_t next_buffers_offset;  // used for tracking the addition of buffers to the trace packet
+    ALIGN8 uintptr_t pBody;               // points to the body of the packet
 } vktrace_trace_packet_header;
 
 typedef struct {

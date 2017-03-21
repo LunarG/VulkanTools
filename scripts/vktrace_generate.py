@@ -309,14 +309,6 @@ memoryTypeBits=%0x08X}",
 
     def _generate_init_funcs(self):
         init_tracer = []
-        init_tracer.append('void send_vk_api_version_packet()\n{')
-        init_tracer.append('    packet_vkApiVersion* pPacket;')
-        init_tracer.append('    vktrace_trace_packet_header* pHeader;')
-        init_tracer.append('    pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_vkApiVersion, sizeof(packet_vkApiVersion), 0);')
-        init_tracer.append('    pPacket = interpret_body_as_vkApiVersion(pHeader);')
-        init_tracer.append('    pPacket->version = VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION);')
-        init_tracer.append('    vktrace_set_packet_entrypoint_end_time(pHeader);')
-        init_tracer.append('    FINISH_TRACE_PACKET();\n}\n')
 
         init_tracer.append('extern VKTRACE_CRITICAL_SECTION g_memInfoLock;')
 
@@ -341,8 +333,6 @@ memoryTypeBits=%0x08X}",
         init_tracer.append('    trim::initialize();')
         init_tracer.append('    vktrace_initialize_trace_packet_utils();')
         init_tracer.append('    vktrace_create_critical_section(&g_memInfoLock);')
-        init_tracer.append('    if (gMessageStream != NULL)')
-        init_tracer.append('        send_vk_api_version_packet();\n')
         init_tracer.append('#ifdef WIN32\n')
         init_tracer.append('    return true;\n}\n')
         init_tracer.append('#elif defined(PLATFORM_LINUX)\n')
