@@ -125,7 +125,7 @@ uint64_t get_arch() {
     struct utsname buf;
     uname(&buf);
     strncpy((char*)&rval, buf.machine, sizeof(uint64_t));
-#else
+#elif defined(PLATFORM_WINDOWS)
     SYSTEM_INFO systemInfo;
     char* arch;
     GetSystemInfo(&systemInfo);
@@ -147,6 +147,8 @@ uint64_t get_arch() {
             break;
     }
     strncpy((char*)&rval, arch, sizeof(uint64_t));
+#else
+    // Other platforms, i.e. OSX, need to be added here
 #endif
     return rval;
 }
