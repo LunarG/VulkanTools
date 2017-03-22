@@ -182,7 +182,11 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     rval = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, TRUE);
     assert(rval);
 #else
+#if defined(PLATFORM_LINUX)
     sighandler_t rval;
+#elif defined(PLATFORM_OSX)
+    sig_t rval;
+#endif
     rval = signal(SIGHUP, terminationSignalHandler);
     assert(rval != SIG_ERR);
     rval = signal(SIGINT, terminationSignalHandler);
