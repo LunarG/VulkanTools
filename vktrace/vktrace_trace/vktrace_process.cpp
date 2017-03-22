@@ -38,6 +38,7 @@ extern "C" {
 #include "vktrace_filelike.h"
 #include "vktrace_interconnect.h"
 #include "vktrace_trace_packet_utils.h"
+#include "vktrace_vk_packet_id.h"
 }
 
 const unsigned long kWatchDogPollTime = 250;
@@ -120,6 +121,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     vktrace_trace_file_header file_header;
     vktrace_trace_packet_header* pHeader = NULL;
     size_t bytes_written;
+    size_t fileOffset;
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
     if (pMessageStream == NULL) {
@@ -166,7 +168,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         vktrace_FileLike_ReadRaw(fileLikeSocket, &gpuinfo, sizeof(struct_gpuinfo));
         bytes_written += fwrite(&gpuinfo, 1, sizeof(struct_gpuinfo), pInfo->pProcessInfo->pTraceFile);
     }
-
     fflush(pInfo->pProcessInfo->pTraceFile);
     vktrace_leave_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
 
@@ -175,7 +176,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
-
+    fileOffset = file_header.first_packet_offset;
 
 #if defined(WIN32)
     BOOL rval;
@@ -241,6 +242,20 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                 if (bytes_written != pHeader->size) {
                     vktrace_LogError("Failed to write the packet for packet_id = %hu", pHeader->packet_id);
                 }
+
+                // If the packet is one we need to track, add it to the table
+                if (pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkAllocateMemory || pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory) {
+                    portabilityTable.push_back(fileOffset);
+                }
+                lastPacketIndex = pHeader->global_packet_index;
+                lastPacketThreadId = pHeader->thread_id;
+                lastPacketEndTime = pHeader->vktrace_end_time;
+                fileOffset += bytes_written;
             }
         }
 
