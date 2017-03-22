@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(vktrace)
 
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-packet-id VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-core-trace-packets VK_VERSION_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h)
+
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
@@ -27,6 +30,8 @@ if (NOT WIN32)
 endif()
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
+
+add_dependencies(${PROJECT_NAME} generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     vktrace_common
