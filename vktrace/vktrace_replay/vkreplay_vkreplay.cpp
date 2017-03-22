@@ -2268,6 +2268,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
 
                             gimrSizeSum += memRequirements.size;
                             if (memRequirements.alignment > alignment) alignment = memRequirements.alignment;
+                            found = true;
                             break;
                         }
 
@@ -2303,14 +2304,13 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 }
             }
         }
-        FSEEK(tracefp, saveFilePos, SEEK_SET);
+        fseek(tracefp, saveFilePos, SEEK_SET);
 
         if (!foundBindMem) {
             // Didn't find vkBind{Image|Buffer}Memory call for this vkAllocateMemory.
             // This isn't an error (the memory is probably allocated but never used),
             // so just use the index from the trace file and continue.
             replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem);
-            fseek(tracefp, saveFilePos, SEEK_SET);
             goto wrapItUp;
         }
 
