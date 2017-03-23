@@ -7357,7 +7357,7 @@ TEST_F(VkLayerTest, SecondaryCommandBufferNullRenderpass) {
     VkCommandBufferAllocateInfo cmd = {};
     cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     cmd.pNext = NULL;
-    cmd.commandPool = m_commandPool;
+    cmd.commandPool = m_commandPool->handle();
     cmd.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
     cmd.commandBufferCount = 1;
 
@@ -7378,7 +7378,7 @@ TEST_F(VkLayerTest, SecondaryCommandBufferNullRenderpass) {
     vkBeginCommandBuffer(draw_cmd, &cmd_buf_info);
 
     m_errorMonitor->VerifyFound();
-    vkFreeCommandBuffers(m_device->device(), m_commandPool, 1, &draw_cmd);
+    vkFreeCommandBuffers(m_device->device(), m_commandPool->handle(), 1, &draw_cmd);
 }
 
 TEST_F(VkLayerTest, CommandBufferResetErrors) {
@@ -9235,13 +9235,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
 
     // Create command pool with incompatible queueflags
     const std::vector<VkQueueFamilyProperties> queue_props = m_device->queue_props;
-    uint32_t queue_family_index = UINT32_MAX;
-    for (uint32_t i = 0; i < queue_props.size(); i++) {
-        if ((queue_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0) {
-            queue_family_index = i;
-            break;
-        }
-    }
+    uint32_t queue_family_index = m_device->QueueFamilyWithoutCapabilities(VK_QUEUE_COMPUTE_BIT);
     if (queue_family_index == UINT32_MAX) {
         printf("             No non-compute queue found; skipped.\n");
         return;  // NOTE: this exits the test function!
@@ -11425,7 +11419,9 @@ TEST_F(VkLayerTest, MismatchCountQueueCreateRequestedFeature) {
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "Invalid queue create request in vkCreateDevice(). Invalid queueFamilyIndex ");
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Failed to create device chain.");
+    // The following unexpected error is coming from the LunarG loader. Do not make it a desired message because platforms that do
+    // not use the LunarG loader (e.g. Android) will not see the message and the test will fail.
+    m_errorMonitor->SetUnexpectedError("Failed to create device chain.");
     vkCreateDevice(gpu(), &device_create_info, nullptr, &testDevice);
     m_errorMonitor->VerifyFound();
 
@@ -11439,7 +11435,9 @@ TEST_F(VkLayerTest, MismatchCountQueueCreateRequestedFeature) {
             device_create_info.pEnabledFeatures = &features;
             m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                                  "While calling vkCreateDevice(), requesting feature #");
-            m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Failed to create device chain.");
+            // The following unexpected error is coming from the LunarG loader. Do not make it a desired message because platforms
+            // that do not use the LunarG loader (e.g. Android) will not see the message and the test will fail.
+            m_errorMonitor->SetUnexpectedError("Failed to create device chain.");
             m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                                  "You requested features that are unavailable on this device. You should first "
                                                  "query feature availability by calling vkGetPhysicalDeviceFeatures().");
@@ -11835,49 +11833,51 @@ TEST_F(VkLayerTest, InvalidImageLayout) {
     copy_region.extent.depth = 1;
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
-                                         "Layout for input image should be TRANSFER_SRC_OPTIMAL instead of GENERAL.");
-    m_errorMonitor->SetUnexpectedError("Layout for output image should be TRANSFER_DST_OPTIMAL instead of GENERAL.");
+                                         "layout should be VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL instead of GENERAL.");
+    m_errorMonitor->SetUnexpectedError("layout should be VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL instead of GENERAL.");
+
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_GENERAL, dst_image, VK_IMAGE_LAYOUT_GENERAL, 1, &copy_region);
     m_errorMonitor->VerifyFound();
+    // The first call hits the expected WARNING and skips the call down the chain, so call a second time to call down chain and
+    // update layer state
+    m_errorMonitor->SetUnexpectedError("layout should be VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL instead of GENERAL.");
+    m_errorMonitor->SetUnexpectedError("layout should be VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL instead of GENERAL.");
+    m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_GENERAL, dst_image, VK_IMAGE_LAYOUT_GENERAL, 1, &copy_region);
     // Now cause error due to src image layout changing
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "Cannot copy from an image whose source layout is "
-                                         "VK_IMAGE_LAYOUT_UNDEFINED and doesn't match the current "
-                                         "layout VK_IMAGE_LAYOUT_GENERAL.");
+                                         "with specific layout VK_IMAGE_LAYOUT_UNDEFINED that "
+                                         "doesn't match the actual current layout VK_IMAGE_LAYOUT_GENERAL.");
     m_errorMonitor->SetUnexpectedError(
         "srcImageLayout must be either of VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL");
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_UNDEFINED, dst_image, VK_IMAGE_LAYOUT_GENERAL, 1, &copy_region);
     m_errorMonitor->VerifyFound();
     // Final src error is due to bad layout type
-    m_errorMonitor->SetDesiredFailureMsg(
-        VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        "Layout for input image is VK_IMAGE_LAYOUT_UNDEFINED but can only be TRANSFER_SRC_OPTIMAL or GENERAL.");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         "is VK_IMAGE_LAYOUT_UNDEFINED but can only be "
+                                         "VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL.");
     m_errorMonitor->SetUnexpectedError(
-        "Cannot copy from an image whose source layout is VK_IMAGE_LAYOUT_UNDEFINED and doesn't match the current layout "
-        "VK_IMAGE_LAYOUT_GENERAL.");
+        "with specific layout VK_IMAGE_LAYOUT_UNDEFINED that doesn't match the actual current layout VK_IMAGE_LAYOUT_GENERAL.");
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_UNDEFINED, dst_image, VK_IMAGE_LAYOUT_GENERAL, 1, &copy_region);
     m_errorMonitor->VerifyFound();
     // Now verify same checks for dst
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
-                                         "Layout for output image should be TRANSFER_DST_OPTIMAL instead of GENERAL.");
-    m_errorMonitor->SetUnexpectedError("Layout for input image should be TRANSFER_SRC_OPTIMAL instead of GENERAL.");
+                                         "layout should be VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL instead of GENERAL.");
+    m_errorMonitor->SetUnexpectedError("layout should be VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL instead of GENERAL.");
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_GENERAL, dst_image, VK_IMAGE_LAYOUT_GENERAL, 1, &copy_region);
     m_errorMonitor->VerifyFound();
     // Now cause error due to src image layout changing
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "Cannot copy from an image whose dest layout is "
-                                         "VK_IMAGE_LAYOUT_UNDEFINED and doesn't match the current "
-                                         "layout VK_IMAGE_LAYOUT_GENERAL.");
+                                         "with specific layout VK_IMAGE_LAYOUT_UNDEFINED that doesn't match "
+                                         "the actual current layout VK_IMAGE_LAYOUT_GENERAL.");
     m_errorMonitor->SetUnexpectedError(
-        "dstImageLayout must be either of VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL");
+        "is VK_IMAGE_LAYOUT_UNDEFINED but can only be VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL.");
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_GENERAL, dst_image, VK_IMAGE_LAYOUT_UNDEFINED, 1, &copy_region);
     m_errorMonitor->VerifyFound();
-    m_errorMonitor->SetDesiredFailureMsg(
-        VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        "Layout for output image is VK_IMAGE_LAYOUT_UNDEFINED but can only be TRANSFER_DST_OPTIMAL or GENERAL.");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         "is VK_IMAGE_LAYOUT_UNDEFINED but can only be VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL "
+                                         "or VK_IMAGE_LAYOUT_GENERAL.");
     m_errorMonitor->SetUnexpectedError(
-        "Cannot copy from an image whose dest layout is VK_IMAGE_LAYOUT_UNDEFINED and doesn't match the current layout "
-        "VK_IMAGE_LAYOUT_GENERAL.");
+        "with specific layout VK_IMAGE_LAYOUT_UNDEFINED that doesn't match the actual current layout VK_IMAGE_LAYOUT_GENERAL.");
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_GENERAL, dst_image, VK_IMAGE_LAYOUT_UNDEFINED, 1, &copy_region);
     m_errorMonitor->VerifyFound();
 
@@ -11943,9 +11943,9 @@ TEST_F(VkLayerTest, InvalidImageLayout) {
     image_barrier[0].subresourceRange.levelCount = image_create_info.mipLevels;
     image_barrier[0].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         "You cannot transition the layout of aspect 1 from "
-                                         "VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL when "
-                                         "current layout is VK_IMAGE_LAYOUT_GENERAL.");
+                                         "you cannot transition the layout of aspect 1 from "
+                                         "VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL when current layout is "
+                                         "VK_IMAGE_LAYOUT_GENERAL.");
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00305);
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0,
                          NULL, 0, NULL, 1, image_barrier);
@@ -12024,9 +12024,7 @@ TEST_F(VkLayerTest, InvalidImageLayout) {
     attach_desc.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
     attach_desc.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                         " with invalid first layout "
-                                         "VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_"
-                                         "ONLY_OPTIMAL");
+                                         "with invalid first layout VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL");
     vkCreateRenderPass(m_device->device(), &rpci, NULL, &rp);
     m_errorMonitor->VerifyFound();
 
@@ -12151,7 +12149,7 @@ TEST_F(VkLayerTest, SimultaneousUse) {
 
     VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
     command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    command_buffer_allocate_info.commandPool = m_commandPool;
+    command_buffer_allocate_info.commandPool = m_commandPool->handle();
     command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
     command_buffer_allocate_info.commandBufferCount = 1;
 
@@ -12221,7 +12219,7 @@ TEST_F(VkLayerTest, SimultaneousUseOneShot) {
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     alloc_info.pNext = NULL;
     alloc_info.commandBufferCount = 2;
-    alloc_info.commandPool = m_commandPool;
+    alloc_info.commandPool = m_commandPool->handle();
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     vkAllocateCommandBuffers(m_device->device(), &alloc_info, cmd_bufs);
 
@@ -13176,7 +13174,7 @@ TEST_F(VkLayerTest, FramebufferIncompatible) {
 
     VkCommandBufferAllocateInfo cbai = {};
     cbai.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    cbai.commandPool = m_commandPool;
+    cbai.commandPool = m_commandPool->handle();
     cbai.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
     cbai.commandBufferCount = 1;
 
@@ -15507,71 +15505,81 @@ TEST_F(VkLayerTest, DrawTimeImageMultisampleMismatchWithPipeline) {
 }
 
 TEST_F(VkLayerTest, CreateImageLimitsViolationMaxWidth) {
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "CreateImage extents exceed allowable limits for format");
-
     ASSERT_NO_FATAL_FAILURE(Init());
 
-    // Create an image
-    VkImage image;
+    VkFormat const format = VK_FORMAT_B8G8R8A8_UNORM;
+    {
+        VkFormatProperties properties;
+        vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), format, &properties);
+        if (properties.optimalTilingFeatures == 0) {
+            printf("             Image format not supported; skipped.\n");
+            return;
+        }
+    }
 
-    const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
-    const int32_t tex_width = 32;
-    const int32_t tex_height = 32;
-
-    VkImageCreateInfo image_create_info = {};
-    image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    image_create_info.pNext = NULL;
-    image_create_info.imageType = VK_IMAGE_TYPE_2D;
-    image_create_info.format = tex_format;
-    image_create_info.extent.width = tex_width;
-    image_create_info.extent.height = tex_height;
-    image_create_info.extent.depth = 1;
-    image_create_info.mipLevels = 1;
-    image_create_info.arrayLayers = 1;
-    image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
-    image_create_info.tiling = VK_IMAGE_TILING_LINEAR;
-    image_create_info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
-    image_create_info.flags = 0;
+    VkImageCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    info.pNext = NULL;
+    info.imageType = VK_IMAGE_TYPE_2D;
+    info.format = format;
+    info.extent.height = 32;
+    info.extent.depth = 1;
+    info.mipLevels = 1;
+    info.arrayLayers = 1;
+    info.samples = VK_SAMPLE_COUNT_1_BIT;
+    info.tiling = VK_IMAGE_TILING_OPTIMAL;
+    info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+    info.flags = 0;
 
     // Introduce error by sending down a bogus width extent
-    image_create_info.extent.width = 65536;
-    vkCreateImage(m_device->device(), &image_create_info, NULL, &image);
+    {
+        VkImageFormatProperties properties;
+        auto const result = vkGetPhysicalDeviceImageFormatProperties(m_device->phy().handle(), info.format, info.imageType,
+                                                                     info.tiling, info.usage, info.flags, &properties);
+        ASSERT_VK_SUCCESS(result);
+        info.extent.width = properties.maxExtent.width + 1;
+    }
 
+    VkImage image;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "CreateImage extents exceed allowable limits for format");
+    vkCreateImage(m_device->device(), &info, NULL, &image);
     m_errorMonitor->VerifyFound();
 }
 
 TEST_F(VkLayerTest, CreateImageLimitsViolationMinWidth) {
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00716);
-
     ASSERT_NO_FATAL_FAILURE(Init());
 
-    // Create an image
-    VkImage image;
+    VkFormat const format = VK_FORMAT_B8G8R8A8_UNORM;
+    {
+        VkFormatProperties properties;
+        vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), format, &properties);
+        if (properties.optimalTilingFeatures == 0) {
+            printf("             Image format not supported; skipped.\n");
+            return;
+        }
+    }
 
-    const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
-    const int32_t tex_width = 32;
-    const int32_t tex_height = 32;
-
-    VkImageCreateInfo image_create_info = {};
-    image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    image_create_info.pNext = NULL;
-    image_create_info.imageType = VK_IMAGE_TYPE_2D;
-    image_create_info.format = tex_format;
-    image_create_info.extent.width = tex_width;
-    image_create_info.extent.height = tex_height;
-    image_create_info.extent.depth = 1;
-    image_create_info.mipLevels = 1;
-    image_create_info.arrayLayers = 1;
-    image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
-    image_create_info.tiling = VK_IMAGE_TILING_LINEAR;
-    image_create_info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
-    image_create_info.flags = 0;
+    VkImageCreateInfo info = {};
+    info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    info.pNext = NULL;
+    info.imageType = VK_IMAGE_TYPE_2D;
+    info.format = format;
+    info.extent.height = 32;
+    info.extent.depth = 1;
+    info.mipLevels = 1;
+    info.arrayLayers = 1;
+    info.samples = VK_SAMPLE_COUNT_1_BIT;
+    info.tiling = VK_IMAGE_TILING_OPTIMAL;
+    info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+    info.flags = 0;
 
     // Introduce error by sending down a bogus width extent
-    image_create_info.extent.width = 0;
-    m_errorMonitor->SetUnexpectedError("parameter pCreateInfo->extent.width must be greater than 0");
-    vkCreateImage(m_device->device(), &image_create_info, NULL, &image);
+    info.extent.width = 0;
 
+    VkImage image;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00716);
+    m_errorMonitor->SetUnexpectedError("parameter pCreateInfo->extent.width must be greater than 0");
+    vkCreateImage(m_device->device(), &info, NULL, &image);
     m_errorMonitor->VerifyFound();
 }
 
@@ -16817,12 +16825,23 @@ TEST_F(VkLayerTest, ImageFormatLimits) {
     TEST_DESCRIPTION("Exceed the limits of image format ");
 
     ASSERT_NO_FATAL_FAILURE(Init());
+
+    VkFormat const format = VK_FORMAT_B8G8R8A8_UNORM;
+    {
+        VkFormatProperties properties;
+        vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), format, &properties);
+        if (properties.linearTilingFeatures == 0) {
+            printf("             Image format not supported; skipped.\n");
+            return;
+        }
+    }
+
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "CreateImage extents exceed allowable limits for format");
     VkImageCreateInfo image_create_info = {};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_create_info.pNext = NULL;
     image_create_info.imageType = VK_IMAGE_TYPE_2D;
-    image_create_info.format = VK_FORMAT_B8G8R8A8_UNORM;
+    image_create_info.format = format;
     image_create_info.extent.width = 32;
     image_create_info.extent.height = 32;
     image_create_info.extent.depth = 1;
@@ -17946,6 +17965,33 @@ TEST_F(VkLayerTest, ClearImageErrors) {
     m_errorMonitor->VerifyFound();
 }
 
+TEST_F(VkLayerTest, CommandQueueFlags) {
+    TEST_DESCRIPTION(
+        "Allocate a command buffer on a queue that does not support graphics and try to issue a "
+        "graphics-only command");
+
+    ASSERT_NO_FATAL_FAILURE(Init());
+
+    uint32_t queueFamilyIndex = m_device->QueueFamilyWithoutCapabilities(VK_QUEUE_GRAPHICS_BIT);
+    if(queueFamilyIndex == UINT32_MAX) {
+        printf("             Non-graphics queue family not found; skipped.\n");
+        return;
+    } else {
+        // Create command pool on a non-graphics queue
+        VkCommandPoolObj command_pool(m_device, queueFamilyIndex);
+
+        // Setup command buffer on pool
+        VkCommandBufferObj command_buffer(m_device, &command_pool);
+        command_buffer.BeginCommandBuffer();
+
+        // Issue a graphics only command
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_01446);
+        VkViewport viewport = {0, 0, 16, 16, 0, 1};
+        command_buffer.SetViewport(0, 1, &viewport);
+        m_errorMonitor->VerifyFound();
+    }
+}
+
 // WSI Enabled Tests
 //
 #if 0
@@ -18297,7 +18343,7 @@ TEST_F(VkPositiveLayerTest, SecondaryCommandBufferClearColorAttachments) {
 
     VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
     command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    command_buffer_allocate_info.commandPool = m_commandPool;
+    command_buffer_allocate_info.commandPool = m_commandPool->handle();
     command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
     command_buffer_allocate_info.commandBufferCount = 1;
 
@@ -18341,7 +18387,7 @@ TEST_F(VkPositiveLayerTest, SecondaryCommandBufferImageLayoutTransitions) {
     // Allocate a secondary and primary cmd buffer
     VkCommandBufferAllocateInfo command_buffer_allocate_info = {};
     command_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    command_buffer_allocate_info.commandPool = m_commandPool;
+    command_buffer_allocate_info.commandPool = m_commandPool->handle();
     command_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
     command_buffer_allocate_info.commandBufferCount = 1;
 
@@ -18413,8 +18459,8 @@ TEST_F(VkPositiveLayerTest, SecondaryCommandBufferImageLayoutTransitions) {
     m_errorMonitor->VerifyNotFound();
     err = vkDeviceWaitIdle(m_device->device());
     ASSERT_VK_SUCCESS(err);
-    vkFreeCommandBuffers(m_device->device(), m_commandPool, 1, &secondary_command_buffer);
-    vkFreeCommandBuffers(m_device->device(), m_commandPool, 1, &primary_command_buffer);
+    vkFreeCommandBuffers(m_device->device(), m_commandPool->handle(), 1, &secondary_command_buffer);
+    vkFreeCommandBuffers(m_device->device(), m_commandPool->handle(), 1, &primary_command_buffer);
 }
 
 // This is a positive test. No failures are expected.
@@ -19244,7 +19290,7 @@ TEST_F(VkPositiveLayerTest, QueueSubmitSemaphoresAndLayoutTracking) {
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     alloc_info.pNext = NULL;
     alloc_info.commandBufferCount = 4;
-    alloc_info.commandPool = m_commandPool;
+    alloc_info.commandPool = m_commandPool->handle();
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     vkAllocateCommandBuffers(m_device->device(), &alloc_info, cmd_bufs);
     VkImageObj image(m_device);
@@ -22771,7 +22817,7 @@ TEST_F(VkPositiveLayerTest, Maintenance1Tests) {
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     alloc_info.pNext = NULL;
     alloc_info.commandBufferCount = 1;
-    alloc_info.commandPool = m_commandPool;
+    alloc_info.commandPool = m_commandPool->handle();
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     vkAllocateCommandBuffers(m_device->device(), &alloc_info, &cmd_buf);
 
