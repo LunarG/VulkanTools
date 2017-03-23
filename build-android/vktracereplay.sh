@@ -309,7 +309,8 @@ rm -f $package\0.vktrace
 
 # Ensure vktrace wasn't already running
 let "script_run_time=$(date +%s)-$script_start_time"
-killall --older-than "$script_run_time"s vktrace || echo continuing...
+killall -9 --older-than "$script_run_time"s vktrace || echo No vktrace found, continuing...
+killall -9 --older-than "$script_run_time"s vktrace32 || echo No vktrace32 found, continuing...
 
 # install the latest APK, possibly packaged with vktrace and screenshot
 adb $serialFlag install --abi $target_abi $apk
@@ -351,7 +352,7 @@ do
 done
 
 # stop our background vktrace
-kill $!
+kill -9 $!
 
 # pause for a moment to let our trace file finish writing
 sleep 1
