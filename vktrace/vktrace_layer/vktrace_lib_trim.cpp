@@ -3194,8 +3194,16 @@ void write_all_referenced_object_calls() {
             VkQueue queue = cbInfo->ObjectInfo.CommandBuffer.submitQueue;
 
             VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = NULL;
+            submitInfo.waitSemaphoreCount = 0;
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = &commandBuffer;
+            submitInfo.pSignalSemaphores = NULL;
+            submitInfo.signalSemaphoreCount = 0;
+            submitInfo.pWaitDstStageMask = NULL;
+            submitInfo.pWaitSemaphores = NULL;
+
             vktrace_trace_packet_header *pQueueSubmit = generate::vkQueueSubmit(false, queue, 1, &submitInfo, VK_NULL_HANDLE);
             vktrace_write_trace_packet(pQueueSubmit, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pQueueSubmit);
