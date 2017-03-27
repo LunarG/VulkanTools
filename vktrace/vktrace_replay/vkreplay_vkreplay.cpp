@@ -2265,8 +2265,12 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                             FSEEK(tracefp, (long)portabilityTable[j] + sizeof(packetHeader2) + (long)gimrPacket.pMemoryRequirements,
                                   SEEK_SET);
                             FREAD(&memRequirements, sizeof(memRequirements), 1, tracefp);
-
-                            gimrSizeSum += memRequirements.size;
+                            if (replayGetImageMemoryRequirements.find(gimrPacket.image) != replayGetImageMemoryRequirements.end()) {
+                                gimrSizeSum += (replayGetImageMemoryRequirements[gimrPacket.image].size > memRequirements.size)?
+                                            replayGetImageMemoryRequirements[gimrPacket.image].size : memRequirements.size;
+                            } else {
+                                gimrSizeSum += memRequirements.size;
+                            }
                             if (memRequirements.alignment > alignment) alignment = memRequirements.alignment;
                             found = true;
                             break;
