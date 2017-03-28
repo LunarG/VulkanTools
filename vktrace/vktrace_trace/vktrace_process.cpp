@@ -122,6 +122,13 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     vktrace_trace_packet_header* pHeader = NULL;
     size_t bytes_written;
     size_t fileOffset;
+#if defined(WIN32)
+    BOOL rval;
+#elif defined(PLATFORM_LINUX)
+    sighandler_t rval;
+#elif defined(PLATFORM_OSX)
+    sig_t rval;
+#endif
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
     if (pMessageStream == NULL) {
@@ -179,15 +186,9 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     fileOffset = file_header.first_packet_offset;
 
 #if defined(WIN32)
-    BOOL rval;
     rval = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, TRUE);
     assert(rval);
 #else
-#if defined(PLATFORM_LINUX)
-    sighandler_t rval;
-#elif defined(PLATFORM_OSX)
-    sig_t rval;
-#endif
     rval = signal(SIGHUP, terminationSignalHandler);
     assert(rval != SIG_ERR);
     rval = signal(SIGINT, terminationSignalHandler);
@@ -269,6 +270,19 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
     VKTRACE_DELETE(fileLikeSocket);
     vktrace_MessageStream_destroy(&pMessageStream);
+
+// Restore signal handling to default.
+#if defined(WIN32)
+    rval = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, FALSE);
+    assert(rval);
+#else
+    rval = signal(SIGHUP, SIG_DFL);
+    assert(rval != SIG_ERR);
+    rval = signal(SIGINT, SIG_DFL);
+    assert(rval != SIG_ERR);
+    rval = signal(SIGTERM, SIG_DFL);
+    assert(rval != SIG_ERR);
+#endif
 
     return 0;
 }
