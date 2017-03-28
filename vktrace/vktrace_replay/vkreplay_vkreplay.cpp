@@ -1638,20 +1638,27 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
     }
 
     // remap shaders from each stage
-    VkPipelineShaderStageCreateInfo *pRemappedStages =
-        VKTRACE_NEW_ARRAY(VkPipelineShaderStageCreateInfo, pPacket->pCreateInfos->stageCount);
-    memcpy(pRemappedStages, pPacket->pCreateInfos->pStages,
-           sizeof(VkPipelineShaderStageCreateInfo) * pPacket->pCreateInfos->stageCount);
-
+    VkPipelineShaderStageCreateInfo **ppRemappedStages =
+        VKTRACE_NEW_ARRAY(VkPipelineShaderStageCreateInfo *, pPacket->createInfoCount);
+    memset(ppRemappedStages, 0, sizeof(VkPipelineShaderStageCreateInfo *) * pPacket->createInfoCount);
+    VkPipelineShaderStageCreateInfo *pRemappedStages;
     VkGraphicsPipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkGraphicsPipelineCreateInfo, pPacket->createInfoCount);
-    uint32_t i, j;
+    uint32_t i, j, k;
     for (i = 0; i < pPacket->createInfoCount; i++) {
+        pRemappedStages = VKTRACE_NEW_ARRAY(VkPipelineShaderStageCreateInfo, pPacket->pCreateInfos[i].stageCount);
+        ppRemappedStages[i] = pRemappedStages;
+        memcpy(pRemappedStages, pPacket->pCreateInfos[i].pStages,
+               sizeof(VkPipelineShaderStageCreateInfo) * pPacket->pCreateInfos[i].stageCount);
+
         memcpy((void *)&(pLocalCIs[i]), (void *)&(pPacket->pCreateInfos[i]), sizeof(VkGraphicsPipelineCreateInfo));
         for (j = 0; j < pPacket->pCreateInfos[i].stageCount; j++) {
             pRemappedStages[j].module = m_objMapper.remap_shadermodules(pRemappedStages[j].module);
             if (pRemappedStages[j].module == VK_NULL_HANDLE) {
                 vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkShaderModule.");
-                VKTRACE_DELETE(pRemappedStages);
+                for (k = 0; k < pPacket->createInfoCount; k++) {
+                    VKTRACE_DELETE(ppRemappedStages[k]);
+                }
+                VKTRACE_DELETE(ppRemappedStages);
                 VKTRACE_DELETE(pLocalCIs);
                 return VK_ERROR_VALIDATION_FAILED_EXT;
             }
@@ -1662,7 +1669,10 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
         pLocalCIs[i].layout = m_objMapper.remap_pipelinelayouts(pPacket->pCreateInfos[i].layout);
         if (pLocalCIs[i].layout == VK_NULL_HANDLE) {
             vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkPipelineLayout.");
-            VKTRACE_DELETE(pRemappedStages);
+            for (k = 0; k < pPacket->createInfoCount; k++) {
+                VKTRACE_DELETE(ppRemappedStages[k]);
+            }
+            VKTRACE_DELETE(ppRemappedStages);
             VKTRACE_DELETE(pLocalCIs);
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
@@ -1670,7 +1680,10 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
         pLocalCIs[i].renderPass = m_objMapper.remap_renderpasss(pPacket->pCreateInfos[i].renderPass);
         if (pLocalCIs[i].renderPass == VK_NULL_HANDLE) {
             vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkRenderPass.");
-            VKTRACE_DELETE(pRemappedStages);
+            for (k = 0; k < pPacket->createInfoCount; k++) {
+                VKTRACE_DELETE(ppRemappedStages[k]);
+            }
+            VKTRACE_DELETE(ppRemappedStages);
             VKTRACE_DELETE(pLocalCIs);
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
@@ -1678,7 +1691,10 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
         pLocalCIs[i].basePipelineHandle = m_objMapper.remap_pipelines(pPacket->pCreateInfos[i].basePipelineHandle);
         if (pLocalCIs[i].basePipelineHandle == VK_NULL_HANDLE && pPacket->pCreateInfos[i].basePipelineHandle != VK_NULL_HANDLE) {
             vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkPipeline.");
-            VKTRACE_DELETE(pRemappedStages);
+            for (k = 0; k < pPacket->createInfoCount; k++) {
+                VKTRACE_DELETE(ppRemappedStages[k]);
+            }
+            VKTRACE_DELETE(ppRemappedStages);
             VKTRACE_DELETE(pLocalCIs);
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
@@ -1699,7 +1715,10 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
     remappedPipelineCache = m_objMapper.remap_pipelinecaches(pPacket->pipelineCache);
     if (remappedPipelineCache == VK_NULL_HANDLE && pPacket->pipelineCache != VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkPipelineCache.");
-        VKTRACE_DELETE(pRemappedStages);
+        for (k = 0; k < pPacket->createInfoCount; k++) {
+            VKTRACE_DELETE(ppRemappedStages[k]);
+        }
+        VKTRACE_DELETE(ppRemappedStages);
         VKTRACE_DELETE(pLocalCIs);
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
@@ -1716,7 +1735,10 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
         }
     }
 
-    VKTRACE_DELETE(pRemappedStages);
+    for (k = 0; k < pPacket->createInfoCount; k++) {
+        VKTRACE_DELETE(ppRemappedStages[k]);
+    }
+    VKTRACE_DELETE(ppRemappedStages);
     VKTRACE_DELETE(pLocalCIs);
     VKTRACE_DELETE(local_pPipelines);
 

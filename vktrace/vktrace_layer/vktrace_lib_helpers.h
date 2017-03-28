@@ -332,101 +332,101 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
 
         for (i = 0; i < count; i++) {
             // shader stages array
-            vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pStages),
+            vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pStages),
                                                sizeof(VkPipelineShaderStageCreateInfo) * pParam[i].stageCount, pParam[i].pStages);
             for (j = 0; j < pParam[i].stageCount; j++) {
                 add_VkPipelineShaderStageCreateInfo_to_trace_packet(
-                    pHeader, (VkPipelineShaderStageCreateInfo *)&pPacket->pStages[j], &pParam->pStages[j]);
+                    pHeader, (VkPipelineShaderStageCreateInfo *)&pPacket[i].pStages[j], &pParam[i].pStages[j]);
             }
-            vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pStages));
+            vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pStages));
 
             // Vertex Input State
             if (pParam[i].pVertexInputState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pVertexInputState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pVertexInputState),
                                                    sizeof(VkPipelineVertexInputStateCreateInfo), pParam[i].pVertexInputState);
                 vktrace_add_buffer_to_trace_packet(
-                    pHeader, (void **)&(pPacket->pVertexInputState->pVertexBindingDescriptions),
+                    pHeader, (void **)&(pPacket[i].pVertexInputState->pVertexBindingDescriptions),
                     pParam[i].pVertexInputState->vertexBindingDescriptionCount * sizeof(VkVertexInputBindingDescription),
                     pParam[i].pVertexInputState->pVertexBindingDescriptions);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pVertexInputState->pVertexBindingDescriptions));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pVertexInputState->pVertexBindingDescriptions));
                 vktrace_add_buffer_to_trace_packet(
-                    pHeader, (void **)&(pPacket->pVertexInputState->pVertexAttributeDescriptions),
+                    pHeader, (void **)&(pPacket[i].pVertexInputState->pVertexAttributeDescriptions),
                     pParam[i].pVertexInputState->vertexAttributeDescriptionCount * sizeof(VkVertexInputAttributeDescription),
                     pParam[i].pVertexInputState->pVertexAttributeDescriptions);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pVertexInputState->pVertexAttributeDescriptions));
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pVertexInputState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pVertexInputState->pVertexAttributeDescriptions));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pVertexInputState));
             }
             // Input Assembly State
             if (pParam[i].pInputAssemblyState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pInputAssemblyState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pInputAssemblyState),
                                                    sizeof(VkPipelineInputAssemblyStateCreateInfo), pParam[i].pInputAssemblyState);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pInputAssemblyState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pInputAssemblyState));
             }
             // Tesselation State
             if (pParam[i].pTessellationState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pTessellationState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pTessellationState),
                                                    sizeof(VkPipelineTessellationStateCreateInfo), pParam[i].pTessellationState);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pTessellationState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pTessellationState));
             }
             // Viewport State
             if (pParam[i].pViewportState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pViewportState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pViewportState),
                                                    sizeof(VkPipelineViewportStateCreateInfo), pParam[i].pViewportState);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pViewportState->pViewports),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pViewportState->pViewports),
                                                    sizeof(VkViewport) * pParam[i].pViewportState->viewportCount,
                                                    pParam[i].pViewportState->pViewports);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pViewportState->pViewports));
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pViewportState->pScissors),
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pViewportState->pViewports));
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pViewportState->pScissors),
                                                    sizeof(VkRect2D) * pParam[i].pViewportState->scissorCount,
                                                    pParam[i].pViewportState->pScissors);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pViewportState->pScissors));
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pViewportState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pViewportState->pScissors));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pViewportState));
             }
 
             // Raster State
             if (pParam[i].pRasterizationState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pRasterizationState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pRasterizationState),
                                                    sizeof(VkPipelineRasterizationStateCreateInfo), pParam[i].pRasterizationState);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pRasterizationState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pRasterizationState));
             }
             // MultiSample State
             if (pParam[i].pMultisampleState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pMultisampleState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState),
                                                    sizeof(VkPipelineMultisampleStateCreateInfo), pParam[i].pMultisampleState);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pMultisampleState->pSampleMask),
-                                                   sizeof(VkSampleMask), pParam[i].pMultisampleState->pSampleMask);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pMultisampleState->pSampleMask));
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pMultisampleState));
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask),
+                    sizeof(VkSampleMask)*((pParam[i].pMultisampleState->rasterizationSamples / 32) + 1), pParam[i].pMultisampleState->pSampleMask);
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pMultisampleState));
             }
 
             // DepthStencil State
             if (pParam[i].pDepthStencilState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pDepthStencilState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pDepthStencilState),
                                                    sizeof(VkPipelineDepthStencilStateCreateInfo), pParam[i].pDepthStencilState);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pDepthStencilState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pDepthStencilState));
             }
 
             // ColorBlend State
             if (pParam[i].pColorBlendState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pColorBlendState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pColorBlendState),
                                                    sizeof(VkPipelineColorBlendStateCreateInfo), pParam[i].pColorBlendState);
                 vktrace_add_buffer_to_trace_packet(
-                    pHeader, (void **)&(pPacket->pColorBlendState->pAttachments),
+                    pHeader, (void **)&(pPacket[i].pColorBlendState->pAttachments),
                     pParam[i].pColorBlendState->attachmentCount * sizeof(VkPipelineColorBlendAttachmentState),
                     pParam[i].pColorBlendState->pAttachments);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pColorBlendState->pAttachments));
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pColorBlendState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pColorBlendState->pAttachments));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pColorBlendState));
             }
 
             // DynamicState
             if (pParam[i].pDynamicState) {
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pDynamicState),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pDynamicState),
                                                    sizeof(VkPipelineDynamicStateCreateInfo), pParam[i].pDynamicState);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pDynamicState->pDynamicStates),
+                vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pDynamicState->pDynamicStates),
                                                    pParam[i].pDynamicState->dynamicStateCount * sizeof(VkDynamicState),
                                                    pParam[i].pDynamicState->pDynamicStates);
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pDynamicState->pDynamicStates));
-                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pDynamicState));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pDynamicState->pDynamicStates));
+                vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pDynamicState));
             }
         }
     }
