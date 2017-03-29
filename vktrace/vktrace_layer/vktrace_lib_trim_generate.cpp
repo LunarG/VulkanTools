@@ -30,6 +30,39 @@ namespace trim {
 //=============================================================================
 namespace generate {
 
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfacePresentModesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface, uint32_t *pPresentModeCount,
+                                                                       VkPresentModeKHR *pPresentModes) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header* pHeader;
+    size_t _dataSize;
+    packet_vkGetPhysicalDeviceSurfacePresentModesKHR* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    if (makeCall) {
+        result = mid(physicalDevice)
+            ->instTable.GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, pPresentModes);
+    }
+    endTime = vktrace_get_time();
+    _dataSize = (pPresentModeCount == NULL || pPresentModes == NULL) ? 0 : (*pPresentModeCount * sizeof(VkPresentModeKHR));
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfacePresentModesKHR, sizeof(uint32_t) + _dataSize);
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkGetPhysicalDeviceSurfacePresentModesKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->surface = surface;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPresentModeCount), sizeof(uint32_t), pPresentModeCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPresentModes), _dataSize, pPresentModes);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPresentModeCount));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pPresentModes));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
 vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceSupportKHR(bool makeCall, VkPhysicalDevice physicalDevice,
                                                                   uint32_t queueFamilyIndex, VkSurfaceKHR surface,
                                                                   VkBool32 *pSupported) {

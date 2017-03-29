@@ -2302,6 +2302,23 @@ void write_all_referenced_object_calls() {
             if (physicalDeviceInfo->second.belongsToInstance == obj->second.belongsToInstance) {
                 VkPhysicalDevice physicalDevice = physicalDeviceInfo->first;
 
+                uint32_t presentModesCount = 0;
+                VkPresentModeKHR *pPresentModes;
+                vktrace_trace_packet_header *pSurfacePresentModesCountHeader =
+                    generate::vkGetPhysicalDeviceSurfacePresentModesKHR(true, physicalDevice, surface, &presentModesCount, NULL);
+                vktrace_write_trace_packet(pSurfacePresentModesCountHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&(pSurfacePresentModesCountHeader));
+
+                if (presentModesCount > 0) {
+                    pPresentModes = VKTRACE_NEW_ARRAY(VkPresentModeKHR, presentModesCount);
+
+                    vktrace_trace_packet_header *pSurfacePresentModeHeader = generate::vkGetPhysicalDeviceSurfacePresentModesKHR(
+                        true, physicalDevice, surface, &presentModesCount, pPresentModes);
+                    vktrace_write_trace_packet(pSurfacePresentModeHeader, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&(pSurfacePresentModeHeader));
+                    VKTRACE_DELETE(pPresentModes);
+                }
+
                 uint32_t surfaceFormatCount = 0;
                 VkSurfaceFormatKHR *pSurfaceFormats;
                 vktrace_trace_packet_header *pSurfaceFormatsCountHeader =
@@ -2316,6 +2333,7 @@ void write_all_referenced_object_calls() {
                         true, physicalDevice, surface, &surfaceFormatCount, pSurfaceFormats);
                     vktrace_write_trace_packet(pSurfaceFormatsHeader, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&pSurfaceFormatsHeader);
+                    VKTRACE_DELETE(pSurfaceFormats);
                 }
 
                 VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
