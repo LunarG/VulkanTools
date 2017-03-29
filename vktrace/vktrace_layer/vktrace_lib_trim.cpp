@@ -1505,7 +1505,11 @@ void remove_Device_object(VkDevice var) {
         trim::remove_Queue_object(queuesToRemove[i]);
     }
 
-    add_destroy_device_object_packets(var);
+    if (g_trimIsInTrim) {
+        // If vktrace is in the middle of a trim, then we want to also generate calls to destroy any objects that have not yet been
+        // destroyed by the app.
+        add_destroy_device_object_packets(var);
+    }
 
     s_trimGlobalStateTracker.remove_Device(var);
     vktrace_leave_critical_section(&trimStateTrackerLock);
@@ -3347,7 +3351,7 @@ void add_destroy_device_object_packets(VkDevice device) {
 
     // QueryPool
     for (auto obj = s_trimGlobalStateTracker.createdQueryPools.begin(); obj != s_trimGlobalStateTracker.createdQueryPools.end();
-    obj++) {
+         obj++) {
         if (obj->second.belongsToDevice == device) {
             VkQueryPool queryPool = obj->first;
             VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.QueryPool.pAllocator);
