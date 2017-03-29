@@ -19,11 +19,16 @@
 
 namespace trim {
 namespace generate {
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfacePresentModesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface, uint32_t *pPresentModeCount,
+                                                                       VkPresentModeKHR *pPresentModes);
+
 vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceSupportKHR(bool makeCall, VkPhysicalDevice physicalDevice,
                                                                   uint32_t queueFamilyIndex, VkSurfaceKHR surface,
                                                                   VkBool32 *pSupported);
-vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceCapabilitiesKHR(bool makeCall,
-    VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR* pSurfaceCapabilities);
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceCapabilitiesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface,
+                                                                       VkSurfaceCapabilitiesKHR *pSurfaceCapabilities);
 
 vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceFormatsKHR(bool makeCall, VkPhysicalDevice physicalDevice,
                                                                   VkSurfaceKHR surface, uint32_t *pSurfaceFormatCount,
