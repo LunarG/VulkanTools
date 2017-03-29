@@ -2296,6 +2296,26 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
     return result;
 }
 
+// The accurate size of VkGraphicsPipelineCreateInfo can be got from
+// get_struct_chain_size, but it's needed to ROUNDUP_TO_4 because
+// VkGraphicsPipelineCreateInfo might include valid entry point name of shader.
+size_t get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(const VkGraphicsPipelineCreateInfo* pCreateInfos) {
+    size_t entryPointNameLength = 0;
+    size_t struct_size = get_struct_chain_size(pCreateInfos);
+
+    if ((pCreateInfos->stageCount) && (pCreateInfos->pStages != nullptr)) {
+        VkPipelineShaderStageCreateInfo* pStage = const_cast<VkPipelineShaderStageCreateInfo*>(pCreateInfos->pStages);
+        for (int i = 0; i < pCreateInfos->stageCount; i++) {
+            if (pStage->pName) {
+                entryPointNameLength = strlen(pStage->pName) + 1;
+                struct_size += ROUNDUP_TO_4(entryPointNameLength) - entryPointNameLength;
+            }
+            ++pStage;
+        }
+    }
+    return struct_size;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache,
                                                                                   uint32_t createInfoCount,
                                                                                   const VkGraphicsPipelineCreateInfo* pCreateInfos,
@@ -2307,7 +2327,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
     size_t total_size = 0;
     uint32_t i;
     for (i = 0; i < createInfoCount; i++) {
-        total_size += get_struct_chain_size((void*)&pCreateInfos[i]);
+        total_size += get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(&pCreateInfos[i]);
     }
     CREATE_TRACE_PACKET(vkCreateGraphicsPipelines,
                         total_size + sizeof(VkAllocationCallbacks) + createInfoCount * sizeof(VkPipeline));
