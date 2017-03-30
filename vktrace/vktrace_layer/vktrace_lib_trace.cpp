@@ -2226,7 +2226,7 @@ size_t get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(const VkGraphicsPipeli
 
     if ((pCreateInfos->stageCount) && (pCreateInfos->pStages != nullptr)) {
         VkPipelineShaderStageCreateInfo* pStage = const_cast<VkPipelineShaderStageCreateInfo*>(pCreateInfos->pStages);
-        for (int i = 0; i < pCreateInfos->stageCount; i++) {
+        for (uint32_t i = 0; i < pCreateInfos->stageCount; i++) {
             if (pStage->pName) {
                 entryPointNameLength = strlen(pStage->pName) + 1;
                 struct_size += ROUNDUP_TO_4(entryPointNameLength) - entryPointNameLength;
