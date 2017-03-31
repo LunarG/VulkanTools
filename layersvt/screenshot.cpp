@@ -678,8 +678,7 @@ static void writePPM(const char *filename, VkImage image1) {
 
     // Set up the command buffer.  We get a command buffer from a pool we saved
     // in a hooked function, which would be the application's pool.
-    if (deviceMap[device]->commandPools.empty())
-    {
+    if (deviceMap[device]->commandPools.empty()) {
         assert(!deviceMap[device]->commandPools.empty());
         return;
     }
