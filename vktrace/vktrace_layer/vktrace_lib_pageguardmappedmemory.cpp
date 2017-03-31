@@ -197,6 +197,17 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
                 // Page was modified after we copied it, so mark the page as changed.
                 VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE, &oldProt);
                 setMappedBlockChanged(i, true, BLOCK_FLAG_ARRAY_CHANGED);
+
+                // for one page, there are two ways that trigger page guard and then the page
+                // need to be rearmed: write and read, we also use two flags for the page
+                // to record page guard is triggered by write (dirty) or by read, then base on
+                // the two flags, we rearm page guard in different functions.
+                // here if GetWriteWatch detect dirty page, we set it's a dirty page, also
+                // need to clear another read flag to avoid dead lock: if two flags
+                // all set to true, and if already rearm page guard by read related process,
+                // then when write the dirty page (because it's marked as dirty page), copy
+                // the dirty page will trigger unexpected page guard, cause a deadlock.
+                setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ);
             }
 #endif
             setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
