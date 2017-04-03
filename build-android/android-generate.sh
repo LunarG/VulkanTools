@@ -51,6 +51,7 @@ python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h 
 cp -f ../layers/vk_layer_config.cpp   generated/common/
 cp -f ../layers/vk_layer_extension_utils.cpp  generated/common/
 cp -f ../layers/vk_layer_utils.cpp    generated/common/
+cp -f ../layers/vk_format_utils.cpp   generated/common/
 cp -f ../layers/vk_layer_table.cpp    generated/common/
 cp -f ../layers/descriptor_sets.cpp   generated/common/
 cp -f ../layers/buffer_validation.cpp generated/common/

@@ -102,16 +102,6 @@ static const VkDeviceMemory MEMORY_UNBOUND = VkDeviceMemory(~((uint64_t)(0)) - 1
 // by the extent of a swapchain targeting the surface.
 static const uint32_t kSurfaceSizeFromSwapchain = 0xFFFFFFFFu;
 
-struct devExts {
-    bool wsi_enabled;
-    bool wsi_display_swapchain_enabled;
-    bool nv_glsl_shader_enabled;
-    bool khr_descriptor_update_template_enabled;
-    bool khr_shader_draw_parameters_enabled;
-    unordered_map<VkSwapchainKHR, unique_ptr<SWAPCHAIN_NODE>> swapchainMap;
-    unordered_map<VkImage, VkSwapchainKHR> imageToSwapchainMap;
-};
-
 // fwd decls
 struct shader_module;
 
@@ -2541,11 +2531,34 @@ static bool validate_shader_capabilities(layer_data *dev_data, shader_module con
                                               VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME);
                     break;
 
+                case spv::CapabilityGeometryShaderPassthroughNV:
+                    pass &= require_extension(report_data, dev_data->device_extensions.nv_geometry_shader_passthrough_enabled,
+                                              VK_NV_GEOMETRY_SHADER_PASSTHROUGH_EXTENSION_NAME);
+                    break;
+
+                case spv::CapabilitySampleMaskOverrideCoverageNV:
+                    pass &= require_extension(report_data, dev_data->device_extensions.nv_sample_mask_override_coverage_enabled,
+                                              VK_NV_SAMPLE_MASK_OVERRIDE_COVERAGE_EXTENSION_NAME);
+                    break;
+
+                case spv::CapabilityShaderViewportIndexLayerNV:
+                case spv::CapabilityShaderViewportMaskNV:
+                    pass &= require_extension(report_data, dev_data->device_extensions.nv_viewport_array2_enabled,
+                                              VK_NV_VIEWPORT_ARRAY2_EXTENSION_NAME);
+                    break;
+
+                case spv::CapabilitySubgroupBallotKHR:
+                    pass &= require_extension(report_data, dev_data->device_extensions.khr_subgroup_ballot_enabled,
+                                              VK_EXT_SHADER_SUBGROUP_BALLOT_EXTENSION_NAME);
+                    break;
+
+                case spv::CapabilitySubgroupVoteKHR:
+                    pass &= require_extension(report_data, dev_data->device_extensions.khr_subgroup_vote_enabled,
+                                              VK_EXT_SHADER_SUBGROUP_VOTE_EXTENSION_NAME);
+                    break;
+
                 default:
-                    if (log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VkDebugReportObjectTypeEXT(0), 0, __LINE__,
-                                SHADER_CHECKER_BAD_CAPABILITY, "SC", "Shader declares capability %u, not supported in Vulkan.",
-                                insn.word(1)))
-                        pass = false;
+                    // Spirv-validator should catch these errors
                     break;
             }
         }
@@ -3854,6 +3867,12 @@ static void checkDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
     dev_data->device_extensions.nv_glsl_shader_enabled = false;
     dev_data->device_extensions.khr_descriptor_update_template_enabled = false;
     dev_data->device_extensions.khr_shader_draw_parameters_enabled = false;
+    dev_data->device_extensions.khr_maintenance1_enabled = false;
+    dev_data->device_extensions.nv_geometry_shader_passthrough_enabled = false;
+    dev_data->device_extensions.nv_sample_mask_override_coverage_enabled = false;
+    dev_data->device_extensions.nv_viewport_array2_enabled = false;
+    dev_data->device_extensions.khr_subgroup_ballot_enabled = false;
+    dev_data->device_extensions.khr_subgroup_vote_enabled = false;
 
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
@@ -3871,6 +3890,25 @@ static void checkDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo,
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME) == 0) {
             dev_data->device_extensions.khr_shader_draw_parameters_enabled = true;
         }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_MAINTENANCE1_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.khr_maintenance1_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_NV_GEOMETRY_SHADER_PASSTHROUGH_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.nv_geometry_shader_passthrough_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_NV_SAMPLE_MASK_OVERRIDE_COVERAGE_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.nv_sample_mask_override_coverage_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_NV_VIEWPORT_ARRAY2_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.nv_viewport_array2_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_EXT_SHADER_SUBGROUP_BALLOT_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.khr_subgroup_ballot_enabled = true;
+        }
+        if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_EXT_SHADER_SUBGROUP_VOTE_EXTENSION_NAME) == 0) {
+            dev_data->device_extensions.khr_subgroup_vote_enabled = true;
+        }
+
     }
 }
 
@@ -4807,7 +4845,7 @@ static void initializeAndTrackMemory(layer_data *dev_data, VkDeviceMemory mem, V
                 size = mem_info->alloc_info.allocationSize - offset;
             }
             mem_info->shadow_pad_size = dev_data->phys_dev_properties.properties.limits.minMemoryMapAlignment;
-            assert(vk_safe_modulo(mem_info->shadow_pad_size,
+            assert(SafeModulo(mem_info->shadow_pad_size,
                                   dev_data->phys_dev_properties.properties.limits.minMemoryMapAlignment) == 0);
             // Ensure start of mapped region reflects hardware alignment constraints
             uint64_t map_alignment = dev_data->phys_dev_properties.properties.limits.minMemoryMapAlignment;
@@ -4822,7 +4860,7 @@ static void initializeAndTrackMemory(layer_data *dev_data, VkDeviceMemory mem, V
                 reinterpret_cast<char *>((reinterpret_cast<uintptr_t>(mem_info->shadow_copy_base) + map_alignment) &
                                          ~(map_alignment - 1)) +
                 start_offset;
-            assert(vk_safe_modulo(reinterpret_cast<uintptr_t>(mem_info->shadow_copy) + mem_info->shadow_pad_size - start_offset,
+            assert(SafeModulo(reinterpret_cast<uintptr_t>(mem_info->shadow_copy) + mem_info->shadow_pad_size - start_offset,
                                   map_alignment) == 0);
 
             memset(mem_info->shadow_copy, NoncoherentMemoryFillValue, static_cast<size_t>(2 * mem_info->shadow_pad_size + size));
@@ -5520,7 +5558,7 @@ static bool PreCallValidateBindBufferMemory(layer_data *dev_data, VkBuffer buffe
         }
 
         // Validate memory requirements alignment
-        if (vk_safe_modulo(memoryOffset, buffer_state->requirements.alignment) != 0) {
+        if (SafeModulo(memoryOffset, buffer_state->requirements.alignment) != 0) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
                             buffer_handle, __LINE__, VALIDATION_ERROR_02174, "DS",
                             "vkBindBufferMemory(): memoryOffset is 0x%" PRIxLEAST64
@@ -5565,7 +5603,7 @@ static bool PreCallValidateBindBufferMemory(layer_data *dev_data, VkBuffer buffe
 
         for (int i = 0; i < 3; i++) {
             if (usage & usage_list[i]) {
-                if (vk_safe_modulo(memoryOffset, offset_requirement[i]) != 0) {
+                if (SafeModulo(memoryOffset, offset_requirement[i]) != 0) {
                     skip |= log_msg(
                         dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT, buffer_handle,
                         __LINE__, msgCode[i], "DS", "vkBindBufferMemory(): %s memoryOffset is 0x%" PRIxLEAST64
@@ -6188,6 +6226,8 @@ const PHYS_DEV_PROPERTIES_NODE *GetPhysDevProperties(const layer_data *device_da
 const VkPhysicalDeviceFeatures *GetEnabledFeatures(const layer_data *device_data) {
     return &device_data->enabled_features;
 }
+
+const devExts *GetDeviceExtensions(const layer_data *device_data) { return &device_data->device_extensions; }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateImage(VkDevice device, const VkImageCreateInfo *pCreateInfo,
                                            const VkAllocationCallbacks *pAllocator, VkImage *pImage) {
@@ -7336,7 +7376,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(VkCommandBuffer commandBuffer, 
                         uint32_t cur_dyn_offset = total_dynamic_descriptors;
                         for (uint32_t d = 0; d < descriptor_set->GetTotalDescriptorCount(); d++) {
                             if (descriptor_set->GetTypeFromGlobalIndex(d) == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) {
-                                if (vk_safe_modulo(
+                                if (SafeModulo(
                                         pDynamicOffsets[cur_dyn_offset],
                                         dev_data->phys_dev_properties.properties.limits.minUniformBufferOffsetAlignment) != 0) {
                                     skip |= log_msg(
@@ -7350,7 +7390,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(VkCommandBuffer commandBuffer, 
                                 }
                                 cur_dyn_offset++;
                             } else if (descriptor_set->GetTypeFromGlobalIndex(d) == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {
-                                if (vk_safe_modulo(
+                                if (SafeModulo(
                                         pDynamicOffsets[cur_dyn_offset],
                                         dev_data->phys_dev_properties.properties.limits.minStorageBufferOffsetAlignment) != 0) {
                                     skip |= log_msg(
@@ -9446,8 +9486,8 @@ static bool FormatSpecificLoadAndStoreOpSettings(VkFormat format, T color_depth_
     if (color_depth_op != op && stencil_op != op) {
         return false;
     }
-    bool check_color_depth_load_op = !vk_format_is_stencil_only(format);
-    bool check_stencil_load_op = vk_format_is_depth_and_stencil(format) || !check_color_depth_load_op;
+    bool check_color_depth_load_op = !FormatIsStencilOnly(format);
+    bool check_stencil_load_op = FormatIsDepthAndStencil(format) || !check_color_depth_load_op;
 
     return (((check_color_depth_load_op == true) && (color_depth_op == op)) ||
             ((check_stencil_load_op == true) && (stencil_op == op)));
@@ -10113,14 +10153,14 @@ static bool ValidateMappedMemoryRangeDeviceLimits(layer_data *dev_data, const ch
     bool skip = false;
     for (uint32_t i = 0; i < mem_range_count; ++i) {
         uint64_t atom_size = dev_data->phys_dev_properties.properties.limits.nonCoherentAtomSize;
-        if (vk_safe_modulo(mem_ranges[i].offset, atom_size) != 0) {
+        if (SafeModulo(mem_ranges[i].offset, atom_size) != 0) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT,
                             reinterpret_cast<const uint64_t &>(mem_ranges->memory), __LINE__, VALIDATION_ERROR_00644, "MEM",
                             "%s: Offset in pMemRanges[%d] is 0x%" PRIxLEAST64
                             ", which is not a multiple of VkPhysicalDeviceLimits::nonCoherentAtomSize (0x%" PRIxLEAST64 "). %s",
                             func_name, i, mem_ranges[i].offset, atom_size, validation_error_map[VALIDATION_ERROR_00644]);
         }
-        if ((mem_ranges[i].size != VK_WHOLE_SIZE) && (vk_safe_modulo(mem_ranges[i].size, atom_size) != 0)) {
+        if ((mem_ranges[i].size != VK_WHOLE_SIZE) && (SafeModulo(mem_ranges[i].size, atom_size) != 0)) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT,
                             reinterpret_cast<const uint64_t &>(mem_ranges->memory), __LINE__, VALIDATION_ERROR_00645, "MEM",
                             "%s: Size in pMemRanges[%d] is 0x%" PRIxLEAST64
@@ -10213,7 +10253,7 @@ static bool PreCallValidateBindImageMemory(layer_data *dev_data, VkImage image, 
         }
 
         // Validate memory requirements alignment
-        if (vk_safe_modulo(memoryOffset, image_state->requirements.alignment) != 0) {
+        if (SafeModulo(memoryOffset, image_state->requirements.alignment) != 0) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                             image_handle, __LINE__, VALIDATION_ERROR_02178, "DS",
                             "vkBindImageMemory(): memoryOffset is 0x%" PRIxLEAST64
