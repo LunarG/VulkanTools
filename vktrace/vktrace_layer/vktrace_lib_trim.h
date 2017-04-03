@@ -131,7 +131,7 @@ VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTyp
 
 // check if a memory type on the physical device is only DEVICE_LOCAL and not
 // HOST_VISIBLE
-bool IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
+bool IsMemoryDeviceOnly(VkDeviceMemory memory);
 
 VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
 
