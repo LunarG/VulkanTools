@@ -1078,7 +1078,7 @@ void snapshot_state_tracker() {
         mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
         VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
         assert(waitResult == VK_SUCCESS);
-        if (result != VK_SUCCESS) continue;
+        if (waitResult != VK_SUCCESS) continue;
     }
 
     // 2a) Map, copy, unmap each image.
