@@ -414,7 +414,7 @@ static void writePPM(const char *filename, VkImage image1) {
     uint32_t const width = imageMap[image1]->imageExtent.width;
     uint32_t const height = imageMap[image1]->imageExtent.height;
     VkFormat const format = imageMap[image1]->format;
-    uint32_t const numChannels = vk_format_get_channel_count(format);
+    uint32_t const numChannels = FormatChannelCount(format);
 
     if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
@@ -487,34 +487,34 @@ static void writePPM(const char *filename, VkImage image1) {
         // does not support BLIT operations on 3 Channel rendertargets.
         // So format conversion gets costly.
         if (numChannels == 4) {
-            if (vk_format_is_unorm(format))
+            if (FormatIsUNorm(format))
                 destformat = VK_FORMAT_R8G8B8A8_UNORM;
-            else if (vk_format_is_srgb(format))
+            else if (FormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8A8_SRGB;
-            else if (vk_format_is_snorm(format))
+            else if (FormatIsSNorm(format))
                 destformat = VK_FORMAT_R8G8B8A8_SNORM;
-            else if (vk_format_is_uscaled(format))
+            else if (FormatIsUScaled(format))
                 destformat = VK_FORMAT_R8G8B8A8_USCALED;
-            else if (vk_format_is_sscaled(format))
+            else if (FormatIsSScaled(format))
                 destformat = VK_FORMAT_R8G8B8A8_SSCALED;
-            else if (vk_format_is_uint(format))
+            else if (FormatIsUInt(format))
                 destformat = VK_FORMAT_R8G8B8A8_UINT;
-            else if (vk_format_is_sint(format))
+            else if (FormatIsSInt(format))
                 destformat = VK_FORMAT_R8G8B8A8_SINT;
         } else { //numChannels 3
-            if (vk_format_is_unorm(format))
+            if (FormatIsUNorm(format))
                 destformat = VK_FORMAT_R8G8B8_UNORM;
-            else if (vk_format_is_srgb(format))
+            else if (FormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8_SRGB;
-            else if (vk_format_is_snorm(format))
+            else if (FormatIsSNorm(format))
                 destformat = VK_FORMAT_R8G8B8_SNORM;
-            else if (vk_format_is_uscaled(format))
+            else if (FormatIsUScaled(format))
                 destformat = VK_FORMAT_R8G8B8_USCALED;
-            else if (vk_format_is_sscaled(format))
+            else if (FormatIsSScaled(format))
                 destformat = VK_FORMAT_R8G8B8_SSCALED;
-            else if (vk_format_is_uint(format))
+            else if (FormatIsUInt(format))
                 destformat = VK_FORMAT_R8G8B8_UINT;
-            else if (vk_format_is_sint(format))
+            else if (FormatIsSInt(format))
                 destformat = VK_FORMAT_R8G8B8_SINT;
         }
     }
@@ -536,7 +536,7 @@ static void writePPM(const char *filename, VkImage image1) {
             destformat = VK_FORMAT_R8G8B8_UNORM;
     }
 
-    if ((vk_format_get_compatibility_class(destformat) != vk_format_get_compatibility_class(format))) {
+    if ((FormatCompatibilityClass(destformat) != FormatCompatibilityClass(format))) {
         assert(0);
         return;
     }
