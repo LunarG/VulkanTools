@@ -143,9 +143,9 @@ run_vk_xml_generate(api_dump_generator.py api_dump_text.h)
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
 # path that can't be easily modified to point it to the same directory that contains the layers.
 if (WIN32)
-    add_library(VkLayer_utilsvt STATIC ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp)
+    add_library(VkLayer_utilsvt STATIC ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp ../layers/vk_format_utils.cpp)
 else()
-    add_library(VkLayer_utilsvt SHARED ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp)
+    add_library(VkLayer_utilsvt SHARED ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp ../layers/vk_format_utils.cpp)
     install(TARGETS VkLayer_utilsvt DESTINATION ${PROJECT_BINARY_DIR}/install_staging)
 endif()
 add_dependencies(VkLayer_utilsvt generate_helper_files)
