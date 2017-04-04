@@ -250,7 +250,8 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                     pHeader->packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkAllocateMemory || pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
-                    pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory) {
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkCreateBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkCreateImage) {
                     portabilityTable.push_back(fileOffset);
                 }
                 lastPacketIndex = pHeader->global_packet_index;

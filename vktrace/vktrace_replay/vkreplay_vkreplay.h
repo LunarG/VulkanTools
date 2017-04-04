@@ -96,6 +96,10 @@ class vkReplay {
     uint64_t m_replay_gpu;
     uint64_t m_replay_drv_vers;
 
+    // Result of comparing trace platform with replay platform
+    // -1: Not initialized. 0: No match. 1: Match.
+    int m_platformMatch;
+
     struct ValidationMsg {
         VkFlags msgFlags;
         VkDebugReportObjectTypeEXT objType;

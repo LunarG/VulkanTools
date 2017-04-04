@@ -2507,7 +2507,7 @@ memoryTypeBits=%0x08X}",
                 rc_body.append('        if (value == 0) { return 0; }')
                 rc_body.append('')
                 rc_body.append('        std::map<VkImage, imageObj>::const_iterator q = m_images.find(value);')
-                rc_body.append('        if (q == m_images.end()) { vktrace_LogError("Failed to remap VkImage."); return VK_NULL_HANDLE; }\n')
+                rc_body.append('        if (q == m_images.end()) return VK_NULL_HANDLE;\n')
                 rc_body.append('        return q->second.replayImage;')
                 rc_body.append('    }\n')
             elif obj_map_dict[var] == 'VkBuffer':
@@ -2519,7 +2519,7 @@ memoryTypeBits=%0x08X}",
                 rc_body.append('        if (value == 0) { return 0; }')
                 rc_body.append('')
                 rc_body.append('        std::map<VkBuffer, bufferObj>::const_iterator q = m_buffers.find(value);')
-                rc_body.append('        if (q == m_buffers.end()) { vktrace_LogError("Failed to remap VkBuffer."); return VK_NULL_HANDLE; }\n')
+                rc_body.append('        if (q == m_buffers.end()) return VK_NULL_HANDLE;\n')
                 rc_body.append('        return q->second.replayBuffer;')
                 rc_body.append('    }\n')
             elif obj_map_dict[var] == 'VkDeviceMemory':
