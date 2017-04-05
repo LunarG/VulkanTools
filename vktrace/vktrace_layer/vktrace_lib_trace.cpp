@@ -958,35 +958,30 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
         info.belongsToPhysicalDevice = physicalDevice;
         info.ObjectInfo.Device.pCreatePacket = trim::copy_packet(pHeader);
 
-        trim::ObjectInfo *pPhysDevInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
-        if (pPhysDevInfo != nullptr)
-        {
+        trim::ObjectInfo* pPhysDevInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+        if (pPhysDevInfo != nullptr) {
             info.ObjectInfo.Device.queueFamilyCount = pPhysDevInfo->ObjectInfo.PhysicalDevice.queueFamilyCount;
             info.ObjectInfo.Device.pQueueFamilies = VKTRACE_NEW_ARRAY(trim::QueueFamily, info.ObjectInfo.Device.queueFamilyCount);
-            for (uint32_t family = 0; family < info.ObjectInfo.Device.queueFamilyCount; family++)
-            {
+            for (uint32_t family = 0; family < info.ObjectInfo.Device.queueFamilyCount; family++) {
                 info.ObjectInfo.Device.pQueueFamilies[family].count = 0;
                 info.ObjectInfo.Device.pQueueFamilies[family].queues = nullptr;
             }
 
-            for (uint32_t i = 0; i < pCreateInfo->queueCreateInfoCount; i++)
-            {
+            for (uint32_t i = 0; i < pCreateInfo->queueCreateInfoCount; i++) {
                 uint32_t queueFamilyIndex = pCreateInfo->pQueueCreateInfos[i].queueFamilyIndex;
                 uint32_t count = pCreateInfo->pQueueCreateInfos[i].queueCount;
 
                 info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].count = count;
                 info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues = VKTRACE_NEW_ARRAY(VkQueue, count);
 
-                for (uint32_t q = 0; q < count; q++)
-                {
+                for (uint32_t q = 0; q < count; q++) {
                     VkQueue queue = VK_NULL_HANDLE;
                     mdd(*pDevice)->devTable.GetDeviceQueue(*pDevice, queueFamilyIndex, q, &queue);
                     info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues[q] = queue;
                 }
             }
         }
-        if (pAllocator != NULL)
-        {
+        if (pAllocator != NULL) {
             info.ObjectInfo.Device.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
@@ -1507,9 +1502,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
             if (pQueueFamilyProperties == nullptr) {
                 pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = trim::copy_packet(pHeader);
                 pInfo->ObjectInfo.PhysicalDevice.queueFamilyCount = *pQueueFamilyPropertyCount;
-            }
-            else
-            {
+            } else {
                 pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = trim::copy_packet(pHeader);
             }
         }
@@ -1970,8 +1963,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
             if (pSubmits != NULL) {
                 for (uint32_t i = 0; i < submitCount; i++) {
                     // Update attachment objects based on RenderPass transitions
-                    for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++)
-                    {
+                    for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++) {
                         trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
                         pCBInfo->ObjectInfo.CommandBuffer.submitQueue = queue;
 
@@ -2020,22 +2012,16 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
             }
         }
 
-        if (g_trimIsInTrim)
-        {
-            if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL)
-            {
-                for (uint32_t s = 0; s < submitCount; s++)
-                {
-                    for (uint32_t i = 0; i < pSubmits[s].commandBufferCount; i++)
-                    {
+        if (g_trimIsInTrim) {
+            if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL) {
+                for (uint32_t s = 0; s < submitCount; s++) {
+                    for (uint32_t i = 0; i < pSubmits[s].commandBufferCount; i++) {
                         trim::mark_CommandBuffer_reference(pSubmits[s].pCommandBuffers[i]);
                     }
                 }
             }
             trim::write_packet(pHeader);
-        }
-        else
-        {
+        } else {
             vktrace_delete_trace_packet(&pHeader);
         }
     }
@@ -2400,7 +2386,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
             info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
             info.ObjectInfo.Pipeline.renderPassVersion = trim::get_RenderPassVersion(pCreateInfos[i].renderPass);
             info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount = pCreateInfos[i].stageCount;
-            info.ObjectInfo.Pipeline.pShaderModuleCreateInfos = VKTRACE_NEW_ARRAY(VkShaderModuleCreateInfo, pCreateInfos[i].stageCount);
+            info.ObjectInfo.Pipeline.pShaderModuleCreateInfos =
+                VKTRACE_NEW_ARRAY(VkShaderModuleCreateInfo, pCreateInfos[i].stageCount);
 
             for (uint32_t stageIndex = 0; stageIndex < info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; stageIndex++) {
                 trim::ObjectInfo* pShaderModuleInfo = trim::get_ShaderModule_objectInfo(pCreateInfos[i].pStages[stageIndex].module);
