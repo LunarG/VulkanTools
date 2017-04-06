@@ -2445,6 +2445,10 @@ wrapItUp:
 }
 
 void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory *pPacket) {
+    if (pPacket->memory == NULL) {
+        return;
+    }
+
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkFreeMemory() due to invalid remapped VkDevice.");
