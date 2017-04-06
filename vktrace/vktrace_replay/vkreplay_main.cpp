@@ -297,6 +297,7 @@ static bool readPortabilityTable() {
     if (-1 == originalFilePos) return false;
     if (0 != fseek(tracefp, -sizeof(size_t), SEEK_END)) return false;
     if (1 != fread(&tableSize, sizeof(size_t), 1, tracefp)) return false;
+    if (tableSize == 0) return true;
     if (0 != fseek(tracefp, -(tableSize + 1) * sizeof(size_t), SEEK_END)) return false;
     portabilityTable.resize(tableSize);
     if (tableSize != fread(&portabilityTable[0], sizeof(size_t), tableSize, tracefp)) return false;
