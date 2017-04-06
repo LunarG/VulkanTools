@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
                           << "                               "
                              "  a given path"
                           << std::endl;
-                goto out;
+                return -1;
             }
         }
     }
