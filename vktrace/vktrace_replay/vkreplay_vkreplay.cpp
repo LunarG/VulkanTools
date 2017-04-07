@@ -461,7 +461,7 @@ VkResult vkReplay::manually_replay_vkCreateBuffer(packet_vkCreateBuffer *pPacket
     }
 
     // Check to see if buffer has already been created
-    if (NULL != m_objMapper.remap_buffers(*(pPacket->pBuffer))) return VK_SUCCESS;
+    if (VK_NULL_HANDLE != m_objMapper.remap_buffers(*(pPacket->pBuffer))) return VK_SUCCESS;
 
     // Convert queueFamilyIndices
     if (pPacket->pCreateInfo) {
@@ -495,7 +495,7 @@ VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage *pPacket) 
     }
 
     // Check to see if image has already been created
-    if (NULL != m_objMapper.remap_images(*(pPacket->pImage))) return VK_SUCCESS;
+    if (VK_NULL_HANDLE != m_objMapper.remap_images(*(pPacket->pImage))) return VK_SUCCESS;
 
     // Convert queueFamilyIndices
     if (pPacket->pCreateInfo) {
@@ -2445,7 +2445,7 @@ wrapItUp:
 }
 
 void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory *pPacket) {
-    if (pPacket->memory == NULL) {
+    if (pPacket->memory == VK_NULL_HANDLE) {
         return;
     }
 
