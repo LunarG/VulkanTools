@@ -2210,7 +2210,7 @@ TEST_F(VkLayerTest, InvalidUsageBits) {
 
     VkImageObj image(m_device);
     // Initialize image with USAGE_TRANSIENT_ATTACHMENT
-    image.init(128, 128, format, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, format, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageView dsv;
@@ -3213,11 +3213,11 @@ TEST_F(VkLayerTest, BlitImageFormats) {
     ASSERT_NO_FATAL_FAILURE(Init());
 
     VkImageObj src_image(m_device);
-    src_image.init(64, 64, VK_FORMAT_A2B10G10R10_UINT_PACK32, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    src_image.Init(64, 64, 1, VK_FORMAT_A2B10G10R10_UINT_PACK32, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_LINEAR, 0);
     VkImageObj dst_image(m_device);
-    dst_image.init(64, 64, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    dst_image.Init(64, 64, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
     VkImageObj dst_image2(m_device);
-    dst_image2.init(64, 64, VK_FORMAT_R8G8B8A8_SINT, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    dst_image2.Init(64, 64, 1, VK_FORMAT_R8G8B8A8_SINT, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
 
     VkImageBlit blitRegion = {};
     blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -3236,7 +3236,7 @@ TEST_F(VkLayerTest, BlitImageFormats) {
 
     // Unsigned int vs not an int
     m_commandBuffer->BeginCommandBuffer();
-    vkCmdBlitImage(m_commandBuffer->handle(), src_image.image(), src_image.layout(), dst_image.image(), dst_image.layout(), 1,
+    vkCmdBlitImage(m_commandBuffer->handle(), src_image.image(), src_image.Layout(), dst_image.image(), dst_image.Layout(), 1,
                    &blitRegion, VK_FILTER_NEAREST);
 
     m_errorMonitor->VerifyFound();
@@ -3246,7 +3246,7 @@ TEST_F(VkLayerTest, BlitImageFormats) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_02191);
 
     // Unsigned int vs signed int
-    vkCmdBlitImage(m_commandBuffer->handle(), src_image.image(), src_image.layout(), dst_image2.image(), dst_image2.layout(), 1,
+    vkCmdBlitImage(m_commandBuffer->handle(), src_image.image(), src_image.Layout(), dst_image2.image(), dst_image2.Layout(), 1,
                    &blitRegion, VK_FILTER_NEAREST);
 
     // TODO: Note that this only verifies that at least one of the VU enums was found
@@ -3507,7 +3507,7 @@ TEST_F(VkLayerTest, RenderPassPipelineSubpassMismatch) {
     ASSERT_VK_SUCCESS(err);
 
     VkImageObj image(m_device);
-    image.init_no_layout(32, 32, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.InitNoLayout(32, 32, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     VkImageView imageView = image.targetView(VK_FORMAT_R8G8B8A8_UNORM);
 
     VkFramebufferCreateInfo fbci = {VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO, nullptr, 0, rp, 1, &imageView, 32, 32, 1};
@@ -4010,39 +4010,44 @@ TEST_F(VkLayerTest, FramebufferCreateErrors) {
 
     vkDestroyRenderPass(m_device->device(), rp, NULL);
 
-    // Create a custom imageView with non-1 mip levels
-    VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
-    ASSERT_TRUE(image.initialized());
+    {
+        // Create an image with 2 mip levels.
+        VkImageObj image(m_device);
+        image.Init(128, 128, 2, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+        ASSERT_TRUE(image.initialized());
 
-    VkImageView view;
-    VkImageViewCreateInfo ivci = {};
-    ivci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    ivci.image = image.handle();
-    ivci.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    ivci.format = VK_FORMAT_B8G8R8A8_UNORM;
-    ivci.subresourceRange.layerCount = 1;
-    ivci.subresourceRange.baseMipLevel = 0;
-    // Set level count 2 (only 1 is allowed for FB attachment)
-    ivci.subresourceRange.levelCount = 2;
-    ivci.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    err = vkCreateImageView(m_device->device(), &ivci, NULL, &view);
-    ASSERT_VK_SUCCESS(err);
-    // Re-create renderpass to have matching sample count
-    attach_desc.samples = VK_SAMPLE_COUNT_1_BIT;
-    err = vkCreateRenderPass(m_device->device(), &rpci, NULL, &rp);
-    ASSERT_VK_SUCCESS(err);
+        // Create a image view with two mip levels.
+        VkImageView view;
+        VkImageViewCreateInfo ivci = {};
+        ivci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        ivci.image = image.handle();
+        ivci.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        ivci.format = VK_FORMAT_B8G8R8A8_UNORM;
+        ivci.subresourceRange.layerCount = 1;
+        ivci.subresourceRange.baseMipLevel = 0;
+        // Set level count to 2 (only 1 is allowed for FB attachment)
+        ivci.subresourceRange.levelCount = 2;
+        ivci.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        err = vkCreateImageView(m_device->device(), &ivci, NULL, &view);
+        ASSERT_VK_SUCCESS(err);
 
-    fb_info.renderPass = rp;
-    fb_info.pAttachments = &view;
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " has mip levelCount of 2 but only ");
-    err = vkCreateFramebuffer(device(), &fb_info, NULL, &fb);
+        // Re-create renderpass to have matching sample count
+        attach_desc.samples = VK_SAMPLE_COUNT_1_BIT;
+        err = vkCreateRenderPass(m_device->device(), &rpci, NULL, &rp);
+        ASSERT_VK_SUCCESS(err);
 
-    m_errorMonitor->VerifyFound();
-    if (err == VK_SUCCESS) {
-        vkDestroyFramebuffer(m_device->device(), fb, NULL);
+        fb_info.renderPass = rp;
+        fb_info.pAttachments = &view;
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " has mip levelCount of 2 but only ");
+        err = vkCreateFramebuffer(device(), &fb_info, NULL, &fb);
+
+        m_errorMonitor->VerifyFound();
+        if (err == VK_SUCCESS) {
+            vkDestroyFramebuffer(m_device->device(), fb, NULL);
+        }
+        vkDestroyImageView(m_device->device(), view, NULL);
     }
-    vkDestroyImageView(m_device->device(), view, NULL);
+
     // Update view to original color buffer and grow FB dimensions too big
     fb_info.pAttachments = ivs;
     fb_info.height = 1024;
@@ -4055,36 +4060,48 @@ TEST_F(VkLayerTest, FramebufferCreateErrors) {
     if (err == VK_SUCCESS) {
         vkDestroyFramebuffer(m_device->device(), fb, NULL);
     }
-    // Create view attachment with non-identity swizzle
-    ivci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    ivci.image = image.handle();
-    ivci.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    ivci.format = VK_FORMAT_B8G8R8A8_UNORM;
-    ivci.subresourceRange.layerCount = 1;
-    ivci.subresourceRange.baseMipLevel = 0;
-    ivci.subresourceRange.levelCount = 1;
-    ivci.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    ivci.components.r = VK_COMPONENT_SWIZZLE_G;
-    ivci.components.g = VK_COMPONENT_SWIZZLE_R;
-    ivci.components.b = VK_COMPONENT_SWIZZLE_A;
-    ivci.components.a = VK_COMPONENT_SWIZZLE_B;
-    err = vkCreateImageView(m_device->device(), &ivci, NULL, &view);
-    ASSERT_VK_SUCCESS(err);
 
-    fb_info.pAttachments = &view;
-    fb_info.height = 100;
-    fb_info.width = 100;
-    fb_info.layers = 1;
-    m_errorMonitor->SetDesiredFailureMsg(
-        VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        " has non-identy swizzle. All framebuffer attachments must have been created with the identity swizzle. ");
-    err = vkCreateFramebuffer(device(), &fb_info, NULL, &fb);
+    {
+        // Create an image with one mip level.
+        VkImageObj image(m_device);
+        image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+        ASSERT_TRUE(image.initialized());
 
-    m_errorMonitor->VerifyFound();
-    if (err == VK_SUCCESS) {
-        vkDestroyFramebuffer(m_device->device(), fb, NULL);
+        // Create view attachment with non-identity swizzle
+        VkImageView view;
+        VkImageViewCreateInfo ivci = {};
+        ivci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        ivci.image = image.handle();
+        ivci.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        ivci.format = VK_FORMAT_B8G8R8A8_UNORM;
+        ivci.subresourceRange.layerCount = 1;
+        ivci.subresourceRange.baseMipLevel = 0;
+        ivci.subresourceRange.levelCount = 1;
+        ivci.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        ivci.components.r = VK_COMPONENT_SWIZZLE_G;
+        ivci.components.g = VK_COMPONENT_SWIZZLE_R;
+        ivci.components.b = VK_COMPONENT_SWIZZLE_A;
+        ivci.components.a = VK_COMPONENT_SWIZZLE_B;
+        err = vkCreateImageView(m_device->device(), &ivci, NULL, &view);
+        ASSERT_VK_SUCCESS(err);
+
+        fb_info.pAttachments = &view;
+        fb_info.height = 100;
+        fb_info.width = 100;
+        fb_info.layers = 1;
+
+        m_errorMonitor->SetDesiredFailureMsg(
+            VK_DEBUG_REPORT_ERROR_BIT_EXT,
+            " has non-identy swizzle. All framebuffer attachments must have been created with the identity swizzle. ");
+        err = vkCreateFramebuffer(device(), &fb_info, NULL, &fb);
+
+        m_errorMonitor->VerifyFound();
+        if (err == VK_SUCCESS) {
+            vkDestroyFramebuffer(m_device->device(), fb, NULL);
+        }
+        vkDestroyImageView(m_device->device(), view, NULL);
     }
-    vkDestroyImageView(m_device->device(), view, NULL);
+
     // reset attachment to color attachment
     fb_info.pAttachments = ivs;
 
@@ -5089,7 +5106,7 @@ TEST_F(VkLayerTest, FramebufferInUseDestroyedSignaled) {
     ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
 
     VkImageObj image(m_device);
-    image.init(256, 256, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(256, 256, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
     VkImageView view = image.targetView(VK_FORMAT_B8G8R8A8_UNORM);
 
@@ -5402,7 +5419,7 @@ TEST_F(VkLayerTest, BufferMemoryNotBound) {
     ASSERT_NO_FATAL_FAILURE(Init());
 
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
@@ -6131,7 +6148,7 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
 
     // Create image to update the descriptor with
     VkImageObj image(m_device);
-    image.init(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageView view = image.targetView(VK_FORMAT_B8G8R8A8_UNORM);
@@ -8961,7 +8978,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Image Layout cannot be transitioned to UNDEFINED");
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
     VkImageMemoryBarrier img_barrier = {};
     img_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -9127,7 +9144,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
 
     // Finally test color
     VkImageObj c_image(m_device);
-    c_image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    c_image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(c_image.initialized());
     img_barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     img_barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -9152,27 +9169,27 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     // A barrier's new and old VkImageLayout must be compatible with an image's VkImageUsageFlags.
     {
         VkImageObj img_color(m_device);
-        img_color.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_color.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_color.initialized());
 
         VkImageObj img_ds(m_device);
-        img_ds.init(128, 128, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_ds.Init(128, 128, 1, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_ds.initialized());
 
         VkImageObj img_xfer_src(m_device);
-        img_xfer_src.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_xfer_src.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_xfer_src.initialized());
 
         VkImageObj img_xfer_dst(m_device);
-        img_xfer_dst.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_xfer_dst.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_xfer_dst.initialized());
 
         VkImageObj img_sampled(m_device);
-        img_sampled.init(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_sampled.Init(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_sampled.initialized());
 
         VkImageObj img_input(m_device);
-        img_input.init(128, 128, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_input.Init(128, 128, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_input.initialized());
 
         const struct {
@@ -9306,7 +9323,7 @@ TEST_F(VkLayerTest, LayoutFromPresentWithoutAccessMemoryRead) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT, "must have required access bit");
     ASSERT_NO_FATAL_FAILURE(Init());
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT),
+    image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT),
                VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
@@ -9470,7 +9487,7 @@ TEST_F(VkLayerTest, ExecuteCommandsPrimaryCB) {
     vkCmdExecuteCommands(m_commandBuffer->handle(), 1, &handle);
     m_errorMonitor->VerifyFound();
 
-    m_errorMonitor->SetUnexpectedError("All elements of pCommandBuffers must not be pending execution");
+    m_errorMonitor->SetUnexpectedError("All elements of pCommandBuffers must not be in the pending state");
 }
 
 TEST_F(VkLayerTest, DSUsageBitsErrors) {
@@ -11541,7 +11558,7 @@ TEST_F(VkLayerTest, InvalidQueueIndexInvalidQuery) {
     m_commandBuffer->BeginCommandBuffer();
 
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
     VkImageMemoryBarrier img_barrier = {};
     img_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -11864,8 +11881,7 @@ TEST_F(VkLayerTest, InvalidImageLayout) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                          "with specific layout VK_IMAGE_LAYOUT_UNDEFINED that "
                                          "doesn't match the actual current layout VK_IMAGE_LAYOUT_GENERAL.");
-    m_errorMonitor->SetUnexpectedError(
-        "srcImageLayout must be either of VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL");
+    m_errorMonitor->SetUnexpectedError("srcImageLayout must be VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL");
     m_commandBuffer->CopyImage(src_image, VK_IMAGE_LAYOUT_UNDEFINED, dst_image, VK_IMAGE_LAYOUT_GENERAL, 1, &copy_region);
     m_errorMonitor->VerifyFound();
     // Final src error is due to bad layout type
@@ -12123,7 +12139,7 @@ TEST_F(VkLayerTest, InvalidStorageImageLayout) {
     ASSERT_VK_SUCCESS(err);
 
     VkImageObj image(m_device);
-    image.init(32, 32, tex_format, VK_IMAGE_USAGE_STORAGE_BIT, tiling, 0);
+    image.Init(32, 32, 1, tex_format, VK_IMAGE_USAGE_STORAGE_BIT, tiling, 0);
     ASSERT_TRUE(image.initialized());
     VkImageView view = image.targetView(tex_format);
 
@@ -12205,7 +12221,7 @@ TEST_F(VkLayerTest, SimultaneousUse) {
     m_errorMonitor->VerifyNotFound();
 
     command_buffer_begin_info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-    m_errorMonitor->SetUnexpectedError("commandBuffer must not currently be pending execution");
+    m_errorMonitor->SetUnexpectedError("commandBuffer must not be in the recording or pending state.");
     m_errorMonitor->SetUnexpectedError(
         "If commandBuffer was allocated from a VkCommandPool which did not have the "
         "VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag set, commandBuffer must be in the initial state");
@@ -12220,7 +12236,7 @@ TEST_F(VkLayerTest, SimultaneousUse) {
 
     vkQueueWaitIdle(m_device->m_queue);
 
-    m_errorMonitor->SetUnexpectedError("All elements of pCommandBuffers must not be pending execution");
+    m_errorMonitor->SetUnexpectedError("All elements of pCommandBuffers must not be in the pending state");
 }
 
 TEST_F(VkLayerTest, SimultaneousUseOneShot) {
@@ -12647,7 +12663,7 @@ TEST_F(VkLayerTest, ImageViewInUseDestroyedSignaled) {
     ASSERT_VK_SUCCESS(err);
 
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageView view;
@@ -12987,7 +13003,7 @@ TEST_F(VkLayerTest, SamplerInUseDestroyedSignaled) {
     ASSERT_VK_SUCCESS(err);
 
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageView view;
@@ -13166,7 +13182,7 @@ TEST_F(VkLayerTest, FramebufferIncompatible) {
 
     // A compatible framebuffer.
     VkImageObj image(m_device);
-    image.init(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageViewCreateInfo ivci = {
@@ -15582,7 +15598,7 @@ TEST_F(VkLayerTest, CreateImageLimitsViolationMinWidth) {
     info.extent.width = 0;
 
     VkImage image;
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00716);
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_02917);
     m_errorMonitor->SetUnexpectedError("parameter pCreateInfo->extent.width must be greater than 0");
     vkCreateImage(m_device->device(), &info, NULL, &image);
     m_errorMonitor->VerifyFound();
@@ -15747,7 +15763,7 @@ TEST_F(VkLayerTest, InvalidImageViewAspect) {
 
     const VkFormat tex_format = VK_FORMAT_B8G8R8A8_UNORM;
     VkImageObj image(m_device);
-    image.init(32, 32, tex_format, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    image.Init(32, 32, 1, tex_format, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageViewCreateInfo image_view_create_info = {};
@@ -15777,7 +15793,7 @@ TEST_F(VkLayerTest, ExerciseGetImageSubresourceLayout) {
     {
         const VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;  // ERROR: violates VU 00732
         VkImageObj img(m_device);
-        img.init_no_layout(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, tiling);
+        img.InitNoLayout(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, tiling);
         ASSERT_TRUE(img.initialized());
 
         VkImageSubresource subres = {};
@@ -15793,7 +15809,7 @@ TEST_F(VkLayerTest, ExerciseGetImageSubresourceLayout) {
     // VU 00733: The aspectMask member of pSubresource must only have a single bit set
     {
         VkImageObj img(m_device);
-        img.init_no_layout(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+        img.InitNoLayout(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
         ASSERT_TRUE(img.initialized());
 
         VkImageSubresource subres = {};
@@ -15810,7 +15826,7 @@ TEST_F(VkLayerTest, ExerciseGetImageSubresourceLayout) {
     // 00739 mipLevel must be less than the mipLevels specified in VkImageCreateInfo when the image was created
     {
         VkImageObj img(m_device);
-        img.init_no_layout(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+        img.InitNoLayout(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
         ASSERT_TRUE(img.initialized());
 
         VkImageSubresource subres = {};
@@ -15826,7 +15842,7 @@ TEST_F(VkLayerTest, ExerciseGetImageSubresourceLayout) {
     // 00740 arrayLayer must be less than the arrayLayers specified in VkImageCreateInfo when the image was created
     {
         VkImageObj img(m_device);
-        img.init_no_layout(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+        img.InitNoLayout(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
         ASSERT_TRUE(img.initialized());
 
         VkImageSubresource subres = {};
@@ -15991,7 +16007,7 @@ TEST_F(VkLayerTest, ImageLayerViewTests) {
     }
 
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
@@ -16013,19 +16029,26 @@ TEST_F(VkLayerTest, ImageLayerViewTests) {
     m_errorMonitor->VerifyFound();
     imgViewInfo.subresourceRange.baseMipLevel = 0;
 
-    // View can't have baseArrayLayer >= image's arraySize - Expect VIEW_CREATE_ERROR
-    imgViewInfo.subresourceRange.baseArrayLayer = 1;
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00769);
-    vkCreateImageView(m_device->handle(), &imgViewInfo, NULL, &imgView);
-    m_errorMonitor->VerifyFound();
-    imgViewInfo.subresourceRange.baseArrayLayer = 0;
-
     // View's levelCount can't be 0 - Expect VIEW_CREATE_ERROR
     imgViewInfo.subresourceRange.levelCount = 0;
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00768);
     vkCreateImageView(m_device->handle(), &imgViewInfo, NULL, &imgView);
     m_errorMonitor->VerifyFound();
     imgViewInfo.subresourceRange.levelCount = 1;
+
+    // View's levelCount can't be > image's mipLevels - Expect VIEW_CREATE_ERROR
+    imgViewInfo.subresourceRange.levelCount = 2;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00768);
+    vkCreateImageView(m_device->handle(), &imgViewInfo, NULL, &imgView);
+    m_errorMonitor->VerifyFound();
+    imgViewInfo.subresourceRange.levelCount = 1;
+
+    // View can't have baseArrayLayer >= image's arraySize - Expect VIEW_CREATE_ERROR
+    imgViewInfo.subresourceRange.baseArrayLayer = 1;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00769);
+    vkCreateImageView(m_device->handle(), &imgViewInfo, NULL, &imgView);
+    m_errorMonitor->VerifyFound();
+    imgViewInfo.subresourceRange.baseArrayLayer = 0;
 
     // View's layerCount can't be 0 - Expect VIEW_CREATE_ERROR
     imgViewInfo.subresourceRange.layerCount = 0;
@@ -16309,13 +16332,13 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
     VkImageObj ds_image_2D(m_device);      // 256^2 texels, 128k (128k depth)
     VkImageObj ds_image_1S(m_device);      // 256^2 texels, 64k (64k stencil)
 
-    image_64k.init(128, 128, VK_FORMAT_R8G8B8A8_UINT,
+    image_64k.Init(128, 128, 1, VK_FORMAT_R8G8B8A8_UINT,
                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
-    image_16k.init(64, 64, VK_FORMAT_R8G8B8A8_UINT,
+    image_16k.Init(64, 64, 1, VK_FORMAT_R8G8B8A8_UINT,
                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
-    image_16k_depth.init(64, 64, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    image_16k_depth.Init(64, 64, 1, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                          VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image_64k.initialized());
     ASSERT_TRUE(image_16k.initialized());
@@ -16334,28 +16357,26 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
     missing_ds_support |= (props.bufferFeatures == 0 && props.linearTilingFeatures == 0 && props.optimalTilingFeatures == 0);
 
     if (!missing_ds_support) {
-        ds_image_4D_1S.init(
-            256, 256, VK_FORMAT_D32_SFLOAT_S8_UINT,
+        ds_image_4D_1S.Init(
+            256, 256, 1, VK_FORMAT_D32_SFLOAT_S8_UINT,
             VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
             VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_4D_1S.initialized());
 
-        ds_image_3D_1S.init(
-            256, 256, VK_FORMAT_D24_UNORM_S8_UINT,
+        ds_image_3D_1S.Init(
+            256, 256, 1, VK_FORMAT_D24_UNORM_S8_UINT,
             VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
             VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_3D_1S.initialized());
 
-        ds_image_2D.init(
-            256, 256, VK_FORMAT_D16_UNORM,
-            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-            VK_IMAGE_TILING_OPTIMAL, 0);
+        ds_image_2D.Init(256, 256, 1, VK_FORMAT_D16_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                                               VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                         VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_2D.initialized());
 
-        ds_image_1S.init(
-            256, 256, VK_FORMAT_S8_UINT,
-            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-            VK_IMAGE_TILING_OPTIMAL, 0);
+        ds_image_1S.Init(256, 256, 1, VK_FORMAT_S8_UINT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                                             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                         VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_1S.initialized());
     }
 
@@ -16589,18 +16610,19 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
         VkImageObj image_16k_4x4comp(m_device);   // 128^2 texels as 32^2 compressed (4x4) blocks, 16k
         VkImageObj image_NPOT_4x4comp(m_device);  // 130^2 texels as 33^2 compressed (4x4) blocks
         if (device_features.textureCompressionBC) {
-            image_16k_4x4comp.init(128, 128, VK_FORMAT_BC3_SRGB_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
-            image_NPOT_4x4comp.init(130, 130, VK_FORMAT_BC3_SRGB_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL,
+            image_16k_4x4comp.Init(128, 128, 1, VK_FORMAT_BC3_SRGB_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL,
+                                   0);
+            image_NPOT_4x4comp.Init(130, 130, 1, VK_FORMAT_BC3_SRGB_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL,
                                     0);
         } else if (device_features.textureCompressionETC2) {
-            image_16k_4x4comp.init(128, 128, VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            image_16k_4x4comp.Init(128, 128, 1, VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                    VK_IMAGE_TILING_OPTIMAL, 0);
-            image_NPOT_4x4comp.init(130, 130, VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            image_NPOT_4x4comp.Init(130, 130, 1, VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                     VK_IMAGE_TILING_OPTIMAL, 0);
         } else {
-            image_16k_4x4comp.init(128, 128, VK_FORMAT_ASTC_4x4_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            image_16k_4x4comp.Init(128, 128, 1, VK_FORMAT_ASTC_4x4_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                    VK_IMAGE_TILING_OPTIMAL, 0);
-            image_NPOT_4x4comp.init(130, 130, VK_FORMAT_ASTC_4x4_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            image_NPOT_4x4comp.Init(130, 130, 1, VK_FORMAT_ASTC_4x4_UNORM_BLOCK, VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                     VK_IMAGE_TILING_OPTIMAL, 0);
         }
         ASSERT_TRUE(image_16k_4x4comp.initialized());
@@ -16687,7 +16709,7 @@ TEST_F(VkLayerTest, MiscImageLayerTests) {
 
     // TODO: Ideally we should check if a format is supported, before using it.
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_R16G16B16A16_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    image.Init(128, 128, 1, VK_FORMAT_R16G16B16A16_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                VK_IMAGE_TILING_OPTIMAL, 0);  // 64bpp
     ASSERT_TRUE(image.initialized());
     vk_testing::Buffer buffer;
@@ -16704,7 +16726,7 @@ TEST_F(VkLayerTest, MiscImageLayerTests) {
     region.imageExtent.depth = 1;
 
     VkImageObj image2(m_device);
-    image2.init(128, 128, VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    image2.Init(128, 128, 1, VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                 VK_IMAGE_TILING_OPTIMAL, 0);  // 16bpp
     ASSERT_TRUE(image2.initialized());
     vk_testing::Buffer buffer2;
@@ -16780,10 +16802,10 @@ TEST_F(VkLayerTest, MiscImageLayerTests) {
 
     region.bufferImageHeight = 128;
     VkImageObj intImage1(m_device);
-    intImage1.init(128, 128, VK_FORMAT_R8_UINT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+    intImage1.Init(128, 128, 1, VK_FORMAT_R8_UINT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
     VkImageObj intImage2(m_device);
-    intImage2.init(128, 128, VK_FORMAT_R8_UINT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    intImage2.Init(128, 128, 1, VK_FORMAT_R8_UINT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
     VkImageBlit blitRegion = {};
     blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -16800,8 +16822,8 @@ TEST_F(VkLayerTest, MiscImageLayerTests) {
                                          "vkCmdBlitImage: pRegions[0].srcOffsets specify a zero-volume area.");
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT,
                                          "vkCmdBlitImage: pRegions[0].dstOffsets specify a zero-volume area.");
-    vkCmdBlitImage(m_commandBuffer->GetBufferHandle(), intImage1.handle(), intImage1.layout(), intImage2.handle(),
-                   intImage2.layout(), 1, &blitRegion, VK_FILTER_LINEAR);
+    vkCmdBlitImage(m_commandBuffer->GetBufferHandle(), intImage1.handle(), intImage1.Layout(), intImage2.handle(),
+                   intImage2.Layout(), 1, &blitRegion, VK_FILTER_LINEAR);
     m_errorMonitor->VerifyFound();
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00769);
@@ -16913,9 +16935,9 @@ TEST_F(VkLayerTest, CopyImageSrcSizeExceeded) {
     ASSERT_NO_FATAL_FAILURE(Init());
 
     VkImageObj src_image(m_device);
-    src_image.init(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    src_image.Init(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_LINEAR, 0);
     VkImageObj dst_image(m_device);
-    dst_image.init(64, 64, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    dst_image.Init(64, 64, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
 
     m_commandBuffer->BeginCommandBuffer();
     VkImageCopy copy_region;
@@ -16950,9 +16972,9 @@ TEST_F(VkLayerTest, CopyImageDstSizeExceeded) {
     ASSERT_NO_FATAL_FAILURE(Init());
 
     VkImageObj src_image(m_device);
-    src_image.init(64, 64, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    src_image.Init(64, 64, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_LINEAR, 0);
     VkImageObj dst_image(m_device);
-    dst_image.init(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
+    dst_image.Init(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_LINEAR, 0);
 
     m_commandBuffer->BeginCommandBuffer();
     VkImageCopy copy_region;
@@ -17017,6 +17039,12 @@ TEST_F(VkLayerTest, CopyImageFormatSizeMismatch) {
     image_create_info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     // Introduce failure by creating second image with a different-sized format.
     image_create_info.format = VK_FORMAT_R5G5B5A1_UNORM_PACK16;
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), image_create_info.format, &properties);
+    if (properties.optimalTilingFeatures == 0) {
+        printf("             Image format not supported; skipped.\n");
+        return;
+    }
 
     err = vkCreateImage(m_device->device(), &image_create_info, NULL, &dstImage);
     ASSERT_VK_SUCCESS(err);
@@ -17109,9 +17137,15 @@ TEST_F(VkLayerTest, CopyImageDepthStencilFormatMismatch) {
     image_create_info.mipLevels = 1;
     image_create_info.arrayLayers = 1;
     image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
-    image_create_info.tiling = VK_IMAGE_TILING_LINEAR;
+    image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
     image_create_info.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     image_create_info.flags = 0;
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), image_create_info.format, &properties);
+    if (properties.optimalTilingFeatures == 0) {
+        printf("             Image format not supported; skipped.\n");
+        return;
+    }
 
     err = vkCreateImage(m_device->device(), &image_create_info, NULL, &srcImage);
     ASSERT_VK_SUCCESS(err);
@@ -17277,11 +17311,18 @@ TEST_F(VkLayerTest, CopyImageAspectMismatch) {
         return;
     }
 
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(m_device->phy().handle(), VK_FORMAT_D32_SFLOAT, &properties);
+    if (properties.optimalTilingFeatures == 0) {
+        printf("             Image format VK_FORMAT_D32_SFLOAT not supported; skipped.\n");
+        return;
+    }
     VkImageObj color_image(m_device), ds_image(m_device), depth_image(m_device);
-    color_image.init(128, 128, VK_FORMAT_R32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-    depth_image.init(128, 128, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-    ds_image.init(128, 128, ds_format, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_OPTIMAL,
-                  0);
+    color_image.Init(128, 128, 1, VK_FORMAT_R32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    depth_image.Init(128, 128, 1, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                  VK_IMAGE_TILING_OPTIMAL, 0);
+    ds_image.Init(128, 128, 1, ds_format, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                  VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(color_image.initialized());
     ASSERT_TRUE(depth_image.initialized());
     ASSERT_TRUE(ds_image.initialized());
@@ -18421,7 +18462,7 @@ TEST_F(VkPositiveLayerTest, SecondaryCommandBufferImageLayoutTransitions) {
     err = vkBeginCommandBuffer(secondary_command_buffer, &command_buffer_begin_info);
     ASSERT_VK_SUCCESS(err);
     VkImageObj image(m_device);
-    image.init(128, 128, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
     VkImageMemoryBarrier img_barrier = {};
     img_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -19309,7 +19350,7 @@ TEST_F(VkPositiveLayerTest, QueueSubmitSemaphoresAndLayoutTracking) {
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     vkAllocateCommandBuffers(m_device->device(), &alloc_info, cmd_bufs);
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM,
+    image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM,
                (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT),
                VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
@@ -19816,7 +19857,7 @@ TEST_F(VkPositiveLayerTest, ValidUsage) {
     m_errorMonitor->ExpectSuccess();
     // Verify that we can create a view with usage INPUT_ATTACHMENT
     VkImageObj image(m_device);
-    image.init(128, 128, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(128, 128, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
     VkImageView imageView;
     VkImageViewCreateInfo ivci = {};
@@ -19961,7 +20002,7 @@ TEST_F(VkPositiveLayerTest, RenderPassInitialLayoutUndefined) {
 
     // A compatible framebuffer.
     VkImageObj image(m_device);
-    image.init(32, 32, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(32, 32, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageViewCreateInfo ivci = {
@@ -20037,7 +20078,7 @@ TEST_F(VkPositiveLayerTest, FramebufferBindingDestroyCommandPool) {
 
     // A compatible framebuffer.
     VkImageObj image(m_device);
-    image.init(32, 32, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(32, 32, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageViewCreateInfo ivci = {
@@ -20135,7 +20176,7 @@ TEST_F(VkPositiveLayerTest, RenderPassSubpassZeroTransitionsApplied) {
 
     // A compatible framebuffer.
     VkImageObj image(m_device);
-    image.init(32, 32, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(32, 32, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageViewCreateInfo ivci = {
@@ -20235,9 +20276,9 @@ TEST_F(VkPositiveLayerTest, DepthStencilLayoutTransitionForDepthOnlyImageview) {
     ASSERT_VK_SUCCESS(err);
 
     VkImageObj image(m_device);
-    image.init_no_layout(32, 32, VK_FORMAT_D32_SFLOAT_S8_UINT,
-                         0x26,  // usage
-                         VK_IMAGE_TILING_OPTIMAL, 0);
+    image.InitNoLayout(32, 32, 1, VK_FORMAT_D32_SFLOAT_S8_UINT,
+                       0x26,  // usage
+                       VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
     image.SetLayout(0x6, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
@@ -20437,7 +20478,7 @@ TEST_F(VkPositiveLayerTest, StencilLoadOp) {
     m_commandBuffer->QueueCommandBuffer(fence);
 
     VkImageObj destImage(m_device);
-    destImage.init(100, 100, depth_stencil_fmt, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    destImage.Init(100, 100, 1, depth_stencil_fmt, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                    VK_IMAGE_TILING_OPTIMAL, 0);
     VkImageMemoryBarrier barrier = {};
     VkImageSubresourceRange range;
@@ -20539,31 +20580,31 @@ TEST_F(VkPositiveLayerTest, BarrierLayoutToImageUsage) {
 
     {
         VkImageObj img_color(m_device);
-        img_color.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_color.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_color.initialized());
 
         VkImageObj img_ds1(m_device);
-        img_ds1.init(128, 128, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_ds1.Init(128, 128, 1, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_ds1.initialized());
 
         VkImageObj img_ds2(m_device);
-        img_ds2.init(128, 128, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_ds2.Init(128, 128, 1, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_ds2.initialized());
 
         VkImageObj img_xfer_src(m_device);
-        img_xfer_src.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_xfer_src.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_xfer_src.initialized());
 
         VkImageObj img_xfer_dst(m_device);
-        img_xfer_dst.init(128, 128, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_xfer_dst.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_xfer_dst.initialized());
 
         VkImageObj img_sampled(m_device);
-        img_sampled.init(32, 32, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_sampled.Init(32, 32, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_sampled.initialized());
 
         VkImageObj img_input(m_device);
-        img_input.init(128, 128, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        img_input.Init(128, 128, 1, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
         ASSERT_TRUE(img_input.initialized());
 
         const struct {
@@ -22007,7 +22048,7 @@ TEST_F(VkPositiveLayerTest, RenderPassDepthStencilLayoutTransition) {
     ASSERT_VK_SUCCESS(err);
     // A compatible ds image.
     VkImageObj image(m_device);
-    image.init(32, 32, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
+    image.Init(32, 32, 1, depth_format, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
 
     VkImageViewCreateInfo ivci = {
@@ -23068,6 +23109,7 @@ TEST_F(VkPositiveLayerTest, LongFenceChain)
 #endif
 
 #if defined(ANDROID) && defined(VALIDATION_APK)
+const char *appTag = "VulkanLayerValidationTests";
 static bool initialized = false;
 static bool active = false;
 
@@ -23111,6 +23153,66 @@ std::vector<std::string> get_args(android_app &app, const char *intent_extra_dat
     return args;
 }
 
+void addFullTestCommentIfPresent(const ::testing::TestInfo& test_info, std::string& error_message) {
+    const char* const type_param = test_info.type_param();
+    const char* const value_param = test_info.value_param();
+
+    if (type_param != NULL || value_param != NULL) {
+        error_message.append(", where ");
+        if (type_param != NULL) {
+           error_message.append("TypeParam = ").append(type_param);
+           if (value_param != NULL)
+               error_message.append(" and ");
+        }
+        if (value_param != NULL) {
+            error_message.append("GetParam() = ").append(value_param);
+        }
+    }
+}
+
+// Inspired by https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
+class LogcatPrinter : public ::testing::EmptyTestEventListener {
+    // Called before a test starts.
+    virtual void OnTestStart(const ::testing::TestInfo& test_info) {
+        __android_log_print(ANDROID_LOG_INFO, appTag, "[ RUN      ] %s.%s", test_info.test_case_name(), test_info.name());
+    }
+
+    // Called after a failed assertion or a SUCCEED() invocation.
+    virtual void OnTestPartResult(const ::testing::TestPartResult& result) {
+
+        // If the test part succeeded, we don't need to do anything.
+        if (result.type() == ::testing::TestPartResult::kSuccess)
+            return;
+
+        __android_log_print(ANDROID_LOG_INFO, appTag, "%s in %s:%d %s",
+             result.failed() ? "*** Failure" : "Success",
+             result.file_name(),
+             result.line_number(),
+             result.summary());
+    }
+
+    // Called after a test ends.
+    virtual void OnTestEnd(const ::testing::TestInfo& info) {
+        std::string result;
+        if (info.result()->Passed()) {
+            result.append("[       OK ]");
+        } else {
+            result.append("[  FAILED  ]");
+        }
+        result.append(info.test_case_name()).append(".").append(info.name());
+        if (info.result()->Failed())
+            addFullTestCommentIfPresent(info, result);
+
+        if (::testing::GTEST_FLAG(print_time)) {
+            std::ostringstream os;
+            os << info.result()->elapsed_time();
+            result.append(" (").append(os.str()).append(" ms)");
+        }
+
+        __android_log_print(ANDROID_LOG_INFO, appTag, "%s", result.c_str());
+    };
+};
+
 static int32_t processInput(struct android_app *app, AInputEvent *event) { return 0; }
 
 static void processCommand(struct android_app *app, int32_t cmd) {
@@ -23135,7 +23237,6 @@ static void processCommand(struct android_app *app, int32_t cmd) {
 void android_main(struct android_app *app) {
     app_dummy();
 
-    const char *appTag = "VulkanLayerValidationTests";
 
     int vulkanSupport = InitVulkan();
     if (vulkanSupport == 0) {
@@ -23183,6 +23284,10 @@ void android_main(struct android_app *app) {
             freopen("/sdcard/Android/data/com.example.VulkanLayerValidationTests/files/err.txt", "w", stderr);
 
             ::testing::InitGoogleTest(&argc, argv);
+
+            ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
+            listeners.Append(new LogcatPrinter);
+
             VkTestFramework::InitArgs(&argc, argv);
             ::testing::AddGlobalTestEnvironment(new TestEnvironment);
 
