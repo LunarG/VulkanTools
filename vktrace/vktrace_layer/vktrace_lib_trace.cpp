@@ -402,7 +402,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
     pPacket->size = size;
     pPacket->flags = flags;
     if (ppData != NULL) {
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), *ppData);
+        // here we add data(type is void*) pointed by ppData to trace_packet, and put its address to pPacket->ppData
+        // after adding to trace_packet.
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), ppData);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
         add_data_to_mem_info(memory, size, offset, *ppData);
     }
