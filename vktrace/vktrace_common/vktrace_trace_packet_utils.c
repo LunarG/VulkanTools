@@ -217,6 +217,12 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     return pBufferStart;
 }
 
+// size is the buffer size pointed by pBuffer, it should be 4 byte aligned.
+// if size is not 4 byte aligned (some title is not 4 byte aligned when call
+// vkMapMemory), it will be ROUNDUP_TO_4 when get new buffer address in the
+// function.
+// as input parameter, size must be size of pBuffer because we also memcpy
+// pBuffer in the function.
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer) {
     // Make sure we have valid pointers and sizes. All pointers and sizes must be 4 byte aligned.
@@ -227,7 +233,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         *ptr_address = NULL;
     } else {
         // set ptr to the location of the added buffer
-        *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, size);
+        *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, ROUNDUP_TO_4(size));
 
         // address of buffer in packet adding must be 4 byte aligned
         assert(((uint64_t)*ptr_address & 0x3) == 0);

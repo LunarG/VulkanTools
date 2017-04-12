@@ -455,7 +455,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
             siz = (size_t)entry->rangeSize;
         }
     }
-    CREATE_TRACE_PACKET(vkUnmapMemory, siz);
+    // some title is not 4 byte aligned when call vkMapMemory, so we need
+    // ROUNDUP_TO_4 to avoid access invalid memory
+    CREATE_TRACE_PACKET(vkUnmapMemory, ROUNDUP_TO_4(siz));
     pHeader->vktrace_begin_time = trace_begin_time;
     pPacket = interpret_body_as_vkUnmapMemory(pHeader);
     if (siz) {
