@@ -2199,7 +2199,7 @@ TEST_F(VkLayerTest, InvalidUsageBits) {
         "Specify wrong usage for image then create conflicting view of image "
         "Initialize buffer with wrong usage then perform copy expecting errors "
         "from both the image and the buffer (2 calls)");
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Invalid usage flag for image ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Invalid usage flag for Image ");
 
     ASSERT_NO_FATAL_FAILURE(Init());
     auto format = FindSupportedDepthStencilFormat(gpu());
@@ -2246,8 +2246,8 @@ TEST_F(VkLayerTest, InvalidUsageBits) {
     m_commandBuffer->BeginCommandBuffer();
 
     // two separate errors from this call:
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "image should have VK_IMAGE_USAGE_TRANSFER_DST_BIT");
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "buffer should have VK_BUFFER_USAGE_TRANSFER_SRC_BIT");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Image should have VK_IMAGE_USAGE_TRANSFER_DST_BIT");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Buffer should have VK_BUFFER_USAGE_TRANSFER_SRC_BIT");
 
     vkCmdCopyBufferToImage(m_commandBuffer->GetBufferHandle(), buffer.handle(), image.handle(),
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
@@ -4758,7 +4758,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferBufferDestroyed) {
     vkCmdFillBuffer(m_commandBuffer->GetBufferHandle(), buffer, 0, VK_WHOLE_SIZE, 0);
     m_commandBuffer->EndCommandBuffer();
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound buffer ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Buffer ");
     // Destroy buffer dependency prior to submit to cause ERROR
     vkDestroyBuffer(m_device->device(), buffer, NULL);
 
@@ -4902,7 +4902,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferBufferViewDestroyed) {
     pipe.AddColorAttachment();
     pipe.CreateVKPipeline(pipeline_layout, renderPass());
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound buffer view ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound BufferView ");
 
     m_commandBuffer->BeginCommandBuffer();
     m_commandBuffer->BeginRenderPass(m_renderPassBeginInfo);
@@ -4993,7 +4993,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferImageDestroyed) {
     vkCmdClearColorImage(m_commandBuffer->GetBufferHandle(), image, VK_IMAGE_LAYOUT_GENERAL, &ccv, 1, &isr);
     m_commandBuffer->EndCommandBuffer();
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound image ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Image ");
     // Destroy image dependency prior to submit to cause ERROR
     vkDestroyImage(m_device->device(), image, NULL);
 
@@ -5087,7 +5087,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferFramebufferImageDestroyed) {
     // Destroy image attached to framebuffer to invalidate cmd buffer
     vkDestroyImage(m_device->device(), image, NULL);
     // Now attempt to submit cmd buffer and verify error
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound image ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Image ");
     QueueCommandBuffer(false);
     m_errorMonitor->VerifyFound();
 
@@ -5346,7 +5346,7 @@ TEST_F(VkLayerTest, RenderPassInUseDestroyedSignaled) {
     // Wait for queue to complete so we can safely destroy everything
     vkQueueWaitIdle(m_device->m_queue);
     m_errorMonitor->SetUnexpectedError("If renderPass is not VK_NULL_HANDLE, renderPass must be a valid VkRenderPass handle");
-    m_errorMonitor->SetUnexpectedError("Unable to remove Render Pass obj");
+    m_errorMonitor->SetUnexpectedError("Unable to remove RenderPass obj");
     vkDestroyRenderPass(m_device->device(), rp, nullptr);
     vkDestroyPipeline(m_device->device(), pipeline, nullptr);
     vkDestroyPipelineCache(m_device->device(), pipe_cache, nullptr);
@@ -5488,7 +5488,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferEventDestroyed) {
     vkCmdSetEvent(m_commandBuffer->GetBufferHandle(), event, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
     m_commandBuffer->EndCommandBuffer();
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound event ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Event ");
     // Destroy event dependency prior to submit to cause ERROR
     vkDestroyEvent(m_device->device(), event, NULL);
 
@@ -5519,7 +5519,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferQueryPoolDestroyed) {
     vkCmdResetQueryPool(m_commandBuffer->GetBufferHandle(), query_pool, 0, 1);
     m_commandBuffer->EndCommandBuffer();
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound query pool ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound QueryPool ");
     // Destroy query pool dependency prior to submit to cause ERROR
     vkDestroyQueryPool(m_device->device(), query_pool, NULL);
 
@@ -5617,7 +5617,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferPipelineDestroyed) {
     // Now destroy pipeline in order to cause error when submitting
     vkDestroyPipeline(m_device->device(), pipeline, nullptr);
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound pipeline ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Pipeline ");
 
     VkSubmitInfo submit_info = {};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -5777,7 +5777,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetBufferDestroyed) {
     Draw(1, 0, 0, 0);
     m_commandBuffer->EndRenderPass();
     m_commandBuffer->EndCommandBuffer();
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound buffer ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Buffer ");
     // Destroy buffer should invalidate the cmd buffer, causing error on submit
     vkDestroyBuffer(m_device->device(), buffer, NULL);
     // Attempt to submit cmd buffer
@@ -5990,7 +5990,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     pipe.CreateVKPipeline(pipeline_layout, renderPass());
 
     // First error case is destroying sampler prior to cmd buffer submission
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "that is invalid because bound sampler");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "that is invalid because bound Sampler");
     m_commandBuffer->BeginCommandBuffer();
     m_commandBuffer->BeginRenderPass(m_renderPassBeginInfo);
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
@@ -6021,7 +6021,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound image ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound Image ");
     m_commandBuffer->BeginCommandBuffer(&info);
     m_commandBuffer->BeginRenderPass(m_renderPassBeginInfo);
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
@@ -6067,7 +6067,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     m_errorMonitor->SetUnexpectedError(
         "pDescriptorSets must be a pointer to an array of descriptorSetCount VkDescriptorSet handles, each element of which must "
         "either be a valid handle or VK_NULL_HANDLE");
-    m_errorMonitor->SetUnexpectedError("Unable to remove Descriptor Set obj");
+    m_errorMonitor->SetUnexpectedError("Unable to remove DescriptorSet obj");
     vkFreeDescriptorSets(m_device->device(), ds_pool, 1, &descriptorSet);
 
     // Attempt to submit cmd buffer containing the freed descriptor set
@@ -6075,7 +6075,7 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &m_commandBuffer->handle();
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound descriptor set ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " that is invalid because bound DescriptorSet ");
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
     m_errorMonitor->VerifyFound();
 
@@ -6085,6 +6085,186 @@ TEST_F(VkLayerTest, InvalidCmdBufferDescriptorSetImageSamplerDestroyed) {
     vkDestroyImage(m_device->device(), image2, NULL);
     vkDestroyImageView(m_device->device(), view, NULL);
     vkDestroyImageView(m_device->device(), view2, NULL);
+    vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
+    vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
+    vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
+}
+
+TEST_F(VkLayerTest, ImageDescriptorLayoutMismatch) {
+    TEST_DESCRIPTION("Update an image sampler with a layout that doesn't match the actual image layout at the image is used.");
+    ASSERT_NO_FATAL_FAILURE(Init(nullptr, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT));
+    ASSERT_NO_FATAL_FAILURE(InitViewport());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    VkDescriptorPoolSize ds_type_count = {};
+    ds_type_count.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    ds_type_count.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo ds_pool_ci = {};
+    ds_pool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    ds_pool_ci.pNext = NULL;
+    ds_pool_ci.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    ds_pool_ci.maxSets = 1;
+    ds_pool_ci.poolSizeCount = 1;
+    ds_pool_ci.pPoolSizes = &ds_type_count;
+
+    VkDescriptorPool ds_pool;
+    VkResult err = vkCreateDescriptorPool(m_device->device(), &ds_pool_ci, NULL, &ds_pool);
+    ASSERT_VK_SUCCESS(err);
+
+    VkDescriptorSetLayoutBinding dsl_binding = {};
+    dsl_binding.binding = 0;
+    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    dsl_binding.descriptorCount = 1;
+    dsl_binding.stageFlags = VK_SHADER_STAGE_ALL;
+    dsl_binding.pImmutableSamplers = NULL;
+
+    VkDescriptorSetLayoutCreateInfo ds_layout_ci = {};
+    ds_layout_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    ds_layout_ci.pNext = NULL;
+    ds_layout_ci.bindingCount = 1;
+    ds_layout_ci.pBindings = &dsl_binding;
+    VkDescriptorSetLayout ds_layout;
+    err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL, &ds_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    VkDescriptorSet descriptorSet;
+    VkDescriptorSetAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.descriptorSetCount = 1;
+    alloc_info.descriptorPool = ds_pool;
+    alloc_info.pSetLayouts = &ds_layout;
+    err = vkAllocateDescriptorSets(m_device->device(), &alloc_info, &descriptorSet);
+    ASSERT_VK_SUCCESS(err);
+
+    VkPipelineLayoutCreateInfo pipeline_layout_ci = {};
+    pipeline_layout_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layout_ci.pNext = NULL;
+    pipeline_layout_ci.setLayoutCount = 1;
+    pipeline_layout_ci.pSetLayouts = &ds_layout;
+
+    VkPipelineLayout pipeline_layout;
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL, &pipeline_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create images to update the descriptor with
+    const VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
+    VkImageObj image(m_device);
+    image.Init(32, 32, 1, format, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_TILING_OPTIMAL,
+               0);
+    ASSERT_TRUE(image.initialized());
+
+    VkImageViewCreateInfo image_view_create_info = {};
+    image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    image_view_create_info.image = image.handle();
+    image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    image_view_create_info.format = format;
+    image_view_create_info.subresourceRange.layerCount = 1;
+    image_view_create_info.subresourceRange.baseMipLevel = 0;
+    image_view_create_info.subresourceRange.levelCount = 1;
+    image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    VkImageView view;
+    err = vkCreateImageView(m_device->device(), &image_view_create_info, NULL, &view);
+    ASSERT_VK_SUCCESS(err);
+    // Create Sampler
+    VkSamplerCreateInfo sampler_ci = {};
+    sampler_ci.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    sampler_ci.pNext = NULL;
+    sampler_ci.magFilter = VK_FILTER_NEAREST;
+    sampler_ci.minFilter = VK_FILTER_NEAREST;
+    sampler_ci.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    sampler_ci.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler_ci.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler_ci.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler_ci.mipLodBias = 1.0;
+    sampler_ci.anisotropyEnable = VK_FALSE;
+    sampler_ci.maxAnisotropy = 1;
+    sampler_ci.compareEnable = VK_FALSE;
+    sampler_ci.compareOp = VK_COMPARE_OP_NEVER;
+    sampler_ci.minLod = 1.0;
+    sampler_ci.maxLod = 1.0;
+    sampler_ci.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    sampler_ci.unnormalizedCoordinates = VK_FALSE;
+    VkSampler sampler;
+    err = vkCreateSampler(m_device->device(), &sampler_ci, NULL, &sampler);
+    ASSERT_VK_SUCCESS(err);
+    // Update descriptor with image and sampler
+    VkDescriptorImageInfo img_info = {};
+    img_info.sampler = sampler;
+    img_info.imageView = view;
+    // This should cause a mis-match. Actual layout at use time is SHADER_RO
+    img_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    VkWriteDescriptorSet descriptor_write;
+    memset(&descriptor_write, 0, sizeof(descriptor_write));
+    descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptor_write.dstSet = descriptorSet;
+    descriptor_write.dstBinding = 0;
+    descriptor_write.descriptorCount = 1;
+    descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptor_write.pImageInfo = &img_info;
+
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+
+    // Create PSO to be used for draw-time errors below
+    char const *vsSource =
+        "#version 450\n"
+        "\n"
+        "out gl_PerVertex { \n"
+        "    vec4 gl_Position;\n"
+        "};\n"
+        "void main(){\n"
+        "   gl_Position = vec4(1);\n"
+        "}\n";
+    char const *fsSource =
+        "#version 450\n"
+        "\n"
+        "layout(set=0, binding=0) uniform sampler2D s;\n"
+        "layout(location=0) out vec4 x;\n"
+        "void main(){\n"
+        "   x = texture(s, vec2(1));\n"
+        "}\n";
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this);
+    VkPipelineObj pipe(m_device);
+    pipe.AddShader(&vs);
+    pipe.AddShader(&fs);
+    pipe.AddColorAttachment();
+    pipe.CreateVKPipeline(pipeline_layout, renderPass());
+
+    VkCommandBufferObj cmd_buf(m_device, m_commandPool);
+    cmd_buf.BeginCommandBuffer();
+    cmd_buf.BeginRenderPass(m_renderPassBeginInfo);
+    // record layout different than actual descriptor layout of SHADER_RO
+    image.SetLayout(&cmd_buf, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    vkCmdBindPipeline(cmd_buf.handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
+    vkCmdBindDescriptorSets(cmd_buf.handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptorSet, 0, NULL);
+    VkViewport viewport = {0, 0, 16, 16, 0, 1};
+    VkRect2D scissor = {{0, 0}, {16, 16}};
+    vkCmdSetViewport(cmd_buf.handle(), 0, 1, &viewport);
+    vkCmdSetScissor(cmd_buf.handle(), 0, 1, &scissor);
+    // At draw time the update layout will mis-match the actual layout
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                         " with specific layout VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL that doesn't match the "
+                                         "actual current layout VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL.");
+    m_errorMonitor->SetDesiredFailureMsg(
+        VK_DEBUG_REPORT_ERROR_BIT_EXT,
+        " Image layout specified at vkUpdateDescriptorSets() time doesn't match actual image layout at time descriptor is used.");
+    cmd_buf.Draw(1, 0, 0, 0);
+    m_errorMonitor->VerifyFound();
+    cmd_buf.EndRenderPass();
+    cmd_buf.EndCommandBuffer();
+    // Submit cmd buffer
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &cmd_buf.handle();
+    vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
+    vkQueueWaitIdle(m_device->m_queue);
+    // Cleanup
+    vkDestroySampler(m_device->device(), sampler, NULL);
+    vkDestroyImageView(m_device->device(), view, NULL);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
@@ -6238,7 +6418,7 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
     submit_info.pCommandBuffers = &m_commandBuffer->handle();
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
     // Destroy pool while in-flight, causing error
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Cannot delete descriptor pool ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "Cannot delete DescriptorPool ");
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
     m_errorMonitor->VerifyFound();
     vkQueueWaitIdle(m_device->m_queue);
@@ -6248,7 +6428,7 @@ TEST_F(VkLayerTest, DescriptorPoolInUseDestroyedSignaled) {
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     m_errorMonitor->SetUnexpectedError(
         "If descriptorPool is not VK_NULL_HANDLE, descriptorPool must be a valid VkDescriptorPool handle");
-    m_errorMonitor->SetUnexpectedError("Unable to remove Descriptor Pool obj");
+    m_errorMonitor->SetUnexpectedError("Unable to remove DescriptorPool obj");
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
     // TODO : It seems Validation layers think ds_pool was already destroyed, even though it wasn't?
 }
@@ -12343,13 +12523,7 @@ TEST_F(VkLayerTest, StageMaskGsTsEnabled) {
     vkDestroyCommandPool(test_device.handle(), command_pool, NULL);
 }
 
-TEST_F(VkLayerTest, InUseDestroyedSignaled) {
-    TEST_DESCRIPTION(
-        "Use vkCmdExecuteCommands with invalid state "
-        "in primary and secondary command buffers. "
-        "Delete objects that are inuse. Call VkQueueSubmit "
-        "with an event that has been deleted.");
-
+TEST_F(VkLayerTest, EventInUseDestroyedSignaled) {
     ASSERT_NO_FATAL_FAILURE(Init());
     ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
 
@@ -12371,11 +12545,19 @@ TEST_F(VkLayerTest, InUseDestroyedSignaled) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "that is invalid because bound");
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, VK_NULL_HANDLE);
     m_errorMonitor->VerifyFound();
+}
 
-    m_errorMonitor->ExpectSuccess(0);  // disable all log message processing with flags==0
-    vkResetCommandBuffer(m_commandBuffer->handle(), 0);
+TEST_F(VkLayerTest, InUseDestroyedSignaled) {
+    TEST_DESCRIPTION(
+        "Use vkCmdExecuteCommands with invalid state "
+        "in primary and secondary command buffers. "
+        "Delete objects that are inuse. Call VkQueueSubmit "
+        "with an event that has been deleted.");
 
-    vkCreateEvent(m_device->device(), &event_create_info, nullptr, &event);
+    ASSERT_NO_FATAL_FAILURE(Init());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    m_errorMonitor->ExpectSuccess();
 
     VkSemaphoreCreateInfo semaphore_create_info = {};
     semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -12456,7 +12638,13 @@ TEST_F(VkLayerTest, InUseDestroyedSignaled) {
 
     pipe.CreateVKPipeline(pipeline_layout, m_renderPass);
 
+    VkEvent event;
+    VkEventCreateInfo event_create_info = {};
+    event_create_info.sType = VK_STRUCTURE_TYPE_EVENT_CREATE_INFO;
+    vkCreateEvent(m_device->device(), &event_create_info, nullptr, &event);
+
     m_commandBuffer->BeginCommandBuffer();
+
     vkCmdSetEvent(m_commandBuffer->handle(), event, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
 
     vkCmdBindPipeline(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
@@ -12465,6 +12653,10 @@ TEST_F(VkLayerTest, InUseDestroyedSignaled) {
 
     m_commandBuffer->EndCommandBuffer();
 
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &m_commandBuffer->handle();
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = &semaphore;
     vkQueueSubmit(m_device->m_queue, 1, &submit_info, fence);
@@ -12529,7 +12721,7 @@ TEST_F(VkLayerTest, QueryPoolInUseDestroyedSignaled) {
     vkQueueWaitIdle(m_device->m_queue);
     // Now that cmd buffer done we can safely destroy query_pool
     m_errorMonitor->SetUnexpectedError("If queryPool is not VK_NULL_HANDLE, queryPool must be a valid VkQueryPool handle");
-    m_errorMonitor->SetUnexpectedError("Unable to remove Query Pool obj");
+    m_errorMonitor->SetUnexpectedError("Unable to remove QueryPool obj");
     vkDestroyQueryPool(m_device->handle(), query_pool, NULL);
 }
 
@@ -12751,7 +12943,7 @@ TEST_F(VkLayerTest, ImageViewInUseDestroyedSignaled) {
     vkQueueWaitIdle(m_device->m_queue);
     // Now we can actually destroy imageView
     m_errorMonitor->SetUnexpectedError("If imageView is not VK_NULL_HANDLE, imageView must be a valid VkImageView handle");
-    m_errorMonitor->SetUnexpectedError("Unable to remove Image View obj");
+    m_errorMonitor->SetUnexpectedError("Unable to remove ImageView obj");
     vkDestroyImageView(m_device->device(), view, NULL);
     vkDestroySampler(m_device->device(), sampler, nullptr);
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
@@ -12916,7 +13108,7 @@ TEST_F(VkLayerTest, BufferViewInUseDestroyedSignaled) {
     vkQueueWaitIdle(m_device->m_queue);
     // Now we can actually destroy bufferView
     m_errorMonitor->SetUnexpectedError("If bufferView is not VK_NULL_HANDLE, bufferView must be a valid VkBufferView handle");
-    m_errorMonitor->SetUnexpectedError("Unable to remove Buffer View obj");
+    m_errorMonitor->SetUnexpectedError("Unable to remove BufferView obj");
     vkDestroyBufferView(m_device->device(), view, NULL);
     vkDestroyBuffer(m_device->device(), buffer, NULL);
     vkFreeMemory(m_device->device(), buffer_memory, NULL);

@@ -389,12 +389,10 @@ class VkShaderObj : public vk_testing::ShaderModule {
    public:
     VkShaderObj(VkDeviceObj *device, const char *shaderText, VkShaderStageFlagBits stage, VkRenderFramework *framework,
                 char const *name = "main");
-    VkPipelineShaderStageCreateInfo GetStageCreateInfo() const;
+    VkPipelineShaderStageCreateInfo const & GetStageCreateInfo() const;
 
    protected:
-    VkPipelineShaderStageCreateInfo stage_info;
-    VkShaderStageFlagBits m_stage;
-    char const *m_name;
+    VkPipelineShaderStageCreateInfo m_stage_info;
     VkDeviceObj *m_device;
 };
 
@@ -402,6 +400,7 @@ class VkPipelineObj : public vk_testing::Pipeline {
    public:
     VkPipelineObj(VkDeviceObj *device);
     void AddShader(VkShaderObj *shaderObj);
+    void AddShader(VkPipelineShaderStageCreateInfo const & createInfo);
     void AddVertexInputAttribs(VkVertexInputAttributeDescription *vi_attrib, uint32_t count);
     void AddVertexInputBindings(VkVertexInputBindingDescription *vi_binding, uint32_t count);
     void AddColorAttachment(uint32_t binding, const VkPipelineColorBlendAttachmentState *att);
@@ -440,7 +439,7 @@ class VkPipelineObj : public vk_testing::Pipeline {
     vector<VkViewport> m_viewports;
     vector<VkRect2D> m_scissors;
     VkDeviceObj *m_device;
-    vector<VkShaderObj *> m_shaderObjs;
+    vector<VkPipelineShaderStageCreateInfo> m_shaderStages;
     vector<int> m_vertexBufferBindings;
     vector<VkPipelineColorBlendAttachmentState> m_colorAttachments;
     int m_vertexBufferCount;

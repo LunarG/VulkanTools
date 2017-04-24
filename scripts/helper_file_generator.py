@@ -547,33 +547,38 @@ class HelperFileOutputGenerator(OutputGenerator):
             enum_num += 1
             type_list.append(enum_entry)
         object_types_header += '    kVulkanObjectTypeMax = %d,\n' % enum_num
-        object_types_header += '} VulkanObjectType;\n'
+        object_types_header += '} VulkanObjectType;\n\n'
+
+        # Output name string helper
+        object_types_header += '// Array of object name strings for OBJECT_TYPE enum conversion\n'
+        object_types_header += 'static const char * const object_string[kVulkanObjectTypeMax] = {\n'
+        object_types_header += '    "Unknown",\n'
+        for item in self.object_types:
+            fixup_name = item[2:]
+            object_types_header += '    "%s",\n' % fixup_name
+        object_types_header += '};\n'
 
         # Output a conversion routine from the layer object definitions to the debug report definitions
-        object_types_header += '\n\n'
-        object_types_header += '// Helper function to get Official Vulkan object type enum from the internal layers version\n'
-        object_types_header += 'VkDebugReportObjectTypeEXT GetDebugReportEnum(VulkanObjectType object_type) {\n\n'
-        object_types_header += '    switch (object_type) {\n'
-        object_types_header += '        case kVulkanObjectTypeUnknown:\n'
-        object_types_header += '            return VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT;\n\n'
+        object_types_header += '\n'
+        object_types_header += '// Helper array to get Official Vulkan object type enum from the internal layers version\n'
+        object_types_header += 'const VkDebugReportObjectTypeEXT get_debug_report_enum[] = {\n'
         for object_type in type_list:
             done = False
-            object_types_header += '        case %s:\n' % object_type
             search_type = object_type.replace("kVulkanObjectType", "").lower()
             for vk_object_type in self.debug_report_object_types:
                 target_type = vk_object_type.replace("VK_DEBUG_REPORT_OBJECT_TYPE_", "").lower()
                 target_type = target_type[:-4]
                 target_type = target_type.replace("_", "")
                 if search_type == target_type:
-                    object_types_header += '            return %s;\n\n' % vk_object_type
+                    object_types_header += '    %s,   // %s\n' % (vk_object_type, object_type)
                     done = True
                     break
             if done == False:
-                    object_types_header += '            return VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT;\n\n'
-        object_types_header += '        default:\n'
-        object_types_header += '            return VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT;\n\n'
-        object_types_header += '    }\n'
-        object_types_header += '}\n'
+                if object_type == 'kVulkanObjectTypeDebugReportCallbackEXT':
+                    object_types_header += '    VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT, // kVulkanObjectTypeDebugReportCallbackEXT\n'
+                else:
+                    object_types_header += '    VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT; // No Match\n'
+        object_types_header += '};\n'
         return object_types_header
     #
     # Determine if a structure needs a safe_struct helper function

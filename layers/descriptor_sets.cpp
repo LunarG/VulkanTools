@@ -24,6 +24,7 @@
 #include "descriptor_sets.h"
 #include "vk_enum_string_helper.h"
 #include "vk_safe_struct.h"
+#include "buffer_validation.h"
 #include <sstream>
 #include <algorithm>
 
@@ -395,7 +396,8 @@ bool cvdescriptorset::DescriptorSet::IsCompatible(const DescriptorSetLayout *lay
 //  that any update buffers are valid, and that any dynamic offsets are within the bounds of their buffers.
 // Return true if state is acceptable, or false and write an error message into error string
 bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, descriptor_req> &bindings,
-                                                       const std::vector<uint32_t> &dynamic_offsets, std::string *error) const {
+                                                       const std::vector<uint32_t> &dynamic_offsets, const GLOBAL_CB_NODE *cb_node,
+                                                       const char *caller, std::string *error) const {
     for (auto binding_pair : bindings) {
         auto binding = binding_pair.first;
         if (!p_layout_->HasBinding(binding)) {
@@ -472,9 +474,15 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                             }
                         }
                     } else if (descriptor_class == ImageSampler || descriptor_class == Image) {
-                        auto image_view = (descriptor_class == ImageSampler)
-                                              ? static_cast<ImageSamplerDescriptor *>(descriptors_[i].get())->GetImageView()
-                                              : static_cast<ImageDescriptor *>(descriptors_[i].get())->GetImageView();
+                        VkImageView image_view;
+                        VkImageLayout image_layout;
+                        if (descriptor_class == ImageSampler) {
+                            image_view = static_cast<ImageSamplerDescriptor *>(descriptors_[i].get())->GetImageView();
+                            image_layout = static_cast<ImageSamplerDescriptor *>(descriptors_[i].get())->GetImageLayout();
+                        } else {
+                            image_view = static_cast<ImageDescriptor *>(descriptors_[i].get())->GetImageView();
+                            image_layout = static_cast<ImageDescriptor *>(descriptors_[i].get())->GetImageLayout();
+                        }
                         auto reqs = binding_pair.second;
 
                         auto image_view_state = GetImageViewState(device_data_, image_view);
@@ -493,7 +501,30 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
 
                         auto image_node = GetImageState(device_data_, image_view_ci.image);
                         assert(image_node);
-
+                        // Verify Image Layout
+                        // TODO: VALIDATION_ERROR_02981 is the error physically closest to the spec language of interest, however
+                        //  there is no VUID for the actual spec language. Need to file a spec MR to add VU language for:
+                        // imageLayout is the layout that the image subresources accessible from imageView will be in at the time
+                        // this descriptor is accessed.
+                        // Copy first mip level into sub_layers and loop over each mip level to verify layout
+                        VkImageSubresourceLayers sub_layers;
+                        sub_layers.aspectMask = image_view_ci.subresourceRange.aspectMask;
+                        sub_layers.baseArrayLayer = image_view_ci.subresourceRange.baseArrayLayer;
+                        sub_layers.layerCount = image_view_ci.subresourceRange.layerCount;
+                        bool hit_error = false;
+                        for (auto cur_level = image_view_ci.subresourceRange.baseMipLevel;
+                             cur_level < image_view_ci.subresourceRange.levelCount; ++cur_level) {
+                            sub_layers.mipLevel = cur_level;
+                            VerifyImageLayout(device_data_, cb_node, image_node, sub_layers, image_layout,
+                                              VK_IMAGE_LAYOUT_UNDEFINED, caller, VALIDATION_ERROR_02981, &hit_error);
+                            if (hit_error) {
+                                *error =
+                                    "Image layout specified at vkUpdateDescriptorSets() time doesn't match actual image layout at "
+                                    "time descriptor is used. See previous error callback for specific details.";
+                                return false;
+                            }
+                        }
+                        // Verify Sample counts
                         if ((reqs & DESCRIPTOR_REQ_SINGLE_SAMPLE) && image_node->createInfo.samples != VK_SAMPLE_COUNT_1_BIT) {
                             std::stringstream error_str;
                             error_str << "Descriptor in binding #" << binding << " at global descriptor index " << i
@@ -502,7 +533,6 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                             *error = error_str.str();
                             return false;
                         }
-
                         if ((reqs & DESCRIPTOR_REQ_MULTI_SAMPLE) && image_node->createInfo.samples == VK_SAMPLE_COUNT_1_BIT) {
                             std::stringstream error_str;
                             error_str << "Descriptor in binding #" << binding << " at global descriptor index " << i
@@ -564,7 +594,7 @@ uint32_t cvdescriptorset::DescriptorSet::GetStorageUpdates(const std::map<uint32
 // Set is being deleted or updates so invalidate all bound cmd buffers
 void cvdescriptorset::DescriptorSet::InvalidateBoundCmdBuffers() {
     core_validation::invalidateCommandBuffers(device_data_, cb_bindings,
-                                              {reinterpret_cast<uint64_t &>(set_), VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT});
+                                              {reinterpret_cast<uint64_t &>(set_), kVulkanObjectTypeDescriptorSet });
 }
 // Perform write update in given update struct
 void cvdescriptorset::DescriptorSet::PerformWriteUpdate(const VkWriteDescriptorSet *update) {
@@ -700,10 +730,10 @@ void cvdescriptorset::DescriptorSet::BindCommandBuffer(GLOBAL_CB_NODE *cb_node,
     // bind cb to this descriptor set
     cb_bindings.insert(cb_node);
     // Add bindings for descriptor set, the set's pool, and individual objects in the set
-    cb_node->object_bindings.insert({reinterpret_cast<uint64_t &>(set_), VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT});
+    cb_node->object_bindings.insert({reinterpret_cast<uint64_t &>(set_), kVulkanObjectTypeDescriptorSet });
     pool_state_->cb_bindings.insert(cb_node);
     cb_node->object_bindings.insert(
-        {reinterpret_cast<uint64_t &>(pool_state_->pool), VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT});
+        {reinterpret_cast<uint64_t &>(pool_state_->pool), kVulkanObjectTypeDescriptorPool });
     // For the active slots, use set# to look up descriptorSet from boundDescriptorSets, and bind all of that descriptor set's
     // resources
     for (auto binding_req_pair : binding_req_map) {
