@@ -1183,6 +1183,7 @@ VK_KHR_xcb_surface = Extension(
     name="VK_KHR_xcb_surface",
     headers=["vulkan/vulkan.h"],
     objects=[],
+    ifdef="VK_USE_PLATFORM_XCB_KHR",
     protos=[
         Proto("VkResult", "CreateXcbSurfaceKHR",
             [Param("VkInstance", "instance"),
@@ -1258,6 +1259,7 @@ VK_KHR_android_surface = Extension(
     name="VK_KHR_android_surface",
     headers=["vulkan/vulkan.h"],
     objects=[],
+    ifdef="VK_USE_PLATFORM_ANDROID_KHR",
     protos=[
         Proto("VkResult", "CreateAndroidSurfaceKHR",
             [Param("VkInstance", "instance"),
@@ -1271,6 +1273,7 @@ VK_KHR_win32_surface = Extension(
     name="VK_KHR_win32_surface",
     headers=["vulkan/vulkan.h"],
     objects=[],
+    ifdef="VK_USE_PLATFORM_WIN32_KHR",
     protos=[
         Proto("VkResult", "CreateWin32SurfaceKHR",
             [Param("VkInstance", "instance"),
