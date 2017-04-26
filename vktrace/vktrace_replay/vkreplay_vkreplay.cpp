@@ -754,7 +754,7 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *p
             }
 
             for (uint32_t bindCountIdx = 0; bindCountIdx < sBMBinf->bindCount; bindCountIdx++) {
-                gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pRemappedBufferMemories[bindCountIdx].memory)->second;
+                devicememoryObj local_mem = m_objMapper.m_devicememorys.find(pRemappedBufferMemories[bindCountIdx].memory)->second;
                 VkDeviceMemory replay_mem = m_objMapper.remap_devicememorys(pRemappedBufferMemories[bindCountIdx].memory);
 
                 if (replay_mem == VK_NULL_HANDLE || local_mem.pGpuMem == NULL) {
@@ -787,7 +787,7 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *p
                     pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pImageBinds->pBinds));
             }
             for (uint32_t bindCountIdx = 0; bindCountIdx < sIMBinf->bindCount; bindCountIdx++) {
-                gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pRemappedImageMemories[bindCountIdx].memory)->second;
+                devicememoryObj local_mem = m_objMapper.m_devicememorys.find(pRemappedImageMemories[bindCountIdx].memory)->second;
                 VkDeviceMemory replay_mem = m_objMapper.remap_devicememorys(pRemappedImageMemories[bindCountIdx].memory);
 
                 if (replay_mem == VK_NULL_HANDLE || local_mem.pGpuMem == NULL) {
@@ -821,7 +821,8 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *p
                     pPacket->header, (intptr_t)remappedBindSparseInfos[bindInfo_idx].pImageOpaqueBinds->pBinds));
             }
             for (uint32_t bindCountIdx = 0; bindCountIdx < sIMOBinf->bindCount; bindCountIdx++) {
-                gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pRemappedImageOpaqueMemories[bindCountIdx].memory)->second;
+                devicememoryObj local_mem =
+                    m_objMapper.m_devicememorys.find(pRemappedImageOpaqueMemories[bindCountIdx].memory)->second;
                 VkDeviceMemory replay_mem = m_objMapper.remap_devicememorys(pRemappedImageOpaqueMemories[bindCountIdx].memory);
 
                 if (replay_mem == VK_NULL_HANDLE || local_mem.pGpuMem == NULL) {
@@ -2151,25 +2152,27 @@ fail:
     return false;
 }
 
-#define FSEEK(_stream, _offset, _whence)                                                                                       \
-    if (0 != fseek(_stream, _offset, _whence)) {                                                                               \
-        vktrace_LogError("fseek during vkAllocateMemory() failed, can't determine memory type index");                         \
-        replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem); \
-        fseek(_stream, saveFilePos, SEEK_SET);                                                                                 \
-        goto wrapItUp;                                                                                                         \
+#define FSEEK(_stream, _offset, _whence)                                                                                  \
+    if (0 != fseek(_stream, _offset, _whence)) {                                                                          \
+        vktrace_LogError("fseek during vkAllocateMemory() failed, can't determine memory type index");                    \
+        replayResult =                                                                                                    \
+            m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory); \
+        fseek(_stream, saveFilePos, SEEK_SET);                                                                            \
+        goto wrapItUp;                                                                                                    \
     }
 
-#define FREAD(_ptr, _size, _nmemb, _stream)                                                                                    \
-    if (_nmemb != fread(_ptr, _size, _nmemb, _stream)) {                                                                       \
-        vktrace_LogError("fread during vkAllocateMemory() failed, can't determine memory type index");                         \
-        replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem); \
-        fseek(_stream, saveFilePos, SEEK_SET);                                                                                 \
-        goto wrapItUp;                                                                                                         \
+#define FREAD(_ptr, _size, _nmemb, _stream)                                                                               \
+    if (_nmemb != fread(_ptr, _size, _nmemb, _stream)) {                                                                  \
+        vktrace_LogError("fread during vkAllocateMemory() failed, can't determine memory type index");                    \
+        replayResult =                                                                                                    \
+            m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory); \
+        fseek(_stream, saveFilePos, SEEK_SET);                                                                            \
+        goto wrapItUp;                                                                                                    \
     }
 
 VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    gpuMemObj local_mem;
+    devicememoryObj local_mem;
     VkMemoryRequirements memRequirements;
     uint32_t replayMemTypeIndex;
     vktrace_trace_packet_header packetHeader1, packetHeader2;
@@ -2244,7 +2247,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
             // Didn't find the current vkAM packet, something is wrong with the trace file.
             // Just use the index from the trace file and attempt to continue.
             vktrace_LogError("Replay of vkAllocateMemory() failed, trace file may be corrupt.");
-            replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem);
+            replayResult =
+                m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory);
             fseek(tracefp, saveFilePos, SEEK_SET);
             goto wrapItUp;
         }
@@ -2324,7 +2328,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
             // Didn't find vkBind{Image|Buffer}Memory call for this vkAllocateMemory.
             // This isn't an error - the memory is allocated but never used.
             // So just use the index from the trace file and continue.
-            replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem);
+            replayResult =
+                m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory);
             goto wrapItUp;
         }
 
@@ -2421,7 +2426,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 if (*((VkDeviceSize *)&pPacket->pAllocateInfo->allocationSize) < memRequirements.size)
                     *((VkDeviceSize *)&pPacket->pAllocateInfo->allocationSize) = memRequirements.size;
                 replayResult =
-                    m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem);
+                    m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory);
             } else {
                 vktrace_LogError("vkAllocateMemory() failed, couldn't find memory type for memoryTypeIndex");
                 return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -2431,7 +2436,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     } else {
         // Platform matched exactly or there isn't a valid portablity table in the trace file,
         // so use memoryTypeIndex from trace file.
-        replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayGpuMem);
+        replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory);
     }
 
 wrapItUp:
@@ -2455,10 +2460,10 @@ void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory *pPacket) {
         return;
     }
 
-    gpuMemObj local_mem;
+    devicememoryObj local_mem;
     local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
-    // TODO how/when to free pendingAlloc that did not use and existing gpuMemObj
-    m_vkFuncs.real_vkFreeMemory(remappedDevice, local_mem.replayGpuMem, NULL);
+    // TODO how/when to free pendingAlloc that did not use and existing devicememoryObj
+    m_vkFuncs.real_vkFreeMemory(remappedDevice, local_mem.replayDeviceMemory, NULL);
     delete local_mem.pGpuMem;
     m_objMapper.rm_from_devicememorys_map(pPacket->memory);
 }
@@ -2472,10 +2477,10 @@ VkResult vkReplay::manually_replay_vkMapMemory(packet_vkMapMemory *pPacket) {
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
+    devicememoryObj local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
     void *pData;
     if (!local_mem.pGpuMem->isPendingAlloc()) {
-        replayResult = m_vkFuncs.real_vkMapMemory(remappedDevice, local_mem.replayGpuMem, pPacket->offset, pPacket->size,
+        replayResult = m_vkFuncs.real_vkMapMemory(remappedDevice, local_mem.replayDeviceMemory, pPacket->offset, pPacket->size,
                                                   pPacket->flags, &pData);
         if (replayResult == VK_SUCCESS) {
             if (local_mem.pGpuMem) {
@@ -2497,13 +2502,13 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory *pPacket) {
         return;
     }
 
-    gpuMemObj local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
+    devicememoryObj local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
     if (!local_mem.pGpuMem->isPendingAlloc()) {
         if (local_mem.pGpuMem) {
             if (pPacket->pData)
                 local_mem.pGpuMem->copyMappingData(pPacket->pData, true, 0, 0);  // copies data from packet into memory buffer
         }
-        m_vkFuncs.real_vkUnmapMemory(remappedDevice, local_mem.replayGpuMem);
+        m_vkFuncs.real_vkUnmapMemory(remappedDevice, local_mem.replayDeviceMemory);
     } else {
         if (local_mem.pGpuMem) {
             unsigned char *pBuf = (unsigned char *)vktrace_malloc(local_mem.pGpuMem->getMemoryMapSize());
@@ -2541,7 +2546,7 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
     VkMappedMemoryRange *localRanges = VKTRACE_NEW_ARRAY(VkMappedMemoryRange, pPacket->memoryRangeCount);
     memcpy(localRanges, pPacket->pMemoryRanges, sizeof(VkMappedMemoryRange) * (pPacket->memoryRangeCount));
 
-    gpuMemObj *pLocalMems = VKTRACE_NEW_ARRAY(gpuMemObj, pPacket->memoryRangeCount);
+    devicememoryObj *pLocalMems = VKTRACE_NEW_ARRAY(devicememoryObj, pPacket->memoryRangeCount);
     for (uint32_t i = 0; i < pPacket->memoryRangeCount; i++) {
         pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
         localRanges[i].memory = m_objMapper.remap_devicememorys(pPacket->pMemoryRanges[i].memory);
@@ -2613,7 +2618,7 @@ VkResult vkReplay::manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInval
     VkMappedMemoryRange *localRanges = VKTRACE_NEW_ARRAY(VkMappedMemoryRange, pPacket->memoryRangeCount);
     memcpy(localRanges, pPacket->pMemoryRanges, sizeof(VkMappedMemoryRange) * (pPacket->memoryRangeCount));
 
-    gpuMemObj *pLocalMems = VKTRACE_NEW_ARRAY(gpuMemObj, pPacket->memoryRangeCount);
+    devicememoryObj *pLocalMems = VKTRACE_NEW_ARRAY(devicememoryObj, pPacket->memoryRangeCount);
     for (uint32_t i = 0; i < pPacket->memoryRangeCount; i++) {
         pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
         localRanges[i].memory = m_objMapper.remap_devicememorys(pPacket->pMemoryRanges[i].memory);

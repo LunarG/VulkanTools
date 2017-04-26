@@ -26,6 +26,7 @@ from dispatch_table_helper_generator import DispatchTableHelperOutputGenerator, 
 from helper_file_generator import HelperFileOutputGenerator, HelperFileOutputGeneratorOptions
 from loader_extension_generator import LoaderExtensionOutputGenerator, LoaderExtensionGeneratorOptions
 from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN
+from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -430,6 +431,28 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48)
     ]
+
+    # VkTrace file generator options for vkreplay_vk_objmapper.h
+    genOpts['vkreplay_vk_objmapper.h'] = [
+          VkTraceFileOutputGenerator,
+          VkTraceFileOutputGeneratorOptions(
+            filename          = 'vkreplay_vk_objmapper.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            vktrace_file_type  = 'vkreplay_objmapper_header')
+        ]
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.

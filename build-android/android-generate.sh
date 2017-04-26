@@ -47,7 +47,7 @@ python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-packet-id vk_version
 # vkreplay
 python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-vk-funcs vk_version_1_0 > generated/include/vkreplay_vk_func_ptrs.h
 python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > generated/include/vkreplay_vk_replay_gen.cpp
-python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-replay-obj-mapper-h vk_version_1_0 > generated/include/vkreplay_vk_objmapper.h
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_objmapper.h )
 
 cp -f ../layers/vk_layer_config.cpp   generated/common/
 cp -f ../layers/vk_layer_extension_utils.cpp  generated/common/
