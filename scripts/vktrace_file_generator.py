@@ -458,10 +458,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_objmapper_header += '     VkBuffer replayBuffer;\n'
         replay_objmapper_header += ' } bufferObj;\n'
         replay_objmapper_header += '\n'
-        replay_objmapper_header += 'typedef struct _gpuMemObj {\n'
+        replay_objmapper_header += 'typedef struct _devicememoryObj {\n'
         replay_objmapper_header += '     gpuMemory *pGpuMem;\n'
-        replay_objmapper_header += '     VkDeviceMemory replayGpuMem;\n'
-        replay_objmapper_header += ' } gpuMemObj;\n'
+        replay_objmapper_header += '     VkDeviceMemory replayDeviceMemory;\n'
+        replay_objmapper_header += ' } devicememoryObj;\n'
         replay_objmapper_header += '\n'
         replay_objmapper_header += '\n'
         replay_objmapper_header += 'class vkReplayObjMapper {\n'
@@ -541,7 +541,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             mangled_name = 'm_' + map_name
             if item in remapped_objects:
                 if item == 'VkDeviceMemory':
-                    obj_name = 'gpuMemObj'
+                    obj_name = 'devicememoryObj'
                 else:
                     obj_name = item[2:].lower() + 'Obj'
             else:
@@ -559,7 +559,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             replay_objmapper_header += '        if (value == 0) { return 0; }\n'
             if item in remapped_objects:
                 if item == 'VkDeviceMemory':
-                    replay_objmapper_header += '        std::map<%s, gpuMemObj>::const_iterator q = %s.find(value);\n' % (item, mangled_name)
+                    replay_objmapper_header += '        std::map<%s, devicememoryObj>::const_iterator q = %s.find(value);\n' % (item, mangled_name)
                     replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
                     replay_objmapper_header += '        return q->second.replayGpuMem;\n'
                 else:
