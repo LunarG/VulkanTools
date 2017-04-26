@@ -540,10 +540,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             map_name = item[2:].lower() + 's'
             mangled_name = 'm_' + map_name
             if item in remapped_objects:
-                if item == 'VkDeviceMemory':
-                    obj_name = 'devicememoryObj'
-                else:
-                    obj_name = item[2:].lower() + 'Obj'
+                obj_name = item[2:].lower() + 'Obj'
             else:
                 obj_name = item
             replay_objmapper_header += '    std::map<%s, %s> %s;\n' % (item, obj_name, mangled_name)
@@ -558,14 +555,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             replay_objmapper_header += '    %s remap_%s(const %s& value) {\n' % (item, map_name, item)
             replay_objmapper_header += '        if (value == 0) { return 0; }\n'
             if item in remapped_objects:
+                replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                 if item == 'VkDeviceMemory':
-                    replay_objmapper_header += '        std::map<%s, devicememoryObj>::const_iterator q = %s.find(value);\n' % (item, mangled_name)
                     replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
-                    replay_objmapper_header += '        return q->second.replayGpuMem;\n'
                 else:
-                    replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                     replay_objmapper_header += '        if (q == %s.end()) return VK_NULL_HANDLE;\n' % mangled_name
-                    replay_objmapper_header += '        return q->second.replay%s;\n' % item[2:]
+                replay_objmapper_header += '        return q->second.replay%s;\n' % item[2:]
             else:
                 replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                 replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
