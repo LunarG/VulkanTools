@@ -2188,28 +2188,6 @@ memoryTypeBits=%0x08X}",
                     if_body.append('#endif /* %s */' % ext.ifdef)
         return "\n".join(if_body)
 
-    def _generate_replay_func_ptrs(self):
-        xf_body = []
-        xf_body.append('struct vkFuncs {')
-        xf_body.append('    void init_funcs(void * libHandle);')
-        xf_body.append('    void *m_libHandle;\n')
-        for ext in vulkan.extensions_all:
-            if ext.ifdef:
-                xf_body.append('#ifdef %s' % ext.ifdef)
-            for proto in ext.protos:
-                if proto.name in proto_exclusions:
-                    continue
-
-                xf_body.append('    typedef %s( VKAPI_PTR * type_vk%s)(' % (proto.ret, proto.name))
-                for p in proto.params:
-                    xf_body.append('        %s,' % p.c())
-                xf_body[-1] = xf_body[-1].replace(',', ');')
-                xf_body.append('    type_vk%s real_vk%s;' % (proto.name, proto.name))
-            if ext.ifdef:
-                xf_body.append('#endif /* %s */' % ext.ifdef)
-        xf_body.append('};')
-        return "\n".join(xf_body)
-
     def _map_decl(self, type1, type2, name):
         return '    std::map<%s, %s> %s;' % (type1, type2, name)
 
@@ -2943,21 +2921,6 @@ class VktraceExtTraceC(Subcommand):
 
         return "\n".join(body)
 
-class VktraceReplayVkFuncPtrs(Subcommand):
-    def generate_header(self, extensionName):
-        header_txt = []
-        header_txt.append('#pragma once\n')
-        header_txt.append('#if defined(PLATFORM_LINUX) || defined(XCB_NVIDIA)')
-        header_txt.append('#if !defined(ANDROID)')
-        header_txt.append('#include <xcb/xcb.h>\n')
-        header_txt.append('#endif')
-        header_txt.append('#endif')
-        header_txt.append('#include "vulkan/vulkan.h"')
-
-    def generate_body(self):
-        body = [self._generate_replay_func_ptrs()]
-        return "\n".join(body)
-
 class VktraceReplayC(Subcommand):
     def generate_header(self, extensionName):
         header_txt = []
@@ -2987,7 +2950,6 @@ def main():
             "vktrace-trace-c" : VktraceTraceC,
             "vktrace-packet-id" : VktracePacketID,
             "vktrace-core-trace-packets" : VktraceCoreTracePackets,
-            "vktrace-replay-vk-funcs" : VktraceReplayVkFuncPtrs,
             "vktrace-replay-c" : VktraceReplayC,
     }
 
