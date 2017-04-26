@@ -79,10 +79,15 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         self.structMembers = []                           # List of StructMemberData records for all Vulkan structs
         self.object_types = []                            # List of all handle types
         self.debug_report_object_types = []               # Handy copy of debug_report_object_type enum data
-
+        self.CmdInfoData = namedtuple('CmdInfoData', ['name', 'cmdinfo'])
+        self.cmd_feature_protect = []  # Save ifdef's for each command
+        self.cmd_info_data = []        # Save the cmdinfo data for wrapping the handles when processing is complete
+        self.cmdMembers = []
         # Named tuples to store struct and command data
+        self.CmdMemberData = namedtuple('CmdMemberData', ['name', 'members'])
+        self.CmdExtraProtect = namedtuple('CmdExtraProtect', ['name', 'extra_protect'])
         self.StructType = namedtuple('StructType', ['name', 'value'])
-        self.CommandParam = namedtuple('CommandParam', ['type', 'name', 'ispointer', 'isstaticarray', 'isconst', 'iscount', 'len', 'extstructs', 'cdecl'])
+        self.CommandParam = namedtuple('CommandParam', ['type', 'name', 'ispointer', 'isstaticarray', 'isconst', 'iscount', 'len', 'cdecl', 'feature_protect'])
         self.StructMemberData = namedtuple('StructMemberData', ['name', 'members', 'ifdef_protect'])
     #
     # Called once at the beginning of each run
@@ -160,7 +165,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     def paramIsStaticArray(self, param):
         isstaticarray = 0
         paramname = param.find('name')
-        if (paramname.tail is not None) and ('[' in paramname.tail):
+        if (paramname is not None) and (paramname.tail is not None) and ('[' in paramname.tail):
             isstaticarray = paramname.tail.count('[')
         return isstaticarray
     #
@@ -240,6 +245,45 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         return True
         return False
     #
+    # Capture command parameter info needed
+    def genCmd(self, cmdinfo, cmdname):
+        # Add struct-member type information to command parameter information
+        OutputGenerator.genCmd(self, cmdinfo, cmdname)
+        members = cmdinfo.elem.findall('.//param')
+        # Iterate over members once to get length parameters for arrays
+        lens = set()
+        for member in members:
+            len = self.getLen(member)
+            if len:
+                lens.add(len)
+        # Generate member info
+        membersInfo = []
+        constains_extension_structs = False
+        for member in members:
+            # Get type and name of member
+            info = self.getTypeNameTuple(member)
+            type = info[0]
+            name = info[1]
+            cdecl = self.makeCParamDecl(member, 0)
+            # Check for parameter name in lens set
+            iscount = True if name in lens else False
+            len = self.getLen(member)
+            isconst = True if 'const' in cdecl else False
+            ispointer = self.paramIsPointer(member)
+            isstaticarray = self.paramIsStaticArray(member)
+            membersInfo.append(self.CommandParam(type=type,
+                                                 name=name,
+                                                 ispointer=ispointer,
+                                                 isstaticarray=isstaticarray,
+                                                 isconst=isconst,
+                                                 iscount=iscount,
+                                                 len=len,
+                                                 cdecl=cdecl,
+                                                 feature_protect=self.featureExtraProtect))
+        self.cmdMembers.append(self.CmdMemberData(name=cmdname, members=membersInfo))
+        self.cmd_info_data.append(self.CmdInfoData(name=cmdname, cmdinfo=cmdinfo))
+        self.cmd_feature_protect.append(self.CmdExtraProtect(name=cmdname, extra_protect=self.featureExtraProtect))
+    #
     # Generate local ready-access data describing Vulkan structures and unions from the XML metadata
     def genStruct(self, typeinfo, typeName):
         OutputGenerator.genStruct(self, typeinfo, typeName)
@@ -267,8 +311,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                  isconst=True if 'const' in cdecl else False,
                                                  iscount=True if name in lens else False,
                                                  len=self.getLen(member),
-                                                 extstructs=member.attrib.get('validextensionstructs') if name == 'pNext' else None,
-                                                 cdecl=cdecl))
+                                                 cdecl=cdecl,
+                                                 feature_protect=self.featureExtraProtect))
         self.structMembers.append(self.StructMemberData(name=typeName, members=membersInfo, ifdef_protect=self.featureExtraProtect))
     #
     # Enum_string_header: Create a routine to convert an enumerated value into a string
@@ -362,10 +406,38 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_objmapper_header += '};'
         return replay_objmapper_header
     #
+    # Construct vkreplay func pointer header file
+    def GenerateReplayFuncptrHeader(self):
+        replay_funcptr_header  = '\n'
+        replay_funcptr_header += 'struct vkFuncs {'
+        replay_funcptr_header += '    void init_funcs(void * libHandle);'
+        replay_funcptr_header += '    void *m_libHandle;\n'
+        cmd_member_dict = dict(self.cmdMembers)
+        cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
+        for api in self.cmdMembers:
+            cmdname = api.name
+            cmdinfo = cmd_info_dict[api.name]
+            protect = cmd_protect_dict[cmdname]
+            decl = self.makeCDecls(cmdinfo.elem)[1]
+            typedef = decl.replace('VKAPI_PTR *PFN_', 'VKAPI_PTR *type_')
+            if protect is not None:
+                replay_funcptr_header += '#ifdef %s\n' % protect
+            replay_funcptr_header += '    %s\n' % typedef
+            replay_funcptr_header += '    type_%s real_%s;\n' % (cmdname, cmdname)
+            if protect is not None:
+                replay_funcptr_header += '#endif // %s\n' % protect
+            replay_funcptr_header += '\n'
+        replay_funcptr_header += '};\n'
+        return replay_funcptr_header
+
+    #
     # Create a vktrace file and return it as a string
     def OutputDestFile(self):
         if self.vktrace_file_type == 'vkreplay_objmapper_header':
             return self.GenerateReplayObjmapperHeader()
+        elif self.vktrace_file_type == 'vkreplay_funcptr_header':
+            return self.GenerateReplayFuncptrHeader()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type
 
