@@ -271,7 +271,6 @@ uint64_t lastPacketEndTime;
 
 static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     vktrace_trace_packet_header hdr;
-    size_t readSize;
     uint64_t one_64 = 1;
 
     vktrace_LogVerbose("Post processing trace file");
