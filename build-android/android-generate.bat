@@ -42,7 +42,7 @@ py -3 ../../../scripts/vktrace_generate.py AllPlatforms vktrace-packet-id vk_ver
 
 REM vkreplay
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_func_ptrs.h
-py -3 ../../../scripts/vktrace_generate.py AllPlatforms vktrace-replay-c vk_version_1_0 > vkreplay_vk_replay_gen.cpp
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_replay_gen.cpp
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_objmapper.h
 
 cd ../..
