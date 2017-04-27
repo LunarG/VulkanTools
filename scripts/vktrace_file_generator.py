@@ -24,6 +24,81 @@ import xml.etree.ElementTree as etree
 from generator import *
 from collections import namedtuple
 
+# TODO: Finish generated file conversion, reenable these extensions
+# THESE FUNCTIONS WILL BE ADDED IN AFTER THE SCRIPT CONVERSION EFFORT IS COMPLETE
+temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
+                                       'vkGetPhysicalDeviceProperties2KHR',
+                                       'vkGetPhysicalDeviceFormatProperties2KHR',
+                                       'vkGetPhysicalDeviceImageFormatProperties2KHR',
+                                       'vkGetPhysicalDeviceQueueFamilyProperties2KHR',
+                                       'vkGetPhysicalDeviceMemoryProperties2KHR',
+                                       'vkGetPhysicalDeviceSparseImageFormatProperties2KHR',
+                                       'vkTrimCommandPoolKHR',
+                                       'vkCmdPushDescriptorSetKHR',
+                                       'vkCreateDescriptorUpdateTemplateKHR',
+                                       'vkDestroyDescriptorUpdateTemplateKHR',
+                                       'vkUpdateDescriptorSetWithTemplateKHR',
+                                       'vkCmdPushDescriptorSetWithTemplateKHR',
+                                       'vkGetDeviceGroupPeerMemoryFeaturesKHX',
+                                       'vkBindBufferMemory2KHX',
+                                       'vkBindImageMemory2KHX',
+                                       'vkCmdSetDeviceMaskKHX',
+                                       'vkGetDeviceGroupPresentCapabilitiesKHX',
+                                       'vkGetDeviceGroupSurfacePresentModesKHX',
+                                       'vkAcquireNextImage2KHX',
+                                       'vkCmdDispatchBaseKHX',
+                                       'vkGetPhysicalDevicePresentRectanglesKHX',
+                                       'vkCreateViSurfaceNN',
+                                       'vkEnumeratePhysicalDeviceGroupsKHX',
+                                       'vkGetPhysicalDeviceExternalBufferPropertiesKHX',
+                                       'vkGetMemoryWin32HandleKHX',
+                                       'vkGetMemoryWin32HandlePropertiesKHX',
+                                       'vkGetMemoryFdKHX',
+                                       'vkGetMemoryFdPropertiesKHX',
+                                       'vkGetPhysicalDeviceExternalSemaphorePropertiesKHX',
+                                       'vkImportSemaphoreWin32HandleKHX',
+                                       'vkGetSemaphoreWin32HandleKHX',
+                                       'vkImportSemaphoreFdKHX',
+                                       'vkGetSemaphoreFdKHX',
+                                       'vkCmdProcessCommandsNVX',
+                                       'vkCmdReserveSpaceForCommandsNVX',
+                                       'vkCreateIndirectCommandsLayoutNVX',
+                                       'vkDestroyIndirectCommandsLayoutNVX',
+                                       'vkCreateObjectTableNVX',
+                                       'vkDestroyObjectTableNVX',
+                                       'vkRegisterObjectsNVX',
+                                       'vkUnregisterObjectsNVX',
+                                       'vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX',
+                                       'vkCmdSetViewportWScalingNV',
+                                       'vkReleaseDisplayEXT',
+                                       'vkAcquireXlibDisplayEXT',
+                                       'vkGetRandROutputDisplayEXT',
+                                       'vkGetPhysicalDeviceSurfaceCapabilities2EXT',
+                                       'vkDisplayPowerControlEXT',
+                                       'vkRegisterDeviceEventEXT',
+                                       'vkRegisterDisplayEventEXT',
+                                       'vkGetSwapchainCounterEXT',
+                                       'vkGetRefreshCycleDurationGOOGLE',
+                                       'vkGetPastPresentationTimingGOOGLE',
+                                       'vkCmdSetDiscardRectangleEXT',
+                                       'vkSetHdrMetadataEXT',
+                                       'vkCreateIOSSurfaceMVK',
+                                       'vkCreateMacOSSurfaceMVK',
+                                       ]
+
+api_exclusions = ['CreateWaylandSurfaceKHR',
+                  'CreateMirSurfaceKHR',
+                  'GetPhysicalDeviceWaylandPresentationSupportKHR',
+                  'GetPhysicalDeviceMirPresentationSupportKHR',
+                  'GetPhysicalDeviceDisplayPropertiesKHR',
+                  'GetPhysicalDeviceDisplayPlanePropertiesKHR',
+                  'GetDisplayPlaneSupportedDisplaysKHR',
+                  'GetDisplayModePropertiesKHR',
+                  'CreateDisplayModeKHR',
+                  'GetDisplayPlaneCapabilitiesKHR',
+                  'CreateDisplayPlaneSurfaceKHR',
+                  ]
+
 #
 # VkTraceFileOutputGeneratorOptions - subclass of GeneratorOptions.
 class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
@@ -81,8 +156,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         self.debug_report_object_types = []               # Handy copy of debug_report_object_type enum data
         self.CmdInfoData = namedtuple('CmdInfoData', ['name', 'cmdinfo'])
         self.cmd_feature_protect = []  # Save ifdef's for each command
+        self.cmd_extension_data = namedtuple('cmd_extension_data', ['name', 'extension_name'])
+        self.cmd_extension_names = []    # Save extension name for each command
         self.cmd_info_data = []        # Save the cmdinfo data for wrapping the handles when processing is complete
         self.cmdMembers = []
+        self.current_feature_name = None
         # Named tuples to store struct and command data
         self.CmdMemberData = namedtuple('CmdMemberData', ['name', 'members'])
         self.CmdExtraProtect = namedtuple('CmdExtraProtect', ['name', 'extra_protect'])
@@ -282,6 +360,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                  feature_protect=self.featureExtraProtect))
         self.cmdMembers.append(self.CmdMemberData(name=cmdname, members=membersInfo))
         self.cmd_info_data.append(self.CmdInfoData(name=cmdname, cmdinfo=cmdinfo))
+        self.cmd_extension_names.append(self.cmd_extension_data(name=cmdname, extension_name=self.current_feature_name))
         self.cmd_feature_protect.append(self.CmdExtraProtect(name=cmdname, extra_protect=self.featureExtraProtect))
     #
     # Generate local ready-access data describing Vulkan structures and unions from the XML metadata
@@ -314,6 +393,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                  cdecl=cdecl,
                                                  feature_protect=self.featureExtraProtect))
         self.structMembers.append(self.StructMemberData(name=typeName, members=membersInfo, ifdef_protect=self.featureExtraProtect))
+    #
+    def beginFeature(self, interface, emit):
+        # Start processing in superclass
+        OutputGenerator.beginFeature(self, interface, emit)
+        self.current_feature_name = self.featureName
     #
     # Enum_string_header: Create a routine to convert an enumerated value into a string
     def GenerateEnumStringConversion(self, groupName, value_list):
@@ -430,6 +514,513 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             replay_funcptr_header += '\n'
         replay_funcptr_header += '};\n'
         return replay_funcptr_header
+    #
+    # Construct vkreplay replay gen source file
+    def GenerateReplayGenSource(self):
+        cmd_member_dict = dict(self.cmdMembers)
+        cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
+        cmd_extension_dict = dict(self.cmd_extension_names)
+
+        wsi_platform_manual_funcs = ['CreateWin32SurfaceKHR',
+                                     'CreateXcbSurfaceKHR',
+                                     'CreateXlibSurfaceKHR',
+                                     'CreateAndroidSurfaceKHR']
+        manually_replay_funcs = ['AllocateMemory',
+                                 'BeginCommandBuffer',
+                                 'CreateDescriptorSetLayout',
+                                 'CreateDevice',
+                                 'CreateBuffer',
+                                 'CreateImage',
+                                 'CreateCommandPool',
+                                 'CreateFramebuffer',
+                                 'GetPipelineCacheData',
+                                 'CreateGraphicsPipelines',
+                                 'CreateComputePipelines',
+                                 'CreatePipelineLayout',
+                                 'CreateRenderPass',
+                                 'CmdBeginRenderPass',
+                                 'CmdBindDescriptorSets',
+                                 'CmdBindVertexBuffers',
+                                 'CmdPipelineBarrier',
+                                 'QueuePresentKHR',
+                                 'CmdWaitEvents',
+                                 'DestroyBuffer',
+                                 'DestroyImage',
+                                 'EnumeratePhysicalDevices',
+                                 'FreeMemory',
+                                 'FreeDescriptorSets',
+                                 'FlushMappedMemoryRanges',
+                                 'InvalidateMappedMemoryRanges',
+                                 'GetPhysicalDeviceMemoryProperties',
+                                 'GetPhysicalDeviceQueueFamilyProperties',
+                                 'GetPhysicalDeviceSurfaceSupportKHR',
+                                 'GetPhysicalDeviceSurfaceCapabilitiesKHR',
+                                 'GetPhysicalDeviceSurfaceFormatsKHR',
+                                 'GetPhysicalDeviceSurfacePresentModesKHR',
+                                 'CreateSwapchainKHR',
+                                 'GetSwapchainImagesKHR',
+                                 'CreateXcbSurfaceKHR',
+                                 'CreateXlibSurfaceKHR',
+                                 'GetPhysicalDeviceXcbPresentationSupportKHR',
+                                 'GetPhysicalDeviceXlibPresentationSupportKHR',
+                                 'CreateWin32SurfaceKHR',
+                                 'GetPhysicalDeviceWin32PresentationSupportKHR',
+                                 'CreateAndroidSurfaceKHR',
+                                 'MapMemory',
+                                 'QueueSubmit',
+                                 'QueueBindSparse',
+                                 'UnmapMemory',
+                                 'UpdateDescriptorSets',
+                                 'WaitForFences',
+                                 'CreateDebugReportCallbackEXT',
+                                 'DestroyDebugReportCallbackEXT',
+                                 'AllocateCommandBuffers',
+                                 'GetImageMemoryRequirements',
+                                 'GetBufferMemoryRequirements',
+                                 ]
+        # Map APIs to functions if body is fully custom
+        custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
+                            'GetPhysicalDeviceXcbPresentationSupportKHR': self.GenReplayGetPhysicalDeviceXcbPresentationSupportKHR,
+                            'GetPhysicalDeviceXlibPresentationSupportKHR': self.GenReplayGetPhysicalDeviceXlibPresentationSupportKHR,
+                            'GetPhysicalDeviceWin32PresentationSupportKHR': self.GenReplayGetPhysicalDeviceWin32PresentationSupportKHR }
+        # Special cases for functions that use do-while loops
+        do_while_dict = {'GetFenceStatus': 'replayResult != pPacket->result  && pPacket->result == VK_SUCCESS',
+                         'GetEventStatus': '(pPacket->result == VK_EVENT_SET || pPacket->result == VK_EVENT_RESET) && replayResult != pPacket->result',
+                         'GetQueryPoolResults': 'pPacket->result == VK_SUCCESS && replayResult != pPacket->result'}
+
+        replay_gen_source  = '\n'
+        replay_gen_source += '#include "vkreplay_vkreplay.h"\n'
+        replay_gen_source += '#include "vkreplay.h"\n'
+        replay_gen_source += '#include "vkreplay_main.h"\n'
+        replay_gen_source += '#include <algorithm>\n'
+        replay_gen_source += '#include <queue>\n'
+        replay_gen_source += '\n'
+        replay_gen_source += 'extern "C" {\n'
+        replay_gen_source += '#include "vktrace_vk_vk_packets.h"\n'
+        replay_gen_source += '#include "vktrace_vk_packet_id.h"\n\n'
+        replay_gen_source += 'void vkFuncs::init_funcs(void * handle) {\n'
+        replay_gen_source += '    m_libHandle = handle;\n'
+
+        for api in self.cmdMembers:
+            # TEMPORARY EXTENSION WORKAROUND
+            if api.name in temporary_script_porting_exclusions:
+                continue
+            cmdname = api.name
+            protect = cmd_protect_dict[cmdname]
+            if protect is not None:
+                replay_gen_source += '#ifdef %s\n' % protect
+            if 'DebugReport' not in cmdname:
+                replay_gen_source += '    real_%s = (type_%s)(vktrace_platform_get_library_entrypoint(handle, "%s"));\n' % (cmdname, cmdname, cmdname)
+            else: # These func ptrs get assigned at GetProcAddr time
+                replay_gen_source += '    real_%s = (type_%s)NULL;\n' % (cmdname, cmdname)
+            if protect is not None:
+                replay_gen_source += '#endif // %s\n' % protect
+        replay_gen_source += '}\n\n'
+        replay_gen_source += 'vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet) { \n'
+        replay_gen_source += '    vktrace_replay::VKTRACE_REPLAY_RESULT returnValue = vktrace_replay::VKTRACE_REPLAY_SUCCESS;\n'
+        replay_gen_source += '    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;\n'
+        replay_gen_source += '    switch (packet->packet_id) {\n'
+        replay_gen_source += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
+        replay_gen_source += '            packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(packet->pBody);\n'
+        replay_gen_source += '            if (VK_VERSION_MAJOR(pPacket->version) != 1 || VK_VERSION_MINOR (pPacket->version) != 0) {\n'
+        replay_gen_source += '                vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the vktrace plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0xFFC00000) >> 22, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x003FF000) >> 12, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x00000FFF));\n'
+        replay_gen_source += '                returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+        replay_gen_source += '            }\n'
+        replay_gen_source += '            break;\n'
+        replay_gen_source += '        }\n'
+
+        for api in self.cmdMembers:
+            cmdname = api.name
+            vk_cmdname = cmdname
+            # TEMPORARY EXTENSION WORKAROUND
+            if api.name in temporary_script_porting_exclusions:
+                continue
+            # Strip off 'vk' from command name
+            cmdname = cmdname[2:]
+            if cmdname in api_exclusions:
+                continue
+            cmdinfo = cmd_info_dict[vk_cmdname]
+            protect = cmd_protect_dict[vk_cmdname]
+            if protect is not None:
+                replay_gen_source += '#ifdef %s\n' % protect
+            # TODO : How to handle void* return of GetProcAddr?
+            # TODO : Make sure vkDestroy object functions really do clean up the object maps
+            # Handle return values, if any
+            ret_value = True
+            resulttype = cmdinfo.elem.find('proto/type')
+            if resulttype != None and resulttype.text == 'void' or cmdname in custom_body_dict:
+              ret_value = False
+            create_func = True if True in [create_txt in cmdname for create_txt in ['Create', 'Allocate', 'Acquire', 'GetDeviceQueue']] else False
+            create_view = True if True in [create_txt in cmdname for create_txt in ['CreateBufferView', 'CreateImageView']] else False
+            params = cmd_member_dict[vk_cmdname]
+            replay_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
+            replay_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
+
+            if cmdname in manually_replay_funcs:
+                if ret_value == True:
+                    replay_gen_source += '            replayResult = manually_replay_vk%s(pPacket);\n' % cmdname
+                else:
+                    replay_gen_source += '            manually_replay_vk%s(pPacket);\n' % cmdname
+            elif cmdname in custom_body_dict:
+                replay_gen_source += custom_body_dict[cmdname]()
+            else:
+                if create_view:
+                    replay_gen_source += '            %s createInfo;\n' % (params[1].type.strip('*').replace('const ', ''))
+                    replay_gen_source += '            memcpy(&createInfo, pPacket->pCreateInfo, sizeof(%s))\n;' % (params[1].type.strip('*').replace('const ', ''))
+                    if 'CreateComputePipeline' == cmdname:
+                        replay_gen_source += '            createInfo.cs.shader = m_objMapper.remap_shaders(pPacket->pCreateInfo->cs.shader);\n'
+                        replay_gen_source += '            if (createInfo.cs.shader == VK_NULL_HANDLE && pPacket->pCreateInfo->cs.shader != VK_NULL_HANDLE) {\n'
+                        replay_gen_source += '                vktrace_LogError("Error detected in vkCreateComputePipelines() due to invalid remapped VkShader.");\n'
+                        replay_gen_source += '                return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        replay_gen_source += '            }\n'
+                    elif 'CreateBufferView' == cmdname:
+                        replay_gen_source += '            createInfo.buffer = m_objMapper.remap_buffers(pPacket->pCreateInfo->buffer);\n'
+                        replay_gen_source += '            if (createInfo.buffer == VK_NULL_HANDLE && pPacket->pCreateInfo->buffer != VK_NULL_HANDLE) {\n'
+                        replay_gen_source += '                vktrace_LogError("Error detected in vkCreateBufferView() due to invalid remapped VkBuffer.");\n'
+                        replay_gen_source += '                return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        replay_gen_source += '            }\n'
+                    else:
+                        replay_gen_source += '            createInfo.image = m_objMapper.remap_images(pPacket->pCreateInfo->image);\n'
+                        replay_gen_source += '            if (createInfo.image == VK_NULL_HANDLE && pPacket->pCreateInfo->image != VK_NULL_HANDLE) {\n'
+                        replay_gen_source += '                vktrace_LogError("Error detected in vkCreateImageView() due to invalid remapped VkImage.");\n'
+                        replay_gen_source += '                return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        replay_gen_source += '            }\n'
+                    replay_gen_source += '            %s local_%s;\n' % (params[-1].type.strip('*').replace('const ', ''), params[-1].name)
+                elif create_func: # Declare local var to store created handle into
+                    if 'AllocateDescriptorSets' == cmdname:
+                        p_ty = params[-1].type.strip('*').replace('const ', '')
+                        replay_gen_source += '            %s* local_%s = (%s*)malloc(pPacket->pAllocateInfo->descriptorSetCount * sizeof(%s));\n' % (p_ty, params[-1].name, p_ty, p_ty)
+                        replay_gen_source += '            VkDescriptorSetLayout* local_pSetLayouts = (VkDescriptorSetLayout*)malloc(pPacket->pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSetLayout));\n'
+                        replay_gen_source += '            VkDescriptorSetAllocateInfo local_AllocInfo, *local_pAllocateInfo = &local_AllocInfo;\n'
+                        replay_gen_source += '            VkDescriptorPool local_descPool;\n'
+                        replay_gen_source += '            local_descPool = m_objMapper.remap_descriptorpools(pPacket->pAllocateInfo->descriptorPool);\n'
+                        replay_gen_source += '            if (local_descPool == VK_NULL_HANDLE) {\n'
+                        replay_gen_source += '                vktrace_LogError("Error detected in vkAllocateDescriptorSets() due to invalid remapped VkDescriptorPool.");\n'
+                        replay_gen_source += '                return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        replay_gen_source += '            }\n'
+                        replay_gen_source += '            for (uint32_t i = 0; i < pPacket->pAllocateInfo->descriptorSetCount; i++) {\n'
+                        replay_gen_source += '                local_pSetLayouts[i] = m_objMapper.remap_descriptorsetlayouts(pPacket->%s->pSetLayouts[i]);\n' % (params[-2].name)
+                        replay_gen_source += '                if (local_pSetLayouts[i] == VK_NULL_HANDLE) { \n'
+                        replay_gen_source += '                    vktrace_LogError("Error detected in vkAllocateDescriptorSets() due to invalid remapped VkDescriptorSetLayout.");\n'
+                        replay_gen_source += '                    return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        replay_gen_source += '                }\n'
+                        replay_gen_source += '            }\n'
+                        replay_gen_source += '            memcpy(local_pAllocateInfo, pPacket->pAllocateInfo, sizeof(VkDescriptorSetAllocateInfo));\n'
+                        replay_gen_source += '            local_pAllocateInfo->pSetLayouts = local_pSetLayouts;\n'
+                        replay_gen_source += '            local_pAllocateInfo->descriptorPool = local_descPool;\n'
+                    else:
+                        replay_gen_source += '            %s local_%s;\n' % (params[-1].type.strip('*').replace('const ', ''), params[-1].name)
+                elif cmdname == 'ResetFences':
+                    replay_gen_source += '            VkFence* fences = VKTRACE_NEW_ARRAY(VkFence, pPacket->fenceCount);\n'
+                    replay_gen_source += '            for (uint32_t i = 0; i < pPacket->fenceCount; i++) {\n'
+                    replay_gen_source += '                fences[i] = m_objMapper.remap_fences(pPacket->%s[i]);\n' % (params[-1].name)
+                    replay_gen_source += '                if (fences[i] == VK_NULL_HANDLE) {\n'
+                    replay_gen_source += '                    vktrace_LogError("Error detected in vkResetFences() due to invalid remapped VkFence.");\n'
+                    replay_gen_source += '                    return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                    replay_gen_source += '                }\n'
+                    replay_gen_source += '            }\n'
+                elif cmdname in do_while_dict:
+                    replay_gen_source += '            do {\n'
+                last_name = ''
+                for p in params:
+                    if p.name is not '':
+                        if create_func or create_view:
+                            if p.name != params[-1].name:
+                                replay_gen_source += self.RemapPacketParam(cmdname, p, last_name)
+                        else:
+                            replay_gen_source += self.RemapPacketParam(cmdname, p, last_name)
+                        last_name = p.name
+
+                if cmdname == 'DestroyInstance':
+                    replay_gen_source += '            if (m_vkFuncs.real_vkDestroyDebugReportCallbackEXT != NULL) {\n'
+                    replay_gen_source += '                m_vkFuncs.real_vkDestroyDebugReportCallbackEXT(remappedinstance, m_dbgMsgCallbackObj, pPacket->pAllocator);\n'
+                    replay_gen_source += '            }\n'
+                # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
+                elif cmdname == 'GetInstanceProcAddr':
+                    for command in self.cmdMembers:
+                        # TEMPORARY EXTENSION WORKAROUND
+                        if api.name in temporary_script_porting_exclusions:
+                            continue
+                        if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
+                            gipa_params = cmd_member_dict[vk_cmdname]
+                            gipa_protect = cmd_protect_dict[command.name]
+                            if gipa_protect is not None:
+                                replay_gen_source += '#ifdef %s\n' % gipa_protect
+                            if (gipa_params[0].type == 'VkInstance'):
+                                replay_gen_source += '            if (strcmp(pPacket->pName, "%s") == 0) {\n' % (command.name)
+                                replay_gen_source += '               m_vkFuncs.real_%s = (PFN_%s)vk%s(remappedinstance, pPacket->pName);\n' % (command.name, command.name, cmdname)
+                                replay_gen_source += '            }\n'
+                            if gipa_protect is not None:
+                                replay_gen_source += '#endif // %s\n' % gipa_protect
+                elif cmdname == 'GetDeviceProcAddr':
+                    for command in self.cmdMembers:
+                        # TEMPORARY EXTENSION WORKAROUND
+                        if api.name in temporary_script_porting_exclusions:
+                            continue
+                        if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
+                            gdpa_params = cmd_member_dict[vk_cmdname]
+                            gdpa_protect = cmd_protect_dict[command.name]
+                            if gdpa_protect is not None:
+                                replay_gen_source += '#ifdef %s\n' % gdpa_protect
+                            if gdpa_params[0].type != 'VkInstance' and gdpa_params[0].type != 'VkPhysicalDevice':
+                                replay_gen_source += '            if (strcmp(pPacket->pName, "%s") == 0) {\n' % (command.name)
+                                replay_gen_source += '               m_vkFuncs.real_%s = (PFN_%s)vk%s(remappeddevice, pPacket->pName);\n' % (command.name, command.name, cmdname)
+                                replay_gen_source += '            }\n'
+                            if gdpa_protect is not None:
+                                replay_gen_source += '#endif // %s\n' % gdpa_protect
+                elif cmdname == 'GetPhysicalDeviceMemoryProperties':
+                    replay_gen_source += '            VkPhysicalDeviceMemoryProperties memProperties = *(pPacket->pMemoryProperties);\n'
+                elif cmdname == 'GetImageMemoryRequirements':
+                    replay_gen_source += '            VkMemoryRequirements memReqs = *(pPacket->pMemoryRequirements);\n'
+                # Build the call to the "real_" entrypoint
+                rr_string = '            '
+                if ret_value:
+                    if cmdinfo.elem.find('proto/type').text != 'VkResult':
+                        ret_value = False
+                    else:
+                        rr_string = '            replayResult = '
+                rr_string += 'm_vkFuncs.real_vk%s(' % cmdname
+                for p in params:
+                    if p.name is not '':
+                        # For last param of Create funcs, pass address of param
+                        if create_func:
+                            if cmdname == 'AllocateDescriptorSets' and ((p.name == params[-2].name) or (p.name == params[-1].name)):
+                                rr_string += 'local_%s, ' % p.name
+                            elif p.name == params[-1].name:
+                                rr_string += '&local_%s, ' % p.name
+                            else:
+                                rr_string += '%s, ' % self.GetPacketParam(cmdname, p.type, p.name)
+                        else:
+                            rr_string += '%s, ' % self.GetPacketParam(cmdname, p.type, p.name)
+                rr_string = '%s);' % rr_string[:-2]
+                if create_view:
+                    rr_list = rr_string.split(', ')
+                    rr_list[-3] = '&createInfo'
+                    rr_list[-2] = 'NULL'
+                    rr_list[-1] = '&local_%s);\n' % params[-1].name
+                    rr_string = ', '.join(rr_list)
+                    # This is a sneaky shortcut to use generic create code below to add_to_map
+                    create_func = True
+                elif cmdname == 'AllocateDescriptorSets':
+                    rr_string = rr_string.replace('pPacket->pSetLayouts', 'pLocalDescSetLayouts')
+                elif cmdname == 'ResetFences':
+                   rr_string = rr_string.replace('pPacket->pFences', 'fences')
+                # Insert the real_*(..) call
+                replay_gen_source += '%s\n' % rr_string
+                # Handle return values or anything that needs to happen after the real_*(..) call
+                get_ext_layers_proto = ['EnumerateInstanceExtensionProperties', 'EnumerateDeviceExtensionProperties','EnumerateInstanceLayerProperties', 'EnumerateDeviceLayerProperties']
+                if 'DestroyDevice' in cmdname:
+                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
+                    replay_gen_source += '                m_pCBDump = NULL;\n'
+                    replay_gen_source += '                m_pDSDump = NULL;\n'
+                    #TODO138 : disabling snapshot
+                    #replay_gen_source += '                m_pVktraceSnapshotPrint = NULL;\n'
+                    replay_gen_source += '                m_objMapper.rm_from_devices_map(pPacket->device);\n'
+                    replay_gen_source += '                m_display->m_initedVK = false;\n'
+                    replay_gen_source += '            }\n'
+                elif cmdname in get_ext_layers_proto:
+                    replay_gen_source += '            if (replayResult == VK_ERROR_LAYER_NOT_PRESENT || replayResult == VK_INCOMPLETE) {\n'
+                    replay_gen_source += '                replayResult = VK_SUCCESS;\n'
+                    replay_gen_source += '            }\n'
+                elif 'DestroySwapchainKHR' in cmdname:
+                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
+                    replay_gen_source += '                m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
+                    replay_gen_source += '            }\n'
+                elif 'AcquireNextImageKHR' in cmdname:
+                    replay_gen_source += '            m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
+                elif 'DestroyInstance' in cmdname:
+                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
+                    replay_gen_source += '                // TODO need to handle multiple instances and only clearing maps within an instance.\n'
+                    replay_gen_source += '                // TODO this only works with a single instance used at any given time.\n'
+                    replay_gen_source += '                m_objMapper.clear_all_map_handles();\n'
+                    replay_gen_source += '            }\n'
+                elif 'MergePipelineCaches' in cmdname:
+                    replay_gen_source += '            delete[] remappedpSrcCaches;\n'
+                elif 'FreeCommandBuffers' in cmdname:
+                    replay_gen_source += '            delete[] remappedpCommandBuffers;\n'
+                elif 'CmdExecuteCommands' in cmdname:
+                    replay_gen_source += '            delete[] remappedpCommandBuffers;\n'
+                elif 'AllocateDescriptorSets' in cmdname:
+                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
+                    replay_gen_source += '                for (uint32_t i = 0; i < pPacket->pAllocateInfo->descriptorSetCount; i++) {\n'
+                    replay_gen_source += '                    m_objMapper.add_to_descriptorsets_map(pPacket->%s[i], local_%s[i]);\n' % (params[-1].name, params[-1].name)
+                    replay_gen_source += '                }\n'
+                    replay_gen_source += '            }\n'
+                    replay_gen_source += '            free(local_pSetLayouts);\n'
+                    replay_gen_source += '            free(local_pDescriptorSets);\n'
+                elif cmdname == 'GetImageMemoryRequirements':
+                    replay_gen_source += '            if (memReqs.size != pPacket->pMemoryRequirements->size) {\n'
+                    replay_gen_source += '                vktrace_LogError("Image memory size requirements differ: trace image %p needed %u bytes; replay image %p needed %u bytes.", pPacket->image, memReqs.size, remappedimage, pPacket->pMemoryRequirements->size);\n'
+                    replay_gen_source += '            }\n'
+                elif cmdname == 'GetPhysicalDeviceMemoryProperties':
+                    replay_gen_source += '            if (memcmp(&memProperties, pPacket->pMemoryProperties, sizeof(VkPhysicalDeviceMemoryProperties)) != 0) {\n'
+                    replay_gen_source += '                vktrace_LogError("Physical Device Memory properties differ. Memory heaps may not match as expected.");\n'
+                    replay_gen_source += '            }\n'
+                elif cmdname == 'ResetFences':
+                    replay_gen_source += '            VKTRACE_DELETE(fences);\n'
+                elif create_func: # Save handle mapping if create successful
+                    if ret_value:
+                        replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
+                    clean_type = params[-1].type.strip('*').replace('const ', '')
+                    replay_gen_source += '                m_objMapper.add_to_%ss_map(*(pPacket->%s), local_%s);\n' % (clean_type.lower()[2:], params[-1].name, params[-1].name)
+                    if 'AllocateMemory' == cmdname:
+                        replay_gen_source += '                m_objMapper.add_entry_to_mapData(local_%s, pPacket->pAllocateInfo->allocationSize);\n' % (params[-1].name)
+                    if ret_value:
+                        replay_gen_source += '            }\n'
+                elif cmdname in do_while_dict:
+                    replay_gen_source += '            } while (%s);\n' % do_while_dict[cmdname]
+                    replay_gen_source += '            if (pPacket->result != VK_NOT_READY || replayResult != VK_SUCCESS)\n'
+            if ret_value:
+                replay_gen_source += '            CHECK_RETURN_VALUE(vk%s);\n' % cmdname
+            replay_gen_source += '            break;\n'
+            replay_gen_source += '        }\n'
+            if protect is not None:
+                replay_gen_source += '#endif // %s\n' % protect
+        replay_gen_source += '        default:\n'
+        replay_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'
+        replay_gen_source += '            returnValue = vktrace_replay::VKTRACE_REPLAY_INVALID_ID;\n'
+        replay_gen_source += '            break;\n'
+        replay_gen_source += '    }\n'
+        replay_gen_source += '    return returnValue;\n'
+        replay_gen_source += '}\n'
+        replay_gen_source += '}\n'
+        return replay_gen_source
+    #
+    # Parameter remapping utility function
+    def RemapPacketParam(self, funcName, param, lastName):
+        param_exclude_list = ['pDescriptorSets', 'pFences']
+        cleanParamType = param.type.strip('*').replace('const ', '')
+        for obj in self.object_types:
+            if obj == cleanParamType and param.name not in param_exclude_list:
+                objectTypeRemapParam = ''
+                if 'VkDynamicStateObject' == cleanParamType:
+                    objectTypeRemapParam = ', pPacket->stateBindPoint'
+                elif 'object' == param.name:
+                    objectTypeRemapParam = ', pPacket->objType'
+                elif 'srcObject' == param.name and 'Callback' in funcName:
+                    objectTypeRemapParam = ', pPacket->objType'
+                pArray = ''
+                if param.ispointer:
+                    if param.isconst == False:
+                        result = '        %s remapped%s = m_objMapper.remap_%ss(*pPacket->%s%s);\n' % (cleanParamType, param.name, param.name.lower(), param.name, objectTypeRemapParam)
+                        result += '        if (pPacket->%s != VK_NULL_HANDLE && remapped%s == VK_NULL_HANDLE) {\n' % (param.name, param.name)
+                        result += '            vktrace_LogError("Error detected in %s() due to invalid remapped %s.");\n' % (funcName, cleanParamType)
+                        result += '            return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        result += '        }\n'
+                        return result
+                    else:
+                        if lastName == '':
+                            return '            // pPacket->%s should have been remapped with special case code' % (param.name)
+                        pArray = '[pPacket->%s]' % lastName
+                        result = '            %s *remapped%s = new %s%s;\n' % (cleanParamType, param.name, cleanParamType, pArray)
+                        result += '            for (uint32_t i = 0; i < pPacket->%s; i++) {\n' % lastName
+                        result += '                remapped%s[i] = m_objMapper.remap_%ss(pPacket->%s[i]%s);\n' % (param.name, cleanParamType.lower()[2:], param.name, objectTypeRemapParam)
+                        result += '                if (pPacket->%s[i] != VK_NULL_HANDLE && remapped%s[i] == VK_NULL_HANDLE) {\n' % (param.name, param.name)
+                        result += '                    vktrace_LogError("Error detected in %s() due to invalid remapped %s.");\n' % (funcName, cleanParamType)
+                        result += '                    return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                        result += '                }\n'
+                        result += '            }\n'
+                        return result
+                result = '            %s remapped%s = m_objMapper.remap_%ss(pPacket->%s%s);\n' % (param.type, param.name, cleanParamType.lower()[2:], param.name, objectTypeRemapParam)
+                result += '            if (pPacket->%s != VK_NULL_HANDLE && remapped%s == VK_NULL_HANDLE) {\n' % (param.name, param.name)
+                result += '                vktrace_LogError("Error detected in %s() due to invalid remapped %s.");\n' % (funcName, cleanParamType)
+                result += '                return vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
+                result += '            }\n'
+                return result
+        return '            // No need to remap %s\n' % (param.name)
+    #
+    # Return correct remapping prefix
+    def GetPacketParam(self, funcName, paramType, paramName):
+        # List of types that require remapping
+        param_exclude_list = ['pDescriptorSets', 'pFences']
+        cleanParamType = paramType.strip('*').replace('const ', '')
+        for obj in self.object_types:
+            if obj == cleanParamType and paramName not in param_exclude_list:
+                return 'remapped%s' % (paramName)
+        return 'pPacket->%s' % (paramName)
+    #
+    # Dump source for CreateInstance
+    def GenReplayCreateInstance(self):
+        cb_body = []
+        cb_body.append('            replayResult = manually_replay_vkCreateInstance(pPacket);')
+        cb_body.append('            CHECK_RETURN_VALUE(vkCreateInstance);')
+        cb_body.append('            if (replayResult == VK_SUCCESS) {')
+        cb_body.append('                VkInstance remappedInstance = m_objMapper.remap_instances(*pPacket->pInstance);')
+        cb_body.append('                if (remappedInstance == VK_NULL_HANDLE) {')
+        cb_body.append('                    vktrace_LogError("Error detected in vkCreateInstance() due to invalid remapped VkInstance.");')
+        cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
+        cb_body.append('                    break;')
+        cb_body.append('                }')
+        cb_body.append('                VkFlags reportFlags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;')
+        cb_body.append('                PFN_vkCreateDebugReportCallbackEXT callback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(remappedInstance, "vkCreateDebugReportCallbackEXT");')
+        cb_body.append('                if (callback != NULL) {')
+        cb_body.append('                    VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;')
+        cb_body.append('                    memset(&dbgCreateInfo, 0, sizeof(dbgCreateInfo));')
+        cb_body.append('                    dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;')
+        cb_body.append('                    dbgCreateInfo.flags = reportFlags;')
+        cb_body.append('                    dbgCreateInfo.pfnCallback = g_fpDbgMsgCallback;')
+        cb_body.append('                    dbgCreateInfo.pUserData = NULL;')
+        cb_body.append('                    if (callback(remappedInstance, &dbgCreateInfo, NULL, &m_dbgMsgCallbackObj) != VK_SUCCESS) {')
+        cb_body.append('                        vktrace_LogWarning("Failed to register vulkan callback for replayer error handling.");')
+        cb_body.append('                        returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
+        cb_body.append('                        break;')
+        cb_body.append('                    }')
+        cb_body.append('                }')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+    #
+    # These are customized because they are the only entry points returning VkBool32
+    def GenReplayGetPhysicalDeviceXcbPresentationSupportKHR (self):
+        cb_body = []
+        cb_body.append('            VkBool32 rval = manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(pPacket);')
+        cb_body.append('            if (rval != pPacket->result) {')
+        cb_body.append('                vktrace_LogError("Return value %d from API call (vkGetPhysicalDeviceXcbPresentationSupportKHR) does not match return value from trace file %d.",')
+        cb_body.append('                                 rval, pPacket->result);')
+        cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+
+    def GenReplayGetPhysicalDeviceXlibPresentationSupportKHR (self):
+        cb_body = []
+        cb_body.append('            VkBool32 rval = manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(pPacket);')
+        cb_body.append('            if (rval != pPacket->result) {')
+        cb_body.append('                vktrace_LogError("Return value %d from API call (vkGetPhysicalDeviceXlibPresentationSupportKHR) does not match return value from trace file %d.",')
+        cb_body.append('                                 rval, pPacket->result);')
+        cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+
+    def GenReplayGetPhysicalDeviceWin32PresentationSupportKHR (self):
+        cb_body = []
+        cb_body.append('            VkBool32 rval = manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(pPacket);')
+        cb_body.append('            if (rval != pPacket->result) {')
+        cb_body.append('                vktrace_LogError("Return value %d from API call (vkGetPhysicalDeviceWin32PresentationSupportKHR) does not match return value from trace file %d.",')
+        cb_body.append('                                 rval, pPacket->result);')
+        cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
+        cb_body.append('            }')
+        return "\n".join(cb_body)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     #
     # Create a vktrace file and return it as a string
@@ -438,6 +1029,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return self.GenerateReplayObjmapperHeader()
         elif self.vktrace_file_type == 'vkreplay_funcptr_header':
             return self.GenerateReplayFuncptrHeader()
+        elif self.vktrace_file_type == 'vkreplay_replay_gen_source':
+            return self.GenerateReplayGenSource()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type
 
