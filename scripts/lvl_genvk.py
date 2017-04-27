@@ -476,6 +476,28 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             vktrace_file_type  = 'vkreplay_funcptr_header')
         ]
 
+    # VkTrace file generator options for vkreplay_vk_replay_gen.cpp
+    genOpts['vkreplay_vk_replay_gen.cpp'] = [
+          VkTraceFileOutputGenerator,
+          VkTraceFileOutputGeneratorOptions(
+            filename          = 'vkreplay_vk_replay_gen.cpp',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            vktrace_file_type  = 'vkreplay_replay_gen_source')
+        ]
+
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
 # The args parameter is an parsed argument object containing the following
