@@ -134,7 +134,7 @@ struct DESCRIPTOR_POOL_STATE : BASE_NODE {
     uint32_t maxSets;        // Max descriptor sets allowed in this pool
     uint32_t availableSets;  // Available descriptor sets in this pool
 
-    VkDescriptorPoolCreateInfo createInfo;
+    safe_VkDescriptorPoolCreateInfo createInfo;
     std::unordered_set<cvdescriptorset::DescriptorSet *> sets;  // Collection of all sets in this pool
     std::vector<uint32_t> maxDescriptorTypeCount;               // Max # of descriptors of each type in this pool
     std::vector<uint32_t> availableDescriptorTypeCount;         // Available # of descriptors of each type in this pool
@@ -143,29 +143,16 @@ struct DESCRIPTOR_POOL_STATE : BASE_NODE {
         : pool(pool),
           maxSets(pCreateInfo->maxSets),
           availableSets(pCreateInfo->maxSets),
-          createInfo(*pCreateInfo),
+          createInfo(pCreateInfo),
           maxDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE, 0),
           availableDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE, 0) {
-        if (createInfo.poolSizeCount) {  // Shadow type struct from ptr into local struct
-            size_t poolSizeCountSize = createInfo.poolSizeCount * sizeof(VkDescriptorPoolSize);
-            createInfo.pPoolSizes = new VkDescriptorPoolSize[poolSizeCountSize];
-            memcpy((void *)createInfo.pPoolSizes, pCreateInfo->pPoolSizes, poolSizeCountSize);
-            // Now set max counts for each descriptor type based on count of that type times maxSets
-            uint32_t i = 0;
-            for (i = 0; i < createInfo.poolSizeCount; ++i) {
-                uint32_t typeIndex = static_cast<uint32_t>(createInfo.pPoolSizes[i].type);
-                // Same descriptor types can appear several times
-                maxDescriptorTypeCount[typeIndex] += createInfo.pPoolSizes[i].descriptorCount;
-                availableDescriptorTypeCount[typeIndex] = maxDescriptorTypeCount[typeIndex];
-            }
-        } else {
-            createInfo.pPoolSizes = NULL;  // Make sure this is NULL so we don't try to clean it up
+        // Collect maximums per descriptor type.
+        for (uint32_t i = 0; i < createInfo.poolSizeCount; ++i) {
+            uint32_t typeIndex = static_cast<uint32_t>(createInfo.pPoolSizes[i].type);
+            // Same descriptor types can appear several times
+            maxDescriptorTypeCount[typeIndex] += createInfo.pPoolSizes[i].descriptorCount;
+            availableDescriptorTypeCount[typeIndex] = maxDescriptorTypeCount[typeIndex];
         }
-    }
-    ~DESCRIPTOR_POOL_STATE() {
-        delete[] createInfo.pPoolSizes;
-        // TODO : pSets are currently freed in deletePools function which uses freeShadowUpdateTree function
-        //  need to migrate that struct to smart ptrs for auto-cleanup
     }
 };
 
@@ -222,7 +209,7 @@ class BUFFER_STATE : public BINDABLE {
     VkBuffer buffer;
     VkBufferCreateInfo createInfo;
     BUFFER_STATE(VkBuffer buff, const VkBufferCreateInfo *pCreateInfo) : buffer(buff), createInfo(*pCreateInfo) {
-        if (createInfo.queueFamilyIndexCount > 0) {
+        if ((createInfo.sharingMode == VK_SHARING_MODE_CONCURRENT) && (createInfo.queueFamilyIndexCount > 0)) {
             uint32_t *pQueueFamilyIndices = new uint32_t[createInfo.queueFamilyIndexCount];
             for (uint32_t i = 0; i < createInfo.queueFamilyIndexCount; i++) {
                 pQueueFamilyIndices[i] = pCreateInfo->pQueueFamilyIndices[i];
@@ -238,7 +225,7 @@ class BUFFER_STATE : public BINDABLE {
     BUFFER_STATE(BUFFER_STATE const &rh_obj) = delete;
 
     ~BUFFER_STATE() {
-        if (createInfo.queueFamilyIndexCount > 0) {
+        if ((createInfo.sharingMode == VK_SHARING_MODE_CONCURRENT) && (createInfo.queueFamilyIndexCount > 0)) {
             delete createInfo.pQueueFamilyIndices;
             createInfo.pQueueFamilyIndices = nullptr;
         }
@@ -268,7 +255,7 @@ class IMAGE_STATE : public BINDABLE {
     bool acquired;  // If this is a swapchain image, has it been acquired by the app.
     IMAGE_STATE(VkImage img, const VkImageCreateInfo *pCreateInfo)
         : image(img), createInfo(*pCreateInfo), valid(false), acquired(false) {
-        if (createInfo.queueFamilyIndexCount > 0) {
+        if ((createInfo.sharingMode == VK_SHARING_MODE_CONCURRENT) && (createInfo.queueFamilyIndexCount > 0)) {
             uint32_t *pQueueFamilyIndices = new uint32_t[createInfo.queueFamilyIndexCount];
             for (uint32_t i = 0; i < createInfo.queueFamilyIndexCount; i++) {
                 pQueueFamilyIndices[i] = pCreateInfo->pQueueFamilyIndices[i];
@@ -284,7 +271,7 @@ class IMAGE_STATE : public BINDABLE {
     IMAGE_STATE(IMAGE_STATE const &rh_obj) = delete;
 
     ~IMAGE_STATE() {
-        if (createInfo.queueFamilyIndexCount > 0) {
+        if ((createInfo.sharingMode == VK_SHARING_MODE_CONCURRENT) && (createInfo.queueFamilyIndexCount > 0)) {
             delete createInfo.pQueueFamilyIndices;
             createInfo.pQueueFamilyIndices = nullptr;
         }
@@ -667,7 +654,6 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     std::unordered_set<QueryObject> activeQueries;
     std::unordered_set<QueryObject> startedQueries;
     std::unordered_map<ImageSubresourcePair, IMAGE_CMD_BUF_LAYOUT_NODE> imageLayoutMap;
-    std::unordered_map<VkImage, std::vector<ImageSubresourcePair>> imageSubresourceMap;
     std::unordered_map<VkEvent, VkPipelineStageFlags> eventToStageMap;
     std::vector<DRAW_DATA> drawData;
     DRAW_DATA currentDrawData;

@@ -338,7 +338,13 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL myDbgFunc(VkFlags msgFlags, VkDebugReportO
                                                 void *pUserData) {
     ErrorMonitor *errMonitor = (ErrorMonitor *)pUserData;
     if (msgFlags & errMonitor->GetMessageFlags()) {
+#ifdef _DEBUG
+        char embedded_code_string[2048];
+        snprintf(embedded_code_string, 2048, "%s [%05d]", pMsg, msgCode);
+        return errMonitor->CheckForDesiredMsg(msgCode, embedded_code_string);
+#else
         return errMonitor->CheckForDesiredMsg(msgCode, pMsg);
+#endif
     }
     return false;
 }
@@ -9251,9 +9257,8 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     m_errorMonitor->VerifyFound();
 
     // Now exercise barrier aspect bit errors, first DS
-    m_errorMonitor->SetDesiredFailureMsg(
-        VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        "Depth/stencil image formats must have at least one of VK_IMAGE_ASPECT_DEPTH_BIT and VK_IMAGE_ASPECT_STENCIL_BIT set.");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00741);
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00302);
     VkDepthStencilObj ds_image(m_device);
     ds_image.Init(m_device, 128, 128, depth_format);
     ASSERT_TRUE(ds_image.initialized());
@@ -9267,10 +9272,15 @@ TEST_F(VkLayerTest, InvalidBarriers) {
                          nullptr, 0, nullptr, 1, &img_barrier);
     m_errorMonitor->VerifyFound();
 
-    // Having anything other than DEPTH or STENCIL is an error
-    m_errorMonitor->SetDesiredFailureMsg(
-        VK_DEBUG_REPORT_ERROR_BIT_EXT,
-        "Combination depth/stencil image formats can have only the VK_IMAGE_ASPECT_DEPTH_BIT and VK_IMAGE_ASPECT_STENCIL_BIT set.");
+    // Having only one of depth or stencil set for DS image is an error
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00302);
+    img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+    vkCmdPipelineBarrier(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0,
+                         nullptr, 0, nullptr, 1, &img_barrier);
+    m_errorMonitor->VerifyFound();
+
+    // Having anything other than DEPTH and STENCIL is an error
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_00741);
     img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_COLOR_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->GetBufferHandle(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0,
                          nullptr, 0, nullptr, 1, &img_barrier);
@@ -16561,14 +16571,16 @@ TEST_F(VkLayerTest, ImageBufferCopyTests) {
             VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_3D_1S.initialized());
 
-        ds_image_2D.Init(256, 256, 1, VK_FORMAT_D16_UNORM, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                                               VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                         VK_IMAGE_TILING_OPTIMAL, 0);
+        ds_image_2D.Init(
+            256, 256, 1, VK_FORMAT_D16_UNORM,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_2D.initialized());
 
-        ds_image_1S.Init(256, 256, 1, VK_FORMAT_S8_UINT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                                             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                         VK_IMAGE_TILING_OPTIMAL, 0);
+        ds_image_1S.Init(
+            256, 256, 1, VK_FORMAT_S8_UINT,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+            VK_IMAGE_TILING_OPTIMAL, 0);
         ASSERT_TRUE(ds_image_1S.initialized());
     }
 
@@ -17512,7 +17524,7 @@ TEST_F(VkLayerTest, CopyImageAspectMismatch) {
     VkImageObj color_image(m_device), ds_image(m_device), depth_image(m_device);
     color_image.Init(128, 128, 1, VK_FORMAT_R32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
     depth_image.Init(128, 128, 1, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-                  VK_IMAGE_TILING_OPTIMAL, 0);
+                     VK_IMAGE_TILING_OPTIMAL, 0);
     ds_image.Init(128, 128, 1, ds_format, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                   VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(color_image.initialized());
@@ -23345,16 +23357,15 @@ std::vector<std::string> get_args(android_app &app, const char *intent_extra_dat
     return args;
 }
 
-void addFullTestCommentIfPresent(const ::testing::TestInfo& test_info, std::string& error_message) {
-    const char* const type_param = test_info.type_param();
-    const char* const value_param = test_info.value_param();
+void addFullTestCommentIfPresent(const ::testing::TestInfo &test_info, std::string &error_message) {
+    const char *const type_param = test_info.type_param();
+    const char *const value_param = test_info.value_param();
 
     if (type_param != NULL || value_param != NULL) {
         error_message.append(", where ");
         if (type_param != NULL) {
-           error_message.append("TypeParam = ").append(type_param);
-           if (value_param != NULL)
-               error_message.append(" and ");
+            error_message.append("TypeParam = ").append(type_param);
+            if (value_param != NULL) error_message.append(" and ");
         }
         if (value_param != NULL) {
             error_message.append("GetParam() = ").append(value_param);
@@ -23365,26 +23376,21 @@ void addFullTestCommentIfPresent(const ::testing::TestInfo& test_info, std::stri
 // Inspired by https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
 class LogcatPrinter : public ::testing::EmptyTestEventListener {
     // Called before a test starts.
-    virtual void OnTestStart(const ::testing::TestInfo& test_info) {
+    virtual void OnTestStart(const ::testing::TestInfo &test_info) {
         __android_log_print(ANDROID_LOG_INFO, appTag, "[ RUN      ] %s.%s", test_info.test_case_name(), test_info.name());
     }
 
     // Called after a failed assertion or a SUCCEED() invocation.
-    virtual void OnTestPartResult(const ::testing::TestPartResult& result) {
-
+    virtual void OnTestPartResult(const ::testing::TestPartResult &result) {
         // If the test part succeeded, we don't need to do anything.
-        if (result.type() == ::testing::TestPartResult::kSuccess)
-            return;
+        if (result.type() == ::testing::TestPartResult::kSuccess) return;
 
-        __android_log_print(ANDROID_LOG_INFO, appTag, "%s in %s:%d %s",
-             result.failed() ? "*** Failure" : "Success",
-             result.file_name(),
-             result.line_number(),
-             result.summary());
+        __android_log_print(ANDROID_LOG_INFO, appTag, "%s in %s:%d %s", result.failed() ? "*** Failure" : "Success",
+                            result.file_name(), result.line_number(), result.summary());
     }
 
     // Called after a test ends.
-    virtual void OnTestEnd(const ::testing::TestInfo& info) {
+    virtual void OnTestEnd(const ::testing::TestInfo &info) {
         std::string result;
         if (info.result()->Passed()) {
             result.append("[       OK ]");
@@ -23392,8 +23398,7 @@ class LogcatPrinter : public ::testing::EmptyTestEventListener {
             result.append("[  FAILED  ]");
         }
         result.append(info.test_case_name()).append(".").append(info.name());
-        if (info.result()->Failed())
-            addFullTestCommentIfPresent(info, result);
+        if (info.result()->Failed()) addFullTestCommentIfPresent(info, result);
 
         if (::testing::GTEST_FLAG(print_time)) {
             std::ostringstream os;
@@ -23428,7 +23433,6 @@ static void processCommand(struct android_app *app, int32_t cmd) {
 
 void android_main(struct android_app *app) {
     app_dummy();
-
 
     int vulkanSupport = InitVulkan();
     if (vulkanSupport == 0) {
@@ -23477,7 +23481,7 @@ void android_main(struct android_app *app) {
 
             ::testing::InitGoogleTest(&argc, argv);
 
-            ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
+            ::testing::TestEventListeners &listeners = ::testing::UnitTest::GetInstance()->listeners();
             listeners.Append(new LogcatPrinter);
 
             VkTestFramework::InitArgs(&argc, argv);
