@@ -2477,6 +2477,8 @@ memoryTypeBits=%0x08X}",
         create_view_list = ['CreateBufferView', 'CreateImageView', 'CreateComputePipeline']
         # Functions to treat as "Create' that don't have 'Create' in the name
         special_create_list = ['LoadPipeline', 'LoadPipelineDerivative', 'AllocateMemory', 'GetDeviceQueue', 'PinSystemMemory', 'AllocateDescriptorSets', 'AcquireNextImageKHR']
+        # Functions to get memory requirements
+        get_mem_reqs_list = ['GetImageMemoryRequirements', 'GetBufferMemoryRequirements']
         # A couple funcs use do while loops
         do_while_dict = {'GetFenceStatus': 'replayResult != pPacket->result  && pPacket->result == VK_SUCCESS', 'GetEventStatus': '(pPacket->result == VK_EVENT_SET || pPacket->result == VK_EVENT_RESET) && replayResult != pPacket->result', 'GetQueryPoolResults': 'pPacket->result == VK_SUCCESS && replayResult != pPacket->result'}
         rbody = []
@@ -2648,7 +2650,7 @@ memoryTypeBits=%0x08X}",
                             rbody.append('            }')
                 elif proto.name == 'GetPhysicalDeviceMemoryProperties':
                     rbody.append('            VkPhysicalDeviceMemoryProperties memProperties = *(pPacket->pMemoryProperties);')
-                elif proto.name == 'GetImageMemoryRequirements':
+                elif proto.name in get_mem_reqs_list:
                     rbody.append('            VkMemoryRequirements memReqs = *(pPacket->pMemoryRequirements);')
 
                 # build the call to the "real_" entrypoint
@@ -2739,10 +2741,18 @@ memoryTypeBits=%0x08X}",
                     rbody.append('            }')
                     rbody.append('            free(local_pSetLayouts);')
                     rbody.append('            free(local_pDescriptorSets);')
-                elif proto.name == 'GetImageMemoryRequirements':
+                elif proto.name in get_mem_reqs_list:
                     rbody.append('            if (memReqs.size != pPacket->pMemoryRequirements->size)')
                     rbody.append('            {')
-                    rbody.append('                vktrace_LogError("Image memory size requirements differ: trace image %p needed %u bytes; replay image %p needed %u bytes.", pPacket->image, memReqs.size, remappedimage, pPacket->pMemoryRequirements->size);')
+                    rbody.append('                vktrace_LogWarning("' + proto.name + '() memory size requirement differ: trace needed %u bytes; replay driver needed %u bytes.", memReqs.size, pPacket->pMemoryRequirements->size);')
+                    rbody.append('            }')
+                    rbody.append('            if (memReqs.alignment != pPacket->pMemoryRequirements->alignment)')
+                    rbody.append('            {')
+                    rbody.append('                vktrace_LogWarning("' + proto.name + '() memory alignment requirement differ: trace needed %u bytes; replay driver needed %u bytes.", memReqs.alignment, pPacket->pMemoryRequirements->alignment);')
+                    rbody.append('            }')
+                    rbody.append('            if (memReqs.memoryTypeBits != pPacket->pMemoryRequirements->memoryTypeBits)')
+                    rbody.append('            {')
+                    rbody.append('                vktrace_LogWarning("' + proto.name + '() memory type bits requirement differ: trace needed 0x%X; replay driver needed 0x%X.", memReqs.memoryTypeBits, pPacket->pMemoryRequirements->memoryTypeBits);')
                     rbody.append('            }')
                 elif proto.name == 'GetPhysicalDeviceMemoryProperties':
                     rbody.append('            if (memcmp(&memProperties, pPacket->pMemoryProperties, sizeof(VkPhysicalDeviceMemoryProperties)) != 0) {')
