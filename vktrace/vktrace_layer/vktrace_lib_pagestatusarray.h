@@ -44,10 +44,12 @@ typedef class PageStatusArray {
     bool getBlockChangedArraySnapshot(uint64_t index);
     bool getBlockReadArray(uint64_t index);
     bool getBlockReadArraySnapshot(uint64_t index);
+    bool getBlockFirstTimeLoadArray(uint64_t index);
     void setBlockChangedArray(uint64_t index, bool changed);
     void setBlockChangedArraySnapshot(uint64_t index, bool changed);
     void setBlockReadArray(uint64_t index, bool changed);
     void setBlockReadArraySnapshot(uint64_t index, bool changed);
+    void setBlockFirstTimeLoadArray(uint64_t index, bool loaded);
     void backupChangedArray();
     void backupReadArray();
     void clearAll();
@@ -65,4 +67,30 @@ typedef class PageStatusArray {
     uint8_t *pReadArray[2];     /// include two array, one for page guard handler to record which block has been read by host from
                                 /// vkMap.. or last time vkinvalidate or vkpipelinebarrier with specific para..., the other one for
                                 /// reset page guard
+
+    uint8_t *firstTimeLoadArray;
+    /// the array is used for remove initial memcpy real mapped memory to shadow
+    /// mapped memory in map process. When target app call map/unmap memory,
+    /// some title use large mapped size and only access small part of mapped
+    /// memory, if do memcpy for whole mapped size, that cause target title
+    /// capture speed extremely slow, so we remove the memcpy from map process,
+    /// and put the work in page guard exception handler at first time access to
+    /// the page, and only for those pages which are truly accessed.
+    ///
+    /// we give every page a flag in this array to indicate that page is loaded
+    /// or not. In pageguard handler, if the page hasn't been loaded, we copy
+    /// the page from real mapped memory to shadow memory to finish the work that
+    /// we do in map process previously and set the flag to loaded. The optimization
+    /// significantly improve some title capture time from hours to minutes.
+    ///
+    /// The titles which use big size multiple map/unmap can get capture speed
+    /// improved by this optimization, especially if the title only access small
+    /// part of mapped size during pair of map/unmap.
+    ///
+    /// currently the optimization is only used in Windows because it depend on
+    /// the page memcpy is inserted just before first access to the page
+    /// which is implemented by page guard handler, once we find a way on other
+    /// platforms to capture read/write a page, we can also use it on those
+    /// platforms.
+
 } PageStatusArray;

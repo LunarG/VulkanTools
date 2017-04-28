@@ -339,9 +339,36 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
                     // would be incorrect once the next word in the same block
                     // is written, and we don't have a way to find out about the
                     // change.
+
+                    if (!pMappedMem->isMappedBlockLoaded(index)) {
+                        // the page never get accessed since the time of the shadow
+                        // memory creation in map process. so here we copy the page
+                        // from real mapped memory to shadow memory. after the memcpy,
+                        // we set the loaded flag, next time we don't do the memcopy
+                        // again in this page guard write process.
+                        vktrace_pageguard_memcpy(pBlock,
+                                                 pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize,
+                                                 pMappedMem->getMappedBlockSize(index));
+                        pMappedMem->setMappedBlockLoaded(index, true);
+                    }
+
                     pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
                 } else {
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
+                    if (!pMappedMem->isMappedBlockLoaded(index)) {
+                        // Target app read the page which is never accessed since the
+                        // shadow memory creation in map process.
+                        // here we only set the loaded flag, we still need to do memcpy
+                        // in the following reading acess to the page,that is different
+                        // with page guard process when target app write to the page.
+                        // the loaded flag is setted here only to make sure the following
+                        // write access not to do the memcpy again. because the memcpy
+                        // in read process is to capture GPU side change which is needed
+                        // by CPU side, it is not to replace initial sync from real
+                        // mapped memory to shadow memory in map process.
+
+                        pMappedMem->setMappedBlockLoaded(index, true);
+                    }
                     vktrace_pageguard_memcpy(pBlock,
                                              pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize,
                                              pMappedMem->getMappedBlockSize(index));
