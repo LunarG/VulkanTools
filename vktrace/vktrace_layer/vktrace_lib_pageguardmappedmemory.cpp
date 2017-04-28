@@ -145,6 +145,17 @@ bool PageGuardMappedMemory::isMappedBlockChanged(uint64_t index, int which) {
     return mappedBlockChanged;
 }
 
+bool PageGuardMappedMemory::isMappedBlockLoaded(uint64_t index)
+{
+    return pPageStatus->getBlockFirstTimeLoadArray(index);
+}
+
+void PageGuardMappedMemory::setMappedBlockLoaded(uint64_t index, bool bLoaded)
+{
+    pPageStatus->setBlockFirstTimeLoadArray(index, bLoaded);
+}
+
+
 uint64_t PageGuardMappedMemory::getMappedBlockSize(uint64_t index) {
     uint64_t mappedBlockSize = PageGuardSize;
     if ((index + 1) == PageGuardAmount) {
@@ -263,7 +274,15 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
     pRealMappedData = (PBYTE)*ppData;
     pMappedData = (PBYTE)pageguardAllocateMemory(size);
+#ifndef WIN32
+    // the memcpy is only for other plaforms, for win32, here we only create shadow memory,
+    // but we do not sync the content with real mapped memory for the shadow memory,
+    // we leave this work to page guard handler, and only sync those pages which are truly
+    // accessed.
+    // for non-win32 platforms, so far we haven't found similiar page guard handler, so need
+    // to keep this memcpy.
     vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
+#endif
     *ppData = pMappedData;
 #else
     pMappedData = (PBYTE)*ppData;
@@ -309,10 +328,8 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
         clearChangedDataPackage();
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
         if (MappedData == nullptr) {
-            vktrace_pageguard_memcpy(pRealMappedData, pMappedData, MappedSize);
             pageguardFreeMemory(pMappedData);
         } else {
-            vktrace_pageguard_memcpy(pRealMappedData, pMappedData, MappedSize);
             *MappedData = pMappedData;
         }
         pRealMappedData = nullptr;
