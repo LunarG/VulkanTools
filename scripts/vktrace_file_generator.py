@@ -1210,6 +1210,49 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%p {%\" PRIX64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
         return ("%p", "(void*)(%s)" % name, deref)
     #
+    # Construct vktrace vk header file
+    def GenerateTraceVkHeader(self):
+        trace_vk_hdr  = '#include "vktrace_vk_vk_packets.h"\n'
+        trace_vk_hdr += '#include "vktrace_vk_packet_id.h"\n'
+        trace_vk_hdr += '#include "vulkan/vk_layer.h"\n'
+        trace_vk_hdr += '\n'
+        trace_vk_hdr += 'void InitTracer(void);\n'
+        trace_vk_hdr += '\n'
+        trace_vk_hdr += '#ifdef WIN32\n'
+        trace_vk_hdr += 'BOOL CALLBACK InitTracer(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param, _Out_opt_ PVOID *lpContext);\n'
+        trace_vk_hdr += 'extern INIT_ONCE gInitOnce;\n'
+        trace_vk_hdr += '#elif defined(PLATFORM_LINUX)\n'
+        trace_vk_hdr += 'void InitTracer(void);\n'
+        trace_vk_hdr += 'extern pthread_once_t gInitOnce;\n'
+        trace_vk_hdr += '#endif\n'
+        trace_vk_hdr += '\n'
+        trace_vk_hdr += '#ifdef __cplusplus\n'
+        trace_vk_hdr += 'extern"C" {\n'
+        trace_vk_hdr += '#endif\n'
+        trace_vk_hdr += '// Hooked function prototypes\n'
+        trace_vk_hdr += '\n'
+        cmd_protect_dict = dict(self.cmd_feature_protect)
+        cmd_info_dict = dict(self.cmd_info_data)
+        for api in self.cmdMembers:
+            cmdinfo = cmd_info_dict[api.name]
+            cdecl = self.makeCDecls(cmdinfo.elem)[0]
+            protect = cmd_protect_dict[api.name]
+            if protect is not None:
+                trace_vk_hdr += '#ifdef %s\n' % protect
+            if api.name[2:] not in api_exclusions:
+                trace_vk_hdr += 'VKTRACER_EXPORT %s\n' % cdecl.replace('VKAPI_CALL vk', 'VKAPI_CALL __HOOKED_vk')
+            # LoaderLayerInterface V0
+            if api.name in [ 'vkGetInstanceProcAddr', 'vkGetDeviceProcAddr']:
+                trace_vk_hdr += 'VK_LAYER_EXPORT %s\n' % cdecl.replace('VKAPI_CALL vk', 'VKAPI_CALL VK_LAYER_LUNARG_vktrace')
+            if api.name in [ 'vkEnumerateInstanceLayerProperties', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateDeviceLayerProperties', 'vkEnumerateDeviceExtensionProperties']:
+                trace_vk_hdr += 'VK_LAYER_EXPORT %s\n' % cdecl
+            if protect is not None:
+                trace_vk_hdr += '#endif // %s\n' % protect
+        trace_vk_hdr += '#ifdef __cplusplus\n'
+        trace_vk_hdr += '}\n'
+        trace_vk_hdr += '#endif\n'
+        return trace_vk_hdr
+    #
     # Create a vktrace file and return it as a string
     def OutputDestFile(self):
         if self.vktrace_file_type == 'vkreplay_objmapper_header':
@@ -1220,6 +1263,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return self.GenerateReplayGenSource()
         elif self.vktrace_file_type == 'vktrace_packet_id_header':
             return self.GenerateTracePacketIdHeader()
+        elif self.vktrace_file_type == 'vktrace_vk_header':
+            return self.GenerateTraceVkHeader()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type
 
