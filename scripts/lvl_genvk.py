@@ -520,6 +520,28 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             vktrace_file_type  = 'vktrace_packet_id_header')
         ]
 
+    # VkTrace file generator options for vktrace_vk_vk.h
+    genOpts['vktrace_vk_vk.h'] = [
+          VkTraceFileOutputGenerator,
+          VkTraceFileOutputGeneratorOptions(
+            filename          = 'vktrace_vk_vk.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            vktrace_file_type  = 'vktrace_vk_header')
+        ]
+
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
 # The args parameter is an parsed argument object containing the following
