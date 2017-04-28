@@ -1000,28 +1000,226 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cb_body.append('                returnValue = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;')
         cb_body.append('            }')
         return "\n".join(cb_body)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    #
+    # Construct vktrace packet id header file
+    def GenerateTracePacketIdHeader(self):
+        trace_pkt_id_hdr  = '#pragma once\n'
+        trace_pkt_id_hdr += '#include "vktrace_vk_vk_packets.h"\n'
+        trace_pkt_id_hdr += '#include "vktrace_trace_packet_utils.h"\n'
+        trace_pkt_id_hdr += '#include "vktrace_trace_packet_identifiers.h"\n'
+        trace_pkt_id_hdr += '#include "vktrace_interconnect.h"\n'
+        trace_pkt_id_hdr += '#include <inttypes.h>\n'
+        trace_pkt_id_hdr += '#include "vk_enum_string_helper.h"\n'
+        trace_pkt_id_hdr += '#ifndef _WIN32\n'
+        trace_pkt_id_hdr += '#pragma GCC diagnostic ignored "-Wwrite-strings"\n'
+        trace_pkt_id_hdr += '#endif\n'
+        trace_pkt_id_hdr += '#ifndef _WIN32\n'
+        trace_pkt_id_hdr += '#pragma GCC diagnostic warning "-Wwrite-strings"\n'
+        trace_pkt_id_hdr += '#endif\n'
+        trace_pkt_id_hdr += '#if defined(WIN32)\n'
+        trace_pkt_id_hdr += '#define snprintf _snprintf\n'
+        trace_pkt_id_hdr += '#endif\n'
+        trace_pkt_id_hdr += '#if defined(WIN32)\n'
+        trace_pkt_id_hdr += '#define VK_SIZE_T_SPECIFIER "%Iu"\n'
+        trace_pkt_id_hdr += '#else\n'
+        trace_pkt_id_hdr += '#define VK_SIZE_T_SPECIFIER "%zu"\n'
+        trace_pkt_id_hdr += '#endif\n'
+        trace_pkt_id_hdr += '#define SEND_ENTRYPOINT_ID(entrypoint) ;\n'
+        trace_pkt_id_hdr += '#define SEND_ENTRYPOINT_PARAMS(entrypoint, ...) ;\n'
+        trace_pkt_id_hdr += '#define CREATE_TRACE_PACKET(entrypoint, buffer_bytes_needed) \\\n'
+        trace_pkt_id_hdr += '    pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_##entrypoint, sizeof(packet_##entrypoint), buffer_bytes_needed);\n\n'
+        trace_pkt_id_hdr += '#define FINISH_TRACE_PACKET() \\\n'
+        trace_pkt_id_hdr += '    vktrace_finalize_trace_packet(pHeader); \\\n'
+        trace_pkt_id_hdr += '    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file()); \\\n'
+        trace_pkt_id_hdr += '    vktrace_delete_trace_packet(&pHeader);\n'
+        trace_pkt_id_hdr += '\n'
+        trace_pkt_id_hdr += 'enum VKTRACE_TRACE_PACKET_ID_VK {\n'
+        trace_pkt_id_hdr += '    VKTRACE_TPI_VK_vkApiVersion = VKTRACE_TPI_BEGIN_API_HERE,\n'
+        #
+        # Construct packet id enumerated type (VKTRACE_TRACE_PACKET_ID_VK)
+        first_func = True
+        for api in self.cmdMembers:
+            if api.name[2:] in api_exclusions:
+                continue
+            # TEMPORARY EXTENSION WORKAROUND
+            if api.name in temporary_script_porting_exclusions:
+                continue
+            trace_pkt_id_hdr += '    VKTRACE_TPI_VK_%s,\n' % api.name
+        trace_pkt_id_hdr += '};\n'
+        trace_pkt_id_hdr += '\n'
+        #
+        # Construct packet id name helper function
+        trace_pkt_id_hdr += 'static const char *vktrace_vk_packet_id_name(const enum VKTRACE_TRACE_PACKET_ID_VK id) {\n'
+        trace_pkt_id_hdr += '    switch(id) {\n'
+        trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
+        trace_pkt_id_hdr += '            return "vkApiVersion";\n'
+        trace_pkt_id_hdr += '        }\n'
+        for api in self.cmdMembers:
+            if api.name[2:] in api_exclusions:
+                continue
+            # TEMPORARY EXTENSION WORKAROUND
+            if api.name in temporary_script_porting_exclusions:
+                continue
+            trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_%s: {\n' % api.name
+            trace_pkt_id_hdr += '            return "%s";\n' % api.name
+            trace_pkt_id_hdr += '        };\n'
+        trace_pkt_id_hdr += '        default:\n'
+        trace_pkt_id_hdr += '            return NULL;\n'
+        trace_pkt_id_hdr += '    }\n'
+        trace_pkt_id_hdr += '}\n'
+        trace_pkt_id_hdr += '\n'
+        #
+        # Construct packet id stringify helper function
+        trace_pkt_id_hdr += 'static const char *vktrace_stringify_vk_packet_id(const enum VKTRACE_TRACE_PACKET_ID_VK id, const vktrace_trace_packet_header* pHeader) {\n'
+        trace_pkt_id_hdr += '    static char str[1024];\n'
+        trace_pkt_id_hdr += '    switch(id) {\n'
+        trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
+        trace_pkt_id_hdr += '            packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(pHeader->pBody);\n'
+        trace_pkt_id_hdr += '            snprintf(str, 1024, "vkApiVersion = 0x%x", pPacket->version);\n'
+        trace_pkt_id_hdr += '            return str;\n'
+        trace_pkt_id_hdr += '        }\n'
+        cmd_member_dict = dict(self.cmdMembers)
+        for api in self.cmdMembers:
+            if api.name[2:] in api_exclusions:
+                continue
+            # TEMPORARY EXTENSION WORKAROUND
+            if api.name in temporary_script_porting_exclusions:
+                continue
+            trace_pkt_id_hdr += '    case VKTRACE_TPI_VK_%s: {\n' % api.name
+            func_str = 'vk%s(' % api.name
+            print_vals = ''
+            create_func = True if True in [create_txt in api.name for create_txt in ['Create', 'Allocate', 'MapMemory', 'GetSwapchainImages']] else False
+            params = cmd_member_dict[api.name]
+            for p in params:
+                if p.name == '':
+                    continue
+                last_param = False
+                if (p.name == params[-1].name):
+                    last_param = True
+                if last_param and create_func: # Last param of create func
+                    (pft, pfi, ptr) = self.GetPrintfParams(p, True)
+                else:
+                    (pft, pfi, ptr) = self.GetPrintfParams(p, False)
+                if last_param == True:
+                    func_str += '%s%s = %s)' % (ptr, p.name, pft)
+                    print_vals += ', %s' % (pfi)
+                else:
+                    func_str += '%s%s = %s, ' % (ptr, p.name, pft)
+                    print_vals += ', %s' % (pfi)
+            trace_pkt_id_hdr += '            packet_%s* pPacket = (packet_%s*)(pHeader->pBody);\n' % (api.name, api.name)
+            trace_pkt_id_hdr += '            snprintf(str, 1024, "%s"%s);\n' % (func_str, print_vals)
+            trace_pkt_id_hdr += '            return str;\n'
+            trace_pkt_id_hdr += '        }\n'
+        trace_pkt_id_hdr += '        default:\n'
+        trace_pkt_id_hdr += '            return NULL;\n'
+        trace_pkt_id_hdr += '    }\n'
+        trace_pkt_id_hdr += '}\n'
+        trace_pkt_id_hdr += '\n'
+        # Include interpret_trace_packet_vk function
+        trace_pkt_id_hdr += self.GenerateInterpFunc()
+        return trace_pkt_id_hdr
+    #
+    # Creates the shared interpret_trace_packet function
+    def GenerateInterpFunc(self):
+        interp_func_body = ''
+        interp_func_body += 'static vktrace_trace_packet_header* interpret_trace_packet_vk(vktrace_trace_packet_header* pHeader) { \n'
+        interp_func_body += '    if (pHeader == NULL) { \n'
+        interp_func_body += '        return NULL;\n'
+        interp_func_body += '    }\n'
+        interp_func_body += '    switch (pHeader->packet_id) { \n'
+        interp_func_body += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
+        interp_func_body += '            return interpret_body_as_vkApiVersion(pHeader)->header;\n'
+        interp_func_body += '        }\n'
+        for api in self.cmdMembers:
+            if api.name[2:] in api_exclusions:
+                continue
+            # TEMPORARY EXTENSION WORKAROUND
+            if api.name in temporary_script_porting_exclusions:
+                continue
+            interp_func_body += '        case VKTRACE_TPI_VK_%s: {\n' % api.name
+            interp_func_body += '            return interpret_body_as_%s(pHeader)->header;\n        }\n' % api.name
+        interp_func_body += '        default:\n'
+        interp_func_body += '            return NULL;\n'
+        interp_func_body += '    }\n'
+        interp_func_body += '    return NULL;\n'
+        interp_func_body += '}\n'
+        return interp_func_body
+        #
+        # Return set of printf '%' qualifier, input to that qualifier, and any dereference
+    def GetPrintfParams(self, param, output_param):
+        vk_type = param.type
+        name = 'pPacket->%s' % param.name
+        deref = ""
+        # TODO : Need ENUM and STRUCT checks here
+        if "VkImageLayout" in vk_type or "VkImageAspectMask" in vk_type:
+            return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
+        if "VkMappedMemoryRange" in vk_type:
+            return ("%p [0]={memory=%\" PRIx64 \", offset=%\" PRIu64 \", size=%\" PRIu64 \"}", "%s, (%s == NULL)?0:(uint64_t)(%s->memory), (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "")
+        if "VkImageMemoryBarrier" in vk_type:
+            return ("%p [0]={srcAccessMask=%u, dstAccessMask=%u, oldLayout=%s, newLayout=%s, srcQueueFamilyIndex=%u, dstQueueFamilyIndex=%u, image=%\" PRIx64 \", subresourceRange=%\" PRIx64 \"}", "%s, (%s == NULL)?0:%s->srcAccessMask, (%s == NULL)?0:%s->dstAccessMask, (%s == NULL)?NULL:string_VkImageLayout(%s->oldLayout), (%s == NULL)?NULL:string_VkImageLayout(%s->newLayout), (%s == NULL)?0:%s->srcQueueFamilyIndex, (%s == NULL)?0:%s->dstQueueFamilyIndex, (%s == NULL)?0:(uint64_t)(%s->image), (%s == NULL)?0:(uint64_t)&%s->subresourceRange" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkBufferMemoryBarrier" in vk_type:
+            return ("%p [0]={srcAccessMask=%u, dstAccessMask=%u, srcQueueFamilyIndex=%u, dstQueueFamilyIndex=%u, buffer=%\" PRIx64 \", offset=%\" PRIu64 \", size=%\" PRIu64 \"}", "%s, (%s == NULL)?0:%s->srcAccessMask, (%s == NULL)?0:%s->dstAccessMask, (%s == NULL)?0:%s->srcQueueFamilyIndex, (%s == NULL)?0:%s->dstQueueFamilyIndex, (%s == NULL)?0:(uint64_t)%s->buffer, (%s == NULL)?0:%s->offset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkSubmitInfo" in vk_type:
+            return ("%p [0]={... waitSemaphoreCount=%u, pWaitSemaphores[0]=%\" PRIx64 \", cmdBufferCount=%u, pCmdBuffers[0]=%\" PRIx64 \", signalSemaphoreCount=%u, pSignalSemaphores[0]=%\" PRIx64 \" ...}", "%s, (%s == NULL)?0:%s->waitSemaphoreCount, (%s == NULL)?0:(%s->pWaitSemaphores == NULL)?0:(uint64_t)%s->pWaitSemaphores[0], (%s == NULL)?0:%s->commandBufferCount, (%s == NULL)?0:(%s->pCommandBuffers == NULL)?0:(uint64_t)%s->pCommandBuffers[0], (%s == NULL)?0:%s->signalSemaphoreCount, (%s == NULL)?0:(%s->pSignalSemaphores == NULL)?0:(uint64_t)%s->pSignalSemaphores[0]" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkPresentInfoKHR" in vk_type:
+            return ("%p {... waitSemaphoreCount=%u, pWaitSemaphores[0]=%\" PRIx64 \", swapchainCount=%u, pSwapchains[0]=%\" PRIx64 \", pImageIndices[0]=%\" PRIu64 \" ...}", "%s, (%s == NULL)?0:%s->waitSemaphoreCount, (%s == NULL)?0:(%s->pWaitSemaphores == NULL)?0:(uint64_t)%s->pWaitSemaphores[0], (%s == NULL)?0:%s->swapchainCount, (%s == NULL)?0:(%s->pSwapchains == NULL)?0:(uint64_t)%s->pSwapchains[0], (%s == NULL)?0:(%s->pImageIndices == NULL)?0:(uint64_t)%s->pImageIndices[0]" % (name, name, name, name, name, name, name, name, name, name, name, name, name, name), "")
+        if "VkFenceCreateInfo" in vk_type:
+            return ("%p { flags=%s }", "%s, (%s == NULL)?\"0\":(%s->flags == VK_FENCE_CREATE_SIGNALED_BIT)?\"VK_FENCE_CREATE_SIGNALED_BIT\":\"0\"" % (name, name, name), "")
+        if "VkBufferCopy" in vk_type:
+            return ("%p [0]={srcOffset=%\" PRIu64 \", dstOffset=%\" PRIu64 \", size=%\" PRIu64 \"}", "%s, (%s == NULL)?0:%s->srcOffset, (%s == NULL)?0:%s->dstOffset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "")
+        if "VkMemoryRequirements" in vk_type:
+            return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->size, (%s == NULL)?0:%s->alignment, (%s == NULL)?0:%s->memoryTypeBits" % (name, name, name, name, name, name, name), "")
+        if "VkClearColor" in vk_type:
+            return ("%p", "(void*)&%s" % name, deref)
+        if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
+            return ("%s", "string_%s(%s)" % (vk_type.replace('const ', '').strip('*'), name), deref)
+        if "char*" in vk_type:
+            return ("\\\"%s\\\"", name, "*")
+        if "VkDeviceSize" in vk_type:
+            if param.ispointer:
+                return ("%\" PRIu64 \"",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%\" PRIu64 \"", name, deref)
+        if "uint64_t" in vk_type:
+            if param.ispointer:
+                return ("%\" PRIu64 \"",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%\" PRIu64 \"", name, deref)
+        if "uint32_t" in vk_type:
+            if param.ispointer:
+                return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%u", name, deref)
+        if "xcb_visualid_t" in vk_type:
+            if param.ispointer:
+                return ("%u",  "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%u", name, deref)
+        if "VisualID" in vk_type:
+            return ("%\" PRIu64 \"", "(uint64_t)%s" % name, deref)
+        if "VkBool32" in vk_type:
+            if param.ispointer:
+                return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
+            return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
+        if "VkFence" in vk_type:
+            if param.ispointer:
+                return ("%p {%\" PRIx64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), "*")
+            return ("%p", "(void*)%s" %(name), deref)
+        if "size_t" in vk_type:
+            if param.ispointer:
+                return ("\" VK_SIZE_T_SPECIFIER \"", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("\" VK_SIZE_T_SPECIFIER \"", name, deref)
+        if "float" in vk_type:
+            if param.isstaticarray > 0: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
+                return ("[%f, %f, %f, %f]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
+            return ("%f", name, deref)
+        if "bool" in vk_type or 'xcb_randr_crtc_t' in vk_type:
+            return ("%u", name, deref)
+        if True in [t in vk_type.lower() for t in ["int", "flags", "mask", "xcb_window_t"]]:
+            if param.isstaticarray > 0: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
+                return ("[%i, %i, %i, %i]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
+            if param.ispointer:
+                return ("%i", "(%s == NULL) ? 0 : *(%s)" % (name, name), "*")
+            return ("%i", name, deref)
+        if output_param:
+            return ("%p {%\" PRIX64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), deref)
+        return ("%p", "(void*)(%s)" % name, deref)
     #
     # Create a vktrace file and return it as a string
     def OutputDestFile(self):
@@ -1031,6 +1229,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return self.GenerateReplayFuncptrHeader()
         elif self.vktrace_file_type == 'vkreplay_replay_gen_source':
             return self.GenerateReplayGenSource()
+        elif self.vktrace_file_type == 'vktrace_packet_id_header':
+            return self.GenerateTracePacketIdHeader()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type
 
