@@ -1584,125 +1584,6 @@ memoryTypeBits=%0x08X}",
                         func_body.append('}\n')
         return "\n".join(func_body)
 
-    def _generate_packet_id_enum(self):
-        pid_enum = []
-        pid_enum.append('enum VKTRACE_TRACE_PACKET_ID_VK')
-        pid_enum.append('{')
-        first_func = True
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            if first_func:
-                first_func = False
-                pid_enum.append('    VKTRACE_TPI_VK_vkApiVersion = VKTRACE_TPI_BEGIN_API_HERE,')
-                pid_enum.append('    VKTRACE_TPI_VK_vk%s,' % proto.name)
-            else:
-                pid_enum.append('    VKTRACE_TPI_VK_vk%s,' % proto.name)
-        pid_enum.append('};\n')
-        return "\n".join(pid_enum)
-
-    def _generate_packet_id_name_func(self):
-        func_body = []
-        func_body.append('static const char *vktrace_vk_packet_id_name(const enum VKTRACE_TRACE_PACKET_ID_VK id)')
-        func_body.append('{')
-        func_body.append('    switch(id) {')
-        func_body.append('    case VKTRACE_TPI_VK_vkApiVersion:')
-        func_body.append('    {')
-        func_body.append('        return "vkApiVersion";')
-        func_body.append('    }')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
-            func_body.append('    {')
-            func_body.append('        return "vk%s";' % proto.name)
-            func_body.append('    }')
-        func_body.append('    default:')
-        func_body.append('        return NULL;')
-        func_body.append('    }')
-        func_body.append('}\n')
-        return "\n".join(func_body)
-
-    def _generate_stringify_func(self):
-        func_body = []
-        func_body.append('static const char *vktrace_stringify_vk_packet_id(const enum VKTRACE_TRACE_PACKET_ID_VK id, const vktrace_trace_packet_header* pHeader)')
-        func_body.append('{')
-        func_body.append('    static char str[1024];')
-        func_body.append('    switch(id) {')
-        func_body.append('    case VKTRACE_TPI_VK_vkApiVersion:')
-        func_body.append('    {')
-        func_body.append('        packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(pHeader->pBody);')
-        func_body.append('        snprintf(str, 1024, "vkApiVersion = 0x%x", pPacket->version);')
-        func_body.append('        return str;')
-        func_body.append('    }')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-            func_body.append('    case VKTRACE_TPI_VK_vk%s:' % proto.name)
-            func_body.append('    {')
-            func_str = 'vk%s(' % proto.name
-            print_vals = ''
-            create_func = False
-            if 'Create' in proto.name or 'Alloc' in proto.name or 'MapMemory' in proto.name:
-                create_func = True
-            if 'GetSwapchainImages' in proto.name:
-                create_func = True
-            for p in proto.params:
-                last_param = False
-                if (p.name == proto.params[-1].name):
-                    last_param = True
-                if last_param and create_func: # last param of create func
-                    (pft, pfi, ptr) = self._get_printf_params(p.ty,'pPacket->%s' % p.name, True)
-                else:
-                    (pft, pfi, ptr) = self._get_printf_params(p.ty, 'pPacket->%s' % p.name, False)
-                if last_param == True:
-                    func_str += '%s%s = %s)' % (ptr, p.name, pft)
-                    print_vals += ', %s' % (pfi)
-                else:
-                    func_str += '%s%s = %s, ' % (ptr, p.name, pft)
-                    print_vals += ', %s' % (pfi)
-            func_body.append('        packet_vk%s* pPacket = (packet_vk%s*)(pHeader->pBody);' % (proto.name, proto.name))
-            func_body.append('        snprintf(str, 1024, "%s"%s);' % (func_str, print_vals))
-            func_body.append('        return str;')
-            func_body.append('    }')
-        func_body.append('    default:')
-        func_body.append('        return NULL;')
-        func_body.append('    }')
-        func_body.append('};\n')
-        return "\n".join(func_body)
-    
-    def _generate_interp_func(self):
-        interp_func_body = []
-        interp_func_body.append('%s' % self.lineinfo.get())
-        interp_func_body.append('static vktrace_trace_packet_header* interpret_trace_packet_vk(vktrace_trace_packet_header* pHeader)')
-        interp_func_body.append('{')
-        interp_func_body.append('    if (pHeader == NULL)')
-        interp_func_body.append('    {')
-        interp_func_body.append('        return NULL;')
-        interp_func_body.append('    }')
-        interp_func_body.append('    switch (pHeader->packet_id)')
-        interp_func_body.append('    {')
-        interp_func_body.append('        case VKTRACE_TPI_VK_vkApiVersion:')
-        interp_func_body.append('        {')
-        interp_func_body.append('            return interpret_body_as_vkApiVersion(pHeader)->header;')
-        interp_func_body.append('        }')
-        for proto in self.protos:
-            if proto.name in proto_exclusions:
-                continue
-
-            interp_func_body.append('        case VKTRACE_TPI_VK_vk%s:\n        {' % proto.name)
-            header_prefix = 'h'
-            if 'Dbg' in proto.name :
-                header_prefix = 'pH'
-            interp_func_body.append('%s' % self.lineinfo.get())
-            interp_func_body.append('            return interpret_body_as_vk%s(pHeader)->%seader;\n        }' % (proto.name, header_prefix))
-        interp_func_body.append('        default:')
-        interp_func_body.append('            return NULL;')
-        interp_func_body.append('    }')
-        interp_func_body.append('    return NULL;')
-        interp_func_body.append('}')
-        return "\n".join(interp_func_body)
-
     def _generate_struct_util_funcs(self):
         lineinfo = self.lineinfo
         pid_enum = []
@@ -2423,50 +2304,6 @@ class VktraceTraceC(Subcommand):
 
         return "\n".join(body)
 
-class VktracePacketID(Subcommand):
-    def generate_header(self, extensionName):
-        header_txt = []
-        header_txt.append('#pragma once\n')
-        header_txt.append('#include "vktrace_vk_vk_packets.h"')
-        header_txt.append('#include "vktrace_trace_packet_utils.h"')
-        header_txt.append('#include "vktrace_trace_packet_identifiers.h"')
-        header_txt.append('#include "vktrace_interconnect.h"')
-        header_txt.append("#include <inttypes.h>")
-        header_txt.append('#include "vk_enum_string_helper.h"')
-        header_txt.append('#ifndef _WIN32')
-        header_txt.append(' #pragma GCC diagnostic ignored "-Wwrite-strings"')
-        header_txt.append('#endif')
-        header_txt.append('#ifndef _WIN32')
-        header_txt.append(' #pragma GCC diagnostic warning "-Wwrite-strings"')
-        header_txt.append('#endif')
-        header_txt.append('#if defined(WIN32)')
-        header_txt.append('#define snprintf _snprintf')
-        header_txt.append('#endif')
-        header_txt.append('#if defined(WIN32)')
-        header_txt.append('#define VK_SIZE_T_SPECIFIER "%Iu"')
-        header_txt.append('#else')
-        header_txt.append('#define VK_SIZE_T_SPECIFIER "%zu"')
-        header_txt.append('#endif')
-        header_txt.append('#define SEND_ENTRYPOINT_ID(entrypoint) ;')
-        header_txt.append('//#define SEND_ENTRYPOINT_ID(entrypoint) vktrace_TraceInfo(#entrypoint);\n')
-        header_txt.append('#define SEND_ENTRYPOINT_PARAMS(entrypoint, ...) ;')
-        header_txt.append('//#define SEND_ENTRYPOINT_PARAMS(entrypoint, ...) vktrace_TraceInfo(entrypoint, __VA_ARGS__);\n')
-        header_txt.append('#define CREATE_TRACE_PACKET(entrypoint, buffer_bytes_needed) \\')
-        header_txt.append('    pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_##entrypoint, sizeof(packet_##entrypoint), buffer_bytes_needed);\n')
-        header_txt.append('#define FINISH_TRACE_PACKET() \\')
-        header_txt.append('    vktrace_finalize_trace_packet(pHeader); \\')
-        header_txt.append('    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file()); \\')
-        header_txt.append('    vktrace_delete_trace_packet(&pHeader);')
-        return "\n".join(header_txt)
-
-    def generate_body(self):
-        body = [self._generate_packet_id_enum(),
-                self._generate_packet_id_name_func(),
-                self._generate_stringify_func(),
-                self._generate_interp_func()]
-
-        return "\n".join(body)
-
 class VktraceCoreTracePackets(Subcommand):
     def generate_header(self, extensionName):
         header_txt = []
@@ -2518,7 +2355,6 @@ def main():
     subcommands = {
             "vktrace-trace-h" : VktraceTraceHeader,
             "vktrace-trace-c" : VktraceTraceC,
-            "vktrace-packet-id" : VktracePacketID,
             "vktrace-core-trace-packets" : VktraceCoreTracePackets,
     }
 
