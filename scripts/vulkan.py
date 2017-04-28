@@ -798,9 +798,9 @@ VK_VERSION_1_0 = Extension(
 
         Proto("void", "CmdDispatch",
             [Param("VkCommandBuffer", "commandBuffer"),
-             Param("uint32_t", "x"),
-             Param("uint32_t", "y"),
-             Param("uint32_t", "z")]),
+             Param("uint32_t", "groupCountX"),
+             Param("uint32_t", "groupCountY"),
+             Param("uint32_t", "groupCountZ")]),
 
         Proto("void", "CmdDispatchIndirect",
             [Param("VkCommandBuffer", "commandBuffer"),
@@ -1308,12 +1308,12 @@ VK_EXT_debug_report = Extension(
         Proto("void", "DebugReportMessageEXT",
             [Param("VkInstance", "instance"),
              Param("VkDebugReportFlagsEXT", "flags"),
-             Param("VkDebugReportObjectTypeEXT", "objType"),
+             Param("VkDebugReportObjectTypeEXT", "objectType"),
              Param("uint64_t", "object"),
              Param("size_t", "location"),
-             Param("int32_t", "msgCode"),
+             Param("int32_t", "messageCode"),
              Param("const char *", "pLayerPrefix"),
-             Param("const char *", "pMsg")]),
+             Param("const char *", "pMessage")]),
     ],
 )
 
