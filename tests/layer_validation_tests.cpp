@@ -9513,10 +9513,15 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     vkDestroyCommandPool(m_device->device(), command_pool, NULL);
 }
 
-TEST_F(VkLayerTest, LayoutFromPresentWithoutAccessMemoryRead) {
-    // Transition an image away from PRESENT_SRC_KHR without ACCESS_MEMORY_READ in srcAccessMask
+TEST_F(VkPositiveLayerTest, LayoutFromPresentWithoutAccessMemoryRead) {
+    // Transition an image away from PRESENT_SRC_KHR without ACCESS_MEMORY_READ
+    // in srcAccessMask.
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_WARNING_BIT_EXT, "must have required access bit");
+    // The required behavior here was a bit unclear in earlier versions of the
+    // spec, but there is no memory dependency required here, so this should
+    // work without warnings.
+
+    m_errorMonitor->ExpectSuccess();
     ASSERT_NO_FATAL_FAILURE(Init());
     VkImageObj image(m_device);
     image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT),
@@ -9526,9 +9531,8 @@ TEST_F(VkLayerTest, LayoutFromPresentWithoutAccessMemoryRead) {
     VkImageMemoryBarrier barrier = {};
     VkImageSubresourceRange range;
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.srcAccessMask = 0;
     barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    barrier.dstAccessMask = 0;
     barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     barrier.image = image.handle();
@@ -9549,7 +9553,7 @@ TEST_F(VkLayerTest, LayoutFromPresentWithoutAccessMemoryRead) {
     cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1,
                            &barrier);
 
-    m_errorMonitor->VerifyFound();
+    m_errorMonitor->VerifyNotFound();
 }
 
 TEST_F(VkLayerTest, IdxBufferAlignmentError) {
@@ -23301,8 +23305,15 @@ TEST_F(VkPositiveLayerTest, LongSemaphoreChain)
 
         semaphores.push_back(semaphore);
 
-        VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, semaphores.size() > 1 ? 1u : 0u, &semaphores[semaphores.size() - 2], &flags,
-            0, nullptr, 1, &semaphores[semaphores.size() - 1] };
+        VkSubmitInfo si = {VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                           nullptr,
+                           semaphores.size() > 1 ? 1u : 0u,
+                           semaphores.size() > 1 ? &semaphores[semaphores.size() - 2] : nullptr,
+                           &flags,
+                           0,
+                           nullptr,
+                           1,
+                           &semaphores[semaphores.size() - 1]};
         err = vkQueueSubmit(m_device->m_queue, 1, &si, VK_NULL_HANDLE);
         ASSERT_VK_SUCCESS(err);
     }
