@@ -3904,38 +3904,64 @@ static void incrementResources(layer_data *dev_data, GLOBAL_CB_NODE *cb_node) {
 // For the given queue, verify the queue state up to the given seq number.
 // Currently the only check is to make sure that if there are events to be waited on prior to
 //  a QueryReset, make sure that all such events have been signalled.
-static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_STATE *queue, uint64_t seq) {
+static bool VerifyQueueStateToSeq(layer_data *dev_data, QUEUE_STATE *initial_queue, uint64_t initial_seq) {
     bool skip = false;
-    auto queue_seq = queue->seq;
-    std::unordered_map<VkQueue, uint64_t> other_queue_seqs;
-    auto sub_it = queue->submissions.begin();
-    while (queue_seq < seq) {
-        for (auto &wait : sub_it->waitSemaphores) {
-            auto &last_seq = other_queue_seqs[wait.queue];
-            last_seq = std::max(last_seq, wait.seq);
-        }
-        for (auto cb : sub_it->cbs) {
-            auto cb_node = GetCBNode(dev_data, cb);
-            if (cb_node) {
-                for (auto queryEventsPair : cb_node->waitedEventsBeforeQueryReset) {
-                    for (auto event : queryEventsPair.second) {
-                        if (dev_data->eventMap[event].needsSignaled) {
-                            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                            VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, 0, DRAWSTATE_INVALID_QUERY, "DS",
-                                            "Cannot get query results on queryPool 0x%" PRIx64
-                                            " with index %d which was guarded by unsignaled event 0x%" PRIx64 ".",
-                                            (uint64_t)(queryEventsPair.first.pool), queryEventsPair.first.index, (uint64_t)(event));
+
+    // sequence number we want to validate up to, per queue
+    std::unordered_map<QUEUE_STATE *, uint64_t> target_seqs { { initial_queue, initial_seq } };
+    // sequence number we've completed validation for, per queue
+    std::unordered_map<QUEUE_STATE *, uint64_t> done_seqs;
+    std::vector<QUEUE_STATE *> worklist { initial_queue };
+
+    while (worklist.size()) {
+        auto queue = worklist.back();
+        worklist.pop_back();
+
+        auto target_seq = target_seqs[queue];
+        auto seq = std::max(done_seqs[queue], queue->seq);
+        auto sub_it = queue->submissions.begin() + int(seq - queue->seq);  // seq >= queue->seq
+
+        for (; seq < target_seq; ++sub_it, ++seq) {
+            for (auto &wait : sub_it->waitSemaphores) {
+                auto other_queue = GetQueueState(dev_data, wait.queue);
+
+                if (other_queue == queue)
+                    continue;   // semaphores /always/ point backwards, so no point here.
+
+                auto other_target_seq = std::max(target_seqs[other_queue], wait.seq);
+                auto other_done_seq = std::max(done_seqs[other_queue], other_queue->seq);
+
+                // if this wait is for another queue, and covers new sequence
+                // numbers beyond what we've already validated, mark the new
+                // target seq and (possibly-re)add the queue to the worklist.
+                if (other_done_seq < other_target_seq) {
+                    target_seqs[other_queue] = other_target_seq;
+                    worklist.push_back(other_queue);
+                }
+            }
+
+            for (auto cb : sub_it->cbs) {
+                auto cb_node = GetCBNode(dev_data, cb);
+                if (cb_node) {
+                    for (auto queryEventsPair : cb_node->waitedEventsBeforeQueryReset) {
+                        for (auto event : queryEventsPair.second) {
+                            if (dev_data->eventMap[event].needsSignaled) {
+                                skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                                VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT, 0, 0, DRAWSTATE_INVALID_QUERY, "DS",
+                                                "Cannot get query results on queryPool 0x%" PRIx64
+                                                " with index %d which was guarded by unsignaled event 0x%" PRIx64 ".",
+                                                (uint64_t)(queryEventsPair.first.pool), queryEventsPair.first.index, (uint64_t)(event));
+                            }
                         }
                     }
                 }
             }
         }
-        sub_it++;
-        queue_seq++;
+
+        // finally mark the point we've now validated this queue to.
+        done_seqs[queue] = seq;
     }
-    for (auto qs : other_queue_seqs) {
-        skip |= VerifyQueueStateToSeq(dev_data, GetQueueState(dev_data, qs.first), qs.second);
-    }
+
     return skip;
 }
 
@@ -8567,19 +8593,17 @@ static bool ValidateFramebufferCreateInfo(layer_data *dev_data, const VkFramebuf
                 uint32_t mip_height = max(1u, ici->extent.height >> mip_level);
                 if ((ivci.subresourceRange.layerCount < pCreateInfo->layers) || (mip_width < pCreateInfo->width) ||
                     (mip_height < pCreateInfo->height)) {
-                    skip |=
-                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
-                                __LINE__, DRAWSTATE_INVALID_FRAMEBUFFER_CREATE_INFO, "DS",
-                                "vkCreateFramebuffer(): VkFramebufferCreateInfo attachment #%u mip level %u has dimensions smaller "
-                                "than the corresponding "
-                                "framebuffer dimensions. Attachment dimensions must be at least as large. Here are the respective "
-                                "dimensions for "
-                                "attachment #%u, framebuffer:\n"
-                                "width: %u, %u\n"
-                                "height: %u, %u\n"
-                                "layerCount: %u, %u\n",
-                                i, ivci.subresourceRange.baseMipLevel, i, mip_width, pCreateInfo->width, mip_height,
-                                pCreateInfo->height, ivci.subresourceRange.layerCount, pCreateInfo->layers);
+                    skip |= log_msg(
+                        dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                        VALIDATION_ERROR_00410, "DS",
+                        "vkCreateFramebuffer(): VkFramebufferCreateInfo attachment #%u mip level %u has dimensions smaller "
+                        "than the corresponding framebuffer dimensions. Here are the respective dimensions for attachment #%u, "
+                        "framebuffer:\n"
+                        "width: %u, %u\n"
+                        "height: %u, %u\n"
+                        "layerCount: %u, %u\n%s",
+                        i, ivci.subresourceRange.baseMipLevel, i, mip_width, pCreateInfo->width, mip_height, pCreateInfo->height,
+                        ivci.subresourceRange.layerCount, pCreateInfo->layers, validation_error_map[VALIDATION_ERROR_00410]);
                 }
                 if (((ivci.components.r != VK_COMPONENT_SWIZZLE_IDENTITY) && (ivci.components.r != VK_COMPONENT_SWIZZLE_R)) ||
                     ((ivci.components.g != VK_COMPONENT_SWIZZLE_IDENTITY) && (ivci.components.g != VK_COMPONENT_SWIZZLE_G)) ||
@@ -8645,6 +8669,25 @@ static bool ValidateFramebufferCreateInfo(layer_data *dev_data, const VkFramebuf
                         "%s",
                         pCreateInfo->layers, dev_data->phys_dev_properties.properties.limits.maxFramebufferLayers,
                         validation_error_map[VALIDATION_ERROR_00415]);
+    }
+    // Verify FB dimensions are greater than zero
+    if (pCreateInfo->width <= 0) {
+        skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                        VALIDATION_ERROR_02806, "DS",
+                        "vkCreateFramebuffer(): Requested VkFramebufferCreateInfo width must be greater than zero. %s",
+                        validation_error_map[VALIDATION_ERROR_02806]);
+    }
+    if (pCreateInfo->height <= 0) {
+        skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                        VALIDATION_ERROR_02807, "DS",
+                        "vkCreateFramebuffer(): Requested VkFramebufferCreateInfo height must be greater than zero. %s",
+                        validation_error_map[VALIDATION_ERROR_02807]);
+    }
+    if (pCreateInfo->layers <= 0) {
+        skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                        VALIDATION_ERROR_02808, "DS",
+                        "vkCreateFramebuffer(): Requested VkFramebufferCreateInfo layers must be greater than zero. %s",
+                        validation_error_map[VALIDATION_ERROR_02808]);
     }
     return skip;
 }
