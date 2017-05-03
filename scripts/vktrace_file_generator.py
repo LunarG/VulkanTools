@@ -1033,23 +1033,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_id_hdr += '    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file()); \\\n'
         trace_pkt_id_hdr += '    vktrace_delete_trace_packet(&pHeader);\n'
         trace_pkt_id_hdr += '\n'
-        trace_pkt_id_hdr += 'enum VKTRACE_TRACE_PACKET_ID_VK {\n'
-        trace_pkt_id_hdr += '    VKTRACE_TPI_VK_vkApiVersion = VKTRACE_TPI_BEGIN_API_HERE,\n'
-        #
-        # Construct packet id enumerated type (VKTRACE_TRACE_PACKET_ID_VK)
-        first_func = True
-        for api in self.cmdMembers:
-            if api.name[2:] in api_exclusions:
-                continue
-            # TEMPORARY EXTENSION WORKAROUND
-            if api.name in temporary_script_porting_exclusions:
-                continue
-            trace_pkt_id_hdr += '    VKTRACE_TPI_VK_%s,\n' % api.name
-        trace_pkt_id_hdr += '};\n'
-        trace_pkt_id_hdr += '\n'
+        trace_pkt_id_hdr += '// Include trace packet identifier definitions\n'
+        trace_pkt_id_hdr += '#include "vktrace_trace_packet_identifiers.h"\n\n'
         #
         # Construct packet id name helper function
-        trace_pkt_id_hdr += 'static const char *vktrace_vk_packet_id_name(const enum VKTRACE_TRACE_PACKET_ID_VK id) {\n'
+        trace_pkt_id_hdr += 'static const char *vktrace_vk_packet_id_name(const VKTRACE_TRACE_PACKET_ID_VK id) {\n'
         trace_pkt_id_hdr += '    switch(id) {\n'
         trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
         trace_pkt_id_hdr += '            return "vkApiVersion";\n'
@@ -1070,7 +1058,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_id_hdr += '\n'
         #
         # Construct packet id stringify helper function
-        trace_pkt_id_hdr += 'static const char *vktrace_stringify_vk_packet_id(const enum VKTRACE_TRACE_PACKET_ID_VK id, const vktrace_trace_packet_header* pHeader) {\n'
+        trace_pkt_id_hdr += 'static const char *vktrace_stringify_vk_packet_id(const VKTRACE_TRACE_PACKET_ID_VK id, const vktrace_trace_packet_header* pHeader) {\n'
         trace_pkt_id_hdr += '    static char str[1024];\n'
         trace_pkt_id_hdr += '    switch(id) {\n'
         trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
