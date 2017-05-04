@@ -272,7 +272,7 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
                         QString("Tracer_id %1 has no valid replayer.").arg(pCurPacket->pHeader->tracer_id).toStdString().c_str());
                     continue;
                 }
-                if (pCurPacket->pHeader->packet_id >= VKTRACE_TPI_BEGIN_API_HERE) {
+                if (pCurPacket->pHeader->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
                     // replay the API packet
                     try {
                         res = replayer->Replay(pCurPacket->pHeader);

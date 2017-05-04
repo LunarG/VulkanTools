@@ -32,7 +32,7 @@ class vktraceviewer_vk_QFileModel : public vktraceviewer_QTraceFileModel {
     virtual QString get_packet_string(const vktrace_trace_packet_header* pHeader) const;
     virtual QString get_packet_string_multiline(const vktrace_trace_packet_header* pHeader) const;
 
-    virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const;
+    virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID_VK packetId) const;
 };
 
 #endif  // VKTRACEVIEWER_VK_QFILE_MODEL_H_

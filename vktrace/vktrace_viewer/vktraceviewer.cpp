@@ -465,7 +465,7 @@ void vktraceviewer::GenerateTraceFileStats() {
     QMap<uint16_t, vtvApiUsageStats> statMap;
     for (uint64_t i = 0; i < m_traceFileInfo.packetCount; i++) {
         vktrace_trace_packet_header* pHeader = m_traceFileInfo.pPacketOffsets[i].pHeader;
-        if (pHeader->packet_id >= VKTRACE_TPI_BEGIN_API_HERE) {
+        if (pHeader->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
             totalStats.totalCallCount++;
             totalStats.totalCpuExecutionTime += (pHeader->entrypoint_end_time - pHeader->entrypoint_begin_time);
             totalStats.totalTraceOverhead += ((pHeader->vktrace_end_time - pHeader->vktrace_begin_time) -
@@ -973,7 +973,7 @@ void vktraceviewer::on_prevDrawcallButton_clicked() {
         QModelIndex indexAbove = index.sibling(index.row() - 1, vktraceviewer_QTraceFileModel::Column_EntrypointName);
         while (indexAbove.isValid()) {
             vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)indexAbove.internalPointer();
-            if (pHeader != NULL && m_pTraceFileModel->isDrawCall((VKTRACE_TRACE_PACKET_ID)pHeader->packet_id)) {
+            if (pHeader != NULL && m_pTraceFileModel->isDrawCall((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id)) {
                 selectApicallModelIndex(indexAbove, true, true);
                 ui->treeView->setFocus();
                 return;
@@ -1010,7 +1010,7 @@ void vktraceviewer::on_nextDrawcallButton_clicked() {
         QModelIndex indexBelow = index.sibling(index.row() + 1, vktraceviewer_QTraceFileModel::Column_EntrypointName);
         while (indexBelow.isValid()) {
             vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)indexBelow.internalPointer();
-            if (pHeader != NULL && m_pTraceFileModel->isDrawCall((VKTRACE_TRACE_PACKET_ID)pHeader->packet_id)) {
+            if (pHeader != NULL && m_pTraceFileModel->isDrawCall((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id)) {
                 selectApicallModelIndex(indexBelow, true, true);
                 ui->treeView->setFocus();
                 return;

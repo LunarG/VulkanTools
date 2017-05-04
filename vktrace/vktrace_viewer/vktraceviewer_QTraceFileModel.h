@@ -35,7 +35,7 @@ class vktraceviewer_QTraceFileModel : public QAbstractItemModel {
 
     virtual ~vktraceviewer_QTraceFileModel() {}
 
-    virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID packetId) const { return false; }
+    virtual bool isDrawCall(const VKTRACE_TRACE_PACKET_ID_VK packetId) const { return false; }
 
     virtual QString get_packet_string(const vktrace_trace_packet_header* pHeader) const {
         switch (pHeader->packet_id) {
@@ -98,7 +98,7 @@ class vktraceviewer_QTraceFileModel : public QAbstractItemModel {
         if (role == Qt::FontRole) {
             vktrace_trace_packet_header* pHeader =
                 (vktrace_trace_packet_header*)this->index(index.row(), Column_EntrypointName, index.parent()).internalPointer();
-            if (isDrawCall((VKTRACE_TRACE_PACKET_ID)pHeader->packet_id)) {
+            if (isDrawCall((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id)) {
                 QFont font;
                 font.setBold(true);
                 return font;
