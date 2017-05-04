@@ -42,59 +42,6 @@ using namespace std;
 
 vkreplayer_settings *g_pReplaySettings;
 
-static VkPhysicalDeviceProperties *get_physicalDeviceProperties() {
-    VkPhysicalDeviceProperties *rval = NULL;
-
-    VkInstanceCreateInfo createInfo;
-    VkInstance instance;
-    uint32_t physDevCount;
-    VkPhysicalDevice physDevice;
-
-    static bool devPropertiesValid = false;
-    static VkPhysicalDeviceProperties devProperties;
-
-    if (devPropertiesValid) return &devProperties;
-
-    memset(&createInfo, 0, sizeof(createInfo));
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    if (VK_SUCCESS != vkCreateInstance(&createInfo, NULL, &instance)) return NULL;
-
-    if (VK_SUCCESS != vkEnumeratePhysicalDevices(instance, &physDevCount, NULL) || physDevCount < 1) goto destroyInstance;
-    // vktrace/replay doesn't handle multipe gpus yet, so we'll use the first one
-    physDevCount = 1;
-    if (VK_SUCCESS != vkEnumeratePhysicalDevices(instance, &physDevCount, &physDevice)) goto destroyInstance;
-
-    vkGetPhysicalDeviceProperties(physDevice, &devProperties);
-    devPropertiesValid = true;
-    rval = &devProperties;
-
-destroyInstance:
-    vkDestroyInstance(instance, NULL);
-    return rval;
-}
-
-uint64_t get_vk_gpu() {
-    VkPhysicalDeviceProperties *pDevProperties;
-
-    pDevProperties = get_physicalDeviceProperties();
-
-    if (pDevProperties)
-        return ((uint64_t)pDevProperties->vendorID << 32) | (uint64_t)pDevProperties->deviceID;
-    else
-        return 0;
-}
-
-uint64_t get_vk_driver_version() {
-    VkPhysicalDeviceProperties *pDevProperties;
-
-    pDevProperties = get_physicalDeviceProperties();
-
-    if (pDevProperties)
-        return (uint64_t)pDevProperties->driverVersion;
-    else
-        return 0;
-}
-
 vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_header *pFileHeader) {
     g_pReplaySettings = pReplaySettings;
     m_display = new vkDisplay();
@@ -151,8 +98,9 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
     m_replay_ptrsize = sizeof(void *);
     m_replay_arch = get_arch();
     m_replay_os = get_os();
-    m_replay_gpu = get_vk_gpu();
-    m_replay_drv_vers = get_vk_driver_version();
+    // We save a value for m_replay_gpu and m_replay_drv_vers later when we replay vkGetPhysicalDeviceProperites
+    m_replay_gpu = 0;
+    m_replay_drv_vers = 0;
 
     return 0;
 }
@@ -2651,6 +2599,17 @@ VkResult vkReplay::manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInval
     VKTRACE_DELETE(pLocalMems);
 
     return replayResult;
+}
+
+void vkReplay::manually_replay_vkGetPhysicalDeviceProperties(packet_vkGetPhysicalDeviceProperties *pPacket) {
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in GetPhysicalDeviceProperties() due to invalid remapped VkPhysicalDevice.");
+        return;
+    }
+    m_vkFuncs.real_vkGetPhysicalDeviceProperties(remappedphysicalDevice, pPacket->pProperties);
+    m_replay_gpu = ((uint64_t)pPacket->pProperties->vendorID << 32) | (uint64_t)pPacket->pProperties->deviceID;
+    m_replay_drv_vers = (uint64_t)pPacket->pProperties->driverVersion;
 }
 
 VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR *pPacket) {

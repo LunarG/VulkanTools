@@ -552,6 +552,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'FreeDescriptorSets',
                                  'FlushMappedMemoryRanges',
                                  'InvalidateMappedMemoryRanges',
+                                 'GetPhysicalDeviceProperties',
                                  'GetPhysicalDeviceMemoryProperties',
                                  'GetPhysicalDeviceQueueFamilyProperties',
                                  'GetPhysicalDeviceSurfaceSupportKHR',
