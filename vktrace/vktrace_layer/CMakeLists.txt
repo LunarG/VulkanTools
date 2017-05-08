@@ -23,7 +23,7 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -regist
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/vktrace_generate.py AllPlatforms vktrace-trace-c      vk_version_1_0 OUTPUT_FILE ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp)
 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe

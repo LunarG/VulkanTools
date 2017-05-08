@@ -40,7 +40,7 @@ mkdir -p generated/include generated/common
 
 # vktrace
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk.h)
-python3 ../scripts/vktrace_generate.py AllPlatforms vktrace-trace-c vk_version_1_0 > generated/include/vktrace_vk_vk.cpp
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk.cpp)
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk_packets.h)
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_packet_id.h)
 
