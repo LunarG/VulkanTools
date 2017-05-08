@@ -83,7 +83,7 @@ function build_glslang () {
    cd "${BASEDIR}"/glslang
    mkdir -p build
    cd build
-   cmake -D CMAKE_BUILD_TYPE=Release ..
+   cmake -D CMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install ..
    make -j $CORE_COUNT
    make install
 }
@@ -93,7 +93,7 @@ function build_spirv-tools () {
    cd "${BASEDIR}"/spirv-tools
    mkdir -p build
    cd build
-   cmake -D CMAKE_BUILD_TYPE=Release ..
+   cmake -D CMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install ..
    make -j $CORE_COUNT
 }
 
