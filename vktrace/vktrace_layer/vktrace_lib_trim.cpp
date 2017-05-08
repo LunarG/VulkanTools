@@ -875,8 +875,24 @@ void snapshot_state_tracker() {
                     mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
 
                     VkBufferImageCopy copyRegion = {};
-                    copyRegion.bufferRowLength = static_cast<uint32_t>(layout.rowPitch);
-                    copyRegion.bufferImageHeight = static_cast<uint32_t>(layout.arrayPitch);
+
+                    copyRegion.bufferRowLength = 0;
+                    copyRegion.bufferImageHeight = 0;
+                    // On some platform, originally set to layout.rowPitch and layout.arrayPitch
+                    // cause write outside of staging buffer memory size and hang at following
+                    // queue submission in other frames after finish trim starting process when
+                    // trim some titles.
+                    //
+                    // Here we set bufferRowLength and bufferImageHeight to 0 make the image
+                    // copy to be tightly packed according to the imageExtent, the change fix
+                    // the above problem.
+                    //
+                    // Although bufferRowLength,bufferImageHeight can be set to greater than
+                    // the width and height member of imageExtent, but because we allocate memory
+                    // for the staging buffer by image memory size and here we copy whole image,
+                    // so greater than imageExtent take a risk that the copy beyond the staging
+                    // buffer memory size.
+
                     copyRegion.bufferOffset = layout.offset;
                     copyRegion.imageExtent.depth = 1;
                     copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
@@ -898,8 +914,12 @@ void snapshot_state_tracker() {
                     mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
 
                     VkBufferImageCopy copyRegion = {};
-                    copyRegion.bufferRowLength = static_cast<uint32_t>(layout.rowPitch);
-                    copyRegion.bufferImageHeight = static_cast<uint32_t>(layout.arrayPitch);
+
+                    copyRegion.bufferRowLength = 0;
+                    copyRegion.bufferImageHeight = 0;
+                    // set bufferRowLength and bufferImageHeight to 0 make the image
+                    // copy to be tightly packed according to the imageExtent.
+
                     copyRegion.bufferOffset = layout.offset;
                     copyRegion.imageExtent.depth = 1;
                     copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
