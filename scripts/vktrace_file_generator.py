@@ -556,6 +556,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'GetPhysicalDeviceProperties',
                                  'GetPhysicalDeviceMemoryProperties',
                                  'GetPhysicalDeviceQueueFamilyProperties',
+                                 'GetPhysicalDeviceSparseImageFormatProperties',
                                  'GetPhysicalDeviceSurfaceSupportKHR',
                                  'GetPhysicalDeviceSurfaceCapabilitiesKHR',
                                  'GetPhysicalDeviceSurfaceFormatsKHR',
