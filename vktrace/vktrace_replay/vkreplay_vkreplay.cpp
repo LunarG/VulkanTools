@@ -2751,7 +2751,7 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
 
     if (!pPacket->pProperties) {
         // This was a query to determine size. Save the returned size so we can use that size next time
-        // we're called with pQueueFamilyProperties not null. This is to prevent a VK_INCOMPLETE error.
+        // we're called with pProperties not null. This is to prevent a VK_INCOMPLETE error.
         propCnt[pPacket->physicalDevice] = *pPacket->pPropertyCount;
     }
 
@@ -2829,8 +2829,10 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
 
 VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_vkGetPhysicalDeviceSurfaceFormatsKHR *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    static std::unordered_map<VkPhysicalDevice, uint32_t> surfFmtCnt;  // count returned when pSurfaceFormats is NULL
+    VkSurfaceFormatKHR *savepSurfaceFormats = NULL;
+
     if (remappedphysicalDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkGetPhysicalDeviceSurfaceFormatsKHR() due to invalid remapped VkPhysicalDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -2842,8 +2844,32 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_v
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
+    if (surfFmtCnt.find(pPacket->physicalDevice) != surfFmtCnt.end()) {
+        // This query was previously done with pSurfaceFormats set to null. It was a query
+        // to determine the size of data to be returned. We saved the size returned during
+        // that api call. Use that count instead to prevent a VK_INCOMPLETE error.
+        if (surfFmtCnt[pPacket->physicalDevice] > *pPacket->pSurfaceFormatCount) {
+            *pPacket->pSurfaceFormatCount = surfFmtCnt[pPacket->physicalDevice];
+            savepSurfaceFormats = pPacket->pSurfaceFormats;
+            pPacket->pSurfaceFormats = VKTRACE_NEW_ARRAY(VkSurfaceFormatKHR, *pPacket->pSurfaceFormatCount);
+        }
+    }
+
     replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceFormatsKHR(remappedphysicalDevice, remappedSurfaceKHR,
                                                                        pPacket->pSurfaceFormatCount, pPacket->pSurfaceFormats);
+
+    if (!pPacket->pSurfaceFormats) {
+        // This was a query to determine size. Save the returned size so we can use that size next time
+        // we're called with pSurfaceFormats not null. This is to prevent a VK_INCOMPLETE error.
+        surfFmtCnt[pPacket->physicalDevice] = *pPacket->pSurfaceFormatCount;
+    }
+
+    if (savepSurfaceFormats) {
+        // Restore pPacket->pSurfaceFormats. We do this because the replay will free the memory.
+        // Note that we don't copy the queried data - it wouldn't fit, and it's not used by the replayer anyway.
+        VKTRACE_DELETE(pPacket->pSurfaceFormats);
+        pPacket->pSurfaceFormats = savepSurfaceFormats;
+    }
 
     return replayResult;
 }
@@ -2851,8 +2877,10 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_v
 VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(
     packet_vkGetPhysicalDeviceSurfacePresentModesKHR *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    static std::unordered_map<VkPhysicalDevice, uint32_t> presModeCnt;  // count returned when pPrsentModes is NULL
+    VkPresentModeKHR *savepPresentModes = NULL;
+
     if (remappedphysicalDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkGetPhysicalDeviceSurfacePresentModesKHR() due to invalid remapped VkPhysicalDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -2864,8 +2892,32 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
+    if (presModeCnt.find(pPacket->physicalDevice) != presModeCnt.end()) {
+        // This query was previously done with pSurfaceFormats set to null. It was a query
+        // to determine the size of data to be returned. We saved the size returned during
+        // that api call. Use that count instead to prevent a VK_INCOMPLETE error.
+        if (presModeCnt[pPacket->physicalDevice] > *pPacket->pPresentModeCount) {
+            *pPacket->pPresentModeCount = presModeCnt[pPacket->physicalDevice];
+            savepPresentModes = pPacket->pPresentModes;
+            pPacket->pPresentModes = VKTRACE_NEW_ARRAY(VkPresentModeKHR, *pPacket->pPresentModeCount);
+        }
+    }
+
     replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfacePresentModesKHR(remappedphysicalDevice, remappedSurfaceKHR,
                                                                             pPacket->pPresentModeCount, pPacket->pPresentModes);
+
+    if (!pPacket->pPresentModes) {
+        // This was a query to determine size. Save the returned size so we can use that size next time
+        // we're called with pPresentModes not null. This is to prevent a VK_INCOMPLETE error.
+        presModeCnt[pPacket->physicalDevice] = *pPacket->pPresentModeCount;
+    }
+
+    if (savepPresentModes) {
+        // Restore pPacket->pPresentModes. We do this because the replay will free the memory.
+        // Note that we don't copy the queried data - it wouldn't fit, and it's not used by the replayer anyway.
+        VKTRACE_DELETE(pPacket->pPresentModes);
+        pPacket->pPresentModes = savepPresentModes;
+    }
 
     return replayResult;
 }
