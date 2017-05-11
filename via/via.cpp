@@ -1571,13 +1571,13 @@ out:
 }
 
 void PrintDriverRegInfo(HKEY reg_folder, const char *reg_key_loc, const char *system_path, bool found_this_lib,
-     char *cur_vulkan_driver_json, char *generic_string, bool &found_registry, bool &found_json, bool &found_lib) {
+                        char *cur_vulkan_driver_json, char *generic_string, bool &found_registry, bool &found_json,
+                        bool &found_lib) {
     // Find the registry settings indicating the location of the driver
     // JSON files.
     uint32_t i = 0;
     uint32_t returned_value = 0;
-    while (
-        FindNextRegValue(reg_folder, reg_key_loc, "", i, MAX_STRING_LENGTH - 1, cur_vulkan_driver_json, &returned_value)) {
+    while (FindNextRegValue(reg_folder, reg_key_loc, "", i, MAX_STRING_LENGTH - 1, cur_vulkan_driver_json, &returned_value)) {
         found_registry |= true;
 
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
@@ -1588,8 +1588,7 @@ void PrintDriverRegInfo(HKEY reg_folder, const char *reg_key_loc, const char *sy
 
         if (returned_value != 0) {
             PrintTableElement("DISABLED");
-        }
-        else {
+        } else {
             PrintTableElement("ENABLED");
         }
         PrintEndTableRow();
@@ -1641,10 +1640,10 @@ ErrorResults PrintDriverInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    PrintDriverRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, system_path, found_this_lib, cur_vulkan_driver_json,
-        generic_string, found_registry, found_json, found_lib);
-    PrintDriverRegInfo(HKEY_CURRENT_USER, reg_key_loc, system_path, found_this_lib, cur_vulkan_driver_json,
-        generic_string, found_registry, found_json, found_lib);
+    PrintDriverRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, system_path, found_this_lib, cur_vulkan_driver_json, generic_string,
+                       found_registry, found_json, found_lib);
+    PrintDriverRegInfo(HKEY_CURRENT_USER, reg_key_loc, system_path, found_this_lib, cur_vulkan_driver_json, generic_string,
+                       found_registry, found_json, found_lib);
 
     // The user can override the drivers path manually
     if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value, MAX_STRING_LENGTH - 1) && 0 != strlen(env_value)) {
@@ -1783,7 +1782,8 @@ ErrorResults PrintDriverInfo(void) {
     return res;
 }
 
-void PrintUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_string, char *generic_string, char *version_string, unsigned int& install_count) {
+void PrintUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_string, char *generic_string, char *version_string,
+                           unsigned int &install_count) {
     uint32_t i = 0;
     // Find all Vulkan Runtime keys in the registry, and loop through each.
     while (FindNextRegKey(reg_folder, g_uninstall_reg_path, "VulkanRT", i, MAX_STRING_LENGTH - 1, output_string)) {
@@ -1792,8 +1792,7 @@ void PrintUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_str
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
 
         // Get the version from the registry
-        if (ReadRegKeyString(reg_folder, generic_string, "DisplayVersion", MAX_STRING_LENGTH - 1, version_string)) {
-        } else {
+        if (!ReadRegKeyString(reg_folder, generic_string, "DisplayVersion", MAX_STRING_LENGTH - 1, version_string)) {
             strncpy(version_string, output_string, MAX_STRING_LENGTH - 1);
         }
 
@@ -1929,8 +1928,7 @@ bool PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_
         found = true;
         snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
-        if (ReadRegKeyString(reg_folder, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string)) {
-        }
+        ReadRegKeyString(reg_folder, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string);
 
         PrintBeginTableRow();
         PrintTableElement("");
@@ -1941,8 +1939,8 @@ bool PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_
     return found;
 }
 
-bool PrintExplicitLayersRegInfo(HKEY reg_folder, const char *reg_key_loc, const char *sdk_env_dir,
-     char *output_string, char *count_string, char *cur_vulkan_layer_json, ErrorResults& res) {
+bool PrintExplicitLayersRegInfo(HKEY reg_folder, const char *reg_key_loc, const char *sdk_env_dir, char *output_string,
+                                char *count_string, char *cur_vulkan_layer_json, ErrorResults &res) {
     bool found = false;
     uint32_t i = 0;
     uint32_t returned_value = 0;
@@ -1970,8 +1968,7 @@ bool PrintExplicitLayersRegInfo(HKEY reg_folder, const char *reg_key_loc, const 
             PrintTableElement("");
             PrintEndTableRow();
             res = MISSING_LAYER_JSON;
-        }
-        else {
+        } else {
             Json::Value root = Json::nullValue;
             Json::Reader reader;
             if (!reader.parse(*stream, root, false) || root.isNull()) {
@@ -1983,8 +1980,7 @@ bool PrintExplicitLayersRegInfo(HKEY reg_folder, const char *reg_key_loc, const 
                 PrintTableElement(reader.getFormattedErrorMessages());
                 PrintEndTableRow();
                 res = LAYER_JSON_PARSING_ERROR;
-            }
-            else {
+            } else {
                 PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root, 3);
             }
 
@@ -2073,10 +2069,10 @@ ErrorResults PrintSDKInfo(void) {
     PrintEndTableRow();
 
     found = false;
-    found |= PrintExplicitLayersRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, sdk_env_dir, output_string,
-                                        count_string, cur_vulkan_layer_json, res);
-    found |= PrintExplicitLayersRegInfo(HKEY_CURRENT_USER, reg_key_loc, sdk_env_dir, output_string,
-                                        count_string, cur_vulkan_layer_json, res);
+    found |= PrintExplicitLayersRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, sdk_env_dir, output_string, count_string,
+                                        cur_vulkan_layer_json, res);
+    found |= PrintExplicitLayersRegInfo(HKEY_CURRENT_USER, reg_key_loc, sdk_env_dir, output_string, count_string,
+                                        cur_vulkan_layer_json, res);
 
     if (!found) {
         PrintBeginTableRow();
@@ -2092,13 +2088,13 @@ ErrorResults PrintSDKInfo(void) {
 }
 
 void PrintImplicitLayersRegInfo(HKEY reg_folder, const char *vulkan_impl_layer_reg_key, char *cur_vulkan_layer_json,
-     char *generic_string, ErrorResults &res) {
+                                char *generic_string, ErrorResults &res) {
     // For each implicit layer listed in the registry, find its JSON and
     // print out the useful information stored in it.
     uint32_t i = 0;
     uint32_t returned_value = 0;
-    while (FindNextRegValue(reg_folder, vulkan_impl_layer_reg_key, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json,
-        &returned_value)) {
+    while (
+        FindNextRegValue(reg_folder, vulkan_impl_layer_reg_key, "", i, MAX_STRING_LENGTH, cur_vulkan_layer_json, &returned_value)) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
 
         PrintBeginTableRow();
@@ -2118,8 +2114,7 @@ void PrintImplicitLayersRegInfo(HKEY reg_folder, const char *vulkan_impl_layer_r
             PrintTableElement("");
             PrintEndTableRow();
             res = MISSING_LAYER_JSON;
-        }
-        else {
+        } else {
             Json::Value root = Json::nullValue;
             Json::Reader reader;
             if (!reader.parse(*stream, root, false) || root.isNull()) {
@@ -2131,8 +2126,7 @@ void PrintImplicitLayersRegInfo(HKEY reg_folder, const char *vulkan_impl_layer_r
                 PrintTableElement(reader.getFormattedErrorMessages());
                 PrintEndTableRow();
                 res = LAYER_JSON_PARSING_ERROR;
-            }
-            else {
+            } else {
                 PrintImplicitLayerJsonInfo(cur_vulkan_layer_json, root);
             }
 
