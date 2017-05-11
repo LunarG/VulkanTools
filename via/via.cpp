@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016 Valve Corporation
- * Copyright (c) 2016 LunarG, Inc.
+ * Copyright (c) 2016-2017 Valve Corporation
+ * Copyright (c) 2016-2017 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2073,9 +2073,9 @@ ErrorResults PrintSDKInfo(void) {
     PrintEndTableRow();
 
     found = false;
-    found |= PrintExplicitLayersRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, sdk_env_dir, output_string, 
+    found |= PrintExplicitLayersRegInfo(HKEY_LOCAL_MACHINE, reg_key_loc, sdk_env_dir, output_string,
                                         count_string, cur_vulkan_layer_json, res);
-    found |= PrintExplicitLayersRegInfo(HKEY_CURRENT_USER, reg_key_loc, sdk_env_dir, output_string, 
+    found |= PrintExplicitLayersRegInfo(HKEY_CURRENT_USER, reg_key_loc, sdk_env_dir, output_string,
                                         count_string, cur_vulkan_layer_json, res);
 
     if (!found) {
@@ -2091,7 +2091,7 @@ ErrorResults PrintSDKInfo(void) {
     return res;
 }
 
-void PrintImplicitLayersRegInfo(HKEY reg_folder, const char *vulkan_impl_layer_reg_key, char *cur_vulkan_layer_json, 
+void PrintImplicitLayersRegInfo(HKEY reg_folder, const char *vulkan_impl_layer_reg_key, char *cur_vulkan_layer_json,
      char *generic_string, ErrorResults &res) {
     // For each implicit layer listed in the registry, find its JSON and
     // print out the useful information stored in it.
