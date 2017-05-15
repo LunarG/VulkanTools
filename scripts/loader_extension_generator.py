@@ -835,7 +835,14 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
         # Some extensions have to be manually added.  Skip those in the automatic
         # generation.  They will be manually added later.
         manual_ext_commands = ['vkEnumeratePhysicalDeviceGroupsKHX',
-                               'vkGetPhysicalDeviceExternalImageFormatPropertiesNV']
+                               'vkGetPhysicalDeviceExternalImageFormatPropertiesNV',
+                               'vkGetPhysicalDeviceFeatures2KHR',
+                               'vkGetPhysicalDeviceProperties2KHR',
+                               'vkGetPhysicalDeviceFormatProperties2KHR',
+                               'vkGetPhysicalDeviceImageFormatProperties2KHR',
+                               'vkGetPhysicalDeviceQueueFamilyProperties2KHR',
+                               'vkGetPhysicalDeviceMemoryProperties2KHR',
+                               'vkGetPhysicalDeviceSparseImageFormatProperties2KHR']
 
         for ext_cmd in self.ext_commands:
             if (ext_cmd.ext_name in WSI_EXT_NAMES or
@@ -1243,7 +1250,7 @@ class LoaderExtensionOutputGenerator(OutputGenerator):
                 commands = self.ext_commands
 
             for cur_cmd in commands:
-                if cur_cmd.ext_type == 'instance':
+                if cur_cmd.ext_type == 'instance' or (cur_cmd.ext_type == 'device' and cur_cmd.handle_type == 'VkPhysicalDevice'):
                     if cur_cmd.ext_name != cur_extension_name:
                         if 'VK_VERSION_' in cur_cmd.ext_name:
                             table += '\n    // ---- Core %s commands\n' % cur_cmd.ext_name[11:]
