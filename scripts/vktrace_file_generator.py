@@ -84,6 +84,9 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkSetHdrMetadataEXT',
                                        'vkCreateIOSSurfaceMVK',
                                        'vkCreateMacOSSurfaceMVK',
+                                       'vkGetSwapchainStatusKHR',
+                                       'vkGetPhysicalDeviceSurfaceCapabilities2KHR',
+                                       'vkGetPhysicalDeviceSurfaceFormats2KHR',
                                        ]
 
 api_exclusions = ['CreateWaylandSurfaceKHR',
