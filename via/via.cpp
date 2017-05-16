@@ -1458,7 +1458,6 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path, bool &
         PrintEndTableRow();
 
         if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(), MAX_STRING_LENGTH, full_driver_path)) {
-            std::string driver_name = root["ICD"]["library_path"].asString();
             std::string system_name = system_path;
             system_name += "\\";
             system_name += driver_name;
@@ -1887,11 +1886,11 @@ ErrorResults PrintRunTimeInfo(void) {
         fp = fopen("where_vulkan", "rt");
         if (NULL != fp) {
             if (NULL != fgets(generic_string, MAX_STRING_LENGTH - 1, fp)) {
-                int i = (int)strlen(generic_string) - 1;
-                while (generic_string[i] == '\n' || generic_string[i] == '\r' || generic_string[i] == '\t' ||
-                       generic_string[i] == ' ') {
-                    generic_string[i] = '\0';
-                    i--;
+                int cur_char = (int)strlen(generic_string) - 1;
+                while (generic_string[cur_char] == '\n' || generic_string[cur_char] == '\r' || generic_string[cur_char] == '\t' ||
+                       generic_string[cur_char] == ' ') {
+                    generic_string[cur_char] = '\0';
+                    cur_char--;
                 }
 
                 if (GetFileVersion(generic_string, MAX_STRING_LENGTH - 1, version_string)) {
