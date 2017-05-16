@@ -3797,11 +3797,24 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value roo
         }
         PrintEndTableRow();
 
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Library Path");
-        if (!root["layer"]["library_path"].isNull()) {
-            PrintTableElement(root["layer"]["library_path"].asString());
+        Json::Value component_layers = root["layer"]["component_layers"];
+        Json::Value library_path = root["layer"]["library_path"];
+        if (!component_layers.isNull() && !library_path.isNull()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Library Path / Component Layers");
+            PrintTableElement("BOTH DEFINED!");
+            cur_col = 3;
+            while (num_cols > cur_col) {
+                PrintTableElement("");
+                cur_col++;
+            }
+            PrintEndTableRow();
+        } else if (!library_path.isNull()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Library Path");
+            PrintTableElement(library_path.asString());
             cur_col = 3;
             while (num_cols > cur_col) {
                 PrintTableElement("");
@@ -3812,7 +3825,7 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value roo
 #ifdef _WIN32
             // On Windows, we can query the file version, so do so.
             char full_layer_path[MAX_STRING_LENGTH];
-            if (GenerateLibraryPath(layer_json_filename, root["layer"]["library_path"].asString().c_str(), MAX_STRING_LENGTH,
+            if (GenerateLibraryPath(layer_json_filename, library_path.asString().c_str(), MAX_STRING_LENGTH,
                                     full_layer_path) &&
                 GetFileVersion(full_layer_path, MAX_STRING_LENGTH, generic_string)) {
                 PrintBeginTableRow();
@@ -3827,7 +3840,107 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value roo
                 PrintEndTableRow();
             }
 #endif
+
+            char count_str[MAX_STRING_LENGTH];
+            Json::Value dev_exts = root["layer"]["device_extensions"];
+            ext = 0;
+            if (!dev_exts.isNull() && dev_exts.isArray()) {
+                snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", dev_exts.size());
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Device Extensions");
+                PrintTableElement(count_str);
+                cur_col = 3;
+                while (num_cols > cur_col) {
+                    PrintTableElement("");
+                    cur_col++;
+                }
+                PrintEndTableRow();
+
+                for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
+                    Json::Value dev_ext = (*dev_ext_it);
+                    Json::Value dev_ext_name = dev_ext["name"];
+                    if (!dev_ext_name.isNull()) {
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", ext);
+                        PrintBeginTableRow();
+                        PrintTableElement("");
+                        PrintTableElement(generic_string, ALIGN_RIGHT);
+                        PrintTableElement(dev_ext_name.asString());
+                        cur_col = 3;
+                        while (num_cols > cur_col) {
+                            PrintTableElement("");
+                            cur_col++;
+                        }
+                        PrintEndTableRow();
+                    }
+                }
+            }
+            Json::Value inst_exts = root["layer"]["instance_extensions"];
+            ext = 0;
+            if (!inst_exts.isNull() && inst_exts.isArray()) {
+                snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", inst_exts.size());
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Instance Extensions");
+                PrintTableElement(count_str);
+                cur_col = 3;
+                while (num_cols > cur_col) {
+                    PrintTableElement("");
+                    cur_col++;
+                }
+                PrintEndTableRow();
+
+                for (Json::ValueIterator inst_ext_it = inst_exts.begin(); inst_ext_it != inst_exts.end(); inst_ext_it++) {
+                    Json::Value inst_ext = (*inst_ext_it);
+                    Json::Value inst_ext_name = inst_ext["name"];
+                    if (!inst_ext_name.isNull()) {
+                        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", ext);
+                        PrintBeginTableRow();
+                        PrintTableElement("");
+                        PrintTableElement(generic_string, ALIGN_RIGHT);
+                        PrintTableElement(inst_ext_name.asString());
+                        cur_col = 3;
+                        while (num_cols > cur_col) {
+                            PrintTableElement("");
+                            cur_col++;
+                        }
+                        PrintEndTableRow();
+                    }
+                }
+            }
+        } else if (!component_layers.isNull()) {
+            if (component_layers.isArray()) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", component_layers.size());
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Component Layers");
+                PrintTableElement(generic_string);
+                PrintEndTableRow();
+
+                for (Json::ValueIterator cl_it = component_layers.begin(); cl_it != component_layers.end(); cl_it++) {
+                    Json::Value comp_layer = (*cl_it);
+                    PrintBeginTableRow();
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement(comp_layer.asString(), ALIGN_RIGHT);
+                    PrintEndTableRow();
+                }
+            } else {
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("Component Layers");
+                PrintTableElement("NOT AN ARRAY!");
+                cur_col = 3;
+                while (num_cols > cur_col) {
+                    PrintTableElement("");
+                    cur_col++;
+                }
+                PrintEndTableRow();
+            }
         } else {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("Library Path / Component Layers");
             PrintTableElement("MISSING!");
             cur_col = 3;
             while (num_cols > cur_col) {
@@ -3837,73 +3950,6 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value roo
             PrintEndTableRow();
         }
 
-        char count_str[MAX_STRING_LENGTH];
-        Json::Value dev_exts = root["layer"]["device_extensions"];
-        ext = 0;
-        if (!dev_exts.isNull() && dev_exts.isArray()) {
-            snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", dev_exts.size());
-            PrintBeginTableRow();
-            PrintTableElement("");
-            PrintTableElement("Device Extensions");
-            PrintTableElement(count_str);
-            cur_col = 3;
-            while (num_cols > cur_col) {
-                PrintTableElement("");
-                cur_col++;
-            }
-            PrintEndTableRow();
-
-            for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
-                Json::Value dev_ext = (*dev_ext_it);
-                Json::Value dev_ext_name = dev_ext["name"];
-                if (!dev_ext_name.isNull()) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", ext);
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement(generic_string, ALIGN_RIGHT);
-                    PrintTableElement(dev_ext_name.asString());
-                    cur_col = 3;
-                    while (num_cols > cur_col) {
-                        PrintTableElement("");
-                        cur_col++;
-                    }
-                    PrintEndTableRow();
-                }
-            }
-        }
-        Json::Value inst_exts = root["layer"]["instance_extensions"];
-        ext = 0;
-        if (!inst_exts.isNull() && inst_exts.isArray()) {
-            snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", inst_exts.size());
-            PrintBeginTableRow();
-            PrintTableElement("");
-            PrintTableElement("Instance Extensions");
-            PrintTableElement(count_str);
-            cur_col = 3;
-            while (num_cols > cur_col) {
-                PrintTableElement("");
-                cur_col++;
-            }
-            PrintEndTableRow();
-
-            for (Json::ValueIterator inst_ext_it = inst_exts.begin(); inst_ext_it != inst_exts.end(); inst_ext_it++) {
-                Json::Value inst_ext = (*inst_ext_it);
-                Json::Value inst_ext_name = inst_ext["name"];
-                if (!inst_ext_name.isNull()) {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", ext);
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement(generic_string, ALIGN_RIGHT);
-                    PrintTableElement(inst_ext_name.asString());
-                    cur_col = 3;
-                    while (num_cols > cur_col) {
-                        PrintTableElement("");
-                        cur_col++;
-                    }
-                    PrintEndTableRow();
-                }
-            }
-        }
     } else {
         PrintBeginTableRow();
         PrintTableElement("");
