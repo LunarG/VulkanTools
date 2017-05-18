@@ -40,6 +40,7 @@ const char APP_VERSION[] = "Version 1.1";
 #include <sys/utsname.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #endif
 
 #include <json/json.h>
@@ -2298,7 +2299,7 @@ bool CheckDriver(std::string &folder_loc, std::string &object_name) {
 // Pointer to a function sed to validate if the system object is found
 typedef bool (*PFN_CheckIfValid)(std::string &folder_loc, std::string &object_name);
 
-bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func, bool break_on_first) {
+bool FindLinuxSystemObject(std::string object_name, std::string &location, PFN_CheckIfValid func, bool break_on_first) {
     bool found_one = false;
     std::string path_to_check;
     char *env_value = getenv("LD_LIBRARY_PATH");
@@ -2337,6 +2338,8 @@ bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func, bool 
         }
 
         if (func(path_to_check, object_name)) {
+            location = path_to_check + "/" + object_name;
+
             // We found one runtime, clear any failures
             found_one = true;
             if (break_on_first) {
@@ -2353,6 +2356,8 @@ bool FindLinuxSystemObject(std::string object_name, PFN_CheckIfValid func, bool 
             if (strlen(tok) > 0) {
                 path_to_check = tok;
                 if (func(path_to_check, object_name)) {
+                    location = path_to_check + "/" + object_name;
+
                     // We found one runtime, clear any failures
                     found_one = true;
                 }
@@ -2656,6 +2661,18 @@ ErrorResults PrintSystemInfo(void) {
     return res;
 }
 
+bool VerifyOpen(std::string library_file, std::string &error) {
+    bool success = false;
+    void *handle = dlopen(library_file.c_str(), RTLD_NOW | RTLD_LOCAL);
+    if (NULL == handle) {
+        error = dlerror();
+    } else {
+        dlclose(handle);
+        success = true;
+    }
+    return success;
+}
+
 bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
     bool found_json = false;
     std::ifstream *stream = NULL;
@@ -2722,6 +2739,9 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
     PrintTableElement("Library Path");
     if (!root["ICD"]["library_path"].isNull()) {
         std::string driver_name = root["ICD"]["library_path"].asString();
+        std::string location;
+        bool could_load = true;
+        std::string load_error;
         PrintTableElement(driver_name);
         PrintEndTableRow();
 
@@ -2729,9 +2749,11 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
             // First try the generated path.
             if (access(full_driver_path, R_OK) != -1) {
                 found_lib = true;
+                could_load = VerifyOpen(full_driver_path, load_error);
             } else if (driver_name.find("/") == std::string::npos) {
-                if (FindLinuxSystemObject(driver_name, CheckDriver, true)) {
+                if (FindLinuxSystemObject(driver_name, location, CheckDriver, true)) {
                     found_lib = true;
+                    could_load = VerifyOpen(location, load_error);
                 }
             }
         }
@@ -2761,9 +2783,16 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
                     found_lib = true;
+                    could_load = VerifyOpen(query_res, load_error);
                 }
                 fclose(fp);
             }
+        } else if (!could_load) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("FAILED TO LOAD!");
+            PrintTableElement(load_error);
+            PrintEndTableRow();
         }
     } else {
         PrintTableElement("MISSING!");
@@ -3113,6 +3142,7 @@ ErrorResults PrintRunTimeInfo(void) {
     char generic_string[MAX_STRING_LENGTH];
     char buff[PATH_MAX];
     std::string runtime_dir_name;
+    std::string location;
     FILE *pfp;
     PrintBeginTable("Vulkan Runtimes", 3);
 
@@ -3122,7 +3152,7 @@ ErrorResults PrintRunTimeInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    if (!FindLinuxSystemObject(vulkan_so_prefix, CheckRuntime, false)) {
+    if (!FindLinuxSystemObject(vulkan_so_prefix, location, CheckRuntime, false)) {
         res = VULKAN_CANT_FIND_RUNTIME;
     }
 
