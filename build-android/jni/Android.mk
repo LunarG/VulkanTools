@@ -127,8 +127,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_api_dump
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/api_dump/api_dump.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/api_dump.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/layersvt \
@@ -141,9 +141,9 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_screenshot
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot_parsing.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/layersvt \
@@ -305,11 +305,12 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_settings.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_vkdisplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_vkreplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/common/vulkan_wrapper.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot_parsing.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/include \
                     $(SRC_DIR)/include/vulkan \
                     $(SRC_DIR)/layers \
+                    $(SRC_DIR)/layersvt \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/vktrace/vktrace_common \
                     $(SRC_DIR)/vktrace/vktrace_layer \
