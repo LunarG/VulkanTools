@@ -67,7 +67,6 @@ SRC_ROOT=generated/layer-src
 BUILD_ROOT=generated/gradle-build
 
 # create build-script root directory
-cp -fr gradle-templates   generated/gradle-build
 for ((i = 0; i < ${#layers[@]}; i++))
 do
 #   copy the sources
