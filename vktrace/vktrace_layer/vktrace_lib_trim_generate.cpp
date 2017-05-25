@@ -29,6 +29,118 @@ namespace trim {
 // Helpers to generate trace packets
 //=============================================================================
 namespace generate {
+
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfacePresentModesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface, uint32_t *pPresentModeCount,
+                                                                       VkPresentModeKHR *pPresentModes) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    size_t _dataSize;
+    packet_vkGetPhysicalDeviceSurfacePresentModesKHR *pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    if (makeCall) {
+        result = mid(physicalDevice)
+                     ->instTable.GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, pPresentModes);
+    }
+    endTime = vktrace_get_time();
+    _dataSize = (pPresentModeCount == NULL || pPresentModes == NULL) ? 0 : (*pPresentModeCount * sizeof(VkPresentModeKHR));
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfacePresentModesKHR, sizeof(uint32_t) + _dataSize);
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkGetPhysicalDeviceSurfacePresentModesKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->surface = surface;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pPresentModeCount), sizeof(uint32_t), pPresentModeCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pPresentModes), _dataSize, pPresentModes);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pPresentModeCount));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pPresentModes));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceSupportKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                  uint32_t queueFamilyIndex, VkSurfaceKHR surface,
+                                                                  VkBool32 *pSupported) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkGetPhysicalDeviceSurfaceSupportKHR *pPacket = NULL;
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfaceSupportKHR, sizeof(VkBool32));
+    if (makeCall) {
+        result = mid(physicalDevice)
+                     ->instTable.GetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surface, pSupported);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetPhysicalDeviceSurfaceSupportKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->queueFamilyIndex = queueFamilyIndex;
+    pPacket->surface = surface;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pSupported), sizeof(VkBool32), pSupported);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pSupported));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceCapabilitiesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface,
+                                                                       VkSurfaceCapabilitiesKHR *pSurfaceCapabilities) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR *pPacket = NULL;
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfaceCapabilitiesKHR, sizeof(VkSurfaceCapabilitiesKHR));
+    if (makeCall) {
+        result =
+            mid(physicalDevice)->instTable.GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
+    }
+    pPacket = interpret_body_as_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->surface = surface;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pSurfaceCapabilities), sizeof(VkSurfaceCapabilitiesKHR),
+                                       pSurfaceCapabilities);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pSurfaceCapabilities));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceFormatsKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                  VkSurfaceKHR surface, uint32_t *pSurfaceFormatCount,
+                                                                  VkSurfaceFormatKHR *pSurfaceFormats) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    size_t _dataSize;
+    packet_vkGetPhysicalDeviceSurfaceFormatsKHR *pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    if (makeCall) {
+        result = mid(physicalDevice)
+                     ->instTable.GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
+    }
+    endTime = vktrace_get_time();
+    _dataSize = (pSurfaceFormatCount == NULL || pSurfaceFormats == NULL) ? 0 : (*pSurfaceFormatCount * sizeof(VkSurfaceFormatKHR));
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfaceFormatsKHR, sizeof(uint32_t) + _dataSize);
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkGetPhysicalDeviceSurfaceFormatsKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->surface = surface;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pSurfaceFormatCount), sizeof(uint32_t), pSurfaceFormatCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pSurfaceFormats), _dataSize, pSurfaceFormats);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pSurfaceFormatCount));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pSurfaceFormats));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
 vktrace_trace_packet_header *vkCreateCommandPool(bool makeCall, VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
                                                  const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool) {
     VkResult result = VK_SUCCESS;
@@ -1112,6 +1224,34 @@ vktrace_trace_packet_header *vkDestroyPipelineLayout(bool makeCall, VkDevice dev
     pPacket->pipelineLayout = pipelineLayout;
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pAllocator));
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=====================================================================
+vktrace_trace_packet_header *vkCreateShaderModule(bool makeCall, VkDevice device, const VkShaderModuleCreateInfo *pCreateInfo,
+                                                  const VkAllocationCallbacks *pAllocator, VkShaderModule *pShaderModule) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkCreateShaderModule *pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCreateShaderModule,
+                        get_struct_chain_size((void *)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkShaderModule));
+    if (makeCall) {
+        result = mdd(device)->devTable.CreateShaderModule(device, pCreateInfo, pAllocator, pShaderModule);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCreateShaderModule(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfo), sizeof(VkShaderModuleCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfo->pCode), pPacket->pCreateInfo->codeSize,
+                                       pCreateInfo->pCode);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pShaderModule), sizeof(VkShaderModule), pShaderModule);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pCreateInfo->pCode));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket->pShaderModule));
     vktrace_finalize_trace_packet(pHeader);
     return pHeader;
 }

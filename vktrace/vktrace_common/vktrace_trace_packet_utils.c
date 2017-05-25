@@ -33,6 +33,7 @@
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 #include <fcntl.h>
 #include <time.h>
+#include <sys/utsname.h>
 #endif
 
 #if defined(PLATFORM_OSX)
@@ -113,22 +114,55 @@ uint64_t vktrace_get_time() {
 uint64_t vktrace_get_time() { return 0; }
 #endif
 
-//=============================================================================
-// trace file header
-
-vktrace_trace_file_header* vktrace_create_trace_file_header() {
-    vktrace_trace_file_header* pHeader = VKTRACE_NEW(vktrace_trace_file_header);
-    memset(pHeader, 0, sizeof(vktrace_trace_file_header));
-    pHeader->trace_file_version = VKTRACE_TRACE_FILE_VERSION;
-    vktrace_gen_uuid(pHeader->uuid);
-    pHeader->trace_start_time = vktrace_get_time();
-
-    return pHeader;
+uint64_t get_endianess() {
+    uint32_t x = 1;
+    return *((char*)&x) ? VKTRACE_BIG_ENDIAN : VKTRACE_LITTLE_ENDIAN;
 }
 
-void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader) {
-    vktrace_free(*ppHeader);
-    *ppHeader = NULL;
+uint64_t get_arch() {
+    uint64_t rval = 0;
+#if defined(PLATFORM_LINUX)
+    struct utsname buf;
+    uname(&buf);
+    strncpy((char*)&rval, buf.machine, sizeof(uint64_t));
+#elif defined(PLATFORM_WINDOWS)
+    SYSTEM_INFO systemInfo;
+    char* arch;
+    GetSystemInfo(&systemInfo);
+    switch (systemInfo.wProcessorArchitecture) {
+        case PROCESSOR_ARCHITECTURE_AMD64:
+            arch = "x86_64";
+            break;
+        case PROCESSOR_ARCHITECTURE_ARM:
+            arch = "ARM";
+            break;
+        case PROCESSOR_ARCHITECTURE_IA64:
+            arch = "ia64";
+            break;
+        case PROCESSOR_ARCHITECTURE_INTEL:
+            arch = "x86";
+            break;
+        default:
+            arch = "";
+            break;
+    }
+    strncpy((char*)&rval, arch, sizeof(uint64_t));
+#else
+    // Other platforms, i.e. OSX, need to be added here
+#endif
+    return rval;
+}
+
+uint64_t get_os() {
+    uint64_t rval;
+#if defined(ANDROID)
+    strncpy((char*)&rval, "Android", sizeof(uint64_t));
+#elif defined(PLATFORM_LINUX)
+    strncpy((char*)&rval, "Linux", sizeof(uint64_t));
+#else
+    strncpy((char*)&rval, "Windows", sizeof(uint64_t));
+#endif
+    return rval;
 }
 
 //=============================================================================
@@ -137,7 +171,7 @@ void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader) {
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size) {
     // Always allocate at least enough space for the packet header
-    uint64_t total_packet_size = sizeof(vktrace_trace_packet_header) + packet_size + additional_buffers_size;
+    uint64_t total_packet_size = ROUNDUP_TO_4(sizeof(vktrace_trace_packet_header) + packet_size + additional_buffers_size);
     void* pMemory = vktrace_malloc((size_t)total_packet_size);
     memset(pMemory, 0, (size_t)total_packet_size);
 
@@ -183,6 +217,12 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     return pBufferStart;
 }
 
+// size is the buffer size pointed by pBuffer, it should be 4 byte aligned.
+// if size is not 4 byte aligned (some title is not 4 byte aligned when call
+// vkMapMemory), it will be ROUNDUP_TO_4 when get new buffer address in the
+// function.
+// as input parameter, size must be size of pBuffer because we also memcpy
+// pBuffer in the function.
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer) {
     // Make sure we have valid pointers and sizes. All pointers and sizes must be 4 byte aligned.
@@ -193,7 +233,7 @@ void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, vo
         *ptr_address = NULL;
     } else {
         // set ptr to the location of the added buffer
-        *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, size);
+        *ptr_address = vktrace_trace_packet_get_new_buffer_address(pHeader, ROUNDUP_TO_4(size));
 
         // address of buffer in packet adding must be 4 byte aligned
         assert(((uint64_t)*ptr_address & 0x3) == 0);

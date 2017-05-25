@@ -58,7 +58,8 @@ typedef vktrace_SettingGroup *(VKTRACER_CDECL *funcptr_vkreplayer_getSettings)()
 typedef void(VKTRACER_CDECL *funcptr_vkreplayer_updatefromsettings)(vktrace_SettingGroup *pSettingGroups,
                                                                     unsigned int numSettingGroups);
 typedef int(VKTRACER_CDECL *funcptr_vkreplayer_initialize)(vktrace_replay::ReplayDisplay *pDisplay,
-                                                           vkreplayer_settings *pReplaySettings);
+                                                           vkreplayer_settings *pReplaySettings,
+                                                           vktrace_trace_file_header *pFileheader);
 typedef void(VKTRACER_CDECL *funcptr_vkreplayer_deinitialize)();
 typedef vktrace_trace_packet_header *(VKTRACER_CDECL *funcptr_vkreplayer_interpret)(vktrace_trace_packet_header *pPacket);
 typedef vktrace_replay::VKTRACE_REPLAY_RESULT(VKTRACER_CDECL *funcptr_vkreplayer_replay)(vktrace_trace_packet_header *pPacket);

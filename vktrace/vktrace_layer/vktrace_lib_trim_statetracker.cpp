@@ -231,29 +231,29 @@ void StateTracker::clear() {
         for (uint32_t i = 0; i < versions.size(); i++) {
             VkRenderPassCreateInfo *pCreateInfo = versions[i];
 
-            for (uint32_t i = 0; i < pCreateInfo->subpassCount; i++) {
-                if (pCreateInfo->pSubpasses[i].inputAttachmentCount > 0 &&
-                    pCreateInfo->pSubpasses[i].pInputAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pInputAttachments));
+            for (uint32_t subpass = 0; subpass < pCreateInfo->subpassCount; subpass++) {
+                if (pCreateInfo->pSubpasses[subpass].inputAttachmentCount > 0 &&
+                    pCreateInfo->pSubpasses[subpass].pInputAttachments != nullptr) {
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pInputAttachments));
                 }
 
-                if (pCreateInfo->pSubpasses[i].colorAttachmentCount > 0) {
-                    if (pCreateInfo->pSubpasses[i].pColorAttachments != nullptr) {
-                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pColorAttachments));
+                if (pCreateInfo->pSubpasses[subpass].colorAttachmentCount > 0) {
+                    if (pCreateInfo->pSubpasses[subpass].pColorAttachments != nullptr) {
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pColorAttachments));
                     }
 
-                    if (pCreateInfo->pSubpasses[i].pResolveAttachments != nullptr) {
-                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pResolveAttachments));
+                    if (pCreateInfo->pSubpasses[subpass].pResolveAttachments != nullptr) {
+                        VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pResolveAttachments));
                     }
                 }
 
-                if (pCreateInfo->pSubpasses[i].pDepthStencilAttachment != nullptr) {
-                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[i].pDepthStencilAttachment));
+                if (pCreateInfo->pSubpasses[subpass].pDepthStencilAttachment != nullptr) {
+                    VKTRACE_DELETE(const_cast<VkAttachmentReference *>(pCreateInfo->pSubpasses[subpass].pDepthStencilAttachment));
                 }
 
-                if (pCreateInfo->pSubpasses[i].preserveAttachmentCount > 0 &&
-                    pCreateInfo->pSubpasses[i].pPreserveAttachments != nullptr) {
-                    VKTRACE_DELETE(const_cast<uint32_t *>(pCreateInfo->pSubpasses[i].pPreserveAttachments));
+                if (pCreateInfo->pSubpasses[subpass].preserveAttachmentCount > 0 &&
+                    pCreateInfo->pSubpasses[subpass].pPreserveAttachments != nullptr) {
+                    VKTRACE_DELETE(const_cast<uint32_t *>(pCreateInfo->pSubpasses[subpass].pPreserveAttachments));
                 }
             }
 
@@ -398,8 +398,6 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
 
     createdPhysicalDevices = other.createdPhysicalDevices;
     for (auto obj = createdPhysicalDevices.begin(); obj != createdPhysicalDevices.end(); obj++) {
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
@@ -408,6 +406,21 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdDevices = other.createdDevices;
     for (auto obj = createdDevices.begin(); obj != createdDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.Device.pCreatePacket);
+
+        trim::QueueFamily *pExistingFamilies = obj->second.ObjectInfo.Device.pQueueFamilies;
+
+        obj->second.ObjectInfo.Device.pQueueFamilies =
+            VKTRACE_NEW_ARRAY(trim::QueueFamily, obj->second.ObjectInfo.Device.queueFamilyCount);
+        for (uint32_t family = 0; family < obj->second.ObjectInfo.Device.queueFamilyCount; family++) {
+            uint32_t count = pExistingFamilies[family].count;
+            obj->second.ObjectInfo.Device.pQueueFamilies[family].count = count;
+            obj->second.ObjectInfo.Device.pQueueFamilies[family].queues = VKTRACE_NEW_ARRAY(VkQueue, count);
+
+            for (uint32_t q = 0; q < count; q++) {
+                VkQueue queue = pExistingFamilies[family].queues[q];
+                obj->second.ObjectInfo.Device.pQueueFamilies[family].queues[q] = queue;
+            }
+        }
     }
 
     createdSurfaceKHRs = other.createdSurfaceKHRs;
@@ -446,6 +459,14 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
 
     createdPipelines = other.createdPipelines;
     for (auto obj = createdPipelines.begin(); obj != createdPipelines.end(); obj++) {
+        VkShaderModuleCreateInfo *pShaderModuleCreateInfos =
+            VKTRACE_NEW_ARRAY(VkShaderModuleCreateInfo, obj->second.ObjectInfo.Pipeline.shaderModuleCreateInfoCount);
+        for (uint32_t stageIndex = 0; stageIndex < obj->second.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; stageIndex++) {
+            trim::StateTracker::copy_VkShaderModuleCreateInfo(&pShaderModuleCreateInfos[stageIndex],
+                                                              obj->second.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex]);
+        }
+        obj->second.ObjectInfo.Pipeline.pShaderModuleCreateInfos = pShaderModuleCreateInfos;
+
         VkGraphicsPipelineCreateInfo *pCreateInfo = &obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
 
         // note: Using the same memory as both the destination and the source.
@@ -532,7 +553,10 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
 
     createdShaderModules = other.createdShaderModules;
     for (auto obj = createdShaderModules.begin(); obj != createdShaderModules.end(); obj++) {
-        COPY_PACKET(obj->second.ObjectInfo.ShaderModule.pCreatePacket);
+        uint32_t *pCodeCopy = static_cast<uint32_t *>(malloc(obj->second.ObjectInfo.ShaderModule.createInfo.codeSize));
+        memcpy(pCodeCopy, obj->second.ObjectInfo.ShaderModule.createInfo.pCode,
+               obj->second.ObjectInfo.ShaderModule.createInfo.codeSize);
+        obj->second.ObjectInfo.ShaderModule.createInfo.pCode = pCodeCopy;
     }
 
     createdPipelineLayouts = other.createdPipelineLayouts;
@@ -661,6 +685,35 @@ void StateTracker::delete_VkPipelineShaderStageCreateInfo(VkPipelineShaderStageC
             delete[] pStage->pSpecializationInfo->pMapEntries;
         }
         delete pStage->pSpecializationInfo;
+    }
+}
+
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+void StateTracker::copy_VkShaderModuleCreateInfo(VkShaderModuleCreateInfo *pDst, const VkShaderModuleCreateInfo &src) {
+    if (pDst != nullptr) {
+        *pDst = src;
+
+        if (src.pCode != nullptr) {
+            uint32_t *pCodeCopy = static_cast<uint32_t *>(malloc(src.codeSize));
+            memcpy(pCodeCopy, src.pCode, src.codeSize);
+            pDst->pCode = pCodeCopy;
+        }
+        pDst->pNext = nullptr;
+    }
+}
+
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+void StateTracker::delete_VkShaderModuleCreateInfo(VkShaderModuleCreateInfo *pModule) {
+    if (pModule != nullptr) {
+        if (pModule->pCode != nullptr) {
+            uint32_t *pCode = const_cast<uint32_t *>(pModule->pCode);
+            free(pCode);
+            pModule->pCode = nullptr;
+        }
+        pModule->codeSize = 0;
+        pModule->pNext = nullptr;
     }
 }
 
@@ -1237,8 +1290,6 @@ void StateTracker::remove_Instance(const VkInstance var) {
 void StateTracker::remove_PhysicalDevice(const VkPhysicalDevice var) {
     ObjectInfo *pInfo = get_PhysicalDevice(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket);
-        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceSupportKHRPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
@@ -1251,6 +1302,12 @@ void StateTracker::remove_Device(const VkDevice var) {
     if (pInfo != nullptr) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.Device.pCreatePacket);
     }
+
+    for (uint32_t family = 0; family < pInfo->ObjectInfo.Device.queueFamilyCount; family++) {
+        VKTRACE_DELETE(pInfo->ObjectInfo.Device.pQueueFamilies[family].queues);
+    }
+    VKTRACE_DELETE(pInfo->ObjectInfo.Device.pQueueFamilies);
+
     createdDevices.erase(var);
 }
 
@@ -1388,7 +1445,9 @@ void StateTracker::remove_RenderPass(const VkRenderPass var) {
 void StateTracker::remove_ShaderModule(const VkShaderModule var) {
     ObjectInfo *pInfo = get_ShaderModule(var);
     if (pInfo != nullptr) {
-        vktrace_delete_trace_packet(&pInfo->ObjectInfo.ShaderModule.pCreatePacket);
+        uint32_t *pCode = const_cast<uint32_t *>(pInfo->ObjectInfo.ShaderModule.createInfo.pCode);
+        free(pCode);
+        pInfo->ObjectInfo.ShaderModule.createInfo.pCode = nullptr;
     }
     createdShaderModules.erase(var);
 }
@@ -1404,6 +1463,12 @@ void StateTracker::remove_PipelineCache(const VkPipelineCache var) {
 void StateTracker::remove_Pipeline(const VkPipeline var) {
     ObjectInfo *pInfo = get_Pipeline(var);
     if (pInfo != nullptr) {
+        for (uint32_t i = 0; i < pInfo->ObjectInfo.Pipeline.shaderModuleCreateInfoCount; i++) {
+            delete_VkShaderModuleCreateInfo(&pInfo->ObjectInfo.Pipeline.pShaderModuleCreateInfos[i]);
+        }
+        VKTRACE_DELETE(pInfo->ObjectInfo.Pipeline.pShaderModuleCreateInfos);
+        pInfo->ObjectInfo.Pipeline.shaderModuleCreateInfoCount = 0;
+
         delete_VkPipelineShaderStageCreateInfo(&pInfo->ObjectInfo.Pipeline.computePipelineCreateInfo.stage);
 
         if (pInfo->ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages != nullptr) {

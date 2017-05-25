@@ -260,6 +260,44 @@ char* find_available_filename(const char* originalFilename, bool bForceOverwrite
     return pOutputFilename;
 }
 
+// Portability table - Table of trace file offsets to packets
+// we need to access to determine what memory index should be used
+// in vkAllocateMemory during trace playback. This table is appended
+// to the trace file.
+std::vector<size_t> portabilityTable;
+uint32_t lastPacketThreadId;
+uint64_t lastPacketIndex;
+uint64_t lastPacketEndTime;
+
+static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
+    vktrace_trace_packet_header hdr;
+    uint64_t one_64 = 1;
+
+    vktrace_LogVerbose("Post processing trace file");
+
+    // Add a word containing the size of the table to the table.
+    // This will be the last word in the file.
+    portabilityTable.push_back(portabilityTable.size());
+
+    // Append the table packet to the trace file.
+    hdr.size = sizeof(hdr) + portabilityTable.size() * sizeof(size_t);
+    hdr.global_packet_index = lastPacketIndex + 1;
+    hdr.tracer_id = VKTRACE_TID_VULKAN;
+    hdr.packet_id = VKTRACE_TPI_PORTABILITY_TABLE;
+    hdr.thread_id = lastPacketThreadId;
+    hdr.vktrace_begin_time = hdr.entrypoint_begin_time = hdr.entrypoint_end_time = hdr.vktrace_end_time = lastPacketEndTime;
+    hdr.next_buffers_offset = 0;
+    hdr.pBody = (uintptr_t)NULL;
+    if (0 == fseek(pTraceFile, 0, SEEK_END) && 1 == fwrite(&hdr, sizeof(hdr), 1, pTraceFile) &&
+        portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(size_t), portabilityTable.size(), pTraceFile)) {
+        // Set the flag in the file header that indicates the portability table has been written
+        if (0 == fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))
+            fwrite(&one_64, sizeof(uint64_t), 1, pTraceFile);
+    }
+    portabilityTable.clear();
+    vktrace_LogVerbose("Post processing of trace file completed");
+}
+
 // ------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[]) {
     uint64_t exitval = 0;
@@ -447,8 +485,7 @@ int main(int argc, char* argv[]) {
 
             // Sync wait for local threads and remote process to complete.
             if (g_settings.program != NULL) {
-                exitval = vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
-                if (exitval != 0) exit(exitval);
+                vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
             }
 
             vktrace_linux_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));
@@ -460,7 +497,7 @@ int main(int argc, char* argv[]) {
             exitval = MessageLoop();
 #endif
         }
-
+        vktrace_appendPortabilityPacket(procInfo.pTraceFile);
         vktrace_process_info_delete(&procInfo);
         serverIndex++;
     } while (g_settings.program == NULL);

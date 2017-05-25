@@ -159,7 +159,7 @@ typedef struct {
     VkLayerDispatchTable *device_dispatch_table;
     bool wsi_enabled;
     VkQueue queue;
-    VkCommandPool commandPool;
+    std::list<VkCommandPool> commandPools;
     VkPhysicalDevice physicalDevice;
     PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DeviceMapStruct;
@@ -414,7 +414,7 @@ static void writePPM(const char *filename, VkImage image1) {
     uint32_t const width = imageMap[image1]->imageExtent.width;
     uint32_t const height = imageMap[image1]->imageExtent.height;
     VkFormat const format = imageMap[image1]->format;
-    uint32_t const numChannels = vk_format_get_channel_count(format);
+    uint32_t const numChannels = FormatChannelCount(format);
 
     if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
@@ -487,34 +487,34 @@ static void writePPM(const char *filename, VkImage image1) {
         // does not support BLIT operations on 3 Channel rendertargets.
         // So format conversion gets costly.
         if (numChannels == 4) {
-            if (vk_format_is_unorm(format))
+            if (FormatIsUNorm(format))
                 destformat = VK_FORMAT_R8G8B8A8_UNORM;
-            else if (vk_format_is_srgb(format))
+            else if (FormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8A8_SRGB;
-            else if (vk_format_is_snorm(format))
+            else if (FormatIsSNorm(format))
                 destformat = VK_FORMAT_R8G8B8A8_SNORM;
-            else if (vk_format_is_uscaled(format))
+            else if (FormatIsUScaled(format))
                 destformat = VK_FORMAT_R8G8B8A8_USCALED;
-            else if (vk_format_is_sscaled(format))
+            else if (FormatIsSScaled(format))
                 destformat = VK_FORMAT_R8G8B8A8_SSCALED;
-            else if (vk_format_is_uint(format))
+            else if (FormatIsUInt(format))
                 destformat = VK_FORMAT_R8G8B8A8_UINT;
-            else if (vk_format_is_sint(format))
+            else if (FormatIsSInt(format))
                 destformat = VK_FORMAT_R8G8B8A8_SINT;
         } else { //numChannels 3
-            if (vk_format_is_unorm(format))
+            if (FormatIsUNorm(format))
                 destformat = VK_FORMAT_R8G8B8_UNORM;
-            else if (vk_format_is_srgb(format))
+            else if (FormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8_SRGB;
-            else if (vk_format_is_snorm(format))
+            else if (FormatIsSNorm(format))
                 destformat = VK_FORMAT_R8G8B8_SNORM;
-            else if (vk_format_is_uscaled(format))
+            else if (FormatIsUScaled(format))
                 destformat = VK_FORMAT_R8G8B8_USCALED;
-            else if (vk_format_is_sscaled(format))
+            else if (FormatIsSScaled(format))
                 destformat = VK_FORMAT_R8G8B8_SSCALED;
-            else if (vk_format_is_uint(format))
+            else if (FormatIsUInt(format))
                 destformat = VK_FORMAT_R8G8B8_UINT;
-            else if (vk_format_is_sint(format))
+            else if (FormatIsSInt(format))
                 destformat = VK_FORMAT_R8G8B8_SINT;
         }
     }
@@ -536,7 +536,7 @@ static void writePPM(const char *filename, VkImage image1) {
             destformat = VK_FORMAT_R8G8B8_UNORM;
     }
 
-    if ((vk_format_get_compatibility_class(destformat) != vk_format_get_compatibility_class(format))) {
+    if ((FormatCompatibilityClass(destformat) != FormatCompatibilityClass(format))) {
         assert(0);
         return;
     }
@@ -678,9 +678,16 @@ static void writePPM(const char *filename, VkImage image1) {
 
     // Set up the command buffer.  We get a command buffer from a pool we saved
     // in a hooked function, which would be the application's pool.
+    if (deviceMap[device]->commandPools.empty()) {
+        assert(!deviceMap[device]->commandPools.empty());
+        return;
+    }
+
+    VkCommandPool commandPool = deviceMap[device]->commandPools.front();
+
     const VkCommandBufferAllocateInfo allocCommandBufferInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
-                                                                deviceMap[device]->commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
-    data.commandPool = deviceMap[device]->commandPool;
+        commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
+    data.commandPool = commandPool;
     err = pTableDevice->AllocateCommandBuffers(device, &allocCommandBufferInfo, &data.commandBuffer);
     assert(!err);
     if (VK_SUCCESS != err) return;
@@ -1059,10 +1066,31 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(VkDevice device, const VkComman
     }
 
     // Create a mapping from a device to a commandPool
-    devMap->commandPool = *pCommandPool;
+    devMap->commandPools.push_front(*pCommandPool);
     loader_platform_thread_unlock_mutex(&globalLock);
     return result;
 }
+
+VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks *pAllocator) {
+    DeviceMapStruct *devMap = get_dev_info(device);
+    assert(devMap);
+    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    pDisp->DestroyCommandPool(device, commandPool, pAllocator);
+
+    // Remove the command pool from the map if we are taking screenshots.
+    loader_platform_thread_lock_mutex(&globalLock);
+    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
+        // No screenshots in the list to take
+        loader_platform_thread_unlock_mutex(&globalLock);
+        return;
+    }
+
+    // Remove the commandPool from the device mapping
+    devMap->commandPools.remove(commandPool);
+    loader_platform_thread_unlock_mutex(&globalLock);
+    return;
+}
+
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
                                                   const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
@@ -1207,16 +1235,16 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
 
             if (screenshotFrames.empty() && isEndOfScreenShotFrameRange(frameNumber, &screenShotFrameRange)) {
                 // Free all our maps since we are done with them.
-                for (auto it = swapchainMap.begin(); it != swapchainMap.end(); it++) {
-                    SwapchainMapStruct *swapchainMapElem = it->second;
+                for (auto swapchainIter = swapchainMap.begin(); swapchainIter != swapchainMap.end(); swapchainIter++) {
+                    SwapchainMapStruct *swapchainMapElem = swapchainIter->second;
                     delete swapchainMapElem;
                 }
-                for (auto it = imageMap.begin(); it != imageMap.end(); it++) {
-                    ImageMapStruct *imageMapElem = it->second;
+                for (auto imageIter = imageMap.begin(); imageIter != imageMap.end(); imageIter++) {
+                    ImageMapStruct *imageMapElem = imageIter->second;
                     delete imageMapElem;
                 }
-                for (auto it = physDeviceMap.begin(); it != physDeviceMap.end(); it++) {
-                    PhysDeviceMapStruct *physDeviceMapElem = it->second;
+                for (auto physDeviceIter = physDeviceMap.begin(); physDeviceIter != physDeviceMap.end(); physDeviceIter++) {
+                    PhysDeviceMapStruct *physDeviceMapElem = physDeviceIter->second;
                     delete physDeviceMapElem;
                 }
                 swapchainMap.clear();
@@ -1337,6 +1365,7 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
         {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
         {"vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
         {"vkCreateCommandPool", reinterpret_cast<PFN_vkVoidFunction>(CreateCommandPool)},
+        {"vkDestroyCommandPool", reinterpret_cast<PFN_vkVoidFunction>(DestroyCommandPool)},
         {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
     };
 

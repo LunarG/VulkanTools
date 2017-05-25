@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string>
 #if defined(ANDROID)
-#include <vector>
 #include <sstream>
 #include <android/log.h>
 #include <android_native_app_glue.h>
@@ -162,6 +161,8 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                     break;
                 case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
                     break;
+                case VKTRACE_TPI_PORTABILITY_TABLE:
+                    break;
                 // TODO processing code for all the above cases
                 default: {
                     if (packet->tracer_id >= VKTRACE_MAX_TRACER_ID_ARRAY_SIZE || packet->tracer_id == VKTRACE_TID_RESERVED) {
@@ -173,7 +174,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         vktrace_LogWarning("Tracer_id %d has no valid replayer.", packet->tracer_id);
                         continue;
                     }
-                    if (packet->packet_id >= VKTRACE_TPI_BEGIN_API_HERE) {
+                    if (packet->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
                         // replay the API packet
                         res = replayer->Replay(replayer->Interpret(packet));
                         if (res != VKTRACE_REPLAY_SUCCESS) {
@@ -288,6 +289,26 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 #endif  // ANDROID
 }
 
+static bool readPortabilityTable() {
+    size_t tableSize;
+    int originalFilePos;
+
+    originalFilePos = ftell(tracefp);
+    if (-1 == originalFilePos) return false;
+    if (0 != fseek(tracefp, -sizeof(size_t), SEEK_END)) return false;
+    if (1 != fread(&tableSize, sizeof(size_t), 1, tracefp)) return false;
+    if (tableSize == 0) return true;
+    if (0 != fseek(tracefp, -(tableSize + 1) * sizeof(size_t), SEEK_END)) return false;
+    portabilityTable.resize(tableSize);
+    if (tableSize != fread(&portabilityTable[0], sizeof(size_t), tableSize, tracefp)) return false;
+    if (0 != fseek(tracefp, originalFilePos, SEEK_SET)) return false;
+
+    vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
+    for (size_t i = 0; i < tableSize; i++) vktrace_LogDebug("   %p %ld", &portabilityTable[i], portabilityTable[i]);
+
+    return true;
+}
+
 int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
@@ -358,10 +379,10 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
     }
 
-    // open trace file and read in header
+    // open the trace file
     char* pTraceFile = replaySettings.pTraceFilePath;
     vktrace_trace_file_header fileHeader;
-    FILE* tracefp;
+    vktrace_trace_file_header* pFileHeader;  // File header, including gpuinfo structs
 
     if (pTraceFile != NULL && strlen(pTraceFile) > 0) {
         tracefp = fopen(pTraceFile, "rb");
@@ -383,6 +404,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    // read the header
     FileLike* traceFile = vktrace_FileLike_create_file(tracefp);
     if (vktrace_FileLike_ReadRaw(traceFile, &fileHeader, sizeof(fileHeader)) == false) {
         vktrace_LogError("Unable to read header from file.");
@@ -404,7 +426,51 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             "Trace file version %u is older than minimum compatible version (%u).\nYou'll need to make a new trace file, or use an "
             "older replayer.",
             fileHeader.trace_file_version, VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE);
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
     }
+
+    // Make sure magic number in trace file is valid and we have at least one gpuinfo struct
+    if (fileHeader.magic != VKTRACE_FILE_MAGIC || fileHeader.n_gpuinfo < 1) {
+        vktrace_LogError("%s does not appear to be a valid Vulkan trace file.", pTraceFile);
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // Allocate a new header that includes space for all gpuinfo structs
+    if (!(pFileHeader = (vktrace_trace_file_header*)vktrace_malloc(sizeof(vktrace_trace_file_header) +
+                                                                   fileHeader.n_gpuinfo * sizeof(struct_gpuinfo)))) {
+        vktrace_LogError("Can't allocate space for trace file header.");
+        if (pAllSettings != NULL) {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // Copy the file header, and append the gpuinfo array
+    *pFileHeader = fileHeader;
+    if (vktrace_FileLike_ReadRaw(traceFile, pFileHeader + 1, pFileHeader->n_gpuinfo * sizeof(struct_gpuinfo)) == false) {
+        vktrace_LogError("Unable to read header from file.");
+        if (pAllSettings != NULL) {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // read portability table if it exists
+    if (pFileHeader->portability_table_valid) pFileHeader->portability_table_valid = readPortabilityTable();
+    if (!pFileHeader->portability_table_valid)
+        vktrace_LogAlways("Trace file does not appear to contain portability table. Will not attempt to map memoryType indices.");
 
     // load any API specific driver libraries and init replayer objects
     uint8_t tidApi = VKTRACE_TID_RESERVED;
@@ -430,8 +496,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         replayer[i] = NULL;
     }
 
-    for (int i = 0; i < fileHeader.tracer_count; i++) {
-        uint8_t tracerId = fileHeader.tracer_id_array[i].id;
+    for (uint64_t i = 0; i < pFileHeader->tracer_count; i++) {
+        uint8_t tracerId = pFileHeader->tracer_id_array[i].id;
         tidApi = tracerId;
 
         const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);
@@ -462,7 +528,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             replayer[tracerId]->UpdateFromSettings(pAllSettings, numAllSettings);
 
             // Initialize the replayer
-            err = replayer[tracerId]->Initialize(&disp, &replaySettings);
+            err = replayer[tracerId]->Initialize(&disp, &replaySettings, pFileHeader);
             if (err) {
                 vktrace_LogError("Couldn't Initialize replayer for TracerId %d.", tracerId);
                 if (pAllSettings != NULL) {

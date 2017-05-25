@@ -99,10 +99,9 @@ void stop();
 
 // Outputs object-related trace packets to the trace file.
 void write_all_referenced_object_calls();
-void add_recorded_packet(vktrace_trace_packet_header *pHeader);
-void write_recorded_packets();
+void write_packet(vktrace_trace_packet_header *pHeader);
+void add_destroy_device_object_packets(VkDevice device);
 void write_destroy_packets();
-void delete_all_packets();
 
 void add_RenderPassCreateInfo(VkRenderPass renderPass, const VkRenderPassCreateInfo *pCreateInfo);
 uint32_t get_RenderPassVersion(VkRenderPass renderPass);
@@ -132,7 +131,7 @@ VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTyp
 
 // check if a memory type on the physical device is only DEVICE_LOCAL and not
 // HOST_VISIBLE
-bool IsMemoryDeviceOnly(VkDevice device, VkDeviceMemory memory);
+bool IsMemoryDeviceOnly(VkDeviceMemory memory);
 
 VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
 
@@ -149,6 +148,8 @@ ObjectInfo *get_Instance_objectInfo(VkInstance var);
 
 ObjectInfo &add_PhysicalDevice_object(VkPhysicalDevice var);
 ObjectInfo *get_PhysicalDevice_objectInfo(VkPhysicalDevice var);
+
+VkQueue get_DeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex);
 
 ObjectInfo &add_Device_object(VkDevice var);
 ObjectInfo *get_Device_objectInfo(VkDevice var);

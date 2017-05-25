@@ -20,9 +20,10 @@ ANDROID_DIR := $(SRC_DIR)/build-android
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := layer_utils
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_config.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_extension_utils.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_utils.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_config.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_extension_utils.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_utils.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_format_utils.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/layers \
@@ -32,10 +33,10 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_core_validation
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/core_validation/core_validation.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/core_validation/descriptor_sets.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/core_validation/buffer_validation.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/core_validation.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/descriptor_sets.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/buffer_validation.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
@@ -51,8 +52,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_parameter_validation
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/parameter_validation/parameter_validation.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/parameter_validation.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/layers \
@@ -66,8 +67,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_object_tracker
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/object_tracker/object_tracker.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/object_tracker.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
@@ -81,8 +82,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_threading
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/threading/threading.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/threading.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
@@ -96,8 +97,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_unique_objects
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/unique_objects/unique_objects.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/unique_objects.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
@@ -111,8 +112,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_swapchain
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/swapchain/swapchain.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/swapchain.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(LAYER_DIR)/include \
@@ -126,8 +127,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_api_dump
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/api_dump/api_dump.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/api_dump.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/layersvt \
@@ -140,9 +141,9 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_screenshot
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot_parsing.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/layersvt \
@@ -304,11 +305,12 @@ LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_settings.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_vkdisplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/vktrace/vktrace_replay/vkreplay_vkreplay.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/common/vulkan_wrapper.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/screenshot/screenshot_parsing.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot_parsing.cpp
 LOCAL_C_INCLUDES += $(SRC_DIR)/vktrace/include \
                     $(SRC_DIR)/include \
                     $(SRC_DIR)/include/vulkan \
                     $(SRC_DIR)/layers \
+                    $(SRC_DIR)/layersvt \
                     $(LAYER_DIR)/include \
                     $(SRC_DIR)/vktrace/vktrace_common \
                     $(SRC_DIR)/vktrace/vktrace_layer \

@@ -39,23 +39,16 @@ uint64_t vktrace_get_time();
 void vktrace_initialize_trace_packet_utils();
 void vktrace_deinitialize_trace_packet_utils();
 
-//=============================================================================
-// trace file header
+uint64_t get_endianess();
+uint64_t get_arch();
+uint64_t get_os();
 
-// there is a file header at the start of every trace file
-vktrace_trace_file_header* vktrace_create_trace_file_header();
-
-// deletes the trace file header and sets pointer to NULL
-void vktrace_delete_trace_file_header(vktrace_trace_file_header** ppHeader);
-
-static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo) {
+static FILE* vktrace_open_trace_file(vktrace_process_info* pProcInfo) {
     FILE* tracefp = NULL;
-    vktrace_trace_file_header* pHeader = NULL;
-    size_t items_written = 0;
     assert(pProcInfo != NULL);
 
     // open trace file
-    tracefp = fopen(pProcInfo->traceFilename, "wb");
+    tracefp = fopen(pProcInfo->traceFilename, "w+b");
     if (tracefp == NULL) {
         vktrace_LogError("Cannot open trace file for writing %s.", pProcInfo->traceFilename);
         return tracefp;
@@ -63,28 +56,9 @@ static FILE* vktrace_write_trace_file_header(vktrace_process_info* pProcInfo) {
         vktrace_LogDebug("Creating trace file: '%s'", pProcInfo->traceFilename);
     }
 
-    // populate header information
-    pHeader = vktrace_create_trace_file_header();
-    pHeader->first_packet_offset = sizeof(vktrace_trace_file_header);
-    pHeader->tracer_count = 1;
-
-    pHeader->tracer_id_array[0].id = pProcInfo->pCaptureThreads[0].tracerId;
-    pHeader->tracer_id_array[0].is_64_bit = (sizeof(intptr_t) == 8) ? 1 : 0;
-
     // create critical section
     vktrace_create_critical_section(&pProcInfo->traceFileCriticalSection);
 
-    // write header into file
-    vktrace_enter_critical_section(&pProcInfo->traceFileCriticalSection);
-    items_written = fwrite(pHeader, sizeof(vktrace_trace_file_header), 1, tracefp);
-    vktrace_leave_critical_section(&pProcInfo->traceFileCriticalSection);
-    if (items_written != 1) {
-        vktrace_LogError("Failed to write trace file header.");
-        vktrace_delete_critical_section(&pProcInfo->traceFileCriticalSection);
-        fclose(tracefp);
-        return NULL;
-    }
-    vktrace_delete_trace_file_header(&pHeader);
     return tracefp;
 };
 

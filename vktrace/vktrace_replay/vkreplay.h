@@ -29,7 +29,8 @@ extern void VkReplaySetLogLevel(VktraceLogLevel level);
 extern void VkReplayRegisterDbgMsgCallback(vktrace_replay::VKTRACE_DBG_MSG_CALLBACK_FUNCTION pCallback);
 extern vktrace_SettingGroup* VKTRACER_CDECL VkReplayGetSettings();
 extern void VKTRACER_CDECL VkReplayUpdateFromSettings(vktrace_SettingGroup* pSettingGroups, unsigned int numSettingGroups);
-extern int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::ReplayDisplay* pDisplay, vkreplayer_settings* pReplaySettings);
+extern int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::ReplayDisplay* pDisplay, vkreplayer_settings* pReplaySettings,
+                                             vktrace_trace_file_header* pFileheader);
 extern void VKTRACER_CDECL VkReplayDeinitialize();
 extern vktrace_trace_packet_header* VKTRACER_CDECL VkReplayInterpret(vktrace_trace_packet_header* pPacket);
 extern vktrace_replay::VKTRACE_REPLAY_RESULT VKTRACER_CDECL VkReplayReplay(vktrace_trace_packet_header* pPacket);

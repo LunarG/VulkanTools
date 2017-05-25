@@ -88,12 +88,13 @@ void VKTRACER_CDECL VkReplayUpdateFromSettings(vktrace_SettingGroup* pSettingGro
     vktrace_SettingGroup_Apply_Overrides(&g_vkReplaySettingGroup, pSettingGroups, numSettingGroups);
 }
 
-int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::ReplayDisplay* pDisplay, vkreplayer_settings* pReplaySettings) {
+int VKTRACER_CDECL VkReplayInitialize(vktrace_replay::ReplayDisplay* pDisplay, vkreplayer_settings* pReplaySettings,
+                                      vktrace_trace_file_header* pFileHeader) {
     try {
         if (pReplaySettings == NULL) {
-            g_pReplayer = new vkReplay(&s_defaultVkReplaySettings);
+            g_pReplayer = new vkReplay(&s_defaultVkReplaySettings, pFileHeader);
         } else {
-            g_pReplayer = new vkReplay(pReplaySettings);
+            g_pReplayer = new vkReplay(pReplaySettings, pFileHeader);
         }
     } catch (int e) {
         vktrace_LogError("Failed to create vkReplay, probably out of memory. Error %d", e);

@@ -25,8 +25,8 @@
 
 extern "C" {
 #include "vktrace_settings.h"
-#include "vkreplay_main.h"
 }
+#include "vkreplay_main.h"
 
 #include <vulkan/vulkan.h>
 

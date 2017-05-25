@@ -82,6 +82,10 @@ typedef class PageGuardMappedMemory {
 
     bool isMappedBlockChanged(uint64_t index, int useWhich);
 
+    bool isMappedBlockLoaded(uint64_t index);
+
+    void setMappedBlockLoaded(uint64_t index, bool bLoaded);
+
     uint64_t getMappedBlockSize(uint64_t index);
 
     uint64_t getMappedBlockOffset(uint64_t index);

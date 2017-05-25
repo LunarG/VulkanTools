@@ -160,6 +160,10 @@ if ($exitstatus -eq 0) {
 # if we passed all the checks, the test is good
 if ($exitstatus -eq 0) {
    write-host -background black -foreground green "[  PASSED  ] " -nonewline;
+
+    # cleanup
+    cd ..
+    rm -recurse -force vktracereplay_tmp  > $null 2> $null
 }
 
 write-host "vktracereplay.ps1: Vktrace trace/replay"
@@ -168,8 +172,5 @@ if ($exitstatus) {
     echo '1 FAILED TEST'
 }
 
-# cleanup
-cd ..
-rm -recurse -force vktracereplay_tmp  > $null 2> $null
 Remove-Item Env:\VK_LAYER_PATH
 exit $exitstatus

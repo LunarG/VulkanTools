@@ -19,6 +19,21 @@
 
 namespace trim {
 namespace generate {
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfacePresentModesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface, uint32_t *pPresentModeCount,
+                                                                       VkPresentModeKHR *pPresentModes);
+
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceSupportKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                  uint32_t queueFamilyIndex, VkSurfaceKHR surface,
+                                                                  VkBool32 *pSupported);
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceCapabilitiesKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                       VkSurfaceKHR surface,
+                                                                       VkSurfaceCapabilitiesKHR *pSurfaceCapabilities);
+
+vktrace_trace_packet_header *vkGetPhysicalDeviceSurfaceFormatsKHR(bool makeCall, VkPhysicalDevice physicalDevice,
+                                                                  VkSurfaceKHR surface, uint32_t *pSurfaceFormatCount,
+                                                                  VkSurfaceFormatKHR *pSurfaceFormats);
+
 vktrace_trace_packet_header *vkCreateCommandPool(bool makeCall, VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
                                                  const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool);
 
@@ -147,6 +162,9 @@ vktrace_trace_packet_header *vkDestroyPipelineCache(bool makeCall, VkDevice devi
 
 vktrace_trace_packet_header *vkDestroyPipelineLayout(bool makeCall, VkDevice device, VkPipelineLayout pipelineLayout,
                                                      const VkAllocationCallbacks *pAllocator);
+
+vktrace_trace_packet_header *vkCreateShaderModule(bool makeCall, VkDevice device, const VkShaderModuleCreateInfo *pCreateInfo,
+                                                  const VkAllocationCallbacks *pAllocator, VkShaderModule *pShaderModule);
 
 vktrace_trace_packet_header *vkDestroyShaderModule(bool makeCall, VkDevice device, VkShaderModule shaderModule,
                                                    const VkAllocationCallbacks *pAllocator);

@@ -330,8 +330,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateMemory* pPacket = NULL;
-    CREATE_TRACE_PACKET(vkAllocateMemory,
-                        get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory));
+    size_t packetSize = get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory) * 2;
+    CREATE_TRACE_PACKET(vkAllocateMemory, packetSize);
     result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkAllocateMemory(pHeader);
@@ -344,6 +344,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocateInfo));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pMemory));
+    *((VkDeviceMemory*)((PBYTE)pHeader + pHeader->size - (sizeof(VkDeviceMemory)))) = *pMemory;
+
     if (!g_trimEnabled) {
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
@@ -360,7 +362,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -400,7 +402,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
     pPacket->size = size;
     pPacket->flags = flags;
     if (ppData != NULL) {
-        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), *ppData);
+        // here we add data(type is void*) pointed by ppData to trace_packet, and put its address to pPacket->ppData
+        // after adding to trace_packet.
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*), ppData);
         vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData));
         add_data_to_mem_info(memory, size, offset, *ppData);
     }
@@ -417,7 +421,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
             pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -451,7 +455,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
             siz = (size_t)entry->rangeSize;
         }
     }
-    CREATE_TRACE_PACKET(vkUnmapMemory, siz);
+    // some title is not 4 byte aligned when call vkMapMemory, so we need
+    // ROUNDUP_TO_4 to avoid access invalid memory
+    CREATE_TRACE_PACKET(vkUnmapMemory, ROUNDUP_TO_4(siz));
     pHeader->vktrace_begin_time = trace_begin_time;
     pPacket = interpret_body_as_vkUnmapMemory(pHeader);
     if (siz) {
@@ -478,7 +484,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
             pInfo->ObjectInfo.DeviceMemory.mappedAddress = NULL;
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -528,7 +534,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
         vktrace_finalize_trace_packet(pHeader);
         trim::remove_DeviceMemory_object(memory);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -611,7 +617,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -738,7 +744,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
             // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -787,7 +793,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -823,7 +829,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(VkC
         trim::ClearBufferTransitions(commandBuffer);
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -874,7 +880,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(V
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -897,7 +903,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateDevice* pPacket = NULL;
-    uint32_t i;
 
     VkLayerDeviceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
@@ -927,11 +932,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     // remove the loader extended createInfo structure
     VkDeviceCreateInfo localCreateInfo;
     memcpy(&localCreateInfo, pCreateInfo, sizeof(localCreateInfo));
-    for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         char** ppName = (char**)&localCreateInfo.ppEnabledExtensionNames[i];
         *ppName = (char*)pCreateInfo->ppEnabledExtensionNames[i];
     }
-    for (i = 0; i < pCreateInfo->enabledLayerCount; i++) {
+    for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
         char** ppName = (char**)&localCreateInfo.ppEnabledLayerNames[i];
         *ppName = (char*)pCreateInfo->ppEnabledLayerNames[i];
     }
@@ -956,13 +961,37 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
         trim::ObjectInfo& info = trim::add_Device_object(*pDevice);
         info.belongsToPhysicalDevice = physicalDevice;
         info.ObjectInfo.Device.pCreatePacket = trim::copy_packet(pHeader);
+
+        trim::ObjectInfo* pPhysDevInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+        if (pPhysDevInfo != nullptr) {
+            info.ObjectInfo.Device.queueFamilyCount = pPhysDevInfo->ObjectInfo.PhysicalDevice.queueFamilyCount;
+            info.ObjectInfo.Device.pQueueFamilies = VKTRACE_NEW_ARRAY(trim::QueueFamily, info.ObjectInfo.Device.queueFamilyCount);
+            for (uint32_t family = 0; family < info.ObjectInfo.Device.queueFamilyCount; family++) {
+                info.ObjectInfo.Device.pQueueFamilies[family].count = 0;
+                info.ObjectInfo.Device.pQueueFamilies[family].queues = nullptr;
+            }
+
+            for (uint32_t i = 0; i < pCreateInfo->queueCreateInfoCount; i++) {
+                uint32_t queueFamilyIndex = pCreateInfo->pQueueCreateInfos[i].queueFamilyIndex;
+                uint32_t count = pCreateInfo->pQueueCreateInfos[i].queueCount;
+
+                info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].count = count;
+                info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues = VKTRACE_NEW_ARRAY(VkQueue, count);
+
+                for (uint32_t q = 0; q < count; q++) {
+                    VkQueue queue = VK_NULL_HANDLE;
+                    mdd(*pDevice)->devTable.GetDeviceQueue(*pDevice, queueFamilyIndex, q, &queue);
+                    info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues[q] = queue;
+                }
+            }
+        }
         if (pAllocator != NULL) {
             info.ObjectInfo.Device.pAllocator = pAllocator;
             trim::add_Allocator(pAllocator);
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1017,7 +1046,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(VkDe
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1038,6 +1067,72 @@ VkLayerInstanceCreateInfo* get_chain_info(const VkInstanceCreateInfo* pCreateInf
 extern "C" BOOL vktrace_pageguard_init_multi_threads_memcpy();
 extern "C" void vktrace_pageguard_done_multi_threads_memcpy();
 #endif
+
+static bool send_vk_trace_file_header(VkInstance instance) {
+    bool rval = false;
+    uint64_t packet_size;
+    vktrace_trace_file_header* pHeader;
+    uint32_t physDevCount;
+    size_t header_size;
+    VkPhysicalDevice* pPhysDevice;
+    VkPhysicalDeviceProperties devProperties;
+    struct_gpuinfo* pGpuinfo;
+
+    // Find out how many physical devices we have
+    if (VK_SUCCESS != mid(instance)->instTable.EnumeratePhysicalDevices(instance, &physDevCount, NULL) || physDevCount < 1) {
+        return false;
+    }
+    header_size = sizeof(vktrace_trace_file_header) + physDevCount * sizeof(struct_gpuinfo);
+    packet_size = header_size + sizeof(packet_size);
+    if (!(pPhysDevice = (VkPhysicalDevice*)vktrace_malloc(header_size + sizeof(VkPhysicalDevice) * physDevCount))) {
+        return false;
+    }
+    pHeader = (vktrace_trace_file_header*)((PBYTE)pPhysDevice + sizeof(VkPhysicalDevice) * physDevCount);
+    pGpuinfo = (struct_gpuinfo*)((PBYTE)pHeader + sizeof(vktrace_trace_file_header));
+
+    // Get information about all physical devices
+    if (VK_SUCCESS != mid(instance)->instTable.EnumeratePhysicalDevices(instance, &physDevCount, pPhysDevice)) {
+        goto cleanupAndReturn;
+    }
+
+    memset(pHeader, 0, header_size);
+    pHeader->trace_file_version = VKTRACE_TRACE_FILE_VERSION;
+    pHeader->magic = VKTRACE_FILE_MAGIC;
+    vktrace_gen_uuid(pHeader->uuid);
+    pHeader->first_packet_offset = header_size;
+    pHeader->tracer_count = 1;
+    pHeader->tracer_id_array[0].id = VKTRACE_TID_VULKAN;
+    pHeader->tracer_id_array[0].is_64_bit = (sizeof(intptr_t) == 8) ? 1 : 0;
+    pHeader->trace_start_time = vktrace_get_time();
+    pHeader->endianess = get_endianess();
+    pHeader->ptrsize = sizeof(void*);
+    pHeader->arch = get_arch();
+    pHeader->os = get_os();
+    pHeader->n_gpuinfo = physDevCount;
+    for (size_t i = 0; i < physDevCount; i++) {
+        mid(*(pPhysDevice + i))->instTable.GetPhysicalDeviceProperties(*(pPhysDevice + i), &devProperties);
+        pGpuinfo[i].gpu_id = ((uint64_t)devProperties.vendorID << 32) | (uint64_t)devProperties.deviceID;
+        pGpuinfo[i].gpu_drv_vers = (uint64_t)devProperties.driverVersion;
+    }
+
+    vktrace_FileLike_WriteRaw(vktrace_trace_get_trace_file(), &packet_size, sizeof(packet_size));
+    vktrace_FileLike_WriteRaw(vktrace_trace_get_trace_file(), pHeader, header_size);
+    rval = true;
+
+cleanupAndReturn:
+    vktrace_free(pPhysDevice);
+    return rval;
+}
+
+static void send_vk_api_version_packet() {
+    packet_vkApiVersion* pPacket;
+    vktrace_trace_packet_header* pHeader;
+    pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_vkApiVersion, sizeof(packet_vkApiVersion), 0);
+    pPacket = interpret_body_as_vkApiVersion(pHeader);
+    pPacket->version = VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    FINISH_TRACE_PACKET();
+}
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
@@ -1105,6 +1200,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
         }
     }
 
+    // If this is the first vkCreateInstance call, we haven't written the file header
+    // packets to the trace file yet because we need the instance to first be be created
+    // so we can query information needed for the file header.  So write the headers now.
+    // We can do this because vkCreateInstance must always be the first Vulkan API call.
+    static bool firstCreateInstance = true;
+    if (firstCreateInstance) {
+        if (!send_vk_trace_file_header(*pInstance)) vktrace_LogError("Failed to write trace file header");
+        send_vk_api_version_packet();
+        firstCreateInstance = false;
+    }
+
     // localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
     // The pNext pointer isn't getting marshalled into the trace buffer properly anyway, so
     // set it to NULL so that replay does not trip over it.
@@ -1135,7 +1241,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1149,6 +1255,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(VkInstance instance,
                                                                       const VkAllocationCallbacks* pAllocator) {
+    if (g_trimEnabled && g_trimIsInTrim) {
+        trim::stop();
+    }
+
     vktrace_trace_packet_header* pHeader;
     packet_vkDestroyInstance* pPacket = NULL;
     dispatch_key key = get_dispatch_key(instance);
@@ -1166,7 +1276,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(VkInstance
         vktrace_finalize_trace_packet(pHeader);
         trim::remove_Instance_object(instance);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1202,8 +1312,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(VkDev
                                        dependencyCount * sizeof(VkSubpassDependency), pCreateInfo->pDependencies);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pSubpasses),
                                        subpassCount * sizeof(VkSubpassDescription), pCreateInfo->pSubpasses);
-    uint32_t i;
-    for (i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
+    for (uint32_t i = 0; i < pPacket->pCreateInfo->subpassCount; i++) {
         VkSubpassDescription* pSubpass = (VkSubpassDescription*)&pPacket->pCreateInfo->pSubpasses[i];
         const VkSubpassDescription* pSp = &pCreateInfo->pSubpasses[i];
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pSubpass->pInputAttachments),
@@ -1264,7 +1373,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(VkDev
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1315,7 +1424,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1353,7 +1462,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerPr
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1396,13 +1505,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
         if (pInfo != NULL) {
             if (pQueueFamilyProperties == nullptr) {
                 pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = trim::copy_packet(pHeader);
+                pInfo->ObjectInfo.PhysicalDevice.queueFamilyCount = *pQueueFamilyPropertyCount;
             } else {
                 pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = trim::copy_packet(pHeader);
             }
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1463,7 +1573,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevic
             }
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1504,7 +1614,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1641,7 +1751,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
             }
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1659,13 +1769,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
     packet_vkUpdateDescriptorSets* pPacket = NULL;
     // begin custom code
     size_t arrayByteCount = 0;
-    size_t i;
 
-    for (i = 0; i < descriptorWriteCount; i++) {
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
         arrayByteCount += get_struct_chain_size(&pDescriptorWrites[i]);
     }
 
-    for (i = 0; i < descriptorCopyCount; i++) {
+    for (uint32_t i = 0; i < descriptorCopyCount; i++) {
         arrayByteCount += get_struct_chain_size(&pDescriptorCopies[i]);
     }
 
@@ -1681,7 +1790,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
     // begin custom code
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites),
                                        descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
-    for (i = 0; i < descriptorWriteCount; i++) {
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
         switch (pPacket->pDescriptorWrites[i].descriptorType) {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1789,7 +1898,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -1811,8 +1920,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     vktrace_trace_packet_header* pHeader;
     packet_vkQueueSubmit* pPacket = NULL;
     size_t arrayByteCount = 0;
-    uint32_t i = 0;
-    for (i = 0; i < submitCount; ++i) {
+    for (uint32_t i = 0; i < submitCount; ++i) {
         arrayByteCount += vk_size_vksubmitinfo(&pSubmits[i]);
     }
     CREATE_TRACE_PACKET(vkQueueSubmit, arrayByteCount);
@@ -1824,7 +1932,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     pPacket->fence = fence;
     pPacket->result = result;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits), submitCount * sizeof(VkSubmitInfo), pSubmits);
-    for (i = 0; i < submitCount; ++i) {
+    for (uint32_t i = 0; i < submitCount; ++i) {
         vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSubmits[i].pCommandBuffers),
                                            pPacket->pSubmits[i].commandBufferCount * sizeof(VkCommandBuffer),
                                            pSubmits[i].pCommandBuffers);
@@ -1860,6 +1968,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                 for (uint32_t i = 0; i < submitCount; i++) {
                     // Update attachment objects based on RenderPass transitions
                     for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++) {
+                        trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
+                        pCBInfo->ObjectInfo.CommandBuffer.submitQueue = queue;
+
                         // apply image transitions
                         std::list<trim::ImageTransition> imageTransitions =
                             trim::GetImageTransitions(pSubmits[i].pCommandBuffers[c]);
@@ -1906,8 +2017,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
-
             if (pSubmits != NULL && pSubmits->pCommandBuffers != NULL) {
                 for (uint32_t s = 0; s < submitCount; s++) {
                     for (uint32_t i = 0; i < pSubmits[s].commandBufferCount; i++) {
@@ -1915,6 +2024,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                     }
                 }
             }
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2005,7 +2115,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueu
         vktrace_finalize_trace_packet(pHeader);
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2066,7 +2176,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2141,7 +2251,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
 
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2171,7 +2281,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(VkCommand
         vktrace_finalize_trace_packet(pHeader);
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2209,12 +2319,32 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
         vktrace_finalize_trace_packet(pHeader);
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
     }
     return result;
+}
+
+// The accurate size of VkGraphicsPipelineCreateInfo can be got from
+// get_struct_chain_size, but it's needed to ROUNDUP_TO_4 because
+// VkGraphicsPipelineCreateInfo might include valid entry point name of shader.
+size_t get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(const VkGraphicsPipelineCreateInfo* pCreateInfos) {
+    size_t entryPointNameLength = 0;
+    size_t struct_size = get_struct_chain_size(pCreateInfos);
+
+    if ((pCreateInfos->stageCount) && (pCreateInfos->pStages != nullptr)) {
+        VkPipelineShaderStageCreateInfo* pStage = const_cast<VkPipelineShaderStageCreateInfo*>(pCreateInfos->pStages);
+        for (uint32_t i = 0; i < pCreateInfos->stageCount; i++) {
+            if (pStage->pName) {
+                entryPointNameLength = strlen(pStage->pName) + 1;
+                struct_size += ROUNDUP_TO_4(entryPointNameLength) - entryPointNameLength;
+            }
+            ++pStage;
+        }
+    }
+    return struct_size;
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache,
@@ -2226,9 +2356,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateGraphicsPipelines* pPacket = NULL;
     size_t total_size = 0;
-    uint32_t i;
-    for (i = 0; i < createInfoCount; i++) {
-        total_size += get_struct_chain_size((void*)&pCreateInfos[i]);
+    for (uint32_t i = 0; i < createInfoCount; i++) {
+        total_size += get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(&pCreateInfos[i]);
     }
     CREATE_TRACE_PACKET(vkCreateGraphicsPipelines,
                         total_size + sizeof(VkAllocationCallbacks) + createInfoCount * sizeof(VkPipeline));
@@ -2260,6 +2389,18 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
             info.ObjectInfo.Pipeline.isGraphicsPipeline = true;
             info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
             info.ObjectInfo.Pipeline.renderPassVersion = trim::get_RenderPassVersion(pCreateInfos[i].renderPass);
+            info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount = pCreateInfos[i].stageCount;
+            info.ObjectInfo.Pipeline.pShaderModuleCreateInfos =
+                VKTRACE_NEW_ARRAY(VkShaderModuleCreateInfo, pCreateInfos[i].stageCount);
+
+            for (uint32_t stageIndex = 0; stageIndex < info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount; stageIndex++) {
+                trim::ObjectInfo* pShaderModuleInfo = trim::get_ShaderModule_objectInfo(pCreateInfos[i].pStages[stageIndex].module);
+                if (pShaderModuleInfo != nullptr) {
+                    trim::StateTracker::copy_VkShaderModuleCreateInfo(
+                        &info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex],
+                        pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+                }
+            }
 
             trim::StateTracker::copy_VkGraphicsPipelineCreateInfo(&info.ObjectInfo.Pipeline.graphicsPipelineCreateInfo,
                                                                   pCreateInfos[i]);
@@ -2270,7 +2411,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2334,6 +2475,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             info.belongsToDevice = device;
             info.ObjectInfo.Pipeline.isGraphicsPipeline = false;
             info.ObjectInfo.Pipeline.pipelineCache = pipelineCache;
+            info.ObjectInfo.Pipeline.shaderModuleCreateInfoCount = 1;
+            info.ObjectInfo.Pipeline.pShaderModuleCreateInfos = VKTRACE_NEW(VkShaderModuleCreateInfo);
+
+            trim::ObjectInfo* pShaderModuleInfo = trim::get_ShaderModule_objectInfo(pCreateInfos[i].stage.module);
+            if (pShaderModuleInfo != nullptr) {
+                trim::StateTracker::copy_VkShaderModuleCreateInfo(&info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[0],
+                                                                  pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+            }
 
             trim::StateTracker::copy_VkComputePipelineCreateInfo(&info.ObjectInfo.Pipeline.computePipelineCreateInfo,
                                                                  pCreateInfos[i]);
@@ -2343,7 +2492,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             }
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2387,7 +2536,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2444,7 +2593,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2483,7 +2632,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkD
             }
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2508,6 +2657,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pImage), sizeof(VkImage), pImage);
     pPacket->result = result;
+
+    if (g_trimEnabled) {
+        VkImageCreateInfo* pCreateInfo = const_cast<VkImageCreateInfo*>(pPacket->pCreateInfo);
+        pCreateInfo->usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    }
+
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
@@ -2543,7 +2698,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2569,15 +2724,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
-        if (result == VK_SUCCESS && g_trimIsPreTrim) {
-            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
-            if (pInfo != NULL) {
-                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceSurfaceCapabilitiesKHRPacket = trim::copy_packet(pHeader);
-            }
-        }
-
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2617,9 +2765,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
-
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2661,7 +2808,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
         vktrace_finalize_trace_packet(pHeader);
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2703,7 +2850,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(VkD
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2761,7 +2908,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2821,7 +2968,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2885,7 +3032,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2910,7 +3057,7 @@ __HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physica
         vktrace_finalize_trace_packet(pHeader);
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2953,7 +3100,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXcbSurfaceKHR(Vk
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2981,7 +3128,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXcbPr
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -3023,7 +3170,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateXlibSurfaceKHR(V
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -3052,7 +3199,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -3095,7 +3242,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
         }
 
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -3138,7 +3285,7 @@ pSurfaceDescription);
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim)
         {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         }
         else
         {
@@ -3328,7 +3475,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAdd
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -3393,7 +3540,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
-            trim::add_recorded_packet(pHeader);
+            trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }

@@ -48,10 +48,14 @@ PageStatusArray::PageStatusArray(uint64_t pageCount) {
     activeReadArray = pReadArray[0];
     capturedReadArray = pReadArray[1];
 
+    firstTimeLoadArray = new uint8_t[ByteCount];
+    assert(firstTimeLoadArray);
+
     clearAll();
 }
 
 PageStatusArray::~PageStatusArray() {
+    delete[] firstTimeLoadArray;
     delete[] pChangedArray[0];
     delete[] pChangedArray[1];
     delete[] pReadArray[0];
@@ -88,6 +92,10 @@ bool PageStatusArray::getBlockReadArraySnapshot(uint64_t index) {
     return capturedReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
 }
 
+bool PageStatusArray::getBlockFirstTimeLoadArray(uint64_t index) {
+    return firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+}
+
 void PageStatusArray::setBlockChangedArray(uint64_t index, bool changed) {
     if (changed) {
         activeChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] |= (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
@@ -120,6 +128,14 @@ void PageStatusArray::setBlockReadArraySnapshot(uint64_t index, bool changed) {
     }
 }
 
+void PageStatusArray::setBlockFirstTimeLoadArray(uint64_t index, bool loaded) {
+    if (loaded) {
+        firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] |= (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    } else {
+        firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] &= ~((uint8_t)(1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE)));
+    }
+}
+
 void PageStatusArray::backupChangedArray() { toggleChangedArray(); }
 
 void PageStatusArray::backupReadArray() { toggleReadArray(); }
@@ -129,4 +145,5 @@ void PageStatusArray::clearAll() {
     memset(capturedChangesArray, 0, ByteCount);
     memset(activeReadArray, 0, ByteCount);
     memset(capturedReadArray, 0, ByteCount);
+    memset(firstTimeLoadArray, 0, ByteCount);
 }

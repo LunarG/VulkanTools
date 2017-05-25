@@ -150,8 +150,8 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         m_pReplayers[i] = NULL;
     }
 
-    for (int i = 0; i < pTraceFileInfo->header.tracer_count; i++) {
-        uint8_t tracerId = pTraceFileInfo->header.tracer_id_array[i].id;
+    for (int i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
+        uint8_t tracerId = pTraceFileInfo->pHeader->tracer_id_array[i].id;
         tidApi = tracerId;
 
         const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);
@@ -183,7 +183,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
                 m_pReplayers[tracerId]->UpdateFromSettings(pGlobalSettings, numGlobalSettings);
 
                 // Initialize the replayer
-                int err = m_pReplayers[tracerId]->Initialize(&disp, NULL);
+                int err = m_pReplayers[tracerId]->Initialize(&disp, NULL, pTraceFileInfo->pHeader);
                 if (err) {
                     emit OutputMessage(VKTRACE_LOG_ERROR, QString("Couldn't Initialize replayer for TracerId %1.").arg(tracerId));
                     return false;
@@ -199,7 +199,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         return false;
     }
 
-    if (bReplayerLoaded) {
+    if (ENABLE_REPLAY && bReplayerLoaded) {
         m_pActionRunToHere = new QAction("Play to here", NULL);
         connect(m_pActionRunToHere, SIGNAL(triggered()), this, SLOT(onPlayToHere()));
         m_pView->add_calltree_contextmenu_item(m_pActionRunToHere);
@@ -253,6 +253,8 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
                 break;
             case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
                 break;
+            case VKTRACE_TPI_PORTABILITY_TABLE:
+                break;
             // TODO processing code for all the above cases
             default: {
                 if (pCurPacket->pHeader->tracer_id >= VKTRACE_MAX_TRACER_ID_ARRAY_SIZE ||
@@ -270,7 +272,7 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
                         QString("Tracer_id %1 has no valid replayer.").arg(pCurPacket->pHeader->tracer_id).toStdString().c_str());
                     continue;
                 }
-                if (pCurPacket->pHeader->packet_id >= VKTRACE_TPI_BEGIN_API_HERE) {
+                if (pCurPacket->pHeader->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
                     // replay the API packet
                     try {
                         res = replayer->Replay(pCurPacket->pHeader);
@@ -442,7 +444,7 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
                 disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
             }
 
-            int err = m_pReplayers[i]->Initialize(&disp, NULL);
+            int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
             assert(err == 0);
         }
     }
