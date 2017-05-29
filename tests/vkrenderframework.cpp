@@ -259,8 +259,6 @@ void VkRenderFramework::InitRenderTarget(uint32_t targets, VkImageView *dsBindin
     VkClearValue clear = {};
     clear.color = m_clear_color;
 
-    VkImageView bind = {};
-
     for (uint32_t i = 0; i < targets; i++) {
         attachments.push_back(att);
 
@@ -286,8 +284,7 @@ void VkRenderFramework::InitRenderTarget(uint32_t targets, VkImageView *dsBindin
         }
 
         m_renderTargets.push_back(img);
-        bind = img->targetView(m_render_target_fmt);
-        bindings.push_back(bind);
+        bindings.push_back(img->targetView(m_render_target_fmt));
     }
 
     VkSubpassDescription subpass = {};
@@ -639,8 +636,6 @@ void VkImageObj::SetLayout(VkCommandBufferObj *cmd_buf, VkImageAspectFlags aspec
 }
 
 void VkImageObj::SetLayout(VkImageAspectFlags aspect, VkImageLayout image_layout) {
-    VkResult U_ASSERT_ONLY err;
-
     if (image_layout == m_descriptorImageInfo.imageLayout) {
         return;
     }
@@ -649,13 +644,9 @@ void VkImageObj::SetLayout(VkImageAspectFlags aspect, VkImageLayout image_layout
     VkCommandBufferObj cmd_buf(m_device, &pool);
 
     /* Build command buffer to set image layout in the driver */
-    err = cmd_buf.BeginCommandBuffer();
-    assert(!err);
-
+    cmd_buf.begin();
     SetLayout(&cmd_buf, aspect, image_layout);
-
-    err = cmd_buf.EndCommandBuffer();
-    assert(!err);
+    cmd_buf.end();
 
     cmd_buf.QueueCommandBuffer();
 }
@@ -765,15 +756,13 @@ void VkImageObj::init(const VkImageCreateInfo *create_info) {
 }
 
 VkResult VkImageObj::CopyImage(VkImageObj &src_image) {
-    VkResult U_ASSERT_ONLY err;
     VkImageLayout src_image_layout, dest_image_layout;
 
     VkCommandPoolObj pool(m_device, m_device->graphics_queue_node_index_);
     VkCommandBufferObj cmd_buf(m_device, &pool);
 
     /* Build command buffer to copy staging texture to usable texture */
-    err = cmd_buf.BeginCommandBuffer();
-    assert(!err);
+    cmd_buf.begin();
 
     /* TODO: Can we determine image aspect from image object? */
     src_image_layout = src_image.Layout();
@@ -805,8 +794,7 @@ VkResult VkImageObj::CopyImage(VkImageObj &src_image) {
 
     this->SetLayout(&cmd_buf, VK_IMAGE_ASPECT_COLOR_BIT, dest_image_layout);
 
-    err = cmd_buf.EndCommandBuffer();
-    assert(!err);
+    cmd_buf.end();
 
     cmd_buf.QueueCommandBuffer();
 
@@ -896,7 +884,6 @@ VkSamplerObj::VkSamplerObj(VkDeviceObj *device) {
  */
 VkConstantBufferObj::VkConstantBufferObj(VkDeviceObj *device, VkBufferUsageFlags usage) {
     m_device = device;
-    m_commandBuffer = 0;
 
     memset(&m_descriptorBufferInfo, 0, sizeof(m_descriptorBufferInfo));
 
@@ -906,26 +893,13 @@ VkConstantBufferObj::VkConstantBufferObj(VkDeviceObj *device, VkBufferUsageFlags
     }
 }
 
-VkConstantBufferObj::~VkConstantBufferObj() {
-    // TODO: Should we call QueueRemoveMemReference for the constant buffer
-    // memory here?
-    if (m_commandBuffer) {
-        delete m_commandBuffer;
-        delete m_commandPool;
-    }
-}
-
-VkConstantBufferObj::VkConstantBufferObj(VkDeviceObj *device, int constantCount, int constantSize, const void *data,
+VkConstantBufferObj::VkConstantBufferObj(VkDeviceObj *device, VkDeviceSize allocationSize, const void *data,
                                          VkBufferUsageFlags usage) {
     m_device = device;
-    m_commandBuffer = 0;
 
     memset(&m_descriptorBufferInfo, 0, sizeof(m_descriptorBufferInfo));
-    m_numVertices = constantCount;
-    m_stride = constantSize;
 
     VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    const VkDeviceSize allocationSize = static_cast<VkDeviceSize>(constantCount * constantSize);
 
     if ((VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT) == usage) {
         init_as_src_and_dst(*m_device, allocationSize, reqs);
@@ -946,125 +920,6 @@ VkConstantBufferObj::VkConstantBufferObj(VkDeviceObj *device, int constantCount,
     this->m_descriptorBufferInfo.offset = 0;
     this->m_descriptorBufferInfo.range = allocationSize;
 }
-
-void VkConstantBufferObj::Bind(VkCommandBuffer commandBuffer, VkDeviceSize offset, uint32_t binding) {
-    vkCmdBindVertexBuffers(commandBuffer, binding, 1, &handle(), &offset);
-}
-
-void VkConstantBufferObj::BufferMemoryBarrier(VkFlags srcAccessMask /*=
-            VK_ACCESS_HOST_WRITE_BIT |
-            VK_ACCESS_SHADER_WRITE_BIT |
-            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-            VK_MEMORY_OUTPUT_COPY_BIT*/,
-                                              VkFlags dstAccessMask /*=
-            VK_ACCESS_HOST_READ_BIT |
-            VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
-            VK_ACCESS_INDEX_READ_BIT |
-            VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-            VK_ACCESS_UNIFORM_READ_BIT |
-            VK_ACCESS_SHADER_READ_BIT |
-            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
-            VK_MEMORY_INPUT_COPY_BIT*/) {
-    VkResult err = VK_SUCCESS;
-
-    if (!m_commandBuffer) {
-        m_fence.init(*m_device, vk_testing::Fence::create_info());
-        m_commandPool = new VkCommandPoolObj(m_device, m_device->graphics_queue_node_index_);
-        m_commandBuffer = new VkCommandBufferObj(m_device, m_commandPool);
-    } else {
-        m_device->wait(m_fence);
-    }
-
-    // open the command buffer
-    VkCommandBufferBeginInfo cmd_buf_info = {};
-    VkCommandBufferInheritanceInfo cmd_buf_hinfo = {};
-    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    cmd_buf_info.pNext = NULL;
-    cmd_buf_info.flags = 0;
-    cmd_buf_info.pInheritanceInfo = &cmd_buf_hinfo;
-
-    cmd_buf_hinfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-    cmd_buf_hinfo.pNext = NULL;
-    cmd_buf_hinfo.renderPass = VK_NULL_HANDLE;
-    cmd_buf_hinfo.subpass = 0;
-    cmd_buf_hinfo.framebuffer = VK_NULL_HANDLE;
-    cmd_buf_hinfo.occlusionQueryEnable = VK_FALSE;
-    cmd_buf_hinfo.queryFlags = 0;
-    cmd_buf_hinfo.pipelineStatistics = 0;
-
-    err = m_commandBuffer->BeginCommandBuffer(&cmd_buf_info);
-    ASSERT_VK_SUCCESS(err);
-
-    VkBufferMemoryBarrier memory_barrier = buffer_memory_barrier(srcAccessMask, dstAccessMask, 0, m_numVertices * m_stride);
-    VkBufferMemoryBarrier *pmemory_barrier = &memory_barrier;
-
-    VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-    VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
-    // write barrier to the command buffer
-    m_commandBuffer->PipelineBarrier(src_stages, dest_stages, 0, 0, NULL, 1, pmemory_barrier, 0, NULL);
-
-    // finish recording the command buffer
-    err = m_commandBuffer->EndCommandBuffer();
-    ASSERT_VK_SUCCESS(err);
-
-    // submit the command buffer to the universal queue
-    VkCommandBuffer bufferArray[1];
-    bufferArray[0] = m_commandBuffer->GetBufferHandle();
-    VkSubmitInfo submit_info;
-    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submit_info.pNext = NULL;
-    submit_info.waitSemaphoreCount = 0;
-    submit_info.pWaitSemaphores = NULL;
-    submit_info.pWaitDstStageMask = NULL;
-    submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = bufferArray;
-    submit_info.signalSemaphoreCount = 0;
-    submit_info.pSignalSemaphores = NULL;
-
-    err = vkQueueSubmit(m_device->m_queue, 1, &submit_info, m_fence.handle());
-    ASSERT_VK_SUCCESS(err);
-}
-
-VkIndexBufferObj::VkIndexBufferObj(VkDeviceObj *device) : VkConstantBufferObj(device) {}
-
-void VkIndexBufferObj::CreateAndInitBuffer(int numIndexes, VkIndexType indexType, const void *data) {
-    m_numVertices = numIndexes;
-    m_indexType = indexType;
-    switch (indexType) {
-        case VK_INDEX_TYPE_UINT16:
-            m_stride = 2;
-            break;
-        case VK_INDEX_TYPE_UINT32:
-            m_stride = 4;
-            break;
-        default:
-            assert(!"unknown index type");
-            m_stride = 2;
-            break;
-    }
-
-    const size_t allocationSize = numIndexes * m_stride;
-    VkMemoryPropertyFlags reqs = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    init_as_src_and_dst(*m_device, allocationSize, reqs);
-
-    void *pData = memory().map();
-    memcpy(pData, data, allocationSize);
-    memory().unmap();
-
-    // set up the descriptor for the constant buffer
-    this->m_descriptorBufferInfo.buffer = handle();
-    this->m_descriptorBufferInfo.offset = 0;
-    this->m_descriptorBufferInfo.range = allocationSize;
-}
-
-void VkIndexBufferObj::Bind(VkCommandBuffer commandBuffer, VkDeviceSize offset) {
-    vkCmdBindIndexBuffer(commandBuffer, handle(), offset, m_indexType);
-}
-
-VkIndexType VkIndexBufferObj::GetIndexType() { return m_indexType; }
 
 VkPipelineShaderStageCreateInfo const & VkShaderObj::GetStageCreateInfo() const {
     return m_stage_info;
@@ -1107,8 +962,6 @@ VkPipelineObj::VkPipelineObj(VkDeviceObj *device) {
     m_vi_state.pVertexBindingDescriptions = VK_NULL_HANDLE;
     m_vi_state.vertexAttributeDescriptionCount = 0;
     m_vi_state.pVertexAttributeDescriptions = VK_NULL_HANDLE;
-
-    m_vertexBufferCount = 0;
 
     m_ia_state.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     m_ia_state.pNext = VK_NULL_HANDLE;
@@ -1295,23 +1148,6 @@ VkCommandBufferObj::VkCommandBufferObj(VkDeviceObj *device, VkCommandPoolObj *po
     init(*device, create_info);
 }
 
-VkCommandBuffer VkCommandBufferObj::GetBufferHandle() { return handle(); }
-
-VkResult VkCommandBufferObj::BeginCommandBuffer(VkCommandBufferBeginInfo *pInfo) {
-    begin(pInfo);
-    return VK_SUCCESS;
-}
-
-VkResult VkCommandBufferObj::BeginCommandBuffer() {
-    begin();
-    return VK_SUCCESS;
-}
-
-VkResult VkCommandBufferObj::EndCommandBuffer() {
-    end();
-    return VK_SUCCESS;
-}
-
 void VkCommandBufferObj::PipelineBarrier(VkPipelineStageFlags src_stages, VkPipelineStageFlags dest_stages,
                                          VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount,
                                          const VkMemoryBarrier *pMemoryBarriers, uint32_t bufferMemoryBarrierCount,
@@ -1458,35 +1294,9 @@ void VkCommandBufferObj::SetViewport(uint32_t firstViewport, uint32_t viewportCo
     vkCmdSetViewport(handle(), firstViewport, viewportCount, pViewports);
 }
 
-void VkCommandBufferObj::SetScissor(uint32_t firstScissor, uint32_t scissorCount, const VkRect2D *pScissors) {
-    vkCmdSetScissor(handle(), firstScissor, scissorCount, pScissors);
-}
-
-void VkCommandBufferObj::SetLineWidth(float lineWidth) { vkCmdSetLineWidth(handle(), lineWidth); }
-
-void VkCommandBufferObj::SetDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor) {
-    vkCmdSetDepthBias(handle(), depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
-}
-
-void VkCommandBufferObj::SetBlendConstants(const float blendConstants[4]) { vkCmdSetBlendConstants(handle(), blendConstants); }
-
-void VkCommandBufferObj::SetDepthBounds(float minDepthBounds, float maxDepthBounds) {
-    vkCmdSetDepthBounds(handle(), minDepthBounds, maxDepthBounds);
-}
-
-void VkCommandBufferObj::SetStencilReadMask(VkStencilFaceFlags faceMask, uint32_t compareMask) {
-    vkCmdSetStencilCompareMask(handle(), faceMask, compareMask);
-}
-
-void VkCommandBufferObj::SetStencilWriteMask(VkStencilFaceFlags faceMask, uint32_t writeMask) {
-    vkCmdSetStencilWriteMask(handle(), faceMask, writeMask);
-}
-
 void VkCommandBufferObj::SetStencilReference(VkStencilFaceFlags faceMask, uint32_t reference) {
     vkCmdSetStencilReference(handle(), faceMask, reference);
 }
-
-void VkCommandBufferObj::AddRenderTarget(VkImageObj *renderTarget) { m_renderTargets.push_back(renderTarget); }
 
 void VkCommandBufferObj::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset,
                                      uint32_t firstInstance) {
@@ -1531,20 +1341,12 @@ void VkCommandBufferObj::QueueCommandBuffer(VkFence fence, bool checkSuccess) {
     vkDeviceWaitIdle(m_device->device());
 }
 
-void VkCommandBufferObj::BindPipeline(VkPipelineObj &pipeline) {
-    vkCmdBindPipeline(handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.handle());
-}
-
 void VkCommandBufferObj::BindDescriptorSet(VkDescriptorSetObj &descriptorSet) {
     VkDescriptorSet set_obj = descriptorSet.GetDescriptorSetHandle();
 
     // bind pipeline, vertex buffer (descriptor set) and WVP (dynamic buffer
     // view)
     vkCmdBindDescriptorSets(handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, descriptorSet.GetPipelineLayout(), 0, 1, &set_obj, 0, NULL);
-}
-
-void VkCommandBufferObj::BindIndexBuffer(VkIndexBufferObj *indexBuffer, VkDeviceSize offset) {
-    vkCmdBindIndexBuffer(handle(), indexBuffer->handle(), offset, indexBuffer->GetIndexType());
 }
 
 void VkCommandBufferObj::BindVertexBuffer(VkConstantBufferObj *vertexBuffer, VkDeviceSize offset, uint32_t binding) {

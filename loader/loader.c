@@ -4477,8 +4477,7 @@ VkResult loader_validate_layers(const struct loader_instance *inst, const uint32
         prop = loader_get_layer_property(ppEnabledLayerNames[i], list);
         if (NULL == prop) {
             loader_log(inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "loader_validate_layers: Layer %d does not exist in "
-                       "the list of available layers",
+                       "loader_validate_layers: Layer %d does not exist in the list of available layers",
                        i);
             return VK_ERROR_LAYER_NOT_PRESENT;
         }
@@ -4491,33 +4490,42 @@ VkResult loader_validate_instance_extensions(const struct loader_instance *inst,
                                              const VkInstanceCreateInfo *pCreateInfo) {
     VkExtensionProperties *extension_prop;
     struct loader_layer_properties *layer_prop;
+    char *env_value;
+    bool check_if_known = true;
 
     for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         VkStringErrorFlags result = vk_string_validate(MaxLoaderStringLength, pCreateInfo->ppEnabledExtensionNames[i]);
         if (result != VK_STRING_ERROR_NONE) {
             loader_log(inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "loader_validate_instance_extensions: Instance "
-                       "ppEnabledExtensionNames contains "
+                       "loader_validate_instance_extensions: Instance ppEnabledExtensionNames contains "
                        "string that is too long or is badly formed");
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
 
-        // See if the extension is in the list of supported extensions
-        bool found = false;
-        for (uint32_t j = 0; LOADER_INSTANCE_EXTENSIONS[j] != NULL; j++) {
-            if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], LOADER_INSTANCE_EXTENSIONS[j]) == 0) {
-                found = true;
-                break;
-            }
+        // Check if a user wants to disable the instance extension filtering behavior
+        env_value = loader_getenv("VK_LOADER_DISABLE_INST_EXT_FILTER", inst);
+        if (NULL != env_value && atoi(env_value) != 0) {
+            check_if_known = false;
         }
+        loader_free_getenv(env_value, inst);
 
-        // If it isn't in the list, return an error
-        if (!found) {
-            loader_log(inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "loader_validate_instance_extensions: Extension %d "
-                       "not found in list of available extensions.",
-                       i);
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
+        if (check_if_known) {
+            // See if the extension is in the list of supported extensions
+            bool found = false;
+            for (uint32_t j = 0; LOADER_INSTANCE_EXTENSIONS[j] != NULL; j++) {
+                if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], LOADER_INSTANCE_EXTENSIONS[j]) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // If it isn't in the list, return an error
+            if (!found) {
+                loader_log(inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
+                           "loader_validate_instance_extensions: Extension %s not found in list of known instance extensions.",
+                           pCreateInfo->ppEnabledExtensionNames[i]);
+                return VK_ERROR_EXTENSION_NOT_PRESENT;
+            }
         }
 
         extension_prop = get_extension_property(pCreateInfo->ppEnabledExtensionNames[i], icd_exts);
@@ -4546,9 +4554,9 @@ VkResult loader_validate_instance_extensions(const struct loader_instance *inst,
         if (!extension_prop) {
             // Didn't find extension name in any of the global layers, error out
             loader_log(inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "loader_validate_instance_extensions: Extension %d "
-                       "not found in enabled layer list extensions.",
-                       i);
+                       "loader_validate_instance_extensions: Instance extension %s not supported by available ICDs or enabled "
+                       "layers.",
+                       pCreateInfo->ppEnabledExtensionNames[i]);
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
     }
@@ -4565,8 +4573,7 @@ VkResult loader_validate_device_extensions(struct loader_physical_device_tramp *
         VkStringErrorFlags result = vk_string_validate(MaxLoaderStringLength, pCreateInfo->ppEnabledExtensionNames[i]);
         if (result != VK_STRING_ERROR_NONE) {
             loader_log(phys_dev->this_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "loader_validate_device_extensions: Device "
-                       "ppEnabledExtensionNames contains "
+                       "loader_validate_device_extensions: Device ppEnabledExtensionNames contains "
                        "string that is too long or is badly formed");
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
@@ -4592,9 +4599,9 @@ VkResult loader_validate_device_extensions(struct loader_physical_device_tramp *
         if (!extension_prop) {
             // Didn't find extension name in any of the device layers, error out
             loader_log(phys_dev->this_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "loader_validate_device_extensions: Extension %d "
-                       "not found in enabled layer list extensions.",
-                       i);
+                       "loader_validate_device_extensions: Device extension %s not supported by selected physical device "
+                       "or enabled layers.",
+                       pCreateInfo->ppEnabledExtensionNames[i]);
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
     }
@@ -4625,8 +4632,7 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(const VkInstanceCreateI
     filtered_extension_names = loader_stack_alloc(pCreateInfo->enabledExtensionCount * sizeof(char *));
     if (!filtered_extension_names) {
         loader_log(ptr_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                   "terminator_CreateInstance: Failed create extension name "
-                   "array for %d extensions",
+                   "terminator_CreateInstance: Failed create extension name array for %d extensions",
                    pCreateInfo->enabledExtensionCount);
         res = VK_ERROR_OUT_OF_HOST_MEMORY;
         goto out;
@@ -4637,8 +4643,7 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateInstance(const VkInstanceCreateI
         icd_term = loader_icd_add(ptr_instance, &ptr_instance->icd_tramp_list.scanned_list[i]);
         if (NULL == icd_term) {
             loader_log(ptr_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
-                       "terminator_CreateInstance: Failed to add ICD %d to ICD "
-                       "trampoline list.",
+                       "terminator_CreateInstance: Failed to add ICD %d to ICD trampoline list.",
                        i);
             res = VK_ERROR_OUT_OF_HOST_MEMORY;
             goto out;
@@ -4906,6 +4911,65 @@ VKAPI_ATTR VkResult VKAPI_CALL terminator_CreateDevice(VkPhysicalDevice physical
 
             pPrev = pNext;
             pNext = (struct VkStructureHeader *)(pPrev->pNext);
+        }
+    }
+
+    // Handle loader emulation for structs that are not supported by the ICD:
+    // Presently, the emulation leaves the pNext chain alone. This means that the ICD will receive items in the chain which
+    // are not recognized by the ICD. If this causes the ICD to fail, then the items would have to be removed here. The current
+    // implementation does not remove them because copying the pNext chain would be impossible if the loader does not recognize
+    // the any of the struct types, as the loader would not know the size to allocate and copy.
+    if (icd_term->dispatch.GetPhysicalDeviceFeatures2KHR == NULL) {
+        const void *pNext = localCreateInfo.pNext;
+        while (pNext != NULL) {
+            switch (*(VkStructureType *)pNext) {
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR: {
+                    loader_log(icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                               "vkCreateDevice: Emulating handling of VkPhysicalDeviceFeatures2KHR in pNext chain for ICD \"%s\"",
+                               icd_term->scanned_icd->lib_name);
+                    const VkPhysicalDeviceFeatures2KHR *features = pNext;
+
+                    // Verify that VK_KHR_get_physical_device_properties2 is enabled
+                    if (icd_term->this_instance->enabled_known_extensions.khr_get_physical_device_properties2) {
+                        localCreateInfo.pEnabledFeatures = &features->features;
+                    }
+
+                    // Leave this item in the pNext chain for now
+
+                    pNext = features->pNext;
+                    break;
+                }
+
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX: {
+                    loader_log(
+                        icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                        "vkCreateDevice: Emulating handling of VkDeviceGroupDeviceCreateInfoKHX in pNext chain for ICD \"%s\"",
+                        icd_term->scanned_icd->lib_name);
+                    const VkDeviceGroupDeviceCreateInfoKHX *group_info = pNext;
+
+                    // The group must contain only this one device, since physical device groups aren't actually supported
+                    if (group_info->physicalDeviceCount != 1 || group_info->pPhysicalDevices[0] != physicalDevice) {
+                        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
+                                   "vkCreateDevice: Emulation failed to create device from device group info");
+                        res = VK_ERROR_INITIALIZATION_FAILED;
+                        goto out;
+                    }
+
+                    // Nothing needs to be done here because we're leaving the item in the pNext chain and because the spec states
+                    // that the physicalDevice argument must be included in the device group, and we've already checked that it is
+
+                    pNext = group_info->pNext;
+                    break;
+                }
+
+                // Multiview properties are also allowed, but since VK_KHX_multiview is a device extension, we'll just let the ICD
+                // handle that error when the user enables the extension here
+                default: {
+                    const struct VkStructureHeader *header = pNext;
+                    pNext = header->pNext;
+                    break;
+                }
+            }
         }
     }
 

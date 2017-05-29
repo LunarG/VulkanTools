@@ -143,7 +143,6 @@ class VkRenderFramework : public VkTestFramework {
 };
 
 class VkDescriptorSetObj;
-class VkIndexBufferObj;
 class VkConstantBufferObj;
 class VkPipelineObj;
 class VkDescriptorSetObj;
@@ -157,23 +156,15 @@ class VkCommandBufferObj : public vk_testing::CommandBuffer {
    public:
     VkCommandBufferObj(VkDeviceObj *device, VkCommandPoolObj *pool,
                        VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-    VkCommandBuffer GetBufferHandle();
-    VkResult BeginCommandBuffer();
-    VkResult BeginCommandBuffer(VkCommandBufferBeginInfo *pInfo);
-    VkResult EndCommandBuffer();
     void PipelineBarrier(VkPipelineStageFlags src_stages, VkPipelineStageFlags dest_stages, VkDependencyFlags dependencyFlags,
                          uint32_t memoryBarrierCount, const VkMemoryBarrier *pMemoryBarriers, uint32_t bufferMemoryBarrierCount,
                          const VkBufferMemoryBarrier *pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
                          const VkImageMemoryBarrier *pImageMemoryBarriers);
-    void AddRenderTarget(VkImageObj *renderTarget);
-    void AddDepthStencil();
     void ClearAllBuffers(VkClearColorValue clear_color, float depth_clear_color, uint32_t stencil_clear_color,
                          VkDepthStencilObj *depthStencilObj);
     void PrepareAttachments();
-    void BindPipeline(VkPipelineObj &pipeline);
     void BindDescriptorSet(VkDescriptorSetObj &descriptorSet);
     void BindVertexBuffer(VkConstantBufferObj *vertexBuffer, VkDeviceSize offset, uint32_t binding);
-    void BindIndexBuffer(VkIndexBufferObj *indexBuffer, VkDeviceSize offset);
     void BeginRenderPass(const VkRenderPassBeginInfo &info);
     void EndRenderPass();
     void FillBuffer(VkBuffer buffer, VkDeviceSize offset, VkDeviceSize fill_size, uint32_t data);
@@ -183,13 +174,6 @@ class VkCommandBufferObj : public vk_testing::CommandBuffer {
     void QueueCommandBuffer(bool checkSuccess = true);
     void QueueCommandBuffer(VkFence fence, bool checkSuccess = true);
     void SetViewport(uint32_t firstViewport, uint32_t viewportCount, const VkViewport *pViewports);
-    void SetScissor(uint32_t firstScissor, uint32_t scissorCount, const VkRect2D *pScissors);
-    void SetLineWidth(float lineWidth);
-    void SetDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor);
-    void SetBlendConstants(const float blendConstants[4]);
-    void SetDepthBounds(float minDepthBounds, float maxDepthBounds);
-    void SetStencilReadMask(VkStencilFaceFlags faceMask, uint32_t compareMask);
-    void SetStencilWriteMask(VkStencilFaceFlags faceMask, uint32_t writeMask);
     void SetStencilReference(VkStencilFaceFlags faceMask, uint32_t reference);
     void UpdateBuffer(VkBuffer buffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void *pData);
     void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout,
@@ -210,41 +194,13 @@ class VkConstantBufferObj : public vk_testing::Buffer {
    public:
     VkConstantBufferObj(VkDeviceObj *device,
                         VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-    VkConstantBufferObj(VkDeviceObj *device, int constantCount, int constantSize, const void *data,
+    VkConstantBufferObj(VkDeviceObj *device, VkDeviceSize size, const void *data,
                         VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-    ~VkConstantBufferObj();
-    void BufferMemoryBarrier(VkFlags srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_SHADER_WRITE_BIT |
-                                                     VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                                                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-                             VkFlags dstAccessMask = VK_ACCESS_HOST_READ_BIT | VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
-                                                     VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-                                                     VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_SHADER_READ_BIT |
-                                                     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_MEMORY_READ_BIT);
-
-    void Bind(VkCommandBuffer commandBuffer, VkDeviceSize offset, uint32_t binding);
 
     VkDescriptorBufferInfo m_descriptorBufferInfo;
 
    protected:
     VkDeviceObj *m_device;
-    vk_testing::BufferView m_bufferView;
-    int m_numVertices;
-    int m_stride;
-    VkCommandPoolObj *m_commandPool;
-    VkCommandBufferObj *m_commandBuffer;
-    vk_testing::Fence m_fence;
-};
-
-class VkIndexBufferObj : public VkConstantBufferObj {
-   public:
-    VkIndexBufferObj(VkDeviceObj *device);
-    void CreateAndInitBuffer(int numIndexes, VkIndexType dataFormat, const void *data);
-    void Bind(VkCommandBuffer commandBuffer, VkDeviceSize offset);
-    VkIndexType GetIndexType();
-
-   protected:
-    VkIndexType m_indexType;
 };
 
 class VkRenderpassObj {
@@ -331,7 +287,6 @@ class VkTextureObj : public VkImageObj {
    protected:
     VkDeviceObj *m_device;
     vk_testing::ImageView m_textureView;
-    VkDeviceSize m_rowPitch;
 };
 
 class VkDepthStencilObj : public VkImageObj {
@@ -370,9 +325,8 @@ class VkDescriptorSetObj : public vk_testing::DescriptorPool {
 
     VkDescriptorSet GetDescriptorSetHandle() const;
     VkPipelineLayout GetPipelineLayout() const;
-    int GetTypeCounts() { return m_type_counts.size(); }
 
-   protected:
+  protected:
     VkDeviceObj *m_device;
     std::vector<VkDescriptorSetLayoutBinding> m_layout_bindings;
     std::map<VkDescriptorType, int> m_type_counts;
@@ -441,9 +395,7 @@ class VkPipelineObj : public vk_testing::Pipeline {
     vector<VkRect2D> m_scissors;
     VkDeviceObj *m_device;
     vector<VkPipelineShaderStageCreateInfo> m_shaderStages;
-    vector<int> m_vertexBufferBindings;
     vector<VkPipelineColorBlendAttachmentState> m_colorAttachments;
-    int m_vertexBufferCount;
 };
 
 #endif  // VKRENDERFRAMEWORK_H
