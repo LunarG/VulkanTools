@@ -451,23 +451,4 @@ static void add_VkComputePipelineCreateInfos_to_trace_packet(vktrace_trace_packe
     return;
 }
 
-static VKTRACER_LEAVE _Unload(void) {
-    // only do the hooking and networking if the tracer is NOT loaded by vktrace
-    if (vktrace_is_loaded_into_vktrace() == FALSE) {
-        if (vktrace_trace_get_trace_file() != NULL) {
-            vktrace_trace_packet_header *pHeader =
-                vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_MARKER_TERMINATE_PROCESS, 0, 0);
-            vktrace_finalize_trace_packet(pHeader);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-            vktrace_free(vktrace_trace_get_trace_file());
-            vktrace_trace_set_trace_file(NULL);
-            vktrace_deinitialize_trace_packet_utils();
-            trim::deinitialize();
-        }
-        if (gMessageStream != NULL) {
-            vktrace_MessageStream_destroy(&gMessageStream);
-        }
-        vktrace_LogVerbose("vktrace_lib library unloaded from PID %d", vktrace_get_pid());
-    }
-}
+VKTRACER_LEAVE _Unload(void);
