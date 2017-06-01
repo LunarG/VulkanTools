@@ -24,7 +24,6 @@
 #include "vktrace_interconnect.h"
 #include "vktrace_vk_vk.h"
 #include "vktrace_lib_trim.h"
-#include "vktrace_lib_helpers.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -25,7 +25,6 @@
 #include "vktrace_vk_vk.h"
 #include "vulkan/vk_layer.h"
 #include "vktrace_platform.h"
-#include "vktrace_lib_trim.h"
 
 #include "vk_struct_size_helper.h"
 
