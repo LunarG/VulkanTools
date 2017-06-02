@@ -449,3 +449,5 @@ static void add_VkComputePipelineCreateInfos_to_trace_packet(vktrace_trace_packe
     }
     return;
 }
+
+VKTRACER_LEAVE _Unload(void);
