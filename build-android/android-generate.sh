@@ -37,6 +37,7 @@ mkdir -p generated/include generated/common
 
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp )
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_html.h )
 
 # vktrace
 ( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk.h)

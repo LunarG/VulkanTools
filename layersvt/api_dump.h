@@ -64,7 +64,7 @@ class ApiDumpSettings {
 
         // Get the remaining settings
         output_format = readFormatOption("lunarg_api_dump.output_format", ApiDumpFormat::Text);
-        
+
         show_params = readBoolOption("lunarg_api_dump.detailed", true);
         show_address = !readBoolOption("lunarg_api_dump.no_addr", false);
         should_flush = readBoolOption("lunarg_api_dump.flush", true);
@@ -74,7 +74,7 @@ class ApiDumpSettings {
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
         use_spaces = readBoolOption("lunarg_api_dump.use_spaces", true);
         show_shader = readBoolOption("lunarg_api_dump.show_shader", false);
-        
+
         // Generate HTML heading if specified
         if (output_format == ApiDumpFormat::Html) {
             // Find the layer path
@@ -106,9 +106,10 @@ class ApiDumpSettings {
                 layer_path = "";
             }
 #endif
-            
+
+            // clang-format off
             // Insert html heading
-            stream() << 
+            stream() <<
                 "<!doctype html>"
                 "<html>"
                     "<head>"
@@ -173,15 +174,20 @@ class ApiDumpSettings {
                         "details>*:not(summary) {"
                             "margin-left: 22px;"
                         "}"
+                        "summary:only-child {"
+                          "display: block;"
+                          "padding-left: 15px;"
+                        "}"
                         "details>summary:only-child::-webkit-details-marker {"
                             "display: none;"
+                            "padding-left: 15px;"
                         "}"
                         ".var, .type, .val {"
                             "display: inline;"
+                            "margin: 0 6px;"
                         "}"
                         ".type {"
                             "color: #acf;"
-                            "margin: 0 12px;"
                         "}"
                         ".val {"
                             "color: #afa;"
@@ -194,10 +200,11 @@ class ApiDumpSettings {
                     "</head>"
                     "<body>"
                         "<div id='header'>"
-                            "<img src='" << layer_path << "/images/lunarg.png' />"
+                            "<img src='https://lunarg.com/wp-content/uploads/2016/02/LunarG-wReg-150.png' />"
                             "<h1>Vulkan API Dump</h1>"
                         "</div>"
                         "<div id='wrapper'>";
+            // clang-format on
         }
     }
 
@@ -243,6 +250,8 @@ class ApiDumpSettings {
 
     inline bool showShader() const { return show_shader; }
 
+    inline bool showType() const { return show_type; }
+
     inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
    private:
@@ -265,7 +274,7 @@ class ApiDumpSettings {
             return value;
         }
     }
-    
+
     inline static ApiDumpFormat readFormatOption(const char *option, ApiDumpFormat default_value) {
         const char *string_option = getLayerOption(option);
         if (strcmp(string_option, "Text") == 0)
@@ -495,10 +504,12 @@ inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, 
 
 //==================================== Html Backend Helpers ======================================//
 
-inline std::ostream &dump_html_nametype(std::ostream &stream, const char *name, const char *type) {
-    return stream << "<div class='var'>" << name 
-                  << "</div><div class='type'>" << type
-                  << "</div>";
+inline std::ostream &dump_html_nametype(std::ostream &stream, bool showType, const char *name, const char *type) {
+    stream << "<div class='var'>" << name << "</div>";
+    if (showType) {
+        stream << "<div class='type'>" << type << "</div>";
+    }
+    return stream;
 }
 
 template <typename T>
@@ -507,13 +518,16 @@ dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings,
                 const char *type_string, const char *child_type,
                 const char *name, int indents,
                 std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), name, type_string);
-    settings.stream() << "<div class='val'>";
     if (array == NULL) {
+        settings.stream() << "<details class='data'><summary>";
+        dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
+        settings.stream() << "<div class='val'>";
         settings.stream() << "NULL</div></summary></details>";
         return;
     }
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
+    settings.stream() << "<div class='val'>";
     if (settings.showAddress())
         settings.stream() << (void *)array << "\n";
     else
@@ -535,13 +549,16 @@ inline void dump_html_array(
     const char *type_string, const char *child_type, const char *name,
     int indents,
     std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), name, type_string);
-    settings.stream() << "<div class='val'>";
     if (array == NULL) {
+        settings.stream() << "<details class='data'><summary>";
+        dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
+        settings.stream() << "<div class='val'>";
         settings.stream() << "NULL</div></summary></details>";
         return;
     }
+    settings.stream() << "<details class='data'><summary>";
+    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
+    settings.stream() << "<div class='val'>";
     if (settings.showAddress())
         settings.stream() << (void *)array << "\n";
     else
@@ -564,7 +581,7 @@ inline void dump_html_pointer(
     std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
     if (pointer == NULL) {
         settings.stream() << "<details class='data'><summary>";
-        dump_html_nametype(settings.stream(), name, type_string);
+        dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
         settings.stream() << "<div class='val'>NULL</div></summary></details>";
     } else {
         dump_html_value(*pointer, settings, type_string, name, indents, dump);
@@ -578,7 +595,7 @@ inline void dump_html_pointer(
     std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
     if (pointer == NULL) {
         settings.stream() << "<details class='data'><summary>";
-        dump_html_nametype(settings.stream(), name, type_string);
+        dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
         settings.stream() << "<div class='val'>NULL</div></summary></details>";
     } else {
         dump_html_value(*pointer, settings, type_string, name, indents, dump);
@@ -591,7 +608,7 @@ dump_html_value(const T object, const ApiDumpSettings &settings,
                 const char *type_string, const char *name, int indents,
                 std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
     settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), name, type_string);
+    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
     dump(object, settings, indents);
     settings.stream() << "</details>";
 }
@@ -602,7 +619,7 @@ inline void dump_html_value(
     const char *name, int indents,
     std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
     settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), name, type_string);
+    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
     dump(object, settings, indents);
     settings.stream() << "</details>";
 }
@@ -611,7 +628,7 @@ inline void dump_html_special(
     const char *text, const ApiDumpSettings &settings, const char *type_string,
     const char *name, int indents) {
     settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), name, type_string);
+    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
     settings.stream() << "<div class='val'>" << text << "</div></summary></details>";
 }
 
@@ -654,4 +671,3 @@ inline std::ostream &dump_html_int(int object, const ApiDumpSettings &settings, 
     settings.stream() << object;
     return settings.stream() << "</div>";
 }
-
