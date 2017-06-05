@@ -33,6 +33,7 @@ py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_obj
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_layer_dispatch_table.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_html.h
 
 REM vktrace
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk.h

@@ -61,11 +61,11 @@ COMMON_CODEGEN = """
  *
  * Author: Lenny Komow <lenny@lunarg.com>
  */
- 
+
 /*
  * This file is generated from the Khronos Vulkan XML API Registry.
  */
- 
+
 #include "api_dump_text.h"
 #include "api_dump_html.h"
 
@@ -121,7 +121,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     if(fpCreateInstance == NULL) {{
         return VK_ERROR_INITIALIZATION_FAILED;
     }}
-    
+
     // Call the function and create the dispatch table
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
     {funcReturn} result = fpCreateInstance({funcNamedParams});
@@ -142,7 +142,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dispatch_key key = get_dispatch_key({funcDispatchParam});
     instance_dispatch_table({funcDispatchParam})->DestroyInstance({funcNamedParams});
     destroy_instance_dispatch_table(key);
-    
+
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
@@ -160,14 +160,14 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     if(fpCreateDevice == NULL) {{
         return VK_ERROR_INITIALIZATION_FAILED;
     }}
-    
+
     // Call the function and create the dispatch table
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
     {funcReturn} result = fpCreateDevice({funcNamedParams});
     if(result == VK_SUCCESS) {{
         initDeviceTable(*pDevice, fpGetDeviceProcAddr);
     }}
-    
+
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
@@ -181,7 +181,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dispatch_key key = get_dispatch_key({funcDispatchParam});
     device_dispatch_table({funcDispatchParam})->DestroyDevice({funcNamedParams});
     destroy_device_dispatch_table(key);
-    
+
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
@@ -205,7 +205,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
             "layer: api_dump",
         }}
     }};
-    
+
     return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
 }}
 @end function
@@ -221,7 +221,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
             "layer: api_dump",
         }}
     }};
-    
+
     return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
 }}
 @end function
@@ -280,7 +280,7 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if(strcmp(pName, "{funcName}") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>({funcName});
     @end function
-    
+
     if(instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
         return NULL;
     return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
@@ -292,7 +292,7 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
     if(strcmp(pName, "{funcName}") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>({funcName});
     @end function
-    
+
     if(device_dispatch_table(device)->GetDeviceProcAddr == NULL)
         return NULL;
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
@@ -318,13 +318,13 @@ TEXT_CODEGEN = """
  *
  * Author: Lenny Komow <lenny@lunarg.com>
  */
- 
+
 /*
  * This file is generated from the Khronos Vulkan XML API Registry.
  */
- 
+
 #pragma once
- 
+
 #include "api_dump.h"
 
 @foreach struct
@@ -451,12 +451,12 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
         settings.stream() << &object << ":\\n";
     else
         settings.stream() << "address:\\n";
-    
+
     @foreach member
     @if('{memCondition}' != 'None')
     if({memCondition})
     @end if
-    
+
     @if({memPtrLevel} == 0)
     dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
     @end if
@@ -469,7 +469,7 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
     dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
     @end if
-    
+
     @if('{memCondition}' != 'None')
     else
         dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
@@ -486,12 +486,12 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
         settings.stream() << &object << ":\\n";
     else
         settings.stream() << "address:\\n";
-        
+
     @foreach member
     @if('{memCondition}' != 'None')
     if({memCondition})
     @end if
-    
+
     @if({memPtrLevel} == 0)
     dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
     @end if
@@ -510,7 +510,7 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     else
         dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
-    
+
     @if('{memCondition}' != 'None')
     else
         dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
@@ -529,7 +529,7 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
         settings.stream() << &object << " (Union):\\n";
     else
         settings.stream() << "address (Union):\\n";
-        
+
     @foreach choice
     @if({chcPtrLevel} == 0)
     dump_text_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID});
@@ -554,7 +554,7 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-    
+
     if(settings.showParams())
     {{
         @foreach parameter
@@ -570,7 +570,7 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
         @end parameter
     }}
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    
+
     return settings.stream();
 }}
 @end function
@@ -581,7 +581,7 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
-    
+
     if(settings.showParams())
     {{
         @foreach parameter
@@ -597,7 +597,7 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         @end parameter
     }}
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    
+
     return settings.stream();
 }}
 @end function
@@ -627,13 +627,13 @@ HTML_CODEGEN = """
  * Author: Lenny Komow <lenny@lunarg.com>
  * Author: Joey Bzdek <joey@lunarg.com>
  */
- 
+
 /*
  * This file is generated from the Khronos Vulkan XML API Registry.
  */
- 
+
 #pragma once
- 
+
 #include "api_dump.h"
 
 @foreach struct
@@ -740,7 +740,7 @@ inline std::ostream& dump_html_{flagName}({flagName} object, const ApiDumpSettin
 @foreach flag where('{flagEnum}' == 'None')
 inline std::ostream& dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "<div class=\'val\'>" 
+    return settings.stream() << "<div class=\'val\'>"
                              << object << "</div></summary>";
 }}
 @end flag
@@ -770,13 +770,13 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     else
         settings.stream() << "address\\n";
     settings.stream() << "</div></summary>";
-    
-    
+
+
     @foreach member
     @if('{memCondition}' != 'None')
     if({memCondition})
     @end if
-    
+
     @if({memPtrLevel} == 0)
     dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
     @end if
@@ -789,7 +789,7 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
     dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID});
     @end if
-    
+
     @if('{memCondition}' != 'None')
     else
         dump_html_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
@@ -808,12 +808,12 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     else
         settings.stream() << "address\\n";
     settings.stream() << "</div></summary>";
-        
+
     @foreach member
     @if('{memCondition}' != 'None')
     if({memCondition})
     @end if
-    
+
     @if({memPtrLevel} == 0)
     dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
     @end if
@@ -832,7 +832,7 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     else
         dump_html_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
-    
+
     @if('{memCondition}' != 'None')
     else
         dump_html_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
@@ -853,7 +853,7 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
     else
         settings.stream() << "address (Union):\\n";
     settings.stream() << "</div></summary>";
-        
+
     @foreach choice
     @if({chcPtrLevel} == 0)
     dump_html_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_html_{chcTypeID});
@@ -887,10 +887,10 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
     }}
     settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
     settings.stream() << "<details class='fn'><summary>";
-    dump_html_nametype(settings.stream(), "{funcName}({funcNamedParams})", "{funcReturn}");
+    dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
     dump_html_{funcReturn}(result, settings, 0);
     settings.stream() << "</summary>";
-    
+
     if(settings.showParams())
     {{
         @foreach parameter
@@ -906,7 +906,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
         @end parameter
     }}
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    
+
     return settings.stream() << "</details>";
 }}
 @end function
@@ -925,9 +925,9 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     }}
     settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
     settings.stream() << "<details class='fn'><summary>";
-    dump_html_nametype(settings.stream(), "{funcName}({funcNamedParams})", "{funcReturn}");
+    dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
     settings.stream() << "</summary>";
-    
+
     if(settings.showParams())
     {{
         @foreach parameter
@@ -943,7 +943,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         @end parameter
     }}
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-    
+
     return settings.stream() << "</details>";
 }}
 @end function
@@ -990,7 +990,7 @@ VALIDITY_CHECKS = {
 }
 
 class ApiDumpGeneratorOptions(gen.GeneratorOptions):
-    
+
     def __init__(self,
                  input = None,
                  filename = None,
@@ -1034,7 +1034,7 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
 
 
 class ApiDumpOutputGenerator(gen.OutputGenerator):
-    
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -1042,13 +1042,13 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                  registryFile = None):
         gen.OutputGenerator.__init__(self, errFile, warnFile, diagFile)
         self.format = None
-        
+
         self.constants = {}
         self.extensions = set()
         self.extFuncs = {}
         self.extTypes = {}
         self.includes = {}
-        
+
         self.basetypes = set()
         self.bitmasks = set()
         self.enums = set()
@@ -1059,9 +1059,9 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
         self.handles = set()
         self.structs = set()
         self.unions = set()
-        
+
         self.registryFile = registryFile
-        
+
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
         self.format = genOpts.input
@@ -1070,7 +1070,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
             root = xml.etree.ElementTree.parse(self.registryFile)
         else:
             root = self.registry.reg
-            
+
         for node in root.find('extensions').findall('extension'):
             ext = VulkanExtension(node)
             self.extensions.add(ext)
@@ -1078,17 +1078,17 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                 self.extTypes[item] = ext
             for item in ext.vkfuncs:
                 self.extFuncs[item] = ext
-                
+
         for node in self.registry.reg.findall('enums'):
             if node.get('name') == 'API Constants':
                 for item in node.findall('enum'):
                     self.constants[item.get('name')] = item.get('value')
-                    
+
         for node in self.registry.reg.find('types').findall('type'):
             if node.get('category') == 'include':
                 self.includes[node.get('name')] = ''.join(node.itertext())
-                
-        
+
+
     def endFile(self):
         # Find all of the extensions that use the system types
         self.sysTypes = set()
@@ -1111,7 +1111,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                                         sysType = VulkanSystemType(node.get('name'), self.extFuncs[funcName])
                                         if sysType not in self.sysTypes:
                                             self.sysTypes.add(sysType)
-        
+
         # Find every @foreach, @if, and @end
         forIter = re.finditer('(^\\s*\\@foreach\\s+[a-z]+(\\s+where\\(.*\\))?\\s*^)|(\\@foreach [a-z]+(\\s+where\\(.*\\))?\\b)', self.format, flags=re.MULTILINE)
         ifIter = re.finditer('(^\\s*\\@if\\(.*\\)\\s*^)|(\\@if\\(.*\\))', self.format, flags=re.MULTILINE)
@@ -1128,7 +1128,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
             nextEnd = next(endIter)
         except StopIteration:
             nextEnd = None
-        
+
         # Match the beginnings to the ends
         loops = []
         unassignedControls = []
@@ -1142,24 +1142,24 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                 whereMatch = re.search('(?<=where\\().*(?=\\))', self.format[nextFor.start():nextFor.end()])
                 condition = None if whereMatch == None else self.format[whereMatch.start()+nextFor.start():whereMatch.end()+nextFor.start()]
                 unassignedControls.append((nextFor.start(), nextFor.end(), text, condition))
-                
+
                 try:
                     nextFor = next(forIter)
                 except StopIteration:
                     nextFor = None
-            
-            # If this is an @if    
+
+            # If this is an @if
             elif nextIf != None and nextIf.start() < nextEnd.start():
                 depth += 1
                 condMatch = re.search('(?<=if\\().*(?=\\))', self.format[nextIf.start():nextIf.end()])
                 condition = None if condMatch == None else self.format[condMatch.start()+nextIf.start():condMatch.end()+nextIf.start()]
                 unassignedControls.append((nextIf.start(), nextIf.end(), 'if', condition))
-                
+
                 try:
                     nextIf = next(ifIter)
                 except StopIteration:
                     nextIf = None
-                    
+
             # Else this is an @end
             else:
                 depth -= 1
@@ -1168,7 +1168,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
 
                 start = unassignedControls.pop(-1)
                 assert(start[2] == text)
-                
+
                 item = Control(self.format, start[0:2], (nextEnd.start(), nextEnd.end()), text, start[3])
                 if len(loops) < 1 or depth < loops[-1][0]:
                     while len(loops) > 0 and depth < loops[-1][0]:
@@ -1180,8 +1180,8 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                 try:
                     nextEnd = next(endIter)
                 except StopIteration:
-                    nextEnd = None                
-        
+                    nextEnd = None
+
         # Expand each loop into its full form
         lastIndex = 0
         for _, loop in loops:
@@ -1189,21 +1189,21 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
             gen.write(self.expand(loop), file=self.outFile)
             lastIndex = loop.endPos[1]
         gen.write(self.format[lastIndex:-1].format(**{}), file=self.outFile)
-        
+
         gen.OutputGenerator.endFile(self)
-        
+
     def genCmd(self, cmd, name):
         gen.OutputGenerator.genCmd(self, cmd, name)
         self.functions.add(VulkanFunction(cmd.elem, self.constants))
-        
+
     # These are actually constants
     def genEnum(self, enuminfo, name):
         gen.OutputGenerator.genEnum(self, enuminfo, name)
-    
+
     # These are actually enums
     def genGroup(self, groupinfo, groupName):
         gen.OutputGenerator.genGroup(self, groupinfo, groupName)
-        
+
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks.add(VulkanBitmask(groupinfo.elem, self.extensions))
         elif groupinfo.elem.get('type') == 'enum':
@@ -1211,7 +1211,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
 
     def genType(self, typeinfo, name):
         gen.OutputGenerator.genType(self, typeinfo, name)
-        
+
         if typeinfo.elem.get('category') == 'struct':
             self.structs.add(VulkanStruct(typeinfo.elem, self.constants))
         elif typeinfo.elem.get('category') == 'basetype':
@@ -1226,7 +1226,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
             self.flags.add(VulkanFlags(typeinfo.elem))
         elif typeinfo.elem.get('category') == 'funcpointer':
             self.funcPointers.add(VulkanFunctionPointer(typeinfo.elem))
-            
+
     def expand(self, loop, parents=[]):
         # Figure out what we're dealing with
         if loop.text == 'if':
@@ -1265,23 +1265,23 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
             subjects = self.unions
         else:
             assert(False)
-            
+
         # Generate the output string
         out = ''
         for item in subjects:
-            
+
             # Merge the values and the parent values
             values = item.values().copy()
             for parent in parents:
                 values.update(parent.values())
-        
+
             # Check if the condition is met
             if loop.condition != None:
                 cond = eval(loop.condition.format(**values))
                 assert(cond == True or cond == False)
                 if not cond:
                     continue
-                    
+
             # Check if an ifdef is needed
             if item.name in self.extFuncs:
                 ext = self.extFuncs[item.name]
@@ -1293,7 +1293,7 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                 ext = None
             if ext != None and ext.guard != None:
                 out += '#if defined({})\n'.format(ext.guard)
-                    
+
             # Format the string
             lastIndex = loop.startPos[1]
             for child in loop.children:
@@ -1301,13 +1301,13 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                 out += self.expand(child, parents=[item]+parents)
                 lastIndex = child.endPos[1]
             out += loop.fullString[lastIndex:loop.endPos[0]].format(**values)
-            
+
             # Close the ifdef
             if ext != None and ext.guard != None:
                 out += '#endif // {}\n'.format(ext.guard)
-            
+
         return out
-        
+
     def findByType(self, types, objects):
         value = None
         for item in objects:
@@ -1317,17 +1317,17 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
                     break
         assert(value != None)
         return value
-            
+
 class Control:
-    
+
     class IfDummy:
-        
+
         def __init__(self):
             self.name = 'ifdummy'
-        
+
         def values(self):
             return {}
-    
+
     def __init__(self, fullString, start, end, text, condition):
         self.fullString = fullString
         self.startPos = start
@@ -1335,10 +1335,10 @@ class Control:
         self.text = text
         self.condition = condition
         self.children = []
-        
+
 # Base class for VulkanStruct.Member and VulkanStruct.Parameter
 class VulkanVariable:
-    
+
     def __init__(self, rootNode, constants):
         # Set basic properties
         self.name = rootNode.find('name').text      # Variable name
@@ -1346,7 +1346,7 @@ class VulkanVariable:
         self.baseType = self.typeID                     # Type, dereferenced to the non-pointer type
         self.childType = None                       # Type, dereferenced to the non-pointer type (None if it isn't a pointer)
         self.arrayLength = None                     # Length of the array, or None if it isn't an array
-        
+
         typeMatch = re.search('.+(?=' + self.name + ')', ''.join(rootNode.itertext()))
         self.type = typeMatch.string[typeMatch.start():typeMatch.end()]
         self.type = ' '.join(self.type.split())
@@ -1359,7 +1359,7 @@ class VulkanVariable:
                 self.arrayLength = constants[matchText]
             else:
                 self.arrayLength = matchText
-        
+
         self.lengthMember = False
         lengthString = rootNode.get('len')
         lengths = []
@@ -1380,14 +1380,14 @@ class VulkanVariable:
             code = re.sub('\\\\mathit', '', code)
             code = re.sub('\\\\over', '/', code)
             self.arrayLength = code
-            
+
         # Dereference if necessary and handle members of variables
         if self.arrayLength != None:
             self.arrayLength = re.sub('::', '->', self.arrayLength)
             sections = self.arrayLength.split('->')
             if sections[-1][0] == 'p' and sections[0][1].isupper():
                 self.arrayLength = '*' + self.arrayLength
-        
+
         self.pointerLevels = len(re.findall('\\*|\\[', ''.join(rootNode.itertext())))
         if self.typeID == 'char' and self.pointerLevels > 0:
             self.baseType += '*'
@@ -1397,25 +1397,25 @@ class VulkanVariable:
             self.baseType += '*'
             self.pointerLevels -= 1
         assert(self.pointerLevels >= 0)
-        
+
 class VulkanBasetype:
-    
+
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
         self.type = rootNode.get('type')
-        
+
     def values(self):
         return {
             'baseName': self.name,
             'baseType': self.type,
         }
-        
+
 class VulkanBitmask:
-    
+
     def __init__(self, rootNode, extensions):
         self.name = rootNode.get('name')
         self.type = rootNode.get('type')
-        
+
         # Read each value that the enum contains
         self.options = []
         for child in rootNode:
@@ -1425,44 +1425,44 @@ class VulkanBitmask:
             childComment = child.get('comment')
             if childName == None or (childValue == None and childBitpos == None):
                 continue
-                
+
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
-            
+
         for ext in extensions:
             if self.name in ext.enumValues:
                 childName, childValue = ext.enumValues[self.name]
                 self.options.append(VulkanEnum.Option(childName, childValue, None, None))
-            
+
     def values(self):
         return {
             'bitName': self.name,
             'bitType': self.type,
         }
-        
-        
+
+
 class VulkanEnum:
-    
+
     class Option:
-        
+
         def __init__(self, name, value, bitpos, comment):
             self.name = name
             self.comment = comment
-            
+
             if value == 0 or value == None:
                 value = 1 << int(bitpos)
             self.value = value
-            
+
         def values(self):
             return {
                 'optName': self.name,
                 'optValue': self.value,
                 'optComment': self.comment,
             }
-    
+
     def __init__(self, rootNode, extensions):
         self.name = rootNode.get('name')
         self.type = rootNode.get('type')
-        
+
         # Read each value that the enum contains
         self.options = []
         for child in rootNode:
@@ -1472,22 +1472,22 @@ class VulkanEnum:
             childComment = child.get('comment')
             if childName == None or (childValue == None and childBitpos == None):
                 continue
-                
+
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
-            
+
         for ext in extensions:
             if self.name in ext.enumValues:
                 childName, childValue = ext.enumValues[self.name]
                 self.options.append(VulkanEnum.Option(childName, childValue, None, None))
-        
+
     def values(self):
         return {
             'enumName': self.name,
             'enumType': self.type,
         }
-            
+
 class VulkanExtension:
-    
+
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
         self.number = int(rootNode.get('number'))
@@ -1495,14 +1495,14 @@ class VulkanExtension:
         self.dependency = rootNode.get('requires')
         self.guard = rootNode.get('protect')
         self.supported = rootNode.get('supported')
-        
+
         self.vktypes = []
         for ty in rootNode.find('require').findall('type'):
             self.vktypes.append(ty.get('name'))
         self.vkfuncs = []
         for func in rootNode.find('require').findall('command'):
             self.vkfuncs.append(func.get('name'))
-            
+
         self.constants = {}
         self.enumValues = {}
         for enum in rootNode.find('require').findall('enum'):
@@ -1511,10 +1511,10 @@ class VulkanExtension:
             value = enum.get('value')
             bitpos = enum.get('bitpos')
             offset = enum.get('offset')
-            
+
             if value == None and bitpos != None:
                 value = 1 << int(bitpos)
-            
+
             if offset != None:
                 offset = int(offset)
             if base != None and offset != None:
@@ -1524,7 +1524,7 @@ class VulkanExtension:
                 self.enumValues[base] = (name, enumValue)
             else:
                 self.constants[name] = value
-        
+
     def values(self):
         return {
             'extName': self.name,
@@ -1534,37 +1534,37 @@ class VulkanExtension:
             'extGuard': self.guard,
             'extSupported': self.supported,
         }
-        
+
 class VulkanExternalType:
-    
+
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
         self.dependency = rootNode.get('requires')
-        
+
     def values(self):
         return {
             'etyName': self.name,
             'etyDependency': self.dependency,
         }
-        
+
 class VulkanFlags:
-    
+
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
         self.type = rootNode.get('type')
         self.enum = rootNode.get('requires')
-        
+
     def values(self):
         return {
             'flagName': self.name,
             'flagType': self.type,
             'flagEnum': self.enum,
         }
-        
+
 class VulkanFunction:
-    
+
     class Parameter(VulkanVariable):
-        
+
         def __init__(self, rootNode, constants):
             VulkanVariable.__init__(self, rootNode, constants)
             self.text = ''.join(rootNode.itertext())
@@ -1579,7 +1579,7 @@ class VulkanFunction:
                 'prmPtrLevel': self.pointerLevels,
                 'prmLength': self.arrayLength,
             }
-    
+
     def __init__(self, rootNode, constants):
         self.name = rootNode.find('proto').find('name').text
         self.returnType = rootNode.find('proto').find('type').text
@@ -1594,12 +1594,12 @@ class VulkanFunction:
         if len(self.parameters) > 0:
             self.namedParams = self.namedParams[0:-2]
             self.typedParams = self.typedParams[0:-2]
-            
+
         if self.parameters[0].type in ['VkInstance', 'VkPhysicalDevice'] or self.name == 'vkCreateInstance':
             self.type = 'instance'
         else:
-            self.type = 'device' 
-            
+            self.type = 'device'
+
     def values(self):
         return {
             'funcName': self.name,
@@ -1610,43 +1610,43 @@ class VulkanFunction:
             'funcTypedParams': self.typedParams,
             'funcDispatchParam': self.parameters[0].name
         }
-        
+
 class VulkanFunctionPointer:
-    
+
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
-        
+
     def values(self):
         return {
             'pfnName': self.name,
         }
-            
+
 class VulkanHandle:
-    
+
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
         self.type = rootNode.get('type')
         self.parent = rootNode.get('parent')
-        
+
     def values(self):
         return {
             'hdlName': self.name,
             'hdlType': self.type,
             'hdlParent': self.parent,
         }
-            
+
 class VulkanStruct:
-    
+
     class Member(VulkanVariable):
-        
+
         def __init__(self, rootNode, constants, parentName):
             VulkanVariable.__init__(self, rootNode, constants)
-            
+
             # Search for a member condition
             self.condition = None
             if rootNode.get('noautovalidity') == 'true' and parentName in VALIDITY_CHECKS and self.name in VALIDITY_CHECKS[parentName]:
                 self.condition = VALIDITY_CHECKS[parentName][self.name]
-            
+
         def values(self):
             return {
                 'memName': self.name,
@@ -1659,45 +1659,45 @@ class VulkanStruct:
                 'memLengthIsMember': self.lengthMember,
                 'memCondition': self.condition,
             }
-            
-    
+
+
     def __init__(self, rootNode, constants):
         self.name = rootNode.get('name')
         self.members = []
         for node in rootNode.findall('member'):
             self.members.append(VulkanStruct.Member(node, constants, self.name))
-            
+
     def values(self):
         return {
             'sctName': self.name,
         }
-            
+
 class VulkanSystemType:
-    
+
     def __init__(self, name, ext):
         self.name = name
         self.type = self.name if name not in POINTER_TYPES else self.name + '*'
         self.ext = ext
-        
+
     def __eq__(self, that):
         return self.name == that.name and self.type == that.type
-        
+
     def __hash__(self):
         return hash(self.name) | hash(self.type)
-        
+
     def values(self):
         return {
             'sysName': self.name,
             'sysType': self.type,
         }
-            
+
 class VulkanUnion:
-    
+
     class Choice(VulkanVariable):
-        
+
         def __init__(self, rootNode, constants):
             VulkanVariable.__init__(self, rootNode, constants)
-            
+
         def values(self):
             return {
                 'chcName': self.name,
@@ -1709,15 +1709,14 @@ class VulkanUnion:
                 'chcLength': self.arrayLength,
                 #'chcLengthIsMember': self.lengthMember,
             }
-    
+
     def __init__(self, rootNode, constants):
         self.name = rootNode.get('name')
         self.choices = []
         for node in rootNode.findall('member'):
             self.choices.append(VulkanUnion.Choice(node, constants))
-        
+
     def values(self):
         return {
             'unName': self.name,
         }
-            
