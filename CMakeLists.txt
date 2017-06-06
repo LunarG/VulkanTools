@@ -215,6 +215,7 @@ find_path(SPIRV_TOOLS_INCLUDE_DIR spirv-tools/libspirv.h HINTS "${EXTERNAL_SOURC
                                                    "${EXTERNAL_SOURCE_ROOT}/source/spirv-tools/external/include"
                                              DOC "Path to spirv-tools/libspirv.h")
 
+if(BUILD_VIA)
 find_path(JSONCPP_INCLUDE_DIR json/json.h HINTS "${EXTERNAL_SOURCE_ROOT}/jsoncpp/dist"
                                                    "${EXTERNAL_SOURCE_ROOT}/JsonCpp/dist"
                                                    "${EXTERNAL_SOURCE_ROOT}/JsonCPP/dist"
@@ -228,6 +229,7 @@ find_path(JSONCPP_SOURCE_DIR jsoncpp.cpp HINTS "${EXTERNAL_SOURCE_ROOT}/jsoncpp/
                                                    "${EXTERNAL_SOURCE_ROOT}/JSONCPP/dist"
                                                    "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
                                              DOC "Path to jsoncpp/dist/json.cpp")
+endif()
 
     find_library(GLSLANG_LIB NAMES glslang
         HINTS ${GLSLANG_SEARCH_PATH} )
@@ -250,8 +252,10 @@ find_path(JSONCPP_SOURCE_DIR jsoncpp.cpp HINTS "${EXTERNAL_SOURCE_ROOT}/jsoncpp/
     find_library(SPIRV_TOOLS_LIB NAMES SPIRV-Tools
              HINTS ${SPIRV_TOOLS_SEARCH_PATH} )
 
+if(BUILD_VIA)
     find_library(JSONCPP_LIB NAMES jsoncpp
              HINTS ${JSONCPP_SEARCH_PATH} )
+endif()
 
 if (WIN32)
     add_library(glslang     STATIC IMPORTED)
