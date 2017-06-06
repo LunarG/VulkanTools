@@ -93,10 +93,12 @@ else()
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_run_all_tests.ps1 RUN_ALL)
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_vktracereplay.ps1 VKTRACEREPLAY)
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_vkvalidatelayerdoc.ps1 VKVALIDATELAYERDOC)
+        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/trace_positive_validation.ps1 VKTRACEPOSITIVE)
         add_custom_target(binary-dir-symlinks ALL
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RUN_ALL} _run_all_tests.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKTRACEREPLAY} _vktracereplay.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKVALIDATELAYERDOC} _vkvalidatelayerdoc.ps1
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKTRACEPOSITIVE} trace_positive_validation.ps1
             VERBATIM
             )
     endif()
