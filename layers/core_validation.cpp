@@ -8500,7 +8500,6 @@ static void PostCallRecordCreateFramebuffer(layer_data *dev_data, const VkFrameb
             continue;
         }
         MT_FB_ATTACHMENT_INFO fb_info;
-        fb_info.mem = GetImageState(dev_data, view_state->create_info.image)->binding.mem;
         fb_info.view_state = view_state;
         fb_info.image = view_state->create_info.image;
         fb_state->attachments.push_back(fb_info);
@@ -10382,26 +10381,19 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
     VkResult result = dev_data->dispatch_table.GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
 
-    if (result == VK_SUCCESS && pSwapchainImages != NULL) {
+    if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && pSwapchainImages != nullptr) {
         // This should never happen and is checked by param checker.
         if (!pCount) return result;
         std::lock_guard<std::mutex> lock(global_lock);
-        const size_t count = *pCount;
         auto swapchain_node = GetSwapchainNode(dev_data, swapchain);
-        if (swapchain_node && !swapchain_node->images.empty()) {
-            // TODO : Not sure I like the memcmp here, but it works
-            const bool mismatch = (swapchain_node->images.size() != count ||
-                                   memcmp(&swapchain_node->images[0], pSwapchainImages, sizeof(swapchain_node->images[0]) * count));
-            if (mismatch) {
-                // TODO: Verify against Valid Usage section of extension
-                log_msg(dev_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
-                        HandleToUint64(swapchain), __LINE__, MEMTRACK_NONE, "SWAP_CHAIN",
-                        "vkGetSwapchainInfoKHR(0x%" PRIx64
-                        ", VK_SWAP_CHAIN_INFO_TYPE_PERSISTENT_IMAGES_KHR) returned mismatching data",
-                        HandleToUint64(swapchain));
-            }
-        }
+
+        if (*pCount > swapchain_node->images.size())
+            swapchain_node->images.resize(*pCount);
+
         for (uint32_t i = 0; i < *pCount; ++i) {
+            if (swapchain_node->images[i] != VK_NULL_HANDLE)
+                continue;   // Already retrieved this.
+
             IMAGE_LAYOUT_NODE image_layout_node;
             image_layout_node.layout = VK_IMAGE_LAYOUT_UNDEFINED;
             image_layout_node.format = swapchain_node->createInfo.imageFormat;
@@ -10423,7 +10415,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
             auto &image_state = dev_data->imageMap[pSwapchainImages[i]];
             image_state->valid = false;
             image_state->binding.mem = MEMTRACKER_SWAP_CHAIN_IMAGE_KEY;
-            swapchain_node->images.push_back(pSwapchainImages[i]);
+            swapchain_node->images[i] = pSwapchainImages[i];
             ImageSubresourcePair subpair = {pSwapchainImages[i], false, VkImageSubresource()};
             dev_data->imageSubresourceMap[pSwapchainImages[i]].push_back(subpair);
             dev_data->imageLayoutMap[subpair] = image_layout_node;

@@ -37,6 +37,8 @@
 VkResult setupLoaderTrampPhysDevGroups(VkInstance instance);
 VkResult setupLoaderTermPhysDevGroups(struct loader_instance *inst);
 
+// ---- VK_KHX_device_group extension trampoline/terminators
+
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHX(
     VkInstance instance, uint32_t *pPhysicalDeviceGroupCount,
     VkPhysicalDeviceGroupPropertiesKHX *pPhysicalDeviceGroupProperties) {
@@ -125,6 +127,8 @@ out:
 
     return res;
 }
+
+// ---- VK_NV_external_memory_capabilities extension trampoline/terminators
 
 VKAPI_ATTR VkResult VKAPI_CALL
 GetPhysicalDeviceExternalImageFormatPropertiesNV(
@@ -408,7 +412,7 @@ VKAPI_ATTR void VKAPI_CALL terminator_GetPhysicalDeviceQueueFamilyProperties2KHR
                 if (pQueueFamilyProperties[i].pNext != NULL) {
                     loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
                                "vkGetPhysicalDeviceQueueFamilyProperties2KHR: Emulation found unrecognized structure type in "
-                               "pQueueFamilyProperties[%d]->pNext - this struct will be ignored",
+                               "pQueueFamilyProperties[%d].pNext - this struct will be ignored",
                                i);
                 }
             }
@@ -509,13 +513,291 @@ VKAPI_ATTR void VKAPI_CALL terminator_GetPhysicalDeviceSparseImageFormatProperti
                 if (pProperties[i].pNext != NULL) {
                     loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
                                "vkGetPhysicalDeviceSparseImageFormatProperties2KHR: Emulation found unrecognized structure type in "
-                               "pProperties[%d]->pNext - this struct will be ignored",
+                               "pProperties[%d].pNext - this struct will be ignored",
                                i);
                 }
             }
         }
     }
 }
+
+// ---- VK_KHR_get_surface_capabilities2 extension trampoline/terminators
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(VkPhysicalDevice physicalDevice,
+                                                                        const VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
+                                                                        VkSurfaceCapabilities2KHR *pSurfaceCapabilities) {
+    const VkLayerInstanceDispatchTable *disp;
+    VkPhysicalDevice unwrapped_phys_dev = loader_unwrap_physical_device(physicalDevice);
+    disp = loader_get_instance_layer_dispatch(physicalDevice);
+    return disp->GetPhysicalDeviceSurfaceCapabilities2KHR(unwrapped_phys_dev, pSurfaceInfo, pSurfaceCapabilities);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL terminator_GetPhysicalDeviceSurfaceCapabilities2KHR(
+    VkPhysicalDevice physicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
+    VkSurfaceCapabilities2KHR *pSurfaceCapabilities) {
+    struct loader_physical_device_term *phys_dev_term = (struct loader_physical_device_term *)physicalDevice;
+    struct loader_icd_term *icd_term = phys_dev_term->this_icd_term;
+
+    VkIcdSurface *icd_surface = (VkIcdSurface *)(pSurfaceInfo->surface);
+    uint8_t icd_index = phys_dev_term->icd_index;
+
+    if (icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilities2KHR != NULL) {
+        // Pass the call to the driver, possibly unwrapping the ICD surface
+        if (icd_surface->real_icd_surfaces != NULL && (void *)icd_surface->real_icd_surfaces[icd_index] != NULL) {
+            VkPhysicalDeviceSurfaceInfo2KHR info_copy = *pSurfaceInfo;
+            info_copy.surface = icd_surface->real_icd_surfaces[icd_index];
+            return icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilities2KHR(phys_dev_term->phys_dev, &info_copy,
+                                                                               pSurfaceCapabilities);
+        } else {
+            return icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilities2KHR(phys_dev_term->phys_dev, pSurfaceInfo,
+                                                                               pSurfaceCapabilities);
+        }
+    } else {
+        // Emulate the call
+        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                   "vkGetPhysicalDeviceSurfaceCapabilities2KHR: Emulating call in ICD \"%s\" using "
+                   "vkGetPhysicalDeviceSurfaceCapabilitiesKHR",
+                   icd_term->scanned_icd->lib_name);
+
+        if (pSurfaceInfo->pNext != NULL) {
+            loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                       "vkGetPhysicalDeviceSurfaceCapabilities2KHR: Emulation found unrecognized structure type in "
+                       "pSurfaceInfo->pNext - this struct will be ignored");
+        }
+
+        // Write to the VkSurfaceCapabilities2KHR struct
+        VkSurfaceKHR surface = pSurfaceInfo->surface;
+        if (icd_surface->real_icd_surfaces != NULL && (void *)icd_surface->real_icd_surfaces[icd_index] != NULL) {
+            surface = icd_surface->real_icd_surfaces[icd_index];
+        }
+        VkResult res = icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilitiesKHR(phys_dev_term->phys_dev, surface,
+                                                                                  &pSurfaceCapabilities->surfaceCapabilities);
+
+        if (pSurfaceCapabilities->pNext != NULL) {
+            loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                       "vkGetPhysicalDeviceSurfaceCapabilities2KHR: Emulation found unrecognized structure type in "
+                       "pSurfaceCapabilities->pNext - this struct will be ignored");
+        }
+        return res;
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice physicalDevice,
+                                                                   const VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
+                                                                   uint32_t *pSurfaceFormatCount,
+                                                                   VkSurfaceFormat2KHR *pSurfaceFormats) {
+    const VkLayerInstanceDispatchTable *disp;
+    VkPhysicalDevice unwrapped_phys_dev = loader_unwrap_physical_device(physicalDevice);
+    disp = loader_get_instance_layer_dispatch(physicalDevice);
+    return disp->GetPhysicalDeviceSurfaceFormats2KHR(unwrapped_phys_dev, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL terminator_GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice physicalDevice,
+                                                                              const VkPhysicalDeviceSurfaceInfo2KHR *pSurfaceInfo,
+                                                                              uint32_t *pSurfaceFormatCount,
+                                                                              VkSurfaceFormat2KHR *pSurfaceFormats) {
+    struct loader_physical_device_term *phys_dev_term = (struct loader_physical_device_term *)physicalDevice;
+    struct loader_icd_term *icd_term = phys_dev_term->this_icd_term;
+
+    VkIcdSurface *icd_surface = (VkIcdSurface *)(pSurfaceInfo->surface);
+    uint8_t icd_index = phys_dev_term->icd_index;
+
+    if (icd_term->dispatch.GetPhysicalDeviceSurfaceFormats2KHR != NULL) {
+        // Pass the call to the driver, possibly unwrapping the ICD surface
+        if (icd_surface->real_icd_surfaces != NULL && (void *)icd_surface->real_icd_surfaces[icd_index] != NULL) {
+            VkPhysicalDeviceSurfaceInfo2KHR info_copy = *pSurfaceInfo;
+            info_copy.surface = icd_surface->real_icd_surfaces[icd_index];
+            return icd_term->dispatch.GetPhysicalDeviceSurfaceFormats2KHR(phys_dev_term->phys_dev, &info_copy, pSurfaceFormatCount,
+                                                                          pSurfaceFormats);
+        } else {
+            return icd_term->dispatch.GetPhysicalDeviceSurfaceFormats2KHR(phys_dev_term->phys_dev, pSurfaceInfo,
+                                                                          pSurfaceFormatCount, pSurfaceFormats);
+        }
+    } else {
+        // Emulate the call
+        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                   "vkGetPhysicalDeviceSurfaceFormats2KHR: Emulating call in ICD \"%s\" using vkGetPhysicalDeviceSurfaceFormatsKHR",
+                   icd_term->scanned_icd->lib_name);
+
+        if (pSurfaceInfo->pNext != NULL) {
+            loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                       "vkGetPhysicalDeviceSurfaceFormats2KHR: Emulation found unrecognized structure type in pSurfaceInfo->pNext "
+                       "- this struct will be ignored");
+        }
+
+        VkSurfaceKHR surface = pSurfaceInfo->surface;
+        if (icd_surface->real_icd_surfaces != NULL && (void *)icd_surface->real_icd_surfaces[icd_index] != NULL) {
+            surface = icd_surface->real_icd_surfaces[icd_index];
+        }
+
+        if (*pSurfaceFormatCount == 0 || pSurfaceFormats == NULL) {
+            // Write to pSurfaceFormatCount
+            return icd_term->dispatch.GetPhysicalDeviceSurfaceFormatsKHR(phys_dev_term->phys_dev, surface, pSurfaceFormatCount,
+                                                                         NULL);
+        } else {
+            // Allocate a temporary array for the output of the old function
+            VkSurfaceFormatKHR *formats = loader_stack_alloc(*pSurfaceFormatCount * sizeof(VkSurfaceFormatKHR));
+            if (formats == NULL) {
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+            }
+
+            VkResult res = icd_term->dispatch.GetPhysicalDeviceSurfaceFormatsKHR(phys_dev_term->phys_dev, surface,
+                                                                                 pSurfaceFormatCount, formats);
+            for (uint32_t i = 0; i < *pSurfaceFormatCount; ++i) {
+                pSurfaceFormats[i].surfaceFormat = formats[i];
+                if (pSurfaceFormats[i].pNext != NULL) {
+                    loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                               "vkGetPhysicalDeviceSurfaceFormats2KHR: Emulation found unrecognized structure type in "
+                               "pSurfaceFormats[%d].pNext - this struct will be ignored",
+                               i);
+                }
+            }
+            return res;
+        }
+    }
+}
+
+// ---- VK_EXT_display_surface_counter extension trampoline/terminators
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                                        VkSurfaceCapabilities2EXT *pSurfaceCapabilities) {
+    const VkLayerInstanceDispatchTable *disp;
+    VkPhysicalDevice unwrapped_phys_dev = loader_unwrap_physical_device(physicalDevice);
+    disp = loader_get_instance_layer_dispatch(physicalDevice);
+    return disp->GetPhysicalDeviceSurfaceCapabilities2EXT(unwrapped_phys_dev, surface, pSurfaceCapabilities);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL terminator_GetPhysicalDeviceSurfaceCapabilities2EXT(
+    VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilities2EXT *pSurfaceCapabilities) {
+    struct loader_physical_device_term *phys_dev_term = (struct loader_physical_device_term *)physicalDevice;
+    struct loader_icd_term *icd_term = phys_dev_term->this_icd_term;
+
+    VkIcdSurface *icd_surface = (VkIcdSurface *)(surface);
+    uint8_t icd_index = phys_dev_term->icd_index;
+
+    // Unwrap the surface if needed
+    VkSurfaceKHR unwrapped_surface = surface;
+    if (icd_surface->real_icd_surfaces != NULL && (void *)icd_surface->real_icd_surfaces[icd_index] != NULL) {
+        unwrapped_surface = icd_surface->real_icd_surfaces[icd_index];
+    }
+
+    if (icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilities2EXT != NULL) {
+        // Pass the call to the driver
+        return icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilities2EXT(phys_dev_term->phys_dev, unwrapped_surface,
+                                                                           pSurfaceCapabilities);
+    } else {
+        // Emulate the call
+        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                   "vkGetPhysicalDeviceSurfaceCapabilities2EXT: Emulating call in ICD \"%s\" using "
+                   "vkGetPhysicalDeviceSurfaceCapabilitiesKHR",
+                   icd_term->scanned_icd->lib_name);
+
+        VkSurfaceCapabilitiesKHR surface_caps;
+        VkResult res =
+            icd_term->dispatch.GetPhysicalDeviceSurfaceCapabilitiesKHR(phys_dev_term->phys_dev, unwrapped_surface, &surface_caps);
+        pSurfaceCapabilities->minImageCount = surface_caps.minImageCount;
+        pSurfaceCapabilities->maxImageCount = surface_caps.maxImageCount;
+        pSurfaceCapabilities->currentExtent = surface_caps.currentExtent;
+        pSurfaceCapabilities->minImageExtent = surface_caps.minImageExtent;
+        pSurfaceCapabilities->maxImageExtent = surface_caps.maxImageExtent;
+        pSurfaceCapabilities->maxImageArrayLayers = surface_caps.maxImageArrayLayers;
+        pSurfaceCapabilities->supportedTransforms = surface_caps.supportedTransforms;
+        pSurfaceCapabilities->currentTransform = surface_caps.currentTransform;
+        pSurfaceCapabilities->supportedCompositeAlpha = surface_caps.supportedCompositeAlpha;
+        pSurfaceCapabilities->supportedUsageFlags = surface_caps.supportedUsageFlags;
+        pSurfaceCapabilities->supportedSurfaceCounters = 0;
+
+        if (pSurfaceCapabilities->pNext != NULL) {
+            loader_log(icd_term->this_instance, VK_DEBUG_REPORT_WARNING_BIT_EXT, 0,
+                       "vkGetPhysicalDeviceSurfaceCapabilities2EXT: Emulation found unrecognized structure type in "
+                       "pSurfaceCapabilities->pNext - this struct will be ignored");
+        }
+
+        return res;
+    }
+}
+
+// ---- VK_EXT_direct_mode_display extension trampoline/terminators
+
+VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(VkPhysicalDevice physicalDevice, VkDisplayKHR display) {
+    const VkLayerInstanceDispatchTable *disp;
+    VkPhysicalDevice unwrapped_phys_dev = loader_unwrap_physical_device(physicalDevice);
+    disp = loader_get_instance_layer_dispatch(physicalDevice);
+    return disp->ReleaseDisplayEXT(unwrapped_phys_dev, display);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL terminator_ReleaseDisplayEXT(VkPhysicalDevice physicalDevice, VkDisplayKHR display) {
+    struct loader_physical_device_term *phys_dev_term = (struct loader_physical_device_term *)physicalDevice;
+    struct loader_icd_term *icd_term = phys_dev_term->this_icd_term;
+
+    if (icd_term->dispatch.ReleaseDisplayEXT == NULL) {
+        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
+                   "ICD \"%s\" associated with VkPhysicalDevice does not support vkReleaseDisplayEXT - Consequently, the call is "
+                   "invalid because it should not be possible to acquire a display on this device",
+                   icd_term->scanned_icd->lib_name);
+    }
+    return icd_term->dispatch.ReleaseDisplayEXT(phys_dev_term->phys_dev, display);
+}
+
+// ---- VK_EXT_acquire_xlib_display extension trampoline/terminators
+
+#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(VkPhysicalDevice physicalDevice, Display *dpy, VkDisplayKHR display) {
+    const VkLayerInstanceDispatchTable *disp;
+    VkPhysicalDevice unwrapped_phys_dev = loader_unwrap_physical_device(physicalDevice);
+    disp = loader_get_instance_layer_dispatch(physicalDevice);
+    return disp->AcquireXlibDisplayEXT(unwrapped_phys_dev, dpy, display);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL terminator_AcquireXlibDisplayEXT(VkPhysicalDevice physicalDevice, Display *dpy,
+                                                                VkDisplayKHR display) {
+    struct loader_physical_device_term *phys_dev_term = (struct loader_physical_device_term *)physicalDevice;
+    struct loader_icd_term *icd_term = phys_dev_term->this_icd_term;
+
+    if (icd_term->dispatch.AcquireXlibDisplayEXT != NULL) {
+        // Pass the call to the driver
+        return icd_term->dispatch.AcquireXlibDisplayEXT(phys_dev_term->phys_dev, dpy, display);
+    } else {
+        // Emulate the call
+        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                   "vkAcquireXLibDisplayEXT: Emulating call in ICD \"%s\" by returning error", icd_term->scanned_icd->lib_name);
+
+        // Fail for the unsupported command
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(VkPhysicalDevice physicalDevice, Display *dpy, RROutput rrOutput,
+                                                        VkDisplayKHR *pDisplay) {
+    const VkLayerInstanceDispatchTable *disp;
+    VkPhysicalDevice unwrapped_phys_dev = loader_unwrap_physical_device(physicalDevice);
+    disp = loader_get_instance_layer_dispatch(physicalDevice);
+    return disp->GetRandROutputDisplayEXT(unwrapped_phys_dev, dpy, rrOutput, pDisplay);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL terminator_GetRandROutputDisplayEXT(VkPhysicalDevice physicalDevice, Display *dpy, RROutput rrOutput,
+                                                                   VkDisplayKHR *pDisplay) {
+    struct loader_physical_device_term *phys_dev_term = (struct loader_physical_device_term *)physicalDevice;
+    struct loader_icd_term *icd_term = phys_dev_term->this_icd_term;
+
+    if (icd_term->dispatch.GetRandROutputDisplayEXT != NULL) {
+        // Pass the call to the driver
+        return icd_term->dispatch.GetRandROutputDisplayEXT(phys_dev_term->phys_dev, dpy, rrOutput, pDisplay);
+    } else {
+        // Emulate the call
+        loader_log(icd_term->this_instance, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0,
+                   "vkGetRandROutputDisplayEXT: Emulating call in ICD \"%s\" by returning null display",
+                   icd_term->scanned_icd->lib_name);
+
+        // Return a null handle to indicate this can't be done
+        *pDisplay = VK_NULL_HANDLE;
+        return VK_SUCCESS;
+    }
+}
+
+#endif  // VK_USE_PLATFORM_XLIB_XRANDR_EXT
+
+// ---- Helper functions
 
 VkResult setupLoaderTrampPhysDevGroups(VkInstance instance) {
     VkResult res = VK_SUCCESS;

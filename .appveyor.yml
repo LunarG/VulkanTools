@@ -12,6 +12,10 @@ environment:
   PYTHON_PATH: "C:/Python35"
   PYTHON_PACKAGE_PATH: "C:/Python35/Scripts"
 
+branches:
+  only:
+    - master
+
 # This replaces "automatic building" that would be defined under build:
 build_script:
   - "SET PATH=C:\\Python35;C:\\Python35\\Scripts;%PATH%"

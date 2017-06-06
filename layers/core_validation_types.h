@@ -739,7 +739,6 @@ struct CHECK_DISABLED {
 struct MT_FB_ATTACHMENT_INFO {
     IMAGE_VIEW_STATE *view_state;
     VkImage image;
-    VkDeviceMemory mem;
 };
 
 class FRAMEBUFFER_STATE : public BASE_NODE {
@@ -747,7 +746,6 @@ public:
     VkFramebuffer framebuffer;
     safe_VkFramebufferCreateInfo createInfo;
     safe_VkRenderPassCreateInfo renderPassCreateInfo;
-    std::unordered_set<VkCommandBuffer> referencingCmdBuffers;
     std::vector<MT_FB_ATTACHMENT_INFO> attachments;
     FRAMEBUFFER_STATE(VkFramebuffer fb, const VkFramebufferCreateInfo *pCreateInfo, const VkRenderPassCreateInfo *pRPCI)
         : framebuffer(fb), createInfo(pCreateInfo), renderPassCreateInfo(pRPCI) {};
