@@ -40,7 +40,7 @@ set(SRC_LIST
     vkreplay_main.cpp
     vkreplay_seq.cpp
     vkreplay_factory.cpp
-    ../../../layersvt/screenshot_parsing.cpp
+    ${SRC_DIR}/../layersvt/screenshot_parsing.cpp
 )
 
 set (HDR_LIST
@@ -48,7 +48,7 @@ set (HDR_LIST
     vkreplay_settings.h
     vkreplay_vkdisplay.h
     vkreplay_vkreplay.h
-    ../../../layersvt/screenshot_parsing.h
+    ${SRC_DIR}/../layersvt/screenshot_parsing.h
     ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h
     ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
     ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
