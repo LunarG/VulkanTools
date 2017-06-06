@@ -12,8 +12,8 @@ set(SRC_LIST
     vktrace.cpp
     vktrace_process.h
     vktrace_process.cpp
-    ../../../layersvt/screenshot_parsing.h
-    ../../../layersvt/screenshot_parsing.cpp
+    ${SRC_DIR}/../layersvt/screenshot_parsing.h
+    ${SRC_DIR}/../layersvt/screenshot_parsing.cpp
 )
 
 include_directories(
