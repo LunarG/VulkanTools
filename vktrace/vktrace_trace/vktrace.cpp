@@ -273,6 +273,11 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     vktrace_trace_packet_header hdr;
     uint64_t one_64 = 1;
 
+    if (pTraceFile == NULL) {
+        vktrace_LogError("tracefile was not created");
+        return;
+    }
+
     vktrace_LogVerbose("Post processing trace file");
 
     // Add a word containing the size of the table to the table.
@@ -479,7 +484,9 @@ int main(int argc, char* argv[]) {
 
             // create watchdog thread to monitor existence of remote process
             if (g_settings.program != NULL)
+            {
                 procInfo.watchdogThread = vktrace_platform_create_thread(Process_RunWatchdogThread, &procInfo);
+            }
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
 

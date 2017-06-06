@@ -2730,6 +2730,62 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
     return result;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateBuffer(VkDevice device, const VkBufferCreateInfo* pCreateInfo,
+                                                                       const VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCreateBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCreateBuffer, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkBuffer));
+    VkBufferCreateInfo replayCreateInfo = *pCreateInfo;
+    VkBufferCreateInfo trimCreateInfo = *pCreateInfo;
+    if (g_trimEnabled) {
+        // need to add TRANSFER_SRC usage to the buffer so that we can copy out of it.
+        trimCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        pCreateInfo = &trimCreateInfo;
+    }
+    result = mdd(device)->devTable.CreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    if (g_trimEnabled) {
+        // need to add TRANSFER_DST usage to the buffer so that we can recreate it.
+        replayCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        pCreateInfo = &replayCreateInfo;
+    }
+    pPacket = interpret_body_as_vkCreateBuffer(pHeader);
+    pPacket->device = device;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkBufferCreateInfo), pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices), sizeof(uint32_t) * pCreateInfo->queueFamilyIndexCount, pCreateInfo->pQueueFamilyIndices);
+    add_extension_to_createbuffer_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pNext), pCreateInfo->pNext);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pBuffer), sizeof(VkBuffer), pBuffer);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo->pQueueFamilyIndices));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pBuffer));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo &info = trim::add_Buffer_object(*pBuffer);
+        info.belongsToDevice = device;
+        info.ObjectInfo.Buffer.pCreatePacket = trim::copy_packet(pHeader);
+        info.ObjectInfo.Buffer.size = pCreateInfo->size;
+        if (pCreateInfo->queueFamilyIndexCount > 0) { info.ObjectInfo.Buffer.queueFamilyIndex = pCreateInfo->pQueueFamilyIndices[0]; }
+        if (pAllocator != NULL) {
+            info.ObjectInfo.Buffer.pAllocator = pAllocator;
+        }
+        if (pAllocator != NULL) {
+            trim::add_Allocator(pAllocator);
+        }
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }    }
+    return result;
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR* pSurfaceCapabilities) {
     VkResult result;

@@ -277,6 +277,21 @@ static void add_extension_to_createimage_trace_packet(vktrace_trace_packet_heade
     }
 }
 
+static void add_extension_to_createbuffer_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
+    while (pIn) {
+        switch (((VkDedicatedAllocationBufferCreateInfoNV *)pIn)->sType) {
+            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
+                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationBufferCreateInfoNV), pIn);
+                vktrace_finalize_buffer_address(pHeader, ppOut);
+                break;
+            default:
+                vktrace_LogError("vkCreateBuffer: unrecognized pNext list structure");
+                break;
+        }
+        pIn = ((VkDedicatedAllocationBufferCreateInfoNV *)pIn)->pNext;
+    }
+}
+
 static void add_VkPipelineShaderStageCreateInfo_to_trace_packet(vktrace_trace_packet_header *pHeader,
                                                                 VkPipelineShaderStageCreateInfo *packetShader,
                                                                 const VkPipelineShaderStageCreateInfo *paramShader) {
