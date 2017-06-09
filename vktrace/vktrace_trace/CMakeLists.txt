@@ -38,3 +38,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 build_options_finalize()
+if(UNIX)
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
