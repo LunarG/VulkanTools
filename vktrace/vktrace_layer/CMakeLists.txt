@@ -85,6 +85,19 @@ if (NOT WIN32)
             VERBATIM
             )
     endif()
+    # Add targets for JSON file install on Linux.
+    # Need to remove the "../vktrace" from the library path before installing to /etc.
+    set (LAYER_JSON_FILES VkLayer_vktrace_layer)
+    foreach (config_file ${LAYER_JSON_FILES})
+        add_custom_target(${config_file}-staging-json ALL
+            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+            COMMAND sed -i -e "/\"library_path\":/s$../vktrace/libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json
+            VERBATIM
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
+            )
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+    endforeach(config_file)
 else()
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
@@ -135,6 +148,7 @@ target_link_libraries(${PROJECT_NAME}
     ${VKTRACE_VULKAN_LIB}
     ${OS_TRACER_LIBS}
 )
+install(TARGETS VkLayer_vktrace_layer DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 build_options_finalize()
