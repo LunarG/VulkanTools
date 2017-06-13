@@ -1891,7 +1891,7 @@ static bool loader_add_legacy_std_val_layer(const struct loader_instance *inst, 
     const char std_validation_names[6][VK_MAX_EXTENSION_NAME_SIZE] = {
         "VK_LAYER_GOOGLE_threading",      "VK_LAYER_LUNARG_parameter_validation",
         "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_core_validation",
-        "VK_LAYER_LUNARG_swapchain",      "VK_LAYER_GOOGLE_unique_objects"};
+        "VK_LAYER_GOOGLE_unique_objects"};
     uint32_t layer_count = sizeof(std_validation_names) / sizeof(std_validation_names[0]);
 
     loader_log(inst, VK_DEBUG_REPORT_DEBUG_BIT_EXT, 0,
@@ -2075,11 +2075,11 @@ static VkResult loader_read_json_layer(const struct loader_instance *inst, struc
 // The following are required in the "layer" object:
 // (required) "name"
 // (required) "type"
-// (required) “library_path”
-// (required) “api_version”
-// (required) “implementation_version”
-// (required) “description”
-// (required for implicit layers) “disable_environment”
+// (required) "library_path"
+// (required) "api_version"
+// (required) "implementation_version"
+// (required) "description"
+// (required for implicit layers) "disable_environment"
 #define GET_JSON_OBJECT(node, var)                                         \
     {                                                                      \
         var = cJSON_GetObjectItem(node, #var);                             \
@@ -2482,7 +2482,7 @@ static inline bool layer_json_supports_layers_tag(const layer_json_version *laye
 static VkResult loader_add_layer_properties(const struct loader_instance *inst, struct loader_layer_list *layer_instance_list,
                                             cJSON *json, bool is_implicit, char *filename) {
     // The following Fields in layer manifest file that are required:
-    //   - “file_format_version”
+    //   - "file_format_version"
     //   - If more than one "layer" object are used, then the "layers" array is
     //     required
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;

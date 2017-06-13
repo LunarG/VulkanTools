@@ -599,7 +599,7 @@ bool VerifyImageLayout(layer_data const *device_data, GLOBAL_CB_NODE const *cb_n
                                 "%s: For optimal performance image 0x%" PRIxLEAST64 " layout should be %s instead of GENERAL.",
                                 caller, HandleToUint64(image), string_VkImageLayout(optimal_layout));
             }
-        } else if (GetDeviceExtensions(device_data)->khr_shared_presentable_image) {
+        } else if (GetDeviceExtensions(device_data)->vk_khr_shared_presentable_image) {
             if (image_state->shared_presentable) {
                 if (VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR != explicit_layout) {
                     // TODO: Add unique error id when available.
@@ -918,7 +918,7 @@ bool VerifyClearImageLayout(layer_data *device_data, GLOBAL_CB_NODE *cb_node, IM
                                 "%s: Layout for cleared image should be TRANSFER_DST_OPTIMAL instead of GENERAL.", func_name);
             }
         } else if (VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR == dest_image_layout) {
-            if (!GetDeviceExtensions(device_data)->khr_shared_presentable_image) {
+            if (!GetDeviceExtensions(device_data)->vk_khr_shared_presentable_image) {
                 // TODO: Add unique error id when available.
                 skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
                     HandleToUint64(image_state->image), __LINE__, 0, "DS",
@@ -1010,8 +1010,8 @@ bool PreCallValidateCmdClearColorImage(layer_data *dev_data, VkCommandBuffer com
         skip |= insideRenderPass(dev_data, cb_node, "vkCmdClearColorImage()", VALIDATION_ERROR_18800017);
         for (uint32_t i = 0; i < rangeCount; ++i) {
             std::string param_name = "pRanges[" + std::to_string(i) + "]";
-            skip |= ValidateImageSubresourceRange(dev_data, image_state, nullptr, pRanges[i], "vkCmdClearColorImage",
-                                                  param_name.c_str());
+            skip |=
+                ValidateImageSubresourceRange(dev_data, image_state, false, pRanges[i], "vkCmdClearColorImage", param_name.c_str());
             skip |= ValidateImageAttributes(dev_data, image_state, pRanges[i]);
             skip |= VerifyClearImageLayout(dev_data, cb_node, image_state, pRanges[i], imageLayout, "vkCmdClearColorImage()");
         }
@@ -1055,7 +1055,7 @@ bool PreCallValidateCmdClearDepthStencilImage(layer_data *device_data, VkCommand
         skip |= insideRenderPass(device_data, cb_node, "vkCmdClearDepthStencilImage()", VALIDATION_ERROR_18a00017);
         for (uint32_t i = 0; i < rangeCount; ++i) {
             std::string param_name = "pRanges[" + std::to_string(i) + "]";
-            skip |= ValidateImageSubresourceRange(device_data, image_state, nullptr, pRanges[i], "vkCmdClearDepthStencilImage",
+            skip |= ValidateImageSubresourceRange(device_data, image_state, false, pRanges[i], "vkCmdClearDepthStencilImage",
                                                   param_name.c_str());
             skip |=
                 VerifyClearImageLayout(device_data, cb_node, image_state, pRanges[i], imageLayout, "vkCmdClearDepthStencilImage()");
@@ -1416,7 +1416,7 @@ bool ValidateImageCopyData(const layer_data *device_data, const debug_report_dat
         }
 
         // VU01199 changed with mnt1
-        if (GetDeviceExtensions(device_data)->khr_maintenance1) {
+        if (GetDeviceExtensions(device_data)->vk_khr_maintenance1) {
             if (src_state->createInfo.imageType == VK_IMAGE_TYPE_3D) {
                 if ((0 != image_copy.srcSubresource.baseArrayLayer) || (1 != image_copy.srcSubresource.layerCount)) {
                     skip |=
@@ -1544,7 +1544,7 @@ bool ValidateImageCopyData(const layer_data *device_data, const debug_report_dat
             }
         }
         // VU01199 changed with mnt1
-        if (GetDeviceExtensions(device_data)->khr_maintenance1) {
+        if (GetDeviceExtensions(device_data)->vk_khr_maintenance1) {
             if (dst_state->createInfo.imageType == VK_IMAGE_TYPE_3D) {
                 if ((0 != image_copy.dstSubresource.baseArrayLayer) || (1 != image_copy.dstSubresource.layerCount)) {
                     skip |=
@@ -1681,7 +1681,7 @@ bool PreCallValidateCmdCopyImage(layer_data *device_data, GLOBAL_CB_NODE *cb_nod
                         HandleToUint64(command_buffer), __LINE__, DRAWSTATE_INVALID_IMAGE_ASPECT, "IMAGE", "%s", ss.str().c_str());
         }
 
-        if (GetDeviceExtensions(device_data)->khr_maintenance1) {
+        if (GetDeviceExtensions(device_data)->vk_khr_maintenance1) {
             // No chance of mismatch if we're overriding depth slice count
             if (!slice_override) {
                 // The number of depth slices in srcSubresource and dstSubresource must match
@@ -3006,8 +3006,7 @@ bool ValidateImageAspectMask(layer_data *device_data, VkImage image, VkFormat fo
     return skip;
 }
 
-bool ValidateImageSubresourceRange(const layer_data *device_data, const IMAGE_STATE *image_state,
-                                   const VkImageViewCreateInfo *image_view_create_info,
+bool ValidateImageSubresourceRange(const layer_data *device_data, const IMAGE_STATE *image_state, const bool is_imageview_2d_array,
                                    const VkImageSubresourceRange &subresourceRange, const char *cmd_name, const char *param_name) {
     const debug_report_data *report_data = core_validation::GetReportData(device_data);
     bool skip = false;
@@ -3043,13 +3042,14 @@ bool ValidateImageSubresourceRange(const layer_data *device_data, const IMAGE_ST
     }
 
     // Validate array layers
-    bool is_3D_to_2D_map = image_view_create_info && GetDeviceExtensions(device_data)->khr_maintenance1 &&
-                           image_state->createInfo.imageType == VK_IMAGE_TYPE_3D &&
-                           image_view_create_info->viewType == VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    bool is_khr_maintenance1 = GetDeviceExtensions(device_data)->vk_khr_maintenance1;
+    bool is_3D_to_2D_map = is_khr_maintenance1 && image_state->createInfo.imageType == VK_IMAGE_TYPE_3D && is_imageview_2d_array;
 
     const auto image_layer_count = is_3D_to_2D_map ? image_state->createInfo.extent.depth : image_state->createInfo.arrayLayers;
     const auto image_layer_count_var_name = is_3D_to_2D_map ? "extent.depth" : "arrayLayers";
-    const auto invalid_layer_code = is_3D_to_2D_map ? VALIDATION_ERROR_0a800800 : VALIDATION_ERROR_0a800802;
+
+    const auto invalid_layer_code =
+        is_khr_maintenance1 ? (is_3D_to_2D_map ? VALIDATION_ERROR_0a800800 : VALIDATION_ERROR_0a800802) : VALIDATION_ERROR_0a8007fe;
 
     if (subresourceRange.layerCount == 0) {
         skip |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT,
@@ -3095,8 +3095,8 @@ bool PreCallValidateCreateImageView(layer_data *device_data, const VkImageViewCr
         // If this isn't a sparse image, it needs to have memory backing it at CreateImageView time
         skip |= ValidateMemoryIsBoundToImage(device_data, image_state, "vkCreateImageView()", VALIDATION_ERROR_0ac007f8);
         // Checks imported from image layer
-        skip |= ValidateImageSubresourceRange(device_data, image_state, create_info, create_info->subresourceRange,
-                                              "vkCreateImageView", "pCreateInfo->subresourceRange");
+        skip |= ValidateImageSubresourceRange(device_data, image_state, create_info->viewType == VK_IMAGE_VIEW_TYPE_2D_ARRAY,
+                                              create_info->subresourceRange, "vkCreateImageView", "pCreateInfo->subresourceRange");
 
         VkImageCreateFlags image_flags = image_state->createInfo.flags;
         VkFormat image_format = image_state->createInfo.format;

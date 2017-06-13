@@ -30,7 +30,7 @@
 #include "vk_enum_string_helper.h"
 #include "vk_layer_logging.h"
 #include "vk_validation_error_messages.h"
-#include "device_extensions.h"
+#include "vk_extension_helper.h"
 
 
 #include "parameter_name.h"
@@ -49,7 +49,6 @@ struct instance_layer_data {
     VkDebugReportCallbackCreateInfoEXT *tmp_dbg_create_infos = nullptr;
     VkDebugReportCallbackEXT *tmp_callbacks = nullptr;
     InstanceExtensions extensions = {};
-    std::unordered_set<std::string> enabled_extensions;
     VkLayerInstanceDispatchTable dispatch_table = {};
 };
 
@@ -61,8 +60,7 @@ struct layer_data {
     VkPhysicalDeviceFeatures physical_device_features = {};
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
-    DeviceExtensions enables;
-    std::unordered_set<std::string> enabled_extensions;
+    DeviceExtensions extensions;
 
     VkLayerDispatchTable dispatch_table = {};
 };
@@ -120,8 +118,7 @@ const uint32_t MaxEnumValue = 0x7FFFFFFF;
 
 // Forward declaration
 template <typename T>
-bool ValidateRequiredExtensions(const T *layer_data, const std::string &api_name,
-                                const std::vector<std::string> &required_extensions);
+bool OutputExtensionError(const T *layer_data, const std::string &api_name, const std::string &extension_name);
 
 template <typename T>
 bool is_extension_added_token(T value) {
@@ -259,7 +256,7 @@ bool validate_array(debug_report_data *report_data, const char *apiName, const P
                                  countName.get_name().c_str());
         }
     } else {
-        skip_call |= validate_array(report_data, apiName, countName, arrayName, (*count), array, countValueRequired, arrayRequired);
+        skip_call |= validate_array(report_data, apiName, countName, arrayName, array ? (*count) : 0, array, countValueRequired, arrayRequired);
     }
 
     return skip_call;

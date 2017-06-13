@@ -142,10 +142,8 @@ ConfigFile::ConfigFile() : m_fileIsParsed(false) {
 #endif
 
     m_valueMap["lunarg_core_validation.report_flags"] = "error";
-    m_valueMap["lunarg_image.report_flags"] = "error";
     m_valueMap["lunarg_object_tracker.report_flags"] = "error";
     m_valueMap["lunarg_parameter_validation.report_flags"] = "error";
-    m_valueMap["lunarg_swapchain.report_flags"] = "error";
     m_valueMap["google_threading.report_flags"] = "error";
     m_valueMap["google_unique_objects.report_flags"] = "error";
 
@@ -153,13 +151,9 @@ ConfigFile::ConfigFile() : m_fileIsParsed(false) {
     // For Windows, enable message logging AND OutputDebugString
     m_valueMap["lunarg_core_validation.debug_action"] =
         "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
-    m_valueMap["lunarg_image.debug_action"] =
-        "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
     m_valueMap["lunarg_object_tracker.debug_action"] =
         "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
     m_valueMap["lunarg_parameter_validation.debug_action"] =
-        "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
-    m_valueMap["lunarg_swapchain.debug_action"] =
         "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
     m_valueMap["google_threading.debug_action"] =
         "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
@@ -167,19 +161,15 @@ ConfigFile::ConfigFile() : m_fileIsParsed(false) {
         "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG,VK_DBG_LAYER_ACTION_DEBUG_OUTPUT";
 #else   // WIN32
     m_valueMap["lunarg_core_validation.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
-    m_valueMap["lunarg_image.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["lunarg_object_tracker.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["lunarg_parameter_validation.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
-    m_valueMap["lunarg_swapchain.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["google_threading.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
     m_valueMap["google_unique_objects.debug_action"] = "VK_DBG_LAYER_ACTION_DEFAULT,VK_DBG_LAYER_ACTION_LOG_MSG";
 #endif  // WIN32
 
     m_valueMap["lunarg_core_validation.log_filename"] = "stdout";
-    m_valueMap["lunarg_image.log_filename"] = "stdout";
     m_valueMap["lunarg_object_tracker.log_filename"] = "stdout";
     m_valueMap["lunarg_parameter_validation.log_filename"] = "stdout";
-    m_valueMap["lunarg_swapchain.log_filename"] = "stdout";
     m_valueMap["google_threading.log_filename"] = "stdout";
     m_valueMap["google_unique_objects.log_filename"] = "stdout";
 }

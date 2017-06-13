@@ -118,20 +118,10 @@ static const VkLayerProperties global_layer = {
 };
 
 template <typename T>
-bool ValidateRequiredExtensions(const T *layer_data, const std::string &api_name, const std::vector<std::string> &required_extensions) {
-    bool skip = false;
-    std::stringstream error_results;
-    auto const &enabled_extensions = layer_data->enabled_extensions;
-
-    for (const auto &reqd_ext : required_extensions) {
-        if (enabled_extensions.find(reqd_ext) == enabled_extensions.end()) {
-            skip = log_msg(layer_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
-                           __LINE__, EXTENSION_NOT_ENABLED, LayerName,
-                           "Attemped to call %s() but its required extension %s has not been enabled\n", api_name.c_str(),
-                           reqd_ext.c_str());
-        }
-    }
-    return skip;
+bool OutputExtensionError(const T *layer_data, const std::string &api_name, const std::string &extension_name) {
+    return log_msg(layer_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
+                   EXTENSION_NOT_ENABLED, LayerName, "Attemped to call %s() but its required extension %s has not been enabled\n",
+                   api_name.c_str(), extension_name.c_str());
 }
 
 static const int MaxParamCheckerStringLength = 256;
@@ -238,11 +228,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         auto my_instance_data = GetLayerDataPtr(get_dispatch_key(*pInstance), instance_layer_data_map);
         assert(my_instance_data != nullptr);
 
-        // Save enabled instance extension names for validation extension APIs
-        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-            my_instance_data->enabled_extensions.emplace(pCreateInfo->ppEnabledExtensionNames[i]);
-        }
-
         layer_init_instance_dispatch_table(*pInstance, &my_instance_data->dispatch_table, fpGetInstanceProcAddr);
         my_instance_data->instance = *pInstance;
         my_instance_data->report_data =
@@ -333,8 +318,9 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
         }
 
         layer_debug_report_destroy_instance(my_data->report_data);
-        instance_layer_data_map.erase(key);
     }
+
+    FreeLayerDataPtr(key, instance_layer_data_map);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
@@ -602,15 +588,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice physicalDevice, con
             my_device_data->report_data = layer_debug_report_create_device(my_instance_data->report_data, *pDevice);
             layer_init_device_dispatch_table(*pDevice, &my_device_data->dispatch_table, fpGetDeviceProcAddr);
 
-            // Save enabled device AND instance extension names for validation extension APIs
-            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-                my_device_data->enabled_extensions.emplace(pCreateInfo->ppEnabledExtensionNames[i]);
-            }
-            for (const auto &inst_ext : my_instance_data->enabled_extensions) {
-                my_device_data->enabled_extensions.emplace(inst_ext);
-            }
-
-            my_device_data->enables.InitFromDeviceCreateInfo(pCreateInfo);
+            my_device_data->extensions.InitFromDeviceCreateInfo(&my_instance_data->extensions, pCreateInfo);
 
             storeCreateDeviceData(*pDevice, pCreateInfo);
 
@@ -649,8 +627,9 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
 #endif
 
         my_data->dispatch_table.DestroyDevice(device, pAllocator);
-        layer_data_map.erase(key);
     }
+
+    FreeLayerDataPtr(key, layer_data_map);
 }
 
 static bool PreGetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex) {
@@ -3154,8 +3133,8 @@ static bool preCmdSetViewport(layer_data *my_data, uint32_t first_viewport, uint
             }
 
             bool invalid_height = (viewport.height <= 0 || viewport.height > limits.maxViewportDimensions[1]);
-            if ((my_data->enables.amd_negative_viewport_height || my_data->enables.khr_maintenance1) && (viewport.height < 0)) {
-                // VALIDATION_ERROR_1500099c
+            if ((my_data->extensions.vk_amd_negative_viewport_height || my_data->extensions.vk_khr_maintenance1) &&
+                (viewport.height < 0)) { // VALIDATION_ERROR_1500099c
                 invalid_height = false;
             }
             if (invalid_height) {
@@ -4147,7 +4126,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         while (pnext) {
             if (VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR == pnext->sType) {
                 // TODO: This and all other pNext extension dependencies should be added to code-generation
-                skip |= require_device_extension(my_data, my_data->enables.khr_incremental_present, "vkQueuePresentKHR",
+                skip |= require_device_extension(my_data, my_data->extensions.vk_khr_incremental_present, "vkQueuePresentKHR",
                                                  VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME);
                 VkPresentRegionsKHR *present_regions = (VkPresentRegionsKHR *)pnext;
                 if (present_regions->swapchainCount != pPresentInfo->swapchainCount) {
@@ -5765,36 +5744,28 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(VkDevice device, uint32_t swapchain
     }
 }
 
-static inline PFN_vkVoidFunction layer_intercept_proc(const char *name) {
-    for (unsigned int i = 0; i < sizeof(procmap) / sizeof(procmap[0]); i++) {
-        if (!strcmp(name, procmap[i].name)) return procmap[i].pFunc;
-    }
-    return NULL;
-}
-
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char *funcName) {
-    assert(device);
+    const auto item = name_to_funcptr_map.find(funcName);
+    if (item != name_to_funcptr_map.end()) {
+        return reinterpret_cast<PFN_vkVoidFunction>(item->second);
+    }
 
-    PFN_vkVoidFunction addr = layer_intercept_proc(funcName);
-    if (addr) return addr;
-
-    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
-
-    if (!dev_data->dispatch_table.GetDeviceProcAddr) return nullptr;
-    return dev_data->dispatch_table.GetDeviceProcAddr(device, funcName);
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+    const auto &table = device_data->dispatch_table;
+    if (!table.GetDeviceProcAddr) return nullptr;
+    return table.GetDeviceProcAddr(device, funcName);
 }
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *funcName) {
-
-    PFN_vkVoidFunction addr = layer_intercept_proc(funcName);
-    if (addr) return addr;
-
-    assert(instance);
+    const auto item = name_to_funcptr_map.find(funcName);
+    if (item != name_to_funcptr_map.end()) {
+        return reinterpret_cast<PFN_vkVoidFunction>(item->second);
+    }
 
     auto instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
-
-    if (!instance_data->dispatch_table.GetInstanceProcAddr) return nullptr;
-    return instance_data->dispatch_table.GetInstanceProcAddr(instance, funcName);
+    auto &table = instance_data->dispatch_table;
+    if (!table.GetInstanceProcAddr) return nullptr;
+    return table.GetInstanceProcAddr(instance, funcName);
 }
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *funcName) {
@@ -5806,26 +5777,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance in
 }
 
 }  // namespace parameter_validation
-
-// vk_layer_logging.h expects these to be defined
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(VkInstance instance,
-                                                              const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
-                                                              const VkAllocationCallbacks *pAllocator,
-                                                              VkDebugReportCallbackEXT *pMsgCallback) {
-    return parameter_validation::CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pMsgCallback);
-}
-
-VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT msgCallback,
-                                                           const VkAllocationCallbacks *pAllocator) {
-    parameter_validation::DestroyDebugReportCallbackEXT(instance, msgCallback, pAllocator);
-}
-
-VKAPI_ATTR void VKAPI_CALL vkDebugReportMessageEXT(VkInstance instance, VkDebugReportFlagsEXT flags,
-                                                   VkDebugReportObjectTypeEXT objType, uint64_t object, size_t location,
-                                                   int32_t msgCode, const char *pLayerPrefix, const char *pMsg) {
-    parameter_validation::DebugReportMessageEXT(instance, flags, objType, object, location, msgCode, pLayerPrefix, pMsg);
-}
 
 // loader-layer interface v0
 

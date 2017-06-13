@@ -16,6 +16,6 @@
 APP_ABI := armeabi-v7a arm64-v8a x86 x86_64 mips mips64
 APP_PLATFORM := android-22
 APP_STL := gnustl_static
-APP_MODULES := layer_utils VkLayer_core_validation VkLayer_parameter_validation VkLayer_object_tracker VkLayer_threading VkLayer_swapchain VkLayer_unique_objects VkLayer_api_dump VkLayer_screenshot VkLayerValidationTests VkLayer_vktrace_layer vkreplay
+APP_MODULES := layer_utils VkLayer_core_validation VkLayer_parameter_validation VkLayer_object_tracker VkLayer_threading VkLayer_unique_objects VkLayer_api_dump VkLayer_screenshot VkLayerValidationTests VulkanLayerValidationTests VkLayer_vktrace_layer vkreplay
 APP_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
 NDK_TOOLCHAIN_VERSION := clang

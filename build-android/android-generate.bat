@@ -31,6 +31,7 @@ py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml thread_che
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_layer_dispatch_table.h
+py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_extension_helper.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h
 py -3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_html.h
