@@ -3,11 +3,11 @@ Vktrace Trace and Replay Tool
 
 Vktrace is a Vulkan API tracer for graphics applications.
 
-##Using Vktrace on Linux###
+## Using Vktrace on Linux ###
 Vktrace builds two binaries with associated Vulkan libraries: a tracer with Vulkan
 tracing library and a replayer. The tracing library is a Vulkan layer library.
 
-###Running Vktrace tracer as standalone server on Linux###
+### Running Vktrace tracer as standalone server on Linux ###
 The Vktrace tracer program can run as a server.  Then the app/game to be traced
 is launched separately with the Vktrace tracer library preloaded. To run
 Vktrace as a server one should omit the "-p" option.
@@ -36,7 +36,7 @@ the tracer inserted into an app will send the trace packets to the remote
 system rather than local system. In this case, the remote system should be
 running the trace server.
 
-###Running Vktrace tracer and launch app/game from tracer on Linux###
+### Running Vktrace tracer and launch app/game from tracer on Linux ###
 The Vktrace tracer program launches the app/game you desire and then traces it.
 To launch app/game from Vktrace tracer one must use the "-p" option.
 ```
@@ -51,7 +51,7 @@ export LD_LIBRARY_PATH=/home/jon/LoaderAndValidationLayers/dbuild/loader
 ```
 Trace file is in "vktrace_cube.vktrace".
 
-###Running replayer on Linux###
+### Running replayer on Linux ###
 The Vktrace replayer takes  a trace file  and will launch an Vulkan session based
 on trace file.
 ```
@@ -66,12 +66,12 @@ export LD_LIBRARY_PATH=/home/jon/LoaderAndValidationLayers/dbuild:/home/jon/Load
 ./vkreplay -t vktrace_cube.vktrace
 ```
 
-##Using Vktrace on Windows##
+## Using Vktrace on Windows ##
 Vktrace builds two binaries with associated Vulkan libraries: a tracer with Vulkan
 tracing library and a replayer. The tracing library is a Vulkan layer library.
 
 
-###Running Vktrace tracer and launch app/game from tracer on Windows###
+### Running Vktrace tracer and launch app/game from tracer on Windows ###
 The Vktrace tracer program launches the app/game you desire and then traces it.
 To launch app/game from Vktrace tracer one must use the "-p" option.
 Also, you may need to copy the Vulkan.dll library into the directory of Vktrace,
@@ -90,7 +90,7 @@ vktrace -p C:\\Users\developer\\LoaderAndValidationLayers\\_out64\\demos\\cube.e
 ```
 Trace file is in "vktrace_cube.vktrace".
 
-###Running replayer on Windows###
+### Running replayer on Windows ###
 The Vktrace replayer takes  a trace file  and will launch an Vulkan session based
 on trace file.
 ```
@@ -102,7 +102,7 @@ Example to replay trace file captured above
 cd C:\\Users\developer\\Vktrace\\_out64\\Debug
 vkreplay -t vktrace_cube.vktrace
 ```
-##Building Vktrace##
+## Building Vktrace ##
 Vktrace is built as part of top level VulkanTools build. Follow the
 build directions for the top level VulkanTools project build in BUILDVT.md. Vktrace binaries and
 libraries will be placed in <build_dir>.
