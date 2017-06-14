@@ -953,14 +953,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     // remove the loader extended createInfo structure
     VkDeviceCreateInfo localCreateInfo;
     memcpy(&localCreateInfo, pCreateInfo, sizeof(localCreateInfo));
-    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-        char** ppName = (char**)&localCreateInfo.ppEnabledExtensionNames[i];
-        *ppName = (char*)pCreateInfo->ppEnabledExtensionNames[i];
-    }
-    for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
-        char** ppName = (char**)&localCreateInfo.ppEnabledLayerNames[i];
-        *ppName = (char*)pCreateInfo->ppEnabledLayerNames[i];
-    }
     localCreateInfo.pNext = strip_create_extensions(pCreateInfo->pNext);
 
     CREATE_TRACE_PACKET(vkCreateDevice,
