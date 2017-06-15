@@ -45,6 +45,7 @@ set(LAYER_JSON_FILES
     VkLayer_api_dump
     VkLayer_monitor
     VkLayer_screenshot
+    VkLayer_device_simulation
     )
 
 set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
@@ -130,6 +131,7 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
+    ${JSONCPP_INCLUDE_DIR}
 )
 
 if (WIN32)
@@ -173,6 +175,7 @@ add_dependencies(VkLayer_utilsvt generate_helper_files)
 # VulkanTools layers
 add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp ../layers/vk_layer_table.cpp)
+add_vk_layer(device_simulation device_simulation.cpp ../layers/vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 # generated
 add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
 
