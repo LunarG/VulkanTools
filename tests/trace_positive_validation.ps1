@@ -34,3 +34,6 @@ foreach ($line in $lines) {
         rm positive.vktrace
     }
 }
+
+# Make it to here and we pass
+exit 0

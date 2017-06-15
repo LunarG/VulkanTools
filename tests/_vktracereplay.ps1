@@ -13,6 +13,7 @@ $exitstatus = 0
 
 if ($Debug) {
     $dPath = "Debug"
+    $tplarg = "-debug"
 } else {
     $dPath = "Release"
 }
@@ -164,6 +165,14 @@ if ($exitstatus -eq 0) {
     # cleanup
     cd ..
     rm -recurse -force vktracereplay_tmp  > $null 2> $null
+}
+
+if ($exitstatus -eq 0) {
+    $scriptpath = (Split-Path -parent $PSCommandPath)
+    $toolsroot = (Get-Item $scriptpath).parent.parent.FullName
+    $command = ".\trace_positive_validation.ps1 -toolsroot $toolsroot $tplarg"
+    Invoke-Expression $command
+    # If test didn't crash, it passed
 }
 
 write-host "vktracereplay.ps1: Vktrace trace/replay"
