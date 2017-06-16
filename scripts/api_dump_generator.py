@@ -129,6 +129,8 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
         initInstanceTable(*pInstance, fpGetInstanceProcAddr);
     }}
 
+    {funcStateTrackingCode}
+
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
@@ -142,6 +144,8 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dispatch_key key = get_dispatch_key({funcDispatchParam});
     instance_dispatch_table({funcDispatchParam})->DestroyInstance({funcNamedParams});
     destroy_instance_dispatch_table(key);
+
+    {funcStateTrackingCode}
 
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
@@ -168,6 +172,8 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
         initDeviceTable(*pDevice, fpGetDeviceProcAddr);
     }}
 
+    {funcStateTrackingCode}
+
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
@@ -181,6 +187,8 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     dispatch_key key = get_dispatch_key({funcDispatchParam});
     device_dispatch_table({funcDispatchParam})->DestroyDevice({funcNamedParams});
     destroy_device_dispatch_table(key);
+
+    {funcStateTrackingCode}
 
     // Output the API dump
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
@@ -230,6 +238,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    {funcStateTrackingCode}
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     ApiDumpInstance::current().nextFrame();
     return result;
@@ -242,6 +251,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    {funcStateTrackingCode}
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
@@ -251,6 +261,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    {funcStateTrackingCode}
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
@@ -261,6 +272,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    {funcStateTrackingCode}
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
@@ -270,6 +282,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    {funcStateTrackingCode}
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
@@ -328,7 +341,7 @@ TEXT_CODEGEN = """
 #include "api_dump.h"
 
 @foreach struct
-std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
 @end struct
 @foreach union
 std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
@@ -445,7 +458,7 @@ inline std::ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings
 //========================== Struct Implementations =========================//
 
 @foreach struct where('{sctName}' != 'VkShaderModuleCreateInfo')
-std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     if(settings.showAddress())
         settings.stream() << &object << ":\\n";
@@ -458,16 +471,16 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @end if
 
     @if({memPtrLevel} == 0)
-    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
-    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
 
     @if('{memCondition}' != 'None')
@@ -480,7 +493,7 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
 @end struct
 
 @foreach struct where('{sctName}' == 'VkShaderModuleCreateInfo')
-std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     if(settings.showAddress())
         settings.stream() << &object << ":\\n";
@@ -493,20 +506,20 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @end if
 
     @if({memPtrLevel} == 0)
-    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+    dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID});
+        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     else
         dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
@@ -559,13 +572,13 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
     {{
         @foreach parameter
         @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
+        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @end parameter
     }}
@@ -586,13 +599,13 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     {{
         @foreach parameter
         @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID});
+        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID});
+        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
         @end if
         @end parameter
     }}
@@ -637,7 +650,7 @@ HTML_CODEGEN = """
 #include "api_dump.h"
 
 @foreach struct
-std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
+std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
 @end struct
 @foreach union
 std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
@@ -762,7 +775,7 @@ inline std::ostream& dump_html_{pfnName}({pfnName} object, const ApiDumpSettings
 //========================== Struct Implementations =========================//
 
 @foreach struct where('{sctName}' != 'VkShaderModuleCreateInfo')
-std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     settings.stream() << "<div class=\'val\'>";
     if(settings.showAddress())
@@ -778,16 +791,16 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     @end if
 
     @if({memPtrLevel} == 0)
-    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_html_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
-    dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
 
     @if('{memCondition}' != 'None')
@@ -800,7 +813,7 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
 @end struct
 
 @foreach struct where('{sctName}' == 'VkShaderModuleCreateInfo')
-std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -815,20 +828,20 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     @end if
 
     @if({memPtrLevel} == 0)
-    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_html_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID});
+    dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID});
+        dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     else
         dump_html_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
@@ -895,13 +908,13 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
     {{
         @foreach parameter
         @if({prmPtrLevel} == 0)
-        dump_html_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID});
+        dump_html_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_html_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID});
+        dump_html_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID});
+        dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
         @end if
         @end parameter
     }}
@@ -950,12 +963,69 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 """
 
 POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow']
+
+TRACKED_STATE = {
+    'vkAllocateCommandBuffers':
+        'if(result == VK_SUCCESS)\n' +
+            'ApiDumpInstance::current().addCmdBuffers(\n' +
+                'device,\n' +
+                'pAllocateInfo->commandPool,\n' + 
+                'std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + pAllocateInfo->commandBufferCount),\n' +
+                'pAllocateInfo->level\n'
+            ');',
+    'vkDestroyCommandPool': 
+        'ApiDumpInstance::current().eraseCmdBufferPool(device, commandPool);'
+    ,
+    'vkFreeCommandBuffers': 
+        'ApiDumpInstance::current().eraseCmdBuffers(device, commandPool, std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + commandBufferCount));'
+    ,
+}
+
+INHERITED_STATE = {
+    'VkPipelineViewportStateCreateInfo': {
+        'VkGraphicsPipelineCreateInfo': [
+            {
+                'name': 'is_dynamic_viewport',
+                'type': 'bool',
+                'expr':
+                    'object.pDynamicState && ' +
+                    'std::count(' +
+                        'object.pDynamicState->pDynamicStates, ' +
+                        'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, ' +
+                        'VK_DYNAMIC_STATE_VIEWPORT' +
+                    ')',
+             },
+             {
+                'name':'is_dynamic_scissor',
+                'type': 'bool',
+                'expr':
+                    'object.pDynamicState && ' +
+                    'std::count(' +
+                        'object.pDynamicState->pDynamicStates, ' +
+                        'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, ' +
+                        'VK_DYNAMIC_STATE_SCISSOR' +
+                    ')',
+            },
+        ],
+    },
+    'VkCommandBufferBeginInfo': {
+        'vkBeginCommandBuffer': [
+            {
+                'name': 'cmd_buffer',
+                'type': 'VkCommandBuffer',
+                'expr': 'commandBuffer',
+            },
+        ],
+    },
+}
+
 VALIDITY_CHECKS = {
     'VkBufferCreateInfo': {
         'pQueueFamilyIndices': 'object.sharingMode == VK_SHARING_MODE_CONCURRENT',
     },
     'VkCommandBufferBeginInfo': {
-        'pInheritanceInfo': 'false',    # No easy way to tell if this is a primary command buffer
+        # Tracked state ApiDumpInstance, and inherited cmd_buffer
+        'pInheritanceInfo': 'ApiDumpInstance::current().getCmdBufferLevel(cmd_buffer) == VK_COMMAND_BUFFER_LEVEL_SECONDARY',
     },
     'VkDescriptorSetLayoutBinding': {
         'pImmutableSamplers':
@@ -966,8 +1036,8 @@ VALIDITY_CHECKS = {
         'pQueueFamilyIndices': 'object.sharingMode == VK_SHARING_MODE_CONCURRENT',
     },
     'VkPipelineViewportStateCreateInfo': {
-        'pViewports': 'false',      # No easy way to check if viewport state is dynamic
-        'pScissors': 'false',       # No easy way to check if scissor state is dynamic
+        'pViewports': '!is_dynamic_viewport', # Inherited state variable is_dynamic_viewport
+        'pScissors': '!is_dynamic_scissor',   # Inherited state variable is_dynamic_scissor
     },
     'VkSwapchainCreateInfoKHR': {
         'pQueueFamilyIndices': 'object.imageSharingMode == VK_SHARING_MODE_CONCURRENT',
@@ -1339,7 +1409,7 @@ class Control:
 # Base class for VulkanStruct.Member and VulkanStruct.Parameter
 class VulkanVariable:
 
-    def __init__(self, rootNode, constants):
+    def __init__(self, rootNode, constants, parentName):
         # Set basic properties
         self.name = rootNode.find('name').text      # Variable name
         self.typeID = rootNode.find('type').text    # Typename, dereferenced and converted to a useable C++ token
@@ -1397,6 +1467,11 @@ class VulkanVariable:
             self.baseType += '*'
             self.pointerLevels -= 1
         assert(self.pointerLevels >= 0)
+
+        self.inheritedConditions = ''
+        if self.typeID in INHERITED_STATE and parentName in INHERITED_STATE[self.typeID]:
+            for states in INHERITED_STATE[self.typeID][parentName]:
+                self.inheritedConditions += ', ' + states['expr']
 
 class VulkanBasetype:
 
@@ -1565,8 +1640,8 @@ class VulkanFunction:
 
     class Parameter(VulkanVariable):
 
-        def __init__(self, rootNode, constants):
-            VulkanVariable.__init__(self, rootNode, constants)
+        def __init__(self, rootNode, constants, parentName):
+            VulkanVariable.__init__(self, rootNode, constants, parentName)
             self.text = ''.join(rootNode.itertext())
 
         def values(self):
@@ -1578,6 +1653,7 @@ class VulkanFunction:
                 'prmChildType': self.childType,
                 'prmPtrLevel': self.pointerLevels,
                 'prmLength': self.arrayLength,
+                'prmInheritedConditions': self.inheritedConditions,
             }
 
     def __init__(self, rootNode, constants):
@@ -1588,7 +1664,7 @@ class VulkanFunction:
         self.namedParams = ''
         self.typedParams = ''
         for node in rootNode.findall('param'):
-            self.parameters.append(VulkanFunction.Parameter(node, constants))
+            self.parameters.append(VulkanFunction.Parameter(node, constants, self.name))
             self.namedParams += self.parameters[-1].name + ', '
             self.typedParams += self.parameters[-1].text + ', '
         if len(self.parameters) > 0:
@@ -1600,6 +1676,10 @@ class VulkanFunction:
         else:
             self.type = 'device'
 
+        self.stateTrackingCode = ''
+        if self.name in TRACKED_STATE:
+            self.stateTrackingCode = TRACKED_STATE[self.name]
+
     def values(self):
         return {
             'funcName': self.name,
@@ -1608,7 +1688,8 @@ class VulkanFunction:
             'funcReturn': self.returnType,
             'funcNamedParams': self.namedParams,
             'funcTypedParams': self.typedParams,
-            'funcDispatchParam': self.parameters[0].name
+            'funcDispatchParam': self.parameters[0].name,
+            'funcStateTrackingCode': self.stateTrackingCode
         }
 
 class VulkanFunctionPointer:
@@ -1640,7 +1721,7 @@ class VulkanStruct:
     class Member(VulkanVariable):
 
         def __init__(self, rootNode, constants, parentName):
-            VulkanVariable.__init__(self, rootNode, constants)
+            VulkanVariable.__init__(self, rootNode, constants, parentName)
 
             # Search for a member condition
             self.condition = None
@@ -1658,6 +1739,7 @@ class VulkanStruct:
                 'memLength': self.arrayLength,
                 'memLengthIsMember': self.lengthMember,
                 'memCondition': self.condition,
+                'memInheritedConditions': self.inheritedConditions,
             }
 
 
@@ -1666,10 +1748,16 @@ class VulkanStruct:
         self.members = []
         for node in rootNode.findall('member'):
             self.members.append(VulkanStruct.Member(node, constants, self.name))
+        self.conditionVars = ''
+        if self.name in INHERITED_STATE:
+            for parent, states in INHERITED_STATE[self.name].items():
+                for state in states:
+                    self.conditionVars += ', ' + state['type'] + ' ' + state['name'];
 
     def values(self):
         return {
             'sctName': self.name,
+            'sctConditionVars': self.conditionVars,
         }
 
 class VulkanSystemType:
@@ -1695,8 +1783,8 @@ class VulkanUnion:
 
     class Choice(VulkanVariable):
 
-        def __init__(self, rootNode, constants):
-            VulkanVariable.__init__(self, rootNode, constants)
+        def __init__(self, rootNode, constants, parentName):
+            VulkanVariable.__init__(self, rootNode, constants, parentName)
 
         def values(self):
             return {
@@ -1714,7 +1802,7 @@ class VulkanUnion:
         self.name = rootNode.get('name')
         self.choices = []
         for node in rootNode.findall('member'):
-            self.choices.append(VulkanUnion.Choice(node, constants))
+            self.choices.append(VulkanUnion.Choice(node, constants, self.name))
 
     def values(self):
         return {
