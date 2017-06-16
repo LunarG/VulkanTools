@@ -38,6 +38,11 @@
 #include <string.h>
 #include <string>
 #include <type_traits>
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <unordered_set>
+#include <utility>
 
 #define MAX_STRING_LENGTH 1024
 
@@ -318,6 +323,7 @@ class ApiDumpInstance {
         loader_platform_thread_create_mutex(&output_mutex);
         loader_platform_thread_create_mutex(&frame_mutex);
         loader_platform_thread_create_mutex(&thread_mutex);
+        loader_platform_thread_create_mutex(&cmd_buffer_state_mutex);
     }
 
     inline ~ApiDumpInstance() {
@@ -326,6 +332,7 @@ class ApiDumpInstance {
         loader_platform_thread_delete_mutex(&thread_mutex);
         loader_platform_thread_delete_mutex(&frame_mutex);
         loader_platform_thread_delete_mutex(&output_mutex);
+        loader_platform_thread_delete_mutex(&cmd_buffer_state_mutex);
     }
 
     inline uint64_t frameCount() {
@@ -366,6 +373,63 @@ class ApiDumpInstance {
         return new_index;
     }
 
+    inline VkCommandBufferLevel getCmdBufferLevel(VkCommandBuffer cmd_buffer) {
+        loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
+
+        const auto level_iter = cmd_buffer_level.find(cmd_buffer);
+        assert(level_iter != cmd_buffer_level.end());
+        const auto level = level_iter->second;
+
+        loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
+        return level;
+    }
+
+    inline void eraseCmdBuffers(VkDevice device, VkCommandPool cmd_pool, std::vector<VkCommandBuffer> cmd_buffers) {
+        cmd_buffers.erase(std::remove(cmd_buffers.begin(), cmd_buffers.end(), nullptr), cmd_buffers.end());
+        if (!cmd_buffers.empty()) {
+            loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
+
+            const auto pool_cmd_buffers_iter = cmd_buffer_pools.find(std::make_pair(device, cmd_pool));
+            assert(pool_cmd_buffers_iter != cmd_buffer_pools.end());
+
+            for (const auto cmd_buffer : cmd_buffers) {
+                pool_cmd_buffers_iter->second.erase(cmd_buffer);
+
+                assert(cmd_buffer_level.count(cmd_buffer) > 0);
+                cmd_buffer_level.erase(cmd_buffer);
+            }
+
+            loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
+        }
+    }
+
+    inline void addCmdBuffers(VkDevice device, VkCommandPool cmd_pool, std::vector<VkCommandBuffer> cmd_buffers,
+                              VkCommandBufferLevel level) {
+        loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
+
+        auto &pool_cmd_buffers = cmd_buffer_pools[std::make_pair(device, cmd_pool)];
+        pool_cmd_buffers.insert(cmd_buffers.begin(), cmd_buffers.end());
+
+        for (const auto cmd_buffer : cmd_buffers) {
+            assert(cmd_buffer_level.count(cmd_buffer) == 0);
+            cmd_buffer_level[cmd_buffer] = level;
+        }
+
+        loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
+    }
+
+    inline void eraseCmdBufferPool(VkDevice device, VkCommandPool cmd_pool) {
+        if (cmd_pool != VK_NULL_HANDLE) {
+            loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
+
+            const auto cmd_buffers_iter = cmd_buffer_pools.find(std::make_pair(device, cmd_pool));
+            assert(cmd_buffers_iter != cmd_buffer_pools.end());
+            cmd_buffers_iter->second.clear();
+
+            loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
+        }
+    }
+
     static inline ApiDumpInstance &current() { return current_instance; }
 
    private:
@@ -380,16 +444,20 @@ class ApiDumpInstance {
     loader_platform_thread_mutex thread_mutex;
     loader_platform_thread_id thread_map[MAX_THREADS];
     uint32_t thread_count;
+
+    loader_platform_thread_mutex cmd_buffer_state_mutex;
+    std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;
+    std::unordered_map<VkCommandBuffer, VkCommandBufferLevel> cmd_buffer_level;
 };
 
 ApiDumpInstance ApiDumpInstance::current_instance;
 
 //==================================== Text Backend Helpers ======================================//
 
-template <typename T>
+template <typename T, typename... Args>
 inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                             const char *child_type, const char *name, int indents,
-                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
@@ -404,14 +472,14 @@ inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &s
         std::stringstream stream;
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
-        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
+        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
     }
 }
 
-template <typename T>
+template <typename T, typename... Args>
 inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                             const char *child_type, const char *name, int indents,
-                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
@@ -426,44 +494,47 @@ inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &s
         std::stringstream stream;
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
-        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
+        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
     }
 }
 
-template <typename T>
+template <typename T, typename... Args>
 inline void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                              int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+                              int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
+                              Args... args) {
     if (pointer == NULL) {
         settings.formatNameType(settings.stream(), indents, name, type_string);
         settings.stream() << "NULL\n";
     } else {
-        dump_text_value(*pointer, settings, type_string, name, indents, dump);
+        dump_text_value(*pointer, settings, type_string, name, indents, dump, args...);
     }
 }
 
-template <typename T>
+template <typename T, typename... Args>
 inline void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                              int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+                              int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args),
+                              Args... args) {
     if (pointer == NULL) {
         settings.formatNameType(settings.stream(), indents, name, type_string);
         settings.stream() << "NULL\n";
     } else {
-        dump_text_value(*pointer, settings, type_string, name, indents, dump);
+        dump_text_value(*pointer, settings, type_string, name, indents, dump, args...);
     }
 }
 
-template <typename T>
+template <typename T, typename... Args>
 inline void dump_text_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
-                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
-    dump(object, settings, indents) << "\n";
+    dump(object, settings, indents, args...) << "\n";
 }
 
-template <typename T>
+template <typename T, typename... Args>
 inline void dump_text_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                            int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+                            int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args),
+                            Args... args) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
-    dump(object, settings, indents);
+    dump(object, settings, indents, args...);
 }
 
 inline void dump_text_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
@@ -512,12 +583,10 @@ inline std::ostream &dump_html_nametype(std::ostream &stream, bool showType, con
     return stream;
 }
 
-template <typename T>
-inline void
-dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings,
-                const char *type_string, const char *child_type,
-                const char *name, int indents,
-                std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+template <typename T, typename... Args>
+inline void dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                            const char *child_type, const char *name, int indents,
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
     if (array == NULL) {
         settings.stream() << "<details class='data'><summary>";
         dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
@@ -537,18 +606,15 @@ dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings,
         std::stringstream stream;
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
-        dump_html_value(array[i], settings, child_type, indexName.c_str(),
-                        indents + 1, dump);
+        dump_html_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
     }
     settings.stream() << "</details>";
 }
 
-template <typename T>
-inline void dump_html_array(
-    const T *array, size_t len, const ApiDumpSettings &settings,
-    const char *type_string, const char *child_type, const char *name,
-    int indents,
-    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+template <typename T, typename... Args>
+inline void dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                            const char *child_type, const char *name, int indents,
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
     if (array == NULL) {
         settings.stream() << "<details class='data'><summary>";
         dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
@@ -568,59 +634,53 @@ inline void dump_html_array(
         std::stringstream stream;
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
-        dump_html_value(array[i], settings, child_type, indexName.c_str(),
-                        indents + 1, dump);
+        dump_html_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
     }
     settings.stream() << "</details>";
 }
 
-template <typename T>
-inline void dump_html_pointer(
-    const T *pointer, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents,
-    std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+template <typename T, typename... Args>
+inline void dump_html_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
+                              Args... args) {
     if (pointer == NULL) {
         settings.stream() << "<details class='data'><summary>";
         dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
         settings.stream() << "<div class='val'>NULL</div></summary></details>";
     } else {
-        dump_html_value(*pointer, settings, type_string, name, indents, dump);
+        dump_html_value(*pointer, settings, type_string, name, indents, dump, args...);
     }
 }
 
-template <typename T>
-inline void dump_html_pointer(
-    const T *pointer, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents,
-    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+template <typename T, typename... Args>
+inline void dump_html_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args),
+                              Args... args) {
     if (pointer == NULL) {
         settings.stream() << "<details class='data'><summary>";
         dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
         settings.stream() << "<div class='val'>NULL</div></summary></details>";
     } else {
-        dump_html_value(*pointer, settings, type_string, name, indents, dump);
+        dump_html_value(*pointer, settings, type_string, name, indents, dump, args...);
     }
 }
 
-template <typename T>
-inline void
-dump_html_value(const T object, const ApiDumpSettings &settings,
-                const char *type_string, const char *name, int indents,
-                std::ostream &(*dump)(const T, const ApiDumpSettings &, int)) {
+template <typename T, typename... Args>
+inline void dump_html_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
     settings.stream() << "<details class='data'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    dump(object, settings, indents);
+    dump(object, settings, indents, args...);
     settings.stream() << "</details>";
 }
 
-template <typename T>
-inline void dump_html_value(
-    const T &object, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents,
-    std::ostream &(*dump)(const T &, const ApiDumpSettings &, int)) {
+template <typename T, typename... Args>
+inline void dump_html_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                            int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args),
+                            Args... args) {
     settings.stream() << "<details class='data'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    dump(object, settings, indents);
+    dump(object, settings, indents, args...);
     settings.stream() << "</details>";
 }
 
