@@ -14,11 +14,16 @@
 #  VK_LAYER_LUNARG_api_dump Settings:
 #  ==================================
 #
+#    OUTPUT_FORMAT:
+#    =========
+#    <LayerIdentifer>.output_format : Specifies the format used for output;
+#    can be Text (default -- outputs plain text) or Html.
+#
 #    DETAILED:
 #    =========
 #    <LayerIdentifer>.detailed : Setting this to TRUE causes parameter details
 #    to be dumped in addition to API calls.
-#    
+#
 #    NO_ADDR:
 #    ========
 #    <LayerIdentifier>.no_addr : Setting this to TRUE causes "address" to be
@@ -37,32 +42,37 @@
 #    FLUSH:
 #    ======
 #    <LayerIdentifier>.flush : Setting this to TRUE causes IO to be flushed
-#    each API call that is written
+#    each API call that is written.
 #
-#   INDENT SIZE
+#   INDENT SIZE:
 #   ==============
 #   <LayerIdentifier>.indent_size : Specifies the number of spaces that a tab
-#   is equal to
+#   is equal to.
 #
-#   SHOW TYPES
+#   SHOW TYPES:
 #   ==============
 #   <LayerIdentifier>.show_types : Setting this to TRUE causes types to be
-#   dumped in addition to values
+#   dumped in addition to values.
 #
-#   NAME SIZE
+#   NAME SIZE:
 #   ==============
 #   <LayerIdentifier>.name_size : The number of characters the name of a
-#   variable should consume, assuming more are not required
+#   variable should consume, assuming more are not required.
 #
-#   TYPE SIZE
+#   TYPE SIZE:
 #   ==============
 #   <LayerIdentifier>.type_size : The number of characters the type of a
-#   variable should consume, assuming more are not requires
+#   variable should consume, assuming more are not requires.
 #
-#   USE_SPACES
+#   USE_SPACES:
 #   ==============
 #   <LayerIdentifier>.use_spaces : Setting this to TRUE causes all tabs
-#   characters to be replaced with spaces
+#   characters to be replaced with spaces.
+#
+#   SHOW_SHADER:
+#   ==============
+#   <LayerIdentifier>.show_shader : Setting this to TRUE causes the shader
+#   binary code in pCode to be also written to output.
 
 #  VK_LUNARG_LAYER_api_dump Settings
 lunarg_api_dump.output_format = Text
