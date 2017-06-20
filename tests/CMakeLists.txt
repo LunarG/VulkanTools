@@ -85,6 +85,8 @@ if (NOT WIN32)
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vkvalidatelayerdoc.sh
             # Files unique to VulkanTools go below this line
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_layer_test.sh
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1.json
             VERBATIM
             )
     endif()
