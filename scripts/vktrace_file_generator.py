@@ -35,10 +35,6 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkGetPhysicalDeviceSparseImageFormatProperties2KHR',
                                        'vkTrimCommandPoolKHR',
                                        'vkCmdPushDescriptorSetKHR',
-                                       'vkCreateDescriptorUpdateTemplateKHR',
-                                       'vkDestroyDescriptorUpdateTemplateKHR',
-                                       'vkUpdateDescriptorSetWithTemplateKHR',
-                                       'vkCmdPushDescriptorSetWithTemplateKHR',
                                        'vkGetDeviceGroupPeerMemoryFeaturesKHX',
                                        'vkBindBufferMemory2KHX',
                                        'vkBindImageMemory2KHX',
@@ -584,6 +580,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'AllocateCommandBuffers',
                                  'GetImageMemoryRequirements',
                                  'GetBufferMemoryRequirements',
+                                 'CreateDescriptorUpdateTemplateKHR',
+                                 'DestroyDescriptorUpdateTemplateKHR',
+                                 'UpdateDescriptorSetWithTemplateKHR',
+                                 'CmdPushDescriptorSetWithTemplateKHR',
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
@@ -2234,6 +2234,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkCreateWin32SurfaceKHR',
                                          'vkGetPhysicalDeviceWin32PresentationSupportKHR',
                                          'vkCreateAndroidSurfaceKHR',
+                                         'vkCreateDescriptorUpdateTemplateKHR',
+                                         'vkDestroyDescriptorUpdateTemplateKHR',
+                                         'vkUpdateDescriptorSetWithTemplateKHR',
+                                         'vkCmdPushDescriptorSetWithTemplateKHR',
                                          ]
        
         # Validate the manually_written_hooked_funcs list
@@ -2249,7 +2253,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         'VK_KHR_swapchain',
                         'VK_KHR_win32_surface',
                         'VK_KHR_xcb_surface',
-                        'VK_EXT_debug_report']
+                        'VK_EXT_debug_report',
+                        'VK_KHR_descriptor_update_template']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
