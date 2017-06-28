@@ -23,6 +23,7 @@ libs/Win32/Debug/*
 *.vcxproj
 *.sdf
 *.filters
+.*.swp
 build
 build32
 dbuild
