@@ -16,12 +16,13 @@ No warranty that a simulated device accurately reproduces capabilities of an act
 `VK_LAYER_LUNARG_device_simulation`
 
 ## File Format
-The fileformat consumed by DevSim is the format produced by `vkjson_info`.
+In this version 0 release, the fileformat consumed by DevSim is the format produced by [vkjson_info](https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/tree/master/libs/vkjson).
 
-The following vkjson sections are interpreted by DevSim for overrides:
+The following vkjson_info sections are interpreted by DevSim for overrides:
 * `properties`
 * `features`
-Currently, other sections of the vkjson are ignored.
+
+Other sections of the vkjson_info output are ignored.
 
 ## Environment variables used by DevSim layer.
 
@@ -43,7 +44,7 @@ export VK_DEVSIM_FILENAME="${VulkanTools}/tests/devsim_test1.json"
 
 # Run a Vulkan application through the DevSim layer.
 vkjson_info
-# The simulated device's configuration will be written to an output file.
+# That app writes the simulated device's configuration to an output file.
 ```
 See also:
 * ${VulkanTools}/tests/devsim_layer_test.sh - a test runner script.
