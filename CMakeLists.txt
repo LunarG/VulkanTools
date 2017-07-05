@@ -27,6 +27,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
     option(BUILD_WSI_MIR_SUPPORT "Build Mir WSI support" OFF)
     set(DEMOS_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for demos (XCB, XLIB, WAYLAND, MIR, DISPLAY)")
+    set(VKREPLAY_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
+
+    # Need to turn WSI_SELECTION into boolean definitions for preprocessor directives
+    if (VKREPLAY_WSI_SELECTION STREQUAL "XCB")
+        add_definitions(-DVKREPLAY_USE_WSI_XCB)
+    elseif (VKREPLAY_WSI_SELECTION STREQUAL "WAYLAND")
+        add_definitions(-DVKREPLAY_USE_WSI_WAYLAND)
+    endif()
 
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
@@ -40,7 +48,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         find_package(Wayland REQUIRED)
     endif()
 
-    if (BUILD_WSI_MIR_SUPPORT)
+    if(BUILD_WSI_MIR_SUPPORT)
         find_package(Mir REQUIRED)
     endif()
 
@@ -133,7 +141,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_VIA "Build via" ON)
     option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
     option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT BUILD_WSI_XCB_SUPPORT)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
     else()
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
