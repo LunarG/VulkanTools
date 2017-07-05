@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (C) 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright (C) 2015-2017 Valve Corporation
+ * Copyright (C) 2015-2017 LunarG, Inc.
  * All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -176,6 +176,9 @@ class vkReplay {
     VkResult manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR(
         packet_vkGetPhysicalDeviceXlibPresentationSupportKHR* pPacket);
+    VkResult manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWaylandSurfaceKHR* pPacket);
+    VkBool32 manually_replay_vkGetPhysicalDeviceWaylandPresentationSupportKHR(
+        packet_vkGetPhysicalDeviceWaylandPresentationSupportKHR* pPacket);
     VkResult manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32SurfaceKHR* pPacket);
     VkBool32 manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKHR(
         packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket);

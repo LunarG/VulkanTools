@@ -3306,6 +3306,78 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     return result;
 }
 #endif
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWaylandSurfaceKHR(VkInstance instance,
+                                                                                  const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                                                  const VkAllocationCallbacks* pAllocator,
+                                                                                  VkSurfaceKHR* pSurface) {
+    vktrace_trace_packet_header* pHeader;
+    VkResult result;
+    packet_vkCreateWaylandSurfaceKHR* pPacket = NULL;
+    // don't bother with copying the actual wayland window and connection into the trace packet, vkreplay has to use it's own anyway
+    CREATE_TRACE_PACKET(vkCreateWaylandSurfaceKHR,
+                        sizeof(VkSurfaceKHR) + sizeof(VkAllocationCallbacks) + sizeof(VkWaylandSurfaceCreateInfoKHR));
+    result = mid(instance)->instTable.CreateWaylandSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+    pPacket = interpret_body_as_vkCreateWaylandSurfaceKHR(pHeader);
+    pPacket->instance = instance;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkWaylandSurfaceCreateInfoKHR),
+                                       pCreateInfo);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurface), sizeof(VkSurfaceKHR), pSurface);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCreateInfo));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pSurface));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo& info = trim::add_SurfaceKHR_object(*pSurface);
+        info.belongsToInstance = instance;
+        info.ObjectInfo.SurfaceKHR.pCreatePacket = trim::copy_packet(pHeader);
+        if (pAllocator != NULL) {
+            info.ObjectInfo.SurfaceKHR.pAllocator = pAllocator;
+            trim::add_Allocator(pAllocator);
+        }
+
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+
+    return result;
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceWaylandPresentationSupportKHR(
+    VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct wl_display* display) {
+    vktrace_trace_packet_header* pHeader;
+    VkBool32 result;
+    packet_vkGetPhysicalDeviceWaylandPresentationSupportKHR* pPacket = NULL;
+    // don't bother with copying the actual Wayland visual_id and connection into the trace packet, vkreplay has to use it's own
+    // anyway
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceWaylandPresentationSupportKHR, 0);
+    result =
+        mid(physicalDevice)->instTable.GetPhysicalDeviceWaylandPresentationSupportKHR(physicalDevice, queueFamilyIndex, display);
+    pPacket = interpret_body_as_vkGetPhysicalDeviceWaylandPresentationSupportKHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->display = display;
+    pPacket->queueFamilyIndex = queueFamilyIndex;
+    pPacket->result = result;
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+    return result;
+}
+#endif
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKHR(VkInstance instance,
                                                                                   const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
