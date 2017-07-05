@@ -251,6 +251,8 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkDestroyDescriptorUpdateTemplateKHR = 176,
     VKTRACE_TPI_VK_vkUpdateDescriptorSetWithTemplateKHR = 177,
     VKTRACE_TPI_VK_vkCmdPushDescriptorSetWithTemplateKHR = 178,
+    VKTRACE_TPI_VK_vkCreateWaylandSurfaceKHR = 179,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceWaylandPresentationSupportKHR = 180
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 0

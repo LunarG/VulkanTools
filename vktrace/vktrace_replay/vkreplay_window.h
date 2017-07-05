@@ -29,8 +29,15 @@ extern "C" {
 #include <android_native_app_glue.h>
 typedef ANativeWindow* vktrace_window_handle;
 #else
+#if defined VKREPLAY_USE_WSI_XCB
 #include <xcb/xcb.h>
 typedef xcb_window_t vktrace_window_handle;
+#elif defined VKREPLAY_USE_WSI_XLIB
+// TODO
+#elif defined VKREPLAY_USE_WSI_WAYLAND
+#include <wayland-client.h>
+typedef wl_display* vktrace_window_handle;
+#endif
 #endif
 #elif defined(WIN32)
 typedef HWND vktrace_window_handle;
