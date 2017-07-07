@@ -17,6 +17,7 @@ set BASE_DIR="%BUILD_DIR%external"
 set REVISION_DIR="%BUILD_DIR%external_revisions"
 set GLSLANG_DIR=%BASE_DIR%\glslang
 set SPIRV_TOOLS_DIR=%BASE_DIR%\spirv-tools
+set JSONCPP_DIR=%BASE_DIR%\jsoncpp
 
 REM // ======== Parameter parsing ======== //
 
@@ -26,16 +27,20 @@ REM // ======== Parameter parsing ======== //
       echo Available options:
       echo   --sync-glslang      just pull glslang_revision
       echo   --sync-spirv-tools  just pull spirv-tools_revision
+      echo   --sync-jsoncpp      just pull jsoncpp HEAD
       echo   --build-glslang     pulls glslang_revision, configures CMake, builds Release and Debug
       echo   --build-spirv-tools pulls spirv-tools_revision, configures CMake, builds Release and Debug
-      echo   --all               sync and build glslang, spirv-tools
+      echo   --build-jsoncpp     pulls jsoncpp HEAD, configures CMake, builds Release and Debug
+      echo   --all               sync and build glslang, spirv-tools, and jsoncpp
       goto:finish
    )
 
    set sync-glslang=0
    set sync-spirv-tools=0
+   set sync-jsoncpp=0
    set build-glslang=0
    set build-spirv-tools=0
+   set build-jsoncpp=0
    set check-glslang-build-dependencies=0
 
    :parameterLoop
@@ -50,6 +55,12 @@ REM // ======== Parameter parsing ======== //
 
       if "%1" == "--sync-spirv-tools" (
          set sync-spirv-tools=1
+         shift
+         goto:parameterLoop
+      )
+
+      if "%1" == "--sync-jsoncpp" (
+         set sync-jsoncpp=1
          shift
          goto:parameterLoop
       )
@@ -71,11 +82,20 @@ REM // ======== Parameter parsing ======== //
          goto:parameterLoop
       )
 
+      if "%1" == "--build-jsoncpp" (
+         set sync-jsoncpps=1
+         set build-jsoncpp=1
+         shift
+         goto:parameterLoop
+      )
+
       if "%1" == "--all" (
          set sync-glslang=1
          set sync-spirv-tools=1
+         set sync-jsoncpp=1
          set build-glslang=1
          set build-spirv-tools=1
+         set build-jsoncpp=1
          set check-glslang-build-dependencies=1
          shift
          goto:parameterLoop
@@ -122,23 +142,9 @@ if %errorCode% neq 0 (goto:error)
 
 REM Read the target versions from external file, which is shared with Linux script
 
-if not exist %REVISION_DIR%\glslang_giturl (
-   echo.
-   echo Missing glslang_giturl file!  Place it in %REVISION_DIR% with git repo URL in it.
-   set errorCode=1
-   goto:error
-)
-
 if not exist %REVISION_DIR%\glslang_revision (
    echo.
-   echo Missing glslang_revision file!  Place it in %REVISION_DIR% with target version in it.
-   set errorCode=1
-   goto:error
-)
-
-if not exist %REVISION_DIR%\spirv-tools_giturl (
-   echo.
-   echo Missing spirv-tools_giturl file!  Place it in %REVISION_DIR% with git repo URL in it.
+   echo Missing glslang_revision file!  Place it in %REVSION_DIR% with target version in it.
    set errorCode=1
    goto:error
 )
@@ -150,13 +156,6 @@ if not exist %REVISION_DIR%\spirv-tools_revision (
    goto:error
 )
 
-if not exist %REVISION_DIR%\spirv-headers_giturl (
-   echo.
-   echo Missing spirv-headers_giturl file!  Place it in %REVISION_DIR% with git repo URL in it.
-   set errorCode=1
-   goto:error
-)
-
 if not exist %REVISION_DIR%\spirv-headers_revision (
    echo.
    echo Missing spirv-headers_revision file!  Place it in %REVISION_DIR% with target version in it.
@@ -164,20 +163,22 @@ if not exist %REVISION_DIR%\spirv-headers_revision (
    goto:error
 )
 
-set /p GLSLANG_GITURL= < %REVISION_DIR%\glslang_giturl
+if not exist %REVISION_DIR%\jsoncpp_revision (
+   echo.
+   echo Missing jsoncpp_revision file!  Place it in %REVISION_DIR% with target version in it.
+   set errorCode=1
+   goto:error
+)
+
+
 set /p GLSLANG_REVISION= < %REVISION_DIR%\glslang_revision
-set /p SPIRV_TOOLS_GITURL= < %REVISION_DIR%\spirv-tools_giturl
 set /p SPIRV_TOOLS_REVISION= < %REVISION_DIR%\spirv-tools_revision
-set /p SPIRV_HEADERS_GITURL= < %REVISION_DIR%\spirv-headers_giturl
 set /p SPIRV_HEADERS_REVISION= < %REVISION_DIR%\spirv-headers_revision
-
-echo GLSLANG_GITURL=%GLSLANG_GITURL%
+set /p JSONCPP_REVISION= < %REVISION_DIR%\jsoncpp_revision
 echo GLSLANG_REVISION=%GLSLANG_REVISION%
-echo SPIRV_TOOLS_GITURL=%SPIRV_TOOLS_GITURL%
 echo SPIRV_TOOLS_REVISION=%SPIRV_TOOLS_REVISION%
-echo SPIRV_HEADERS_GITURL=%SPIRV_HEADERS_GITURL%
 echo SPIRV_HEADERS_REVISION=%SPIRV_HEADERS_REVISION%
-
+echo JSONCPP_REVISION=%JSONCPP_REVISION%
 
 echo Creating and/or updating glslang, spirv-tools in %BASE_DIR%
 
@@ -200,6 +201,19 @@ if %sync-spirv-tools% equ 1 (
    if %errorCode% neq 0 (goto:error)
 )
 
+if %sync-jsoncpp% equ 1 (
+   if exist %JSONCPP_DIR% (
+      rd /S /Q %JSONCPP_DIR%
+   )
+   if %errorlevel% neq 0 (goto:error)
+   if not exist %JSONCPP_DIR% (
+      call:create_jsoncpp
+   )
+   if %errorCode% neq 0 (goto:error)
+   call:update_jsoncpp
+   if %errorCode% neq 0 (goto:error)
+)
+
 if %build-glslang% equ 1 (
    call:build_glslang
    if %errorCode% neq 0 (goto:error)
@@ -207,6 +221,11 @@ if %build-glslang% equ 1 (
 
 if %build-spirv-tools% equ 1 (
    call:build_spirv-tools
+   if %errorCode% neq 0 (goto:error)
+)
+
+if %build-jsoncpp% equ 1 (
+   call:build_jsoncpp
    if %errorCode% neq 0 (goto:error)
 )
 
@@ -232,7 +251,7 @@ REM // ======== Functions ======== //
    echo Creating local glslang repository %GLSLANG_DIR%)
    mkdir %GLSLANG_DIR%
    cd %GLSLANG_DIR%
-   git clone %GLSLANG_GITURL% .
+   git clone https://github.com/KhronosGroup/glslang.git .
    git checkout %GLSLANG_REVISION%
    if not exist %GLSLANG_DIR%\SPIRV (
       echo glslang source download failed!
@@ -253,7 +272,7 @@ goto:eof
    echo Creating local spirv-tools repository %SPIRV_TOOLS_DIR%)
    mkdir %SPIRV_TOOLS_DIR%
    cd %SPIRV_TOOLS_DIR%
-   git clone %SPIRV_TOOLS_GITURL% .
+   git clone https://github.com/KhronosGroup/SPIRV-Tools.git .
    git checkout %SPIRV_TOOLS_REVISION%
    if not exist %SPIRV_TOOLS_DIR%\source (
       echo spirv-tools source download failed!
@@ -262,7 +281,7 @@ goto:eof
    mkdir %SPIRV_TOOLS_DIR%\external
    mkdir %SPIRV_TOOLS_DIR%\external\spirv-headers
    cd %SPIRV_TOOLS_DIR%\external\spirv-headers
-   git clone %SPIRV_HEADERS_GITURL% .
+   git clone https://github.com/KhronosGroup/SPIRV-HEADERS.git .
    git checkout %SPIRV_HEADERS_REVISION%
    if not exist %SPIRV_TOOLS_DIR%\external\spirv-headers\README.md (
       echo spirv-headers download failed!
@@ -319,9 +338,9 @@ goto:eof
       echo glslang 32-bit Release build failed!
       set errorCode=1
    )
-   
+
    cd ..
- 
+
    echo Making 64-bit glslang
    echo *************************
    set GLSLANG_BUILD_DIR=%GLSLANG_DIR%\build
@@ -329,10 +348,10 @@ goto:eof
 
    echo Generating 64-bit Glslang CMake files for Visual Studio %VS_VERSION% -DCMAKE_INSTALL_PREFIX=install ..
    cmake -G "Visual Studio %VS_VERSION% Win64" -DCMAKE_INSTALL_PREFIX=install ..
-   
+
    echo Building 64-bit Glslang: MSBuild INSTALL.vcxproj /p:Platform=x64 /p:Configuration=Debug
    msbuild INSTALL.vcxproj /p:Platform=x64 /p:Configuration=Debug /verbosity:quiet
-   
+
    REM Check for existence of one lib, even though we should check for all results
    if not exist %GLSLANG_BUILD_DIR%\glslang\Debug\glslangd.lib (
       echo.
@@ -421,4 +440,104 @@ goto:eof
       echo spirv-tools 64-bit Release build failed!
       set errorCode=1
    )
+goto:eof
+
+:create_jsoncpp
+   echo.
+   echo Creating local jsoncpp repository %JSONCPP_DIR%)
+   mkdir %JSONCPP_DIR%
+   cd %JSONCPP_DIR%
+   git clone https://github.com/open-source-parsers/jsoncpp.git .
+   git checkout %JSONCPP_REVISION%
+   if not exist %JSONCPP_DIR%\include\json\json.h (
+      echo jsoncpp source download failed!
+      set errorCode=1
+   )
+goto:eof
+
+:update_jsoncpp
+   echo.
+   echo Updating %JSONCPP_DIR%
+   cd %JSONCPP_DIR%
+   git fetch --all
+   git checkout %JSONCPP_REVISION%
+goto:eof
+
+:build_jsoncpp
+   echo.
+   echo Building %JSONCPP_DIR%
+   cd  %JSONCPP_DIR%
+   python amalgamate.py
+
+   if not exist %JSONCPP_DIR%\dist\json\json.h (
+      echo.
+      echo JsonCPP Amalgamation failed to generate %JSONCPP_DIR%\dist\json\json.h
+      set errorCode=1
+   )
+
+REM    REM Cleanup any old directories lying around.
+REM    if exist build32 (
+REM       rmdir /s /q build32
+REM    )
+REM    if exist build (
+REM       rmdir /s /q build
+REM    )
+REM
+REM    echo Making 32-bit jsoncpp
+REM    echo *************************
+REM    mkdir build32
+REM    set JSONCPP_BUILD_DIR=%JSONCPP_DIR%\build32
+REM    cd %JSONCPP_BUILD_DIR%
+REM
+REM    echo Generating 32-bit JsonCPP CMake files for Visual Studio %VS_VERSION%
+REM    cmake -G "Visual Studio %VS_VERSION%" .. -DMSVC_RUNTIME=static
+REM
+REM    echo Building 32-bit JsonCPP: MSBuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Debug
+REM    msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Debug /verbosity:quiet
+REM
+REM    REM Check for existence of one lib, even though we should check for all results
+REM    if not exist %JSONCPP_BUILD_DIR%\src\lib_json\Debug\jsoncpp.lib (
+REM       echo.
+REM       echo jsoncpp 32-bit Debug build failed!
+REM       set errorCode=1
+REM    )
+REM    echo B Building 32-bit JsonCPP: MSBuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release
+REM    msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release /verbosity:quiet
+REM
+REM    REM Check for existence of one lib, even though we should check for all results
+REM    if not exist %JSONCPP_BUILD_DIR%\src\lib_json\Release\jsoncpp.lib (
+REM       echo.
+REM       echo jsoncpp 32-bit Release build failed!
+REM       set errorCode=1
+REM    )
+REM
+REM    cd ..
+REM
+REM    echo Making 64-bit jsoncpp
+REM    echo *************************
+REM    mkdir build
+REM    set JSONCPP_BUILD_DIR=%JSONCPP_DIR%\build
+REM    cd %JSONCPP_BUILD_DIR%
+REM
+REM    echo Generating 64-bit JsonCPP CMake files for Visual Studio %VS_VERSION%
+REM    cmake -G "Visual Studio %VS_VERSION% Win64" .. -DMSVC_RUNTIME=static
+REM
+REM    echo Building 64-bit JsonCPP: MSBuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Debug
+REM    msbuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Debug /verbosity:quiet
+REM
+REM    REM Check for existence of one lib, even though we should check for all results
+REM    if not exist %JSONCPP_BUILD_DIR%\src\lib_json\Debug\jsoncpp.lib (
+REM       echo.
+REM       echo jsoncpp 64-bit Debug build failed!
+REM       set errorCode=1
+REM    )
+REM    echo Building 64-bit JsonCPP: MSBuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Release
+REM    msbuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Release /verbosity:quiet
+REM
+REM    REM Check for existence of one lib, even though we should check for all results
+REM    if not exist %JSONCPP_BUILD_DIR%\src\lib_json\Release\jsoncpp.lib (
+REM       echo.
+REM       echo jsoncpp 64-bit Release build failed!
+REM       set errorCode=1
+REM    )
 goto:eof
