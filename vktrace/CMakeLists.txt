@@ -496,17 +496,8 @@ if (MSVC)
     # And in release we use the DLL release runtime
     add_compiler_flag_release("/MD")
 
-    # x64 doesn't ever support /ZI, only /Zi.
-    if (BUILD_X64)
-      add_compiler_flag("/Zi")
-    else()
-
-      # In debug, get debug information suitable for Edit and Continue
-      add_compiler_flag_debug("/ZI")
-
-      # In release, still generate debug information (because not having it is dumb)
-      add_compiler_flag_release("/Zi")
-    endif()
+    # Generate debug information
+    add_compiler_flag("/Zi")
 
     # And tell the linker to always generate the file for us.
     add_linker_flag("/DEBUG")
