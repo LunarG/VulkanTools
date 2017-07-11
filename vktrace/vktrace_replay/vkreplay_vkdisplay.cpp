@@ -340,6 +340,13 @@ void vkDisplay::process_event() {
     }
 #endif
 #elif defined(WIN32)
-// TODO: handle win events
+    MSG msg = {};
+    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+        if (msg.message == WM_QUIT) {
+            exit(0);  // Prevents crashing due to vulkan cmds being on different thread than WindowProcVk
+        }
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 #endif
 }
