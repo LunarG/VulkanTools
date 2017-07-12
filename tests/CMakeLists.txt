@@ -87,6 +87,7 @@ if (NOT WIN32)
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_layer_test.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_gold.json
             VERBATIM
             )
     endif()

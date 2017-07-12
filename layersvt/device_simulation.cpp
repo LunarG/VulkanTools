@@ -20,14 +20,9 @@
 
 /*
  * layersvt/device_simulation.cpp - The VK_LAYER_LUNARG_device_simulation layer.
- * This DevSim layer simulates a device by loading a configuration file to override values that would normally be returned from a
- * Vulkan implementation.
- *
- * NOTICE: This is a "version 0" prerelease of the DevSim layer.
- * Behaviors may change before a general "version 1.x" public release, particularly the configuration fileformat.
- * vkjson-style JSON was used as a configuration fileformat for this initial DevSim release because it was available; however, it is
- * not really suited to the DevSim usemodel.
- * Recommend refining the format (and a schema for validation) specifically for use by DevSim.
+ * This DevSim layer simulates a device by loading a JSON configuration file to override values that would normally be returned
+ * from a Vulkan implementation.  The configuration files must validate with the DevSim schema; see the kSchemaDevsim100 variable
+ * below for the schema's URI.
  *
  * References (several documents are also included in the LunarG Vulkan SDK, see [SDK]):
  * [SPEC]   https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html
@@ -53,22 +48,32 @@
 #include <fstream>
 #include <mutex>
 
-#include <json/json.h>
+#include <json/json.h>  // https://github.com/open-source-parsers/jsoncpp
 
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
 
-#define ENABLE_VKJSON_LOADER 1
-
 namespace {
 
-const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(0, 1, 0);
+// Global constants //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Global variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const uint32_t kVersionDevsimMajor = 0;
+const uint32_t kVersionDevsimMinor = 2;
+const uint32_t kVersionDevsimPatch = 0;
+const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
-std::mutex global_lock;  // Enforce thread-safety for this layer's containers.
+const VkLayerProperties kLayerProperties[] = {{
+    "VK_LAYER_LUNARG_device_simulation",       // layerName
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),  // specVersion
+    kVersionDevsimImplementation,              // implementationVersion
+    "LunarG device simulation layer"           // description
+}};
+const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayerProperties[0]));
 
-uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+const VkExtensionProperties *kExtensionProperties = nullptr;
+const uint32_t kExtensionPropertiesCount = 0;
+
+const char *kSchemaDevsim100 = "https://schema.khronos.org/vulkan/devsim_1_0_0.json";
 
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
@@ -136,6 +141,12 @@ VkResult EnumerateAll(std::vector<T> *vect, std::function<VkResult(uint32_t *, T
     return result;
 }
 
+// Global variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::mutex global_lock;  // Enforce thread-safety for this layer's containers.
+
+uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+
 // PhysicalDeviceData : creates and manages the simulated device configurations //////////////////////////////////////////////////
 
 class PhysicalDeviceData {
@@ -177,17 +188,14 @@ class PhysicalDeviceData {
 
 PhysicalDeviceData::Map PhysicalDeviceData::map_;
 
-// Loader for vkjson-formatted JSON files ////////////////////////////////////////////////////////////////////////////////////////
-// https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/tree/master/libs/vkjson
+// Loader for DevSim JSON configuration files ////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef ENABLE_VKJSON_LOADER
-
-class VkjsonLoader {
+class JsonLoader {
    public:
-    VkjsonLoader(PhysicalDeviceData &pdd) : pdd_(pdd) {}
-    VkjsonLoader() = delete;
-    VkjsonLoader(const VkjsonLoader &) = delete;
-    VkjsonLoader &operator=(const VkjsonLoader &) = delete;
+    JsonLoader(PhysicalDeviceData &pdd) : pdd_(pdd) {}
+    JsonLoader() = delete;
+    JsonLoader(const JsonLoader &) = delete;
+    JsonLoader &operator=(const JsonLoader &) = delete;
 
     bool LoadFile(const char *filename);
 
@@ -219,8 +227,7 @@ class VkjsonLoader {
 
     void GetValue(const Json::Value &value, uint64_t *dest) {
         if (!value.isNull()) {
-            // Workaround: JSON spec mandates base-10 integer, but vkjson writes "0x" hex format.
-            *dest = std::strtoull(value.asCString(), nullptr, 0);
+            *dest = value.asUInt64();
         }
     }
 
@@ -266,14 +273,14 @@ class VkjsonLoader {
     PhysicalDeviceData &pdd_;
 };
 
-bool VkjsonLoader::LoadFile(const char *filename) {
+bool JsonLoader::LoadFile(const char *filename) {
     std::ifstream json_file(filename);
     if (!json_file) {
-        ErrorPrintf("VkjsonLoader failed to open file \"%s\"\n", filename);
+        ErrorPrintf("JsonLoader failed to open file \"%s\"\n", filename);
         return false;
     }
 
-    DebugPrintf("JsonCpp %s\n", JSONCPP_VERSION_STRING);
+    DebugPrintf("JsonCpp version %s\n", JSONCPP_VERSION_STRING);
     Json::Reader reader;
     Json::Value root = Json::nullValue;
     bool success = reader.parse(json_file, root, false);
@@ -284,13 +291,13 @@ bool VkjsonLoader::LoadFile(const char *filename) {
     json_file.close();
 
     if (!root.isObject()) {
-        ErrorPrintf("vkjson document root is not an object\n");
+        ErrorPrintf("Json document root is not an object\n");
         return false;
     }
-    DebugPrintf("\t\tVkjsonLoader::LoadFile() OK\n");
+    DebugPrintf("\t\tJsonLoader::LoadFile() OK\n");
 
-    ApplyOverrides(root["properties"], &pdd_.physical_device_properties_);
-    ApplyOverrides(root["features"], &pdd_.physical_device_features_);
+    ApplyOverrides(root["VkPhysicalDeviceProperties"], &pdd_.physical_device_properties_);
+    ApplyOverrides(root["VkPhysicalDeviceFeatures"], &pdd_.physical_device_features_);
 
     return true;
 }
@@ -299,10 +306,12 @@ bool VkjsonLoader::LoadFile(const char *filename) {
 #define GET_VALUE(x) GetValue(value[#x], &dest->x)
 #define GET_ARRAY(x, n) GetArray(value[#x], n, dest->x)
 
-void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceProperties *dest) {
-    DebugPrintf("\t\tVkjsonLoader::ApplyOverrides() VkPhysicalDeviceProperties\n");
-    if (!value.isObject()) {
-        ErrorPrintf("JSON element \"properties\" is not an object\n");
+void JsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceProperties *dest) {
+    DebugPrintf("\t\tJsonLoader::ApplyOverrides() VkPhysicalDeviceProperties\n");
+    if (value.isNull()) {
+        return;
+    } else if (!value.isObject()) {
+        ErrorPrintf("JSON element \"VkPhysicalDeviceProperties\" is not an object\n");
         return;
     }
 
@@ -317,9 +326,11 @@ void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceProp
     ApplyOverrides(value["sparseProperties"], &dest->sparseProperties);
 }
 
-void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceLimits *dest) {
-    DebugPrintf("\t\tVkjsonLoader::ApplyOverrides() VkPhysicalDeviceLimits\n");
-    if (!value.isObject()) {
+void JsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceLimits *dest) {
+    DebugPrintf("\t\tJsonLoader::ApplyOverrides() VkPhysicalDeviceLimits\n");
+    if (value.isNull()) {
+        return;
+    } else if (!value.isObject()) {
         ErrorPrintf("JSON element \"limits\" is not an object\n");
         return;
     }
@@ -432,9 +443,11 @@ void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceLimi
     GET_VALUE(nonCoherentAtomSize);
 }
 
-void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceSparseProperties *dest) {
-    DebugPrintf("\t\tVkjsonLoader::ApplyOverrides() VkPhysicalDeviceSparseProperties\n");
-    if (!value.isObject()) {
+void JsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceSparseProperties *dest) {
+    DebugPrintf("\t\tJsonLoader::ApplyOverrides() VkPhysicalDeviceSparseProperties\n");
+    if (value.isNull()) {
+        return;
+    } else if (!value.isObject()) {
         ErrorPrintf("JSON element \"sparseProperties\" is not an object\n");
         return;
     }
@@ -446,10 +459,12 @@ void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceSpar
     GET_VALUE(residencyNonResidentStrict);
 }
 
-void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceFeatures *dest) {
-    DebugPrintf("\t\tVkjsonLoader::ApplyOverrides() VkPhysicalDeviceFeatures\n");
-    if (!value.isObject()) {
-        ErrorPrintf("JSON element \"features\" is not an object\n");
+void JsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceFeatures *dest) {
+    DebugPrintf("\t\tJsonLoader::ApplyOverrides() VkPhysicalDeviceFeatures\n");
+    if (value.isNull()) {
+        return;
+    } else if (!value.isObject()) {
+        ErrorPrintf("JSON element \"VkPhysicalDeviceFeatures\" is not an object\n");
         return;
     }
 
@@ -513,8 +528,6 @@ void VkjsonLoader::ApplyOverrides(const Json::Value &value, VkPhysicalDeviceFeat
 #undef GET_VALUE
 #undef GET_ARRAY
 
-#endif  //  ENABLE_VKJSON_LOADER
-
 // Layer-specific wrappers for Vulkan functions, accessed via vkGet*ProcAddr() ///////////////////////////////////////////////////
 
 // Generic layer dispatch table setup, see [LALI].
@@ -548,7 +561,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         return result;
     }
 
-    // Our layer-specific initialization.
+    // Our layer-specific initialization...
+
+    DebugPrintf("%s version %d.%d.%d\n", kLayerProperties[0].layerName, kVersionDevsimMajor, kVersionDevsimMinor,
+                kVersionDevsimPatch);
+
+    // Get the name of our configuration file.
     std::string filename = GetEnvarValue(kEnvarDevsimFilename);
     DebugPrintf("\t\tenvar %s = \"%s\"\n", kEnvarDevsimFilename, filename.c_str());
     if (filename.empty()) {
@@ -569,22 +587,16 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     for (const auto &physical_device : physical_devices) {
         PhysicalDeviceData &pdd = PhysicalDeviceData::Create(physical_device, *pInstance);
 
+        // Initialize PDD to the actual Vulkan implementation's defaults.
         dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
         dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
 
-        DebugPrintf("\tBEFORE deviceName \"%s\"\n", pdd.physical_device_properties_.deviceName);
-        DebugPrintf("\tBEFORE deviceID %d\n", pdd.physical_device_properties_.deviceID);
-
-#ifdef ENABLE_VKJSON_LOADER
-        VkjsonLoader vkjson(pdd);
-        vkjson.LoadFile(filename.c_str());
-#endif
-
-        DebugPrintf("\tAFTER deviceName \"%s\"\n", pdd.physical_device_properties_.deviceName);
-        DebugPrintf("\tAFTER deviceID %d\n", pdd.physical_device_properties_.deviceID);
+        // Apply override values from the configuration file.
+        JsonLoader json_loader(pdd);
+        json_loader.LoadFile(filename.c_str());
     }
 
-    DebugPrintf("CreateInstance END instance %p }\n\n", *pInstance);
+    DebugPrintf("CreateInstance END instance %p }\n", *pInstance);
     return result;
 }
 
@@ -640,23 +652,12 @@ VkResult EnumerateProperties(uint32_t src_count, const T *src_props, uint32_t *d
     return (copy_count == src_count) ? VK_SUCCESS : VK_INCOMPLETE;
 }
 
-const VkLayerProperties kLayerProperties[] = {{
-    "VK_LAYER_LUNARG_device_simulation",       // layerName
-    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),  // specVersion
-    kVersionDevsimImplementation,              // implementationVersion
-    "LunarG device simulation layer"           // description
-}};
-const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayerProperties[0]));
-
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
     DebugPrintf("EnumerateInstanceLayerProperties\n");
     return EnumerateProperties(kLayerPropertiesCount, kLayerProperties, pCount, pProperties);
 }
 
 // Per [LALI], EnumerateDeviceLayerProperties() is deprecated and may be omitted.
-
-const VkExtensionProperties *kExtensionProperties = nullptr;
-const uint32_t kExtensionPropertiesCount = 0;
 
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
                                                                     VkExtensionProperties *pProperties) {

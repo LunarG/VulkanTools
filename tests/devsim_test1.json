@@ -1,5 +1,6 @@
 {
-	"properties":	{
+	"$schema":	"https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
+	"VkPhysicalDeviceProperties":	{
 		"apiVersion":	4194304,
 		"driverVersion":	1234,
 		"vendorID":	0,
@@ -19,8 +20,8 @@
 			"maxPushConstantsSize":	256,
 			"maxMemoryAllocationCount":	1870682,
 			"maxSamplerAllocationCount":	4000,
-			"bufferImageGranularity":	"0x0000000000001234",
-			"sparseAddressSpaceSize":	"0x0000000000004321",
+			"bufferImageGranularity":	1234,
+			"sparseAddressSpaceSize":	4321,
 			"maxBoundDescriptorSets":	4,
 			"maxPerStageDescriptorSamplers":	16,
 			"maxPerStageDescriptorUniformBuffers":	200,
@@ -74,10 +75,10 @@
 			"maxViewportDimensions":	[32768, 32768],
 			"viewportBoundsRange":	[-65536, 65535],
 			"viewportSubPixelBits":	8,
-			"minMemoryMapAlignment":	"0x0000000000000040",
-			"minTexelBufferOffsetAlignment":	"0x0000000000000010",
-			"minUniformBufferOffsetAlignment":	"0x0000000000000010",
-			"minStorageBufferOffsetAlignment":	"0x0000000000000010",
+			"minMemoryMapAlignment":	100,
+			"minTexelBufferOffsetAlignment":	200,
+			"minUniformBufferOffsetAlignment":	300,
+			"minStorageBufferOffsetAlignment":	400,
 			"minTexelOffset":	-8,
 			"maxTexelOffset":	7,
 			"minTexelGatherOffset":	-32,
@@ -111,9 +112,9 @@
 			"lineWidthGranularity":	0.002000,
 			"strictLines":	0,
 			"standardSampleLocations":	1,
-			"optimalBufferCopyOffsetAlignment":	"0x0000001010101010",
-			"optimalBufferCopyRowPitchAlignment":	"0x0000000101010100",
-			"nonCoherentAtomSize":	"0x0000000000001000"
+			"optimalBufferCopyOffsetAlignment":	500,
+			"optimalBufferCopyRowPitchAlignment":	600,
+			"nonCoherentAtomSize":	700
 		},
 		"sparseProperties":	{
 			"residencyStandard2DBlockShape":	0,
@@ -123,7 +124,7 @@
 			"residencyNonResidentStrict":	0
 		}
 	},
-	"features":	{
+	"VkPhysicalDeviceFeatures":	{
 		"robustBufferAccess":	0,
 		"fullDrawIndexUint32":	1,
 		"imageCubeArray":	0,

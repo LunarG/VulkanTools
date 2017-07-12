@@ -33,6 +33,9 @@ To specify frames to be captured, the environment variable 'VK_SCREENSHOT_FRAMES
 ### View Frames Per Second
 layersvt/monitor.cpp - utility layer that will display an applications FPS in the title bar of a windowed application.
 
+### Device Simulation
+layersvt/device_simulation.cpp (name='VK_LAYER_LUNARG_device_simulation') - A utility layer to simulate a device with different capabilities than the actual hardware in the system.  See device_simulation.md for details.
+
 ## Using Layers
 
 1. Build VK loader using normal steps (cmake and make)
