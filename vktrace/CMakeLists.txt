@@ -502,7 +502,7 @@ if (MSVC)
     else()
 
       # In debug, get debug information suitable for Edit and Continue
-      add_compiler_flag_debug("/ZI")
+      #add_compiler_flag_debug("/ZI")
 
       # In release, still generate debug information (because not having it is dumb)
       add_compiler_flag_release("/Zi")

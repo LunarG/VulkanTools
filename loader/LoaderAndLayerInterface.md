@@ -177,7 +177,7 @@ first parameter.  Some Vulkan Device functions are:
  * `vkBeginCommandBuffer`
  * `vkCreateEvent`
 
-You can query Vulkan Device functions using either `vkGetInstanceProcAddr` or 
+You can query Vulkan Device functions using either `vkGetInstanceProcAddr` or
 `vkGetDeviceProcAddr`.  If you choose to use `vkGetInstanceProcAddr`, it will
 have an additional level built into the call chain, which will reduce
 performance slightly.  However, the function pointer returned can be used for
@@ -254,7 +254,7 @@ the loader has to be aware of any instance-level extensions which work on a
 
 Device call chains are created at `vkCreateDevice` and are generally simpler
 because they deal with only a single device and the ICD can always be the
-*terminator* of the chain. 
+*terminator* of the chain.
 
 ![Loader Device Call Chain](./images/loader_device_chain_loader.png)
 
@@ -284,7 +284,7 @@ including:
     * [WSI Extensions](#wsi-extensions)
     * [Unknown Extensions](#unknown-extensions)
 
-  
+
 #### Interfacing with Vulkan Functions
 There are several ways you can interface with Vulkan functions through the
 loader.
@@ -784,7 +784,8 @@ In this section we'll discuss how the loader interacts with layers, including:
     * [Layer Library API Version 0](#layer-library-api-version-0)
   
 
- 
+
+
 #### Layer Discovery
 
 As mentioned in the
@@ -1317,7 +1318,7 @@ VkResult vkCreateInstance(
 #### Example Code for CreateDevice
 
 ```cpp
-VkResult 
+VkResult
 vkCreateDevice(
         VkPhysicalDevice gpu,
         const VkDeviceCreateInfo *pCreateInfo,
@@ -1418,7 +1419,7 @@ Manifest file formatting necessary to define a meta-layer can be found in the
 ##### Associating Private Data with Vulkan Objects Within a Layer
 
 A layer may want to associate it's own private data with one or more Vulkan
-objects.  Two common methods to do this are hash maps and object wrapping. 
+objects.  Two common methods to do this are hash maps and object wrapping.
 
 
 ###### Wrapping
@@ -1905,7 +1906,7 @@ listed.  If the key is of type DWORD, and it has a value of 0, the loader will
 open the JSON manifest file specified by the name.  Each name must be a full
 pathname to a text manifest file.  The Vulkan loader will attempt to open each
 manifest file to obtain the information about an ICD's shared library (".dll")
-file. 
+file.
 
 For example, let us assume the registry contains the following data:
 
@@ -2043,7 +2044,7 @@ fields of a layer JSON file.  The fields of the 1.0.0 file format include:
  * "library\_path"
  * "api\_version"
 
- 
+
 ###  ICD Vulkan Entry-Point Discovery
 
 The Vulkan symbols exported by an ICD must not clash with the loader's exported
@@ -2078,7 +2079,7 @@ using these newly defined dispatchable objects must be queryable via
 All other Vulkan entry-points must either:
  * NOT be exported directly from the ICD library
  * or NOT use the official Vulkan function names if they are exported
- 
+
 This requirement is for ICD libraries that include other
 functionality (such as OpenGL) and thus could be loaded by the
 application prior to when the Vulkan loader library is loaded by the
@@ -2207,7 +2208,7 @@ vkObj alloc_icd_obj()
     return newObj;
 }
 ```
- 
+
 
 ### Handling KHR Surface Objects in WSI Extensions
 

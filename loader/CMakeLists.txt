@@ -131,7 +131,6 @@ add_custom_target(loader_gen_files DEPENDS
         vk_loader_extensions.h
         vk_loader_extensions.c
     )
-
 if (WIN32)
     # Use static MSVCRT libraries
     foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO

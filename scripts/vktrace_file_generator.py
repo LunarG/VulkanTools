@@ -46,16 +46,6 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkGetPhysicalDevicePresentRectanglesKHX',
                                        'vkCreateViSurfaceNN',
                                        'vkEnumeratePhysicalDeviceGroupsKHX',
-                                       'vkGetPhysicalDeviceExternalBufferPropertiesKHX',
-                                       'vkGetMemoryWin32HandleKHX',
-                                       'vkGetMemoryWin32HandlePropertiesKHX',
-                                       'vkGetMemoryFdKHX',
-                                       'vkGetMemoryFdPropertiesKHX',
-                                       'vkGetPhysicalDeviceExternalSemaphorePropertiesKHX',
-                                       'vkImportSemaphoreWin32HandleKHX',
-                                       'vkGetSemaphoreWin32HandleKHX',
-                                       'vkImportSemaphoreFdKHX',
-                                       'vkGetSemaphoreFdKHX',
                                        'vkCmdProcessCommandsNVX',
                                        'vkCmdReserveSpaceForCommandsNVX',
                                        'vkCreateIndirectCommandsLayoutNVX',
@@ -83,6 +73,44 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkGetSwapchainStatusKHR',
                                        'vkGetPhysicalDeviceSurfaceCapabilities2KHR',
                                        'vkGetPhysicalDeviceSurfaceFormats2KHR',
+
+                                       # VK_KHR_external_memory_capabilities
+                                       'vkGetPhysicalDeviceExternalBufferPropertiesKHR',
+
+                                       # VK_KHR_external_memory_win32
+                                       'vkGetMemoryWin32HandleKHR',
+                                       'vkGetMemoryWin32HandlePropertiesKHR',
+
+                                       # VK_KHR_external_memory_fd
+                                       'vkGetMemoryFdKHR',
+                                       'vkGetMemoryFdPropertiesKHR',
+
+                                       # VK_KHR_external_semaphore_capabilities
+                                       'vkGetPhysicalDeviceExternalSemaphorePropertiesKHR',
+
+                                       # VK_KHR_external_semaphore_win32
+                                       'vkImportSemaphoreWin32HandleKHR',
+                                       'vkGetSemaphoreWin32HandleKHR',
+
+                                       # VK_KHR_external_semaphore_fd
+                                       'vkImportSemaphoreFdKHR',
+                                       'vkGetSemaphoreFdKHR',
+
+                                       # VK_KHR_external_fence_capabilities
+                                       'vkGetPhysicalDeviceExternalFencePropertiesKHR',
+
+                                       # VK_KHR_external_fence_win32
+                                       'vkImportFenceWin32HandleKHR',
+                                       'vkGetFenceWin32HandleKHR',
+
+                                       # VK_KHR_external_fence_fd
+                                       'vkImportFenceFdKHR',
+                                       'vkGetFenceFdKHR',
+
+                                       # VK_KHR_get_memory_requirements2
+                                       'vkGetImageMemoryRequirements2KHR',
+                                       'vkGetBufferMemoryRequirements2KHR',
+                                       'vkGetImageSparseMemoryRequirements2KHR',
                                        ]
 
 api_exclusions = ['CreateWaylandSurfaceKHR',

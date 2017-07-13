@@ -568,7 +568,6 @@ inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &s
         return settings.stream() << "address";
 }
 
-
 inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, int indents) {
     return settings.stream() << object;
 }
