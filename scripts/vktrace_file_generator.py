@@ -2215,6 +2215,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkAllocateDescriptorSets',
                                          'vkBeginCommandBuffer',
                                          'vkCreateDescriptorPool',
+                                         'vkGetPhysicalDeviceProperties',
                                          'vkCreateDevice',
                                          'vkCreateFramebuffer',
                                          'vkCreateImage',

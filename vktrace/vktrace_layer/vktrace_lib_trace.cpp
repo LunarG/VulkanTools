@@ -918,6 +918,33 @@ VkLayerDeviceCreateInfo* get_chain_info(const VkDeviceCreateInfo* pCreateInfo, V
     return chain_info;
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceProperties(
+    VkPhysicalDevice physicalDevice,
+    VkPhysicalDeviceProperties* pProperties)
+{
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetPhysicalDeviceProperties* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceProperties, sizeof(VkPhysicalDeviceProperties));
+    mid(physicalDevice)->instTable.GetPhysicalDeviceProperties(physicalDevice, pProperties);
+    // Munge the pipeline cache UUID so app won't use the pipeline cache. This increases portability of the trace file.
+    memset(pProperties->pipelineCacheUUID, 0xff, sizeof(pProperties->pipelineCacheUUID));
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetPhysicalDeviceProperties(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProperties), sizeof(VkPhysicalDeviceProperties), pProperties);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pProperties));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysicalDevice physicalDevice,
                                                                        const VkDeviceCreateInfo* pCreateInfo,
                                                                        const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
