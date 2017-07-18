@@ -1429,7 +1429,7 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
     if (replayResult != VK_SUCCESS) return replayResult;
     if (pPacket->pData) {
         uint8_t *pData = VKTRACE_NEW_ARRAY(uint8_t, dataSize);
-        replayResult = m_vkFuncs.real_vkGetPipelineCacheData(remappeddevice, remappedpipelineCache, pPacket->pDataSize, pData);
+        replayResult = m_vkFuncs.real_vkGetPipelineCacheData(remappeddevice, remappedpipelineCache, &dataSize, pData);
         VKTRACE_DELETE(pData);
     }
     return replayResult;
