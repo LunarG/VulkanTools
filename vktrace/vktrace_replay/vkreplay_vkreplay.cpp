@@ -262,23 +262,23 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysica
         return true;
     }
 
+    // If either the trace qf list or replay qf list is empty, fail
     if (traceQueueFamilyProperties.find(tracePhysicalDevice) == traceQueueFamilyProperties.end() ||
         replayQueueFamilyProperties.find(replayPhysicalDevice) == replayQueueFamilyProperties.end()) {
         goto fail;
     }
-
     if (min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count) == 0) {
         goto fail;
     }
 
+    // If there is exactly one qf in the replay list, use it
     if (replayQueueFamilyProperties[replayPhysicalDevice].count == 1) {
         *pReplayIdx = 0;
         return true;
     }
 
-    for (uint32_t i = 0;
-         i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count);
-         i++) {
+    // If there is a replay qf that is a identical to the trace qf, use it
+    for (uint32_t i = 0; i < replayQueueFamilyProperties[replayPhysicalDevice].count; i++) {
         if (traceQueueFamilyProperties[tracePhysicalDevice].queueFamilyProperties[traceIdx].queueFlags ==
             replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags) {
             *pReplayIdx = i;
@@ -286,10 +286,8 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysica
         }
     }
 
-    // Didn't find an exact match, search for a superset
-    for (uint32_t i = 0;
-         i < min(traceQueueFamilyProperties[tracePhysicalDevice].count, replayQueueFamilyProperties[replayPhysicalDevice].count);
-         i++) {
+    // If there is a replay qf that is a superset of the trace qf, us it
+    for (uint32_t i = 0; i < replayQueueFamilyProperties[replayPhysicalDevice].count; i++) {
         if (traceQueueFamilyProperties[tracePhysicalDevice].queueFamilyProperties[traceIdx].queueFlags ==
             (traceQueueFamilyProperties[tracePhysicalDevice].queueFamilyProperties[traceIdx].queueFlags &
              replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags)) {
@@ -298,9 +296,29 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysica
         }
     }
 
+    // If there is a replay qf that supports Graphics, Compute and Transfer, use it
+    // If there is a replay qf that supports Graphics and Compute, use it
+    // If there is a replay qf that supports Graphics, use it
+    for (uint32_t j = 0; j < 3; j++) {
+        uint32_t mask;
+        if (j == 0)
+            mask = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
+        else if (j == 1)
+            mask = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+        else if (j == 2)
+            mask = (VK_QUEUE_GRAPHICS_BIT);
+        for (uint32_t i = 0; i < replayQueueFamilyProperties[replayPhysicalDevice].count; i++) {
+            if ((replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags & mask) == mask) {
+                vktrace_LogWarning("Didn't find an exact match for queue family index, using index %d", i);
+                *pReplayIdx = i;
+                return true;
+            }
+        }
+    }
+
 fail:
-    vktrace_LogError("Cannot determine queue family index - has vkGetPhysicalDeviceQueueFamilyProperties been called?");
     // Didn't find a match
+    vktrace_LogError("Cannot determine replay device queue family index to use");
     return false;
 }
 
