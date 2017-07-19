@@ -3044,6 +3044,30 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     return replayResult;
 }
 
+void vkReplay::manually_replay_vkDestroySwapchainKHR(packet_vkDestroySwapchainKHR *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkDestroySwapchainKHR() due to invalid remapped VkDevice.");
+        return;
+    }
+
+    VkSwapchainKHR remappedswapchain = m_objMapper.remap_swapchainkhrs(pPacket->swapchain);
+    if (pPacket->swapchain != VK_NULL_HANDLE && remappedswapchain == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkDestroySwapchainKHR() due to invalid remapped VkSwapchainKHR.");
+        return;
+    }
+
+    // Need to unmap images obtained with vkGetSwapchainImagesKHR
+    while (!traceSwapchainToImages[pPacket->swapchain].empty()) {
+        VkImage image = traceSwapchainToImages[pPacket->swapchain].back();
+        m_objMapper.rm_from_images_map(image);
+        traceSwapchainToImages[pPacket->swapchain].pop_back();
+    }
+
+    m_vkFuncs.real_vkDestroySwapchainKHR(remappeddevice, remappedswapchain, pPacket->pAllocator);
+    m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);
+}
+
 VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchainImagesKHR *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
@@ -3081,6 +3105,7 @@ VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchain
                 local_imageObj.replayImage = pReplayImages[i];
                 m_objMapper.add_to_images_map(packetImage[i], local_imageObj);
                 replayImageToDevice[pReplayImages[i]] = remappeddevice;
+                traceSwapchainToImages[pPacket->swapchain].push_back(packetImage[i]);
             }
         }
     }
