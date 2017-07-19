@@ -168,6 +168,7 @@ class vkReplay {
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_vkGetPhysicalDeviceSurfaceFormatsKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(packet_vkGetPhysicalDeviceSurfacePresentModesKHR* pPacket);
     VkResult manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchainKHR* pPacket);
+    void manually_replay_vkDestroySwapchainKHR(packet_vkDestroySwapchainKHR* pPacket);
     VkResult manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchainImagesKHR* pPacket);
     VkResult manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR* pPacket);
     VkResult manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfaceKHR* pPacket);
@@ -226,6 +227,9 @@ class vkReplay {
     // Map VkImage to VkDevice, so we can search for the VkDevice used to create an image
     std::unordered_map<VkImage, VkDevice> traceImageToDevice;
     std::unordered_map<VkImage, VkDevice> replayImageToDevice;
+
+    // Map VkSwapchainKHR to vector of VkImage, so we can unmap swapchain images at vkDestroySwapchainKHR
+    std::unordered_map<VkSwapchainKHR, std::vector<VkImage>> traceSwapchainToImages;
 
     // Map VkPhysicalDevice to VkPhysicalDeviceMemoryProperites
     std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> traceMemoryProperties;

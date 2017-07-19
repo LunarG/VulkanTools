@@ -589,6 +589,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'GetPhysicalDeviceSurfaceFormatsKHR',
                                  'GetPhysicalDeviceSurfacePresentModesKHR',
                                  'CreateSwapchainKHR',
+                                 'DestroySwapchainKHR',
                                  'GetSwapchainImagesKHR',
                                  'CreateXcbSurfaceKHR',
                                  'CreateXlibSurfaceKHR',
