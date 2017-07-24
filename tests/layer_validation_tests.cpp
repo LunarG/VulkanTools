@@ -10275,14 +10275,14 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     img_barrier.subresourceRange.levelCount = 1;
     m_commandBuffer->begin();
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
 
     // Transition image to color attachment optimal
     img_barrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_commandBuffer->BeginRenderPass(m_renderPassBeginInfo);
 
@@ -10291,7 +10291,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     // baseArrayLayer + layerCount must be <= image's arrayLayers
     img_barrier.subresourceRange.baseArrayLayer = 1;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
     img_barrier.subresourceRange.baseArrayLayer = 0;
@@ -10300,7 +10300,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     // baseMipLevel + levelCount must be <= image's mipLevels
     img_barrier.subresourceRange.baseMipLevel = 1;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
     img_barrier.subresourceRange.baseMipLevel = 0;
@@ -10309,7 +10309,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_0a8007fc);
     img_barrier.subresourceRange.levelCount = 0;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
     img_barrier.subresourceRange.levelCount = 1;
@@ -10318,7 +10318,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_0a8007fe);
     img_barrier.subresourceRange.layerCount = 0;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
     img_barrier.subresourceRange.layerCount = 1;
@@ -10344,7 +10344,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     buf_barrier.offset = 257;
     // Offset greater than total size
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
                          nullptr);
     m_errorMonitor->VerifyFound();
     buf_barrier.offset = 0;
@@ -10353,7 +10353,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     buf_barrier.size = 257;
     // Size greater than total size
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
                          nullptr);
     m_errorMonitor->VerifyFound();
 
@@ -10370,7 +10370,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     // Not having DEPTH or STENCIL set is an error
     img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_METADATA_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
 
@@ -10378,7 +10378,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_0a00096e);
     img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
 
@@ -10386,7 +10386,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_0a400c01);
     img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_COLOR_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
 
@@ -10406,7 +10406,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
                                              "Depth-only image formats must have the VK_IMAGE_ASPECT_DEPTH_BIT set.");
         img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_METADATA_BIT;
         vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                              &img_barrier);
         m_errorMonitor->VerifyFound();
 
@@ -10415,7 +10415,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
                                              "Depth-only image formats can have only the VK_IMAGE_ASPECT_DEPTH_BIT set.");
         img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_COLOR_BIT;
         vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                              &img_barrier);
         m_errorMonitor->VerifyFound();
     }
@@ -10434,7 +10434,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
                                              "Stencil-only image formats must have the VK_IMAGE_ASPECT_STENCIL_BIT set.");
         img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                              &img_barrier);
         m_errorMonitor->VerifyFound();
     }
@@ -10452,7 +10452,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
                                          "Color image formats must have the VK_IMAGE_ASPECT_COLOR_BIT set.");
     img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_METADATA_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
 
@@ -10461,7 +10461,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
                                          "Color image formats must have ONLY the VK_IMAGE_ASPECT_COLOR_BIT set.");
     img_barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT | VK_IMAGE_ASPECT_DEPTH_BIT;
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
                          &img_barrier);
     m_errorMonitor->VerifyFound();
 
@@ -10546,16 +10546,16 @@ TEST_F(VkLayerTest, InvalidBarriers) {
             img_barrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
             m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, bad_buffer_layouts[i].msg_code);
             vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr,
-                                 1, &img_barrier);
+                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                                 &img_barrier);
             m_errorMonitor->VerifyFound();
 
             img_barrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
             img_barrier.newLayout = bad_buffer_layouts[i].bad_layout;
             m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, bad_buffer_layouts[i].msg_code);
             vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr,
-                                 1, &img_barrier);
+                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
+                                 &img_barrier);
             m_errorMonitor->VerifyFound();
         }
 
@@ -10564,10 +10564,19 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     }
     // Attempt barrier where srcAccessMask is not supported by srcStageMask
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_1b800940);
+    // Have lower-order bit that's supported (shader write), but higher-order bit not supported to verify multi-bit validation
+    buf_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_WRITE_BIT;
     buf_barrier.offset = 0;
     buf_barrier.size = VK_WHOLE_SIZE;
-    vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+    vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                          VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0, nullptr);
+    m_errorMonitor->VerifyFound();
+    // Attempt barrier where dsAccessMask is not supported by dstStageMask
+    buf_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_1b800942);
+    vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
+                         nullptr);
     m_errorMonitor->VerifyFound();
 
     // Attempt to mismatch barriers/waitEvents calls with incompatible queues
@@ -10585,7 +10594,8 @@ TEST_F(VkLayerTest, InvalidBarriers) {
 
     bad_command_buffer.begin();
     buf_barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-    buf_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    // Set two bits that should both be supported as a bonus positive check
+    buf_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_TRANSFER_READ_BIT;
     vkCmdPipelineBarrier(bad_command_buffer.handle(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                          VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0, nullptr);
     m_errorMonitor->VerifyFound();
