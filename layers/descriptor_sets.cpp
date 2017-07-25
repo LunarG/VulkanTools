@@ -510,10 +510,6 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                     auto image_node = GetImageState(device_data_, image_view_ci.image);
                     assert(image_node);
                     // Verify Image Layout
-                    // TODO: VALIDATION_ERROR_046002ae is the error physically closest to the spec language of interest, however
-                    //  there is no VUID for the actual spec language. Need to file a spec MR to add VU language for:
-                    // imageLayout is the layout that the image subresources accessible from imageView will be in at the time
-                    // this descriptor is accessed.
                     // Copy first mip level into sub_layers and loop over each mip level to verify layout
                     VkImageSubresourceLayers sub_layers;
                     sub_layers.aspectMask = image_view_ci.subresourceRange.aspectMask;
@@ -524,7 +520,7 @@ bool cvdescriptorset::DescriptorSet::ValidateDrawState(const std::map<uint32_t, 
                          cur_level < image_view_ci.subresourceRange.levelCount; ++cur_level) {
                         sub_layers.mipLevel = cur_level;
                         VerifyImageLayout(device_data_, cb_node, image_node, sub_layers, image_layout, VK_IMAGE_LAYOUT_UNDEFINED,
-                                          caller, VALIDATION_ERROR_046002ae, &hit_error);
+                                          caller, VALIDATION_ERROR_046002b0, &hit_error);
                         if (hit_error) {
                             *error =
                                 "Image layout specified at vkUpdateDescriptorSets() time doesn't match actual image layout at "
@@ -794,6 +790,16 @@ bool cvdescriptorset::ValidateImageUpdate(VkImageView image_view, VkImageLayout 
         if (ValidateMemoryIsBoundToImage(dev_data, image_node, "vkUpdateDescriptorSets()", VALIDATION_ERROR_0ac007f8)) {
             *error_code = VALIDATION_ERROR_0ac007f8;
             *error_msg = "No memory bound to image.";
+            return false;
+        }
+
+        // KHR_maintenance1 allows rendering into 2D or 2DArray views which slice a 3D image,
+        // but not binding them to descriptor sets.
+        if (image_node->createInfo.imageType == VK_IMAGE_TYPE_3D &&
+            (iv_state->create_info.viewType == VK_IMAGE_VIEW_TYPE_2D ||
+             iv_state->create_info.viewType == VK_IMAGE_VIEW_TYPE_2D_ARRAY)) {
+            *error_code = VALIDATION_ERROR_046002ae;
+            *error_msg = "ImageView must not be a 2D or 2DArray view of a 3D image";
             return false;
         }
     }
