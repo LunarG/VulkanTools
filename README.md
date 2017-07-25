@@ -15,7 +15,7 @@ https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers
 These pieces are required to enable this repository to be built standalone; that is without having to clone the Vulkan-LoaderAndValidationLayers repository.
 
 The following components are available in this repository over and above what is mirrored from Vulkan-LoaderAndValidationLayers repository
-- Api_dump, screenshot and example layers (layersvt/)
+- Api_dump, screenshot, device_simulation, and example layers (layersvt/)
 - tests for the vktrace and vkreplay (tests/)
 - vktrace and vkreplay, API capture and replay  (vktrace/)
 
