@@ -89,13 +89,13 @@ See also
 * ${VulkanTools}/tests/devsim_test1.json - an example configuration file, containing bogus test data.
 
 ## Device configuration data from vulkan.gpuinfo.org
-A large and growing database of device capabilities is available at http://vulkan.gpuinfo.org/
+A large and growing database of device capabilities is available at https://vulkan.gpuinfo.org/
 
 That device data can be downloaded in JSON format, compatible with the DevSim JSON schema.
 
-A JSON index of the available device records can be queried with [TBD/FIXME].
+A JSON index of the available device records can be queried with https://vulkan.gpuinfo.org/api/v2/devsim/getreportlist.php
 
-That index includes URLs to download the specific device records in DevSim-compatible format, for example http://vulkan.gpuinfo.org/api/v2/devsim/getreport.php?id=1456
+That index includes URLs to download the specific device records in DevSim-compatible format, for example https://vulkan.gpuinfo.org/api/v2/devsim/getreport.php?id=1456
 
 As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.  Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
 
