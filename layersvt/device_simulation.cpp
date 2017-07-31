@@ -57,8 +57,8 @@ namespace {
 
 // Global constants //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const uint32_t kVersionDevsimMajor = 0;
-const uint32_t kVersionDevsimMinor = 2;
+const uint32_t kVersionDevsimMajor = 1;
+const uint32_t kVersionDevsimMinor = 0;
 const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
@@ -73,7 +73,7 @@ const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayer
 const VkExtensionProperties *kExtensionProperties = nullptr;
 const uint32_t kExtensionPropertiesCount = 0;
 
-const char *kSchemaDevsim100 = "https://schema.khronos.org/vulkan/devsim_1_0_0.json";
+const char *kSchemaDevsim100 = "https://schema.khronos.org/vulkan/devsim_1_0_0.json#";
 
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
