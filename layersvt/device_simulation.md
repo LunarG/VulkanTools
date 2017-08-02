@@ -34,16 +34,20 @@ Please report issues to the [GitHub VulkanTools repository](https://github.com/L
 ## DevSim Layer operation and configuration
 At application startup, during vkCreateInstance(), the DevSim layer initializes its internal tables from the actual physical device in the system, then loads its configuration file, which specifies override values to apply to those internal tables.
 
-A configuration file need not specify every possible Vulkan parameter;
-a sparse set of override values is permitted.
+How the JSON configuration values are applied depends on whether the top-level section begins with "ArrayOf" or not.
+* If the section is not an array, values are applied if they appear in the JSON; if a value is not present in the JSON, the previous value is not modified.
+Therefore not every parameter needs to be specified, only a sparse set of values that need to be changed.
+* If the section defines an array (i.e.: begins with "ArrayOf"), then all previous contents of that array is cleared, and the JSON must specify all values of each desired array element.
 
 The JSON fileformat consumed by the DevSim layer is specified by a JSON schema, the canonical URI of which is "https://schema.khronos.org/vulkan/devsim_1_0_0.json#"
 
 The top-level sections of a configuration file are specified by the DevSim JSON schema, and are processed as follows:
 * `$schema` - Mandatory.  Must be the URI string referencing the JSON schema.
 * `comments` - Optional.  May contain arbitrary comments, description, copyright, etc.
-* `VkPhysicalDeviceProperties` - Optional.  May contain valid name/value overrides.
-* `VkPhysicalDeviceFeatures` - Optional.  May contain valid name/value overrides.
+* `VkPhysicalDeviceProperties` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceFeatures` - Optional.  Only values specified in the JSON will be modified.
+* `VkPhysicalDeviceMemoryProperties` - Optional.  Only values specified in the JSON will be modified.
+* `ArrayOfVkQueueFamilyProperties` - Optional.  If present, all values of all elements must be specified.
 * The remaining top-level sections of the schema are not yet supported by DevSim.
 
 The schema permits additional top-level sections to be optionally included in configuration files;

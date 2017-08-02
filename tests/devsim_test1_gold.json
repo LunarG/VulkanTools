@@ -180,3 +180,61 @@
 		"variableMultisampleRate":	154,
 		"inheritedQueries":	155
 	},
+	"memory":	{
+		"memoryTypeCount":	5,
+		"memoryTypes":	[{
+				"propertyFlags":	900003002,
+				"heapIndex":	900003001
+			}, {
+				"propertyFlags":	900003004,
+				"heapIndex":	900003003
+			}, {
+				"propertyFlags":	900003006,
+				"heapIndex":	900003005
+			}, {
+				"propertyFlags":	900003008,
+				"heapIndex":	900003007
+			}, {
+				"propertyFlags":	900003010,
+				"heapIndex":	900003009
+			}],
+		"memoryHeapCount":	3,
+		"memoryHeaps":	[{
+				"size":	"0x00000012a05f27d1",
+				"flags":	900002000
+			}, {
+				"size":	"0x00000012a05f27d3",
+				"flags":	900002002
+			}, {
+				"size":	"0x00000012a05f27d5",
+				"flags":	900002004
+			}]
+	},
+	"queues":	[{
+			"queueFlags":	900004005,
+			"queueCount":	900004004,
+			"timestampValidBits":	900004006,
+			"minImageTransferGranularity":	{
+				"width":	900004003,
+				"height":	900004002,
+				"depth":	900004001
+			}
+		}, {
+			"queueFlags":	900004011,
+			"queueCount":	900004010,
+			"timestampValidBits":	900004012,
+			"minImageTransferGranularity":	{
+				"width":	900004009,
+				"height":	900004008,
+				"depth":	900004007
+			}
+		}, {
+			"queueFlags":	900004017,
+			"queueCount":	900004016,
+			"timestampValidBits":	900004018,
+			"minImageTransferGranularity":	{
+				"width":	900004015,
+				"height":	900004014,
+				"depth":	900004013
+			}
+		}],

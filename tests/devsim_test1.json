@@ -1,5 +1,9 @@
 {
 	"$schema":	"https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
+	"comments":	{
+		"url":	"https://github.com/LunarG/VulkanTools/blob/master/tests/devsim_test1.json",
+		"desc":	"Stimulus file for Device Simulation layer test.  By design, the DevSim layer does not enforce the use of 'sane' values; such enforcement is the job of the Validation layers.  The values in this file are deliberately 'insane', unique (to aid verification of each override) and huge (to trigger any debug warnings)."
+	},
 	"VkPhysicalDeviceProperties":	{
 		"apiVersion":	1,
 		"driverVersion":	2,
@@ -180,5 +184,77 @@
 		"sparseResidencyAliased":	153,
 		"variableMultisampleRate":	154,
 		"inheritedQueries":	155
+	},
+
+    "VkPhysicalDeviceMemoryProperties": {
+	"memoryHeaps": [
+	    {
+		"flags": 900002000,
+		"size": 80000002001
+	    },
+	    {
+		"flags": 900002002,
+		"size": 80000002003
+	    },
+	    {
+		"flags": 900002004,
+		"size": 80000002005
+	    }
+	],
+	"memoryTypes": [
+	    {
+		"heapIndex": 900003001,
+		"propertyFlags": 900003002
+	    },
+	    {
+		"heapIndex": 900003003,
+		"propertyFlags": 900003004
+	    },
+	    {
+		"heapIndex": 900003005,
+		"propertyFlags": 900003006
+	    },
+	    {
+		"heapIndex": 900003007,
+		"propertyFlags": 900003008
+	    },
+	    {
+		"heapIndex": 900003009,
+		"propertyFlags": 900003010
+	    }
+	]
+    },
+
+    "ArrayOfVkQueueFamilyProperties": [
+	{
+	    "minImageTransferGranularity": {
+		"depth": 900004001,
+		"height": 900004002,
+		"width": 900004003
+	    },
+	    "queueCount": 900004004,
+	    "queueFlags": 900004005,
+	    "timestampValidBits": 900004006
+	},
+	{
+	    "minImageTransferGranularity": {
+		"depth": 900004007,
+		"height": 900004008,
+		"width": 900004009
+	    },
+	    "queueCount": 900004010,
+	    "queueFlags": 900004011,
+	    "timestampValidBits": 900004012
+	},
+	{
+	    "minImageTransferGranularity": {
+		"depth": 900004013,
+		"height": 900004014,
+		"width": 900004015
+	    },
+	    "queueCount": 900004016,
+	    "queueFlags": 900004017,
+	    "timestampValidBits": 900004018
 	}
+    ]
 }

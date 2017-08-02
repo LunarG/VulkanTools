@@ -62,8 +62,8 @@ namespace {
 // For any changes, at least increment the patch level.
 // When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 0;
-const uint32_t kVersionDevsimPatch = 5;
+const uint32_t kVersionDevsimMinor = 1;
+const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
@@ -235,6 +235,8 @@ std::mutex global_lock;  // Enforce thread-safety for this layer's containers.
 
 uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
 
+typedef std::vector<VkQueueFamilyProperties> ArrayOfVkQueueFamilyProperties;
+
 // PhysicalDeviceData : creates and manages the simulated device configurations //////////////////////////////////////////////////
 
 class PhysicalDeviceData {
@@ -261,11 +263,17 @@ class PhysicalDeviceData {
 
     VkPhysicalDeviceProperties physical_device_properties_;
     VkPhysicalDeviceFeatures physical_device_features_;
+    VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
+    ArrayOfVkQueueFamilyProperties arrayof_queue_family_properties_;
 
    private:
     PhysicalDeviceData() = delete;
     PhysicalDeviceData &operator=(const PhysicalDeviceData &) = delete;
-    PhysicalDeviceData(VkPhysicalDevice pd, VkInstance instance) : physical_device_(pd), instance_(instance) {}
+    PhysicalDeviceData(VkPhysicalDevice pd, VkInstance instance) : physical_device_(pd), instance_(instance) {
+        physical_device_properties_ = {};
+        physical_device_features_ = {};
+        physical_device_memory_properties_ = {};
+    }
 
     const VkPhysicalDevice physical_device_;
     const VkInstance instance_;
@@ -298,11 +306,16 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceLimits *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
+    void GetValue(const Json::Value &parent, int index, VkMemoryType *dest);
+    void GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMemoryProperties *dest);
+    void GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest);
+    void GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest);
 
     // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
-    static bool WarnIfGreater(const char *name, const uint32_t new_value, const uint32_t old_value) {
+    static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
         if (new_value > old_value) {
-            DebugPrintf("WARN \"%s\" JSON value (%" PRIu32 ") is greater than existing value (%" PRIu32 ")\n", name, new_value,
+            DebugPrintf("WARN \"%s\" JSON value (%" PRIu64 ") is greater than existing value (%" PRIu64 ")\n", name, new_value,
                         old_value);
             return true;
         }
@@ -312,7 +325,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, float *dest,
                   std::function<bool(const char *, float, float)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (!value.isDouble()){
+        if (!value.isDouble()) {
             return;
         }
         const float new_value = value.asFloat();
@@ -325,7 +338,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, int32_t *dest,
                   std::function<bool(const char *, int32_t, int32_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (!value.isInt()){
+        if (!value.isInt()) {
             return;
         }
         const uint32_t new_value = value.asInt();
@@ -338,7 +351,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, uint32_t *dest,
                   std::function<bool(const char *, uint32_t, uint32_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (!value.isUInt()){
+        if (!value.isUInt()) {
             return;
         }
         const uint32_t new_value = value.asUInt();
@@ -351,7 +364,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, uint64_t *dest,
                   std::function<bool(const char *, uint64_t, uint64_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (!value.isUInt64()){
+        if (!value.isUInt64()) {
             return;
         }
         const uint64_t new_value = value.asUInt64();
@@ -365,7 +378,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, T *dest,
                   std::function<bool(const char *, T, T)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (!value.isInt()){
+        if (!value.isInt()) {
             return;
         }
         const T new_value = static_cast<T>(value.asInt());
@@ -413,7 +426,7 @@ class JsonLoader {
 
     int GetArray(const Json::Value &parent, const char *name, char *dest) {
         const Json::Value value = parent[name];
-        if (!value.isString()){
+        if (!value.isString()) {
             return -1;
         }
         const char *new_value = value.asCString();
@@ -424,6 +437,46 @@ class JsonLoader {
             strcpy(dest, new_value);
         }
         return count;
+    }
+
+    int GetArray(const Json::Value &parent, const char *name, VkMemoryType *dest) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            GetValue(value, i, &dest[i]);
+        }
+        return count;
+    }
+
+    int GetArray(const Json::Value &parent, const char *name, VkMemoryHeap *dest) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            GetValue(value, i, &dest[i]);
+        }
+        return count;
+    }
+
+    int GetArray(const Json::Value &parent, const char *name, ArrayOfVkQueueFamilyProperties *dest) {
+        DebugPrintf("\t\tJsonLoader::GetArray(ArrayOfVkQueueFamilyProperties)\n");
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        dest->clear();
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            VkQueueFamilyProperties queue_family_properties = {};
+            GetValue(value, i, &queue_family_properties);
+            dest->push_back(queue_family_properties);
+        }
+        return dest->size();
     }
 
     PhysicalDeviceData &pdd_;
@@ -458,6 +511,8 @@ bool JsonLoader::LoadFile(const char *filename) {
         case SchemaId::kDevsim100:
             GetValue(root, "VkPhysicalDeviceProperties", &pdd_.physical_device_properties_);
             GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
+            GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
+            GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
             break;
         case SchemaId::kUnknown:
         default:
@@ -469,7 +524,7 @@ bool JsonLoader::LoadFile(const char *filename) {
 
 JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     DebugPrintf("\t\tJsonLoader::IdentifySchema()\n");
-    if (!value.isString()){
+    if (!value.isString()) {
         ErrorPrintf("JSON element \"$schema\" is not a string\n");
         return SchemaId::kUnknown;
     }
@@ -700,6 +755,71 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(inheritedQueries);
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest) {
+    DebugPrintf("\t\tJsonLoader::GetValue(VkExtent3D)\n");
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(width);
+    GET_VALUE(height);
+    GET_VALUE(depth);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest) {
+    DebugPrintf("\t\tJsonLoader::GetValue(VkQueueFamilyProperties)\n");
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(queueFlags);
+    GET_VALUE(queueCount);
+    GET_VALUE(timestampValidBits);
+    GET_VALUE(minImageTransferGranularity);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkMemoryType *dest) {
+    DebugPrintf("\t\tJsonLoader::GetValue(VkMemoryType %d)\n", index);
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(propertyFlags);
+    GET_VALUE(heapIndex);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest) {
+    DebugPrintf("\t\tJsonLoader::GetValue(VkMemoryHeap %d)\n", index);
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE_WARN(size, WarnIfGreater);
+    GET_VALUE(flags);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMemoryProperties *dest) {
+    DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceMemoryProperties)\n");
+    const Json::Value value = parent[name];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    const int heap_count = GET_ARRAY(memoryHeaps);  // size <= VK_MAX_MEMORY_HEAPS
+    if (heap_count >= 0) {
+        dest->memoryHeapCount = heap_count;
+    }
+    const int type_count = GET_ARRAY(memoryTypes);  // size <= VK_MAX_MEMORY_TYPES
+    if (type_count >= 0) {
+        dest->memoryTypeCount = type_count;
+        for (int i = 0; i < type_count; ++i) {
+            if (dest->memoryTypes[i].heapIndex >= dest->memoryHeapCount) {
+                DebugPrintf("WARN \"memoryType[%" PRIu32 "].heapIndex\" (%" PRIu32 ") exceeds memoryHeapCount (%" PRIu32 ")\n", i,
+                            dest->memoryTypes[i].heapIndex, dest->memoryHeapCount);
+            }
+        }
+    }
+}
+
 #undef GET_VALUE
 #undef GET_ARRAY
 
@@ -764,6 +884,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         // Initialize PDD members to the actual Vulkan implementation's defaults.
         dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
         dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
+        dt->GetPhysicalDeviceMemoryProperties(physical_device, &pdd.physical_device_memory_properties_);
+        EnumerateAll<VkQueueFamilyProperties>(&pdd.arrayof_queue_family_properties_,
+                                              [&](uint32_t *count, VkQueueFamilyProperties *results) {
+                                                  dt->GetPhysicalDeviceQueueFamilyProperties(physical_device, count, results);
+                                                  return VK_SUCCESS;
+                                              });
 
         // Override PDD members with values from the configuration file.
         JsonLoader json_loader(pdd);
@@ -854,6 +980,36 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     return dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
 }
 
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice,
+                                                             VkPhysicalDeviceMemoryProperties *pMemoryProperties) {
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    DebugPrintf("GetPhysicalDeviceMemoryProperties physicalDevice %p pdd %p\n", physicalDevice, pdd);
+    if (pdd) {
+        *pMemoryProperties = pdd->physical_device_memory_properties_;
+    } else {
+        dt->GetPhysicalDeviceMemoryProperties(physicalDevice, pMemoryProperties);
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice,
+                                                                  uint32_t *pQueueFamilyPropertyCount,
+                                                                  VkQueueFamilyProperties *pQueueFamilyProperties) {
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    DebugPrintf("GetPhysicalDeviceQueueFamilyProperties physicalDevice %p pdd %p\n", physicalDevice, pdd);
+    if (pdd) {
+        EnumerateProperties(pdd->arrayof_queue_family_properties_.size(), pdd->arrayof_queue_family_properties_.data(),
+                            pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    } else {
+        dt->GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    }
+}
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *pName) {
 // Apply the DRY principle, see https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 #define GET_PROC_ADDR(func) \
@@ -866,6 +1022,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(DestroyInstance);
     GET_PROC_ADDR(GetPhysicalDeviceProperties);
     GET_PROC_ADDR(GetPhysicalDeviceFeatures);
+    GET_PROC_ADDR(GetPhysicalDeviceMemoryProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceQueueFamilyProperties);
 #undef GET_PROC_ADDR
 
     if (!instance) {
