@@ -150,8 +150,8 @@ int VKTRACER_CDECL VkReplayGetFrameNumber() {
     return -1;
 }
 
-void VKTRACER_CDECL VkReplayResetFrameNumber() {
+void VKTRACER_CDECL VkReplayResetFrameNumber(int frameNumber) {
     if (g_pReplayer != NULL) {
-        g_pReplayer->reset_frame_number();
+        g_pReplayer->reset_frame_number(frameNumber);
     }
 }

@@ -224,7 +224,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
         seq.set_bookmark(startingPacket);
         trace_running = true;
         if (replayer != NULL) {
-            replayer->ResetFrameNumber();
+            replayer->ResetFrameNumber(settings.loopStartFrame);
         }
     }
 
