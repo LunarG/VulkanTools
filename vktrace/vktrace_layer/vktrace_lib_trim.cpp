@@ -2266,6 +2266,14 @@ void write_all_referenced_object_calls() {
 
     // PhysicalDevice memory and queue family properties
     for (auto obj = stateTracker.createdPhysicalDevices.begin(); obj != stateTracker.createdPhysicalDevices.end(); obj++) {
+        if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDevicePropertiesPacket != nullptr) {
+            // Generate GetPhysicalDeviceProperties Packet. It's needed by portability
+            // process in vkAllocateMemory during playback.
+            vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDevicePropertiesPacket,
+                                       vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDevicePropertiesPacket));
+        }
+
         if (obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket != nullptr) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket,
                                        vktrace_trace_get_trace_file());

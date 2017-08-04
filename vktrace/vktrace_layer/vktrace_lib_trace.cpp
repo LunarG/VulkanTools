@@ -940,6 +940,24 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {
+            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+
+            // We need to record this packet for vktrace portabilitytable handling. The table
+            // is used to determine what memory index should be used in vkAllocateMemory
+            // during playback.
+            //
+            // Here we record it to make sure the trimmed trace file include this packet.
+            // During playback, vkreplay use the packet to get hardware and driver
+            // infomation of capturing runtime, then vkreplay handle portabilitytable
+            // with these infomation in vkAllocateMemory to decide if capture/playback
+            // runtime are same platform or not, if it's different platform, some process
+            // will apply to make it can playback on the different platform.
+            //
+            // Without this packet, the portability process will be wrong and it cause some
+            // title crash when playback on same platform.
+            if (pInfo != nullptr) {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDevicePropertiesPacket = trim::copy_packet(pHeader);
+            }
             vktrace_delete_trace_packet(&pHeader);
         }
     }
