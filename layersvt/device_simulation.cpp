@@ -21,8 +21,8 @@
 /*
  * layersvt/device_simulation.cpp - The VK_LAYER_LUNARG_device_simulation layer.
  * This DevSim layer simulates a device by loading a JSON configuration file to override values that would normally be returned
- * from a Vulkan implementation.  The configuration files must validate with the DevSim schema; see the kSchemaDevsim100 variable
- * below for the schema's URI.
+ * from a Vulkan implementation.  The configuration files must validate with the DevSim schema.
+ * See JsonLoader::IdentifySchema() for the URIs of supported schemas.
  *
  * References (several documents are also included in the LunarG Vulkan SDK, see [SDK]):
  * [SPEC]   https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html
@@ -57,9 +57,11 @@ namespace {
 
 // Global constants //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// When making minor changes to this layer, please increment the patch level, and be sure the new version is also updated in
+// the layersvt/{linux|windows}/VkLayer_device_simulation.json files.
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 0;
-const uint32_t kVersionDevsimPatch = 1;
+const uint32_t kVersionDevsimPatch = 2;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
@@ -69,13 +71,10 @@ const VkLayerProperties kLayerProperties[] = {{
     "LunarG device simulation layer"           // description
 }};
 const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayerProperties[0]));
+const char *kOurLayerName = kLayerProperties[0].layerName;
 
 const VkExtensionProperties *kExtensionProperties = nullptr;
 const uint32_t kExtensionPropertiesCount = 0;
-
-#if !defined(__ANDROID__)
-const char *kSchemaDevsim100 = "https://schema.khronos.org/vulkan/devsim_1_0_0.json#";
-#endif
 
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +83,7 @@ const char *const kEnvarDevsimFilename = "debug.vulkan.devsim.filepath";        
 const char *const kEnvarDevsimDebugEnable = "debug.vulkan.devsim.debugenable";  // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "debug.vulkan.devsim.exitonerror";  // a non-zero integer will enable exit-on-error.
 #else
-const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // name of the configuration file to load.
+const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non-zero integer will enable exit-on-error.
 #endif
@@ -94,13 +93,7 @@ const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non
 #if defined(__ANDROID__)
 #include <android/log.h>
 const uint32_t MAX_BUFFER_SIZE = 255;
-typedef enum {
-    VK_LOG_NONE = 0,
-    VK_LOG_ERROR,
-    VK_LOG_WARNING,
-    VK_LOG_VERBOSE,
-    VK_LOG_DEBUG
-} VkLogLevel;
+typedef enum { VK_LOG_NONE = 0, VK_LOG_ERROR, VK_LOG_WARNING, VK_LOG_VERBOSE, VK_LOG_DEBUG } VkLogLevel;
 
 const char *AndroidGetEnv(const char *key) {
     std::string command("getprop ");
@@ -293,6 +286,12 @@ class JsonLoader {
     bool LoadFile(const char *filename);
 
    private:
+    enum class SchemaId {
+        kUnknown = 0,
+        kDevsim100,
+    };
+
+    SchemaId IdentifySchema(const Json::Value &value);
     void ApplyOverrides(const Json::Value &value, VkPhysicalDeviceProperties *dest);
     void ApplyOverrides(const Json::Value &value, VkPhysicalDeviceLimits *dest);
     void ApplyOverrides(const Json::Value &value, VkPhysicalDeviceSparseProperties *dest);
@@ -389,10 +388,39 @@ bool JsonLoader::LoadFile(const char *filename) {
     }
     DebugPrintf("\t\tJsonLoader::LoadFile() OK\n");
 
-    ApplyOverrides(root["VkPhysicalDeviceProperties"], &pdd_.physical_device_properties_);
-    ApplyOverrides(root["VkPhysicalDeviceFeatures"], &pdd_.physical_device_features_);
+    const SchemaId schema_id = IdentifySchema(root["$schema"]);
+    switch (schema_id) {
+        case SchemaId::kDevsim100:
+            ApplyOverrides(root["VkPhysicalDeviceProperties"], &pdd_.physical_device_properties_);
+            ApplyOverrides(root["VkPhysicalDeviceFeatures"], &pdd_.physical_device_features_);
+            break;
+        case SchemaId::kUnknown:
+        default:
+            return false;
+    }
 
     return true;
+}
+
+JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
+    DebugPrintf("\t\tJsonLoader::IdentifySchema()\n");
+    if (!value.isString()) {
+        ErrorPrintf("JSON element \"$schema\" is not a string\n");
+        return SchemaId::kUnknown;
+    }
+
+    SchemaId schema_id = SchemaId::kUnknown;
+    const char *schema_string = value.asCString();
+    if (strcmp(schema_string, "https://schema.khronos.org/vulkan/devsim_1_0_0.json#") == 0) {
+        schema_id = SchemaId::kDevsim100;
+    }
+
+    if (schema_id != SchemaId::kUnknown) {
+        DebugPrintf("Document schema \"%s\" is schema_id %d\n", schema_string, schema_id);
+    } else {
+        ErrorPrintf("Document schema \"%s\" not supported by %s\n", schema_string, kOurLayerName);
+    }
+    return schema_id;
 }
 
 // Apply the DRY principle, see https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
@@ -656,8 +684,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     // Our layer-specific initialization...
 
-    DebugPrintf("%s version %d.%d.%d\n", kLayerProperties[0].layerName, kVersionDevsimMajor, kVersionDevsimMinor,
-                kVersionDevsimPatch);
+    DebugPrintf("%s version %d.%d.%d\n", kOurLayerName, kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
     // Get the name of our configuration file.
     std::string filename = GetEnvarValue(kEnvarDevsimFilename);
@@ -755,7 +782,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
                                                                     VkExtensionProperties *pProperties) {
     DebugPrintf("EnumerateInstanceExtensionProperties pLayerName \"%s\"\n", pLayerName);
-    if (pLayerName && !strcmp(pLayerName, kLayerProperties->layerName)) {
+    if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
         return EnumerateProperties(kExtensionPropertiesCount, kExtensionProperties, pCount, pProperties);
     }
     return VK_ERROR_LAYER_NOT_PRESENT;
@@ -767,7 +794,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     std::lock_guard<std::mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
-    if (pLayerName && !strcmp(pLayerName, kLayerProperties->layerName)) {
+    if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
         return EnumerateProperties(kExtensionPropertiesCount, kExtensionProperties, pCount, pProperties);
     }
     return dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
