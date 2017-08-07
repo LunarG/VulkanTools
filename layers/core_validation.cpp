@@ -1752,7 +1752,8 @@ static void resetCB(layer_data *dev_data, const VkCommandBuffer cb) {
         pCB->updateImages.clear();
         pCB->updateBuffers.clear();
         clear_cmd_buf_and_mem_references(dev_data, pCB);
-        pCB->validate_functions.clear();
+        pCB->queue_submit_functions.clear();
+        pCB->cmd_execute_commands_functions.clear();
         pCB->eventUpdates.clear();
         pCB->queryUpdates.clear();
 
@@ -2009,12 +2010,11 @@ static bool ValidateRequestedFeatures(instance_layer_data *instance_data, const 
     uint32_t total_bools = sizeof(VkPhysicalDeviceFeatures) / sizeof(VkBool32);
     for (uint32_t i = 0; i < total_bools; i++) {
         if (requested[i] > actual[i]) {
-            // TODO: Add index to struct member name helper to be able to include a feature name
             skip |= log_msg(instance_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                             VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, 0, __LINE__, DEVLIMITS_INVALID_FEATURE_REQUESTED, "DL",
-                            "While calling vkCreateDevice(), requesting feature #%u in VkPhysicalDeviceFeatures struct, "
+                            "While calling vkCreateDevice(), requesting feature '%s' in VkPhysicalDeviceFeatures struct, "
                             "which is not available on this device.",
-                            i);
+                            GetPhysDevFeatureString(i));
             errors++;
         }
     }
@@ -2687,7 +2687,7 @@ static bool PreCallValidateQueueSubmit(layer_data *dev_data, VkQueue queue, uint
                 }
 
                 // Call submit-time functions to validate/update state
-                for (auto &function : cb_node->validate_functions) {
+                for (auto &function : cb_node->queue_submit_functions) {
                     skip |= function();
                 }
                 for (auto &function : cb_node->eventUpdates) {
@@ -4117,7 +4117,7 @@ void invalidateCommandBuffers(const layer_data *dev_data, std::unordered_set<GLO
                     "Invalidating a command buffer that's currently being recorded: 0x%p.", cb_node->commandBuffer);
             cb_node->state = CB_INVALID_INCOMPLETE;
         }
-        else {
+        else if (cb_node->state == CB_RECORDED) {
             cb_node->state = CB_INVALID_COMPLETE;
         }
         cb_node->broken_bindings.push_back(obj);
@@ -5498,7 +5498,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(VkCommandBuffer commandBuffer, VkB
         std::function<bool()> function = [=]() {
             return ValidateBufferMemoryIsValid(dev_data, buffer_state, "vkCmdBindIndexBuffer()");
         };
-        cb_node->validate_functions.push_back(function);
+        cb_node->queue_submit_functions.push_back(function);
         VkDeviceSize offset_align = 0;
         switch (indexType) {
             case VK_INDEX_TYPE_UINT16:
@@ -5556,7 +5556,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(VkCommandBuffer commandBuffer, u
             std::function<bool()> function = [=]() {
                 return ValidateBufferMemoryIsValid(dev_data, buffer_state, "vkCmdBindVertexBuffers()");
             };
-            cb_node->validate_functions.push_back(function);
+            cb_node->queue_submit_functions.push_back(function);
             if (pOffsets[i] >= buffer_state->createInfo.size) {
                 skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT,
                                 HandleToUint64(buffer_state->buffer), __LINE__, VALIDATION_ERROR_182004e4, "DS",
@@ -5584,7 +5584,7 @@ static void MarkStoreImagesAndBuffersAsWritten(layer_data *dev_data, GLOBAL_CB_N
             SetImageMemoryValid(dev_data, image_state, true);
             return false;
         };
-        pCB->validate_functions.push_back(function);
+        pCB->queue_submit_functions.push_back(function);
     }
     for (auto buffer : pCB->updateBuffers) {
         auto buffer_state = GetBufferState(dev_data, buffer);
@@ -5593,7 +5593,7 @@ static void MarkStoreImagesAndBuffersAsWritten(layer_data *dev_data, GLOBAL_CB_N
             SetBufferMemoryValid(dev_data, buffer_state, true);
             return false;
         };
-        pCB->validate_functions.push_back(function);
+        pCB->queue_submit_functions.push_back(function);
     }
 }
 
@@ -5961,7 +5961,7 @@ static void PostCallRecordCmdUpdateBuffer(layer_data *device_data, GLOBAL_CB_NOD
         SetBufferMemoryValid(device_data, dst_buffer_state, true);
         return false;
     };
-    cb_state->validate_functions.push_back(function);
+    cb_state->queue_submit_functions.push_back(function);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset,
@@ -6154,8 +6154,88 @@ static VkPipelineStageFlags ExpandPipelineStageFlags(VkPipelineStageFlags inflag
                   VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
 }
 
+// Verify image barrier image state and that the image is consistent with FB image
+static bool ValidateImageBarrierImage(layer_data *device_data, const char *funcName, GLOBAL_CB_NODE const *cb_state,
+                                      VkFramebuffer framebuffer, uint32_t active_subpass, const safe_VkSubpassDescription &sub_desc,
+                                      uint64_t rp_handle, uint32_t img_index, const VkImageMemoryBarrier &img_barrier) {
+    bool skip = false;
+    const auto &fb_state = GetFramebufferState(device_data, framebuffer);
+    assert(fb_state);
+    const auto img_bar_image = img_barrier.image;
+    bool image_match = false;
+    bool sub_image_found = false;  // Do we find a corresponding subpass description
+    VkImageLayout sub_image_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    uint32_t attach_index = 0;
+    uint32_t index_count = 0;
+    // Verify that a framebuffer image matches barrier image
+    for (const auto &fb_attach : fb_state->attachments) {
+        if (img_bar_image == fb_attach.image) {
+            image_match = true;
+            attach_index = index_count;
+            break;
+        }
+        index_count++;
+    }
+    if (image_match) {  // Make sure subpass is referring to matching attachment
+        if (sub_desc.pDepthStencilAttachment && sub_desc.pDepthStencilAttachment->attachment == attach_index) {
+            sub_image_layout = sub_desc.pDepthStencilAttachment->layout;
+            sub_image_found = true;
+        } else {
+            for (uint32_t j = 0; j < sub_desc.colorAttachmentCount; ++j) {
+                if (sub_desc.pColorAttachments && sub_desc.pColorAttachments[j].attachment == attach_index) {
+                    sub_image_layout = sub_desc.pColorAttachments[j].layout;
+                    sub_image_found = true;
+                    break;
+                } else if (sub_desc.pResolveAttachments && sub_desc.pResolveAttachments[j].attachment == attach_index) {
+                    sub_image_layout = sub_desc.pResolveAttachments[j].layout;
+                    sub_image_found = true;
+                    break;
+                }
+            }
+        }
+        if (!sub_image_found) {
+            skip |= log_msg(
+                device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT, rp_handle,
+                __LINE__, VALIDATION_ERROR_1b800936, "CORE",
+                "%s: Barrier pImageMemoryBarriers[%d].image (0x%" PRIx64
+                ") is not referenced by the VkSubpassDescription for active subpass (%d) of current renderPass (0x%" PRIx64 "). %s",
+                funcName, img_index, HandleToUint64(img_bar_image), active_subpass, rp_handle,
+                validation_error_map[VALIDATION_ERROR_1b800936]);
+        }
+    } else {  // !image_match
+        auto const fb_handle = HandleToUint64(fb_state->framebuffer);
+        skip |=
+            log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT, fb_handle,
+                    __LINE__, VALIDATION_ERROR_1b800936, "CORE",
+                    "%s: Barrier pImageMemoryBarriers[%d].image (0x%" PRIx64
+                    ") does not match an image from the current framebuffer (0x%" PRIx64 "). %s",
+                    funcName, img_index, HandleToUint64(img_bar_image), fb_handle, validation_error_map[VALIDATION_ERROR_1b800936]);
+    }
+    if (img_barrier.oldLayout != img_barrier.newLayout) {
+        skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                        HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b80093a, "CORE",
+                        "%s: As the Image Barrier for image 0x%" PRIx64
+                        " is being executed within a render pass instance, oldLayout must equal newLayout yet they are "
+                        "%s and %s. %s",
+                        funcName, HandleToUint64(img_barrier.image), string_VkImageLayout(img_barrier.oldLayout),
+                        string_VkImageLayout(img_barrier.newLayout), validation_error_map[VALIDATION_ERROR_1b80093a]);
+    } else {
+        if (sub_image_found && sub_image_layout != img_barrier.oldLayout) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT,
+                            rp_handle, __LINE__, VALIDATION_ERROR_1b800938, "CORE",
+                            "%s: Barrier pImageMemoryBarriers[%d].image (0x%" PRIx64
+                            ") is referenced by the VkSubpassDescription for active subpass (%d) of current renderPass (0x%" PRIx64
+                            ") as having layout %s, but image barrier has layout %s. %s",
+                            funcName, img_index, HandleToUint64(img_bar_image), active_subpass, rp_handle,
+                            string_VkImageLayout(img_barrier.oldLayout), string_VkImageLayout(sub_image_layout),
+                            validation_error_map[VALIDATION_ERROR_1b800938]);
+        }
+    }
+    return skip;
+}
+
 // Validate image barriers within a renderPass
-static bool ValidateRenderPassImageBarriers(layer_data *device_data, const char *funcName, GLOBAL_CB_NODE const *cb_state,
+static bool ValidateRenderPassImageBarriers(layer_data *device_data, const char *funcName, GLOBAL_CB_NODE *cb_state,
                                             uint32_t active_subpass, const safe_VkSubpassDescription &sub_desc, uint64_t rp_handle,
                                             VkAccessFlags sub_src_access_mask, VkAccessFlags sub_dst_access_mask,
                                             uint32_t image_mem_barrier_count, const VkImageMemoryBarrier *image_barriers) {
@@ -6182,83 +6262,26 @@ static bool ValidateRenderPassImageBarriers(layer_data *device_data, const char 
                             funcName, i, img_dst_access_mask, sub_dst_access_mask, active_subpass, rp_handle,
                             validation_error_map[VALIDATION_ERROR_1b800930]);
         }
-        // TODO : Secondary CBs could have null framebuffer so just skipping that case for now. Need to correctly
-        //  handle that case at ExecuteCBs time
-        const auto &fb_state = GetFramebufferState(device_data, cb_state->activeFramebuffer);
-        if (fb_state) {
-            const auto img_bar_image = img_barrier.image;
-            bool image_match = false;
-            bool sub_image_found = false;  // Do we find a corresponding subpass description
-            VkImageLayout sub_image_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-            uint32_t attach_index = 0;
-            uint32_t index_count = 0;
-            // Verify that a framebuffer image matches barrier image
-            for (const auto &fb_attach : fb_state->attachments) {
-                if (img_bar_image == fb_attach.image) {
-                    image_match = true;
-                    attach_index = index_count;
-                    break;
-                }
-                index_count++;
-            }
-            if (image_match) {  // Make sure subpass is referring to matching attachment
-                if (sub_desc.pDepthStencilAttachment && sub_desc.pDepthStencilAttachment->attachment == attach_index) {
-                    sub_image_layout = sub_desc.pDepthStencilAttachment->layout;
-                    sub_image_found = true;
-                } else {
-                    for (uint32_t j = 0; j < sub_desc.colorAttachmentCount; ++j) {
-                        if (sub_desc.pColorAttachments && sub_desc.pColorAttachments[j].attachment == attach_index) {
-                            sub_image_layout = sub_desc.pColorAttachments[j].layout;
-                            sub_image_found = true;
-                            break;
-                        } else if (sub_desc.pResolveAttachments && sub_desc.pResolveAttachments[j].attachment == attach_index) {
-                            sub_image_layout = sub_desc.pResolveAttachments[j].layout;
-                            sub_image_found = true;
-                            break;
-                        }
-                    }
-                }
-                if (!sub_image_found) {
-                    skip |= log_msg(
-                        device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT,
-                        rp_handle, __LINE__, VALIDATION_ERROR_1b800936, "CORE",
-                        "%s: Barrier pImageMemoryBarriers[%d].image (0x%" PRIx64
-                        ") is not referenced by the VkSubpassDescription for active subpass (%d) of current renderPass (0x%" PRIx64
-                        "). %s",
-                        funcName, i, HandleToUint64(img_bar_image), active_subpass, rp_handle,
-                        validation_error_map[VALIDATION_ERROR_1b800936]);
-                }
-            } else {  // !image_match
-                auto const fb_handle = HandleToUint64(fb_state->framebuffer);
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT,
-                            fb_handle, __LINE__, VALIDATION_ERROR_1b800936, "CORE",
-                            "%s: Barrier pImageMemoryBarriers[%d].image (0x%" PRIx64
-                            ") does not match an image from the current framebuffer (0x%" PRIx64 "). %s",
-                            funcName, i, HandleToUint64(img_bar_image), fb_handle, validation_error_map[VALIDATION_ERROR_1b800936]);
-            }
-            if (img_barrier.oldLayout != img_barrier.newLayout) {
-                skip |=
-                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b80093a, "CORE",
-                            "%s: As the Image Barrier for image 0x%" PRIx64
-                            " is being executed within a render pass instance, oldLayout must equal newLayout yet they are "
-                            "%s and %s. %s",
-                            funcName, HandleToUint64(img_barrier.image), string_VkImageLayout(img_barrier.oldLayout),
-                            string_VkImageLayout(img_barrier.newLayout), validation_error_map[VALIDATION_ERROR_1b80093a]);
-            } else {
-                if (sub_image_found && sub_image_layout != img_barrier.oldLayout) {
-                    skip |= log_msg(
-                        device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT,
-                        rp_handle, __LINE__, VALIDATION_ERROR_1b800938, "CORE",
-                        "%s: Barrier pImageMemoryBarriers[%d].image (0x%" PRIx64
-                        ") is referenced by the VkSubpassDescription for active subpass (%d) of current renderPass (0x%" PRIx64
-                        ") as having layout %s, but image barrier has layout %s. %s",
-                        funcName, i, HandleToUint64(img_bar_image), active_subpass, rp_handle,
-                        string_VkImageLayout(img_barrier.oldLayout), string_VkImageLayout(sub_image_layout),
-                        validation_error_map[VALIDATION_ERROR_1b800938]);
-                }
-            }
+        if (VK_QUEUE_FAMILY_IGNORED != img_barrier.srcQueueFamilyIndex ||
+            VK_QUEUE_FAMILY_IGNORED != img_barrier.dstQueueFamilyIndex) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT,
+                            rp_handle, __LINE__, VALIDATION_ERROR_1b80093c, "CORE",
+                            "%s: Barrier pImageMemoryBarriers[%d].srcQueueFamilyIndex is %d and "
+                            "pImageMemoryBarriers[%d].dstQueueFamilyIndex is %d but both must be VK_QUEUE_FAMILY_IGNORED. %s",
+                            funcName, i, img_barrier.srcQueueFamilyIndex, i, img_barrier.dstQueueFamilyIndex,
+                            validation_error_map[VALIDATION_ERROR_1b80093c]);
+        }
+        // Secondary CBs can have null framebuffer so queue up validation in that case 'til FB is known
+        if (VK_NULL_HANDLE == cb_state->activeFramebuffer) {
+            assert(VK_COMMAND_BUFFER_LEVEL_SECONDARY == cb_state->createInfo.level);
+            // Secondary CB case w/o FB specified delay validation
+            cb_state->cmd_execute_commands_functions.emplace_back([=](VkFramebuffer fb) {
+                return ValidateImageBarrierImage(device_data, funcName, cb_state, fb, active_subpass, sub_desc, rp_handle, i,
+                                                 img_barrier);
+            });
+        } else {
+            skip |= ValidateImageBarrierImage(device_data, funcName, cb_state, cb_state->activeFramebuffer, active_subpass,
+                                              sub_desc, rp_handle, i, img_barrier);
         }
     }
     return skip;
@@ -6266,7 +6289,7 @@ static bool ValidateRenderPassImageBarriers(layer_data *device_data, const char 
 
 // Validate VUs for Pipeline Barriers that are within a renderPass
 // Pre: cb_state->activeRenderPass must be a pointer to valid renderPass state
-static bool ValidateRenderPassPipelineBarriers(layer_data *device_data, const char *funcName, GLOBAL_CB_NODE const *cb_state,
+static bool ValidateRenderPassPipelineBarriers(layer_data *device_data, const char *funcName, GLOBAL_CB_NODE *cb_state,
                                                VkPipelineStageFlags src_stage_mask, VkPipelineStageFlags dst_stage_mask,
                                                VkDependencyFlags dependency_flags, uint32_t mem_barrier_count,
                                                const VkMemoryBarrier *mem_barriers, uint32_t buffer_mem_barrier_count,
@@ -6354,14 +6377,108 @@ static bool ValidateRenderPassPipelineBarriers(layer_data *device_data, const ch
     return skip;
 }
 
+// Array to mask individual accessMask to corresponding stageMask
+//  accessMask active bit position (0-31) maps to index
+const static VkPipelineStageFlags AccessMaskToPipeStage[20] = {
+    // VK_ACCESS_INDIRECT_COMMAND_READ_BIT = 0
+    VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT,
+    // VK_ACCESS_INDEX_READ_BIT = 1
+    VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+    // VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT = 2
+    VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+    // VK_ACCESS_UNIFORM_READ_BIT = 3
+    VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT |
+        VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT | VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT |
+        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+    // VK_ACCESS_INPUT_ATTACHMENT_READ_BIT = 4
+    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+    // VK_ACCESS_SHADER_READ_BIT = 5
+    VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT |
+        VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT | VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT |
+        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+    // VK_ACCESS_SHADER_WRITE_BIT = 6
+    VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT |
+        VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT | VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT |
+        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+    // VK_ACCESS_COLOR_ATTACHMENT_READ_BIT = 7
+    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    // VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT = 8
+    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    // VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT = 9
+    VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    // VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT = 10
+    VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    // VK_ACCESS_TRANSFER_READ_BIT = 11
+    VK_PIPELINE_STAGE_TRANSFER_BIT,
+    // VK_ACCESS_TRANSFER_WRITE_BIT = 12
+    VK_PIPELINE_STAGE_TRANSFER_BIT,
+    // VK_ACCESS_HOST_READ_BIT = 13
+    VK_PIPELINE_STAGE_HOST_BIT,
+    // VK_ACCESS_HOST_WRITE_BIT = 14
+    VK_PIPELINE_STAGE_HOST_BIT,
+    // VK_ACCESS_MEMORY_READ_BIT = 15
+    VK_ACCESS_FLAG_BITS_MAX_ENUM,  // Always match
+    // VK_ACCESS_MEMORY_WRITE_BIT = 16
+    VK_ACCESS_FLAG_BITS_MAX_ENUM,  // Always match
+    // VK_ACCESS_COMMAND_PROCESS_READ_BIT_NVX = 17
+    VK_PIPELINE_STAGE_COMMAND_PROCESS_BIT_NVX,
+    // VK_ACCESS_COMMAND_PROCESS_WRITE_BIT_NVX = 18
+    VK_PIPELINE_STAGE_COMMAND_PROCESS_BIT_NVX,
+};
+
+// Verify that all bits of access_mask are supported by the src_stage_mask
+static bool ValidateAccessMaskPipelineStage(VkAccessFlags access_mask, VkPipelineStageFlags stage_mask) {
+    // Early out if all commands set, or access_mask NULL
+    if ((stage_mask & VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) || (0 == access_mask)) return true;
+
+    stage_mask = ExpandPipelineStageFlags(stage_mask);
+    int index = 0;
+    // for each of the set bits in access_mask, make sure that supporting stage mask bit(s) are set
+    while (access_mask) {
+        index = (u_ffs(access_mask) - 1);
+        assert(index >= 0);
+        // Must have "!= 0" compare to prevent warning from MSVC
+        if ((AccessMaskToPipeStage[index] & stage_mask) == 0) return false;  // early out
+        access_mask &= ~(1 << index);                                        // Mask off bit that's been checked
+    }
+    return true;
+}
+
 static bool ValidateBarriers(layer_data *device_data, const char *funcName, GLOBAL_CB_NODE const *cb_state,
                              VkPipelineStageFlags src_stage_mask, VkPipelineStageFlags dst_stage_mask, uint32_t memBarrierCount,
                              const VkMemoryBarrier *pMemBarriers, uint32_t bufferBarrierCount,
                              const VkBufferMemoryBarrier *pBufferMemBarriers, uint32_t imageMemBarrierCount,
                              const VkImageMemoryBarrier *pImageMemBarriers) {
     bool skip = false;
+    for (uint32_t i = 0; i < memBarrierCount; ++i) {
+        const auto &mem_barrier = pMemBarriers[i];
+        if (!ValidateAccessMaskPipelineStage(mem_barrier.srcAccessMask, src_stage_mask)) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b800940, "DS",
+                            "%s: pMemBarriers[%d].srcAccessMask (0x%X) is not supported by srcStageMask (0x%X). %s", funcName, i,
+                            mem_barrier.srcAccessMask, src_stage_mask, validation_error_map[VALIDATION_ERROR_1b800940]);
+        }
+        if (!ValidateAccessMaskPipelineStage(mem_barrier.dstAccessMask, dst_stage_mask)) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b800942, "DS",
+                            "%s: pMemBarriers[%d].dstAccessMask (0x%X) is not supported by dstStageMask (0x%X). %s", funcName, i,
+                            mem_barrier.dstAccessMask, dst_stage_mask, validation_error_map[VALIDATION_ERROR_1b800942]);
+        }
+    }
     for (uint32_t i = 0; i < imageMemBarrierCount; ++i) {
         auto mem_barrier = &pImageMemBarriers[i];
+        if (!ValidateAccessMaskPipelineStage(mem_barrier->srcAccessMask, src_stage_mask)) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b800940, "DS",
+                            "%s: pImageMemBarriers[%d].srcAccessMask (0x%X) is not supported by srcStageMask (0x%X). %s", funcName,
+                            i, mem_barrier->srcAccessMask, src_stage_mask, validation_error_map[VALIDATION_ERROR_1b800940]);
+        }
+        if (!ValidateAccessMaskPipelineStage(mem_barrier->dstAccessMask, dst_stage_mask)) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b800942, "DS",
+                            "%s: pImageMemBarriers[%d].dstAccessMask (0x%X) is not supported by dstStageMask (0x%X). %s", funcName,
+                            i, mem_barrier->dstAccessMask, dst_stage_mask, validation_error_map[VALIDATION_ERROR_1b800942]);
+        }
         auto image_data = GetImageState(device_data, mem_barrier->image);
         if (image_data) {
             uint32_t src_q_f_index = mem_barrier->srcQueueFamilyIndex;
@@ -6438,6 +6555,18 @@ static bool ValidateBarriers(layer_data *device_data, const char *funcName, GLOB
         auto mem_barrier = &pBufferMemBarriers[i];
         if (!mem_barrier) continue;
 
+        if (!ValidateAccessMaskPipelineStage(mem_barrier->srcAccessMask, src_stage_mask)) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b800940, "DS",
+                            "%s: pBufferMemBarriers[%d].srcAccessMask (0x%X) is not supported by srcStageMask (0x%X). %s", funcName,
+                            i, mem_barrier->srcAccessMask, src_stage_mask, validation_error_map[VALIDATION_ERROR_1b800940]);
+        }
+        if (!ValidateAccessMaskPipelineStage(mem_barrier->dstAccessMask, dst_stage_mask)) {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_1b800942, "DS",
+                            "%s: pBufferMemBarriers[%d].dstAccessMask (0x%X) is not supported by dstStageMask (0x%X). %s", funcName,
+                            i, mem_barrier->dstAccessMask, dst_stage_mask, validation_error_map[VALIDATION_ERROR_1b800942]);
+        }
         // Validate buffer barrier queue family indices
         if ((mem_barrier->srcQueueFamilyIndex != VK_QUEUE_FAMILY_IGNORED &&
              mem_barrier->srcQueueFamilyIndex >= device_data->phys_dev_properties.queue_family_properties.size()) ||
@@ -6641,12 +6770,11 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(VkCommandBuffer commandBuffer, uint32_t
                                                imageMemoryBarrierCount, pImageMemoryBarriers);
 }
 
-static bool PreCallValidateCmdPipelineBarrier(layer_data *device_data, GLOBAL_CB_NODE const *cb_state,
-                                              VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
-                                              VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount,
-                                              const VkMemoryBarrier *pMemoryBarriers, uint32_t bufferMemoryBarrierCount,
-                                              const VkBufferMemoryBarrier *pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
-                                              const VkImageMemoryBarrier *pImageMemoryBarriers) {
+static bool PreCallValidateCmdPipelineBarrier(layer_data *device_data, GLOBAL_CB_NODE *cb_state, VkPipelineStageFlags srcStageMask,
+                                              VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags,
+                                              uint32_t memoryBarrierCount, const VkMemoryBarrier *pMemoryBarriers,
+                                              uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier *pBufferMemoryBarriers,
+                                              uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier *pImageMemoryBarriers) {
     bool skip = false;
     skip |= ValidateStageMasksAgainstQueueCapabilities(device_data, cb_state, srcStageMask, dstStageMask, "vkCmdPipelineBarrier",
                                                        VALIDATION_ERROR_1b80093e);
@@ -6860,7 +6988,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(VkCommandBuffer commandBuffer
     lock.lock();
     if (cb_node && dst_buff_state) {
         AddCommandBufferBindingBuffer(dev_data, cb_node, dst_buff_state);
-        cb_node->validate_functions.emplace_back([=]() {
+        cb_node->queue_submit_functions.emplace_back([=]() {
             SetBufferMemoryValid(dev_data, dst_buff_state, true);
             return false;
         });
@@ -7738,28 +7866,28 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(VkCommandBuffer commandBuffer, con
                         SetImageMemoryValid(dev_data, GetImageState(dev_data, fb_info.image), true);
                         return false;
                     };
-                    cb_node->validate_functions.push_back(function);
+                    cb_node->queue_submit_functions.push_back(function);
                 } else if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->loadOp,
                                                                 pAttachment->stencilLoadOp, VK_ATTACHMENT_LOAD_OP_DONT_CARE)) {
                     std::function<bool()> function = [=]() {
                         SetImageMemoryValid(dev_data, GetImageState(dev_data, fb_info.image), false);
                         return false;
                     };
-                    cb_node->validate_functions.push_back(function);
+                    cb_node->queue_submit_functions.push_back(function);
                 } else if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->loadOp,
                                                                 pAttachment->stencilLoadOp, VK_ATTACHMENT_LOAD_OP_LOAD)) {
                     std::function<bool()> function = [=]() {
                         return ValidateImageMemoryIsValid(dev_data, GetImageState(dev_data, fb_info.image),
                                                           "vkCmdBeginRenderPass()");
                     };
-                    cb_node->validate_functions.push_back(function);
+                    cb_node->queue_submit_functions.push_back(function);
                 }
                 if (render_pass_state->attachment_first_read[i]) {
                     std::function<bool()> function = [=]() {
                         return ValidateImageMemoryIsValid(dev_data, GetImageState(dev_data, fb_info.image),
                                                           "vkCmdBeginRenderPass()");
                     };
-                    cb_node->validate_functions.push_back(function);
+                    cb_node->queue_submit_functions.push_back(function);
                 }
             }
             if (clear_op_size > pRenderPassBegin->clearValueCount) {
@@ -7862,14 +7990,14 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(VkCommandBuffer commandBuffer) {
                         SetImageMemoryValid(dev_data, GetImageState(dev_data, fb_info.image), true);
                         return false;
                     };
-                    pCB->validate_functions.push_back(function);
+                    pCB->queue_submit_functions.push_back(function);
                 } else if (FormatSpecificLoadAndStoreOpSettings(pAttachment->format, pAttachment->storeOp,
                                                                 pAttachment->stencilStoreOp, VK_ATTACHMENT_STORE_OP_DONT_CARE)) {
                     std::function<bool()> function = [=]() {
                         SetImageMemoryValid(dev_data, GetImageState(dev_data, fb_info.image), false);
                         return false;
                     };
-                    pCB->validate_functions.push_back(function);
+                    pCB->queue_submit_functions.push_back(function);
                 }
             }
         }
@@ -8146,6 +8274,12 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(VkCommandBuffer commandBuffer, uin
                         }
                         //  If framebuffer for secondary CB is not NULL, then it must match active FB from primaryCB
                         skip |= validateFramebuffer(dev_data, commandBuffer, pCB, pCommandBuffers[i], pSubCB);
+                        if (VK_NULL_HANDLE == pSubCB->activeFramebuffer) {
+                            //  Inherit primary's activeFramebuffer and while running validate functions
+                            for (auto &function : pSubCB->cmd_execute_commands_functions) {
+                                skip |= function(pCB->activeFramebuffer);
+                            }
+                        }
                     }
                     string errorString = "";
                     // secondaryCB must have been created w/ RP compatible w/ primaryCB active renderpass
@@ -8754,11 +8888,10 @@ static bool PreCallValidateCreateSwapchainKHR(layer_data *dev_data, const char *
         }
 
         // Validate pCreateInfo->imageExtent against VkSurfaceCapabilitiesKHR::{current|min|max}ImageExtent:
-        if ((capabilities.currentExtent.width == kSurfaceSizeFromSwapchain) &&
-            ((pCreateInfo->imageExtent.width < capabilities.minImageExtent.width) ||
-             (pCreateInfo->imageExtent.width > capabilities.maxImageExtent.width) ||
-             (pCreateInfo->imageExtent.height < capabilities.minImageExtent.height) ||
-             (pCreateInfo->imageExtent.height > capabilities.maxImageExtent.height))) {
+        if ((pCreateInfo->imageExtent.width < capabilities.minImageExtent.width) ||
+            (pCreateInfo->imageExtent.width > capabilities.maxImageExtent.width) ||
+            (pCreateInfo->imageExtent.height < capabilities.minImageExtent.height) ||
+            (pCreateInfo->imageExtent.height > capabilities.maxImageExtent.height)) {
             if (log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
                         HandleToUint64(dev_data->device), __LINE__, VALIDATION_ERROR_146009f4, "DS",
                         "%s called with imageExtent = (%d,%d), which is outside the bounds returned by "
