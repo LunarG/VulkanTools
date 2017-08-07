@@ -132,6 +132,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     // record the location of looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
+    unsigned int totalLoops = settings.numLoops;
     while (settings.numLoops > 0) {
         while (trace_running) {
             display.process_event();
@@ -192,7 +193,9 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         if (prevFrameNumber != frameNumber) {
                             prevFrameNumber = frameNumber;
 
-                            if (frameNumber == settings.loopStartFrame) {
+                            // Only set the loop start location in the first loop when loopStartFrame is not 0
+                            if (frameNumber == settings.loopStartFrame && settings.loopStartFrame > 0 &&
+                                settings.numLoops == totalLoops) {
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
@@ -224,7 +227,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
         seq.set_bookmark(startingPacket);
         trace_running = true;
         if (replayer != NULL) {
-            replayer->ResetFrameNumber();
+            replayer->ResetFrameNumber(settings.loopStartFrame);
         }
     }
 

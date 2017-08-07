@@ -74,7 +74,7 @@ class vkReplay {
     vktrace_replay::VKTRACE_REPLAY_RESULT pop_validation_msgs();
     int dump_validation_data();
     int get_frame_number() { return m_frameNumber; }
-    void reset_frame_number() { m_frameNumber = 0; }
+    void reset_frame_number(int frameNumber) { m_frameNumber = frameNumber > 0 ? frameNumber : 0; }
 
    private:
     struct vkFuncs m_vkFuncs;

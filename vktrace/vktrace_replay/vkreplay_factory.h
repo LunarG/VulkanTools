@@ -65,7 +65,7 @@ typedef vktrace_trace_packet_header *(VKTRACER_CDECL *funcptr_vkreplayer_interpr
 typedef vktrace_replay::VKTRACE_REPLAY_RESULT(VKTRACER_CDECL *funcptr_vkreplayer_replay)(vktrace_trace_packet_header *pPacket);
 typedef int(VKTRACER_CDECL *funcptr_vkreplayer_dump)();
 typedef int(VKTRACER_CDECL *funcptr_vkreplayer_getframenumber)();
-typedef void(VKTRACER_CDECL *funcptr_vkreplayer_resetframenumber)();
+typedef void(VKTRACER_CDECL *funcptr_vkreplayer_resetframenumber)(int frameNumber);
 }
 
 struct vktrace_trace_packet_replay_library {
