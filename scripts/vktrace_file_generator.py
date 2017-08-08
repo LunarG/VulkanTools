@@ -107,11 +107,6 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkImportFenceFdKHR',
                                        'vkGetFenceFdKHR',
 
-                                       # VK_KHR_get_memory_requirements2
-                                       'vkGetImageMemoryRequirements2KHR',
-                                       'vkGetBufferMemoryRequirements2KHR',
-                                       'vkGetImageSparseMemoryRequirements2KHR',
-
                                        # VkSampleLocationsInfoEXT
                                        'vkCmdSetSampleLocationsEXT',
 
@@ -1215,7 +1210,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%p { flags=%s }", "%s, (%s == NULL)?\"0\":(%s->flags == VK_FENCE_CREATE_SIGNALED_BIT)?\"VK_FENCE_CREATE_SIGNALED_BIT\":\"0\"" % (name, name, name), "")
         if "VkBufferCopy" in vk_type:
             return ("%p [0]={srcOffset=%\" PRIu64 \", dstOffset=%\" PRIu64 \", size=%\" PRIu64 \"}", "%s, (%s == NULL)?0:%s->srcOffset, (%s == NULL)?0:%s->dstOffset, (%s == NULL)?0:%s->size" % (name, name, name, name, name, name, name), "")
-        if "VkMemoryRequirements" in vk_type:
+        if "VkMemoryRequirements2" in vk_type:
+            return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->memoryRequirements.size, (%s == NULL)?0:%s->memoryRequirements.alignment, (%s == NULL)?0:%s->memoryRequirements.memoryTypeBits" % (name, name, name, name, name, name, name), "")
+        elif "VkMemoryRequirements" in vk_type:
             return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->size, (%s == NULL)?0:%s->alignment, (%s == NULL)?0:%s->memoryTypeBits" % (name, name, name, name, name, name, name), "")
         if "VkClearColor" in vk_type:
             return ("%p", "(void*)&%s" % name, deref)
@@ -2315,7 +2312,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         'VK_KHR_wayland_surface',
                         'VK_EXT_debug_report',
                         'VK_KHR_descriptor_update_template',
-                        'VK_KHR_get_physical_device_properties2']
+                        'VK_KHR_get_physical_device_properties2',
+                        'VK_KHR_get_memory_requirements2']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
