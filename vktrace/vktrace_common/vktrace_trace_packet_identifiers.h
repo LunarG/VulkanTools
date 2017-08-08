@@ -259,7 +259,10 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceImageFormatProperties2KHR = 184,
     VKTRACE_TPI_VK_vkGetPhysicalDeviceQueueFamilyProperties2KHR = 185,
     VKTRACE_TPI_VK_vkGetPhysicalDeviceMemoryProperties2KHR = 186,
-    VKTRACE_TPI_VK_vkGetPhysicalDeviceSparseImageFormatProperties2KHR = 187
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceSparseImageFormatProperties2KHR = 187,
+    VKTRACE_TPI_VK_vkGetImageMemoryRequirements2KHR = 188,
+    VKTRACE_TPI_VK_vkGetBufferMemoryRequirements2KHR = 189,
+    VKTRACE_TPI_VK_vkGetImageSparseMemoryRequirements2KHR = 190
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1
