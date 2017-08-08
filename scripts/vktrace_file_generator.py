@@ -2313,7 +2313,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         'VK_EXT_debug_report',
                         'VK_KHR_descriptor_update_template',
                         'VK_KHR_get_physical_device_properties2',
-                        'VK_KHR_get_memory_requirements2']
+                        'VK_KHR_get_memory_requirements2',
+                        'VK_KHR_get_surface_capabilities2']
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
