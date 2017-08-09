@@ -145,8 +145,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_device_simulation
 LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/device_simulation.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
-LOCAL_SRC_FILES += $(SRC_DIR)/external/jsoncpp/dist/jsoncpp.cpp
-LOCAL_C_INCLUDES += ${SRC_DIR}/external/jsoncpp/dist \
+LOCAL_SRC_FILES += $(ANDROID_DIR)/external/jsoncpp/dist/jsoncpp.cpp
+LOCAL_C_INCLUDES += $(ANDROID_DIR)/external/jsoncpp/dist \
                     $(SRC_DIR)/include \
                     $(SRC_DIR)/layers \
                     $(SRC_DIR)/layersvt \
