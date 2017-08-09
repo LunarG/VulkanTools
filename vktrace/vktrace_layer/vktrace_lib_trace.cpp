@@ -1246,10 +1246,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
         *ppName = (char*)pCreateInfo->ppEnabledExtensionNames[i];
     }
 
-    // If app requests vktrace layer, don't record that in the trace
+    // If app requests vktrace layer or device simulation layer, don't record that in the trace
     char** ppName = (char**)&localCreateInfo.ppEnabledLayerNames[0];
     for (i = 0; i < pCreateInfo->enabledLayerCount; i++) {
         if (strcmp("VK_LAYER_LUNARG_vktrace", pCreateInfo->ppEnabledLayerNames[i]) == 0) {
+            // Decrement the enabled layer count and skip copying the pointer
+            localCreateInfo.enabledLayerCount--;
+        } else if (strcmp("VK_LAYER_LUNARG_device_simulation", pCreateInfo->ppEnabledLayerNames[i]) == 0) {
             // Decrement the enabled layer count and skip copying the pointer
             localCreateInfo.enabledLayerCount--;
         } else {
