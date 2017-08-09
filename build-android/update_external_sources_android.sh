@@ -26,21 +26,25 @@ GLSLANG_REVISION=$(cat $ANDROIDBUILDDIR/glslang_revision_android)
 SPIRV_TOOLS_REVISION=$(cat $ANDROIDBUILDDIR/spirv-tools_revision_android)
 SPIRV_HEADERS_REVISION=$(cat $ANDROIDBUILDDIR/spirv-headers_revision_android)
 SHADERC_REVISION=$(cat $ANDROIDBUILDDIR/shaderc_revision_android)
+JSONCPP_REVISION=$(cat $ANDROIDBUILDDIR/jsoncpp_revision_android)
 
 echo "GLSLANG_REVISION=$GLSLANG_REVISION"
 echo "SPIRV_TOOLS_REVISION=$SPIRV_TOOLS_REVISION"
 echo "SPIRV_HEADERS_REVISION=$SPIRV_HEADERS_REVISION"
 echo "SHADERC_REVISION=$SHADERC_REVISION"
+echo "JSONCPP_REVISION=$JSONCPP_REVISION"
 
 GLSLANG_URL=$(cat $ANDROIDBUILDDIR/glslang_url_android)
 SPIRV_TOOLS_URL=$(cat $ANDROIDBUILDDIR/spirv-tools_url_android)
 SPIRV_HEADERS_URL=$(cat $ANDROIDBUILDDIR/spirv-headers_url_android)
 SHADERC_URL=$(cat $ANDROIDBUILDDIR/shaderc_url_android)
+JSONCPP_URL=$(cat $ANDROIDBUILDDIR/jsoncpp_url_android)
 
 echo "GLSLANG_URL=$GLSLANG_URL"
 echo "SPIRV_TOOL_URLS_=$SPIRV_TOOLS_URL"
 echo "SPIRV_HEADERS_URL=$SPIRV_HEADERS_URL"
 echo "SHADERC_URL=$SHADERC_URL"
+echo "JSONCPP_URL=$JSONCPP_URL"
 
 if [[ $(uname) == "Linux" ]]; then
     cores="$(nproc || echo 4)"
@@ -111,6 +115,28 @@ function update_spirv-headers () {
    git checkout $SPIRV_HEADERS_REVISION
 }
 
+function create_jsoncpp () {
+   rm -rf ${BASEDIR}/jsoncpp
+   echo "Creating local jsoncpp repository (${BASEDIR}/jsoncpp)."
+   mkdir -p ${BASEDIR}/jsoncpp
+   cd ${BASEDIR}/jsoncpp
+   git clone ${JSONCPP_URL} .
+   git checkout ${JSONCPP_REVISION}
+}
+
+function update_jsoncpp () {
+   echo "Updating ${BASEDIR}/jsoncpp"
+   cd ${BASEDIR}/jsoncpp
+   git fetch --all
+   git checkout ${JSONCPP_REVISION}
+}
+
+function build_jsoncpp () {
+   echo "Building ${BASEDIR}/jsoncpp"
+   cd ${BASEDIR}/jsoncpp
+   python amalgamate.py
+}
+
 function create_shaderc () {
    rm -rf $BASEDIR/shaderc
    echo "Creating local shaderc repository ($BASEDIR/shaderc)."
@@ -159,6 +185,12 @@ if [ ! -d "$BASEDIR/shaderc" -o ! -d "$BASEDIR/shaderc/.git" ]; then
 fi
 update_shaderc
 build_shaderc
+
+if [ ! -d "${BASEDIR}/jsoncpp" -o ! -d "${BASEDIR}/jsoncpp/.git" ]; then
+   create_jsoncpp
+fi
+update_jsoncpp
+build_jsoncpp
 
 echo ""
 echo "${0##*/} finished."

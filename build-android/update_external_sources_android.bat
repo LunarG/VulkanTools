@@ -27,6 +27,7 @@ set GLSLANG_DIR=%BASE_DIR%\glslang
 set SPIRV_TOOLS_DIR=%BASE_DIR%\spirv-tools
 set SPIRV_HEADERS_DIR=%BASE_DIR%\spirv-tools\external\spirv-headers
 set SHADERC_DIR=%BASE_DIR%\shaderc
+set JSONCPP_DIR=%BASE_DIR%\jsoncpp
 
 for %%X in (where.exe) do (set FOUND=%%~$PATH:X)
 if not defined FOUND (
@@ -93,15 +94,23 @@ if not exist %ANDROID_BUILD_DIR%\shaderc_revision_android (
    goto:error
 )
 
+if not exist %ANDROID_BUILD_DIR%\jsoncpp_revision_android (
+   echo.
+   echo Missing jsoncpp_revision_android file. Place it in %ANDROID_BUILD_DIR%
+   set errorCode=1
+   goto:error
+)
+
 set /p GLSLANG_REVISION= < glslang_revision_android
 set /p SPIRV_TOOLS_REVISION= < spirv-tools_revision_android
 set /p SPIRV_HEADERS_REVISION= < spirv-headers_revision_android
 set /p SHADERC_REVISION= < shaderc_revision_android
+set /p JSONCPP_REVISION= < jsoncpp_revision_android
 echo GLSLANG_REVISION=%GLSLANG_REVISION%
 echo SPIRV_TOOLS_REVISION=%SPIRV_TOOLS_REVISION%
 echo SPIRV_HEADERS_REVISION=%SPIRV_HEADERS_REVISION%
 echo SHADERC_REVISION=%SHADERC_REVISION%
-
+echo JSONCPP_REVISION=%JSONCPP_REVISION%
 
 echo Creating and/or updating glslang, spirv-tools, spirv-headers, shaderc in %BASE_DIR%
 
@@ -109,7 +118,9 @@ set sync-glslang=1
 set sync-spirv-tools=1
 set sync-spirv-headers=1
 set sync-shaderc=1
+set sync-jsoncpp=1
 set build-shaderc=1
+set build-jsoncpp=1
 
 if %sync-glslang% equ 1 (
    if not exist %GLSLANG_DIR% (
@@ -149,10 +160,29 @@ if %sync-shaderc% equ 1 (
    if %errorCode% neq 0 (goto:error)
 )
 
+if %sync-jsoncpp% equ 1 (
+   if exist %JSONCPP_DIR% (
+      rd /S /Q %JSONCPP_DIR%
+   )
+   if %errorlevel% neq 0 (goto:error)
+   if not exist %JSONCPP_DIR% (
+      call:create_jsoncpp
+   )
+   if %errorCode% neq 0 (goto:error)
+   call:update_jsoncpp
+   if %errorCode% neq 0 (goto:error)
+)
+
 if %build-shaderc% equ 1 (
    call:build_shaderc
    if %errorCode% neq 0 (goto:error)
 )
+
+if %build-jsoncpp% equ 1 (
+   call:build_jsoncpp
+   if %errorCode% neq 0 (goto:error)
+)
+
 
 echo.
 echo Exiting
@@ -284,6 +314,40 @@ goto:eof
    if not exist %SHADERC_DIR%\android_test\obj\local\x86\libshaderc.a (
       echo.
       echo shaderc build failed!
+      set errorCode=1
+   )
+goto:eof
+
+:create_jsoncpp
+   echo.
+   echo Creating local jsoncpp repository %JSONCPP_DIR%)
+   if not exist "%JSONCPP_DIR%\" mkdir %JSONCPP_DIR%
+   cd %JSONCPP_DIR%
+   git clone https://github.com/open-source-parsers/jsoncpp.git .
+   git checkout %JSONCPP_REVISION%
+   if not exist %JSONCPP_DIR%\include\json\json.h (
+      echo jsoncpp source download failed!
+      set errorCode=1
+   )
+goto:eof
+
+:update_jsoncpp
+   echo.
+   echo Updating %JSONCPP_DIR%
+   cd %JSONCPP_DIR%
+   git fetch --all
+   git checkout %JSONCPP_REVISION%
+goto:eof
+
+:build_jsoncpp
+   echo.
+   echo Building %JSONCPP_DIR%
+   cd  %JSONCPP_DIR%
+   python amalgamate.py
+
+   if not exist %JSONCPP_DIR%\dist\json\json.h (
+      echo.
+      echo JsonCPP Amalgamation failed to generate %JSONCPP_DIR%\dist\json\json.h
       set errorCode=1
    )
 goto:eof
