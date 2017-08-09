@@ -258,6 +258,22 @@ Result screenshot will be in:
 ```
 /sdcard/Android/<framenumber>.ppm
 ```
+### device_simulation
+To enable, set a property with the path of configuration file to load:
+```
+adb shell setprop debug.vulkan.devsim.filepath <path/to/DevSim/JSON/configuration/file>
+```
+Example of a DevSim JSON configuration file: [tiny1.json](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/tiny1.json)
+
+Optional: set properties to enable debugging output and exit-on-error:
+```
+adb shell setprop debug.vulkan.devsim.debugenable 1
+adb shell setprop debug.vulkan.devsim.exitonerror 1
+```
+Run your application with the following layer enabled:
+```
+VK_LAYER_LUNARG_device_simulation
+```
 ### vktrace
 To record a trace on Android, enable port forwarding from the device to the host:
 ```
