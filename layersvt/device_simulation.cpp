@@ -48,6 +48,8 @@
 #include <fstream>
 #include <mutex>
 
+using namespace std;
+
 #include <json/json.h>  // https://github.com/open-source-parsers/jsoncpp
 
 #include "vulkan/vk_layer.h"
@@ -73,15 +75,53 @@ const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayer
 const VkExtensionProperties *kExtensionProperties = nullptr;
 const uint32_t kExtensionPropertiesCount = 0;
 
+#if !defined(__ANDROID__)
 const char *kSchemaDevsim100 = "https://schema.khronos.org/vulkan/devsim_1_0_0.json#";
+#endif
 
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
+#if defined(__ANDROID__)
+const char *const kEnvarDevsimFilename = "debug.vulkan.devsim.filepath";        // path of the configuration file to load.
+const char *const kEnvarDevsimDebugEnable = "debug.vulkan.devsim.debugenable";  // a non-zero integer will enable debugging output.
+const char *const kEnvarDevsimExitOnError = "debug.vulkan.devsim.exitonerror";  // a non-zero integer will enable exit-on-error.
+#else
 const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // name of the configuration file to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non-zero integer will enable exit-on-error.
+#endif
 
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
+
+#if defined(__ANDROID__)
+#include <android/log.h>
+const uint32_t MAX_BUFFER_SIZE = 255;
+
+const char *AndroidGetEnv(const char *key) {
+    std::string command("getprop ");
+    command += key;
+
+    std::string android_env;
+    FILE *pipe = popen(command.c_str(), "r");
+    if (pipe != nullptr) {
+        char buffer[MAX_BUFFER_SIZE] = {};
+        while (fgets(buffer, MAX_BUFFER_SIZE, pipe) != NULL) {
+            android_env.append(buffer);
+        }
+        pclose(pipe);
+    }
+
+    // Only if the value is set will we get a string back
+    if (android_env.length() > 0) {
+        __android_log_print(ANDROID_LOG_INFO, "devsim", "Vulkan device simulation layer %s: %s", command.c_str(),
+                            android_env.c_str());
+        android_env.erase(android_env.find_last_not_of(" \n\r\t") + 1);
+        return android_env.c_str();
+    }
+
+    return nullptr;
+}
+#endif
 
 // Retrieve the value of an environment variable.
 std::string GetEnvarValue(const char *name) {
@@ -94,7 +134,8 @@ std::string GetEnvarValue(const char *name) {
         value = buffer.data();
     }
 #elif defined(__ANDROID__)
-#error "TODO Android not implemented yet"
+    const char *v = AndroidGetEnv(name);
+    if (v) value = v;
 #else
     const char *v = getenv(name);
     if (v) value = v;
@@ -103,26 +144,57 @@ std::string GetEnvarValue(const char *name) {
     return value;
 }
 
+#if defined(__ANDROID__)
+void AndroidPrintf(const char *level, const char *fmt, va_list args) {
+    int requiredLength;
+    va_list argcopy;
+    va_copy(argcopy, args);
+    requiredLength = vsnprintf(NULL, 0, fmt, argcopy) + 1;
+    va_end(argcopy);
+
+    char *message = (char *)malloc(requiredLength);
+    vsnprintf(message, requiredLength, fmt, args);
+    __android_log_print(ANDROID_LOG_INFO, "devsim", "%s: %s", level, message);
+    free(message);
+}
+#endif
+
 void DebugPrintf(const char *fmt, ...) {
-    static const int kDebugLevel = std::atoi(GetEnvarValue(kEnvarDevsimDebugEnable).c_str());
+    static const int kDebugLevel = atoi(GetEnvarValue(kEnvarDevsimDebugEnable).c_str());
     if (kDebugLevel > 0) {
+#if !defined(__ANDROID__)
         printf("\tDEBUG devsim ");
+#endif
         va_list args;
         va_start(args, fmt);
+#if defined(__ANDROID__)
+        AndroidPrintf("Debug", fmt, args);
+#else
         vprintf(fmt, args);
+#endif
         va_end(args);
     }
 }
 
 void ErrorPrintf(const char *fmt, ...) {
-    static const int kExitLevel = std::atoi(GetEnvarValue(kEnvarDevsimExitOnError).c_str());
+    static const int kExitLevel = atoi(GetEnvarValue(kEnvarDevsimExitOnError).c_str());
+#if !defined(__ANDROID__)
     fprintf(stderr, "\tERROR devsim ");
+#endif
     va_list args;
     va_start(args, fmt);
+#if defined(__ANDROID__)
+    AndroidPrintf("Errors", fmt, args);
+#else
     vfprintf(stderr, fmt, args);
+#endif
     va_end(args);
     if (kExitLevel > 0) {
+#if defined(__ANDROID__)
+        __android_log_print(ANDROID_LOG_INFO, "devsim", "Errors: devsim exiting on error as requested");
+#else
         fprintf(stderr, "\ndevsim exiting on error as requested\n\n");
+#endif
         exit(1);
     }
 }
@@ -723,6 +795,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstance
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pCount,
                                                                                   VkLayerProperties *pProperties) {
     return EnumerateInstanceLayerProperties(pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                                      VkExtensionProperties *pProperties) {
+    return EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct) {
