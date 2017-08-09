@@ -3732,6 +3732,9 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vk
         (VkDescriptorUpdateTemplateCreateInfoKHR *)vktrace_trace_packet_interpret_buffer_pointer(
             pPacket->header, (intptr_t)pPacket->pCreateInfo->pDescriptorUpdateEntries);
 
+    *((VkDescriptorSetLayout *)&pPacket->pCreateInfo->descriptorSetLayout) =
+        m_objMapper.remap_descriptorsetlayouts(pPacket->pCreateInfo->descriptorSetLayout);
+
     replayResult = m_vkFuncs.real_vkCreateDescriptorUpdateTemplateKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
                                                                       &local_pDescriptorUpdateTemplate);
     if (replayResult == VK_SUCCESS) {
