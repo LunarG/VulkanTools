@@ -1698,6 +1698,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
     result = mdd(device)->devTable.AllocateDescriptorSets(device, pAllocateInfo, pDescriptorSets);
     endTime = vktrace_get_time();
     CREATE_TRACE_PACKET(vkAllocateDescriptorSets, vk_size_vkdescriptorsetallocateinfo(pAllocateInfo) +
+                                                      (pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSetLayout)) +
                                                       (pAllocateInfo->descriptorSetCount * sizeof(VkDescriptorSet)));
     pHeader->vktrace_begin_time = vktraceStartTime;
     pHeader->entrypoint_begin_time = startTime;
