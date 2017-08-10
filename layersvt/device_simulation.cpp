@@ -59,7 +59,7 @@ namespace {
 
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 0;
-const uint32_t kVersionDevsimPatch = 0;
+const uint32_t kVersionDevsimPatch = 1;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
