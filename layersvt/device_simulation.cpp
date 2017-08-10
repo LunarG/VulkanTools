@@ -48,8 +48,6 @@
 #include <fstream>
 #include <mutex>
 
-using namespace std;
-
 #include <json/json.h>  // https://github.com/open-source-parsers/jsoncpp
 
 #include "vulkan/vk_layer.h"
@@ -154,13 +152,33 @@ void AndroidPrintf(const char *level, const char *fmt, va_list args) {
 
     char *message = (char *)malloc(requiredLength);
     vsnprintf(message, requiredLength, fmt, args);
-    __android_log_print(ANDROID_LOG_INFO, "devsim", "%s: %s", level, message);
+    switch (level) {
+        case "Debug":
+            __android_log_print(ANDROID_LOG_DEBUG, "devsim", "%s", message);
+            break;
+        case "Errors":
+            __android_log_print(ANDROID_LOG_ERROR, "devsim", "%s", message);
+            break;
+        case "Warnings":
+            __android_log_print(ANDROID_LOG_WARNING, "devsim", "%s", message);
+            break;
+        case "Info":
+            __android_log_print(ANDROID_LOG_INFO, "devsim", "%s", message);
+            break;
+        default:
+            __android_log_print(ANDROID_LOG_INFO, "devsim", "%s", message);
+            break;
+    }
     free(message);
 }
 #endif
 
 void DebugPrintf(const char *fmt, ...) {
+#if defined(__ANDROID__)
     static const int kDebugLevel = atoi(GetEnvarValue(kEnvarDevsimDebugEnable).c_str());
+#else
+    static const int kDebugLevel = std::atoi(GetEnvarValue(kEnvarDevsimDebugEnable).c_str());
+#endif
     if (kDebugLevel > 0) {
 #if !defined(__ANDROID__)
         printf("\tDEBUG devsim ");
@@ -177,8 +195,10 @@ void DebugPrintf(const char *fmt, ...) {
 }
 
 void ErrorPrintf(const char *fmt, ...) {
+#if defined(__ANDROID__)
     static const int kExitLevel = atoi(GetEnvarValue(kEnvarDevsimExitOnError).c_str());
-#if !defined(__ANDROID__)
+#else
+    static const int kExitLevel = std::atoi(GetEnvarValue(kEnvarDevsimExitOnError).c_str());
     fprintf(stderr, "\tERROR devsim ");
 #endif
     va_list args;
@@ -191,7 +211,7 @@ void ErrorPrintf(const char *fmt, ...) {
     va_end(args);
     if (kExitLevel > 0) {
 #if defined(__ANDROID__)
-        __android_log_print(ANDROID_LOG_INFO, "devsim", "Errors: devsim exiting on error as requested");
+        __android_log_print(ANDROID_LOG_ERROR, "devsim", "devsim exiting on error as requested");
 #else
         fprintf(stderr, "\ndevsim exiting on error as requested\n\n");
 #endif
