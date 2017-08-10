@@ -94,6 +94,13 @@ const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non
 #if defined(__ANDROID__)
 #include <android/log.h>
 const uint32_t MAX_BUFFER_SIZE = 255;
+typedef enum {
+    VK_LOG_NONE = 0,
+    VK_LOG_ERROR,
+    VK_LOG_WARNING,
+    VK_LOG_VERBOSE,
+    VK_LOG_DEBUG
+} VkLogLevel;
 
 const char *AndroidGetEnv(const char *key) {
     std::string command("getprop ");
@@ -143,7 +150,7 @@ std::string GetEnvarValue(const char *name) {
 }
 
 #if defined(__ANDROID__)
-void AndroidPrintf(const char *level, const char *fmt, va_list args) {
+void AndroidPrintf(VkLogLevel level, const char *fmt, va_list args) {
     int requiredLength;
     va_list argcopy;
     va_copy(argcopy, args);
@@ -153,17 +160,11 @@ void AndroidPrintf(const char *level, const char *fmt, va_list args) {
     char *message = (char *)malloc(requiredLength);
     vsnprintf(message, requiredLength, fmt, args);
     switch (level) {
-        case "Debug":
+        case VK_LOG_DEBUG:
             __android_log_print(ANDROID_LOG_DEBUG, "devsim", "%s", message);
             break;
-        case "Errors":
+        case VK_LOG_ERROR:
             __android_log_print(ANDROID_LOG_ERROR, "devsim", "%s", message);
-            break;
-        case "Warnings":
-            __android_log_print(ANDROID_LOG_WARNING, "devsim", "%s", message);
-            break;
-        case "Info":
-            __android_log_print(ANDROID_LOG_INFO, "devsim", "%s", message);
             break;
         default:
             __android_log_print(ANDROID_LOG_INFO, "devsim", "%s", message);
@@ -186,7 +187,7 @@ void DebugPrintf(const char *fmt, ...) {
         va_list args;
         va_start(args, fmt);
 #if defined(__ANDROID__)
-        AndroidPrintf("Debug", fmt, args);
+        AndroidPrintf(VK_LOG_DEBUG, fmt, args);
 #else
         vprintf(fmt, args);
 #endif
@@ -204,7 +205,7 @@ void ErrorPrintf(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 #if defined(__ANDROID__)
-    AndroidPrintf("Errors", fmt, args);
+    AndroidPrintf(VK_LOG_ERROR, fmt, args);
 #else
     vfprintf(stderr, fmt, args);
 #endif
