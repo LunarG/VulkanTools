@@ -38,9 +38,9 @@ VKJSON_INFO="${PWD}/../libs/vkjson/vkjson_info"
 
 ${VKJSON_INFO} > /dev/null
 
-# compare vkjson output against gold for the #lines of input
-NUM_LINES=$(cut -f1 -d' ' <(wc -l ${FILENAME_01_IN}))
-diff <(head -n ${NUM_LINES} ${FILENAME_01_GOLD}) <(head -n ${NUM_LINES} ${FILENAME_01_OUT}) >/dev/null
+# compare vkjson output against gold
+NUM_LINES=$(cut -f1 -d' ' <(wc -l ${FILENAME_01_GOLD}))
+diff ${FILENAME_01_GOLD} <(head -n ${NUM_LINES} ${FILENAME_01_OUT}) >/dev/null
 RES=$?
 rm ${FILENAME_01_OUT}
 
