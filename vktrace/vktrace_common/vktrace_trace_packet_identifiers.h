@@ -264,7 +264,8 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetBufferMemoryRequirements2KHR = 189,
     VKTRACE_TPI_VK_vkGetImageSparseMemoryRequirements2KHR = 190,
     VKTRACE_TPI_VK_vkGetPhysicalDeviceSurfaceCapabilities2KHR = 191,
-    VKTRACE_TPI_VK_vkGetPhysicalDeviceSurfaceFormats2KHR = 192
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceSurfaceFormats2KHR = 192,
+    VKTRACE_TPI_VK_vkTrimCommandPoolKHR = 193
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1
