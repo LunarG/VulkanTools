@@ -68,7 +68,7 @@ The schema will perform basic range checking for common Vulkan data types, but i
 ## Example using the DevSim layer
 ```bash
 # Configure bash to find the Vulkan SDK.
-source $VKSDK/setup_env.sh
+source $VKSDK/setup-env.sh
 
 # Set loader parameters to find and load the DevSim layer from your local VulkanTools build.
 export VK_LAYER_PATH="${VulkanTools}/build/layersvt"
