@@ -34,11 +34,16 @@
 
 #include <cJSON.h>
 #include <vulkan/vk_sdk_platform.h>
+#include <stdlib.h>
 
 namespace {
 
 inline bool IsIntegral(double value) {
+#if defined(ANDROID)
+  return trunc(value) == value;
+#else
   return std::trunc(value) == value;
+#endif
 }
 
 template <typename T> struct EnumTraits;
