@@ -274,6 +274,14 @@ Run your application with the following layer enabled:
 ```
 VK_LAYER_LUNARG_device_simulation
 ```
+### vkjson_info
+Currently vkjson_info is only available as an executable for devices with root access.
+
+To use, simply push it to the device and run it.  The resulting json file will be found in:
+```
+/sdcard/Android/<output>.json
+```
+A working example can be found in [devsim_layer_test_anroid.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/devsim_layer_test_android.sh)
 ### vktrace
 To record a trace on Android, enable port forwarding from the device to the host:
 ```
