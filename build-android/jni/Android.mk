@@ -329,6 +329,8 @@ LOCAL_CFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CFLAGS += -DPLATFORM_POSIX=1
 LOCAL_LDLIBS    := -llog -landroid
 include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE := vkjson
 LOCAL_SRC_FILES += $(SRC_DIR)/libs/vkjson/vkjson.cc \
                    $(SRC_DIR)/libs/vkjson/vkjson_instance.cc \
