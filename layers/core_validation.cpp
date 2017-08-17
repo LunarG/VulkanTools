@@ -1712,6 +1712,7 @@ static void resetCB(layer_data *dev_data, const VkCommandBuffer cb) {
         pCB->state = CB_NEW;
         pCB->submitCount = 0;
         pCB->status = 0;
+        pCB->static_status = 0;
         pCB->viewportMask = 0;
         pCB->scissorMask = 0;
 
@@ -1772,47 +1773,47 @@ static void resetCB(layer_data *dev_data, const VkCommandBuffer cb) {
     }
 }
 
-// Set PSO-related status bits for CB, including dynamic state set via PSO
-static void set_cb_pso_status(GLOBAL_CB_NODE *pCB, const PIPELINE_STATE *pPipe) {
-    // Account for any dynamic state not set via this PSO
-    if (!pPipe->graphicsPipelineCI.pDynamicState ||
-        !pPipe->graphicsPipelineCI.pDynamicState->dynamicStateCount) {  // All state is static
-        pCB->status |= CBSTATUS_ALL_STATE_SET;
-    } else {
-        // First consider all state on
-        // Then unset any state that's noted as dynamic in PSO
-        // Finally OR that into CB statemask
-        CBStatusFlags psoDynStateMask = CBSTATUS_ALL_STATE_SET;
-        for (uint32_t i = 0; i < pPipe->graphicsPipelineCI.pDynamicState->dynamicStateCount; i++) {
-            switch (pPipe->graphicsPipelineCI.pDynamicState->pDynamicStates[i]) {
+CBStatusFlags MakeStaticStateMask(VkPipelineDynamicStateCreateInfo const *ds) {
+    // initially assume everything is static state
+    CBStatusFlags flags = CBSTATUS_ALL_STATE_SET;
+
+    if (ds) {
+        for (uint32_t i = 0; i < ds->dynamicStateCount; i++) {
+            switch (ds->pDynamicStates[i]) {
                 case VK_DYNAMIC_STATE_LINE_WIDTH:
-                    psoDynStateMask &= ~CBSTATUS_LINE_WIDTH_SET;
+                    flags &= ~CBSTATUS_LINE_WIDTH_SET;
                     break;
                 case VK_DYNAMIC_STATE_DEPTH_BIAS:
-                    psoDynStateMask &= ~CBSTATUS_DEPTH_BIAS_SET;
+                    flags &= ~CBSTATUS_DEPTH_BIAS_SET;
                     break;
                 case VK_DYNAMIC_STATE_BLEND_CONSTANTS:
-                    psoDynStateMask &= ~CBSTATUS_BLEND_CONSTANTS_SET;
+                    flags &= ~CBSTATUS_BLEND_CONSTANTS_SET;
                     break;
                 case VK_DYNAMIC_STATE_DEPTH_BOUNDS:
-                    psoDynStateMask &= ~CBSTATUS_DEPTH_BOUNDS_SET;
+                    flags &= ~CBSTATUS_DEPTH_BOUNDS_SET;
                     break;
                 case VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK:
-                    psoDynStateMask &= ~CBSTATUS_STENCIL_READ_MASK_SET;
+                    flags &= ~CBSTATUS_STENCIL_READ_MASK_SET;
                     break;
                 case VK_DYNAMIC_STATE_STENCIL_WRITE_MASK:
-                    psoDynStateMask &= ~CBSTATUS_STENCIL_WRITE_MASK_SET;
+                    flags &= ~CBSTATUS_STENCIL_WRITE_MASK_SET;
                     break;
                 case VK_DYNAMIC_STATE_STENCIL_REFERENCE:
-                    psoDynStateMask &= ~CBSTATUS_STENCIL_REFERENCE_SET;
+                    flags &= ~CBSTATUS_STENCIL_REFERENCE_SET;
+                    break;
+                case VK_DYNAMIC_STATE_SCISSOR:
+                    flags &= ~CBSTATUS_SCISSOR_SET;
+                    break;
+                case VK_DYNAMIC_STATE_VIEWPORT:
+                    flags &= ~CBSTATUS_VIEWPORT_SET;
                     break;
                 default:
-                    // TODO : Flag error here
                     break;
             }
         }
-        pCB->status |= psoDynStateMask;
     }
+
+    return flags;
 }
 
 // Flags validation error if the associated call is made inside a render pass. The apiName routine should ONLY be called outside a
@@ -5127,27 +5128,17 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(VkCommandBuffer commandBuffer, VkPipe
         skip |= ValidateCmdQueueFlags(dev_data, cb_state, "vkCmdBindPipeline()", VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
                                       VALIDATION_ERROR_18002415);
         skip |= ValidateCmd(dev_data, cb_state, CMD_BINDPIPELINE, "vkCmdBindPipeline()");
-        if ((VK_PIPELINE_BIND_POINT_COMPUTE == pipelineBindPoint) && (cb_state->activeRenderPass)) {
-            skip |=
-                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
-                        HandleToUint64(pipeline), __LINE__, DRAWSTATE_INVALID_RENDERPASS_CMD, "DS",
-                        "Incorrectly binding compute pipeline (0x%" PRIxLEAST64 ") during active RenderPass (0x%" PRIxLEAST64 ")",
-                        HandleToUint64(pipeline), HandleToUint64(cb_state->activeRenderPass->renderPass));
-        }
         // TODO: VALIDATION_ERROR_18000612 VALIDATION_ERROR_18000616
 
-        PIPELINE_STATE *pipe_state = getPipelineState(dev_data, pipeline);
-        if (pipe_state) {
-            cb_state->lastBound[pipelineBindPoint].pipeline_state = pipe_state;
-            set_cb_pso_status(cb_state, pipe_state);
-            set_pipeline_state(pipe_state);
-            skip |= validate_dual_src_blend_feature(dev_data, pipe_state);
-        } else {
-            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT,
-                            HandleToUint64(pipeline), __LINE__, VALIDATION_ERROR_18027e01, "DS",
-                            "Attempt to bind Pipeline 0x%" PRIxLEAST64 " that doesn't exist! %s", HandleToUint64(pipeline),
-                            validation_error_map[VALIDATION_ERROR_18027e01]);
+        auto pipe_state = getPipelineState(dev_data, pipeline);
+        if (VK_PIPELINE_BIND_POINT_GRAPHICS == pipelineBindPoint) {
+            cb_state->status &= ~cb_state->static_status;
+            cb_state->static_status = MakeStaticStateMask(pipe_state->graphicsPipelineCI.ptr()->pDynamicState);
+            cb_state->status |= cb_state->static_status;
         }
+        cb_state->lastBound[pipelineBindPoint].pipeline_state = pipe_state;
+        set_pipeline_state(pipe_state);
+        skip |= validate_dual_src_blend_feature(dev_data, pipe_state);
         addCommandBufferBinding(&pipe_state->cb_bindings, {HandleToUint64(pipeline), kVulkanObjectTypePipeline}, cb_state);
         if (VK_PIPELINE_BIND_POINT_GRAPHICS == pipelineBindPoint) {
             // Add binding for child renderpass
@@ -5171,7 +5162,16 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(VkCommandBuffer commandBuffer, uint32_
     if (pCB) {
         skip |= ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetViewport()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1e002415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETVIEWPORTSTATE, "vkCmdSetViewport()");
-        pCB->viewportMask |= ((1u << viewportCount) - 1u) << firstViewport;
+        if (pCB->static_status & CBSTATUS_VIEWPORT_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1e00098a, "DS",
+                            "vkCmdSetViewport(): pipeline was created without VK_DYNAMIC_STATE_VIEWPORT flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1e00098a]);
+        }
+        if (!skip) {
+            pCB->viewportMask |= ((1u << viewportCount) - 1u) << firstViewport;
+            pCB->status |= CBSTATUS_VIEWPORT_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetViewport(commandBuffer, firstViewport, viewportCount, pViewports);
@@ -5186,7 +5186,16 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(VkCommandBuffer commandBuffer, uint32_t
     if (pCB) {
         skip |= ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetScissor()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1d802415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETSCISSORSTATE, "vkCmdSetScissor()");
-        pCB->scissorMask |= ((1u << scissorCount) - 1u) << firstScissor;
+        if (pCB->static_status & CBSTATUS_SCISSOR_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1d80049c, "DS",
+                            "vkCmdSetScissor(): pipeline was created without VK_DYNAMIC_STATE_SCISSOR flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1d80049c]);
+        }
+        if (!skip) {
+            pCB->scissorMask |= ((1u << scissorCount) - 1u) << firstScissor;
+            pCB->status |= CBSTATUS_SCISSOR_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetScissor(commandBuffer, firstScissor, scissorCount, pScissors);
@@ -5200,18 +5209,19 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(VkCommandBuffer commandBuffer, float 
     if (pCB) {
         skip |= ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetLineWidth()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1d602415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETLINEWIDTHSTATE, "vkCmdSetLineWidth()");
-        pCB->status |= CBSTATUS_LINE_WIDTH_SET;
 
-        PIPELINE_STATE *pPipeTrav = pCB->lastBound[VK_PIPELINE_BIND_POINT_GRAPHICS].pipeline_state;
-        if (pPipeTrav != NULL && !isDynamic(pPipeTrav, VK_DYNAMIC_STATE_LINE_WIDTH)) {
-            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+        if (pCB->static_status & CBSTATUS_LINE_WIDTH_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                             HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1d600626, "DS",
                             "vkCmdSetLineWidth called but pipeline was created without VK_DYNAMIC_STATE_LINE_WIDTH "
-                            "flag.  This is undefined behavior and could be ignored. %s",
+                            "flag. %s",
                             validation_error_map[VALIDATION_ERROR_1d600626]);
         } else {
             skip |= verifyLineWidth(dev_data, DRAWSTATE_INVALID_SET, kVulkanObjectTypeCommandBuffer, HandleToUint64(commandBuffer),
                                     lineWidth);
+        }
+        if (!skip) {
+            pCB->status |= CBSTATUS_LINE_WIDTH_SET;
         }
     }
     lock.unlock();
@@ -5227,6 +5237,12 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(VkCommandBuffer commandBuffer, float 
     if (pCB) {
         skip |= ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetDepthBias()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1cc02415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETDEPTHBIASSTATE, "vkCmdSetDepthBias()");
+        if (pCB->static_status & CBSTATUS_DEPTH_BIAS_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1cc0062a, "DS",
+                            "vkCmdSetDepthBias(): pipeline was created without VK_DYNAMIC_STATE_DEPTH_BIAS flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1cc0062a]);
+        }
         if ((depthBiasClamp != 0.0) && (!dev_data->enabled_features.depthBiasClamp)) {
             skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                             HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1cc0062c, "DS",
@@ -5251,7 +5267,15 @@ VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(VkCommandBuffer commandBuffer, c
     if (pCB) {
         skip |= ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetBlendConstants()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1ca02415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETBLENDSTATE, "vkCmdSetBlendConstants()");
-        pCB->status |= CBSTATUS_BLEND_CONSTANTS_SET;
+        if (pCB->static_status & CBSTATUS_BLEND_CONSTANTS_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1ca004c8, "DS",
+                            "vkCmdSetBlendConstants(): pipeline was created without VK_DYNAMIC_STATE_BLEND_CONSTANTS flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1ca004c8]);
+        }
+        if (!skip) {
+            pCB->status |= CBSTATUS_BLEND_CONSTANTS_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetBlendConstants(commandBuffer, blendConstants);
@@ -5265,7 +5289,15 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(VkCommandBuffer commandBuffer, floa
     if (pCB) {
         skip |= ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetDepthBounds()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1ce02415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETDEPTHBOUNDSSTATE, "vkCmdSetDepthBounds()");
-        pCB->status |= CBSTATUS_DEPTH_BOUNDS_SET;
+        if (pCB->static_status & CBSTATUS_DEPTH_BOUNDS_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1ce004ae, "DS",
+                            "vkCmdSetDepthBounds(): pipeline was created without VK_DYNAMIC_STATE_DEPTH_BOUNDS flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1ce004ae]);
+        }
+        if (!skip) {
+            pCB->status |= CBSTATUS_DEPTH_BOUNDS_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
@@ -5281,7 +5313,15 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(VkCommandBuffer commandBuffe
         skip |=
             ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetStencilCompareMask()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1da02415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETSTENCILREADMASKSTATE, "vkCmdSetStencilCompareMask()");
-        pCB->status |= CBSTATUS_STENCIL_READ_MASK_SET;
+        if (pCB->static_status & CBSTATUS_STENCIL_READ_MASK_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1da004b4, "DS",
+                            "vkCmdSetStencilCompareMask(): pipeline was created without VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1da004b4]);
+        }
+        if (!skip) {
+            pCB->status |= CBSTATUS_STENCIL_READ_MASK_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
@@ -5296,7 +5336,15 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(VkCommandBuffer commandBuffer,
         skip |=
             ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetStencilWriteMask()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1de02415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETSTENCILWRITEMASKSTATE, "vkCmdSetStencilWriteMask()");
-        pCB->status |= CBSTATUS_STENCIL_WRITE_MASK_SET;
+        if (pCB->static_status & CBSTATUS_STENCIL_WRITE_MASK_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1de004b6, "DS",
+                            "vkCmdSetStencilWriteMask(): pipeline was created without VK_DYNAMIC_STATE_STENCIL_WRITE_MASK flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1de004b6]);
+        }
+        if (!skip) {
+            pCB->status |= CBSTATUS_STENCIL_WRITE_MASK_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
@@ -5311,7 +5359,15 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(VkCommandBuffer commandBuffer,
         skip |=
             ValidateCmdQueueFlags(dev_data, pCB, "vkCmdSetStencilReference()", VK_QUEUE_GRAPHICS_BIT, VALIDATION_ERROR_1dc02415);
         skip |= ValidateCmd(dev_data, pCB, CMD_SETSTENCILREFERENCESTATE, "vkCmdSetStencilReference()");
-        pCB->status |= CBSTATUS_STENCIL_REFERENCE_SET;
+        if (pCB->static_status & CBSTATUS_STENCIL_REFERENCE_SET) {
+            skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                            HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_1dc004b8, "DS",
+                            "vkCmdSetStencilReference(): pipeline was created without VK_DYNAMIC_STATE_STENCIL_REFERENCE flag. %s.",
+                            validation_error_map[VALIDATION_ERROR_1dc004b8]);
+        }
+        if (!skip) {
+            pCB->status |= CBSTATUS_STENCIL_REFERENCE_SET;
+        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdSetStencilReference(commandBuffer, faceMask, reference);
@@ -6546,8 +6602,8 @@ static bool ValidateBarriers(layer_data *device_data, const char *funcName, GLOB
             skip |= ValidateImageAspectMask(device_data, image_data->image, image_data->createInfo.format, aspect_mask, funcName);
 
             std::string param_name = "pImageMemoryBarriers[" + std::to_string(i) + "].subresourceRange";
-            skip |= ValidateImageSubresourceRange(device_data, image_data, false, mem_barrier->subresourceRange, funcName,
-                                                  param_name.c_str());
+            skip |= ValidateImageBarrierSubresourceRange(device_data, image_data, mem_barrier->subresourceRange, funcName,
+                                                         param_name.c_str());
         }
     }
 
@@ -6739,29 +6795,29 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(VkCommandBuffer commandBuffer, uint32_t
                                              VALIDATION_ERROR_1e600912);
         skip |= ValidateStageMaskGsTsEnables(dev_data, dstStageMask, "vkCmdWaitEvents()", VALIDATION_ERROR_1e600910,
                                              VALIDATION_ERROR_1e600914);
-        auto first_event_index = cb_state->events.size();
-        for (uint32_t i = 0; i < eventCount; ++i) {
-            auto event_state = GetEventNode(dev_data, pEvents[i]);
-            if (event_state) {
-                addCommandBufferBinding(&event_state->cb_bindings, {HandleToUint64(pEvents[i]), kVulkanObjectTypeEvent}, cb_state);
-                event_state->cb_bindings.insert(cb_state);
-            }
-            cb_state->waitedEvents.insert(pEvents[i]);
-            cb_state->events.push_back(pEvents[i]);
-        }
-        cb_state->eventUpdates.emplace_back([=](VkQueue q){
-            return validateEventStageMask(q, cb_state, eventCount, first_event_index, sourceStageMask);
-        });
         skip |= ValidateCmdQueueFlags(dev_data, cb_state, "vkCmdWaitEvents()", VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
                                       VALIDATION_ERROR_1e602415);
         skip |= ValidateCmd(dev_data, cb_state, CMD_WAITEVENTS, "vkCmdWaitEvents()");
         skip |= ValidateBarriersToImages(dev_data, cb_state, imageMemoryBarrierCount, pImageMemoryBarriers, "vkCmdWaitEvents()");
-        if (!skip) {
-            TransitionImageLayouts(dev_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
-        }
         skip |= ValidateBarriers(dev_data, "vkCmdWaitEvents()", cb_state, sourceStageMask, dstStageMask, memoryBarrierCount,
                                  pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount,
                                  pImageMemoryBarriers);
+        if (!skip) {
+            auto first_event_index = cb_state->events.size();
+            for (uint32_t i = 0; i < eventCount; ++i) {
+                auto event_state = GetEventNode(dev_data, pEvents[i]);
+                if (event_state) {
+                    addCommandBufferBinding(&event_state->cb_bindings, {HandleToUint64(pEvents[i]), kVulkanObjectTypeEvent}, cb_state);
+                    event_state->cb_bindings.insert(cb_state);
+                }
+                cb_state->waitedEvents.insert(pEvents[i]);
+                cb_state->events.push_back(pEvents[i]);
+            }
+            cb_state->eventUpdates.emplace_back([=](VkQueue q){
+                return validateEventStageMask(q, cb_state, eventCount, first_event_index, sourceStageMask);
+            });
+            TransitionImageLayouts(dev_data, commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
+        }
     }
     lock.unlock();
     if (!skip)
@@ -8334,13 +8390,26 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(VkCommandBuffer commandBuffer, uin
             // TODO: separate validate from update! This is very tangled.
             // Propagate layout transitions to the primary cmd buffer
             for (auto ilm_entry : pSubCB->imageLayoutMap) {
-                SetLayout(dev_data, pCB, ilm_entry.first, ilm_entry.second);
+                if (pCB->imageLayoutMap.find(ilm_entry.first) != pCB->imageLayoutMap.end()) {
+                    pCB->imageLayoutMap[ilm_entry.first].layout = ilm_entry.second.layout;
+                } else {
+                    assert(ilm_entry.first.hasSubresource);
+                    IMAGE_CMD_BUF_LAYOUT_NODE node;
+                    if (!FindCmdBufLayout(dev_data, pCB, ilm_entry.first.image, ilm_entry.first.subresource, node)) {
+                        node.initialLayout = ilm_entry.second.initialLayout;
+                    }
+                    node.layout = ilm_entry.second.layout;
+                    SetLayout(dev_data, pCB, ilm_entry.first, node);
+                }
             }
             pSubCB->primaryCommandBuffer = pCB->commandBuffer;
             pCB->linkedCommandBuffers.insert(pSubCB);
             pSubCB->linkedCommandBuffers.insert(pCB);
             for (auto &function : pSubCB->queryUpdates) {
                 pCB->queryUpdates.push_back(function);
+            }
+            for (auto &function : pSubCB->queue_submit_functions) {
+                pCB->queue_submit_functions.push_back(function);
             }
         }
         skip |= validatePrimaryCommandBuffer(dev_data, pCB, "vkCmdExecuteCommands()", VALIDATION_ERROR_1b200019);

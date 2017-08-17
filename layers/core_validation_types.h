@@ -460,8 +460,10 @@ enum CBStatusFlagBits {
     CBSTATUS_STENCIL_READ_MASK_SET  = 0x00000010,   // Stencil read mask has been set
     CBSTATUS_STENCIL_WRITE_MASK_SET = 0x00000020,   // Stencil write mask has been set
     CBSTATUS_STENCIL_REFERENCE_SET  = 0x00000040,   // Stencil reference has been set
-    CBSTATUS_INDEX_BUFFER_BOUND     = 0x00000080,   // Index buffer has been set
-    CBSTATUS_ALL_STATE_SET          = 0x0000007F,   // All state set (intentionally exclude index buffer)
+    CBSTATUS_VIEWPORT_SET           = 0x00000080,
+    CBSTATUS_SCISSOR_SET            = 0x00000100,
+    CBSTATUS_INDEX_BUFFER_BOUND     = 0x00000200,   // Index buffer has been set
+    CBSTATUS_ALL_STATE_SET          = 0x000001FF,   // All state set (intentionally exclude index buffer)
     // clang-format on
 };
 
@@ -596,6 +598,7 @@ class PIPELINE_STATE : public BASE_NODE {
             }
         }
     }
+
     void initComputePipeline(const VkComputePipelineCreateInfo *pCreateInfo) {
         computePipelineCI.initialize(pCreateInfo);
         // Make sure gfx pipeline is null
@@ -640,6 +643,8 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     CB_STATE state;                      // Track cmd buffer update state
     uint64_t submitCount;                // Number of times CB has been submitted
     CBStatusFlags status;                // Track status of various bindings on cmd buffer
+    CBStatusFlags static_status;         // All state bits provided by current graphics pipeline
+                                         // rather than dynamic state
     // Currently storing "lastBound" objects on per-CB basis
     //  long-term may want to create caches of "lastBound" states and could have
     //  each individual CMD_NODE referencing its own "lastBound" state
