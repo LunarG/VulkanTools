@@ -645,8 +645,6 @@ static void processCommand(struct android_app* app, int32_t cmd) {
 
 // Start with carbon copy of main() and convert it to support Android, then diff them and move common code to helpers.
 void android_main(struct android_app* app) {
-    app_dummy();
-
     const char* appTag = "vkreplay";
 
     int vulkanSupport = InitVulkan();
