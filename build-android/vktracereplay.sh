@@ -7,7 +7,6 @@ script_start_time=$(date +%s)
 default_vkreplay_apk=./vkreplay/bin/NativeActivity-debug.apk
 default_vktrace_exe=../build/vktrace/vktrace
 default_vktrace32_exe=../build32/vktrace/vktrace32
-default_target_abi=$(adb shell getprop ro.product.cpu.abi)
 default_activity=android.app.NativeActivity
 default_frame=1
 
@@ -117,6 +116,7 @@ then
     exit 1
 fi
 
+default_target_abi=$(adb $serialFlag shell getprop ro.product.cpu.abi)
 if [[ -z $target_abi ]];
 then
     echo Using default target_abi

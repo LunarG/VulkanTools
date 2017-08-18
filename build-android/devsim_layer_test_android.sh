@@ -23,7 +23,6 @@ elif [[ $(uname) == "Darwin" ]]; then
 fi
 echo CURRENT_DIR="${CURRENT_DIR}"
 
-default_target_abi=$(adb shell getprop ro.product.cpu.abi)
 
 function printUsage {
    echo "Supported parameters are:"
@@ -85,6 +84,7 @@ then
     exit 1
 fi
 
+default_target_abi=$(adb $serialFlag shell getprop ro.product.cpu.abi)
 if [[ -z $target_abi ]];
 then
     echo Using default target_abi
