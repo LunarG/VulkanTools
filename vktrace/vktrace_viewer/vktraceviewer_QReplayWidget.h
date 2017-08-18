@@ -77,6 +77,12 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pToolBar->addWidget(m_pDetachCheckBox);
         connect(m_pDetachCheckBox, SIGNAL(clicked(bool)), this, SLOT(onDetachCheckBoxClicked(bool)));
 
+        m_pRemotePlayCheckBox = new QCheckBox(m_pToolBar);
+        m_pRemotePlayCheckBox->setText("Remote Replayer");
+        m_pRemotePlayCheckBox->setEnabled(ENABLE_REPLAY);
+        m_pToolBar->addWidget(m_pRemotePlayCheckBox);
+        connect(m_pRemotePlayCheckBox, SIGNAL(clicked(bool)), this, SLOT(onRemotePlayCheckBoxClicked(bool)));
+
         m_pReplayWindow = new QWidget(this);
         pLayout->addWidget(m_pReplayWindow);
 
@@ -95,6 +101,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         connect(this, SIGNAL(ContinueButtonClicked()), m_pWorker, SLOT(ContinueReplay()), Qt::QueuedConnection);
         connect(this, SIGNAL(StopButtonClicked()), m_pWorker, SLOT(StopReplay()), Qt::DirectConnection);
         connect(this, SIGNAL(DetachCheckBoxClicked(bool)), m_pWorker, SLOT(DetachReplay(bool)), Qt::QueuedConnection);
+        connect(this, SIGNAL(RemotePlayCheckBoxClicked(bool)), m_pWorker, SLOT(RemoteReplay(bool)), Qt::QueuedConnection);
 
         connect(m_pWorker, SIGNAL(ReplayStarted()), this, SLOT(slotReplayStarted()), Qt::QueuedConnection);
         connect(m_pWorker, SIGNAL(ReplayPaused(uint64_t)), this, SLOT(slotReplayPaused(uint64_t)), Qt::QueuedConnection);
@@ -124,6 +131,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
     void ContinueButtonClicked();
     void StopButtonClicked();
     void DetachCheckBoxClicked(bool checked);
+    void RemotePlayCheckBoxClicked(bool checked);
 
     void ReplayStarted();
     void ReplayPaused(uint64_t packetIndex);
@@ -144,6 +152,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pContinueButton->setEnabled(false);
         m_pStopButton->setEnabled(true);
         m_pDetachCheckBox->setEnabled(false);
+        m_pRemotePlayCheckBox->setEnabled(false);
 
         emit ReplayStarted();
     }
@@ -155,6 +164,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pContinueButton->setEnabled(true);
         m_pStopButton->setEnabled(true);
         m_pDetachCheckBox->setEnabled(false);
+        m_pRemotePlayCheckBox->setEnabled(false);
 
         emit ReplayPaused(packetIndex);
     }
@@ -166,6 +176,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pContinueButton->setEnabled(false);
         m_pStopButton->setEnabled(true);
         m_pDetachCheckBox->setEnabled(false);
+        m_pRemotePlayCheckBox->setEnabled(false);
 
         emit ReplayContinued();
     }
@@ -177,6 +188,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pContinueButton->setEnabled(false);
         m_pStopButton->setEnabled(false);
         m_pDetachCheckBox->setEnabled(true);
+        m_pRemotePlayCheckBox->setEnabled(true);
 
         emit ReplayStopped(packetIndex);
     }
@@ -188,6 +200,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pContinueButton->setEnabled(false);
         m_pStopButton->setEnabled(false);
         m_pDetachCheckBox->setEnabled(true);
+        m_pRemotePlayCheckBox->setEnabled(true);
 
         emit ReplayFinished(packetIndex);
     }
@@ -206,6 +219,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
         m_pPauseButton->setEnabled(false);
         m_pContinueButton->setEnabled(false);
         m_pStopButton->setEnabled(false);
+        m_pRemotePlayCheckBox->setEnabled(false);
 
         emit PauseButtonClicked();
     }
@@ -215,6 +229,8 @@ class vktraceviewer_QReplayWidget : public QWidget {
     void onStopButtonClicked() { emit StopButtonClicked(); }
 
     void onDetachCheckBoxClicked(bool checked) { emit DetachCheckBoxClicked(checked); }
+
+    void onRemotePlayCheckBoxClicked(bool checked) { emit RemotePlayCheckBoxClicked(checked); }
 
    private:
     vktraceviewer_QReplayWorker* m_pWorker;
@@ -226,6 +242,7 @@ class vktraceviewer_QReplayWidget : public QWidget {
     QToolButton* m_pContinueButton;
     QToolButton* m_pStopButton;
     QCheckBox* m_pDetachCheckBox;
+    QCheckBox* m_pRemotePlayCheckBox;
     QThread m_replayThread;
 };
 

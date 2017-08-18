@@ -24,6 +24,8 @@
 #include <QObject>
 #include "vktraceviewer_view.h"
 #include "vkreplay_factory.h"
+#include "vktrace_interconnect.h"
+#include "vktrace_filelike.h"
 
 // Replay from vktraceviewer doesn't work yet. Disable it for now.
 #define ENABLE_REPLAY false
@@ -52,6 +54,9 @@ class vktraceviewer_QReplayWorker : public QObject {
 
     void unloadReplayers();
 
+    MessageStream* pMessageStream;
+    FileLike* fileLikeSocket;
+
    protected slots:
     virtual void playCurrentTraceFile(uint64_t startPacketIndex);
     virtual void onPlayToHere();
@@ -68,6 +73,7 @@ class vktraceviewer_QReplayWorker : public QObject {
     vktrace_replay::vktrace_trace_packet_replay_library* getReplayer(VKTRACE_TRACER_ID tracerId);
 
     void DetachReplay(bool detach);
+    void RemoteReplay(bool remoteMode);
 
    signals:
     void ReplayStarted();
@@ -90,6 +96,9 @@ class vktraceviewer_QReplayWorker : public QObject {
     uint64_t m_currentReplayPacketIndex;
     QAction* m_pActionRunToHere;
     uint64_t m_pauseAtPacketIndex;
+
+    bool remoteReplayer;
+    std::string traceFilename;
 
     QWidget* m_pReplayWindow;
     int m_pReplayWindowWidth;

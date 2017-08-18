@@ -23,6 +23,8 @@
 #include <QAction>
 #include <QCoreApplication>
 #include "vktraceviewer_trace_file_utils.h"
+#include <stdlib.h>
+#include <string>
 
 vktraceviewer_QReplayWorker* g_pWorker;
 static uint64_t s_currentReplayPacket = 0;
@@ -124,6 +126,8 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
     assert(replayWindowWidth > 0);
     assert(replayWindowHeight > 0);
 
+    traceFilename = pTraceFileInfo->filename;
+
     m_pReplayWindow = pReplayWindow;
     m_pReplayWindowWidth = replayWindowWidth;
     m_pReplayWindowHeight = replayWindowHeight;
@@ -150,7 +154,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         m_pReplayers[i] = NULL;
     }
 
-    for (int i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
+    for (uint64_t i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
         uint8_t tracerId = pTraceFileInfo->pHeader->tracer_id_array[i].id;
         tidApi = tracerId;
 
@@ -227,6 +231,7 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
     vktraceviewer_trace_file_packet_offsets* pCurPacket = NULL;
     unsigned int res = vktrace_replay::VKTRACE_REPLAY_ERROR;
     vktrace_replay::vktrace_trace_packet_replay_library* replayer;
+    bool first = true;
 
     m_bReplayInProgress = true;
 
@@ -274,44 +279,61 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
                 }
                 if (pCurPacket->pHeader->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
                     // replay the API packet
-                    try {
-                        res = replayer->Replay(pCurPacket->pHeader);
-                    } catch (std::exception& e) {
-                        replayWorkerLoggingCallback(VKTRACE_LOG_ERROR,
-                                                    QString("Caught std::exception while replaying packet %1: %2")
-                                                        .arg(pCurPacket->pHeader->global_packet_index)
-                                                        .arg(e.what())
-                                                        .toStdString()
-                                                        .c_str());
-                    } catch (int i) {
-                        replayWorkerLoggingCallback(VKTRACE_LOG_ERROR,
-                                                    QString("Caught int exception: %1").arg(i).toStdString().c_str());
-                    } catch (...) {
-                        replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, "Caught unknown exception.");
-                    }
+                    if (!remoteReplayer) {
+                        try {
+                            res = replayer->Replay(pCurPacket->pHeader);
+                        } catch (std::exception& e) {
+                            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR,
+                                                        QString("Caught std::exception while replaying packet %1: %2")
+                                                            .arg(pCurPacket->pHeader->global_packet_index)
+                                                            .arg(e.what())
+                                                            .toStdString()
+                                                            .c_str());
+                        } catch (int i) {
+                            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR,
+                                                        QString("Caught int exception: %1").arg(i).toStdString().c_str());
+                        } catch (...) {
+                            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, "Caught unknown exception.");
+                        }
 
-                    if (res == vktrace_replay::VKTRACE_REPLAY_ERROR || res == vktrace_replay::VKTRACE_REPLAY_INVALID_ID ||
-                        res == vktrace_replay::VKTRACE_REPLAY_CALL_ERROR) {
-                        replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Failed to replay packet %1.")
-                                                                           .arg(pCurPacket->pHeader->global_packet_index)
-                                                                           .toStdString()
-                                                                           .c_str());
-                    } else if (res == vktrace_replay::VKTRACE_REPLAY_BAD_RETURN) {
-                        replayWorkerLoggingCallback(
-                            VKTRACE_LOG_WARNING,
-                            QString("Replay of packet %1 has diverged from trace due to a different return value.")
-                                .arg(pCurPacket->pHeader->global_packet_index)
-                                .toStdString()
-                                .c_str());
-                    } else if (res == vktrace_replay::VKTRACE_REPLAY_INVALID_PARAMS ||
-                               res == vktrace_replay::VKTRACE_REPLAY_VALIDATION_ERROR) {
-                        // validation layer should have reported these if the user wanted them, so don't print any additional
-                        // warnings here.
-                    } else if (res != vktrace_replay::VKTRACE_REPLAY_SUCCESS) {
-                        replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Unknown error caused by packet %1.")
-                                                                           .arg(pCurPacket->pHeader->global_packet_index)
-                                                                           .toStdString()
-                                                                           .c_str());
+                        if (res == vktrace_replay::VKTRACE_REPLAY_ERROR || res == vktrace_replay::VKTRACE_REPLAY_INVALID_ID ||
+                            res == vktrace_replay::VKTRACE_REPLAY_CALL_ERROR) {
+                            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Failed to replay packet %1.")
+                                                                               .arg(pCurPacket->pHeader->global_packet_index)
+                                                                               .toStdString()
+                                                                               .c_str());
+                        } else if (res == vktrace_replay::VKTRACE_REPLAY_BAD_RETURN) {
+                            replayWorkerLoggingCallback(
+                                VKTRACE_LOG_WARNING,
+                                QString("Replay of packet %1 has diverged from trace due to a different return value.")
+                                    .arg(pCurPacket->pHeader->global_packet_index)
+                                    .toStdString()
+                                    .c_str());
+                        } else if (res == vktrace_replay::VKTRACE_REPLAY_INVALID_PARAMS ||
+                                   res == vktrace_replay::VKTRACE_REPLAY_VALIDATION_ERROR) {
+                            // validation layer should have reported these if the user wanted them, so don't print any additional
+                            // warnings here.
+                        } else if (res != vktrace_replay::VKTRACE_REPLAY_SUCCESS) {
+                            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Unknown error caused by packet %1.")
+                                                                               .arg(pCurPacket->pHeader->global_packet_index)
+                                                                               .toStdString()
+                                                                               .c_str());
+                        }
+                    } else {
+                        bool continuePlaying = false;
+                        //To avoid the 0 data retry condition, we add 1 to the packet, then negate 1 upon receiving.
+                        uint64_t packetNo = pCurPacket->pHeader->global_packet_index + 1;
+
+                        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Packet Sent: %1")
+                                                                            .arg(packetNo)
+                                                                            .toStdString()
+                                                                            .c_str());
+                        if (!first)
+                            //Block operation until the remote replayer is ready to receive the next packet.
+                            vktrace_FileLike_ReadRaw(fileLikeSocket, &continuePlaying, sizeof(continuePlaying));
+                        else
+                            first = false;
+                        vktrace_FileLike_WriteRaw(fileLikeSocket, &packetNo, sizeof(packetNo));
                     }
                 } else {
                     replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Bad packet type id=%1, index=%2.")
@@ -450,10 +472,81 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
     }
 }
 
+void vktraceviewer_QReplayWorker::RemoteReplay(bool remoteMode) {
+
+    remoteReplayer = remoteMode;
+
+    if (remoteMode) {
+        for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
+            if (m_pReplayers[i] != NULL)
+                m_pReplayers[i]->Deinitialize();
+        }
+
+        system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
+
+        replayWorkerLoggingCallback(
+            VKTRACE_LOG_VERBOSE,
+            QString("Initializing APK and setting up connection. Please wait a few seconds...")
+                .toStdString()
+                .c_str());
+
+        //Ideally we move this all to initialize just once (e.g: load_replayers). Due to frame reset not working, 
+        //the hack method requires us to call these commands multiple times, so for now it is called here.
+        unsigned int portNo = VKTRACE_BASE_PORT + VKTRACE_TID_VULKAN;
+        std::string reversePort = "adb reverse localabstract:" + std::to_string(portNo) + " tcp:" + std::to_string(portNo);
+        std::string pushcmd = "nohup adb push " + traceFilename + " /sdcard/tracefile.vktrace >/dev/null 2>&1 &";
+
+        system(reversePort.c_str());
+        system("adb shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE");
+        system("adb shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE");
+        sleep(1); //After giving read/write permissions, delay to let permissions apply.
+        system("adb shell input keyevent \"KEYCODE_MENU\"");
+        system("adb shell input keyevent \"KEYCODE_HOME\"");
+        system("nohup adb shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH\
+                 -n com.example.vkreplay/android.app.NativeActivity --es args\
+                 \"-v\\ full\\ -t\\ /sdcard/tracefile.vktrace\\ -r\\ true\" >/dev/null 2>&1 &");
+
+        system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
+        system(pushcmd.c_str());
+
+        pMessageStream = vktrace_MessageStream_create(TRUE, "127.0.0.1", portNo);
+        if (pMessageStream == NULL)
+            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Could not create message stream.")
+                                                                .toStdString()
+                                                                .c_str());
+        fileLikeSocket = vktrace_FileLike_create_msg(pMessageStream);
+        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Connection Successful.")
+                                                            .toStdString()
+                                                            .c_str());
+    } else {
+        system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
+        shutdown(pMessageStream->mSocket, SHUT_RDWR);
+        pMessageStream = NULL;
+        fileLikeSocket = NULL;
+
+        for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
+            if (m_pReplayers[i] != NULL) {
+                vktrace_replay::ReplayDisplay disp;
+
+                WId hWindow = m_pReplayWindow->winId();
+                disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
+
+                int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
+                assert(err == 0);
+            }
+        }
+    }
+}
+
 void vktraceviewer_QReplayWorker::doReplayPaused(uint64_t packetIndex) { emit ReplayPaused(packetIndex); }
 
 void vktraceviewer_QReplayWorker::doReplayStopped(uint64_t packetIndex) {
     emit ReplayStopped(packetIndex);
+    
+    //Hack method. Ideally we want to reset the frame to 0 and restart the trace. Since the frame reset appears non-functional,
+    //we instead restart the APK and re-establish a fresh connection.
+    if (remoteReplayer)
+        RemoteReplay(true);
 
     // Replay will start again from the beginning, so setup for that now.
     m_currentReplayPacketIndex = 0;
@@ -462,6 +555,11 @@ void vktraceviewer_QReplayWorker::doReplayStopped(uint64_t packetIndex) {
 void vktraceviewer_QReplayWorker::doReplayFinished(uint64_t packetIndex) {
     // Indicate that the replay finished at the particular packet.
     emit ReplayFinished(packetIndex);
+
+    //Hack method. Ideally we want to reset the frame to 0 and restart the trace. Since the frame reset appears non-functional,
+    //we instead restart the APK and re-establish a fresh connection.
+    if (remoteReplayer)
+        RemoteReplay(true);
 
     // Replay will start again from the beginning, so setup for that now.
     m_currentReplayPacketIndex = 0;

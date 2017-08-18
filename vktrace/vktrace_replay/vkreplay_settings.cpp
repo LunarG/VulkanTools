@@ -26,7 +26,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL, false};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -78,6 +78,14 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
+    {"r",
+     "ReplayMode",
+     VKTRACE_SETTING_BOOL,
+     {&g_vkReplaySettings.replayMode},
+     {&s_defaultVkReplaySettings.replayMode},
+     TRUE,
+     "Replay mode. False for standard functionality (play through, loop) (replay_trace). \
+                    True for Viewer functionality (play, pause, stop, step) (VkTraceViewer)."},
 };
 
 vktrace_SettingGroup g_vkReplaySettingGroup = {"vkreplay_vk", sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),

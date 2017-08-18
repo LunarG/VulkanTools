@@ -443,7 +443,9 @@ BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer
         if (pStream->mErrorNum == WSAECONNRESET) {
             return FALSE;
         }
+#if !defined(ANDROID)
         Sleep(1);
+#endif
     }
     return TRUE;
 }

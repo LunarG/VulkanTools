@@ -37,8 +37,9 @@
 #include "vkreplay_seq.h"
 #include "vkreplay_window.h"
 #include "screenshot_parsing.h"
+#include "vktrace_interconnect.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL, false};
 
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
@@ -112,6 +113,14 @@ vktrace_SettingInfo g_settings_info[] = {
      "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", "
      "\"full\"."},
 #endif
+    {"r",
+     "ReplayMode",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.replayMode},
+     {&replaySettings.replayMode},
+     TRUE,
+     "Replay mode. False for standard functionality (play through, loop) (replay_trace). \
+                    True for Viewer functionality (play, pause, stop, step) (VkTraceViewer)."},
 };
 
 vktrace_SettingGroup g_replaySettingGroup = {"vkreplay", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
@@ -237,6 +246,83 @@ out:
         vktrace_free((char*)replaySettings.screenshotList);
         replaySettings.screenshotList = NULL;
     }
+    return err;
+}
+
+int viewer_loop(Sequencer& seq,vktrace_trace_packet_replay_library* replayerArray[], uint64_t index) {
+    int err = 0;
+    static vktrace_trace_packet_header* packet;
+    unsigned int res;
+    static vktrace_trace_packet_replay_library* replayer = NULL;
+    static bool first = true;
+    vktrace_trace_packet_message* msgPacket;
+    struct seqBookmark startingPacket;
+
+    if (first) {
+        seq.record_bookmark();
+        seq.get_bookmark(startingPacket);
+        first = false;
+    }
+
+    if (index == 0) { //Ideal method of re-replaying. Due to functionality, we assume consecutive replays start from index 0.
+        seq.set_bookmark(startingPacket);
+        if (replayer != NULL)
+            replayer->ResetFrameNumber(0);
+    }
+
+    while (!packet || packet->global_packet_index != index) {
+        packet = seq.get_next_packet();
+    }
+
+    switch (packet->packet_id) {
+        case VKTRACE_TPI_MESSAGE:
+            msgPacket = vktrace_interpret_body_as_trace_packet_message(packet);
+            vktrace_LogAlways("Packet %lu: Traced Message (%s): %s", packet->global_packet_index,
+                              vktrace_LogLevelToShortString(msgPacket->type), msgPacket->message);
+            break;
+        case VKTRACE_TPI_MARKER_CHECKPOINT:
+            break;
+        case VKTRACE_TPI_MARKER_API_BOUNDARY:
+            break;
+        case VKTRACE_TPI_MARKER_API_GROUP_BEGIN:
+            break;
+        case VKTRACE_TPI_MARKER_API_GROUP_END:
+            break;
+        case VKTRACE_TPI_MARKER_TERMINATE_PROCESS:
+            break;
+        case VKTRACE_TPI_PORTABILITY_TABLE:
+            break;
+        // TODO processing code for all the above cases
+        default: {
+            if (packet->tracer_id >= VKTRACE_MAX_TRACER_ID_ARRAY_SIZE || packet->tracer_id == VKTRACE_TID_RESERVED) {
+                vktrace_LogError("Tracer_id from packet num packet %d invalid.", packet->packet_id);
+                goto out;
+            }
+            replayer = replayerArray[packet->tracer_id];
+            if (replayer == NULL) {
+                vktrace_LogWarning("Tracer_id %d has no valid replayer.", packet->tracer_id);
+                goto out;
+            }
+            if (packet->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
+                res = replayer->Replay(replayer->Interpret(packet));
+                if (res != VKTRACE_REPLAY_SUCCESS) {
+                    vktrace_LogError("Failed to replayer packet_id %d, with global_packet_index %d.", packet->packet_id,
+                                     packet->global_packet_index);
+                    static BOOL QuitOnAnyError = FALSE;
+                    if (QuitOnAnyError) {
+                        err = -1;
+                        goto out;
+                    }
+                }
+            } else {
+                vktrace_LogError("Bad packet type id=%d, index=%d.", packet->packet_id, packet->global_packet_index);
+                err = -1;
+                goto out;
+            }
+        }
+    }
+
+out:
     return err;
 }
 }  // namespace vktrace_replay
@@ -523,8 +609,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
                 return -1;
             }
 
-            // merge the replayer's settings into the list of all settings so that we can output a comprehensive settings file later
-            // on.
+            // merge the replayer's settings into the list of all settings so that we can output a comprehensive settings file
+            // later on.
             vktrace_SettingGroup_merge(replayer[tracerId]->GetSettings(), &pAllSettings, &numAllSettings);
 
             // update the replayer with the loaded settings
@@ -558,7 +644,28 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
 
     // main loop
     Sequencer sequencer(traceFile);
-    err = vktrace_replay::main_loop(disp, sequencer, replayer, replaySettings);
+
+    if (replaySettings.replayMode) {
+        MessageStream* pMessageStream = vktrace_MessageStream_create(FALSE, "localabstract", VKTRACE_BASE_PORT + VKTRACE_TID_VULKAN);
+        if (pMessageStream == NULL) {
+            vktrace_LogError("Could not create message stream.");
+            return -1;
+        }
+        FileLike* fileLikeSocket = vktrace_FileLike_create_msg(pMessageStream);
+        vktrace_LogVerbose("Connection Successful.");
+
+        uint64_t packetNo = 0;
+        bool continueReplay = true;
+
+        while (err == 0) {
+            vktrace_FileLike_ReadRaw(fileLikeSocket, &packetNo, sizeof(packetNo));
+            err = vktrace_replay::viewer_loop(sequencer, replayer, packetNo - 1);
+            vktrace_FileLike_WriteRaw(fileLikeSocket, &continueReplay, sizeof(continueReplay)); //Tell the viewer we are ready to continue.
+        }
+        sequencer.clean_up();
+        shutdown(pMessageStream->mSocket, SHUT_RDWR);
+    } else
+        err = vktrace_replay::main_loop(disp, sequencer, replayer, replaySettings);
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         if (replayer[i] != NULL) {
