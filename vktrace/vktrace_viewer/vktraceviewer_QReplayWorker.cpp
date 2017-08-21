@@ -499,7 +499,11 @@ void vktraceviewer_QReplayWorker::RemoteReplay(bool remoteMode) {
         system(reversePort.c_str());
         system("adb shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE");
         system("adb shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE");
+#if defined(WIN32)
+        Sleep(1000);
+#else
         sleep(1); //After giving read/write permissions, delay to let permissions apply.
+#endif
         system("adb shell input keyevent \"KEYCODE_MENU\"");
         system("adb shell input keyevent \"KEYCODE_HOME\"");
         system("nohup adb shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH\
@@ -520,7 +524,7 @@ void vktraceviewer_QReplayWorker::RemoteReplay(bool remoteMode) {
                                                             .c_str());
     } else {
         system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
-        shutdown(pMessageStream->mSocket, SHUT_RDWR);
+        shutdown(pMessageStream->mSocket, 2);
         pMessageStream = NULL;
         fileLikeSocket = NULL;
 

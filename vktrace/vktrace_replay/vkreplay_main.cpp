@@ -663,7 +663,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             vktrace_FileLike_WriteRaw(fileLikeSocket, &continueReplay, sizeof(continueReplay)); //Tell the viewer we are ready to continue.
         }
         sequencer.clean_up();
-        shutdown(pMessageStream->mSocket, SHUT_RDWR);
+        shutdown(pMessageStream->mSocket, 2);
     } else
         err = vktrace_replay::main_loop(disp, sequencer, replayer, replaySettings);
 
