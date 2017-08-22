@@ -1484,6 +1484,232 @@ ObjectInfo &add_Device_object(VkDevice var) {
 }
 
 //=========================================================================
+// The method can be used to query all specific type vulkan objects belong
+// to a device. The query result will be packed into an input vector and
+// return to the caller.
+//
+// \param result_objects, the input vector which is used to store the query
+// result.
+//
+// \param object_map, the input map object which include trim track info of
+// all vulkan objects of the specific type, the method will check every one
+// item in this map to find out which object is created on the device.
+//
+// \param device, the input vulkan device, the method will query all specific
+// type objects belong to this device.
+//
+// \tparam object_class, this is the class type that the method query all
+// objects of this type, it can be QueryPool, Event, Fence and all trim
+// tracked vulkan classes.
+//=========================================================================
+template <class object_class>
+void get_device_objects(VkDevice device, const std::unordered_map<object_class, ObjectInfo> &object_map,
+                        std::vector<object_class> &result_objects) {
+    for (auto info = object_map.begin(); info != object_map.end(); ++info) {
+        if (info->second.belongsToDevice == device) {
+            result_objects.push_back(info->first);
+        }
+    }
+}
+
+//=========================================================================
+// The method can be used to delete all vulkan objects that currently belong
+// to the device. For every trim tracked objects belong to the device, the
+// method delete all these objects one type by one type. it first delete
+// all QueryPool objects, then Event, Fence, Semaphore......CommandPool.
+//
+// For every class type, it first query all objects of this class for the
+// device, then delete all of them by the query result.
+//
+// \param device, this is the device that this method will delete all
+// assossiate objects based on it.
+//=========================================================================
+void delete_objects_for_destroy_device(VkDevice device) {
+    size_t delete_objects_number = 0;
+    // QueryPool
+    std::vector<VkQueryPool> QueryPoolsToRemove;
+    get_device_objects<VkQueryPool>(device, s_trimGlobalStateTracker.createdQueryPools, QueryPoolsToRemove);
+    for (size_t i = 0; i < QueryPoolsToRemove.size(); i++) {
+        trim::remove_QueryPool_object(QueryPoolsToRemove[i]);
+    }
+    delete_objects_number += QueryPoolsToRemove.size();
+
+    // Event
+    std::vector<VkEvent> EventsToRemove;
+    get_device_objects<VkEvent>(device, s_trimGlobalStateTracker.createdEvents, EventsToRemove);
+    for (size_t i = 0; i < EventsToRemove.size(); i++) {
+        trim::remove_Event_object(EventsToRemove[i]);
+    }
+    delete_objects_number += EventsToRemove.size();
+
+    // Fence
+    std::vector<VkFence> FencesToRemove;
+    get_device_objects<VkFence>(device, s_trimGlobalStateTracker.createdFences, FencesToRemove);
+    for (size_t i = 0; i < FencesToRemove.size(); i++) {
+        trim::remove_Fence_object(FencesToRemove[i]);
+    }
+    delete_objects_number += FencesToRemove.size();
+
+    // Semaphore
+    std::vector<VkSemaphore> SemaphoresToRemove;
+    get_device_objects<VkSemaphore>(device, s_trimGlobalStateTracker.createdSemaphores, SemaphoresToRemove);
+    for (size_t i = 0; i < SemaphoresToRemove.size(); i++) {
+        trim::remove_Semaphore_object(SemaphoresToRemove[i]);
+    }
+    delete_objects_number += SemaphoresToRemove.size();
+
+    // Framebuffer
+    std::vector<VkFramebuffer> FramebuffersToRemove;
+    get_device_objects<VkFramebuffer>(device, s_trimGlobalStateTracker.createdFramebuffers, FramebuffersToRemove);
+    for (size_t i = 0; i < FramebuffersToRemove.size(); i++) {
+        trim::remove_Framebuffer_object(FramebuffersToRemove[i]);
+    }
+    delete_objects_number += FramebuffersToRemove.size();
+
+    // DescriptorSet
+    std::vector<VkDescriptorSet> DescriptorSetsToRemove;
+    get_device_objects<VkDescriptorSet>(device, s_trimGlobalStateTracker.createdDescriptorSets, DescriptorSetsToRemove);
+    for (size_t i = 0; i < DescriptorSetsToRemove.size(); i++) {
+        trim::remove_DescriptorSet_object(DescriptorSetsToRemove[i]);
+    }
+    delete_objects_number += DescriptorSetsToRemove.size();
+
+    // DescriptorPool
+    std::vector<VkDescriptorPool> DescriptorPoolsToRemove;
+    get_device_objects<VkDescriptorPool>(device, s_trimGlobalStateTracker.createdDescriptorPools, DescriptorPoolsToRemove);
+    for (size_t i = 0; i < DescriptorPoolsToRemove.size(); i++) {
+        trim::remove_DescriptorPool_object(DescriptorPoolsToRemove[i]);
+    }
+    delete_objects_number += DescriptorPoolsToRemove.size();
+
+    // Pipeline
+    std::vector<VkPipeline> PipelinesToRemove;
+    get_device_objects<VkPipeline>(device, s_trimGlobalStateTracker.createdPipelines, PipelinesToRemove);
+    for (size_t i = 0; i < PipelinesToRemove.size(); i++) {
+        trim::remove_Pipeline_object(PipelinesToRemove[i]);
+    }
+    delete_objects_number += PipelinesToRemove.size();
+
+    // PipelineCache
+    std::vector<VkPipelineCache> PipelineCachesToRemove;
+    get_device_objects<VkPipelineCache>(device, s_trimGlobalStateTracker.createdPipelineCaches, PipelineCachesToRemove);
+    for (size_t i = 0; i < PipelineCachesToRemove.size(); i++) {
+        trim::remove_PipelineCache_object(PipelineCachesToRemove[i]);
+    }
+    delete_objects_number += PipelineCachesToRemove.size();
+
+    // ShaderModule
+    std::vector<VkShaderModule> ShaderModulesToRemove;
+    get_device_objects<VkShaderModule>(device, s_trimGlobalStateTracker.createdShaderModules, ShaderModulesToRemove);
+    for (size_t i = 0; i < ShaderModulesToRemove.size(); i++) {
+        trim::remove_ShaderModule_object(ShaderModulesToRemove[i]);
+    }
+    delete_objects_number += ShaderModulesToRemove.size();
+
+    // RenderPass
+    std::vector<VkRenderPass> RenderPasssToRemove;
+    get_device_objects<VkRenderPass>(device, s_trimGlobalStateTracker.createdRenderPasss, RenderPasssToRemove);
+    for (size_t i = 0; i < RenderPasssToRemove.size(); i++) {
+        trim::remove_RenderPass_object(RenderPasssToRemove[i]);
+    }
+    delete_objects_number += RenderPasssToRemove.size();
+
+    // PipelineLayout
+    std::vector<VkPipelineLayout> PipelineLayoutsToRemove;
+    get_device_objects<VkPipelineLayout>(device, s_trimGlobalStateTracker.createdPipelineLayouts, PipelineLayoutsToRemove);
+    for (size_t i = 0; i < PipelineLayoutsToRemove.size(); i++) {
+        trim::remove_PipelineLayout_object(PipelineLayoutsToRemove[i]);
+    }
+    delete_objects_number += PipelineLayoutsToRemove.size();
+
+    // DescriptorSetLayout
+    std::vector<VkDescriptorSetLayout> DescriptorSetLayoutsToRemove;
+    get_device_objects<VkDescriptorSetLayout>(device, s_trimGlobalStateTracker.createdDescriptorSetLayouts,
+                                              DescriptorSetLayoutsToRemove);
+    for (size_t i = 0; i < DescriptorSetLayoutsToRemove.size(); i++) {
+        trim::remove_DescriptorSetLayout_object(DescriptorSetLayoutsToRemove[i]);
+    }
+    delete_objects_number += DescriptorSetLayoutsToRemove.size();
+
+    // Sampler
+    std::vector<VkSampler> SamplersToRemove;
+    get_device_objects<VkSampler>(device, s_trimGlobalStateTracker.createdSamplers, SamplersToRemove);
+    for (size_t i = 0; i < SamplersToRemove.size(); i++) {
+        trim::remove_Sampler_object(SamplersToRemove[i]);
+    }
+    delete_objects_number += SamplersToRemove.size();
+
+    // Buffer
+    std::vector<VkBuffer> BuffersToRemove;
+    get_device_objects<VkBuffer>(device, s_trimGlobalStateTracker.createdBuffers, BuffersToRemove);
+    for (size_t i = 0; i < BuffersToRemove.size(); i++) {
+        trim::remove_Buffer_object(BuffersToRemove[i]);
+    }
+    delete_objects_number += BuffersToRemove.size();
+
+    // BufferView
+    std::vector<VkBufferView> BufferViewsToRemove;
+    get_device_objects<VkBufferView>(device, s_trimGlobalStateTracker.createdBufferViews, BufferViewsToRemove);
+    for (size_t i = 0; i < BufferViewsToRemove.size(); i++) {
+        trim::remove_BufferView_object(BufferViewsToRemove[i]);
+    }
+    delete_objects_number += BufferViewsToRemove.size();
+
+    // Image
+    std::vector<VkImage> ImagesToRemove;
+    get_device_objects<VkImage>(device, s_trimGlobalStateTracker.createdImages, ImagesToRemove);
+    for (size_t i = 0; i < ImagesToRemove.size(); i++) {
+        trim::remove_Image_object(ImagesToRemove[i]);
+    }
+    delete_objects_number += ImagesToRemove.size();
+
+    // ImageView
+    std::vector<VkImageView> ImageViewsToRemove;
+    get_device_objects<VkImageView>(device, s_trimGlobalStateTracker.createdImageViews, ImageViewsToRemove);
+    for (size_t i = 0; i < ImageViewsToRemove.size(); i++) {
+        trim::remove_ImageView_object(ImageViewsToRemove[i]);
+    }
+    delete_objects_number += ImageViewsToRemove.size();
+
+    // DeviceMemory
+    std::vector<VkDeviceMemory> DeviceMemorysToRemove;
+    get_device_objects<VkDeviceMemory>(device, s_trimGlobalStateTracker.createdDeviceMemorys, DeviceMemorysToRemove);
+    for (size_t i = 0; i < DeviceMemorysToRemove.size(); i++) {
+        trim::remove_DeviceMemory_object(DeviceMemorysToRemove[i]);
+    }
+    delete_objects_number += DeviceMemorysToRemove.size();
+
+    // SwapchainKHR
+    std::vector<VkSwapchainKHR> SwapchainKHRsToRemove;
+    get_device_objects<VkSwapchainKHR>(device, s_trimGlobalStateTracker.createdSwapchainKHRs, SwapchainKHRsToRemove);
+    for (size_t i = 0; i < SwapchainKHRsToRemove.size(); i++) {
+        trim::remove_SwapchainKHR_object(SwapchainKHRsToRemove[i]);
+    }
+    delete_objects_number += SwapchainKHRsToRemove.size();
+
+    // CommandBuffer
+    std::vector<VkCommandBuffer> CommandBuffersToRemove;
+    get_device_objects<VkCommandBuffer>(device, s_trimGlobalStateTracker.createdCommandBuffers, CommandBuffersToRemove);
+    for (size_t i = 0; i < CommandBuffersToRemove.size(); i++) {
+        trim::remove_CommandBuffer_object(CommandBuffersToRemove[i]);
+    }
+    delete_objects_number += CommandBuffersToRemove.size();
+
+    // CommandPool
+    std::vector<VkCommandPool> CommandPoolsToRemove;
+    get_device_objects<VkCommandPool>(device, s_trimGlobalStateTracker.createdCommandPools, CommandPoolsToRemove);
+    for (size_t i = 0; i < CommandPoolsToRemove.size(); i++) {
+        trim::remove_CommandPool_object(CommandPoolsToRemove[i]);
+    }
+    delete_objects_number += CommandPoolsToRemove.size();
+
+    if (delete_objects_number != 0) {
+        vktrace_LogWarning("Target application leave %d objects undestroyed when it destroy the based device.",
+                           delete_objects_number);
+    }
+}
+
+//=========================================================================
 void remove_Device_object(VkDevice var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
 
@@ -1502,6 +1728,33 @@ void remove_Device_object(VkDevice var) {
         // If vktrace is in the middle of a trim, then we want to also generate calls to destroy any objects that have not yet been
         // destroyed by the app.
         add_destroy_device_object_packets(var);
+    } else {
+        // If vktrace is not in the middle of a trim, that mean it's in
+        // pre-trim, and the target app destroy the device before we start
+        // to trim (hot-key not pressed until now or it haven't reach
+        // the start-frame), the device object will not be used later, so
+        // we should not include related creation call for the device
+        // in final trimmed trace file. not only this device, any objects
+        // if created base on the device should be also excluded in final
+        // trimmed trace file. We should remove all these associate
+        // objects from trim track system to avoid generating any creation
+        // call for them.
+        //
+        // Commonly, if the target app destroy a device, it should already
+        // destroy all objects based on the device. But for some title,
+        // they directly destroy device without first destroy associate
+        // objects based on this device.
+        //
+        // Such behavior casue problem if we only delete these associate
+        // objects in corresponding destroy call, because target app
+        // doesn't call these before destroy the device, we end up
+        // generating all associate objects creation. When playback the
+        // trimmed trace file, vkreplay will fail to remap the device when
+        // it create those associate objects and output errors. So here
+        // we delete all associate objects of the device from trim track
+        // system to avoid any such creation call be included in final
+        // trimmed trace file.
+        delete_objects_for_destroy_device(var);
     }
 
     s_trimGlobalStateTracker.remove_Device(var);
