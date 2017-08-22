@@ -203,7 +203,7 @@ An example of using the scripts on Linux and macOS:
 ./vktracereplay.sh \
  --serial 12345678 \
  --abi armeabi-v7a \
- --apk ../demos/android/cube-with-layers/bin/NativeActivity-debug.apk \
+ --apk ../demos/android/cube-with-layers/bin/cube-with-layers.apk \
  --package com.example.CubeWithLayers \
  --frame 50
 ```

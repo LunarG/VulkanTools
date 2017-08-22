@@ -95,5 +95,10 @@ popd
 #
 # TODO
 
+#
+# build downstream VulkanTools components
+#
+./build_vktracereplay.sh
+
 echo Builds succeeded
 exit 0
