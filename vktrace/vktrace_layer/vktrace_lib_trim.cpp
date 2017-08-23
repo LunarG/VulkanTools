@@ -1704,7 +1704,7 @@ void delete_objects_for_destroy_device(VkDevice device) {
     delete_objects_number += CommandPoolsToRemove.size();
 
     if (delete_objects_number != 0) {
-        vktrace_LogWarning("Target application leave %d objects undestroyed when it destroy the based device.",
+        vktrace_LogWarning("Device destroyed but %d child objects were not destroyed.",
                            delete_objects_number);
     }
 }
@@ -1729,7 +1729,7 @@ void remove_Device_object(VkDevice var) {
         // destroyed by the app.
         add_destroy_device_object_packets(var);
     } else {
-        // If vktrace is not in the middle of a trim, that mean it's in
+        // If vktrace is not in the middle of a trim, that means it's in
         // pre-trim, and the target app destroy the device before we start
         // to trim (hot-key not pressed until now or it haven't reach
         // the start-frame), the device object will not be used later, so
@@ -1740,12 +1740,11 @@ void remove_Device_object(VkDevice var) {
         // objects from trim track system to avoid generating any creation
         // call for them.
         //
-        // Commonly, if the target app destroy a device, it should already
-        // destroy all objects based on the device. But for some title,
-        // they directly destroy device without first destroy associate
-        // objects based on this device.
+        // If a target app destroys a device, it should already have
+        // destroyed all objects based on the device. But some apps destroy
+        // device without first destroying objects based on the device.
         //
-        // Such behavior casue problem if we only delete these associate
+        // Such behavior causes a problem if we only delete these associated
         // objects in corresponding destroy call, because target app
         // doesn't call these before destroy the device, we end up
         // generating all associate objects creation. When playback the
