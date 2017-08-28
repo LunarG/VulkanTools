@@ -3096,16 +3096,42 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
     }
 
     if (g_trimEnabled) {
+        g_trimFrameCounter++;
         if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey)) {
-            if (trim::is_hotkey_trim_triggered() && (!g_trimAlreadyFinished)) {
-                if (g_trimIsInTrim) {
-                    trim::stop();
-                } else {
-                    trim::start();
+            if (!g_trimAlreadyFinished)
+            {
+                if (trim::is_hotkey_trim_triggered()) {
+                    if (g_trimIsInTrim) {
+                        vktrace_LogAlways("Trim stopping now at frame: %d", g_trimFrameCounter-1);
+                        trim::stop();
+                    }
+                    else {
+                        g_trimStartFrame = g_trimFrameCounter;
+                        if (g_trimEndFrame < UINT64_MAX)
+                        {
+                            g_trimEndFrame += g_trimStartFrame;
+                        }
+                        vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
+                        trim::start();
+                    }
+                }
+                else
+                {
+                    // when hotkey start the trim capture, now we have two ways to
+                    // stop it: press hotkey or captured frames reach user specified
+                    // frame count. Here is the process of the latter one.
+
+                    if (g_trimIsInTrim && (g_trimEndFrame < UINT64_MAX))
+                    {
+                        if (g_trimFrameCounter == g_trimEndFrame)
+                        {
+                            vktrace_LogAlways("Trim stopping now at frame: %d", g_trimEndFrame);
+                            trim::stop();
+                        }
+                    }
                 }
             }
         } else if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::frameCounter)) {
-            g_trimFrameCounter++;
             if (g_trimFrameCounter == g_trimStartFrame) {
                 vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
                 trim::start();
