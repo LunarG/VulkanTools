@@ -149,7 +149,7 @@ struct layer_data {
     unordered_map<VkImage, unique_ptr<IMAGE_STATE>> imageMap;
     unordered_map<VkBufferView, unique_ptr<BUFFER_VIEW_STATE>> bufferViewMap;
     unordered_map<VkBuffer, unique_ptr<BUFFER_STATE>> bufferMap;
-    unordered_map<VkPipeline, PIPELINE_STATE *> pipelineMap;
+    unordered_map<VkPipeline, unique_ptr<PIPELINE_STATE>> pipelineMap;
     unordered_map<VkCommandPool, COMMAND_POOL_NODE> commandPoolMap;
     unordered_map<VkDescriptorPool, DESCRIPTOR_POOL_STATE *> descriptorPoolMap;
     unordered_map<VkDescriptorSet, cvdescriptorset::DescriptorSet *> setMap;
@@ -694,7 +694,7 @@ static PIPELINE_STATE *getPipelineState(layer_data const *dev_data, VkPipeline p
     if (it == dev_data->pipelineMap.end()) {
         return nullptr;
     }
-    return it->second;
+    return it->second.get();
 }
 
 RENDER_PASS_STATE *GetRenderPassState(layer_data const *dev_data, VkRenderPass renderpass) {
@@ -1064,6 +1064,7 @@ static bool verify_set_layout_compatibility(const cvdescriptorset::DescriptorSet
         errorMsg = errorStr.str();
         return false;
     }
+    if (descriptor_set->IsPushDescriptor()) return true;
     auto layout_node = pipeline_layout->set_layouts[layoutIndex];
     return descriptor_set->IsCompatible(layout_node.get(), &errorMsg);
 }
@@ -1116,7 +1117,8 @@ static bool ValidateDrawState(layer_data *dev_data, GLOBAL_CB_NODE *cb_node, con
                 cvdescriptorset::DescriptorSet *descriptor_set = state.boundDescriptorSets[setIndex];
                 // Validate the draw-time state for this descriptor set
                 std::string err_str;
-                if (!descriptor_set->ValidateDrawState(set_binding_pair.second, state.dynamicOffsets[setIndex], cb_node, function,
+                if (!descriptor_set->IsPushDescriptor() &&
+                    !descriptor_set->ValidateDrawState(set_binding_pair.second, state.dynamicOffsets[setIndex], cb_node, function,
                                                        &err_str)) {
                     auto set = descriptor_set->GetSet();
                     result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
@@ -1143,10 +1145,12 @@ static void UpdateDrawState(layer_data *dev_data, GLOBAL_CB_NODE *cb_state, cons
             uint32_t setIndex = set_binding_pair.first;
             // Pull the set node
             cvdescriptorset::DescriptorSet *descriptor_set = state.boundDescriptorSets[setIndex];
-            // Bind this set and its active descriptor resources to the command buffer
-            descriptor_set->BindCommandBuffer(cb_state, set_binding_pair.second);
-            // For given active slots record updated images & buffers
-            descriptor_set->GetStorageUpdates(set_binding_pair.second, &cb_state->updateBuffers, &cb_state->updateImages);
+            if (!descriptor_set->IsPushDescriptor()) {
+                // Bind this set and its active descriptor resources to the command buffer
+                descriptor_set->BindCommandBuffer(cb_state, set_binding_pair.second);
+                // For given active slots record updated images & buffers
+                descriptor_set->GetStorageUpdates(set_binding_pair.second, &cb_state->updateBuffers, &cb_state->updateImages);
+            }
         }
     }
     if (pPipe->vertexBindingDescriptions.size() > 0) {
@@ -1182,10 +1186,10 @@ static bool verifyLineWidth(layer_data *dev_data, DRAW_STATE_ERROR dsError, Vulk
     return skip;
 }
 
-static bool ValidatePipelineLocked(layer_data *dev_data, std::vector<PIPELINE_STATE *> const &pPipelines, int pipelineIndex) {
+static bool ValidatePipelineLocked(layer_data *dev_data, std::vector<std::unique_ptr<PIPELINE_STATE>> const &pPipelines, int pipelineIndex) {
     bool skip = false;
 
-    PIPELINE_STATE *pPipeline = pPipelines[pipelineIndex];
+    PIPELINE_STATE *pPipeline = pPipelines[pipelineIndex].get();
 
     // If create derivative bit is set, check that we've specified a base
     // pipeline correctly, and that the base pipeline was created to allow
@@ -1206,7 +1210,7 @@ static bool ValidatePipelineLocked(layer_data *dev_data, std::vector<PIPELINE_ST
                             "Invalid Pipeline CreateInfo: base pipeline must occur earlier in array than derivative pipeline. %s",
                             validation_error_map[VALIDATION_ERROR_208005a0]);
             } else {
-                pBasePipeline = pPipelines[pPipeline->graphicsPipelineCI.basePipelineIndex];
+                pBasePipeline = pPipelines[pPipeline->graphicsPipelineCI.basePipelineIndex].get();
             }
         } else if (pPipeline->graphicsPipelineCI.basePipelineHandle != VK_NULL_HANDLE) {
             pBasePipeline = getPipelineState(dev_data, pPipeline->graphicsPipelineCI.basePipelineHandle);
@@ -1223,10 +1227,10 @@ static bool ValidatePipelineLocked(layer_data *dev_data, std::vector<PIPELINE_ST
 }
 
 // UNLOCKED pipeline validation. DO NOT lookup objects in the layer_data->* maps in this function.
-static bool ValidatePipelineUnlocked(layer_data *dev_data, std::vector<PIPELINE_STATE *> const &pPipelines, int pipelineIndex) {
+static bool ValidatePipelineUnlocked(layer_data *dev_data, std::vector<std::unique_ptr<PIPELINE_STATE>> const &pPipelines, int pipelineIndex) {
     bool skip = false;
 
-        PIPELINE_STATE *pPipeline = pPipelines[pipelineIndex];
+    PIPELINE_STATE *pPipeline = pPipelines[pipelineIndex].get();
 
     // Ensure the subpass index is valid. If not, then validate_and_capture_pipeline_shader_state
     // produces nonsense errors that confuse users. Other layers should already
@@ -1447,15 +1451,6 @@ static bool ValidatePipelineUnlocked(layer_data *dev_data, std::vector<PIPELINE_
     }
 
     return skip;
-}
-
-// Free the Pipeline nodes
-static void deletePipelines(layer_data *dev_data) {
-    if (dev_data->pipelineMap.size() <= 0) return;
-    for (auto &pipe_map_pair : dev_data->pipelineMap) {
-        delete pipe_map_pair.second;
-    }
-    dev_data->pipelineMap.clear();
 }
 
 // Block of code at start here specifically for managing/tracking DSs
@@ -2118,7 +2113,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     layer_data *dev_data = GetLayerDataPtr(key, layer_data_map);
     // Free all the memory
     unique_lock_t lock(global_lock);
-    deletePipelines(dev_data);
+    dev_data->pipelineMap.clear();
     dev_data->renderPassMap.clear();
     for (auto ii = dev_data->commandBufferMap.begin(); ii != dev_data->commandBufferMap.end(); ++ii) {
         delete (*ii).second;
@@ -3786,7 +3781,6 @@ static void PostCallRecordDestroyPipeline(layer_data *dev_data, VkPipeline pipel
                                           VK_OBJECT obj_struct) {
     // Any bound cmd buffers are now invalid
     invalidateCommandBuffers(dev_data, pipeline_state->cb_bindings, obj_struct);
-    delete getPipelineState(dev_data, pipeline);
     dev_data->pipelineMap.erase(pipeline);
 }
 
@@ -4233,22 +4227,21 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(VkDevice device, const VkBufferV
 }
 
 // Access helper functions for external modules
-const VkFormatProperties *GetFormatProperties(core_validation::layer_data *device_data, VkFormat format) {
-    VkFormatProperties *format_properties = new VkFormatProperties;
+VkFormatProperties GetFormatProperties(core_validation::layer_data *device_data, VkFormat format) {
+    VkFormatProperties format_properties;
     instance_layer_data *instance_data =
         GetLayerDataPtr(get_dispatch_key(device_data->instance_data->instance), instance_layer_data_map);
-    instance_data->dispatch_table.GetPhysicalDeviceFormatProperties(device_data->physical_device, format, format_properties);
+    instance_data->dispatch_table.GetPhysicalDeviceFormatProperties(device_data->physical_device, format, &format_properties);
     return format_properties;
 }
 
-const VkImageFormatProperties *GetImageFormatProperties(core_validation::layer_data *device_data, VkFormat format,
-                                                        VkImageType image_type, VkImageTiling tiling, VkImageUsageFlags usage,
-                                                        VkImageCreateFlags flags) {
-    VkImageFormatProperties *image_format_properties = new VkImageFormatProperties;
+VkImageFormatProperties GetImageFormatProperties(core_validation::layer_data *device_data, VkFormat format, VkImageType image_type,
+                                                 VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags) {
+    VkImageFormatProperties image_format_properties;
     instance_layer_data *instance_data =
         GetLayerDataPtr(get_dispatch_key(device_data->instance_data->instance), instance_layer_data_map);
     instance_data->dispatch_table.GetPhysicalDeviceImageFormatProperties(device_data->physical_device, format, image_type, tiling,
-                                                                         usage, flags, image_format_properties);
+                                                                         usage, flags, &image_format_properties);
     return image_format_properties;
 }
 
@@ -4422,21 +4415,20 @@ bool validate_dual_src_blend_feature(layer_data *device_data, PIPELINE_STATE *pi
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t count,
                                                        const VkGraphicsPipelineCreateInfo *pCreateInfos,
                                                        const VkAllocationCallbacks *pAllocator, VkPipeline *pPipelines) {
-    // TODO What to do with pipelineCache?
     // The order of operations here is a little convoluted but gets the job done
     //  1. Pipeline create state is first shadowed into PIPELINE_STATE struct
     //  2. Create state is then validated (which uses flags setup during shadowing)
     //  3. If everything looks good, we'll then create the pipeline and add NODE to pipelineMap
     bool skip = false;
-    // TODO : Improve this data struct w/ unique_ptrs so cleanup below is automatic
-    vector<PIPELINE_STATE *> pipe_state(count);
+    vector<std::unique_ptr<PIPELINE_STATE>> pipe_state;
+    pipe_state.reserve(count);
     layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
 
     uint32_t i = 0;
     unique_lock_t lock(global_lock);
 
     for (i = 0; i < count; i++) {
-        pipe_state[i] = new PIPELINE_STATE;
+        pipe_state.push_back(std::unique_ptr<PIPELINE_STATE>(new PIPELINE_STATE));
         pipe_state[i]->initGraphicsPipeline(&pCreateInfos[i]);
         pipe_state[i]->render_pass_ci.initialize(GetRenderPassState(dev_data, pCreateInfos[i].renderPass)->createInfo.ptr());
         pipe_state[i]->pipeline_layout = *getPipelineLayout(dev_data, pCreateInfos[i].layout);
@@ -4454,7 +4446,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice device, VkPipeli
 
     if (skip) {
         for (i = 0; i < count; i++) {
-            delete pipe_state[i];
             pPipelines[i] = VK_NULL_HANDLE;
         }
         return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -4464,11 +4455,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice device, VkPipeli
         dev_data->dispatch_table.CreateGraphicsPipelines(device, pipelineCache, count, pCreateInfos, pAllocator, pPipelines);
     lock.lock();
     for (i = 0; i < count; i++) {
-        if (pPipelines[i] == VK_NULL_HANDLE) {
-            delete pipe_state[i];
-        } else {
+        if (pPipelines[i] != VK_NULL_HANDLE) {
             pipe_state[i]->pipeline = pPipelines[i];
-            dev_data->pipelineMap[pipe_state[i]->pipeline] = pipe_state[i];
+            dev_data->pipelineMap[pPipelines[i]] = std::move(pipe_state[i]);
         }
     }
 
@@ -4480,28 +4469,24 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice device, VkPipelin
                                                       const VkAllocationCallbacks *pAllocator, VkPipeline *pPipelines) {
     bool skip = false;
 
-    // TODO : Improve this data struct w/ unique_ptrs so cleanup below is automatic
-    vector<PIPELINE_STATE *> pPipeState(count);
+    vector<std::unique_ptr<PIPELINE_STATE>> pPipeState;
+    pPipeState.reserve(count);
     layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
 
     uint32_t i = 0;
     unique_lock_t lock(global_lock);
     for (i = 0; i < count; i++) {
-        // TODO: Verify compute stage bits
-
         // Create and initialize internal tracking data structure
-        pPipeState[i] = new PIPELINE_STATE;
+        pPipeState.push_back(unique_ptr<PIPELINE_STATE>(new PIPELINE_STATE));
         pPipeState[i]->initComputePipeline(&pCreateInfos[i]);
         pPipeState[i]->pipeline_layout = *getPipelineLayout(dev_data, pCreateInfos[i].layout);
 
         // TODO: Add Compute Pipeline Verification
-        skip |= validate_compute_pipeline(dev_data, pPipeState[i]);
+        skip |= validate_compute_pipeline(dev_data, pPipeState[i].get());
     }
 
     if (skip) {
         for (i = 0; i < count; i++) {
-            // Clean up any locally allocated data structures
-            delete pPipeState[i];
             pPipelines[i] = VK_NULL_HANDLE;
         }
         return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -4512,11 +4497,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice device, VkPipelin
         dev_data->dispatch_table.CreateComputePipelines(device, pipelineCache, count, pCreateInfos, pAllocator, pPipelines);
     lock.lock();
     for (i = 0; i < count; i++) {
-        if (pPipelines[i] == VK_NULL_HANDLE) {
-            delete pPipeState[i];
-        } else {
+        if (pPipelines[i] != VK_NULL_HANDLE) {
             pPipeState[i]->pipeline = pPipelines[i];
-            dev_data->pipelineMap[pPipeState[i]->pipeline] = pPipeState[i];
+            dev_data->pipelineMap[pPipelines[i]] = std::move(pPipeState[i]);
         }
     }
 
@@ -5373,168 +5356,274 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(VkCommandBuffer commandBuffer,
     if (!skip) dev_data->dispatch_table.CmdSetStencilReference(commandBuffer, faceMask, reference);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint,
-                                                 VkPipelineLayout layout, uint32_t firstSet, uint32_t setCount,
-                                                 const VkDescriptorSet *pDescriptorSets, uint32_t dynamicOffsetCount,
-                                                 const uint32_t *pDynamicOffsets) {
-    bool skip = false;
-    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(commandBuffer), layer_data_map);
-    unique_lock_t lock(global_lock);
-    GLOBAL_CB_NODE *cb_state = GetCBNode(dev_data, commandBuffer);
-    if (cb_state) {
-        skip |= ValidateCmdQueueFlags(dev_data, cb_state, "vkCmdBindDescriptorSets()", VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
-                                      VALIDATION_ERROR_17c02415);
-        skip |= ValidateCmd(dev_data, cb_state, CMD_BINDDESCRIPTORSETS, "vkCmdBindDescriptorSets()");
-        // Track total count of dynamic descriptor types to make sure we have an offset for each one
-        uint32_t total_dynamic_descriptors = 0;
-        string error_string = "";
-        uint32_t last_set_index = firstSet + setCount - 1;
-        if (last_set_index >= cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.size()) {
-            cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.resize(last_set_index + 1);
-            cb_state->lastBound[pipelineBindPoint].dynamicOffsets.resize(last_set_index + 1);
+static void PreCallRecordCmdBindDescriptorSets(layer_data *device_data, GLOBAL_CB_NODE *cb_state,
+                                               VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet,
+                                               uint32_t setCount, const VkDescriptorSet *pDescriptorSets,
+                                               uint32_t dynamicOffsetCount, const uint32_t *pDynamicOffsets) {
+    uint32_t total_dynamic_descriptors = 0;
+    string error_string = "";
+    uint32_t last_set_index = firstSet + setCount - 1;
+    auto last_bound = &cb_state->lastBound[pipelineBindPoint];
+
+    if (last_set_index >= last_bound->boundDescriptorSets.size()) {
+        last_bound->boundDescriptorSets.resize(last_set_index + 1);
+        last_bound->dynamicOffsets.resize(last_set_index + 1);
+    }
+    auto old_final_bound_set = last_bound->boundDescriptorSets[last_set_index];
+    auto pipeline_layout = getPipelineLayout(device_data, layout);
+    for (uint32_t set_idx = 0; set_idx < setCount; set_idx++) {
+        cvdescriptorset::DescriptorSet *descriptor_set = GetSetNode(device_data, pDescriptorSets[set_idx]);
+        if (descriptor_set) {
+            last_bound->pipeline_layout = *pipeline_layout;
+
+            if ((last_bound->boundDescriptorSets[set_idx + firstSet] != nullptr) &&
+                last_bound->boundDescriptorSets[set_idx + firstSet]->IsPushDescriptor()) {
+                delete last_bound->push_descriptors[set_idx + firstSet];
+                last_bound->push_descriptors[set_idx + firstSet] = nullptr;
+                last_bound->boundDescriptorSets[set_idx + firstSet] = nullptr;
+            }
+
+            last_bound->boundDescriptorSets[set_idx + firstSet] = descriptor_set;
+
+            auto set_dynamic_descriptor_count = descriptor_set->GetDynamicDescriptorCount();
+            last_bound->dynamicOffsets[firstSet + set_idx].clear();
+            if (set_dynamic_descriptor_count) {
+                last_bound->dynamicOffsets[firstSet + set_idx] =
+                    std::vector<uint32_t>(pDynamicOffsets + total_dynamic_descriptors,
+                                          pDynamicOffsets + total_dynamic_descriptors + set_dynamic_descriptor_count);
+                total_dynamic_descriptors += set_dynamic_descriptor_count;
+            }
         }
-        auto old_final_bound_set = cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[last_set_index];
-        auto pipeline_layout = getPipelineLayout(dev_data, layout);
-        for (uint32_t set_idx = 0; set_idx < setCount; set_idx++) {
-            cvdescriptorset::DescriptorSet *descriptor_set = GetSetNode(dev_data, pDescriptorSets[set_idx]);
-            if (descriptor_set) {
-                cb_state->lastBound[pipelineBindPoint].pipeline_layout = *pipeline_layout;
-                cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[set_idx + firstSet] = descriptor_set;
-                if (!descriptor_set->IsUpdated() && (descriptor_set->GetTotalDescriptorCount() != 0)) {
-                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(pDescriptorSets[set_idx]),
-                                    __LINE__, DRAWSTATE_DESCRIPTOR_SET_NOT_UPDATED, "DS",
-                                    "Descriptor Set 0x%" PRIxLEAST64
-                                    " bound but it was never updated. You may want to either update it or not bind it.",
-                                    HandleToUint64(pDescriptorSets[set_idx]));
+        // For any previously bound sets, need to set them to "invalid" if they were disturbed by this update
+        if (firstSet > 0) {
+            for (uint32_t i = 0; i < firstSet; ++i) {
+                if (last_bound->boundDescriptorSets[i] &&
+                    !verify_set_layout_compatibility(last_bound->boundDescriptorSets[i], pipeline_layout, i, error_string)) {
+                    last_bound->boundDescriptorSets[i] = VK_NULL_HANDLE;
                 }
-                // Verify that set being bound is compatible with overlapping setLayout of pipelineLayout
-                if (!verify_set_layout_compatibility(descriptor_set, pipeline_layout, set_idx + firstSet, error_string)) {
-                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+            }
+        }
+        // Check if newly last bound set invalidates any remaining bound sets
+        if ((last_bound->boundDescriptorSets.size() - 1) > (last_set_index)) {
+            if (old_final_bound_set &&
+                !verify_set_layout_compatibility(old_final_bound_set, pipeline_layout, last_set_index, error_string)) {
+                last_bound->boundDescriptorSets.resize(last_set_index + 1);
+            }
+        }
+    }
+}
+
+static bool PreCallValidateCmdBindDescriptorSets(layer_data *device_data, GLOBAL_CB_NODE *cb_state,
+                                                 VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet,
+                                                 uint32_t setCount, const VkDescriptorSet *pDescriptorSets,
+                                                 uint32_t dynamicOffsetCount, const uint32_t *pDynamicOffsets) {
+    bool skip = false;
+    skip |= ValidateCmdQueueFlags(device_data, cb_state, "vkCmdBindDescriptorSets()", VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
+                                  VALIDATION_ERROR_17c02415);
+    skip |= ValidateCmd(device_data, cb_state, CMD_BINDDESCRIPTORSETS, "vkCmdBindDescriptorSets()");
+    // Track total count of dynamic descriptor types to make sure we have an offset for each one
+    uint32_t total_dynamic_descriptors = 0;
+    string error_string = "";
+    uint32_t last_set_index = firstSet + setCount - 1;
+
+    if (last_set_index >= cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.size()) {
+        cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.resize(last_set_index + 1);
+        cb_state->lastBound[pipelineBindPoint].dynamicOffsets.resize(last_set_index + 1);
+    }
+    auto old_final_bound_set = cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[last_set_index];
+    auto pipeline_layout = getPipelineLayout(device_data, layout);
+    for (uint32_t set_idx = 0; set_idx < setCount; set_idx++) {
+        cvdescriptorset::DescriptorSet *descriptor_set = GetSetNode(device_data, pDescriptorSets[set_idx]);
+        if (descriptor_set) {
+            if (!descriptor_set->IsUpdated() && (descriptor_set->GetTotalDescriptorCount() != 0)) {
+                skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT,
+                                VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(pDescriptorSets[set_idx]), __LINE__,
+                                DRAWSTATE_DESCRIPTOR_SET_NOT_UPDATED, "DS",
+                                "Descriptor Set 0x%" PRIxLEAST64
+                                " bound but it was never updated. You may want to either update it or not bind it.",
+                                HandleToUint64(pDescriptorSets[set_idx]));
+            }
+            // Verify that set being bound is compatible with overlapping setLayout of pipelineLayout
+            if (!verify_set_layout_compatibility(descriptor_set, pipeline_layout, set_idx + firstSet, error_string)) {
+                skip |=
+                    log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
+                            HandleToUint64(pDescriptorSets[set_idx]), __LINE__, VALIDATION_ERROR_17c002cc, "DS",
+                            "descriptorSet #%u being bound is not compatible with overlapping descriptorSetLayout "
+                            "at index %u of pipelineLayout 0x%" PRIxLEAST64 " due to: %s. %s",
+                            set_idx, set_idx + firstSet, HandleToUint64(layout), error_string.c_str(),
+                            validation_error_map[VALIDATION_ERROR_17c002cc]);
+            }
+
+            auto set_dynamic_descriptor_count = descriptor_set->GetDynamicDescriptorCount();
+
+            if (set_dynamic_descriptor_count) {
+                // First make sure we won't overstep bounds of pDynamicOffsets array
+                if ((total_dynamic_descriptors + set_dynamic_descriptor_count) > dynamicOffsetCount) {
+                    skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                     VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(pDescriptorSets[set_idx]),
-                                    __LINE__, VALIDATION_ERROR_17c002cc, "DS",
-                                    "descriptorSet #%u being bound is not compatible with overlapping descriptorSetLayout "
-                                    "at index %u of pipelineLayout 0x%" PRIxLEAST64 " due to: %s. %s",
-                                    set_idx, set_idx + firstSet, HandleToUint64(layout), error_string.c_str(),
-                                    validation_error_map[VALIDATION_ERROR_17c002cc]);
-                }
-
-                auto set_dynamic_descriptor_count = descriptor_set->GetDynamicDescriptorCount();
-
-                cb_state->lastBound[pipelineBindPoint].dynamicOffsets[firstSet + set_idx].clear();
-
-                if (set_dynamic_descriptor_count) {
-                    // First make sure we won't overstep bounds of pDynamicOffsets array
-                    if ((total_dynamic_descriptors + set_dynamic_descriptor_count) > dynamicOffsetCount) {
-                        skip |= log_msg(
-                            dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                            HandleToUint64(pDescriptorSets[set_idx]), __LINE__, DRAWSTATE_INVALID_DYNAMIC_OFFSET_COUNT, "DS",
-                            "descriptorSet #%u (0x%" PRIxLEAST64
-                            ") requires %u dynamicOffsets, but only %u dynamicOffsets are left in pDynamicOffsets "
-                            "array. There must be one dynamic offset for each dynamic descriptor being bound.",
-                            set_idx, HandleToUint64(pDescriptorSets[set_idx]), descriptor_set->GetDynamicDescriptorCount(),
-                            (dynamicOffsetCount - total_dynamic_descriptors));
-                    } else {  // Validate and store dynamic offsets with the set
-                        // Validate Dynamic Offset Minimums
-                        uint32_t cur_dyn_offset = total_dynamic_descriptors;
-                        for (uint32_t d = 0; d < descriptor_set->GetTotalDescriptorCount(); d++) {
-                            if (descriptor_set->GetTypeFromGlobalIndex(d) == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) {
-                                if (SafeModulo(
-                                        pDynamicOffsets[cur_dyn_offset],
-                                        dev_data->phys_dev_properties.properties.limits.minUniformBufferOffsetAlignment) != 0) {
-                                    skip |=
-                                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                    __LINE__, DRAWSTATE_INVALID_DYNAMIC_OFFSET_COUNT, "DS",
+                                    "descriptorSet #%u (0x%" PRIxLEAST64
+                                    ") requires %u dynamicOffsets, but only %u dynamicOffsets are left in pDynamicOffsets "
+                                    "array. There must be one dynamic offset for each dynamic descriptor being bound.",
+                                    set_idx, HandleToUint64(pDescriptorSets[set_idx]), descriptor_set->GetDynamicDescriptorCount(),
+                                    (dynamicOffsetCount - total_dynamic_descriptors));
+                } else {  // Validate dynamic offsets and Dynamic Offset Minimums
+                    uint32_t cur_dyn_offset = total_dynamic_descriptors;
+                    for (uint32_t d = 0; d < descriptor_set->GetTotalDescriptorCount(); d++) {
+                        if (descriptor_set->GetTypeFromGlobalIndex(d) == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) {
+                            if (SafeModulo(pDynamicOffsets[cur_dyn_offset],
+                                           device_data->phys_dev_properties.properties.limits.minUniformBufferOffsetAlignment) !=
+                                0) {
+                                skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                                 VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, 0, __LINE__,
                                                 VALIDATION_ERROR_17c002d4, "DS",
                                                 "vkCmdBindDescriptorSets(): pDynamicOffsets[%d] is %d but must be a multiple of "
                                                 "device limit minUniformBufferOffsetAlignment 0x%" PRIxLEAST64 ". %s",
                                                 cur_dyn_offset, pDynamicOffsets[cur_dyn_offset],
-                                                dev_data->phys_dev_properties.properties.limits.minUniformBufferOffsetAlignment,
+                                                device_data->phys_dev_properties.properties.limits.minUniformBufferOffsetAlignment,
                                                 validation_error_map[VALIDATION_ERROR_17c002d4]);
-                                }
-                                cur_dyn_offset++;
-                            } else if (descriptor_set->GetTypeFromGlobalIndex(d) == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {
-                                if (SafeModulo(
-                                        pDynamicOffsets[cur_dyn_offset],
-                                        dev_data->phys_dev_properties.properties.limits.minStorageBufferOffsetAlignment) != 0) {
-                                    skip |=
-                                        log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                            }
+                            cur_dyn_offset++;
+                        } else if (descriptor_set->GetTypeFromGlobalIndex(d) == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) {
+                            if (SafeModulo(pDynamicOffsets[cur_dyn_offset],
+                                           device_data->phys_dev_properties.properties.limits.minStorageBufferOffsetAlignment) !=
+                                0) {
+                                skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                                 VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT, 0, __LINE__,
                                                 VALIDATION_ERROR_17c002d4, "DS",
                                                 "vkCmdBindDescriptorSets(): pDynamicOffsets[%d] is %d but must be a multiple of "
                                                 "device limit minStorageBufferOffsetAlignment 0x%" PRIxLEAST64 ". %s",
                                                 cur_dyn_offset, pDynamicOffsets[cur_dyn_offset],
-                                                dev_data->phys_dev_properties.properties.limits.minStorageBufferOffsetAlignment,
+                                                device_data->phys_dev_properties.properties.limits.minStorageBufferOffsetAlignment,
                                                 validation_error_map[VALIDATION_ERROR_17c002d4]);
-                                }
-                                cur_dyn_offset++;
                             }
+                            cur_dyn_offset++;
                         }
-
-                        cb_state->lastBound[pipelineBindPoint].dynamicOffsets[firstSet + set_idx] =
-                            std::vector<uint32_t>(pDynamicOffsets + total_dynamic_descriptors,
-                                                  pDynamicOffsets + total_dynamic_descriptors + set_dynamic_descriptor_count);
-                        // Keep running total of dynamic descriptor count to verify at the end
-                        total_dynamic_descriptors += set_dynamic_descriptor_count;
                     }
+                    // Keep running total of dynamic descriptor count to verify at the end
+                    total_dynamic_descriptors += set_dynamic_descriptor_count;
                 }
-            } else {
-                skip |=
-                    log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
+            }
+        } else {
+            skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
                             HandleToUint64(pDescriptorSets[set_idx]), __LINE__, DRAWSTATE_INVALID_SET, "DS",
                             "Attempt to bind descriptor set 0x%" PRIxLEAST64 " that doesn't exist!",
                             HandleToUint64(pDescriptorSets[set_idx]));
-            }
-            // For any previously bound sets, need to set them to "invalid" if they were disturbed by this update
-            if (firstSet > 0) {  // Check set #s below the first bound set
-                for (uint32_t i = 0; i < firstSet; ++i) {
-                    if (cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i] &&
-                        !verify_set_layout_compatibility(cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i],
-                                                         pipeline_layout, i, error_string)) {
-                        skip |= log_msg(
-                            dev_data->report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
-                            VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT,
-                            HandleToUint64(cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i]), __LINE__, DRAWSTATE_NONE,
-                            "DS", "DescriptorSet 0x%" PRIxLEAST64
-                                  " previously bound as set #%u was disturbed by newly bound pipelineLayout (0x%" PRIxLEAST64 ")",
-                            HandleToUint64(cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i]), i,
-                            HandleToUint64(layout));
-                        cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i] = VK_NULL_HANDLE;
-                    }
-                }
-            }
-            // Check if newly last bound set invalidates any remaining bound sets
-            if ((cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.size() - 1) > (last_set_index)) {
-                if (old_final_bound_set &&
-                    !verify_set_layout_compatibility(old_final_bound_set, pipeline_layout, last_set_index, error_string)) {
-                    auto old_set = old_final_bound_set->GetSet();
-                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
-                                    VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(old_set), __LINE__,
-                                    DRAWSTATE_NONE, "DS", "DescriptorSet 0x%" PRIxLEAST64
-                                                          " previously bound as set #%u is incompatible with set 0x%" PRIxLEAST64
-                                                          " newly bound as set #%u so set #%u and any subsequent sets were "
-                                                          "disturbed by newly bound pipelineLayout (0x%" PRIxLEAST64 ")",
-                                    HandleToUint64(old_set), last_set_index,
-                                    HandleToUint64(cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[last_set_index]),
-                                    last_set_index, last_set_index + 1, HandleToUint64(layout));
-                    cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.resize(last_set_index + 1);
+        }
+        if (firstSet > 0) {  // Check set #s below the first bound set
+            for (uint32_t i = 0; i < firstSet; ++i) {
+                if (cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i] &&
+                    !verify_set_layout_compatibility(cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[i], pipeline_layout,
+                                                     i, error_string)) {
+                    // TODO: Flag descriptor as disturbed and then if/when attempt to be used when unbound, note that it was
+                    // previously disturbed
                 }
             }
         }
-        //  dynamicOffsetCount must equal the total number of dynamic descriptors in the sets being bound
-        if (total_dynamic_descriptors != dynamicOffsetCount) {
-            skip |=
-                log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                        HandleToUint64(commandBuffer), __LINE__, VALIDATION_ERROR_17c002ce, "DS",
+        // Check if newly last bound set invalidates any remaining bound sets
+        if ((cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.size() - 1) > (last_set_index)) {
+            if (old_final_bound_set &&
+                !verify_set_layout_compatibility(old_final_bound_set, pipeline_layout, last_set_index, error_string)) {
+                auto old_set = old_final_bound_set->GetSet();
+                skip |=
+                    log_msg(device_data->report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
+                            VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(old_set), __LINE__, DRAWSTATE_NONE, "DS",
+                            "DescriptorSet 0x%" PRIxLEAST64 " previously bound as set #%u is incompatible with set 0x%" PRIxLEAST64
+                            " newly bound as set #%u so set #%u and any subsequent sets were "
+                            "disturbed by newly bound pipelineLayout (0x%" PRIxLEAST64 ")",
+                            HandleToUint64(old_set), last_set_index,
+                            HandleToUint64(cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[last_set_index]),
+                            last_set_index, last_set_index + 1, HandleToUint64(layout));
+            }
+        }
+    }
+    //  dynamicOffsetCount must equal the total number of dynamic descriptors in the sets being bound
+    if (total_dynamic_descriptors != dynamicOffsetCount) {
+        skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
+                        HandleToUint64(cb_state->commandBuffer), __LINE__, VALIDATION_ERROR_17c002ce, "DS",
                         "Attempting to bind %u descriptorSets with %u dynamic descriptors, but dynamicOffsetCount "
                         "is %u. It should exactly match the number of dynamic descriptors. %s",
                         setCount, total_dynamic_descriptors, dynamicOffsetCount, validation_error_map[VALIDATION_ERROR_17c002ce]);
+    }
+    return skip;
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint,
+                                                 VkPipelineLayout layout, uint32_t firstSet, uint32_t setCount,
+                                                 const VkDescriptorSet *pDescriptorSets, uint32_t dynamicOffsetCount,
+                                                 const uint32_t *pDynamicOffsets) {
+    bool skip = false;
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(commandBuffer), layer_data_map);
+    unique_lock_t lock(global_lock);
+    GLOBAL_CB_NODE *cb_state = GetCBNode(device_data, commandBuffer);
+    assert(cb_state);
+    skip = PreCallValidateCmdBindDescriptorSets(device_data, cb_state, pipelineBindPoint, layout, firstSet, setCount,
+                                                pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    if (!skip) {
+        PreCallRecordCmdBindDescriptorSets(device_data, cb_state, pipelineBindPoint, layout, firstSet, setCount, pDescriptorSets,
+                                           dynamicOffsetCount, pDynamicOffsets);
+        lock.unlock();
+        device_data->dispatch_table.CmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, setCount,
+                                                          pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    } else {
+        lock.unlock();
+
+    }
+}
+
+static void PreCallRecordCmdPushDescriptorSetKHR(layer_data *device_data, VkCommandBuffer commandBuffer,
+                                                 VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set,
+                                                 uint32_t descriptorWriteCount, const VkWriteDescriptorSet *pDescriptorWrites) {
+    auto cb_state = GetCBNode(device_data, commandBuffer);
+
+    if (set >= cb_state->lastBound[pipelineBindPoint].push_descriptors.size()) {
+        cb_state->lastBound[pipelineBindPoint].push_descriptors.resize(set + 1);
+    }
+    if (set >= cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.size()) {
+        cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.resize(set + 1);
+        cb_state->lastBound[pipelineBindPoint].dynamicOffsets.resize(set + 1);
+    } else {
+        log_msg(device_data->report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0,
+                __LINE__, DRAWSTATE_NONE, "DS",
+                "vkCmdPushDescriptorSet called multiple times for set %d in pipeline layout 0x%" PRIxLEAST64 ".", set,
+                HandleToUint64(layout));
+        if (cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[set]->IsPushDescriptor()) {
+            delete cb_state->lastBound[pipelineBindPoint].push_descriptors[set];
+            cb_state->lastBound[pipelineBindPoint].push_descriptors[set] = nullptr;
         }
     }
+    VkDescriptorSetLayoutCreateInfo layout_create_info{};
+    VkDescriptorSetLayoutBinding *bindings = new VkDescriptorSetLayoutBinding[descriptorWriteCount];
+    layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layout_create_info.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+    layout_create_info.bindingCount = descriptorWriteCount;
+    layout_create_info.pBindings = bindings;
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+        bindings[i].binding = pDescriptorWrites[i].dstBinding;
+        bindings[i].descriptorCount = pDescriptorWrites[i].descriptorCount;
+        bindings[i].descriptorType = pDescriptorWrites[i].descriptorType;
+        bindings[i].stageFlags = 0;
+        bindings[i].pImmutableSamplers = nullptr;
+    }
+
+    const VkDescriptorSetLayout desc_set_layout = 0;
+    auto const shared_ds_layout = std::make_shared<cvdescriptorset::DescriptorSetLayout>(&layout_create_info, desc_set_layout);
+    auto new_desc = new cvdescriptorset::DescriptorSet(0, 0, shared_ds_layout, device_data);
+    new_desc->SetPushDescriptor();
+    cb_state->lastBound[pipelineBindPoint].push_descriptors[set] = new_desc;
+    cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[set] = new_desc;
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint,
+                                                   VkPipelineLayout layout, uint32_t set, uint32_t descriptorWriteCount,
+                                                   const VkWriteDescriptorSet *pDescriptorWrites) {
+    layer_data *device_data = GetLayerDataPtr(get_dispatch_key(commandBuffer), layer_data_map);
+    unique_lock_t lock(global_lock);
+    PreCallRecordCmdPushDescriptorSetKHR(device_data, commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount,
+                                         pDescriptorWrites);
     lock.unlock();
-    if (!skip)
-        dev_data->dispatch_table.CmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, setCount,
-                                                       pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    device_data->dispatch_table.CmdPushDescriptorSetKHR(commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount,
+                                                        pDescriptorWrites);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset,
@@ -10605,6 +10694,7 @@ static const std::unordered_map<std::string, void*> name_to_funcptr_map = {
     {"vkDestroyDescriptorUpdateTemplateKHR", (void*)DestroyDescriptorUpdateTemplateKHR},
     {"vkUpdateDescriptorSetWithTemplateKHR", (void*)UpdateDescriptorSetWithTemplateKHR},
     {"vkCmdPushDescriptorSetWithTemplateKHR", (void*)CmdPushDescriptorSetWithTemplateKHR},
+    {"vkCmdPushDescriptorSetKHR", (void*)CmdPushDescriptorSetKHR},
     {"vkCreateSwapchainKHR", (void*)CreateSwapchainKHR},
     {"vkDestroySwapchainKHR", (void*)DestroySwapchainKHR},
     {"vkGetSwapchainImagesKHR", (void*)GetSwapchainImagesKHR},

@@ -21,90 +21,164 @@ set JSONCPP_DIR=%BASE_DIR%\jsoncpp
 
 REM // ======== Parameter parsing ======== //
 
-   if "%1" == "" (
-      echo usage: update_external_sources.bat [options]
-      echo.
-      echo Available options:
-      echo   --sync-glslang      just pull glslang_revision
-      echo   --sync-spirv-tools  just pull spirv-tools_revision
-      echo   --sync-jsoncpp      just pull jsoncpp HEAD
-      echo   --build-glslang     pulls glslang_revision, configures CMake, builds Release and Debug
-      echo   --build-spirv-tools pulls spirv-tools_revision, configures CMake, builds Release and Debug
-      echo   --build-jsoncpp     pulls jsoncpp HEAD, configures CMake, builds Release and Debug
-      echo   --all               sync and build glslang, spirv-tools, and jsoncpp
-      goto:finish
-   )
-
-   set sync-glslang=0
-   set sync-spirv-tools=0
-   set sync-jsoncpp=0
-   set build-glslang=0
-   set build-spirv-tools=0
-   set build-jsoncpp=0
-   set check-glslang-build-dependencies=0
+   set arg-use-implicit-component-list=1
+   set arg-do-glslang=0
+   set arg-do-spirv-tools=0
+   set arg-no-sync=0
+   set arg-no-build=0
 
    :parameterLoop
 
       if "%1"=="" goto:parameterContinue
 
-      if "%1" == "--sync-glslang" (
-         set sync-glslang=1
+      if "%1" == "--glslang" (
+         set arg-do-glslang=1
+         set arg-use-implicit-component-list=0
+         echo Building glslang ^(%1^)
          shift
          goto:parameterLoop
       )
 
-      if "%1" == "--sync-spirv-tools" (
-         set sync-spirv-tools=1
+      if "%1" == "-g" (
+         set arg-do-glslang=1
+         set arg-use-implicit-component-list=0
+         echo Building glslang ^(%1^)
          shift
          goto:parameterLoop
       )
 
-      if "%1" == "--sync-jsoncpp" (
-         set sync-jsoncpp=1
+      if "%1" == "--spirv-tools" (
+         set arg-do-spirv-tools=1
+         set arg-use-implicit-component-list=0
+         echo Building spirv-tools ^(%1^)
          shift
          goto:parameterLoop
       )
 
-      if "%1" == "--build-glslang" (
-         set sync-glslang=1
-         set check-glslang-build-dependencies=1
-         set build-glslang=1
+      if "%1" == "-s" (
+         set arg-do-spirv-tools=1
+         set arg-use-implicit-component-list=0
+         echo Building spirv-tools ^(%1^)
+         shift
+         goto:parameterLoop
+      )
+      if "%1" == "--jsoncpp" (
+         set arg-do-jsoncpp=1
+         set arg-use-implicit-component-list=0
+         echo Building jsoncpp ^(%1^)
          shift
          goto:parameterLoop
       )
 
-      if "%1" == "--build-spirv-tools" (
-         set sync-spirv-tools=1
-         REM glslang has the same needs as spirv-tools
-         set check-glslang-build-dependencies=1
-         set build-spirv-tools=1
-         shift
-         goto:parameterLoop
-      )
-
-      if "%1" == "--build-jsoncpp" (
-         set sync-jsoncpps=1
-         set build-jsoncpp=1
+      if "%1" == "-j" (
+         set arg-do-jsoncpp=1
+         set arg-use-implicit-component-list=0
+         echo Building jsoncpp ^(%1^)
          shift
          goto:parameterLoop
       )
 
       if "%1" == "--all" (
-         set sync-glslang=1
-         set sync-spirv-tools=1
-         set sync-jsoncpp=1
-         set build-glslang=1
-         set build-spirv-tools=1
-         set build-jsoncpp=1
-         set check-glslang-build-dependencies=1
+         set arg-do-glslang=1
+         set arg-do-spirv-tools=1
+         set arg-do-jsoncpp=1
+         set arg-use-implicit-component-list=0
+         echo Building glslang, spirv-tools ^(%1^)
          shift
          goto:parameterLoop
       )
 
-      echo Unrecognized options "%1"
+      if "%1" == "--no-sync" (
+         set arg-no-sync=1
+         echo Skipping sync ^(%1^)
+         shift
+         goto:parameterLoop
+      )
+
+      if "%1" == "--no-build" (
+         set arg-no-build=1
+         echo Skipping build ^(%1^)
+         shift
+         goto:parameterLoop
+      )
+
+      echo.
+      echo Unrecognized option "%1"
+      echo.
+      echo usage: update_external_sources.bat [options]
+      echo.
+      echo   Available options:
+      echo     -g ^| --glslang      enable glslang component
+      echo     -s ^| --spirv-tools  enable spirv-tools component
+      echo     -j ^| --jsoncpp      enable jsoncpp component
+      echo     --all               enable all components
+      echo     --no-sync           skip sync from git
+      echo     --no-build          skip build
+      echo.
+      echo   If any component enables are provided, only those components are enabled.
+      echo   If no component enables are provided, all components are enabled.
+      echo.
+      echo   Sync uses git to pull a specific revision.
+      echo   Build configures CMake, builds Release and Debug.
+
+
       goto:error
 
    :parameterContinue
+
+   if %arg-use-implicit-component-list% equ 1 (
+      echo Building glslang, spirv-tools
+      set arg-do-glslang=1
+      set arg-do-spirv-tools=1
+      set arg-do-jsoncpp=1
+   )
+
+   set sync-glslang=0
+   set sync-spirv-tools=0
+   set build-glslang=0
+   set build-spirv-tools=0
+   set check-glslang-build-dependencies=0
+
+   if %arg-do-glslang% equ 1 (
+      if %arg-no-sync% equ 0 (
+         set sync-glslang=1
+      )
+      if %arg-no-build% equ 0 (
+         set check-glslang-build-dependencies=1
+         set build-glslang=1
+      )
+   )
+
+   if %arg-do-spirv-tools% equ 1 (
+      if %arg-no-sync% equ 0 (
+         set sync-spirv-tools=1
+      )
+      if %arg-no-build% equ 0 (
+         REM glslang has the same dependencies as spirv-tools
+         set check-glslang-build-dependencies=1
+         set build-spirv-tools=1
+      )
+   )
+
+   if %arg-do-jsoncpp% equ 1 (
+      if %arg-no-sync% equ 0 (
+         set sync-jsoncpp=1
+      )
+      if %arg-no-build% equ 0 (
+         set build-jsoncpp=1
+      )
+   )
+
+   REM this is a debugging aid that can be enabled while debugging command-line parsing
+   if 0 equ 1 (
+      set arg
+      set sync-glslang
+      set sync-spirv-tools
+      set build-glslang
+      set build-spirv-tools
+      set check-glslang-build-dependencies
+      goto:error
+   )
 
 REM // ======== end Parameter parsing ======== //
 
@@ -125,7 +199,7 @@ REM // ======== Dependency checking ======== //
       if not defined FOUND (
          echo Dependency check failed:
          echo   cmake.exe not found
-         echo   Get CNake 2.8 for Windows here:  http://www.cmake.org/cmake/resources/software.html
+         echo   Get CMake for Windows here:  http://www.cmake.org/cmake/resources/software.html
          echo   Install and ensure each makes it into your PATH, default is "C:\Program Files (x86)\CMake\bin"
          set errorCode=1
       )
@@ -142,9 +216,23 @@ if %errorCode% neq 0 (goto:error)
 
 REM Read the target versions from external file, which is shared with Linux script
 
+if not exist %REVISION_DIR%\glslang_giturl (
+   echo.
+   echo Missing glslang_giturl file!  Place it in %REVISION_DIR% with git repo URL in it.
+   set errorCode=1
+   goto:error
+)
+
 if not exist %REVISION_DIR%\glslang_revision (
    echo.
-   echo Missing glslang_revision file!  Place it in %REVSION_DIR% with target version in it.
+   echo Missing glslang_revision file!  Place it in %REVISION_DIR% with target version in it.
+   set errorCode=1
+   goto:error
+)
+
+if not exist %REVISION_DIR%\spirv-tools_giturl (
+   echo.
+   echo Missing spirv-tools_giturl file!  Place it in %REVISION_DIR% with git repo URL in it.
    set errorCode=1
    goto:error
 )
@@ -152,6 +240,13 @@ if not exist %REVISION_DIR%\glslang_revision (
 if not exist %REVISION_DIR%\spirv-tools_revision (
    echo.
    echo Missing spirv-tools_revision file!  Place it in %REVISION_DIR% with target version in it.
+   set errorCode=1
+   goto:error
+)
+
+if not exist %REVISION_DIR%\spirv-headers_giturl (
+   echo.
+   echo Missing spirv-headers_giturl file!  Place it in %REVISION_DIR% with git repo URL in it.
    set errorCode=1
    goto:error
 )
@@ -170,15 +265,22 @@ if not exist %REVISION_DIR%\jsoncpp_revision (
    goto:error
 )
 
-
+set /p GLSLANG_GITURL= < %REVISION_DIR%\glslang_giturl
 set /p GLSLANG_REVISION= < %REVISION_DIR%\glslang_revision
+set /p SPIRV_TOOLS_GITURL= < %REVISION_DIR%\spirv-tools_giturl
 set /p SPIRV_TOOLS_REVISION= < %REVISION_DIR%\spirv-tools_revision
+set /p SPIRV_HEADERS_GITURL= < %REVISION_DIR%\spirv-headers_giturl
 set /p SPIRV_HEADERS_REVISION= < %REVISION_DIR%\spirv-headers_revision
 set /p JSONCPP_REVISION= < %REVISION_DIR%\jsoncpp_revision
+
+echo GLSLANG_GITURL=%GLSLANG_GITURL%
 echo GLSLANG_REVISION=%GLSLANG_REVISION%
+echo SPIRV_TOOLS_GITURL=%SPIRV_TOOLS_GITURL%
 echo SPIRV_TOOLS_REVISION=%SPIRV_TOOLS_REVISION%
+echo SPIRV_HEADERS_GITURL=%SPIRV_HEADERS_GITURL%
 echo SPIRV_HEADERS_REVISION=%SPIRV_HEADERS_REVISION%
 echo JSONCPP_REVISION=%JSONCPP_REVISION%
+
 
 echo Creating and/or updating glslang, spirv-tools in %BASE_DIR%
 
@@ -251,7 +353,7 @@ REM // ======== Functions ======== //
    echo Creating local glslang repository %GLSLANG_DIR%)
    mkdir %GLSLANG_DIR%
    cd %GLSLANG_DIR%
-   git clone https://github.com/KhronosGroup/glslang.git .
+   git clone %GLSLANG_GITURL% .
    git checkout %GLSLANG_REVISION%
    if not exist %GLSLANG_DIR%\SPIRV (
       echo glslang source download failed!
@@ -272,7 +374,7 @@ goto:eof
    echo Creating local spirv-tools repository %SPIRV_TOOLS_DIR%)
    mkdir %SPIRV_TOOLS_DIR%
    cd %SPIRV_TOOLS_DIR%
-   git clone https://github.com/KhronosGroup/SPIRV-Tools.git .
+   git clone %SPIRV_TOOLS_GITURL% .
    git checkout %SPIRV_TOOLS_REVISION%
    if not exist %SPIRV_TOOLS_DIR%\source (
       echo spirv-tools source download failed!
@@ -281,7 +383,7 @@ goto:eof
    mkdir %SPIRV_TOOLS_DIR%\external
    mkdir %SPIRV_TOOLS_DIR%\external\spirv-headers
    cd %SPIRV_TOOLS_DIR%\external\spirv-headers
-   git clone https://github.com/KhronosGroup/SPIRV-HEADERS.git .
+   git clone %SPIRV_HEADERS_GITURL% .
    git checkout %SPIRV_HEADERS_REVISION%
    if not exist %SPIRV_TOOLS_DIR%\external\spirv-headers\README.md (
       echo spirv-headers download failed!
@@ -304,14 +406,14 @@ goto:eof
    echo.
    echo Building %GLSLANG_DIR%
    cd  %GLSLANG_DIR%
-   
+
    if not exist build32 (
        mkdir build32
    )
    if not exist build (
       mkdir build
    )
-   
+
    echo Making 32-bit glslang
    echo *************************
    set GLSLANG_BUILD_DIR=%GLSLANG_DIR%\build32
@@ -319,10 +421,10 @@ goto:eof
 
    echo Generating 32-bit Glslang CMake files for Visual Studio %VS_VERSION% -DCMAKE_INSTALL_PREFIX=install ..
    cmake -G "Visual Studio %VS_VERSION%" -DCMAKE_INSTALL_PREFIX=install ..
-   
+
    echo Building 32-bit Glslang: MSBuild INSTALL.vcxproj /p:Platform=x86 /p:Configuration=Debug
    msbuild INSTALL.vcxproj /p:Platform=x86 /p:Configuration=Debug /verbosity:quiet
-   
+
    REM Check for existence of one lib, even though we should check for all results
    if not exist %GLSLANG_BUILD_DIR%\glslang\Debug\glslangd.lib (
       echo.
@@ -331,7 +433,7 @@ goto:eof
    )
    echo Building Glslang: MSBuild INSTALL.vcxproj /p:Platform=x86 /p:Configuration=Release
    msbuild INSTALL.vcxproj /p:Platform=x86 /p:Configuration=Release /verbosity:quiet
-   
+
    REM Check for existence of one lib, even though we should check for all results
    if not exist %GLSLANG_BUILD_DIR%\glslang\Release\glslang.lib (
       echo.
@@ -360,7 +462,7 @@ goto:eof
    )
    echo Building Glslang: MSBuild INSTALL.vcxproj /p:Platform=x64 /p:Configuration=Release
    msbuild INSTALL.vcxproj /p:Platform=x64 /p:Configuration=Release /verbosity:quiet
-   
+
    REM Check for existence of one lib, even though we should check for all results
    if not exist %GLSLANG_BUILD_DIR%\glslang\Release\glslang.lib (
       echo.
@@ -387,20 +489,20 @@ goto:eof
    set SPIRV_TOOLS_BUILD_DIR=%SPIRV_TOOLS_DIR%\build32
 
    cd %SPIRV_TOOLS_BUILD_DIR%
-   
+
    echo Generating 32-bit spirv-tools CMake files for Visual Studio %VS_VERSION% ..
    cmake -G "Visual Studio %VS_VERSION%" ..
-   
+
    echo Building 32-bit spirv-tools: MSBuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Debug
    msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Debug /verbosity:quiet
-   
+
    REM Check for existence of one lib, even though we should check for all results
    if not exist %SPIRV_TOOLS_BUILD_DIR%\source\Debug\SPIRV-Tools.lib (
       echo.
       echo spirv-tools 32-bit Debug build failed!
       set errorCode=1
    )
-   
+
    echo Building 32-bit spirv-tools: MSBuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release
    msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release /verbosity:quiet
 
@@ -410,27 +512,27 @@ goto:eof
       echo spirv-tools 32-bit Release build failed!
       set errorCode=1
    )
-   
+
    cd ..
- 
-   echo Making 64-bit spirv-tools  
+
+   echo Making 64-bit spirv-tools
    echo *************************
    set SPIRV_TOOLS_BUILD_DIR=%SPIRV_TOOLS_DIR%\build
    cd %SPIRV_TOOLS_BUILD_DIR%
 
    echo Generating 64-bit spirv-tools CMake files for Visual Studio %VS_VERSION% ..
    cmake -G "Visual Studio %VS_VERSION% Win64" ..
-   
+
    echo Building 64-bit spirv-tools: MSBuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Debug
    msbuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Debug /verbosity:quiet
-   
+
    REM Check for existence of one lib, even though we should check for all results
    if not exist %SPIRV_TOOLS_BUILD_DIR%\source\Debug\SPIRV-Tools.lib (
       echo.
       echo spirv-tools 64-bit Debug build failed!
       set errorCode=1
    )
-   
+
    echo Building 64-bit spirv-tools: MSBuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Release
    msbuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Release /verbosity:quiet
 

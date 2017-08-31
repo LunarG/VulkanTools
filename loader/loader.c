@@ -561,7 +561,7 @@ VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char *
             loader_log(inst, VK_DEBUG_REPORT_ERROR_BIT_EXT, 0,
                 "loaderGetDeviceRegistryFiles: Failed to allocate space for display device names.");
             result = VK_ERROR_OUT_OF_HOST_MEMORY;
-            return false;
+            return result;
         }
     } while (CM_Get_Device_ID_List(displayGUID, pDeviceNames, deviceNamesSize, flags) == CR_BUFFER_SMALL); 
     
@@ -3976,7 +3976,7 @@ void *loader_dev_ext_gpa(struct loader_instance *inst, const char *funcName) {
 
     // Check if funcName is supported in either ICDs or a layer library
     if (!loader_check_icds_for_dev_ext_address(inst, funcName) &&
-        !loader_check_layer_list_for_dev_ext_address(&inst->instance_layer_list, funcName)) {
+        !loader_check_layer_list_for_dev_ext_address(&inst->app_activated_layer_list, funcName)) {
         // if support found in layers continue on
         return NULL;
     }

@@ -622,6 +622,7 @@ struct LAST_BOUND_STATE {
     // Track each set that has been bound
     // Ordered bound set tracking where index is set# that given set is bound to
     std::vector<cvdescriptorset::DescriptorSet *> boundDescriptorSets;
+    std::vector<cvdescriptorset::DescriptorSet *> push_descriptors;
     // one dynamic offset per dynamic descriptor bound to this CB
     std::vector<std::vector<uint32_t>> dynamicOffsets;
 
@@ -629,6 +630,7 @@ struct LAST_BOUND_STATE {
         pipeline_state = nullptr;
         pipeline_layout.reset();
         boundDescriptorSets.clear();
+        push_descriptors.clear();
         dynamicOffsets.clear();
     }
 };
@@ -824,8 +826,8 @@ bool ValidateCmdSubpassState(const layer_data *dev_data, const GLOBAL_CB_NODE *p
 
 
 // Prototypes for layer_data accessor functions.  These should be in their own header file at some point
-const VkFormatProperties *GetFormatProperties(core_validation::layer_data *device_data, VkFormat format);
-const VkImageFormatProperties *GetImageFormatProperties(core_validation::layer_data *device_data, VkFormat format,
+VkFormatProperties GetFormatProperties(core_validation::layer_data *device_data, VkFormat format);
+VkImageFormatProperties GetImageFormatProperties(core_validation::layer_data *device_data, VkFormat format,
                                                         VkImageType image_type, VkImageTiling tiling, VkImageUsageFlags usage,
                                                         VkImageCreateFlags flags);
 const debug_report_data *GetReportData(const layer_data *);

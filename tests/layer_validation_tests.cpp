@@ -8246,11 +8246,13 @@ TEST_F(VkLayerTest, DescriptorSetCompatibility) {
     // First bind sets 0 & 1
     vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 2, &descriptorSet[0], 0,
                             NULL);
+    // TODO: Removed this perf warning and planning to update to only note disturbed descriptor when used unbound (See #2022)
     // 1. Disturb bound set0 by re-binding set1 w/ updated pipelineLayout
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, " previously bound as set #0 was disturbed ");
-    vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe_layout_bad_set0, 1, 1,
-                            &descriptorSet[1], 0, NULL);
-    m_errorMonitor->VerifyFound();
+    //    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, " previously bound as set #0 was
+    //    disturbed "); vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe_layout_bad_set0, 1,
+    //    1,
+    //                            &descriptorSet[1], 0, NULL);
+    //    m_errorMonitor->VerifyFound();
 
     vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 2, &descriptorSet[0], 0,
                             NULL);
@@ -14038,7 +14040,7 @@ TEST_F(VkLayerTest, CreateImageViewBreaksParameterCompatibilityRequirements) {
 }
 
 TEST_F(VkLayerTest, CreateImageViewFormatFeatureMismatch) {
-    TEST_DESCRIPTION("TO BE WRITTEN");
+    TEST_DESCRIPTION("Create view with a format that does not have the same features as the image format.");
 
     // Check for and load required layer
     if (InstanceLayerSupported("VK_LAYER_LUNARG_device_profile_api")) {
@@ -14051,13 +14053,13 @@ TEST_F(VkLayerTest, CreateImageViewFormatFeatureMismatch) {
     ASSERT_NO_FATAL_FAILURE(InitState());
 
     // Load required functions
-    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhyiscalDeviceFormatPropertiesEXT =
+    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT =
         (PFN_vkSetPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(), "vkSetPhysicalDeviceFormatPropertiesEXT");
     PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT =
         (PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(),
                                                                                   "vkGetOriginalPhysicalDeviceFormatPropertiesEXT");
 
-    if (!(fpvkSetPhyiscalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
+    if (!(fpvkSetPhysicalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
         printf("             Can't find device_profile_api functions; skipped.\n");
         return;
     }
@@ -14084,14 +14086,14 @@ TEST_F(VkLayerTest, CreateImageViewFormatFeatureMismatch) {
         // Format for image
         fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_R32G32B32A32_UINT, &formatProps);
         formatProps.optimalTilingFeatures |= features[i];
-        fpvkSetPhyiscalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_R32G32B32A32_UINT, formatProps);
+        fpvkSetPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_R32G32B32A32_UINT, formatProps);
 
         memset(&formatProps, 0, sizeof(formatProps));
 
         // Format for view
         fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_R32G32B32A32_SINT, &formatProps);
         formatProps.optimalTilingFeatures = features[(i + 1) % feature_count];
-        fpvkSetPhyiscalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_R32G32B32A32_SINT, formatProps);
+        fpvkSetPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_R32G32B32A32_SINT, formatProps);
 
         // Create image with modified format
         VkImageCreateInfo imgInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -14149,14 +14151,14 @@ TEST_F(VkLayerTest, CreateImageViewFormatFeatureMismatch) {
     // Format for image
     fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_D24_UNORM_S8_UINT, &formatProps);
     formatProps.optimalTilingFeatures |= features[i];
-    fpvkSetPhyiscalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_D24_UNORM_S8_UINT, formatProps);
+    fpvkSetPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_D24_UNORM_S8_UINT, formatProps);
 
     memset(&formatProps, 0, sizeof(formatProps));
 
     // Format for view
     fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_D32_SFLOAT_S8_UINT, &formatProps);
     formatProps.optimalTilingFeatures = features[(i + 1) % feature_count];
-    fpvkSetPhyiscalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_D32_SFLOAT_S8_UINT, formatProps);
+    fpvkSetPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_D32_SFLOAT_S8_UINT, formatProps);
 
     // Create image with modified format
     VkImageCreateInfo imgInfo = {VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -17552,11 +17554,37 @@ TEST_F(VkLayerTest, ImageLayerUnsupportedFormat) {
 TEST_F(VkLayerTest, CreateImageViewFormatMismatchUnrelated) {
     TEST_DESCRIPTION("Create an image with a color format, then try to create a depth view of it");
 
-    ASSERT_NO_FATAL_FAILURE(Init());
+    if (InstanceLayerSupported("VK_LAYER_LUNARG_device_profile_api")) {
+        m_instance_layer_names.push_back("VK_LAYER_LUNARG_device_profile_api");
+    } else {
+        printf("             Did not find VK_LAYER_LUNARG_device_profile_api layer; skipped.\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // Load required functions
+    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT =
+        (PFN_vkSetPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(), "vkSetPhysicalDeviceFormatPropertiesEXT");
+    PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT =
+        (PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(),
+                                                                                  "vkGetOriginalPhysicalDeviceFormatPropertiesEXT");
+
+    if (!(fpvkSetPhysicalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
+        printf("             Can't find device_profile_api functions; skipped.\n");
+        return;
+    }
+
     auto depth_format = FindSupportedDepthStencilFormat(gpu());
     if (!depth_format) {
         return;
     }
+
+    VkFormatProperties formatProps;
+
+    fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT(gpu(), depth_format, &formatProps);
+    formatProps.optimalTilingFeatures |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    fpvkSetPhysicalDeviceFormatPropertiesEXT(gpu(), depth_format, formatProps);
 
     VkImageObj image(m_device);
     image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
@@ -17584,11 +17612,36 @@ TEST_F(VkLayerTest, CreateImageViewFormatMismatchUnrelated) {
 TEST_F(VkLayerTest, CreateImageViewNoMutableFormatBit) {
     TEST_DESCRIPTION("Create an image view with a different format, when the image does not have MUTABLE_FORMAT bit");
 
-    ASSERT_NO_FATAL_FAILURE(Init());
+    if (InstanceLayerSupported("VK_LAYER_LUNARG_device_profile_api")) {
+        m_instance_layer_names.push_back("VK_LAYER_LUNARG_device_profile_api");
+    } else {
+        printf("             Did not find VK_LAYER_LUNARG_device_profile_api layer; skipped.\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // Load required functions
+    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT =
+        (PFN_vkSetPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(), "vkSetPhysicalDeviceFormatPropertiesEXT");
+    PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT =
+        (PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(),
+                                                                                  "vkGetOriginalPhysicalDeviceFormatPropertiesEXT");
+
+    if (!(fpvkSetPhysicalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
+        printf("             Can't find device_profile_api functions; skipped.\n");
+        return;
+    }
 
     VkImageObj image(m_device);
     image.Init(128, 128, 1, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL, 0);
     ASSERT_TRUE(image.initialized());
+
+    VkFormatProperties formatProps;
+
+    fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_B8G8R8A8_UINT, &formatProps);
+    formatProps.optimalTilingFeatures |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+    fpvkSetPhysicalDeviceFormatPropertiesEXT(gpu(), VK_FORMAT_B8G8R8A8_UINT, formatProps);
 
     VkImageView imgView;
     VkImageViewCreateInfo imgViewInfo = {};
@@ -20722,25 +20775,9 @@ TEST_F(VkPositiveLayerTest, PushDescriptorNullDstSetTest) {
     ASSERT_NO_FATAL_FAILURE(InitState());
     m_errorMonitor->ExpectSuccess();
 
-    VkDescriptorPoolSize ds_type_count = {};
-    ds_type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-    ds_type_count.descriptorCount = 1;
-
-    VkDescriptorPoolCreateInfo ds_pool_ci = {};
-    ds_pool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    ds_pool_ci.pNext = NULL;
-    ds_pool_ci.maxSets = 1;
-    ds_pool_ci.poolSizeCount = 1;
-    ds_pool_ci.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    ds_pool_ci.pPoolSizes = &ds_type_count;
-
-    VkDescriptorPool ds_pool;
-    err = vkCreateDescriptorPool(m_device->device(), &ds_pool_ci, NULL, &ds_pool);
-    ASSERT_VK_SUCCESS(err);
-
     VkDescriptorSetLayoutBinding dsl_binding = {};
     dsl_binding.binding = 2;
-    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     dsl_binding.descriptorCount = 1;
     dsl_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     dsl_binding.pImmutableSamplers = NULL;
@@ -20794,6 +20831,158 @@ TEST_F(VkPositiveLayerTest, PushDescriptorNullDstSetTest) {
     m_errorMonitor->VerifyNotFound();
     vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
+}
+
+// This is a positive test. No failures are expected.
+TEST_F(VkPositiveLayerTest, PushDescriptorUnboundSetTest) {
+    TEST_DESCRIPTION("Ensure that no validation errors are produced for not bound push descriptor sets");
+    VkResult err;
+    if (InstanceExtensionSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
+        m_instance_extension_names.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    } else {
+        printf("             Did not find VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME; skipped.\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+    if (DeviceExtensionSupported(gpu(), nullptr, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME)) {
+        m_device_extension_names.push_back(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME);
+    } else {
+        printf("             Push Descriptors Extension not supported, skipping tests\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitState());
+    ASSERT_NO_FATAL_FAILURE(InitViewport());
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+    m_errorMonitor->ExpectSuccess();
+
+    VkDescriptorPoolSize ds_type_count = {};
+    ds_type_count.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    ds_type_count.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo ds_pool_ci = {};
+    ds_pool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    ds_pool_ci.pNext = NULL;
+    ds_pool_ci.maxSets = 1;
+    ds_pool_ci.poolSizeCount = 1;
+    ds_pool_ci.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    ds_pool_ci.pPoolSizes = &ds_type_count;
+
+    VkDescriptorPool ds_pool;
+    err = vkCreateDescriptorPool(m_device->device(), &ds_pool_ci, NULL, &ds_pool);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create descriptor set layout
+    VkDescriptorSetLayoutBinding dsl_binding = {};
+    dsl_binding.binding = 2;
+    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    dsl_binding.descriptorCount = 1;
+    dsl_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    dsl_binding.pImmutableSamplers = NULL;
+    VkDescriptorSetLayoutCreateInfo ds_layout_ci = {};
+    ds_layout_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    ds_layout_ci.pNext = NULL;
+    ds_layout_ci.bindingCount = 1;
+    ds_layout_ci.pBindings = &dsl_binding;
+    VkDescriptorSetLayout ds_layout;
+    err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL, &ds_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create push descriptor set layout
+    ds_layout_ci.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+    VkDescriptorSetLayout push_ds_layout;
+    err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL, &push_ds_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    // Allocate descriptor set
+    VkDescriptorSetAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.pNext = NULL;
+    alloc_info.descriptorPool = ds_pool;
+    alloc_info.descriptorSetCount = 1;
+    alloc_info.pSetLayouts = &ds_layout;
+    VkDescriptorSet descriptor_set;
+    err = vkAllocateDescriptorSets(m_device->device(), &alloc_info, &descriptor_set);
+    ASSERT_VK_SUCCESS(err);
+
+    // Now use the descriptor layouts to create a pipeline layout
+    VkPipelineLayout pipeline_layout;
+    VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
+    pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pPipelineLayoutCreateInfo.pNext = NULL;
+    pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+    pPipelineLayoutCreateInfo.pPushConstantRanges = NULL;
+    pPipelineLayoutCreateInfo.setLayoutCount = 2;
+    VkDescriptorSetLayout ds_layouts[2] = {push_ds_layout, ds_layout};
+    pPipelineLayoutCreateInfo.pSetLayouts = ds_layouts;
+
+    err = vkCreatePipelineLayout(m_device->device(), &pPipelineLayoutCreateInfo, NULL, &pipeline_layout);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create PSO
+    char const *vsSource =
+        "#version 450\n"
+        "\n"
+        "void main(){\n"
+        "   gl_Position = vec4(1);\n"
+        "}\n";
+    char const *fsSource =
+        "#version 450\n"
+        "\n"
+        "layout(location=0) out vec4 x;\n"
+        "layout(set=0) layout(binding=2) uniform foo1 { float x; } bar1;\n"
+        "layout(set=1) layout(binding=2) uniform foo2 { float y; } bar2;\n"
+        "void main(){\n"
+        "   x = vec4(bar1.x) + vec4(bar2.y);\n"
+        "}\n";
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+    VkShaderObj fs(m_device, fsSource, VK_SHADER_STAGE_FRAGMENT_BIT, this);
+    VkPipelineObj pipe(m_device);
+    pipe.SetViewport(m_viewports);
+    pipe.SetScissor(m_scissors);
+    pipe.AddShader(&vs);
+    pipe.AddShader(&fs);
+    pipe.AddColorAttachment();
+    pipe.CreateVKPipeline(pipeline_layout, renderPass());
+
+    static const float bo_data[1] = {1.f};
+    VkConstantBufferObj buffer(m_device, sizeof(bo_data), (const void *)&bo_data, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+
+    // Update descriptor set
+    VkDescriptorBufferInfo buff_info;
+    buff_info.buffer = buffer.handle();
+    buff_info.offset = 0;
+    buff_info.range = sizeof(bo_data);
+    VkWriteDescriptorSet descriptor_write = {};
+    descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptor_write.dstBinding = 2;
+    descriptor_write.descriptorCount = 1;
+    descriptor_write.pTexelBufferView = nullptr;
+    descriptor_write.pBufferInfo = &buff_info;
+    descriptor_write.pImageInfo = nullptr;
+    descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptor_write.dstSet = descriptor_set;
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+
+    PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR =
+        (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(m_device->device(), "vkCmdPushDescriptorSetKHR");
+    assert(vkCmdPushDescriptorSetKHR != nullptr);
+
+    m_commandBuffer->begin();
+    m_commandBuffer->BeginRenderPass(m_renderPassBeginInfo);
+    vkCmdBindPipeline(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
+
+    // Push descriptors and bind descriptor set
+    vkCmdPushDescriptorSetKHR(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_write);
+    vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 1, 1, &descriptor_set, 0,
+                            NULL);
+
+    // No errors should be generated.
+    vkCmdDraw(m_commandBuffer->handle(), 3, 1, 0, 0);
+
+    m_errorMonitor->VerifyNotFound();
+    vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
+    vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
+    vkDestroyDescriptorSetLayout(m_device->device(), push_ds_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
 }
 
