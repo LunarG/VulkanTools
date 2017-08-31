@@ -111,6 +111,17 @@ class vkReplay {
         void* pUserData;
     };
 
+    struct MemoryAllocateInfo {
+        VkImage image;  // We rely on the fact that VkBuffer is the same size
+        VkDeviceMemory memory;
+        VkDeviceSize memoryOffset;
+        size_t amIdx;
+        size_t getMemReqPtIdx;
+        size_t createMemPtIdx;
+        size_t bindMemPtIdx;
+        uint16_t bindMemPktId;
+    };
+
     VkDebugReportCallbackEXT m_dbgMsgCallbackObj;
 
     std::vector<struct ValidationMsg> m_validationMsgs;
@@ -190,6 +201,7 @@ class vkReplay {
     void manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDestroyDescriptorUpdateTemplateKHR* pPacket);
     void manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpdateDescriptorSetWithTemplateKHR* pPacket);
     void manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCmdPushDescriptorSetWithTemplateKHR* pPacket);
+    VkResult manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory* pPacket);
 
     void process_screenshot_list(const char* list) {
         std::string spec(list), word;
@@ -245,6 +257,9 @@ class vkReplay {
     // Map VkBuffer to VkMemoryRequirements
     std::unordered_map<VkBuffer, VkMemoryRequirements> traceGetBufferMemoryRequirements;
     std::unordered_map<VkBuffer, VkMemoryRequirements> replayGetBufferMemoryRequirements;
+
+    // Map uint64_t global_packet_index to MemoryAllocateInfo
+    std::unordered_map<uint64_t, MemoryAllocateInfo> traceMemoryAllocateInfo;
 
     bool getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, VkMemoryRequirements* memRequirements,
                           uint32_t* pReplayIdx);
