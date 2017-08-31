@@ -229,24 +229,29 @@ static void rm_handle_from_mem_info(const VkDeviceMemory handle) {
 }
 
 static void add_alloc_memory_to_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
+    void **ppOutNext;
     while (pIn) {
         switch (((VkApplicationInfo *)pIn)->sType) {
             case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationMemoryAllocateInfoNV), pIn);
+                ppOutNext = (void **)&(((VkDedicatedAllocationMemoryAllocateInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
             case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExportMemoryAllocateInfoNV), pIn);
+                ppOutNext = (void **)&(((VkExportMemoryAllocateInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
 #ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExportMemoryWin32HandleInfoNV), pIn);
+                ppOutNext = (void **)&(((VkExportMemoryWin32HandleInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
 
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkImportMemoryWin32HandleInfoNV), pIn);
+                ppOutNext = (void **)&(((VkImportMemoryWin32HandleInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
 #endif
@@ -254,40 +259,48 @@ static void add_alloc_memory_to_trace_packet(vktrace_trace_packet_header *pHeade
                 vktrace_LogError("vkAllocateMemory: unrecognized pNext list structure");
                 break;
         }
+        ppOut = ppOutNext;
         pIn = ((VkApplicationInfo *)pIn)->pNext;
     }
 }
 
 static void add_extension_to_createimage_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
+    void **ppOutNext;
     while (pIn) {
         switch (((VkExternalMemoryImageCreateInfoNV *)pIn)->sType) {
             case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExternalMemoryImageCreateInfoNV), pIn);
+                ppOutNext = (void **)&(((VkExternalMemoryImageCreateInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
             case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationImageCreateInfoNV), pIn);
+                ppOutNext = (void **)&(((VkDedicatedAllocationImageCreateInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
             default:
                 vktrace_LogError("vkCreateImage: unrecognized pNext list structure");
                 break;
         }
+        ppOut = ppOutNext;
         pIn = ((VkExternalMemoryImageCreateInfoNV *)pIn)->pNext;
     }
 }
 
 static void add_extension_to_createbuffer_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
+    void **ppOutNext;
     while (pIn) {
         switch (((VkDedicatedAllocationBufferCreateInfoNV *)pIn)->sType) {
             case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
                 vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationBufferCreateInfoNV), pIn);
+                ppOutNext = (void **)&(((VkDedicatedAllocationBufferCreateInfoNV *)*ppOut)->pNext);
                 vktrace_finalize_buffer_address(pHeader, ppOut);
                 break;
             default:
                 vktrace_LogError("vkCreateBuffer: unrecognized pNext list structure");
                 break;
         }
+        ppOut = ppOutNext;
         pIn = ((VkDedicatedAllocationBufferCreateInfoNV *)pIn)->pNext;
     }
 }
