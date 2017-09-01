@@ -37,7 +37,7 @@ approved_ext = [
                 'VK_AMD_texture_gather_bias_lod',
                 'VK_EXT_acquire_xlib_display',
                 'VK_EXT_blend_operation_advanced',
-                #'VK_EXT_debug_marker',
+                'VK_EXT_debug_marker',
                 'VK_EXT_debug_report',
                 'VK_EXT_direct_mode_display',
                 'VK_EXT_discard_rectangles',
@@ -2384,9 +2384,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     trace_vk_src += '    }\n'
                 # Call down the layer chain and get return value (if there is one)
                 # Note: this logic doesn't work for CreateInstance or CreateDevice but those are handwritten
-                if extension == 'VK_EXT_debug_marker':
-                    table_txt = 'mdd(%s)->debugMarkerTable' % proto.members[0].name
-                elif proto.members[0].type in ['VkInstance', 'VkPhysicalDevice']:
+                #if extension == 'VK_EXT_debug_marker':
+                #    table_txt = 'mdd(%s)->debugMarkerTable' % proto.members[0].name
+                if proto.members[0].type in ['VkInstance', 'VkPhysicalDevice']:
                     table_txt = 'mid(%s)->instTable' % proto.members[0].name
                 else:
                     table_txt = 'mdd(%s)->devTable' % proto.members[0].name
