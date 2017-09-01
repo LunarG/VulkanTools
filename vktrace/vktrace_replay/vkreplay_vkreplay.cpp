@@ -3668,3 +3668,40 @@ void vkReplay::manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCm
     m_vkFuncs.real_vkCmdPushDescriptorSetWithTemplateKHR(remappedcommandBuffer, remappedDescriptorUpdateTemplate, remappedlayout,
                                                          pPacket->set, pPacket->pData);
 }
+
+VkResult vkReplay::manually_replay_vkRegisterDeviceEventEXT(packet_vkRegisterDeviceEventEXT *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in RegisterDeviceEventEXT() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    // No need to remap pDeviceEventInfo
+    // No need to remap pAllocator
+    VkFence fence;
+    auto result = m_vkFuncs.real_vkRegisterDeviceEventEXT(remappeddevice, pPacket->pDeviceEventInfo, pPacket->pAllocator, &fence);
+    if (result == VK_SUCCESS) {
+        m_objMapper.add_to_fences_map(*pPacket->pFence, fence);
+    }
+    return result;
+}
+
+VkResult vkReplay::manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDisplayEventEXT *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in RegisterDisplayEventEXT() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    VkDisplayKHR remappeddisplay = m_objMapper.remap_displaykhrs(pPacket->display);
+    if (pPacket->display != VK_NULL_HANDLE && remappeddisplay == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in RegisterDisplayEventEXT() due to invalid remapped VkDisplayKHR.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    // No need to remap pDisplayEventInfo
+    // No need to remap pAllocator
+    VkFence fence;
+    auto result = m_vkFuncs.real_vkRegisterDisplayEventEXT(remappeddevice, remappeddisplay, pPacket->pDisplayEventInfo, pPacket->pAllocator, &fence);
+    if (result == VK_SUCCESS) {
+        m_objMapper.add_to_fences_map(*pPacket->pFence, fence);
+    }
+    return result;
+}
