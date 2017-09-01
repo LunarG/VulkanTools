@@ -3353,6 +3353,72 @@ VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL __HOOKED_vkGetPhysicalDeviceXlibP
     }
     return result;
 }
+
+#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAcquireXlibDisplayEXT(
+    VkPhysicalDevice physicalDevice,
+    Display* dpy,
+    VkDisplayKHR display)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkAcquireXlibDisplayEXT* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkAcquireXlibDisplayEXT, sizeof(Display));
+    result = mid(physicalDevice)->instTable.AcquireXlibDisplayEXT(physicalDevice, dpy, display);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkAcquireXlibDisplayEXT(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->display = display;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->dpy), sizeof(Display), dpy);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->dpy));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+    return result;
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetRandROutputDisplayEXT(
+    VkPhysicalDevice physicalDevice,
+    Display* dpy,
+    RROutput rrOutput,
+    VkDisplayKHR* pDisplay)
+{
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetRandROutputDisplayEXT* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkGetRandROutputDisplayEXT, sizeof(Display) + sizeof(VkDisplayKHR));
+    result = mid(physicalDevice)->instTable.GetRandROutputDisplayEXT(physicalDevice, dpy, rrOutput, pDisplay);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetRandROutputDisplayEXT(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    pPacket->rrOutput = rrOutput;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->dpy), sizeof(Display), dpy);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDisplay), sizeof(VkDisplayKHR), pDisplay);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->dpy));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDisplay));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+    return result;
+}
+#endif
 #endif
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWaylandSurfaceKHR(VkInstance instance,

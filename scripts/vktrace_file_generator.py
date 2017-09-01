@@ -35,7 +35,7 @@ approved_ext = [
                 'VK_AMD_shader_explicit_vertex_parameter',
                 'VK_AMD_shader_trinary_minmax',
                 'VK_AMD_texture_gather_bias_lod',
-                #'VK_EXT_acquire_xlib_display',
+                'VK_EXT_acquire_xlib_display',
                 'VK_EXT_blend_operation_advanced',
                 #'VK_EXT_debug_marker',
                 'VK_EXT_debug_report',
@@ -2294,6 +2294,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkDestroyDescriptorUpdateTemplateKHR',
                                          'vkUpdateDescriptorSetWithTemplateKHR',
                                          'vkCmdPushDescriptorSetWithTemplateKHR',
+                                         'vkAcquireXlibDisplayEXT',
+                                         'vkGetRandROutputDisplayEXT'
                                          ]
 
         # Validate the manually_written_hooked_funcs list

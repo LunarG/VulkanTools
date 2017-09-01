@@ -68,7 +68,6 @@ typedef uint32_t CARD32;
 typedef CARD32 XID;
 typedef XID Window;
 typedef CARD32 VisualID;
-typedef XID RROutput;
 typedef struct VkXlibSurfaceCreateInfoKHR {
     VkStructureType sType;
     const void* pNext;
@@ -86,6 +85,10 @@ typedef struct {
     Display* dpy;
     Window window;
 } VkIcdSurfaceXlib;
+#endif
+
+#if !defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
+typedef XID RROutput;
 #endif
 
 #if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
