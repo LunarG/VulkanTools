@@ -24,113 +24,103 @@ import xml.etree.ElementTree as etree
 from generator import *
 from collections import namedtuple
 
-# TODO: Finish generated file conversion, reenable these extensions
-# THESE FUNCTIONS WILL BE ADDED IN AFTER THE SCRIPT CONVERSION EFFORT IS COMPLETE
-temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
-                                       'vkGetPhysicalDeviceProperties2KHR',
-                                       'vkGetPhysicalDeviceFormatProperties2KHR',
-                                       'vkGetPhysicalDeviceImageFormatProperties2KHR',
-                                       'vkGetPhysicalDeviceQueueFamilyProperties2KHR',
-                                       'vkGetPhysicalDeviceMemoryProperties2KHR',
-                                       'vkGetPhysicalDeviceSparseImageFormatProperties2KHR',
-                                       'vkTrimCommandPoolKHR',
-                                       'vkCmdPushDescriptorSetKHR',
-                                       'vkGetDeviceGroupPeerMemoryFeaturesKHX',
-                                       'vkBindBufferMemory2KHX',
-                                       'vkBindImageMemory2KHX',
-                                       'vkCmdSetDeviceMaskKHX',
-                                       'vkGetDeviceGroupPresentCapabilitiesKHX',
-                                       'vkGetDeviceGroupSurfacePresentModesKHX',
-                                       'vkAcquireNextImage2KHX',
-                                       'vkCmdDispatchBaseKHX',
-                                       'vkGetPhysicalDevicePresentRectanglesKHX',
-                                       'vkCreateViSurfaceNN',
-                                       'vkEnumeratePhysicalDeviceGroupsKHX',
-                                       'vkCmdProcessCommandsNVX',
-                                       'vkCmdReserveSpaceForCommandsNVX',
-                                       'vkCreateIndirectCommandsLayoutNVX',
-                                       'vkDestroyIndirectCommandsLayoutNVX',
-                                       'vkCreateObjectTableNVX',
-                                       'vkDestroyObjectTableNVX',
-                                       'vkRegisterObjectsNVX',
-                                       'vkUnregisterObjectsNVX',
-                                       'vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX',
-                                       'vkCmdSetViewportWScalingNV',
-                                       'vkReleaseDisplayEXT',
-                                       'vkAcquireXlibDisplayEXT',
-                                       'vkGetRandROutputDisplayEXT',
-                                       'vkGetPhysicalDeviceSurfaceCapabilities2EXT',
-                                       'vkDisplayPowerControlEXT',
-                                       'vkRegisterDeviceEventEXT',
-                                       'vkRegisterDisplayEventEXT',
-                                       'vkGetSwapchainCounterEXT',
-                                       'vkGetRefreshCycleDurationGOOGLE',
-                                       'vkGetPastPresentationTimingGOOGLE',
-                                       'vkCmdSetDiscardRectangleEXT',
-                                       'vkSetHdrMetadataEXT',
-                                       'vkCreateIOSSurfaceMVK',
-                                       'vkCreateMacOSSurfaceMVK',
-                                       'vkGetSwapchainStatusKHR',
-                                       'vkGetPhysicalDeviceSurfaceCapabilities2KHR',
-                                       'vkGetPhysicalDeviceSurfaceFormats2KHR',
+approved_ext = [
+                'VK_AMD_draw_indirect_count',
+                'VK_AMD_gcn_shader',
+                'VK_AMD_gpu_shader_half_float',
+                'VK_AMD_gpu_shader_int16',
+                'VK_AMD_negative_viewport_height',
+                'VK_AMD_rasterization_order',
+                'VK_AMD_shader_ballot',
+                'VK_AMD_shader_explicit_vertex_parameter',
+                'VK_AMD_shader_trinary_minmax',
+                'VK_AMD_texture_gather_bias_lod',
+                #'VK_EXT_acquire_xlib_display',
+                'VK_EXT_blend_operation_advanced',
+                #'VK_EXT_debug_marker',
+                'VK_EXT_debug_report',
+                'VK_EXT_direct_mode_display',
+                'VK_EXT_discard_rectangles',
+                #'VK_EXT_display_control',
+                'VK_EXT_display_surface_counter',
+                'VK_EXT_hdr_metadata',
+                'VK_EXT_shader_subgroup_ballot',
+                'VK_EXT_shader_subgroup_vote',
+                'VK_EXT_swapchain_colorspace',
+                'VK_EXT_validation_flags',
+                'VK_GOOGLE_display_timing',
+                'VK_IMG_filter_cubic',
+                'VK_IMG_format_pvrtc',
+                'VK_KHR_16bit_storage',
+                'VK_KHR_android_surface',
+                'VK_KHR_dedicated_allocation',
+                'VK_KHR_descriptor_update_template',
+                'VK_KHR_display',
+                'VK_KHR_display_swapchain',
+                'VK_KHR_external_fence',
+                'VK_KHR_external_fence_capabilities',
+                #'VK_KHR_external_fence_fd',
+                #'VK_KHR_external_fence_win32',
+                'VK_KHR_external_memory',
+                'VK_KHR_external_memory_capabilities',
+                'VK_KHR_external_memory_fd',
+                #'VK_KHR_external_memory_win32',
+                'VK_KHR_external_semaphore',
+                'VK_KHR_external_semaphore_capabilities',
+                'VK_KHR_external_semaphore_fd',
+                #'VK_KHR_external_semaphore_win32',
+                'VK_KHR_get_memory_requirements2',
+                'VK_KHR_get_physical_device_properties2',
+                'VK_KHR_get_surface_capabilities2',
+                'VK_KHR_incremental_present',
+                'VK_KHR_maintenance1',
+                #'VK_KHR_mir_surface',
+                'VK_KHR_push_descriptor',
+                'VK_KHR_sampler_filter_minmax',
+                'VK_KHR_sampler_mirror_clamp_to_edge',
+                'VK_KHR_shader_draw_parameters',
+                'VK_KHR_shared_presentable_image',
+                'VK_KHR_storage_buffer_storage_class',
+                'VK_KHR_surface',
+                'VK_KHR_swapchain',
+                'VK_KHR_variable_pointers',
+                'VK_KHR_wayland_surface',
+                'VK_KHR_win32_keyed_mutex',
+                'VK_KHR_win32_surface',
+                'VK_KHR_xcb_surface',
+                'VK_KHR_xlib_surface',
+                'VK_KHX_device_group',
+                'VK_KHX_device_group_creation',
+                'VK_KHX_multiview',
+                #'VK_MVK_ios_surface',
+                #'VK_MVK_macos_surface',
+                #'VK_MVK_moltenvk',
+                #'VK_NN_vi_surface',
+                'VK_NV_clip_space_w_scaling',
+                'VK_NV_dedicated_allocation',
+                'VK_NV_external_memory',
+                'VK_NV_external_memory_capabilities',
+                #'VK_NV_external_memory_win32',
+                'VK_NV_fill_rectangle',
+                'VK_NV_fragment_coverage_to_color',
+                'VK_NV_framebuffer_mixed_samples',
+                'VK_NV_geometry_shader_passthrough',
+                'VK_NV_glsl_shader',
+                'VK_NV_sample_mask_override_coverage',
+                'VK_NV_viewport_array2',
+                'VK_NV_viewport_swizzle',
+                'VK_NV_win32_keyed_mutex',
+                'VK_NVX_device_generated_commands',
+                'VK_NVX_multiview_per_view_attributes',
+                ]
 
-                                       # VK_KHR_external_memory_capabilities
-                                       'vkGetPhysicalDeviceExternalBufferPropertiesKHR',
+api_exclusions = [
+                # VK_KHR_display
+                'GetDisplayPlaneSupportedDisplaysKHR',
 
-                                       # VK_KHR_external_memory_win32
-                                       'vkGetMemoryWin32HandleKHR',
-                                       'vkGetMemoryWin32HandlePropertiesKHR',
-
-                                       # VK_KHR_external_memory_fd
-                                       'vkGetMemoryFdKHR',
-                                       'vkGetMemoryFdPropertiesKHR',
-
-                                       # VK_KHR_external_semaphore_capabilities
-                                       'vkGetPhysicalDeviceExternalSemaphorePropertiesKHR',
-
-                                       # VK_KHR_external_semaphore_win32
-                                       'vkImportSemaphoreWin32HandleKHR',
-                                       'vkGetSemaphoreWin32HandleKHR',
-
-                                       # VK_KHR_external_semaphore_fd
-                                       'vkImportSemaphoreFdKHR',
-                                       'vkGetSemaphoreFdKHR',
-
-                                       # VK_KHR_external_fence_capabilities
-                                       'vkGetPhysicalDeviceExternalFencePropertiesKHR',
-
-                                       # VK_KHR_external_fence_win32
-                                       'vkImportFenceWin32HandleKHR',
-                                       'vkGetFenceWin32HandleKHR',
-
-                                       # VK_KHR_external_fence_fd
-                                       'vkImportFenceFdKHR',
-                                       'vkGetFenceFdKHR',
-
-                                       # VkSampleLocationsInfoEXT
-                                       'vkCmdSetSampleLocationsEXT',
-
-                                       # VkMultisamplePropertiesEXT
-                                       'vkGetPhysicalDeviceMultisamplePropertiesEXT',
-
-                                       # VkValidationCacheEXT
-                                       'vkCreateValidationCacheEXT',
-                                       'vkDestroyValidationCacheEXT',
-                                       'vkGetValidationCacheDataEXT',
-                                       'vkMergeValidationCachesEXT',
-                                       ]
-
-api_exclusions = ['CreateMirSurfaceKHR',
-                  'GetPhysicalDeviceMirPresentationSupportKHR',
-                  'GetPhysicalDeviceDisplayPropertiesKHR',
-                  'GetPhysicalDeviceDisplayPlanePropertiesKHR',
-                  'GetDisplayPlaneSupportedDisplaysKHR',
-                  'GetDisplayModePropertiesKHR',
-                  'CreateDisplayModeKHR',
-                  'GetDisplayPlaneCapabilitiesKHR',
-                  'CreateDisplayPlaneSurfaceKHR',
-                  ]
-
+                # VK_KHR_display_swapchain
+                'CreateSharedSwapchainsKHR'
+                ]
 #
 # VkTraceFileOutputGeneratorOptions - subclass of GeneratorOptions.
 class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
@@ -648,8 +638,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_gen_source += '    m_libHandle = handle;\n'
 
         for api in self.cmdMembers:
-            # TEMPORARY EXTENSION WORKAROUND
-            if api.name in temporary_script_porting_exclusions:
+            extension = cmd_extension_dict[api.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                continue
+            if api.name[2:] in api_exclusions:
                 continue
             cmdname = api.name
             protect = cmd_protect_dict[cmdname]
@@ -676,11 +668,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_gen_source += '        }\n'
 
         for api in self.cmdMembers:
+            extension = cmd_extension_dict[api.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                continue
             cmdname = api.name
             vk_cmdname = cmdname
-            # TEMPORARY EXTENSION WORKAROUND
-            if api.name in temporary_script_porting_exclusions:
-                continue
             # Strip off 'vk' from command name
             cmdname = cmdname[2:]
             if cmdname in api_exclusions:
@@ -784,8 +776,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif cmdname == 'GetInstanceProcAddr':
                     for command in self.cmdMembers:
-                        # TEMPORARY EXTENSION WORKAROUND
-                        if api.name in temporary_script_porting_exclusions:
+                        extension = cmd_extension_dict[api.name]
+                        if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                            continue
+                        if api.name[2:] in api_exclusions:
                             continue
                         if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
                             gipa_params = cmd_member_dict[vk_cmdname]
@@ -800,8 +794,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                 replay_gen_source += '#endif // %s\n' % gipa_protect
                 elif cmdname == 'GetDeviceProcAddr':
                     for command in self.cmdMembers:
-                        # TEMPORARY EXTENSION WORKAROUND
-                        if api.name in temporary_script_porting_exclusions:
+                        extension = cmd_extension_dict[api.name]
+                        if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                            continue
+                        if api.name[2:] in api_exclusions:
                             continue
                         if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
                             gdpa_params = cmd_member_dict[vk_cmdname]
@@ -872,7 +868,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     replay_gen_source += '                m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
                     replay_gen_source += '            }\n'
-                elif 'AcquireNextImageKHR' in cmdname:
+                elif 'AcquireNextImage' in cmdname:
                     replay_gen_source += '            m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
                 elif 'DestroyInstance' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
@@ -1097,11 +1093,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
         trace_pkt_id_hdr += '            return "vkApiVersion";\n'
         trace_pkt_id_hdr += '        }\n'
+        cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
-            if api.name[2:] in api_exclusions:
+            extension = cmd_extension_dict[api.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
                 continue
-            # TEMPORARY EXTENSION WORKAROUND
-            if api.name in temporary_script_porting_exclusions:
+            if api.name[2:] in api_exclusions:
                 continue
             trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_%s: {\n' % api.name
             trace_pkt_id_hdr += '            return "%s";\n' % api.name
@@ -1123,10 +1120,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_id_hdr += '        }\n'
         cmd_member_dict = dict(self.cmdMembers)
         for api in self.cmdMembers:
-            if api.name[2:] in api_exclusions:
+            extension = cmd_extension_dict[api.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
                 continue
-            # TEMPORARY EXTENSION WORKAROUND
-            if api.name in temporary_script_porting_exclusions:
+            if api.name[2:] in api_exclusions:
                 continue
             trace_pkt_id_hdr += '    case VKTRACE_TPI_VK_%s: {\n' % api.name
             func_str = 'vk%s(' % api.name
@@ -1173,11 +1170,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         interp_func_body += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
         interp_func_body += '            return interpret_body_as_vkApiVersion(pHeader)->header;\n'
         interp_func_body += '        }\n'
+        cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
-            if api.name[2:] in api_exclusions:
+            extension = cmd_extension_dict[api.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
                 continue
-            # TEMPORARY EXTENSION WORKAROUND
-            if api.name in temporary_script_porting_exclusions:
+            if api.name[2:] in api_exclusions:
                 continue
             interp_func_body += '        case VKTRACE_TPI_VK_%s: {\n' % api.name
             interp_func_body += '            return interpret_body_as_%s(pHeader)->header;\n        }\n' % api.name
@@ -1289,7 +1287,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_vk_hdr += '\n'
         cmd_protect_dict = dict(self.cmd_feature_protect)
         cmd_info_dict = dict(self.cmd_info_data)
+        cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
+            extension = cmd_extension_dict[api.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                continue
             cmdinfo = cmd_info_dict[api.name]
             cdecl = self.makeCDecls(cmdinfo.elem)[0]
             protect = cmd_protect_dict[api.name]
@@ -2305,17 +2307,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                      'vkGetPhysicalDeviceWaylandPresentationSupportKHR',
                                      'vkGetPhysicalDeviceXlibPresentationSupportKHR',
                                      'vkGetPhysicalDeviceWin32PresentationSupportKHR']
-        approved_ext = ['VK_KHR_surface',
-                        'VK_KHR_swapchain',
-                        'VK_KHR_win32_surface',
-                        'VK_KHR_xcb_surface',
-                        'VK_KHR_wayland_surface',
-                        'VK_EXT_debug_report',
-                        'VK_KHR_descriptor_update_template',
-                        'VK_KHR_get_physical_device_properties2',
-                        'VK_KHR_get_memory_requirements2',
-                        'VK_KHR_get_surface_capabilities2',
-                        'VK_KHR_maintenance1']
+
         for func in manually_written_hooked_funcs:
             if (func not in protoFuncs) and (func not in wsi_platform_manual_funcs):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
@@ -2325,12 +2317,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
             cmdinfo = cmd_info_dict[proto.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext or proto.name[2:] in api_exclusions:
                 trace_vk_src += '// TODO: Add support for __HOOKED_%s: Skipping for now.\n' % proto.name
                 continue
             if proto.name in manually_written_hooked_funcs:
                 trace_vk_src += '// __HOOKED_%s is manually written. Look in vktrace_lib_trace.cpp\n' % proto.name
-            elif proto.name not in api_exclusions:
+            else:
                 raw_packet_update_list = [] # Non-ptr elements placed directly into packet
                 ptr_packet_update_list = [] # Ptr elements to be updated into packet
                 return_txt = ''
@@ -2834,11 +2826,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_hdr += '}\n\n'
         cmd_info_dict = dict(self.cmd_info_data)
         cmd_protect_dict = dict(self.cmd_feature_protect)
+        cmd_extension_dict = dict(self.cmd_extension_names)
         for proto in self.cmdMembers:
+            extension = cmd_extension_dict[proto.name]
+            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                continue
             novk_name = proto.name[2:]
             if novk_name not in api_exclusions:
-                if proto.name in temporary_script_porting_exclusions:
-                    continue
                 cmdinfo = cmd_info_dict[proto.name]
                 protect = cmd_protect_dict[proto.name]
                 # TODO: Enable ifdef protections for extension?
