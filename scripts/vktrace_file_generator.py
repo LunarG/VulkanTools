@@ -41,7 +41,7 @@ approved_ext = [
                 'VK_EXT_debug_report',
                 'VK_EXT_direct_mode_display',
                 'VK_EXT_discard_rectangles',
-                #'VK_EXT_display_control',
+                'VK_EXT_display_control',
                 'VK_EXT_display_surface_counter',
                 'VK_EXT_hdr_metadata',
                 'VK_EXT_shader_subgroup_ballot',
@@ -612,6 +612,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'UpdateDescriptorSetWithTemplateKHR',
                                  'CmdPushDescriptorSetWithTemplateKHR',
                                  'BindBufferMemory',
+                                 # VK_EXT_display_control
+                                 'RegisterDeviceEventEXT',
+                                 'RegisterDisplayEventEXT',
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
@@ -2295,7 +2298,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkUpdateDescriptorSetWithTemplateKHR',
                                          'vkCmdPushDescriptorSetWithTemplateKHR',
                                          'vkAcquireXlibDisplayEXT',
-                                         'vkGetRandROutputDisplayEXT'
+                                         'vkGetRandROutputDisplayEXT',
+                                         # TODO: VK_EXT_display_control
                                          ]
 
         # Validate the manually_written_hooked_funcs list

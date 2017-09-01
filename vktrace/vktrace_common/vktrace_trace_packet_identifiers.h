@@ -308,7 +308,11 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkCmdSetDiscardRectangleEXT = 233,
     VKTRACE_TPI_VK_vkSetHdrMetadataEXT = 234,
     VKTRACE_TPI_VK_vkAcquireXlibDisplayEXT = 235,
-    VKTRACE_TPI_VK_vkGetRandROutputDisplayEXT = 236
+    VKTRACE_TPI_VK_vkGetRandROutputDisplayEXT = 236,
+    VKTRACE_TPI_VK_vkDisplayPowerControlEXT = 237,
+    VKTRACE_TPI_VK_vkRegisterDeviceEventEXT = 238,
+    VKTRACE_TPI_VK_vkRegisterDisplayEventEXT = 239,
+    VKTRACE_TPI_VK_vkGetSwapchainCounterEXT = 240
 
 } VKTRACE_TRACE_PACKET_ID_VK;
 
