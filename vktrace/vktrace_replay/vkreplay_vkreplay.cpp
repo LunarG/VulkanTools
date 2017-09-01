@@ -150,12 +150,13 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
         uint32_t deviceCount;
         if (VK_SUCCESS != m_vkFuncs.real_vkEnumeratePhysicalDevices(inst, &deviceCount, nullptr)) return -1;
 
-        VkPhysicalDevice devices[deviceCount];
-        if (VK_SUCCESS != m_vkFuncs.real_vkEnumeratePhysicalDevices(inst, &deviceCount, &devices[0])) return -1;
+        VkPhysicalDevice* pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
+        if (VK_SUCCESS != m_vkFuncs.real_vkEnumeratePhysicalDevices(inst, &deviceCount, pDevices)) return -1;
 
         VkPhysicalDeviceProperties deviceProperties;
         // TODO: Just grab the first physical device. May need to know which device is really needed here.
-        m_vkFuncs.real_vkGetPhysicalDeviceProperties(devices[0], &deviceProperties);
+        m_vkFuncs.real_vkGetPhysicalDeviceProperties(*pDevices, &deviceProperties);
+        VKTRACE_DELETE(pDevices);
         m_replay_gpu = ((uint64_t)deviceProperties.vendorID << 32) | (uint64_t)deviceProperties.deviceID;
         m_replay_drv_vers = (uint64_t)deviceProperties.driverVersion;
 
