@@ -24,6 +24,7 @@ REM // ======== Parameter parsing ======== //
    set arg-use-implicit-component-list=1
    set arg-do-glslang=0
    set arg-do-spirv-tools=0
+   set arg-do-jsoncpp=0
    set arg-no-sync=0
    set arg-no-build=0
 
@@ -135,8 +136,10 @@ REM // ======== Parameter parsing ======== //
 
    set sync-glslang=0
    set sync-spirv-tools=0
+   set sync-jsoncpp=0
    set build-glslang=0
    set build-spirv-tools=0
+   set build-jsoncpp=0
    set check-glslang-build-dependencies=0
 
    if %arg-do-glslang% equ 1 (

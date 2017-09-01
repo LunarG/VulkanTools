@@ -50,7 +50,7 @@ del /Q /F vsversion.tmp                                   || exit /b 1
 echo VS_VERSION = %VS_VERSION%
 
 REM build the desktop shader toolchain
-call update_external_sources.bat --build-glslang --build-spirv-tools || exit /b 1
+call update_external_sources.bat --glslang --spirv-tools || exit /b 1
 
 REM check for 64-bit Qt install
 set Qt5_Dir_64=C:\Qt\5.6\msvc2013_64\lib\cmake\Qt5
