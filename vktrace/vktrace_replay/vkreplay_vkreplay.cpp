@@ -150,7 +150,7 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
         uint32_t deviceCount;
         if (VK_SUCCESS != m_vkFuncs.real_vkEnumeratePhysicalDevices(inst, &deviceCount, nullptr)) return -1;
 
-        VkPhysicalDevice* pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
+        VkPhysicalDevice *pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
         if (VK_SUCCESS != m_vkFuncs.real_vkEnumeratePhysicalDevices(inst, &deviceCount, pDevices)) return -1;
 
         VkPhysicalDeviceProperties deviceProperties;
@@ -2388,18 +2388,18 @@ fail:
     return false;
 }
 
-#define FSEEK(_stream, _offset, _whence)                                                                                  \
-    assert(_whence == SEEK_SET);                                                                                          \
-    if (!vktrace_FileLike_SetCurrentPosition(_stream, _offset)) {                                                         \
-        vktrace_LogError("fseek during vkAllocateMemory() failed, can't determine memory type index");                    \
-        goto wrapItUp;                                                                                                    \
+#define FSEEK(_stream, _offset, _whence)                                                               \
+    assert(_whence == SEEK_SET);                                                                       \
+    if (!vktrace_FileLike_SetCurrentPosition(_stream, _offset)) {                                      \
+        vktrace_LogError("fseek during vkAllocateMemory() failed, can't determine memory type index"); \
+        goto wrapItUp;                                                                                 \
     }
 
-#define FREAD(_ptr, _size, _nmemb, _stream)                                                                               \
-    assert(_nmemb == 1);                                                                                                  \
-    if (!vktrace_FileLike_ReadRaw(_stream, _ptr, _size)) {                                                                \
-        vktrace_LogError("fread during vkAllocateMemory() failed, can't determine memory type index");                    \
-        goto wrapItUp;                                                                                                    \
+#define FREAD(_ptr, _size, _nmemb, _stream)                                                            \
+    assert(_nmemb == 1);                                                                               \
+    if (!vktrace_FileLike_ReadRaw(_stream, _ptr, _size)) {                                             \
+        vktrace_LogError("fread during vkAllocateMemory() failed, can't determine memory type index"); \
+        goto wrapItUp;                                                                                 \
     }
 
 VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPacket) {

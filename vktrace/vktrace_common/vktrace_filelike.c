@@ -204,9 +204,9 @@ BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, size_t offset) {
 
     switch (pFileLike->mMode) {
         case File: {
-                if (fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
-                    ret = TRUE;
-                }
+            if (fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
+                ret = TRUE;
+            }
             break;
         }
 
