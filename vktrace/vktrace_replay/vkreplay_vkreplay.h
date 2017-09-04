@@ -190,6 +190,7 @@ class vkReplay {
     void manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDestroyDescriptorUpdateTemplateKHR* pPacket);
     void manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpdateDescriptorSetWithTemplateKHR* pPacket);
     void manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCmdPushDescriptorSetWithTemplateKHR* pPacket);
+    VkResult manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory* pPacket);
 
     void process_screenshot_list(const char* list) {
         std::string spec(list), word;

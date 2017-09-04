@@ -63,6 +63,26 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in) {
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
+size_t vktrace_FileLike_GetFileLength(FILE* fp) {
+    size_t byte_length = 0;
+
+    long length = 0;
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        vktrace_LogError("Failed to fseek to the end of tracefile for replaying.");
+    } else {
+        length = ftell(fp);
+        if (length == -1L) {
+            vktrace_LogError("Failed to get the length of tracefile for replaying.");
+            length = 0;
+        }
+    }
+    rewind(fp);
+
+    byte_length = length;
+    return byte_length;
+}
+
+// ------------------------------------------------------------------------------------------------
 FileLike* vktrace_FileLike_create_file(FILE* fp) {
     FileLike* pFile = NULL;
     if (fp != NULL) {
@@ -70,6 +90,7 @@ FileLike* vktrace_FileLike_create_file(FILE* fp) {
         pFile->mMode = File;
         pFile->mFile = fp;
         pFile->mMessageStream = NULL;
+        pFile->mMemLen = vktrace_FileLike_GetFileLength(fp);
     }
     return pFile;
 }
@@ -82,6 +103,7 @@ FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream) {
         pFile->mMode = Socket;
         pFile->mFile = NULL;
         pFile->mMessageStream = _msgStream;
+        pFile->mMemLen = 0;
     }
     return pFile;
 }
@@ -156,4 +178,40 @@ BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len)
             break;
     }
     return result;
+}
+
+// ------------------------------------------------------------------------------------------------
+size_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
+    size_t offset = 0;
+    assert((pFileLike->mFile != 0));
+
+    switch (pFileLike->mMode) {
+        case File: {
+            offset = ftell(pFileLike->mFile);
+            break;
+        }
+
+        default:
+            assert(!"Invalid mode in vktrace_FileLike_GetCurrentPosition");
+    }
+    return offset;
+}
+
+// ------------------------------------------------------------------------------------------------
+BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, size_t offset) {
+    BOOL ret = FALSE;
+    assert((pFileLike->mFile != 0));
+
+    switch (pFileLike->mMode) {
+        case File: {
+            if (fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
+                ret = TRUE;
+            }
+            break;
+        }
+
+        default:
+            assert(!"Invalid mode in vktrace_FileLike_SetCurrentPosition");
+    }
+    return ret;
 }
