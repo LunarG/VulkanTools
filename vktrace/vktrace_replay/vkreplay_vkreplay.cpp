@@ -2306,7 +2306,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                         }
                         if ((packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
                              packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) &&
-                            gimrPacket.image == bimPacket.image) {
+                            (gimrPacket.image == bimPacket.image) &&
+                            (packetHeader2.global_packet_index < pPacket->header->global_packet_index)) {
                             // Found the corresponding gimr/gbmr packet
                             FSEEK(traceFile,
                                   (long)portabilityTable[j] + sizeof(packetHeader2) + (long)gimrPacket.pMemoryRequirements,
