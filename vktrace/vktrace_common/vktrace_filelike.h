@@ -37,7 +37,7 @@ typedef struct FileLike FileLike;
 typedef struct FileLike {
     enum { File, Socket } mMode;
     FILE* mFile;
-    size_t mMemLen;
+    size_t mFileLen;
     MessageStream* mMessageStream;
 } FileLike;
 

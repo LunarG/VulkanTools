@@ -104,32 +104,7 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
 
     // 32bit/64bit trace file is not supported by 64bit/32bit vkreplay
     if (m_replay_ptrsize != m_pFileHeader->ptrsize) {
-        string traceBitLen;
-        string replayBitLen;
-        switch (m_pFileHeader->ptrsize) {
-            case 4:
-                traceBitLen = "32bit";
-                break;
-            case 8:
-                traceBitLen = "64bit";
-                break;
-            default:
-                traceBitLen = "Unknown";
-                break;
-        }
-        switch (m_replay_ptrsize) {
-            case 4:
-                replayBitLen = "32bit";
-                break;
-            case 8:
-                replayBitLen = "64bit";
-                break;
-            default:
-                replayBitLen = "Unknown";
-                break;
-        }
-        vktrace_LogError("%s trace file is not supported by %s vkreplay.", traceBitLen.c_str(), replayBitLen.c_str());
-        return -1;
+        vktrace_LogError("%d-bit trace file is not supported by %d-bit vkreplay.", m_pFileHeader->ptrsize * 8, m_replay_ptrsize * 8);
     }
 
     return 0;
@@ -2371,6 +2346,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                         pCreatePacketFull = (vktrace_trace_packet_header *)vktrace_malloc(createPacketHeaderHeader.size);
                         if (!pCreatePacketFull) {
                             vktrace_LogError("malloc failed during vkAllocateMemory()");
+                            vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
                             return VK_ERROR_OUT_OF_HOST_MEMORY;
                         }
                         FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
@@ -2393,6 +2369,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                             vktrace_free(pCreatePacketFull);
                             if (replayResult != VK_SUCCESS) {
                                 vktrace_LogError("vkCreateBuffer/Image failed during vkAllocateMemory()");
+                                vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
                                 return replayResult;
                             }
                             if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory)
@@ -2406,6 +2383,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                     if (i == amIdx) {
                         // This image/buffer is not created before it is bound
                         vktrace_LogError("Bad buffer/image in call to vkBindImageMemory/vkBindBuffer");
+                        vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
                         return VK_ERROR_VALIDATION_FAILED_EXT;
                     }
                 }
@@ -2454,6 +2432,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 goto wrapItUp;
             } else {
                 vktrace_LogError("vkAllocateMemory() failed, couldn't find memory type for memoryTypeIndex");
+                vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
                 return VK_ERROR_VALIDATION_FAILED_EXT;
             }
         }
