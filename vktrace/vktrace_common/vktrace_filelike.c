@@ -65,8 +65,12 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in) {
 // ------------------------------------------------------------------------------------------------
 size_t vktrace_FileLike_GetFileLength(FILE* fp) {
     size_t byte_length = 0;
-
     long length = 0;
+
+    // Save file position before getting file length
+    size_t savedFilePosition = ftell(fp);
+
+    // Get file length
     if (fseek(fp, 0, SEEK_END) != 0) {
         vktrace_LogError("Failed to fseek to the end of tracefile for replaying.");
     } else {
@@ -76,7 +80,9 @@ size_t vktrace_FileLike_GetFileLength(FILE* fp) {
             length = 0;
         }
     }
-    rewind(fp);
+
+    // Reset file position after getting file length
+    fseek(fp, savedFilePosition, SEEK_SET);
 
     byte_length = length;
     return byte_length;
@@ -90,7 +96,7 @@ FileLike* vktrace_FileLike_create_file(FILE* fp) {
         pFile->mMode = File;
         pFile->mFile = fp;
         pFile->mMessageStream = NULL;
-        pFile->mMemLen = vktrace_FileLike_GetFileLength(fp);
+        pFile->mFileLen = vktrace_FileLike_GetFileLength(fp);
     }
     return pFile;
 }
@@ -103,7 +109,7 @@ FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream) {
         pFile->mMode = Socket;
         pFile->mFile = NULL;
         pFile->mMessageStream = _msgStream;
-        pFile->mMemLen = 0;
+        pFile->mFileLen = 0;
     }
     return pFile;
 }
