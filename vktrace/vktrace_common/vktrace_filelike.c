@@ -65,12 +65,9 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in) {
 // ------------------------------------------------------------------------------------------------
 size_t vktrace_FileLike_GetFileLength(FILE* fp) {
     size_t byte_length = 0;
-    long length = 0;
-
-    // Save file position before getting file length
-    size_t savedFilePosition = ftell(fp);
 
     // Get file length
+    long length = 0;
     if (fseek(fp, 0, SEEK_END) != 0) {
         vktrace_LogError("Failed to fseek to the end of tracefile for replaying.");
     } else {
@@ -81,8 +78,10 @@ size_t vktrace_FileLike_GetFileLength(FILE* fp) {
         }
     }
 
-    // Reset file position after getting file length
-    fseek(fp, savedFilePosition, SEEK_SET);
+    // WARNING: Reset file position to the beginning of the file
+    // Because this function is only called from vktrace_FileLike_create_file,
+    // the file position should always be the beginning of the file before getting file length.
+    rewind(fp);
 
     byte_length = length;
     return byte_length;
