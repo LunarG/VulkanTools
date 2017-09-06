@@ -37,6 +37,7 @@ typedef struct FileLike FileLike;
 typedef struct FileLike {
     enum { File, Socket } mMode;
     FILE* mFile;
+    size_t mFileLen;
     MessageStream* mMessageStream;
 } FileLike;
 
@@ -77,6 +78,12 @@ void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len
 // Normally, Write outputs the _len to the stream first--with WriteRaw the bytes are simply written,
 // no size parameter first.
 BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len);
+
+// Get the starting position for the next vktrace_FileLike_ReadRaw
+size_t vktrace_FileLike_GetCurrentPosition(FileLike* pFile);
+
+// Set the starting position for the next vktrace_FileLike_ReadRaw
+BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFile, size_t offset);
 
 #ifdef __cplusplus
 }

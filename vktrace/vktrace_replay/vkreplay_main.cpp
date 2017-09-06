@@ -296,15 +296,15 @@ static bool readPortabilityTable() {
     size_t tableSize;
     int originalFilePos;
 
-    originalFilePos = ftell(tracefp);
+    originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
     if (-1 == originalFilePos) return false;
-    if (0 != fseek(tracefp, -sizeof(size_t), SEEK_END)) return false;
-    if (1 != fread(&tableSize, sizeof(size_t), 1, tracefp)) return false;
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(size_t))) return false;
+    if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(size_t))) return false;
     if (tableSize == 0) return true;
-    if (0 != fseek(tracefp, -(tableSize + 1) * sizeof(size_t), SEEK_END)) return false;
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(size_t)))) return false;
     portabilityTable.resize(tableSize);
-    if (tableSize != fread(&portabilityTable[0], sizeof(size_t), tableSize, tracefp)) return false;
-    if (0 != fseek(tracefp, originalFilePos, SEEK_SET)) return false;
+    if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(size_t) * tableSize)) return false;
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
 
     vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
     for (size_t i = 0; i < tableSize; i++) vktrace_LogDebug("   %p %ld", &portabilityTable[i], portabilityTable[i]);
@@ -387,6 +387,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     vktrace_trace_file_header fileHeader;
     vktrace_trace_file_header* pFileHeader;  // File header, including gpuinfo structs
 
+    FILE* tracefp;
+
     if (pTraceFile != NULL && strlen(pTraceFile) > 0) {
         tracefp = fopen(pTraceFile, "rb");
         if (tracefp == NULL) {
@@ -408,7 +410,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     }
 
     // read the header
-    FileLike* traceFile = vktrace_FileLike_create_file(tracefp);
+    traceFile = vktrace_FileLike_create_file(tracefp);
     if (vktrace_FileLike_ReadRaw(traceFile, &fileHeader, sizeof(fileHeader)) == false) {
         vktrace_LogError("Unable to read header from file.");
         if (pAllSettings != NULL) {
