@@ -119,8 +119,8 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_settings.traceTrigger},
      {&g_default_settings.traceTrigger},
      TRUE,
-     "(Alpha) Start/stop trim by hotkey or frame range:\n\
-                                         hotkey-<keyname>\n\
+     "Start/stop trim by hotkey or frame range:\n\
+                                         hotkey-[F1-F12|TAB|CONTROL]\n\
                                          frames-<startFrame>-<endFrame>"},
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause,
     //&g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger
