@@ -310,3 +310,13 @@ And start the native activity
 ```
 adb shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/cube.vktrace"
 ```
+#### Linux Display Server Support
+
+To build vkreplay to use a different display server implementation than XCB, the CMake variable VKREPLAY_WSI_SELECTION can be set. Currently, the available options are XCB and WAYLAND.
+
+Example for buiding for Wayland: (see 'Linux Build')
+```
+cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVKREPLAY_WSI_SELECTION=WAYLAND
+```
+
+Note: In the future, vkreplay will choose a display server based on a command-line argument.
