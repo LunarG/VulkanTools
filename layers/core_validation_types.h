@@ -405,7 +405,9 @@ enum CMD_TYPE {
     CMD_DRAW,
     CMD_DRAWINDEXED,
     CMD_DRAWINDIRECT,
+    CMD_DRAWINDIRECTCOUNTAMD,
     CMD_DRAWINDEXEDINDIRECT,
+    CMD_DRAWINDEXEDINDIRECTCOUNTAMD,
     CMD_DISPATCH,
     CMD_DISPATCHINDIRECT,
     CMD_COPYBUFFER,
@@ -622,7 +624,7 @@ struct LAST_BOUND_STATE {
     // Track each set that has been bound
     // Ordered bound set tracking where index is set# that given set is bound to
     std::vector<cvdescriptorset::DescriptorSet *> boundDescriptorSets;
-    std::vector<cvdescriptorset::DescriptorSet *> push_descriptors;
+    std::vector<std::unique_ptr<cvdescriptorset::DescriptorSet>> push_descriptors;
     // one dynamic offset per dynamic descriptor bound to this CB
     std::vector<std::vector<uint32_t>> dynamicOffsets;
 
@@ -763,10 +765,10 @@ class FRAMEBUFFER_STATE : public BASE_NODE {
 public:
     VkFramebuffer framebuffer;
     safe_VkFramebufferCreateInfo createInfo;
-    safe_VkRenderPassCreateInfo renderPassCreateInfo;
+    std::shared_ptr<RENDER_PASS_STATE> rp_state;
     std::vector<MT_FB_ATTACHMENT_INFO> attachments;
-    FRAMEBUFFER_STATE(VkFramebuffer fb, const VkFramebufferCreateInfo *pCreateInfo, const VkRenderPassCreateInfo *pRPCI)
-        : framebuffer(fb), createInfo(pCreateInfo), renderPassCreateInfo(pRPCI) {};
+    FRAMEBUFFER_STATE(VkFramebuffer fb, const VkFramebufferCreateInfo *pCreateInfo, std::shared_ptr<RENDER_PASS_STATE> &&rpstate)
+        : framebuffer(fb), createInfo(pCreateInfo), rp_state(rpstate){};
 };
 
 struct shader_module;
@@ -786,7 +788,8 @@ SAMPLER_STATE *GetSamplerState(const layer_data *, VkSampler);
 IMAGE_VIEW_STATE *GetImageViewState(const layer_data *, VkImageView);
 SWAPCHAIN_NODE *GetSwapchainNode(const layer_data *, VkSwapchainKHR);
 GLOBAL_CB_NODE *GetCBNode(layer_data const *my_data, const VkCommandBuffer cb);
-RENDER_PASS_STATE *GetRenderPassState(layer_data const *my_data, VkRenderPass renderpass);
+RENDER_PASS_STATE *GetRenderPassState(layer_data const *dev_data, VkRenderPass renderpass);
+std::shared_ptr<RENDER_PASS_STATE> GetRenderPassStateSharedPtr(layer_data const *dev_data, VkRenderPass renderpass);
 FRAMEBUFFER_STATE *GetFramebufferState(const layer_data *my_data, VkFramebuffer framebuffer);
 COMMAND_POOL_NODE *GetCommandPoolNode(layer_data *dev_data, VkCommandPool pool);
 shader_module const *GetShaderModuleState(layer_data const *dev_data, VkShaderModule module);

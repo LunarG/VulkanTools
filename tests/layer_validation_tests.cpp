@@ -451,6 +451,24 @@ class VkLayerTest : public VkRenderFramework {
         m_errorMonitor = new ErrorMonitor;
     }
 
+    bool LoadDeviceProfileLayer(
+        PFN_vkSetPhysicalDeviceFormatPropertiesEXT &fpvkSetPhysicalDeviceFormatPropertiesEXT,
+        PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT &fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT) {
+        // Load required functions
+        fpvkSetPhysicalDeviceFormatPropertiesEXT =
+            (PFN_vkSetPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(), "vkSetPhysicalDeviceFormatPropertiesEXT");
+        fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT =
+            (PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(
+                instance(), "vkGetOriginalPhysicalDeviceFormatPropertiesEXT");
+
+        if (!(fpvkSetPhysicalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
+            printf("             Can't find device_profile_api functions; skipped.\n");
+            return 0;
+        }
+
+        return 1;
+    }
+
     virtual void TearDown() {
         // Clean up resources before we reset
         ShutdownFramework();
@@ -8242,28 +8260,6 @@ TEST_F(VkLayerTest, DescriptorSetCompatibility) {
                             &descriptorSet[0], 0, NULL);
     m_errorMonitor->VerifyFound();
 
-    // Cause INFO messages due to disturbing previously bound Sets
-    // First bind sets 0 & 1
-    vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 2, &descriptorSet[0], 0,
-                            NULL);
-    // TODO: Removed this perf warning and planning to update to only note disturbed descriptor when used unbound (See #2022)
-    // 1. Disturb bound set0 by re-binding set1 w/ updated pipelineLayout
-    //    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, " previously bound as set #0 was
-    //    disturbed "); vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe_layout_bad_set0, 1,
-    //    1,
-    //                            &descriptorSet[1], 0, NULL);
-    //    m_errorMonitor->VerifyFound();
-
-    vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 2, &descriptorSet[0], 0,
-                            NULL);
-    // 2. Disturb set after last bound set
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,
-                                         " newly bound as set #0 so set #1 and "
-                                         "any subsequent sets were disturbed ");
-    vkCmdBindDescriptorSets(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe_layout_fs_only, 0, 1, &ds0_fs_only, 0,
-                            NULL);
-    m_errorMonitor->VerifyFound();
-
     // Now that we're done actively using the pipelineLayout that gfx pipeline
     //  was created with, we should be able to delete it. Do that now to verify
     //  that validation obeys pipelineLayout lifetime
@@ -12432,7 +12428,7 @@ TEST_F(VkLayerTest, RenderPassIncompatible) {
     vkCmdBeginRenderPass(m_commandBuffer->handle(), &rpbi, VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(m_commandBuffer->handle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipe.handle());
 
-    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, " is incompatible w/ gfx pipeline ");
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_1a200366);
     // Render triangle (the error should trigger on the attempt to draw).
     m_commandBuffer->Draw(3, 1, 0, 0);
 
@@ -14042,25 +14038,14 @@ TEST_F(VkLayerTest, CreateImageViewBreaksParameterCompatibilityRequirements) {
 TEST_F(VkLayerTest, CreateImageViewFormatFeatureMismatch) {
     TEST_DESCRIPTION("Create view with a format that does not have the same features as the image format.");
 
-    // Check for and load required layer
-    if (InstanceLayerSupported("VK_LAYER_LUNARG_device_profile_api")) {
-        m_instance_layer_names.push_back("VK_LAYER_LUNARG_device_profile_api");
-    } else {
-        printf("             Did not find VK_LAYER_LUNARG_device_profile_api layer; skipped.\n");
-        return;
-    }
     ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
     ASSERT_NO_FATAL_FAILURE(InitState());
 
-    // Load required functions
-    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT =
-        (PFN_vkSetPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(), "vkSetPhysicalDeviceFormatPropertiesEXT");
-    PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT =
-        (PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(),
-                                                                                  "vkGetOriginalPhysicalDeviceFormatPropertiesEXT");
+    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT = nullptr;
+    PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT = nullptr;
 
-    if (!(fpvkSetPhysicalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
-        printf("             Can't find device_profile_api functions; skipped.\n");
+    // Load required functions
+    if (!LoadDeviceProfileLayer(fpvkSetPhysicalDeviceFormatPropertiesEXT, fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
         return;
     }
 
@@ -17612,24 +17597,14 @@ TEST_F(VkLayerTest, CreateImageViewFormatMismatchUnrelated) {
 TEST_F(VkLayerTest, CreateImageViewNoMutableFormatBit) {
     TEST_DESCRIPTION("Create an image view with a different format, when the image does not have MUTABLE_FORMAT bit");
 
-    if (InstanceLayerSupported("VK_LAYER_LUNARG_device_profile_api")) {
-        m_instance_layer_names.push_back("VK_LAYER_LUNARG_device_profile_api");
-    } else {
-        printf("             Did not find VK_LAYER_LUNARG_device_profile_api layer; skipped.\n");
-        return;
-    }
     ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
     ASSERT_NO_FATAL_FAILURE(InitState());
 
-    // Load required functions
-    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT =
-        (PFN_vkSetPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(), "vkSetPhysicalDeviceFormatPropertiesEXT");
-    PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT =
-        (PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT)vkGetInstanceProcAddr(instance(),
-                                                                                  "vkGetOriginalPhysicalDeviceFormatPropertiesEXT");
+    PFN_vkSetPhysicalDeviceFormatPropertiesEXT fpvkSetPhysicalDeviceFormatPropertiesEXT = nullptr;
+    PFN_vkGetOriginalPhysicalDeviceFormatPropertiesEXT fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT = nullptr;
 
-    if (!(fpvkSetPhysicalDeviceFormatPropertiesEXT) || !(fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
-        printf("             Can't find device_profile_api functions; skipped.\n");
+    // Load required functions
+    if (!LoadDeviceProfileLayer(fpvkSetPhysicalDeviceFormatPropertiesEXT, fpvkGetOriginalPhysicalDeviceFormatPropertiesEXT)) {
         return;
     }
 

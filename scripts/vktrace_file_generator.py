@@ -111,6 +111,18 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkGetImageMemoryRequirements2KHR',
                                        'vkGetBufferMemoryRequirements2KHR',
                                        'vkGetImageSparseMemoryRequirements2KHR',
+
+                                       # VkSampleLocationsInfoEXT
+                                       'vkCmdSetSampleLocationsEXT',
+
+                                       # VkMultisamplePropertiesEXT
+                                       'vkGetPhysicalDeviceMultisamplePropertiesEXT',
+
+                                       # VkValidationCacheEXT
+                                       'vkCreateValidationCacheEXT',
+                                       'vkDestroyValidationCacheEXT',
+                                       'vkGetValidationCacheDataEXT',
+                                       'vkMergeValidationCachesEXT',
                                        ]
 
 api_exclusions = ['CreateMirSurfaceKHR',
