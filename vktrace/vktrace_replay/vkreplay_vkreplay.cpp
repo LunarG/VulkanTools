@@ -2847,7 +2847,18 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
     }
 
     if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
-        size_t memOffsetTemp = pPacket->memoryOffset + replayGetBufferMemoryRequirements[pPacket->buffer].alignment - 1;
+        size_t memOffsetTemp;
+        if (replayGetBufferMemoryRequirements.find(pPacket->buffer) == replayGetBufferMemoryRequirements.end()) {
+            // vkBindBufferMemory is being called on a buffer for which vkGetBufferMemoryRequirements
+            // was not called. This might be violation of the spec on the part of the app, but seems to
+            // be done in many apps.  Call vkGetBufferMemoryRequirements for this buffer and add result to
+            // replayGetBufferMemoryRequirements map.
+            VkMemoryRequirements mem_reqs;
+            m_vkFuncs.real_vkGetBufferMemoryRequirements(remappeddevice, remappedbuffer, &mem_reqs);
+            replayGetBufferMemoryRequirements[pPacket->buffer] = mem_reqs;
+        }
+        assert(replayGetBufferMemoryRequirements[pPacket->buffer].alignment);
+        memOffsetTemp = pPacket->memoryOffset + replayGetBufferMemoryRequirements[pPacket->buffer].alignment - 1;
         memOffsetTemp = memOffsetTemp / replayGetBufferMemoryRequirements[pPacket->buffer].alignment;
         memOffsetTemp = memOffsetTemp * replayGetBufferMemoryRequirements[pPacket->buffer].alignment;
         replayResult = m_vkFuncs.real_vkBindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, memOffsetTemp);
