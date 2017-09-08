@@ -51,6 +51,7 @@ any additional top-level sections will be ignored by DevSim.
 
 The schema defines basic range checking for common Vulkan data types, but it cannot detect if a particular configuration makes no sense.
 If a configuration defines capabilities beyond what the actual device is natively capable of providing, the results are undefined.
+DevSim has some simple checking of configuration values and writes debug messages (if enabled) for values that are incompatible with the capabilities of the actual device.
 
 ## Example of a DevSim JSON configuration file
 ```json

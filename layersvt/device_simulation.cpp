@@ -39,7 +39,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 
 #include <functional>
@@ -62,7 +62,7 @@ namespace {
 // When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 0;
-const uint32_t kVersionDevsimPatch = 3;
+const uint32_t kVersionDevsimPatch = 4;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
@@ -298,45 +298,80 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceSparseProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceFeatures *dest);
 
-    void GetValue(const Json::Value &parent, const char *name, float *dest) {
+    // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
+    static bool WarnIfGreater(const char *name, const uint32_t new_value, const uint32_t old_value) {
+        if (new_value > old_value) {
+            DebugPrintf("WARN \"%s\" JSON value (%" PRIu32 ") is greater than existing value (%" PRIu32 ")\n", name, new_value,
+                        old_value);
+            return true;
+        }
+        return false;
+    }
+
+    void GetValue(const Json::Value &parent, const char *name, float *dest,
+                  std::function<bool(const char *, float, float)> warn_func = nullptr) {
         const Json::Value value = parent[name];
         if ((value.type() != Json::realValue) && (value.type() != Json::intValue)) {
             return;
         }
-        *dest = value.asFloat();
+        const float new_value = value.asFloat();
+        if (warn_func) {
+            warn_func(name, new_value, *dest);
+        }
+        *dest = new_value;
     }
 
-    void GetValue(const Json::Value &parent, const char *name, int32_t *dest) {
+    void GetValue(const Json::Value &parent, const char *name, int32_t *dest,
+                  std::function<bool(const char *, int32_t, int32_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
         if (value.type() != Json::intValue) {
             return;
         }
-        *dest = value.asInt();
+        const uint32_t new_value = value.asInt();
+        if (warn_func) {
+            warn_func(name, new_value, *dest);
+        }
+        *dest = new_value;
     }
 
-    void GetValue(const Json::Value &parent, const char *name, uint32_t *dest) {
+    void GetValue(const Json::Value &parent, const char *name, uint32_t *dest,
+                  std::function<bool(const char *, uint32_t, uint32_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
         if (value.type() != Json::intValue) {
             return;
         }
-        *dest = value.asUInt();
+        const uint32_t new_value = value.asUInt();
+        if (warn_func) {
+            warn_func(name, new_value, *dest);
+        }
+        *dest = new_value;
     }
 
-    void GetValue(const Json::Value &parent, const char *name, uint64_t *dest) {
+    void GetValue(const Json::Value &parent, const char *name, uint64_t *dest,
+                  std::function<bool(const char *, uint64_t, uint64_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
         if (value.type() != Json::intValue) {
             return;
         }
-        *dest = value.asUInt64();
+        const uint64_t new_value = value.asUInt64();
+        if (warn_func) {
+            warn_func(name, new_value, *dest);
+        }
+        *dest = new_value;
     }
 
     template <typename T>  // for Vulkan enum types
-    void GetValue(const Json::Value &parent, const char *name, T *dest) {
+    void GetValue(const Json::Value &parent, const char *name, T *dest,
+                  std::function<bool(const char *, T, T)> warn_func = nullptr) {
         const Json::Value value = parent[name];
         if (value.type() != Json::intValue) {
             return;
         }
-        *dest = static_cast<T>(value.asInt());
+        const T new_value = static_cast<T>(value.asInt());
+        if (warn_func) {
+            warn_func(name, new_value, *dest);
+        }
+        *dest = new_value;
     }
 
     void GetArray(const Json::Value &parent, const char *name, int count, uint8_t *dest) {
@@ -444,6 +479,7 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
 // Apply the DRY principle, see https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 #define GET_VALUE(name) GetValue(value, #name, &dest->name)
 #define GET_ARRAY(name, count) GetArray(value, #name, count, dest->name)
+#define GET_VALUE_WARN(name, warn_func) GetValue(value, #name, &dest->name, warn_func)
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest) {
     DebugPrintf("\t\tJsonLoader::GetValue(VkPhysicalDeviceProperties)\n");
@@ -481,22 +517,22 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(maxSamplerAllocationCount);
     GET_VALUE(bufferImageGranularity);
     GET_VALUE(sparseAddressSpaceSize);
-    GET_VALUE(maxBoundDescriptorSets);
-    GET_VALUE(maxPerStageDescriptorSamplers);
-    GET_VALUE(maxPerStageDescriptorUniformBuffers);
-    GET_VALUE(maxPerStageDescriptorStorageBuffers);
-    GET_VALUE(maxPerStageDescriptorSampledImages);
-    GET_VALUE(maxPerStageDescriptorStorageImages);
-    GET_VALUE(maxPerStageDescriptorInputAttachments);
-    GET_VALUE(maxPerStageResources);
-    GET_VALUE(maxDescriptorSetSamplers);
-    GET_VALUE(maxDescriptorSetUniformBuffers);
-    GET_VALUE(maxDescriptorSetUniformBuffersDynamic);
-    GET_VALUE(maxDescriptorSetStorageBuffers);
-    GET_VALUE(maxDescriptorSetStorageBuffersDynamic);
-    GET_VALUE(maxDescriptorSetSampledImages);
-    GET_VALUE(maxDescriptorSetStorageImages);
-    GET_VALUE(maxDescriptorSetInputAttachments);
+    GET_VALUE_WARN(maxBoundDescriptorSets, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorSamplers, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorUniformBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorStorageBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorSampledImages, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorStorageImages, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageDescriptorInputAttachments, WarnIfGreater);
+    GET_VALUE_WARN(maxPerStageResources, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetSamplers, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUniformBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetUniformBuffersDynamic, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetStorageBuffers, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetStorageBuffersDynamic, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetSampledImages, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetStorageImages, WarnIfGreater);
+    GET_VALUE_WARN(maxDescriptorSetInputAttachments, WarnIfGreater);
     GET_VALUE(maxVertexInputAttributes);
     GET_VALUE(maxVertexInputBindings);
     GET_VALUE(maxVertexInputAttributeOffset);
