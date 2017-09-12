@@ -698,7 +698,10 @@ void android_main(struct android_app* app) {
             ANativeActivity_finish(app->activity);
             free(argv);
 
-            return;
+            // Kill the process
+            // This is not a necessarily good practice.  But it works to make sure the process is killed after replaying a trace
+            // file.  So user will not need to run "adb shell am force-stop come.example.vkreplay" afterwards.
+            exit(err);
         }
     }
 }
