@@ -925,6 +925,9 @@ int RunTestInDirectory(std::string path, std::string test, std::string cmd_line)
     int err_code = -1;
     char orig_dir[MAX_STRING_LENGTH];
     orig_dir[0] = '\0';
+
+    std::cout << "SDK Found! - Will attempt to run " << test << " using the command-line: " << cmd_line << std::endl;
+
     if (0 != GetCurrentDirectoryA(MAX_STRING_LENGTH - 1, orig_dir) && TRUE == SetCurrentDirectoryA(path.c_str())) {
         if (TRUE == PathFileExists(test.c_str())) {
             err_code = system(cmd_line.c_str());
@@ -3927,11 +3930,13 @@ int RunTestInDirectory(std::string path, std::string test, std::string cmd_line)
     char orig_dir[MAX_STRING_LENGTH];
     int err_code = -1;
     orig_dir[0] = '\0';
+
+    std::cout << "SDK Found! - Will attempt to run " << test << " using the command-line: " << cmd_line << std::endl;
+
     if (NULL != getcwd(orig_dir, MAX_STRING_LENGTH - 1)) {
         int err = chdir(path.c_str());
         if (-1 != err) {
             if (-1 != access(test.c_str(), X_OK)) {
-                printf("cmd_line - %s\n", cmd_line.c_str());
                 err_code = system(cmd_line.c_str());
             } else {
                 // Can't run because it's either not there or an actual
