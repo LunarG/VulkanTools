@@ -3,17 +3,28 @@ The goal of this layer is to simplify application testing on a wide range of sim
 
 The Device Simulation Layer is a Vulkan layer that can modify the results of Vulkan PhysicalDevice queries based on a JSON configuration file, thus simulating some of the capabilities of device by overriding the capabilities of the actual device under test.
 
-Please note that this device simulation layer "simulates", rather than "emulates", another device.  By that we mean that the layer does not add capabilities that do not already exist in the system's underlying actual device.  So a less-capable device cannot simulate a more-capable device.  This layer enables a more-capable device to simulate a less-capable device by removing some of the capabilities reported by queries; you can change or reduce what is already present in the underlying actual implementation.  Put another way, the DevSim layer allows changing the responses that would otherwise be returned to queries of the actual underlying hardware; the layer does not add software emulation to provide capabilities beyond what aready exists.
+Please note that this device simulation layer "simulates", rather than "emulates", another device.
+By that we mean that the layer cannot add emulated capabilities that do not already exist in the system's underlying actual device;
+DevSim will not enable a less-capable device to emulate a more-capable device.
+This layer enables a more-capable device to simulate a less-capable device by removing some of the capabilities reported by queries;
+you can change or reduce what is already present in the underlying actual implementation.
 
-Application code can be tested to verify it responds correctly to the capabilities reported by the simulated device.  That could include
+Application code can be tested to verify it responds correctly to the capabilities reported by the simulated device.
+That could include:
 * Properly querying the capabilities of the device.
 * Properly complying with the limits reported from the device.
 * Verifying all necessary capabilities are reported present, rather than assuming they are available.
 * Exercising fall-back code paths, if optional capabilities are not available.
 
-The DevSim layer does not enforce the capabilities returned by queries.  The application is still responsible for querying and complying with the capabilities reported.  If an application erroneously attempts to overcommit a resource, or use a disabled feature, the DevSim layer will not generate errors.  To detect such errors, use the Vulkan Validation layers, as with any non-simulated device.
+The DevSim layer does not enforce the capabilities returned by queries.
+The application is still responsible for querying and complying with the capabilities reported.
+If an application erroneously attempts to overcommit a resource, or use a disabled feature, the DevSim layer will not generate errors.
+To detect such errors, use the Vulkan Validation layers, as with any non-simulated device.
 
-The DevSim layer will work with other Vulkan layers, such as Validation.  When configuring the order of the layers list, the DevSim layer should be "last"; i.e.: closest to the driver, farthest from the application.  That will allow the Validation layer to see the results of the DevSim layer, and permit Validation to enforce the simulated capabilities.
+The DevSim layer will work with other Vulkan layers, such as Validation.
+When configuring the order of the layers list, the DevSim layer should be "last";
+i.e.: closest to the driver, farthest from the application.
+That allows the Validation layer to see the results of the DevSim layer, and permit Validation to enforce the simulated capabilities.
 
 Please report issues to the [GitHub VulkanTools repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
 
@@ -23,21 +34,23 @@ Please report issues to the [GitHub VulkanTools repository](https://github.com/L
 ## DevSim Layer operation and configuration
 At application startup, during vkCreateInstance(), the DevSim layer initializes its internal tables from the actual physical device in the system, then loads its configuration file, which specifies override values to apply to those internal tables.
 
-A configuration file need not specify every possible Vulkan parameter; a sparse set of override values is permitted.
+A configuration file need not specify every possible Vulkan parameter;
+a sparse set of override values is permitted.
 
 The JSON fileformat consumed by the DevSim layer is specified by a JSON schema, the canonical URI of which is "https://schema.khronos.org/vulkan/devsim_1_0_0.json#"
 
-The top-level sections of a configuration file are specified by the DevSim JSON schema, and are processed as follows.
+The top-level sections of a configuration file are specified by the DevSim JSON schema, and are processed as follows:
 * `$schema` - Mandatory.  Must be the URI string referencing the JSON schema.
 * `comments` - Optional.  May contain arbitrary comments, description, copyright, etc.
 * `VkPhysicalDeviceProperties` - Optional.  May contain valid name/value overrides.
 * `VkPhysicalDeviceFeatures` - Optional.  May contain valid name/value overrides.
+* The remaining top-level sections of the schema are not yet supported by DevSim.
 
-Other top-level sections of the schema are not yet supported.
+The schema permits additional top-level sections to be optionally included in configuration files;
+any additional top-level sections will be ignored by DevSim.
 
-The schema permits additional top-level sections to be optionally added to a configuration files.
-
-The schema will perform basic range checking for common Vulkan data types, but it cannot detect if a particular configuration makes no sense.  Also, if the configuration attempts to add capabilities beyond what the actual device is natively capable of providing, then the results are undefined.
+The schema defines basic range checking for common Vulkan data types, but it cannot detect if a particular configuration makes no sense.
+If a configuration defines capabilities beyond what the actual device is natively capable of providing, the results are undefined.
 
 ## Example of a DevSim JSON configuration file
 ```json
@@ -62,8 +75,8 @@ The schema will perform basic range checking for common Vulkan data types, but i
 ## Environment variables used by DevSim layer.
 
 * `VK_DEVSIM_FILENAME` - Name of the configuration file to load.
-* `VK_DEVSIM_DEBUG_ENABLE` - A non-zero integer will enable debugging output.
-* `VK_DEVSIM_EXIT_ON_ERROR` - A non-zero integer will enable exit-on-error.
+* `VK_DEVSIM_DEBUG_ENABLE` - A non-zero integer enables debug message output.
+* `VK_DEVSIM_EXIT_ON_ERROR` - A non-zero integer enables exit-on-error.
 
 ## Example using the DevSim layer
 ```bash
@@ -97,7 +110,8 @@ A JSON index of the available device records can be queried with https://vulkan.
 
 That index includes URLs to download the specific device records in DevSim-compatible format, for example https://vulkan.gpuinfo.org/api/v2/devsim/getreport.php?id=1456
 
-As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.  Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
+As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.
+Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
 
 ## JSON validation
 The DevSim layer itself does very little sanity checking of the configuration file, so those files should be validated to the schema using a separate tool, such as the following web-based validators.
