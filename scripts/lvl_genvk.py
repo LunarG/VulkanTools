@@ -90,6 +90,13 @@ def makeGenOpts(args):
     emitExtensionsPat    = makeREstring(emitExtensions, allExtensions)
     featuresPat          = makeREstring(features, allFeatures)
 
+    if len(features) > 0:
+        features = makeREstring(features)
+    else:
+        features = allFeatures
+
+    # write('* Selecting features: ', features, file=sys.stderr)
+
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
