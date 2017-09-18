@@ -36,8 +36,6 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkTrimCommandPoolKHR',
                                        'vkCmdPushDescriptorSetKHR',
                                        'vkGetDeviceGroupPeerMemoryFeaturesKHX',
-                                       'vkBindBufferMemory2KHX',
-                                       'vkBindImageMemory2KHX',
                                        'vkCmdSetDeviceMaskKHX',
                                        'vkGetDeviceGroupPresentCapabilitiesKHX',
                                        'vkGetDeviceGroupSurfacePresentModesKHX',
@@ -123,6 +121,14 @@ temporary_script_porting_exclusions = ['vkGetPhysicalDeviceFeatures2KHR',
                                        'vkDestroyValidationCacheEXT',
                                        'vkGetValidationCacheDataEXT',
                                        'vkMergeValidationCachesEXT',
+                                       
+                                       # VK_KHR_sampler_ycbcr_conversion
+                                       'vkCreateSamplerYcbcrConversionKHR',
+                                       'vkDestroySamplerYcbcrConversionKHR',
+                                       
+                                       # VK_KHR_bind_memory2
+                                       'vkBindBufferMemory2KHR',
+                                       'vkBindImageMemory2KHR',
                                        ]
 
 api_exclusions = ['CreateMirSurfaceKHR',
