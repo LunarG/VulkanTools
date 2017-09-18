@@ -423,8 +423,8 @@ class ApiDumpInstance {
             loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
 
             const auto cmd_buffers_iter = cmd_buffer_pools.find(std::make_pair(device, cmd_pool));
-            assert(cmd_buffers_iter != cmd_buffer_pools.end());
-            cmd_buffers_iter->second.clear();
+            if (cmd_buffers_iter != cmd_buffer_pools.end())
+                cmd_buffers_iter->second.clear();
 
             loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
         }
