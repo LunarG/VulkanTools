@@ -116,7 +116,7 @@ uint64_t vktrace_get_time() { return 0; }
 
 uint64_t get_endianess() {
     uint32_t x = 1;
-    return *((char*)&x) ? VKTRACE_BIG_ENDIAN : VKTRACE_LITTLE_ENDIAN;
+    return *((char*)&x) ? VKTRACE_LITTLE_ENDIAN : VKTRACE_BIG_ENDIAN;
 }
 
 uint64_t get_arch() {
