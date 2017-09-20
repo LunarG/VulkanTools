@@ -255,8 +255,8 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceWaylandPresentationSupportKHR = 180
 } VKTRACE_TRACE_PACKET_ID_VK;
 
-#define VKTRACE_BIG_ENDIAN 0
-#define VKTRACE_LITTLE_ENDIAN 1
+#define VKTRACE_BIG_ENDIAN 1
+#define VKTRACE_LITTLE_ENDIAN 0
 
 typedef struct {
     uint8_t id;
