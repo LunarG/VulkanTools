@@ -247,8 +247,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                 // If the packet is one we need to track, add it to the table
                 if (pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory ||
-                    pHeader->packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
-                    pHeader->packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkAllocateMemory || pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkCreateBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkCreateImage) {

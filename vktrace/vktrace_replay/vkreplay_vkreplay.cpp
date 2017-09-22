@@ -589,10 +589,8 @@ void vkReplay::manually_replay_vkDestroyBuffer(packet_vkDestroyBuffer *pPacket) 
     }
     m_vkFuncs.real_vkDestroyBuffer(remappedDevice, remappedBuffer, pPacket->pAllocator);
     m_objMapper.rm_from_buffers_map(pPacket->buffer);
-    if (traceGetBufferMemoryRequirements.find(pPacket->buffer) != traceGetBufferMemoryRequirements.end())
-        traceGetBufferMemoryRequirements.erase(pPacket->buffer);
-    if (replayGetBufferMemoryRequirements.find(pPacket->buffer) != replayGetBufferMemoryRequirements.end())
-        replayGetBufferMemoryRequirements.erase(pPacket->buffer);
+    if (replayGetBufferMemoryRequirements.find(remappedBuffer) != replayGetBufferMemoryRequirements.end())
+        replayGetBufferMemoryRequirements.erase(remappedBuffer);
     return;
 }
 
@@ -609,10 +607,8 @@ void vkReplay::manually_replay_vkDestroyImage(packet_vkDestroyImage *pPacket) {
     }
     m_vkFuncs.real_vkDestroyImage(remappedDevice, remappedImage, pPacket->pAllocator);
     m_objMapper.rm_from_images_map(pPacket->image);
-    if (traceGetImageMemoryRequirements.find(pPacket->image) != traceGetImageMemoryRequirements.end())
-        traceGetImageMemoryRequirements.erase(pPacket->image);
-    if (replayGetImageMemoryRequirements.find(pPacket->image) != replayGetImageMemoryRequirements.end())
-        replayGetImageMemoryRequirements.erase(pPacket->image);
+    if (replayGetImageMemoryRequirements.find(remappedImage) != replayGetImageMemoryRequirements.end())
+        replayGetImageMemoryRequirements.erase(remappedImage);
     return;
 }
 
@@ -865,128 +861,6 @@ FAILURE:
     VKTRACE_DELETE(pRemappedWaitSems);
     return replayResult;
 }
-
-// VkResult vkReplay::manually_replay_vkGetObjectInfo(packet_vkGetObjectInfo* pPacket)
-//{
-//    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-//
-//    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-//    if (remappedDevice == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkGetObjectInfo() due to invalid remapped VkDevice.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    VkObject remappedObject = m_objMapper.remap(pPacket->object, pPacket->objType);
-//    if (remappedObject == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkGetObjectInfo() due to invalid remapped VkObject.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    size_t size = 0;
-//    void* pData = NULL;
-//    if (pPacket->pData != NULL && pPacket->pDataSize != NULL)
-//    {
-//        size = *pPacket->pDataSize;
-//        pData = vktrace_malloc(*pPacket->pDataSize);
-//        memcpy(pData, pPacket->pData, *pPacket->pDataSize);
-//    }
-//    // TODO only search for object once rather than at remap() and init_objMemXXX()
-//    replayResult = m_vkFuncs.real_vkGetObjectInfo(remappedDevice, pPacket->objType, remappedObject, pPacket->infoType, &size,
-//    pData);
-//    if (replayResult == VK_SUCCESS)
-//    {
-//        if (size != *pPacket->pDataSize && pData != NULL)
-//        {
-//            vktrace_LogWarning("vkGetObjectInfo returned a differing data size: replay (%d bytes) vs trace (%d bytes).", size,
-//            *pPacket->pDataSize);
-//        }
-//        else if (pData != NULL)
-//        {
-//            switch (pPacket->infoType)
-//            {
-//                case VK_OBJECT_INFO_TYPE_MEMORY_REQUIREMENTS:
-//                {
-//                    VkMemoryRequirements *traceReqs = (VkMemoryRequirements *) pPacket->pData;
-//                    VkMemoryRequirements *replayReqs = (VkMemoryRequirements *) pData;
-//                    size_t num = size / sizeof(VkMemoryRequirements);
-//                    for (unsigned int i = 0; i < num; i++)
-//                    {
-//                        if (traceReqs->size != replayReqs->size)
-//                            vktrace_LogWarning("vkGetObjectInfo(INFO_TYPE_MEMORY_REQUIREMENTS) mismatch: trace size %u, replay
-//                            size %u.", traceReqs->size, replayReqs->size);
-//                        if (traceReqs->alignment != replayReqs->alignment)
-//                            vktrace_LogWarning("vkGetObjectInfo(INFO_TYPE_MEMORY_REQUIREMENTS) mismatch: trace alignment %u,
-//                            replay aligmnent %u.", traceReqs->alignment, replayReqs->alignment);
-//                        if (traceReqs->granularity != replayReqs->granularity)
-//                            vktrace_LogWarning("vkGetObjectInfo(INFO_TYPE_MEMORY_REQUIREMENTS) mismatch: trace granularity %u,
-//                            replay granularity %u.", traceReqs->granularity, replayReqs->granularity);
-//                        if (traceReqs->memPropsAllowed != replayReqs->memPropsAllowed)
-//                            vktrace_LogWarning("vkGetObjectInfo(INFO_TYPE_MEMORY_REQUIREMENTS) mismatch: trace memPropsAllowed %u,
-//                            replay memPropsAllowed %u.", traceReqs->memPropsAllowed, replayReqs->memPropsAllowed);
-//                        if (traceReqs->memPropsRequired != replayReqs->memPropsRequired)
-//                            vktrace_LogWarning("vkGetObjectInfo(INFO_TYPE_MEMORY_REQUIREMENTS) mismatch: trace memPropsRequired
-//                            %u, replay memPropsRequired %u.", traceReqs->memPropsRequired, replayReqs->memPropsRequired);
-//                        traceReqs++;
-//                        replayReqs++;
-//                    }
-//                    if (m_objMapper.m_adjustForGPU)
-//                        m_objMapper.init_objMemReqs(pPacket->object, replayReqs - num, num);
-//                    break;
-//                }
-//                default:
-//                    if (memcmp(pData, pPacket->pData, size) != 0)
-//                        vktrace_LogWarning("vkGetObjectInfo() mismatch on *pData: between trace and replay *pDataSize %u.", size);
-//            }
-//        }
-//    }
-//    vktrace_free(pData);
-//    return replayResult;
-//}
-
-// VkResult vkReplay::manually_replay_vkGetImageSubresourceInfo(packet_vkGetImageSubresourceInfo* pPacket)
-//{
-//    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-//
-//    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-//    if (remappedDevice == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkGetImageSubresourceInfo() due to invalid remapped VkDevice.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    VkImage remappedImage = m_objMapper.remap(pPacket->image);
-//    if (remappedImage == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkGetImageSubresourceInfo() due to invalid remapped VkImage.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    size_t size = 0;
-//    void* pData = NULL;
-//    if (pPacket->pData != NULL && pPacket->pDataSize != NULL)
-//    {
-//        size = *pPacket->pDataSize;
-//        pData = vktrace_malloc(*pPacket->pDataSize);
-//    }
-//    replayResult = m_vkFuncs.real_vkGetImageSubresourceInfo(remappedDevice, remappedImage, pPacket->pSubresource,
-//    pPacket->infoType, &size, pData);
-//    if (replayResult == VK_SUCCESS)
-//    {
-//        if (size != *pPacket->pDataSize && pData != NULL)
-//        {
-//            vktrace_LogWarning("vkGetImageSubresourceInfo returned a differing data size: replay (%d bytes) vs trace (%d bytes).",
-//            size, *pPacket->pDataSize);
-//        }
-//        else if (pData != NULL && memcmp(pData, pPacket->pData, size) != 0)
-//        {
-//            vktrace_LogWarning("vkGetImageSubresourceInfo returned differing data contents than the trace file contained.");
-//        }
-//    }
-//    vktrace_free(pData);
-//    return replayResult;
-//}
 
 void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorSets *pPacket) {
     // We have to remap handles internal to the structures so save the handles prior to remap and then restore
@@ -1386,61 +1260,6 @@ void vkReplay::manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuff
     VKTRACE_DELETE(pSaveBuff);
     return;
 }
-
-// VkResult vkReplay::manually_replay_vkCreateGraphicsPipeline(packet_vkCreateGraphicsPipeline* pPacket)
-//{
-//    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-//
-//    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-//    if (remappedDevice == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkCreateGraphicsPipeline() due to invalid remapped VkDevice.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    // remap shaders from each stage
-//    VkPipelineShaderStageCreateInfo* pRemappedStages = VKTRACE_NEW_ARRAY(VkPipelineShaderStageCreateInfo,
-//    pPacket->pCreateInfo->stageCount);
-//    memcpy(pRemappedStages, pPacket->pCreateInfo->pStages, sizeof(VkPipelineShaderStageCreateInfo) *
-//    pPacket->pCreateInfo->stageCount);
-//    for (uint32_t i = 0; i < pPacket->pCreateInfo->stageCount; i++)
-//    {
-//        pRemappedStages[i].shader = m_objMapper.remap(pRemappedStages[i].shader);
-//        if (pRemappedStages[i].shader == VK_NULL_HANDLE)
-//        {
-//            vktrace_LogError("Skipping vkCreateGraphicsPipeline() due to invalid remapped VkShader.");
-//            return VK_ERROR_VALIDATION_FAILED_EXT;
-//        }
-//    }
-//
-//    VkGraphicsPipelineCreateInfo createInfo = {
-//        .sType = pPacket->pCreateInfo->sType,
-//        .pNext = pPacket->pCreateInfo->pNext,
-//        .stageCount = pPacket->pCreateInfo->stageCount,
-//        .pStages = pRemappedStages,
-//        .pVertexInputState = pPacket->pCreateInfo->pVertexInputState,
-//        .pIaState = pPacket->pCreateInfo->pIaState,
-//        .pTessState = pPacket->pCreateInfo->pTessState,
-//        .pVpState = pPacket->pCreateInfo->pVpState,
-//        .pRsState = pPacket->pCreateInfo->pRsState,
-//        .pMsState = pPacket->pCreateInfo->pMsState,
-//        .pDsState = pPacket->pCreateInfo->pDsState,
-//        .pCbState = pPacket->pCreateInfo->pCbState,
-//        .flags = pPacket->pCreateInfo->flags,
-//        .layout = m_objMapper.remap(pPacket->pCreateInfo->layout)
-//    };
-//
-//    VkPipeline pipeline;
-//    replayResult = m_vkFuncs.real_vkCreateGraphicsPipeline(remappedDevice, &createInfo, &pipeline);
-//    if (replayResult == VK_SUCCESS)
-//    {
-//        m_objMapper.add_to_map(pPacket->pPipeline, &pipeline);
-//    }
-//
-//    VKTRACE_DELETE(pRemappedStages);
-//
-//    return replayResult;
-//}
 
 VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCacheData *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1981,71 +1800,6 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
     return replayResult;
 }
 
-// TODO138 : Can we kill this?
-// VkResult vkReplay::manually_replay_vkStorePipeline(packet_vkStorePipeline* pPacket)
-//{
-//    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-//
-//    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-//    if (remappedDevice == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkStorePipeline() due to invalid remapped VkDevice.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    VkPipeline remappedPipeline = m_objMapper.remap(pPacket->pipeline);
-//    if (remappedPipeline == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkStorePipeline() due to invalid remapped VkPipeline.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    size_t size = 0;
-//    void* pData = NULL;
-//    if (pPacket->pData != NULL && pPacket->pDataSize != NULL)
-//    {
-//        size = *pPacket->pDataSize;
-//        pData = vktrace_malloc(*pPacket->pDataSize);
-//    }
-//    replayResult = m_vkFuncs.real_vkStorePipeline(remappedDevice, remappedPipeline, &size, pData);
-//    if (replayResult == VK_SUCCESS)
-//    {
-//        if (size != *pPacket->pDataSize && pData != NULL)
-//        {
-//            vktrace_LogWarning("vkStorePipeline returned a differing data size: replay (%d bytes) vs trace (%d bytes).", size,
-//            *pPacket->pDataSize);
-//        }
-//        else if (pData != NULL && memcmp(pData, pPacket->pData, size) != 0)
-//        {
-//            vktrace_LogWarning("vkStorePipeline returned differing data contents than the trace file contained.");
-//        }
-//    }
-//    vktrace_free(pData);
-//    return replayResult;
-//}
-
-// TODO138 : This needs to be broken out into separate functions for each non-disp object
-// VkResult vkReplay::manually_replay_vkDestroy<Object>(packet_vkDestroyObject* pPacket)
-//{
-//    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-//
-//    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-//    if (remappedDevice == VK_NULL_HANDLE)
-//    {
-//        vktrace_LogError("Skipping vkDestroy() due to invalid remapped VkDevice.");
-//        return VK_ERROR_VALIDATION_FAILED_EXT;
-//    }
-//
-//    uint64_t remapHandle = m_objMapper.remap_<OBJECT_TYPE_HERE>(pPacket->object, pPacket->objType);
-//    <VkObject> object;
-//    object.handle = remapHandle;
-//    if (object != 0)
-//        replayResult = m_vkFuncs.real_vkDestroy<Object>(remappedDevice, object);
-//    if (replayResult == VK_SUCCESS)
-//        m_objMapper.rm_from_<OBJECT_TYPE_HERE>_map(pPacket->object.handle);
-//    return replayResult;
-//}
-
 VkResult vkReplay::manually_replay_vkWaitForFences(packet_vkWaitForFences *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     uint32_t i;
@@ -2164,15 +1918,15 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     devicememoryObj local_mem;
     VkMemoryRequirements memRequirements;
     uint32_t replayMemTypeIndex;
-    vktrace_trace_packet_header packetHeader1, packetHeader2;
+    vktrace_trace_packet_header packetHeader1;
     VkDeviceMemory traceAllocateMemoryRval;
     packet_vkBindImageMemory bimPacket;              // We rely on the fact that packet_vkBindBufferMemory is the same size
-    packet_vkGetImageMemoryRequirements gimrPacket;  // We rely on the fact that packet_vkGetBufferMemoryRequires is the same size
     packet_vkFreeMemory freeMemoryPacket;
-    packet_vkDestroyImage destroyImagePacket;
     bool foundBindMem;
+    VkImage remappedImage = NULL;
+    size_t saveFilePos = 0;
+    bool doAllocate = true;
     size_t bindMemIdx;
-    bool foundGetMR;
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
@@ -2206,8 +1960,6 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                           (strlen((char *)&m_pFileHeader->os) != 0);
     }
 
-    size_t saveFilePos = 0;
-    bool doAllocate = true;
     if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
         size_t amIdx;
         static size_t amSearchPos = 0;
@@ -2241,10 +1993,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         }
 
         // Search forward from amIdx for vkBIM/vkBBM call that binds this memory.
-        // Then search backwards for the vkGIMR/vkGBMR call that uses the
-        // same image/buffer. If we don't find one, generate an error and do the best we can.
+        // If we don't find one, generate an error and do the best we can.
         foundBindMem = false;
-        foundGetMR = false;
         for (size_t i = amIdx + 1; !foundBindMem && i < portabilityTable.size(); i++) {
             FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
             FREAD(&packetHeader1, sizeof(vktrace_trace_packet_header), 1, traceFile);  // Read the packet header
@@ -2264,50 +2014,14 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 }
             }
 
-            if ((packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
-                 packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory) &&
-                traceAllocateMemoryRval == bimPacket.memory) {
+            if (traceAllocateMemoryRval == bimPacket.memory) {
                 // A vkBIM/vkBBM binds memory allocated by this vkAM call.
                 foundBindMem = true;
                 bindMemIdx = i;
-
-                // Search backwards for the vkGIMR/vkGBMR call.
-                if (amIdx > 0) {
-                    for (size_t j = i - 1; !foundGetMR; j--) {
-                        FSEEK(traceFile, (long)portabilityTable[j], SEEK_SET);
-                        FREAD(&packetHeader2, sizeof(vktrace_trace_packet_header), 1, traceFile);  // Read the packet header
-                        if (packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
-                            packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) {
-                            assert(packetHeader2.size >= sizeof(packetHeader2) + sizeof(gimrPacket) + sizeof(VkMemoryRequirements));
-                            FREAD(&gimrPacket, sizeof(gimrPacket), 1, traceFile);
-                        }
-                        if ((packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
-                             packetHeader2.packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements) &&
-                            (gimrPacket.image == bimPacket.image) &&
-                            (packetHeader2.global_packet_index < pPacket->header->global_packet_index)) {
-                            // Found the corresponding gimr/gbmr packet
-                            FSEEK(traceFile,
-                                  (long)portabilityTable[j] + sizeof(packetHeader2) + (long)gimrPacket.pMemoryRequirements,
-                                  SEEK_SET);
-                            FREAD(&memRequirements, sizeof(memRequirements), 1, traceFile);
-                            foundGetMR = true;
-                            break;
-                        }
-
-                        if (packetHeader2.packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
-                            packetHeader2.packet_id == VKTRACE_TPI_VK_vkDestroyBuffer) {
-                            FREAD(&destroyImagePacket, sizeof(destroyImagePacket), 1, traceFile);
-                            if (destroyImagePacket.image == bimPacket.image) {
-                                // Found a destroy of this Buffer/Image, stop the back search.
-                                break;
-                            }
-                        }
-                        if (j == 0) {
-                            // Got to the beginning of the list w/o finding the vkGIMR/vkGBMR call
-                            break;
-                        }
-                    }
-                }
+                if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory)
+                    remappedImage = m_objMapper.remap_images(bimPacket.image);
+                if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory)
+                    remappedImage = (VkImage)m_objMapper.remap_buffers((VkBuffer)bimPacket.image);
             }
         }
 
@@ -2318,94 +2032,81 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
             goto wrapItUp;
         }
 
-        if (!foundGetMR) {
-            // Didn't find corresponding gimr call.
-            // vkAllocateMemory and vkBind{Image|Buffer}Memory were called without first calling
-            // vkGet{Image|Buffer}MemoryRequirements.
-            // Call it now and save the data.
-
-            // Before we call it, make sure the image/buffer has been created. The creation might be later
-            // in the trace file between the current vkAM and the vkBindImageMem/vkBindBufMem calls.
-
-            VkImage remappedImage;
-            if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory)
-                remappedImage = m_objMapper.remap_images(bimPacket.image);
-            else
-                remappedImage = (VkImage)m_objMapper.remap_buffers((VkBuffer)bimPacket.image);
-            if (!remappedImage) {
-                // Search backwards from the bindMem cmd for the create image/buffer command, and execute it
-                for (size_t i = bindMemIdx - 1; true; i--) {
-                    vktrace_trace_packet_header createPacketHeaderHeader;
-                    vktrace_trace_packet_header *pCreatePacketFull;
-                    packet_vkCreateImage *pCreatePacket;
-                    FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
-                    FREAD(&createPacketHeaderHeader, sizeof(vktrace_trace_packet_header), 1, traceFile);
-                    if ((packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory &&
-                         createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateImage) ||
-                        (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory &&
-                         createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateBuffer)) {
-                        // Read the whole packet
-                        pCreatePacketFull = (vktrace_trace_packet_header *)vktrace_malloc(createPacketHeaderHeader.size);
-                        if (!pCreatePacketFull) {
-                            vktrace_LogError("malloc failed during vkAllocateMemory()");
-                            vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
-                            return VK_ERROR_OUT_OF_HOST_MEMORY;
-                        }
-                        FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
-                        FREAD(pCreatePacketFull, createPacketHeaderHeader.size, 1, traceFile);
-                        pCreatePacket = (packet_vkCreateImage *)(pCreatePacketFull + 1);
-                        pCreatePacket->header = pCreatePacketFull;
-                        pCreatePacketFull->pBody = (uintptr_t)pCreatePacket;
-                        pCreatePacket->pImage = (VkImage *)vktrace_trace_packet_interpret_buffer_pointer(
-                            pCreatePacketFull, (intptr_t)pCreatePacket->pImage);
-                        pCreatePacket->pCreateInfo = (VkImageCreateInfo *)vktrace_trace_packet_interpret_buffer_pointer(
-                            pCreatePacketFull, (intptr_t)pCreatePacket->pCreateInfo);
-                        pCreatePacket->pAllocator = (VkAllocationCallbacks *)vktrace_trace_packet_interpret_buffer_pointer(
-                            pCreatePacketFull, (intptr_t)pCreatePacket->pAllocator);
-                        if (*(pCreatePacket->pImage) == bimPacket.image) {
-                            // Create the image/buffer
-                            if (createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateBuffer)
-                                replayResult = manually_replay_vkCreateBuffer((packet_vkCreateBuffer *)pCreatePacket);
-                            else
-                                replayResult = manually_replay_vkCreateImage((packet_vkCreateImage *)pCreatePacket);
-                            vktrace_free(pCreatePacketFull);
-                            if (replayResult != VK_SUCCESS) {
-                                vktrace_LogError("vkCreateBuffer/Image failed during vkAllocateMemory()");
-                                vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
-                                return replayResult;
-                            }
-                            if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory)
-                                remappedImage = m_objMapper.remap_images(bimPacket.image);
-                            else
-                                remappedImage = (VkImage)m_objMapper.remap_buffers((VkBuffer)bimPacket.image);
-                            break;
-                        }
-                        vktrace_free(pCreatePacketFull);
-                    }
-                    if (i == amIdx) {
-                        // This image/buffer is not created before it is bound
-                        vktrace_LogError("Bad buffer/image in call to vkBindImageMemory/vkBindBuffer");
+        if (!remappedImage) {
+            // The CreateImage/Buffer command after the AllocMem command, so the image/buffer hasn't
+            // been created yet. Search backwards from the bindMem cmd for the CreateImage/Buffer
+            // command and execute it
+            for (size_t i = bindMemIdx - 1; true; i--) {
+                vktrace_trace_packet_header createPacketHeaderHeader;
+                vktrace_trace_packet_header *pCreatePacketFull;
+                packet_vkCreateImage *pCreatePacket;
+                FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+                FREAD(&createPacketHeaderHeader, sizeof(vktrace_trace_packet_header), 1, traceFile);
+                if ((packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory &&
+                     createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateImage) ||
+                    (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory &&
+                     createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateBuffer)) {
+                    // Read the whole packet
+                    pCreatePacketFull = (vktrace_trace_packet_header *)vktrace_malloc(createPacketHeaderHeader.size);
+                    if (!pCreatePacketFull) {
+                        vktrace_LogError("malloc failed during vkAllocateMemory()");
                         vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
-                        return VK_ERROR_VALIDATION_FAILED_EXT;
+                        return VK_ERROR_OUT_OF_HOST_MEMORY;
                     }
+                    FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+                    FREAD(pCreatePacketFull, createPacketHeaderHeader.size, 1, traceFile);
+                    pCreatePacket = (packet_vkCreateImage *)(pCreatePacketFull + 1);
+                    pCreatePacket->header = pCreatePacketFull;
+                    pCreatePacketFull->pBody = (uintptr_t)pCreatePacket;
+                    pCreatePacket->pImage = (VkImage *)vktrace_trace_packet_interpret_buffer_pointer(
+                        pCreatePacketFull, (intptr_t)pCreatePacket->pImage);
+                    pCreatePacket->pCreateInfo = (VkImageCreateInfo *)vktrace_trace_packet_interpret_buffer_pointer(
+                        pCreatePacketFull, (intptr_t)pCreatePacket->pCreateInfo);
+                    pCreatePacket->pAllocator = (VkAllocationCallbacks *)vktrace_trace_packet_interpret_buffer_pointer(
+                        pCreatePacketFull, (intptr_t)pCreatePacket->pAllocator);
+                    if (*(pCreatePacket->pImage) == bimPacket.image) {
+                        // Create the image/buffer
+                        if (createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateBuffer)
+                            replayResult = manually_replay_vkCreateBuffer((packet_vkCreateBuffer *)pCreatePacket);
+                        else
+                            replayResult = manually_replay_vkCreateImage((packet_vkCreateImage *)pCreatePacket);
+                        vktrace_free(pCreatePacketFull);
+                        if (replayResult != VK_SUCCESS) {
+                            vktrace_LogError("vkCreateBuffer/Image failed during vkAllocateMemory()");
+                            vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
+                            return replayResult;
+                        }
+                        if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory)
+                            remappedImage = m_objMapper.remap_images(bimPacket.image);
+                        else
+                            remappedImage = (VkImage)m_objMapper.remap_buffers((VkBuffer)bimPacket.image);
+                        break;
+                    }
+                    vktrace_free(pCreatePacketFull);
                 }
-            }
-
-            // Now call GIMR/GBMR
-            VkMemoryRequirements mem_reqs;
-            if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory) {
-                m_vkFuncs.real_vkGetImageMemoryRequirements(remappedDevice, remappedImage, &mem_reqs);
-                replayGetImageMemoryRequirements[bimPacket.image] = mem_reqs;
-            } else {
-                m_vkFuncs.real_vkGetBufferMemoryRequirements(remappedDevice, (VkBuffer)remappedImage, &mem_reqs);
-                replayGetBufferMemoryRequirements[(VkBuffer)bimPacket.image] = mem_reqs;
+                if (i == amIdx) {
+                    // This image/buffer is not created before it is bound
+                    vktrace_LogError("Bad buffer/image in call to vkBindImageMemory/vkBindBuffer");
+                    vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
+                    return VK_ERROR_VALIDATION_FAILED_EXT;
+                }
             }
         }
 
-        if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory)
-            memRequirements = replayGetImageMemoryRequirements[bimPacket.image];
-        else
-            memRequirements = replayGetBufferMemoryRequirements[(VkBuffer)bimPacket.image];
+        // Call GIMR/GBMR for the replay image/buffer
+        if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory) {
+            if (replayGetImageMemoryRequirements.find(remappedImage) == replayGetImageMemoryRequirements.end()) {
+                m_vkFuncs.real_vkGetImageMemoryRequirements(remappedDevice, remappedImage, &memRequirements);
+                replayGetImageMemoryRequirements[remappedImage] = memRequirements;
+            }
+            memRequirements = replayGetImageMemoryRequirements[remappedImage];
+        } else {
+            if (replayGetBufferMemoryRequirements.find((VkBuffer)remappedImage) == replayGetBufferMemoryRequirements.end()) {
+                m_vkFuncs.real_vkGetBufferMemoryRequirements(remappedDevice, (VkBuffer)remappedImage, &memRequirements);
+                replayGetBufferMemoryRequirements[(VkBuffer)remappedImage] = memRequirements;
+            }
+            memRequirements = replayGetBufferMemoryRequirements[(VkBuffer)remappedImage];
+        }
 
         VkDeviceSize replayAllocationSize = memRequirements.size;
         if (bimPacket.memoryOffset > 0) {
@@ -2848,19 +2549,19 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
 
     if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
         size_t memOffsetTemp;
-        if (replayGetBufferMemoryRequirements.find(pPacket->buffer) == replayGetBufferMemoryRequirements.end()) {
+        if (replayGetBufferMemoryRequirements.find(remappedbuffer) == replayGetBufferMemoryRequirements.end()) {
             // vkBindBufferMemory is being called on a buffer for which vkGetBufferMemoryRequirements
-            // was not called. This might be violation of the spec on the part of the app, but seems to
+            // was not called. This might be a violation of the spec on the part of the app, but seems to
             // be done in many apps.  Call vkGetBufferMemoryRequirements for this buffer and add result to
             // replayGetBufferMemoryRequirements map.
             VkMemoryRequirements mem_reqs;
             m_vkFuncs.real_vkGetBufferMemoryRequirements(remappeddevice, remappedbuffer, &mem_reqs);
-            replayGetBufferMemoryRequirements[pPacket->buffer] = mem_reqs;
+            replayGetBufferMemoryRequirements[remappedbuffer] = mem_reqs;
         }
-        assert(replayGetBufferMemoryRequirements[pPacket->buffer].alignment);
-        memOffsetTemp = pPacket->memoryOffset + replayGetBufferMemoryRequirements[pPacket->buffer].alignment - 1;
-        memOffsetTemp = memOffsetTemp / replayGetBufferMemoryRequirements[pPacket->buffer].alignment;
-        memOffsetTemp = memOffsetTemp * replayGetBufferMemoryRequirements[pPacket->buffer].alignment;
+        assert(replayGetBufferMemoryRequirements[remappedbuffer].alignment);
+        memOffsetTemp = pPacket->memoryOffset + replayGetBufferMemoryRequirements[remappedbuffer].alignment - 1;
+        memOffsetTemp = memOffsetTemp / replayGetBufferMemoryRequirements[remappedbuffer].alignment;
+        memOffsetTemp = memOffsetTemp * replayGetBufferMemoryRequirements[remappedbuffer].alignment;
         replayResult = m_vkFuncs.real_vkBindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, memOffsetTemp);
     } else {
         replayResult = m_vkFuncs.real_vkBindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, pPacket->memoryOffset);
@@ -2881,9 +2582,8 @@ void vkReplay::manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMem
         return;
     }
 
-    traceGetImageMemoryRequirements[pPacket->image] = *(pPacket->pMemoryRequirements);
     m_vkFuncs.real_vkGetImageMemoryRequirements(remappedDevice, remappedImage, pPacket->pMemoryRequirements);
-    replayGetImageMemoryRequirements[pPacket->image] = *(pPacket->pMemoryRequirements);
+    replayGetImageMemoryRequirements[remappedImage] = *(pPacket->pMemoryRequirements);
     return;
 }
 
@@ -2900,9 +2600,8 @@ void vkReplay::manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferM
         return;
     }
 
-    traceGetBufferMemoryRequirements[pPacket->buffer] = *(pPacket->pMemoryRequirements);
     m_vkFuncs.real_vkGetBufferMemoryRequirements(remappedDevice, remappedBuffer, pPacket->pMemoryRequirements);
-    replayGetBufferMemoryRequirements[pPacket->buffer] = *(pPacket->pMemoryRequirements);
+    replayGetBufferMemoryRequirements[remappedBuffer] = *(pPacket->pMemoryRequirements);
     return;
 }
 
