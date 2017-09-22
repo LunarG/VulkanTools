@@ -415,6 +415,35 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pRasterizationState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pRasterizationState),
                                                    sizeof(VkPipelineRasterizationStateCreateInfo), pParam[i].pRasterizationState);
+                if (pParam[i].pRasterizationState->pNext != nullptr) {
+                    // there's an extension struct here, we need to handle it. Without the extension handling,
+                    // some tile crash during playback and the reason is the extension struct data is not
+                    // recorded during capture, so when playback, an invalid pNext point is given to driver
+                    // and cause crash. The whole handing include two parts:
+                    //    1. for capture, we need record the content of the extension struct.
+                    //    2. for playback, we need to make sure interpret the pNext pointer
+                    //       and load the extension struct.
+                    // The following source code is part 1, part 2 is in playback source code.
+
+                    // We don't know what type of extension struct here, so we first use
+                    // VkApplicationInfo type to cast, what we want to detect is its
+                    // sType which is included in all Vulkan struct definition.
+                    const VkApplicationInfo *pNextStruct =
+                        reinterpret_cast<const VkApplicationInfo *>(pParam[i].pRasterizationState->pNext);
+                    if (pNextStruct->sType ==
+                        VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD) {  // it's an AMD extension.
+
+                        // add this extension struct to trace packet
+                        vktrace_add_buffer_to_trace_packet(pHeader, const_cast<void **>(&(pPacket[i].pRasterizationState->pNext)),
+                                                           sizeof(VkPipelineRasterizationStateRasterizationOrderAMD),
+                                                           pParam[i].pRasterizationState->pNext);
+                        vktrace_finalize_buffer_address(pHeader, const_cast<void **>(&(pPacket[i].pRasterizationState->pNext)));
+                    } else {
+                        // so far we only handle this extension, more extension
+                        // handling can be added here;
+                        assert(false);
+                    }
+                }
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pRasterizationState));
             }
             // MultiSample State
