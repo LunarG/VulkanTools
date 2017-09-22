@@ -2021,6 +2021,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                     remappedImage = m_objMapper.remap_images(bimPacket.image);
                 if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory)
                     remappedBuffer = m_objMapper.remap_buffers((VkBuffer)bimPacket.image);
+                break;
             }
         }
 
@@ -2494,7 +2495,7 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
             // replayGetBufferMemoryRequirements map.
             VkMemoryRequirements mem_reqs;
             m_vkFuncs.real_vkGetBufferMemoryRequirements(remappeddevice, remappedbuffer, &mem_reqs);
-            replayGetBufferMemoryRequirements[pPacket->buffer] = mem_reqs;
+            replayGetBufferMemoryRequirements[remappedbuffer] = mem_reqs;
         }
         assert(replayGetBufferMemoryRequirements[pPacket->buffer].alignment);
         memOffsetTemp = pPacket->memoryOffset + replayGetBufferMemoryRequirements[pPacket->buffer].alignment - 1;
