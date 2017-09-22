@@ -240,11 +240,9 @@ class vkReplay {
     std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> replayMemoryProperties;
 
     // Map VkImage to VkMemoryRequirements
-    std::unordered_map<VkImage, VkMemoryRequirements> traceGetImageMemoryRequirements;
     std::unordered_map<VkImage, VkMemoryRequirements> replayGetImageMemoryRequirements;
 
     // Map VkBuffer to VkMemoryRequirements
-    std::unordered_map<VkBuffer, VkMemoryRequirements> traceGetBufferMemoryRequirements;
     std::unordered_map<VkBuffer, VkMemoryRequirements> replayGetBufferMemoryRequirements;
 
     bool getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, VkMemoryRequirements* memRequirements,
