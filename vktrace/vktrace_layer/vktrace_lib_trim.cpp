@@ -851,10 +851,17 @@ void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, Vk
         // By creating the packet for UnmapMemory, we'll be adding the pData
         // buffer to it, which inherently copies it.
 
-        // need to adjust the pointer to ensure it points to the beginning of
-        // the image memory, which may NOT be
-        // the same as the offset of the mapped address.
-        void *bufferAddress = (BYTE *)pIsMappedAddress + (offset - isMappedOffset);
+        void *bufferAddress = NULL;
+        if (makeCalls) {
+            // No need to adjust the pointer when the memory is actually mapped in generate::vkMapMemory() because the
+            // pIsMappedAddress is re-populated to point to the beginning of the image memory.
+            bufferAddress = pIsMappedAddress;
+        } else {
+            // Need to adjust the pointer to ensure it points to the beginning of
+            // the image memory, which may NOT be
+            // the same as the offset of the mapped address.
+            bufferAddress = (BYTE *)pIsMappedAddress + (offset - isMappedOffset);
+        }
 
         // Actually unmap the memory if it wasn't already mapped by the
         // application
