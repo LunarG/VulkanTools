@@ -21,7 +21,8 @@
 /*
  * layersvt/device_simulation.cpp - The VK_LAYER_LUNARG_device_simulation layer.
  * This DevSim layer simulates a device by loading a JSON configuration file to override values that would normally be returned
- * from a Vulkan implementation.  The configuration files must validate with the DevSim schema.
+ * from a Vulkan implementation.  Configuration files must validate with the DevSim schema; this layer does not redundantly
+ * check for configuration errors that would be caught by schema validation.
  * See JsonLoader::IdentifySchema() for the URIs of supported schemas.
  *
  * References (several documents are also included in the LunarG Vulkan SDK, see [SDK]):
@@ -62,7 +63,7 @@ namespace {
 // When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 0;
-const uint32_t kVersionDevsimPatch = 4;
+const uint32_t kVersionDevsimPatch = 5;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
@@ -311,7 +312,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, float *dest,
                   std::function<bool(const char *, float, float)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if ((value.type() != Json::realValue) && (value.type() != Json::intValue)) {
+        if (!value.isDouble()){
             return;
         }
         const float new_value = value.asFloat();
@@ -324,7 +325,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, int32_t *dest,
                   std::function<bool(const char *, int32_t, int32_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (value.type() != Json::intValue) {
+        if (!value.isInt()){
             return;
         }
         const uint32_t new_value = value.asInt();
@@ -337,7 +338,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, uint32_t *dest,
                   std::function<bool(const char *, uint32_t, uint32_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (value.type() != Json::intValue) {
+        if (!value.isUInt()){
             return;
         }
         const uint32_t new_value = value.asUInt();
@@ -350,7 +351,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, uint64_t *dest,
                   std::function<bool(const char *, uint64_t, uint64_t)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (value.type() != Json::intValue) {
+        if (!value.isUInt64()){
             return;
         }
         const uint64_t new_value = value.asUInt64();
@@ -364,7 +365,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, T *dest,
                   std::function<bool(const char *, T, T)> warn_func = nullptr) {
         const Json::Value value = parent[name];
-        if (value.type() != Json::intValue) {
+        if (!value.isInt()){
             return;
         }
         const T new_value = static_cast<T>(value.asInt());
@@ -374,44 +375,55 @@ class JsonLoader {
         *dest = new_value;
     }
 
-    void GetArray(const Json::Value &parent, const char *name, int count, uint8_t *dest) {
+    int GetArray(const Json::Value &parent, const char *name, uint8_t *dest) {
         const Json::Value value = parent[name];
         if (value.type() != Json::arrayValue) {
-            return;
+            return -1;
         }
+        const int count = static_cast<int>(value.size());
         for (int i = 0; i < count; ++i) {
             dest[i] = value[i].asUInt();
         }
+        return count;
     }
 
-    void GetArray(const Json::Value &parent, const char *name, int count, uint32_t *dest) {
+    int GetArray(const Json::Value &parent, const char *name, uint32_t *dest) {
         const Json::Value value = parent[name];
         if (value.type() != Json::arrayValue) {
-            return;
+            return -1;
         }
+        const int count = static_cast<int>(value.size());
         for (int i = 0; i < count; ++i) {
             dest[i] = value[i].asUInt();
         }
+        return count;
     }
 
-    void GetArray(const Json::Value &parent, const char *name, int count, float *dest) {
+    int GetArray(const Json::Value &parent, const char *name, float *dest) {
         const Json::Value value = parent[name];
         if (value.type() != Json::arrayValue) {
-            return;
+            return -1;
         }
+        const int count = static_cast<int>(value.size());
         for (int i = 0; i < count; ++i) {
             dest[i] = value[i].asFloat();
         }
+        return count;
     }
 
-    void GetArray(const Json::Value &parent, const char *name, int count, char *dest) {
+    int GetArray(const Json::Value &parent, const char *name, char *dest) {
         const Json::Value value = parent[name];
-        if (value.type() != Json::stringValue) {
-            return;
+        if (!value.isString()){
+            return -1;
         }
+        const char *new_value = value.asCString();
+        int count = 0;
         dest[0] = '\0';
-        strncpy(dest, value.asCString(), count);
-        dest[count - 1] = '\0';
+        if (new_value) {
+            count = strlen(new_value);
+            strcpy(dest, new_value);
+        }
+        return count;
     }
 
     PhysicalDeviceData &pdd_;
@@ -457,7 +469,7 @@ bool JsonLoader::LoadFile(const char *filename) {
 
 JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     DebugPrintf("\t\tJsonLoader::IdentifySchema()\n");
-    if (value.type() != Json::stringValue) {
+    if (!value.isString()){
         ErrorPrintf("JSON element \"$schema\" is not a string\n");
         return SchemaId::kUnknown;
     }
@@ -478,7 +490,7 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
 
 // Apply the DRY principle, see https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 #define GET_VALUE(name) GetValue(value, #name, &dest->name)
-#define GET_ARRAY(name, count) GetArray(value, #name, count, dest->name)
+#define GET_ARRAY(name) GetArray(value, #name, dest->name)
 #define GET_VALUE_WARN(name, warn_func) GetValue(value, #name, &dest->name, warn_func)
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceProperties *dest) {
@@ -492,8 +504,8 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(vendorID);
     GET_VALUE(deviceID);
     GET_VALUE(deviceType);
-    GET_ARRAY(deviceName, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
-    GET_ARRAY(pipelineCacheUUID, VK_UUID_SIZE);
+    GET_ARRAY(deviceName);         // size < VK_MAX_PHYSICAL_DEVICE_NAME_SIZE
+    GET_ARRAY(pipelineCacheUUID);  // size == VK_UUID_SIZE
     GET_VALUE(limits);
     GET_VALUE(sparseProperties);
 }
@@ -556,9 +568,9 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(maxFragmentDualSrcAttachments);
     GET_VALUE(maxFragmentCombinedOutputResources);
     GET_VALUE(maxComputeSharedMemorySize);
-    GET_ARRAY(maxComputeWorkGroupCount, 3);
+    GET_ARRAY(maxComputeWorkGroupCount);  // size == 3
     GET_VALUE(maxComputeWorkGroupInvocations);
-    GET_ARRAY(maxComputeWorkGroupSize, 3);
+    GET_ARRAY(maxComputeWorkGroupSize);  // size == 3
     GET_VALUE(subPixelPrecisionBits);
     GET_VALUE(subTexelPrecisionBits);
     GET_VALUE(mipmapPrecisionBits);
@@ -567,8 +579,8 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(maxSamplerLodBias);
     GET_VALUE(maxSamplerAnisotropy);
     GET_VALUE(maxViewports);
-    GET_ARRAY(maxViewportDimensions, 2);
-    GET_ARRAY(viewportBoundsRange, 2);
+    GET_ARRAY(maxViewportDimensions);  // size == 2
+    GET_ARRAY(viewportBoundsRange);    // size == 2
     GET_VALUE(viewportSubPixelBits);
     GET_VALUE(minMemoryMapAlignment);
     GET_VALUE(minTexelBufferOffsetAlignment);
@@ -601,8 +613,8 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     GET_VALUE(maxCullDistances);
     GET_VALUE(maxCombinedClipAndCullDistances);
     GET_VALUE(discreteQueuePriorities);
-    GET_ARRAY(pointSizeRange, 2);
-    GET_ARRAY(lineWidthRange, 2);
+    GET_ARRAY(pointSizeRange);  // size == 2
+    GET_ARRAY(lineWidthRange);  // size == 2
     GET_VALUE(pointSizeGranularity);
     GET_VALUE(lineWidthGranularity);
     GET_VALUE(strictLines);
