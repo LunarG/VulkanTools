@@ -1923,7 +1923,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     packet_vkBindImageMemory bimPacket;              // We rely on the fact that packet_vkBindBufferMemory is the same size
     packet_vkFreeMemory freeMemoryPacket;
     bool foundBindMem;
-    VkImage remappedImage = NULL;
+    VkImage remappedImage = VK_NULL_HANDLE;
     size_t saveFilePos = 0;
     bool doAllocate = true;
     size_t bindMemIdx;
