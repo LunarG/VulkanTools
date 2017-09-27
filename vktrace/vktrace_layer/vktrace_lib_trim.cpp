@@ -3418,8 +3418,13 @@ void write_all_referenced_object_calls() {
         for (auto setObj = stateTracker.createdDescriptorSets.begin(); setObj != stateTracker.createdDescriptorSets.end();
              setObj++) {
             if (setObj->second.belongsToDevice == (VkDevice)deviceObj->first) {
-                uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
-                uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
+                // when trim track vkAllocateDescriptorSets, it create numBindings
+                // WriteDescriptorSets and CopyDescriptorSets to record the binding
+                // change, here we will use these recorded data to generate
+                // vkUpdateDescriptorSets packet for playback to
+                // update/restore the descriptorSets state when starting trim.
+                uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.numBindings;
+                uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.numBindings;
                 VkWriteDescriptorSet *pDescriptorWrites = setObj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets;
                 VkCopyDescriptorSet *pDescriptorCopies = setObj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets;
 
