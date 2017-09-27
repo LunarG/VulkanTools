@@ -787,6 +787,29 @@ void StateTracker::copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInf
         VkPipelineRasterizationStateCreateInfo *pRS = new VkPipelineRasterizationStateCreateInfo();
         *pRS = *(src.pRasterizationState);
         pDst->pRasterizationState = pRS;
+        if (pDst->pRasterizationState->pNext != nullptr) {
+            // there's an extension struct here, we need to do a deep copy for it.
+
+            // we first use sType to detect the type of extension that pNext
+            // struct belong to.
+            const VkApplicationInfo *pNextStruct =
+                reinterpret_cast<const VkApplicationInfo *>(pDst->pRasterizationState->pNext);
+            if (pNextStruct->sType ==
+                VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD) {  // it's an AMD extension.
+
+                // cast to a reference so we can change pDst->pRasterizationState->pNext,
+                void*& pNext = const_cast<void*&>(pDst->pRasterizationState->pNext);
+                // then make pNext point to the newly created extension struct.
+                pNext = reinterpret_cast<void *>(new VkPipelineRasterizationStateRasterizationOrderAMD());
+                //make a copy of extension struct which is used by target app.
+                memcpy(pNext, src.pRasterizationState->pNext,sizeof(VkPipelineRasterizationStateRasterizationOrderAMD));
+            }
+            else {
+                // so far we only handle this extension, more extension
+                // handling can be added here;
+                assert(false);
+            }
+        }
     }
 
     if (src.pMultisampleState != nullptr) {
