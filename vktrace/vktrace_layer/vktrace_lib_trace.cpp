@@ -1901,6 +1901,11 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
     } else {
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+            // Reset writeDescriptorCount for each dstSet in this UpdateDescriptorSets call to only record the latest data.
+            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
+            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
+        }
+        for (uint32_t i = 0; i < descriptorWriteCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
             if (pInfo != NULL) {
                 // find existing writeDescriptorSet info to update.
@@ -1913,21 +1918,21 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
                         pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount++;
 
                         pWriteDescriptorSet->dstArrayElement = pDescriptorWrites[i].dstArrayElement;
-                        if (pDescriptorWrites[i].pImageInfo != nullptr) {
+                        if (pDescriptorWrites[i].pImageInfo != nullptr && pWriteDescriptorSet->pImageInfo != nullptr) {
                             memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo),
                                    pDescriptorWrites[i].pImageInfo,
                                    sizeof(VkDescriptorImageInfo) * pWriteDescriptorSet->descriptorCount);
                             pWriteDescriptorSet->pBufferInfo = nullptr;
                             pWriteDescriptorSet->pTexelBufferView = nullptr;
                         }
-                        if (pDescriptorWrites[i].pBufferInfo != nullptr) {
+                        if (pDescriptorWrites[i].pBufferInfo != nullptr && pWriteDescriptorSet->pBufferInfo != nullptr) {
                             memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo),
                                    pDescriptorWrites[i].pBufferInfo,
                                    sizeof(VkDescriptorBufferInfo) * pWriteDescriptorSet->descriptorCount);
                             pWriteDescriptorSet->pImageInfo = nullptr;
                             pWriteDescriptorSet->pTexelBufferView = nullptr;
                         }
-                        if (pDescriptorWrites[i].pTexelBufferView != nullptr) {
+                        if (pDescriptorWrites[i].pTexelBufferView != nullptr && pWriteDescriptorSet->pTexelBufferView != nullptr) {
                             memcpy(const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView),
                                    pDescriptorWrites[i].pTexelBufferView,
                                    sizeof(VkBufferView) * pWriteDescriptorSet->descriptorCount);
