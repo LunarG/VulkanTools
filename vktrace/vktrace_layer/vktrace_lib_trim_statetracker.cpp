@@ -600,7 +600,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
             memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets, numBindings * sizeof(VkWriteDescriptorSet));
             obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = tmp;
 
-            for (uint32_t s = 0; s < obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount; s++) {
+            for (uint32_t s = 0; s < numBindings; s++) {
                 uint32_t count = obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].descriptorCount;
 
                 if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr) {
