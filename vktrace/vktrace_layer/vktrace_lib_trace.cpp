@@ -1946,6 +1946,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
         }
 
         for (uint32_t i = 0; i < descriptorCopyCount; i++) {
+            // Reset copyDescriptorCount for each dstSet in this UpdateDescriptorSets call to only record the latest data.
+            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
+            pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
+        }
+
+        for (uint32_t i = 0; i < descriptorCopyCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
             if (pInfo != NULL) {
                 // find existing CopyDescriptorSet info to update, or allocate space for a new one.
