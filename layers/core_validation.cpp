@@ -4996,11 +4996,6 @@ static void AddFramebufferBinding(layer_data *dev_data, GLOBAL_CB_NODE *cb_state
         if (view_state) {
             AddCommandBufferBindingImageView(dev_data, cb_state, view_state);
         }
-        auto rp_state = GetRenderPassState(dev_data, fb_state->createInfo.renderPass);
-        if (rp_state) {
-            addCommandBufferBinding(&rp_state->cb_bindings, {HandleToUint64(rp_state->renderPass), kVulkanObjectTypeRenderPass},
-                                    cb_state);
-        }
     }
 }
 
@@ -5198,14 +5193,6 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(VkCommandBuffer commandBuffer, VkPipe
         set_pipeline_state(pipe_state);
         skip |= validate_dual_src_blend_feature(dev_data, pipe_state);
         addCommandBufferBinding(&pipe_state->cb_bindings, {HandleToUint64(pipeline), kVulkanObjectTypePipeline}, cb_state);
-        if (VK_PIPELINE_BIND_POINT_GRAPHICS == pipelineBindPoint) {
-            // Add binding for child renderpass
-            auto rp_state = GetRenderPassState(dev_data, pipe_state->rp_state->renderPass);
-            if (rp_state) {
-                addCommandBufferBinding(&rp_state->cb_bindings, {HandleToUint64(rp_state->renderPass), kVulkanObjectTypeRenderPass},
-                                        cb_state);
-            }
-        }
     }
     lock.unlock();
     if (!skip) dev_data->dispatch_table.CmdBindPipeline(commandBuffer, pipelineBindPoint, pipeline);
@@ -5629,10 +5616,6 @@ static void PreCallRecordCmdPushDescriptorSetKHR(layer_data *device_data, VkComm
     if (set >= cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.size()) {
         cb_state->lastBound[pipelineBindPoint].boundDescriptorSets.resize(set + 1);
         cb_state->lastBound[pipelineBindPoint].dynamicOffsets.resize(set + 1);
-    } else {
-        if (cb_state->lastBound[pipelineBindPoint].boundDescriptorSets[set]->IsPushDescriptor()) {
-            cb_state->lastBound[pipelineBindPoint].push_descriptors[set] = nullptr;
-        }
     }
     const auto &layout_state = getPipelineLayout(device_data, layout);
     std::unique_ptr<cvdescriptorset::DescriptorSet> new_desc{
@@ -8126,6 +8109,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(VkCommandBuffer commandBuffer, con
             cb_node->framebuffers.insert(pRenderPassBegin->framebuffer);
             // Connect this framebuffer and its children to this cmdBuffer
             AddFramebufferBinding(dev_data, cb_node, framebuffer);
+            // Connect this RP to cmdBuffer
+            addCommandBufferBinding(&render_pass_state->cb_bindings,
+                                    {HandleToUint64(render_pass_state->renderPass), kVulkanObjectTypeRenderPass}, cb_node);
             // transition attachments to the correct layouts for beginning of renderPass and first subpass
             TransitionBeginRenderPassLayouts(dev_data, cb_node, render_pass_state, framebuffer);
         }
