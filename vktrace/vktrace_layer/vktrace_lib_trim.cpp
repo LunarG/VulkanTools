@@ -3420,11 +3420,16 @@ void write_all_referenced_object_calls() {
             if (setObj->second.belongsToDevice == (VkDevice)deviceObj->first) {
                 // when trim track vkAllocateDescriptorSets, it create numBindings
                 // WriteDescriptorSets and CopyDescriptorSets to record the binding
-                // change, here we will use these recorded data to generate
-                // vkUpdateDescriptorSets packet for playback to
+                // change, here we will use these recorded data of changed binding
+                // to generate vkUpdateDescriptorSets packet for playback to
                 // update/restore the descriptorSets state when starting trim.
-                uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.numBindings;
-                uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.numBindings;
+                // descriptorWriteCount and descriptorCopyCount all <= numBindings.
+                // they are used to indicate so far how many bindings of this
+                // descriptorset has been updated, if we start to trim at a location
+                // close to title's beginning, that's very possible not all bindings
+                // has been updated.
+                uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
+                uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
                 VkWriteDescriptorSet *pDescriptorWrites = setObj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets;
                 VkCopyDescriptorSet *pDescriptorCopies = setObj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets;
 
