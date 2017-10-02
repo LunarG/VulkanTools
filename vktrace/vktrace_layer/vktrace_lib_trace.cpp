@@ -1824,6 +1824,164 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
     return result;
 }
 
+// When define DescriptorSet Layout, the binding number is also defined. by Doc,
+// the descriptor bindings can be specified sparsely so that not all binding
+// numbers between 0 and the maximum binding number. the function is used to
+// convert the binding number to binding index starting from 0.
+uint32_t get_binding_index(VkDescriptorSet dstSet, uint32_t binding) {
+    uint32_t binding_index = 0;
+    trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(dstSet);
+    for (uint32_t i = 0; i < pInfo->ObjectInfo.DescriptorSet.numBindings; i++) {
+        if (binding == pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[i].dstBinding) {
+            binding_index = i;
+            break;
+        }
+    }
+    return binding_index;
+}
+
+// The method is supposed to be used in __HOOKED_vkUpdateDescriptorSets
+// to detect if the specified binding will be updated by vkUpdateDescriptorSets
+// with the input specified parameters, if it will be updated, return true
+// and also return some parameters for the update process to use.
+//
+// const VkWriteDescriptorSet* pDescriptorWrites, the input
+//      VkWriteDescriptorSet array.
+// uint32_t WriteDescriptorIndex, the index in array pDescriptorWrites,
+//      it specify one element in pDescriptorWrites array.
+// uint32_t BindingIndex, the specified binding in a VkWriteDescriptorSet
+//      structure which is specified in the above two parameters,
+//      we are going to update the DescriptorSet from this binding,
+//      note: by doc, it's possible that VkWriteDescriptorSet also
+//      update other bindings after this binding.
+// uint32_t *pBindingDescriptorInfoArrayWriteIndex, for this binding of
+//      BindingIndex, we will need to update its array from
+//      *Binding_DescriptorArray_Index element.
+//      the parameter cannot be nullptr.
+// uint32_t *pBindingDescriptorInfoArrayWriteLength, for this binding
+//      of BindingIndex, we will need to update its array's
+//      *Binding_DescriptorArray_Write_Length elements.
+//      the parameter cannot be nullptr.
+// uint32_t *pDescriptorWritesIndex, for this binding of BindingIndex,
+//      we will need to update its array with the input
+//      pDescriptorWrites[WriteDescriptorIndex] from this index of
+//      its Descriptor info array.
+//      the parameter cannot be nullptr.
+// return:
+//      return true if the specified bind (BindingIndex) will be updated when call
+//      vkUpdateDescriptorSets by using the input parameter pDescriptorWrites
+//      and WriteDescriptorIndex. otherwise return false.
+bool isUpdateDescriptorSetBindingNeeded(const VkWriteDescriptorSet* pDescriptorWrites, uint32_t WriteDescriptorIndex,
+                                        uint32_t BindingIndex, uint32_t* pBindingDescriptorInfoArrayWriteIndex,
+                                        uint32_t* pBindingDescriptorInfoArrayWriteLength, uint32_t* pDescriptorWritesIndex) {
+    bool update_DescriptorSet_binding = false;
+    VkDescriptorSet dstSet =
+        pDescriptorWrites[WriteDescriptorIndex].dstSet;  // the DescriptorSet that we are going to update its bindings
+    trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(dstSet);
+    uint32_t initial_binding_index = get_binding_index(dstSet, pDescriptorWrites[WriteDescriptorIndex].dstBinding);
+    uint32_t target_binding_Descriptor_count = pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorCount;
+    if ((BindingIndex < initial_binding_index) || (target_binding_Descriptor_count == 0)) {
+        return false;
+    }
+    // we are going to update the binding of initial_binding_index from
+    // here:initial_binding_array_element
+    uint32_t initial_binding_array_element = pDescriptorWrites[WriteDescriptorIndex].dstArrayElement;
+
+    // the Descriptor count defined in related Descriptor layout
+    uint32_t initial_binding_Descriptor_count =
+        pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[initial_binding_index].descriptorCount;
+
+    // the input descriptor Count in pDescriptorWrites[WriteDescriptorIndex],
+    // it specify how many elements in array need to be written.
+    uint32_t write_Descriptor_count = pDescriptorWrites[WriteDescriptorIndex].descriptorCount;
+
+    if ((initial_binding_Descriptor_count - initial_binding_array_element) >=
+        write_Descriptor_count) {  // this is the normal case: pDescriptorWrites[WriteDescriptor_Index] will only update specified
+                                   // binding of initial_binding_index
+        if (BindingIndex == initial_binding_index) {
+            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].dstBinding ==
+                pDescriptorWrites[WriteDescriptorIndex].dstBinding) {
+                if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorType !=
+                    pDescriptorWrites[WriteDescriptorIndex]
+                        .descriptorType) {  // by doc, the target app should make sure the specified descriptorType
+                                            // same with original layout define, here target app doesn't following
+                                            // this, so we give user warning message although we track and record
+                                            // it. During playback, we will send the data to API same as the title.
+
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when the app tries to update the bindings of the DescriptorSet using "
+                        "vkUpdateDescriptorSets.");
+                }
+                update_DescriptorSet_binding = true;
+                *pBindingDescriptorInfoArrayWriteIndex = initial_binding_array_element;
+                *pBindingDescriptorInfoArrayWriteLength = write_Descriptor_count;
+                *pDescriptorWritesIndex = 0;
+            }
+        }
+    } else {  // this is the special case that need more process: by Doc,"If the dstBinding
+              // has fewer than descriptorCount array elements remaining starting from
+              // dstArrayElement, then the remainder will be used to update the subsequent
+              // binding - dstBinding+1 starting at array element zero....", we have to
+              // consider the possibility that the write may update other binding of which
+              // the binding number isnot pDescriptorWrites[WriteDescriptor_Index].dstBinding
+
+        // let's first calculate how many array elements (in Descriptor info array of
+        // pDescriptorWrites[WriteDescriptor_Index] ) will be passed when reach this
+        // target binding.
+        uint32_t passed_array_elements = 0;
+        for (uint32_t i = 0; i < BindingIndex; i++) {
+            if (i >= initial_binding_index) {  // By Doc, only current binding or its subsequent bindings to be updated.
+                if (i == initial_binding_index) {
+                    // if it's the initial binding( which is directly specified in VkWriteDescriptorSet
+                    // by dstSet), it will only update descriptors starting from
+                    // initial_binding_array_element.
+                    passed_array_elements += initial_binding_Descriptor_count - initial_binding_array_element;
+                } else {
+                    // if it's not the initial binding, all the binding's descriptor array should be included.
+                    passed_array_elements += pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[i].descriptorCount;
+                }
+            }
+        }
+        if (write_Descriptor_count >
+            passed_array_elements) {  // it means even all bindings before the target BindingIndex are updated by
+                                      // descriptors in the input pDescriptorWrites[WriteDescriptorIndex], there
+                                      // are still descriptors left to update the target binding index.
+
+            if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorType !=
+                pDescriptorWrites[WriteDescriptorIndex].descriptorType) {
+                vktrace_LogWarning(
+                    "the descriptorType not match when the app try to update the bindings of DescriptorSet by "
+                    "vkUpdateDescriptorSets.");
+            }
+            update_DescriptorSet_binding = true;
+
+            if (BindingIndex == initial_binding_index) {
+                // if the target binding that we are detecting now is the binding
+                // which is specified in pDescriptorWrites[WriteDescriptor_Index],
+                // its descriptor array updating will start from
+                // initial_binding_array_element.
+                *pBindingDescriptorInfoArrayWriteIndex = initial_binding_array_element;
+            } else {
+                // if the target binding is after initial_binding_index, its
+                // descriptor array updating will start from beginning.
+                *pBindingDescriptorInfoArrayWriteIndex = 0;
+            }
+
+            if ((write_Descriptor_count - passed_array_elements) >=
+                (target_binding_Descriptor_count - *pBindingDescriptorInfoArrayWriteIndex)) {
+                // the left descriptors is enough to update all descriptors of which the amount
+                // is defined in related descriptorset layout.
+                *pBindingDescriptorInfoArrayWriteLength = target_binding_Descriptor_count - *pBindingDescriptorInfoArrayWriteIndex;
+            } else {
+                // the left descriptors is not enough to update all descriptors of this binding.
+                *pBindingDescriptorInfoArrayWriteLength = write_Descriptor_count - passed_array_elements;
+            }
+            *pDescriptorWritesIndex = passed_array_elements;
+        }
+    }
+    return update_DescriptorSet_binding;
+}
+
 // Manually written because it needs to use get_struct_chain_size and allocate some extra pointers (why?)
 // Also since it needs to app the array of pointers and sub-buffers (see comments in function)
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDevice device, uint32_t descriptorWriteCount,
@@ -1901,41 +2059,48 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
     } else {
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < descriptorWriteCount; i++) {
-            // Reset writeDescriptorCount for each dstSet in this UpdateDescriptorSets call to only record the latest data.
-            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
-            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = 0;
-        }
-        for (uint32_t i = 0; i < descriptorWriteCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
             if (pInfo != NULL) {
                 // find existing writeDescriptorSet info to update.
                 VkWriteDescriptorSet* pWriteDescriptorSet = NULL;
                 for (uint32_t w = 0; w < pInfo->ObjectInfo.DescriptorSet.numBindings; w++) {
-                    if (pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w].dstBinding == pDescriptorWrites[i].dstBinding &&
-                        pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w].descriptorType ==
-                            pDescriptorWrites[i].descriptorType) {
+                    uint32_t bindingDescriptorInfoArrayWriteIndex;
+                    uint32_t bindingDescriptorInfoArrayWriteLength;
+                    uint32_t DescriptorWritesIndex;
+                    if (isUpdateDescriptorSetBindingNeeded(pDescriptorWrites, i, w, &bindingDescriptorInfoArrayWriteIndex,
+                                                           &bindingDescriptorInfoArrayWriteLength, &DescriptorWritesIndex)) {
                         pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w];
-                        pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount++;
+                        if (w >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+                            // this is to track the latest data in this call and also cover previous calls.
+                            // writeDescriptorCount is used to indicate so far how many bindings of this
+                            // descriptorset has been updated, this include this call and all previous
+                            // calls, from all these calls, we record the max bindingindex. its value must
+                            // be <= numBindings.
+                            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = w + 1;
+                        }
 
-                        pWriteDescriptorSet->dstArrayElement = pDescriptorWrites[i].dstArrayElement;
+                        pWriteDescriptorSet->dstArrayElement = 0;
                         if (pDescriptorWrites[i].pImageInfo != nullptr && pWriteDescriptorSet->pImageInfo != nullptr) {
-                            memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo),
-                                   pDescriptorWrites[i].pImageInfo,
-                                   sizeof(VkDescriptorImageInfo) * pWriteDescriptorSet->descriptorCount);
+                            memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo +
+                                                                      bindingDescriptorInfoArrayWriteIndex),
+                                   pDescriptorWrites[i].pImageInfo + DescriptorWritesIndex,
+                                   sizeof(VkDescriptorImageInfo) * bindingDescriptorInfoArrayWriteLength);
                             pWriteDescriptorSet->pBufferInfo = nullptr;
                             pWriteDescriptorSet->pTexelBufferView = nullptr;
                         }
                         if (pDescriptorWrites[i].pBufferInfo != nullptr && pWriteDescriptorSet->pBufferInfo != nullptr) {
-                            memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo),
-                                   pDescriptorWrites[i].pBufferInfo,
-                                   sizeof(VkDescriptorBufferInfo) * pWriteDescriptorSet->descriptorCount);
+                            memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo +
+                                                                       bindingDescriptorInfoArrayWriteIndex),
+                                   pDescriptorWrites[i].pBufferInfo + DescriptorWritesIndex,
+                                   sizeof(VkDescriptorBufferInfo) * bindingDescriptorInfoArrayWriteLength);
                             pWriteDescriptorSet->pImageInfo = nullptr;
                             pWriteDescriptorSet->pTexelBufferView = nullptr;
                         }
                         if (pDescriptorWrites[i].pTexelBufferView != nullptr && pWriteDescriptorSet->pTexelBufferView != nullptr) {
-                            memcpy(const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView),
-                                   pDescriptorWrites[i].pTexelBufferView,
-                                   sizeof(VkBufferView) * pWriteDescriptorSet->descriptorCount);
+                            memcpy(const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView +
+                                                             bindingDescriptorInfoArrayWriteIndex),
+                                   pDescriptorWrites[i].pTexelBufferView + DescriptorWritesIndex,
+                                   sizeof(VkBufferView) * bindingDescriptorInfoArrayWriteLength);
                             pWriteDescriptorSet->pImageInfo = nullptr;
                             pWriteDescriptorSet->pBufferInfo = nullptr;
                         }
@@ -1943,12 +2108,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
                     }
                 }
             }
-        }
-
-        for (uint32_t i = 0; i < descriptorCopyCount; i++) {
-            // Reset copyDescriptorCount for each dstSet in this UpdateDescriptorSets call to only record the latest data.
-            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
-            pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = 0;
         }
 
         for (uint32_t i = 0; i < descriptorCopyCount; i++) {
@@ -1960,8 +2119,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
                     if (pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[c].dstSet == pDescriptorCopies[i].dstSet &&
                         pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[c].dstBinding == pDescriptorCopies[i].dstBinding) {
                         pCopyDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pCopyDescriptorSets[c];
-                        pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount++;
-
+                        if (c >= pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount) {
+                            pInfo->ObjectInfo.DescriptorSet.copyDescriptorCount = c + 1;
+                        }
                         pCopyDescriptorSet->dstArrayElement = pDescriptorCopies[i].dstArrayElement;
                         pCopyDescriptorSet->srcArrayElement = pDescriptorCopies[i].srcArrayElement;
                         pCopyDescriptorSet->srcBinding = pDescriptorCopies[i].srcBinding;
