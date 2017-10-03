@@ -1257,6 +1257,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%f", name, deref)
         if "bool" in vk_type or 'xcb_randr_crtc_t' in vk_type:
             return ("%u", name, deref)
+        if "RROutput" in vk_type:
+            return ("%u", "(uint32_t)(%s)" % name, "")
         if True in [t in vk_type.lower() for t in ["int", "flags", "mask", "xcb_window_t"]]:
             if param.isstaticarray > 0: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
                 return ("[%i, %i, %i, %i]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
