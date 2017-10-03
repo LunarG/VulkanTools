@@ -441,6 +441,33 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
         m_vkFuncs.real_vkCmdPushDescriptorSetWithTemplateKHR =
             (vkFuncs::type_vkCmdPushDescriptorSetWithTemplateKHR)m_vkFuncs.real_vkGetDeviceProcAddr(
                 device, "vkCmdPushDescriptorSetWithTemplateKHR");
+        m_vkFuncs.real_vkCreateObjectTableNVX =
+            (vkFuncs::type_vkCreateObjectTableNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkCreateObjectTableNVX");
+        m_vkFuncs.real_vkCmdProcessCommandsNVX =
+            (vkFuncs::type_vkCmdProcessCommandsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkCmdProcessCommandsNVX");
+        m_vkFuncs.real_vkCmdReserveSpaceForCommandsNVX =
+            (vkFuncs::type_vkCmdReserveSpaceForCommandsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkCmdReserveSpaceForCommandsNVX");
+        m_vkFuncs.real_vkCreateIndirectCommandsLayoutNVX =
+            (vkFuncs::type_vkCreateIndirectCommandsLayoutNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkCreateIndirectCommandsLayoutNVX");
+        m_vkFuncs.real_vkRegisterObjectsNVX =
+            (vkFuncs::type_vkRegisterObjectsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkRegisterObjectsNVX");
+        m_vkFuncs.real_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX =
+            (vkFuncs::type_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX");
+        m_vkFuncs.real_vkDestroyIndirectCommandsLayoutNVX =
+            (vkFuncs::type_vkDestroyIndirectCommandsLayoutNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkDestroyIndirectCommandsLayoutNVX");
+        m_vkFuncs.real_vkDestroyObjectTableNVX =
+            (vkFuncs::type_vkDestroyObjectTableNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkDestroyObjectTableNVX");
+        m_vkFuncs.real_vkUnregisterObjectsNVX =
+            (vkFuncs::type_vkUnregisterObjectsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
+                device, "vkUnregisterObjectsNVX");
     }
     return replayResult;
 }
@@ -3703,5 +3730,75 @@ VkResult vkReplay::manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDi
     if (result == VK_SUCCESS) {
         m_objMapper.add_to_fences_map(*pPacket->pFence, fence);
     }
+    return result;
+}
+
+VkResult vkReplay::manually_replay_vkCreateObjectTableNVX(packet_vkCreateObjectTableNVX *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    VkObjectTableNVX local_pObjectTable;
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in CreateObjectTableNVX() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    // No need to remap pCreateINfo
+    // No need to remap pAllocator
+    // No need to remap pObjecTable
+
+    // Remap fields in pCreateInfo
+    *((VkObjectEntryTypeNVX **)&pPacket->pCreateInfo->pObjectEntryTypes) =
+        (VkObjectEntryTypeNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryTypes);
+    *((int32_t **)&pPacket->pCreateInfo->pObjectEntryCounts) =
+        (int32_t *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryCounts);
+    *((VkObjectEntryUsageFlagsNVX **)&pPacket->pCreateInfo->pObjectEntryUsageFlags) =
+        (VkObjectEntryUsageFlagsNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryUsageFlags);
+
+    auto result = m_vkFuncs.real_vkCreateObjectTableNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pObjectTable);
+
+    if (result == VK_SUCCESS) {
+        m_objMapper.add_to_objecttablenvxs_map(*(pPacket->pObjectTable), local_pObjectTable);
+    }
+    return result;
+}
+
+void vkReplay::manually_replay_vkCmdProcessCommandsNVX(packet_vkCmdProcessCommandsNVX *pPacket) {
+    VkCommandBuffer remappedcommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
+    if (pPacket->commandBuffer != VK_NULL_HANDLE && remappedcommandBuffer == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in CmdProcessCommandsNVX() due to invalid remapped VkCommandBuffer.");
+    }
+
+    // No need to remap pProcessCommandsInfo
+
+    // Remap fields in pProcessCommandsInfo
+    *((VkIndirectCommandsTokenNVX **)&pPacket->pProcessCommandsInfo->pIndirectCommandsTokens) =
+        (VkIndirectCommandsTokenNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pProcessCommandsInfo->pIndirectCommandsTokens);
+
+    m_vkFuncs.real_vkCmdProcessCommandsNVX(remappedcommandBuffer, pPacket->pProcessCommandsInfo);
+
+}
+
+
+VkResult vkReplay::manually_replay_vkCreateIndirectCommandsLayoutNVX(packet_vkCreateIndirectCommandsLayoutNVX *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    VkIndirectCommandsLayoutNVX local_pIndirectCommandsLayout;
+
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in CreateObjectTableNVX() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    // No need to remap pCreateInfo
+    // No need to remap pAllocator
+
+    // Remap fields in pCreateInfo
+    *((VkIndirectCommandsLayoutTokenNVX **)&pPacket->pCreateInfo->pTokens) =
+        (VkIndirectCommandsLayoutTokenNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pTokens);
+
+    auto result = m_vkFuncs.real_vkCreateIndirectCommandsLayoutNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pIndirectCommandsLayout);
+
+    if (result == VK_SUCCESS) {
+        m_objMapper.add_to_indirectcommandslayoutnvxs_map(*(pPacket->pIndirectCommandsLayout), local_pIndirectCommandsLayout);
+    }
+
     return result;
 }

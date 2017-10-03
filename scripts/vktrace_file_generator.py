@@ -615,6 +615,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  # VK_EXT_display_control
                                  'RegisterDeviceEventEXT',
                                  'RegisterDisplayEventEXT',
+                                 # VK_NVX_device_generated_commands
+                                 'CreateObjectTableNVX',
+                                 'CmdProcessCommandsNVX',
+                                 'CreateIndirectCommandsLayoutNVX',
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
@@ -1447,7 +1451,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         for p in params:
             # First handle custom cases
             # TODO: Look for extension = CORE here?  This is kludgy.
-            if p.name in ['pCreateInfo', 'pSetLayoutInfoList', 'pBeginInfo', 'pAllocateInfo'] and 'khr' not in p.type.lower() and 'lunarg' not in p.type.lower() and 'ext' not in p.type.lower():
+            if (p.name in ['pCreateInfo', 'pSetLayoutInfoList', 'pBeginInfo', 'pAllocateInfo'] and 'khr' not in p.type.lower() and 'lunarg' not in p.type.lower() and 'ext' not in p.type.lower() ) or (p.name in ['pReserveSpaceInfo', 'pFeatures', 'pLimits'] and 'nvx' in p.type.lower()):
                 ps.append('get_struct_chain_size((void*)%s)' % (p.name))
                 skip_list.append(p.name)
             elif p.name in custom_size_dict:
@@ -2299,6 +2303,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkCmdPushDescriptorSetWithTemplateKHR',
                                          'vkAcquireXlibDisplayEXT',
                                          'vkGetRandROutputDisplayEXT',
+                                         'vkCreateObjectTableNVX',
+                                         'vkCmdProcessCommandsNVX',
+                                         'vkCreateIndirectCommandsLayoutNVX',
                                          # TODO: VK_EXT_display_control
                                          ]
 
