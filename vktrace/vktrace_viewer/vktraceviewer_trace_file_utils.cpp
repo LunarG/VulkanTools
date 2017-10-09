@@ -63,7 +63,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
 
     // Seek to first packet
     long first_offset = pTraceFileInfo->pHeader->first_packet_offset;
-    int seekResult = fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
+    int seekResult = Fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
     if (seekResult != 0) {
         vktraceviewer_output_warning("Failed to seek to the first packet offset in the trace file.");
     }
@@ -75,7 +75,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
         pTraceFileInfo->packetCount++;
         fileOffset += packetSize;
 
-        fseek(pTraceFileInfo->pFile, fileOffset, SEEK_SET);
+        Fseek(pTraceFileInfo->pFile, fileOffset, SEEK_SET);
     }
 
     if (pTraceFileInfo->packetCount == 0) {
@@ -93,7 +93,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
         pTraceFileInfo->pPacketOffsets = VKTRACE_NEW_ARRAY(vktraceviewer_trace_file_packet_offsets, pTraceFileInfo->packetCount);
 
         // rewind to first packet and this time, populate the packet offsets
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
+        if (Fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktraceviewer_output_error("Unable to rewind trace file to gather packet offsets.");
             vktrace_free(pTraceFileInfo->pHeader);
             return FALSE;
@@ -107,7 +107,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
             pTraceFileInfo->pPacketOffsets[packetIndex].fileOffset = fileOffset;
 
             // rewind slightly
-            fseek(pTraceFileInfo->pFile, -1 * (long)sizeof(uint64_t), SEEK_CUR);
+            Fseek(pTraceFileInfo->pFile, -1 * (long)sizeof(uint64_t), SEEK_CUR);
 
             // allocate space for the packet and read it in
             pTraceFileInfo->pPacketOffsets[packetIndex].pHeader = (vktrace_trace_packet_header*)vktrace_malloc(packetSize);
@@ -126,7 +126,7 @@ BOOL vktraceviewer_populate_trace_file_info(vktraceviewer_trace_file_info* pTrac
             packetIndex++;
         }
 
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
+        if (Fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktraceviewer_output_error("Unable to rewind trace file to restore position.");
             vktrace_free(pTraceFileInfo->pHeader);
             return FALSE;
