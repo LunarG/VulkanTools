@@ -212,7 +212,7 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
 
     // Seek to first packet
     long first_offset = pTraceFileInfo->pHeader->first_packet_offset;
-    int seekResult = fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
+    int seekResult = Fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET);
     if (seekResult != 0) {
         emit OutputMessage(VKTRACE_LOG_WARNING, "Failed to seek to the first packet offset in the trace file.");
     }
