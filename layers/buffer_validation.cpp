@@ -850,7 +850,8 @@ bool PreCallValidateDestroyImage(layer_data *device_data, VkImage image, IMAGE_S
     if (disabled->destroy_image) return false;
     bool skip = false;
     if (*image_state) {
-        skip |= core_validation::ValidateObjectNotInUse(device_data, *image_state, *obj_struct, VALIDATION_ERROR_252007d0);
+        skip |= core_validation::ValidateObjectNotInUse(device_data, *image_state, *obj_struct, "vkDestroyImage",
+                                                        VALIDATION_ERROR_252007d0);
     }
     return skip;
 }
@@ -1268,7 +1269,7 @@ static inline bool CheckItgOffset(layer_data *device_data, const GLOBAL_CB_NODE 
 // Check elements of a VkExtent3D structure against a queue family's Image Transfer Granularity values
 static inline bool CheckItgExtent(layer_data *device_data, const GLOBAL_CB_NODE *cb_node, const VkExtent3D *extent,
                                   const VkOffset3D *offset, const VkExtent3D *granularity, const VkExtent3D *subresource_extent,
-                                  const uint32_t i, const char *function, const char *member) {
+                                  const VkImageType image_type, const uint32_t i, const char *function, const char *member) {
     const debug_report_data *report_data = core_validation::GetReportData(device_data);
     bool skip = false;
     if (IsExtentAllZeroes(granularity)) {
@@ -1290,14 +1291,26 @@ static inline bool CheckItgExtent(layer_data *device_data, const GLOBAL_CB_NODE 
         offset_extent_sum.width = static_cast<uint32_t>(abs(offset->x)) + extent->width;
         offset_extent_sum.height = static_cast<uint32_t>(abs(offset->y)) + extent->height;
         offset_extent_sum.depth = static_cast<uint32_t>(abs(offset->z)) + extent->depth;
-
-        bool x_ok =
-            ((0 == SafeModulo(extent->width, granularity->width)) || (subresource_extent->width == offset_extent_sum.width));
-        bool y_ok =
-            ((0 == SafeModulo(extent->height, granularity->height)) || (subresource_extent->height == offset_extent_sum.height));
-        bool z_ok =
-            ((0 == SafeModulo(extent->depth, granularity->depth)) || (subresource_extent->depth == offset_extent_sum.depth));
-
+        bool x_ok = true;
+        bool y_ok = true;
+        bool z_ok = true;
+        switch (image_type) {
+            case VK_IMAGE_TYPE_3D:
+                z_ok = ((0 == SafeModulo(extent->depth, granularity->depth)) ||
+                        (subresource_extent->depth == offset_extent_sum.depth));
+                // Intentionally fall through to 2D case
+            case VK_IMAGE_TYPE_2D:
+                y_ok = ((0 == SafeModulo(extent->height, granularity->height)) ||
+                        (subresource_extent->height == offset_extent_sum.height));
+                // Intentionally fall through to 1D case
+            case VK_IMAGE_TYPE_1D:
+                x_ok = ((0 == SafeModulo(extent->width, granularity->width)) ||
+                        (subresource_extent->width == offset_extent_sum.width));
+                break;
+            default:
+                // Unrecognized or new IMAGE_TYPE enums will be caught in parameter_validation
+                assert(false);
+        }
         if (!(x_ok && y_ok && z_ok)) {
             skip |=
                 log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
@@ -1371,7 +1384,7 @@ bool ValidateCopyBufferImageTransferGranularityRequirements(layer_data *device_d
         skip |= CheckItgOffset(device_data, cb_node, &region->imageOffset, &granularity, i, function, "imageOffset");
         VkExtent3D subresource_extent = GetImageSubresourceExtent(img, &region->imageSubresource);
         skip |= CheckItgExtent(device_data, cb_node, &region->imageExtent, &region->imageOffset, &granularity, &subresource_extent,
-                               i, function, "imageExtent");
+                               img->createInfo.imageType, i, function, "imageExtent");
     }
     return skip;
 }
@@ -1384,14 +1397,14 @@ bool ValidateCopyImageTransferGranularityRequirements(layer_data *device_data, c
     VkExtent3D granularity = GetScaledItg(device_data, cb_node, src_img);
     skip |= CheckItgOffset(device_data, cb_node, &region->srcOffset, &granularity, i, function, "srcOffset");
     VkExtent3D subresource_extent = GetImageSubresourceExtent(src_img, &region->srcSubresource);
-    skip |= CheckItgExtent(device_data, cb_node, &region->extent, &region->srcOffset, &granularity, &subresource_extent, i,
-                           function, "extent");
+    skip |= CheckItgExtent(device_data, cb_node, &region->extent, &region->srcOffset, &granularity, &subresource_extent,
+                           src_img->createInfo.imageType, i, function, "extent");
 
     granularity = GetScaledItg(device_data, cb_node, dst_img);
     skip |= CheckItgOffset(device_data, cb_node, &region->dstOffset, &granularity, i, function, "dstOffset");
     subresource_extent = GetImageSubresourceExtent(dst_img, &region->dstSubresource);
-    skip |= CheckItgExtent(device_data, cb_node, &region->extent, &region->dstOffset, &granularity, &subresource_extent, i,
-                           function, "extent");
+    skip |= CheckItgExtent(device_data, cb_node, &region->extent, &region->dstOffset, &granularity, &subresource_extent,
+                           dst_img->createInfo.imageType, i, function, "extent");
     return skip;
 }
 
@@ -2715,73 +2728,6 @@ static bool ValidateMaskBits(core_validation::layer_data *device_data, VkCommand
     return skip;
 }
 
-bool ValidateMaskBitsFromLayouts(core_validation::layer_data *device_data, VkCommandBuffer cmdBuffer,
-                                 const VkAccessFlags &accessMask, const VkImageLayout &layout, const char *type) {
-    const debug_report_data *report_data = core_validation::GetReportData(device_data);
-
-    bool skip = false;
-    switch (layout) {
-        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL: {
-            skip |= ValidateMaskBits(device_data, cmdBuffer, accessMask, layout, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                     VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT, type);
-            break;
-        }
-        case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL: {
-            skip |= ValidateMaskBits(device_data, cmdBuffer, accessMask, layout, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT, type);
-            break;
-        }
-        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL: {
-            skip |= ValidateMaskBits(device_data, cmdBuffer, accessMask, layout, VK_ACCESS_TRANSFER_WRITE_BIT, 0, type);
-            break;
-        }
-        case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL: {
-            skip |= ValidateMaskBits(
-                device_data, cmdBuffer, accessMask, layout, 0,
-                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT,
-                type);
-            break;
-        }
-        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: {
-            skip |= ValidateMaskBits(device_data, cmdBuffer, accessMask, layout, 0,
-                                     VK_ACCESS_INPUT_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT, type);
-            break;
-        }
-        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL: {
-            skip |= ValidateMaskBits(device_data, cmdBuffer, accessMask, layout, VK_ACCESS_TRANSFER_READ_BIT, 0, type);
-            break;
-        }
-        case VK_IMAGE_LAYOUT_UNDEFINED: {
-            if (accessMask != 0) {
-                // TODO: Verify against Valid Use section spec
-                skip |= log_msg(report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                                HandleToUint64(cmdBuffer), __LINE__, DRAWSTATE_INVALID_BARRIER, "DS",
-                                "Additional bits in %s accessMask 0x%X %s are specified when layout is %s.", type, accessMask,
-                                string_VkAccessFlags(accessMask).c_str(), string_VkImageLayout(layout));
-            }
-            break;
-        }
-        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
-        // Notes: QueuePresentKHR performs automatic visibility operations,
-        // so the app is /NOT/ required to include VK_ACCESS_MEMORY_READ_BIT
-        // when transitioning to this layout.
-        //
-        // When transitioning /from/ this layout, the application needs to
-        // avoid only a WAR hazard -- any writes need to be ordered after
-        // the PE's reads. There is no need for a memory dependency for this
-        // case.
-        // Intentionally fall through
-
-        case VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR:
-        // Todo -- shouldn't be valid unless extension is enabled
-        // Intentionally fall through
-
-        case VK_IMAGE_LAYOUT_GENERAL:
-        default: { break; }
-    }
-    return skip;
-}
-
 // ValidateLayoutVsAttachmentDescription is a general function where we can validate various state associated with the
 // VkAttachmentDescription structs that are used by the sub-passes of a renderpass. Initial check is to make sure that READ_ONLY
 // layout attachments don't have CLEAR as their loadOp.
@@ -3558,7 +3504,8 @@ bool PreCallValidateDestroyImageView(layer_data *device_data, VkImageView image_
     if (GetDisables(device_data)->destroy_image_view) return false;
     bool skip = false;
     if (*image_view_state) {
-        skip |= ValidateObjectNotInUse(device_data, *image_view_state, *obj_struct, VALIDATION_ERROR_25400804);
+        skip |=
+            ValidateObjectNotInUse(device_data, *image_view_state, *obj_struct, "vkDestroyImageView", VALIDATION_ERROR_25400804);
     }
     return skip;
 }
@@ -3600,7 +3547,8 @@ bool PreCallValidateDestroyBufferView(layer_data *device_data, VkBufferView buff
     if (GetDisables(device_data)->destroy_buffer_view) return false;
     bool skip = false;
     if (*buffer_view_state) {
-        skip |= ValidateObjectNotInUse(device_data, *buffer_view_state, *obj_struct, VALIDATION_ERROR_23e00750);
+        skip |=
+            ValidateObjectNotInUse(device_data, *buffer_view_state, *obj_struct, "vkDestroyBufferView", VALIDATION_ERROR_23e00750);
     }
     return skip;
 }

@@ -2834,15 +2834,15 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(VkDevice device, const VkMemoryAll
 }
 
 // For given obj node, if it is use, flag a validation error and return callback result, else return false
-bool ValidateObjectNotInUse(const layer_data *dev_data, BASE_NODE *obj_node, VK_OBJECT obj_struct,
+bool ValidateObjectNotInUse(const layer_data *dev_data, BASE_NODE *obj_node, VK_OBJECT obj_struct, const char *caller_name,
                             UNIQUE_VALIDATION_ERROR_CODE error_code) {
     if (dev_data->instance_data->disabled.object_in_use) return false;
     bool skip = false;
     if (obj_node->in_use.load()) {
-        skip |=
-            log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, get_debug_report_enum[obj_struct.type], obj_struct.handle,
-                    __LINE__, error_code, "DS", "Cannot delete %s 0x%" PRIx64 " that is currently in use by a command buffer. %s",
-                    object_string[obj_struct.type], obj_struct.handle, validation_error_map[error_code]);
+        skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, get_debug_report_enum[obj_struct.type],
+                        obj_struct.handle, __LINE__, error_code, "DS",
+                        "Cannot call %s on %s 0x%" PRIx64 " that is currently in use by a command buffer. %s", caller_name,
+                        object_string[obj_struct.type], obj_struct.handle, validation_error_map[error_code]);
     }
     return skip;
 }
@@ -2853,7 +2853,7 @@ static bool PreCallValidateFreeMemory(layer_data *dev_data, VkDeviceMemory mem, 
     if (dev_data->instance_data->disabled.free_memory) return false;
     bool skip = false;
     if (*mem_info) {
-        skip |= ValidateObjectNotInUse(dev_data, *mem_info, *obj_struct, VALIDATION_ERROR_2880054a);
+        skip |= ValidateObjectNotInUse(dev_data, *mem_info, *obj_struct, "vkFreeMemory", VALIDATION_ERROR_2880054a);
     }
     return skip;
 }
@@ -3229,7 +3229,7 @@ static bool PreCallValidateDestroySemaphore(layer_data *dev_data, VkSemaphore se
     if (dev_data->instance_data->disabled.destroy_semaphore) return false;
     bool skip = false;
     if (*sema_node) {
-        skip |= ValidateObjectNotInUse(dev_data, *sema_node, *obj_struct, VALIDATION_ERROR_268008e2);
+        skip |= ValidateObjectNotInUse(dev_data, *sema_node, *obj_struct, "vkDestroySemaphore", VALIDATION_ERROR_268008e2);
     }
     return skip;
 }
@@ -3256,7 +3256,7 @@ static bool PreCallValidateDestroyEvent(layer_data *dev_data, VkEvent event, EVE
     if (dev_data->instance_data->disabled.destroy_event) return false;
     bool skip = false;
     if (*event_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *event_state, *obj_struct, VALIDATION_ERROR_24c008f2);
+        skip |= ValidateObjectNotInUse(dev_data, *event_state, *obj_struct, "vkDestroyEvent", VALIDATION_ERROR_24c008f2);
     }
     return skip;
 }
@@ -3289,7 +3289,7 @@ static bool PreCallValidateDestroyQueryPool(layer_data *dev_data, VkQueryPool qu
     if (dev_data->instance_data->disabled.destroy_query_pool) return false;
     bool skip = false;
     if (*qp_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *qp_state, *obj_struct, VALIDATION_ERROR_26200632);
+        skip |= ValidateObjectNotInUse(dev_data, *qp_state, *obj_struct, "vkDestroyQueryPool", VALIDATION_ERROR_26200632);
     }
     return skip;
 }
@@ -3856,7 +3856,7 @@ static bool PreCallValidateDestroyPipeline(layer_data *dev_data, VkPipeline pipe
     if (dev_data->instance_data->disabled.destroy_pipeline) return false;
     bool skip = false;
     if (*pipeline_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *pipeline_state, *obj_struct, VALIDATION_ERROR_25c005fa);
+        skip |= ValidateObjectNotInUse(dev_data, *pipeline_state, *obj_struct, "vkDestroyPipeline", VALIDATION_ERROR_25c005fa);
     }
     return skip;
 }
@@ -3901,7 +3901,7 @@ static bool PreCallValidateDestroySampler(layer_data *dev_data, VkSampler sample
     if (dev_data->instance_data->disabled.destroy_sampler) return false;
     bool skip = false;
     if (*sampler_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *sampler_state, *obj_struct, VALIDATION_ERROR_26600874);
+        skip |= ValidateObjectNotInUse(dev_data, *sampler_state, *obj_struct, "vkDestroySampler", VALIDATION_ERROR_26600874);
     }
     return skip;
 }
@@ -3948,7 +3948,8 @@ static bool PreCallValidateDestroyDescriptorPool(layer_data *dev_data, VkDescrip
     if (dev_data->instance_data->disabled.destroy_descriptor_pool) return false;
     bool skip = false;
     if (*desc_pool_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *desc_pool_state, *obj_struct, VALIDATION_ERROR_2440025e);
+        skip |=
+            ValidateObjectNotInUse(dev_data, *desc_pool_state, *obj_struct, "vkDestroyDescriptorPool", VALIDATION_ERROR_2440025e);
     }
     return skip;
 }
@@ -4215,7 +4216,8 @@ static bool PreCallValidateDestroyFramebuffer(layer_data *dev_data, VkFramebuffe
     if (dev_data->instance_data->disabled.destroy_framebuffer) return false;
     bool skip = false;
     if (*framebuffer_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *framebuffer_state, *obj_struct, VALIDATION_ERROR_250006f8);
+        skip |=
+            ValidateObjectNotInUse(dev_data, *framebuffer_state, *obj_struct, "vkDestroyFrameBuffer", VALIDATION_ERROR_250006f8);
     }
     return skip;
 }
@@ -4249,7 +4251,7 @@ static bool PreCallValidateDestroyRenderPass(layer_data *dev_data, VkRenderPass 
     if (dev_data->instance_data->disabled.destroy_renderpass) return false;
     bool skip = false;
     if (*rp_state) {
-        skip |= ValidateObjectNotInUse(dev_data, *rp_state, *obj_struct, VALIDATION_ERROR_264006d2);
+        skip |= ValidateObjectNotInUse(dev_data, *rp_state, *obj_struct, "vkDestroyRenderPass", VALIDATION_ERROR_264006d2);
     }
     return skip;
 }
@@ -6698,12 +6700,6 @@ static bool ValidateBarriers(layer_data *device_data, const char *funcName, GLOB
             }
         }
 
-        if (mem_barrier->oldLayout != mem_barrier->newLayout) {
-            skip |= ValidateMaskBitsFromLayouts(device_data, cb_state->commandBuffer, mem_barrier->srcAccessMask,
-                                                mem_barrier->oldLayout, "Source");
-            skip |= ValidateMaskBitsFromLayouts(device_data, cb_state->commandBuffer, mem_barrier->dstAccessMask,
-                                                mem_barrier->newLayout, "Dest");
-        }
         if (mem_barrier->newLayout == VK_IMAGE_LAYOUT_UNDEFINED || mem_barrier->newLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) {
             skip |= log_msg(device_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
                             HandleToUint64(cb_state->commandBuffer), __LINE__, DRAWSTATE_INVALID_BARRIER, "DS",
@@ -8746,17 +8742,61 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(VkDevice device, VkEvent event) {
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo *pBindInfo,
-                                               VkFence fence) {
-    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(queue), layer_data_map);
-    VkResult result = VK_ERROR_VALIDATION_FAILED_EXT;
-    bool skip = false;
-    unique_lock_t lock(global_lock);
+static bool PreCallValidateQueueBindSparse(layer_data *dev_data, VkQueue queue, uint32_t bindInfoCount,
+                                           const VkBindSparseInfo *pBindInfo, VkFence fence) {
+    auto pFence = GetFenceNode(dev_data, fence);
+    bool skip = ValidateFenceForSubmit(dev_data, pFence);
+    if (skip) {
+        return true;
+    }
+
+    unordered_set<VkSemaphore> signaled_semaphores;
+    unordered_set<VkSemaphore> unsignaled_semaphores;
+    for (uint32_t bindIdx = 0; bindIdx < bindInfoCount; ++bindIdx) {
+        const VkBindSparseInfo &bindInfo = pBindInfo[bindIdx];
+
+        std::vector<SEMAPHORE_WAIT> semaphore_waits;
+        std::vector<VkSemaphore> semaphore_signals;
+        for (uint32_t i = 0; i < bindInfo.waitSemaphoreCount; ++i) {
+            VkSemaphore semaphore = bindInfo.pWaitSemaphores[i];
+            auto pSemaphore = GetSemaphoreNode(dev_data, semaphore);
+            if (pSemaphore) {
+                if (unsignaled_semaphores.count(semaphore) ||
+                    (!(signaled_semaphores.count(semaphore)) && !(pSemaphore->signaled))) {
+                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
+                                    HandleToUint64(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                    "Queue 0x%p is waiting on semaphore 0x%" PRIx64 " that has no way to be signaled.", queue,
+                                    HandleToUint64(semaphore));
+                } else {
+                    signaled_semaphores.erase(semaphore);
+                    unsignaled_semaphores.insert(semaphore);
+                }
+            }
+        }
+        for (uint32_t i = 0; i < bindInfo.signalSemaphoreCount; ++i) {
+            VkSemaphore semaphore = bindInfo.pSignalSemaphores[i];
+            auto pSemaphore = GetSemaphoreNode(dev_data, semaphore);
+            if (pSemaphore) {
+                if (signaled_semaphores.count(semaphore) || (!(unsignaled_semaphores.count(semaphore)) && pSemaphore->signaled)) {
+                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
+                                    HandleToUint64(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
+                                    "Queue 0x%p is signaling semaphore 0x%" PRIx64
+                                    " that has already been signaled but not waited on by queue 0x%" PRIx64 ".",
+                                    queue, HandleToUint64(semaphore), HandleToUint64(pSemaphore->signaler.first));
+                } else {
+                    unsignaled_semaphores.erase(semaphore);
+                    signaled_semaphores.insert(semaphore);
+                }
+            }
+        }
+    }
+
+    return skip;
+}
+static void PostCallRecordQueueBindSparse(layer_data *dev_data, VkQueue queue, uint32_t bindInfoCount,
+                                          const VkBindSparseInfo *pBindInfo, VkFence fence) {
     auto pFence = GetFenceNode(dev_data, fence);
     auto pQueue = GetQueueState(dev_data, queue);
-
-    // First verify that fence is not in use
-    skip |= ValidateFenceForSubmit(dev_data, pFence);
 
     if (pFence) {
         SubmitFence(pQueue, pFence, std::max(1u, bindInfoCount));
@@ -8768,17 +8808,15 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoC
         for (uint32_t j = 0; j < bindInfo.bufferBindCount; j++) {
             for (uint32_t k = 0; k < bindInfo.pBufferBinds[j].bindCount; k++) {
                 auto sparse_binding = bindInfo.pBufferBinds[j].pBinds[k];
-                if (SetSparseMemBinding(dev_data, {sparse_binding.memory, sparse_binding.memoryOffset, sparse_binding.size},
-                                        HandleToUint64(bindInfo.pBufferBinds[j].buffer), kVulkanObjectTypeBuffer))
-                    skip = true;
+                SetSparseMemBinding(dev_data, {sparse_binding.memory, sparse_binding.memoryOffset, sparse_binding.size},
+                                    HandleToUint64(bindInfo.pBufferBinds[j].buffer), kVulkanObjectTypeBuffer);
             }
         }
         for (uint32_t j = 0; j < bindInfo.imageOpaqueBindCount; j++) {
             for (uint32_t k = 0; k < bindInfo.pImageOpaqueBinds[j].bindCount; k++) {
                 auto sparse_binding = bindInfo.pImageOpaqueBinds[j].pBinds[k];
-                if (SetSparseMemBinding(dev_data, {sparse_binding.memory, sparse_binding.memoryOffset, sparse_binding.size},
-                                        HandleToUint64(bindInfo.pImageOpaqueBinds[j].image), kVulkanObjectTypeImage))
-                    skip = true;
+                SetSparseMemBinding(dev_data, {sparse_binding.memory, sparse_binding.memoryOffset, sparse_binding.size},
+                                    HandleToUint64(bindInfo.pImageOpaqueBinds[j].image), kVulkanObjectTypeImage);
             }
         }
         for (uint32_t j = 0; j < bindInfo.imageBindCount; j++) {
@@ -8786,9 +8824,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoC
                 auto sparse_binding = bindInfo.pImageBinds[j].pBinds[k];
                 // TODO: This size is broken for non-opaque bindings, need to update to comprehend full sparse binding data
                 VkDeviceSize size = sparse_binding.extent.depth * sparse_binding.extent.height * sparse_binding.extent.width * 4;
-                if (SetSparseMemBinding(dev_data, {sparse_binding.memory, sparse_binding.memoryOffset, size},
-                                        HandleToUint64(bindInfo.pImageBinds[j].image), kVulkanObjectTypeImage))
-                    skip = true;
+                SetSparseMemBinding(dev_data, {sparse_binding.memory, sparse_binding.memoryOffset, size},
+                                    HandleToUint64(bindInfo.pImageBinds[j].image), kVulkanObjectTypeImage);
             }
         }
 
@@ -8798,39 +8835,23 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoC
             VkSemaphore semaphore = bindInfo.pWaitSemaphores[i];
             auto pSemaphore = GetSemaphoreNode(dev_data, semaphore);
             if (pSemaphore) {
-                if (pSemaphore->signaled) {
-                    if (pSemaphore->signaler.first != VK_NULL_HANDLE) {
-                        semaphore_waits.push_back({semaphore, pSemaphore->signaler.first, pSemaphore->signaler.second});
-                        pSemaphore->in_use.fetch_add(1);
-                    }
-                    pSemaphore->signaler.first = VK_NULL_HANDLE;
-                    pSemaphore->signaled = false;
-                } else {
-                    skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
-                                    HandleToUint64(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
-                                    "vkQueueBindSparse: Queue 0x%p is waiting on semaphore 0x%" PRIx64
-                                    " that has no way to be signaled.",
-                                    queue, HandleToUint64(semaphore));
+                if (pSemaphore->signaler.first != VK_NULL_HANDLE) {
+                    semaphore_waits.push_back({semaphore, pSemaphore->signaler.first, pSemaphore->signaler.second});
+                    pSemaphore->in_use.fetch_add(1);
                 }
+                pSemaphore->signaler.first = VK_NULL_HANDLE;
+                pSemaphore->signaled = false;
             }
         }
         for (uint32_t i = 0; i < bindInfo.signalSemaphoreCount; ++i) {
             VkSemaphore semaphore = bindInfo.pSignalSemaphores[i];
             auto pSemaphore = GetSemaphoreNode(dev_data, semaphore);
             if (pSemaphore) {
-                if (pSemaphore->signaled) {
-                    skip = log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT,
-                                   HandleToUint64(semaphore), __LINE__, DRAWSTATE_QUEUE_FORWARD_PROGRESS, "DS",
-                                   "vkQueueBindSparse: Queue 0x%p is signaling semaphore 0x%" PRIx64
-                                   ", but that semaphore is already signaled.",
-                                   queue, HandleToUint64(semaphore));
-                } else {
-                    pSemaphore->signaler.first = queue;
-                    pSemaphore->signaler.second = pQueue->seq + pQueue->submissions.size() + 1;
-                    pSemaphore->signaled = true;
-                    pSemaphore->in_use.fetch_add(1);
-                    semaphore_signals.push_back(semaphore);
-                }
+                pSemaphore->signaler.first = queue;
+                pSemaphore->signaler.second = pQueue->seq + pQueue->submissions.size() + 1;
+                pSemaphore->signaled = true;
+                pSemaphore->in_use.fetch_add(1);
+                semaphore_signals.push_back(semaphore);
             }
         }
 
@@ -8843,11 +8864,22 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoC
         pQueue->submissions.emplace_back(std::vector<VkCommandBuffer>(), std::vector<SEMAPHORE_WAIT>(), std::vector<VkSemaphore>(),
                                          fence);
     }
+}
 
+VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo *pBindInfo,
+                                               VkFence fence) {
+    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(queue), layer_data_map);
+    unique_lock_t lock(global_lock);
+    bool skip = PreCallValidateQueueBindSparse(dev_data, queue, bindInfoCount, pBindInfo, fence);
     lock.unlock();
 
-    if (!skip) return dev_data->dispatch_table.QueueBindSparse(queue, bindInfoCount, pBindInfo, fence);
+    if (skip) return VK_ERROR_VALIDATION_FAILED_EXT;
 
+    VkResult result = dev_data->dispatch_table.QueueBindSparse(queue, bindInfoCount, pBindInfo, fence);
+
+    lock.lock();
+    PostCallRecordQueueBindSparse(dev_data, queue, bindInfoCount, pBindInfo, fence);
+    lock.unlock();
     return result;
 }
 
@@ -9551,13 +9583,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(VkDevice device, uint32
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout,
-                                                   VkSemaphore semaphore, VkFence fence, uint32_t *pImageIndex) {
-    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+static bool PreCallValidateAcquireNextImageKHR(layer_data *dev_data, VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout,
+                                               VkSemaphore semaphore, VkFence fence, uint32_t *pImageIndex) {
     bool skip = false;
-
-    unique_lock_t lock(global_lock);
-
     if (fence == VK_NULL_HANDLE && semaphore == VK_NULL_HANDLE) {
         skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
                         HandleToUint64(device), __LINE__, DRAWSTATE_SWAPCHAIN_NO_SYNC_FOR_ACQUIRE, "DS",
@@ -9579,7 +9607,6 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainK
     }
 
     auto swapchain_data = GetSwapchainNode(dev_data, swapchain);
-
     if (swapchain_data->replaced) {
         skip |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
                         HandleToUint64(swapchain), __LINE__, DRAWSTATE_SWAPCHAIN_REPLACED, "DS",
@@ -9606,7 +9633,38 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainK
                         "vkAcquireNextImageKHR: No images found to acquire from. Application probably did not call "
                         "vkGetSwapchainImagesKHR after swapchain creation.");
     }
+    return skip;
+}
 
+static void PostCallRecordAcquireNextImageKHR(layer_data *dev_data, VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout,
+                                              VkSemaphore semaphore, VkFence fence, uint32_t *pImageIndex) {
+    auto pFence = GetFenceNode(dev_data, fence);
+    if (pFence) {
+        pFence->state = FENCE_INFLIGHT;
+        pFence->signaler.first = VK_NULL_HANDLE;  // ANI isn't on a queue, so this can't participate in a completion proof.
+    }
+
+    // A successful call to AcquireNextImageKHR counts as a signal operation on semaphore
+    auto pSemaphore = GetSemaphoreNode(dev_data, semaphore);
+    if (pSemaphore) {
+        pSemaphore->signaled = true;
+        pSemaphore->signaler.first = VK_NULL_HANDLE;
+    }
+
+    // Mark the image as acquired.
+    auto swapchain_data = GetSwapchainNode(dev_data, swapchain);
+    auto image = swapchain_data->images[*pImageIndex];
+    auto image_state = GetImageState(dev_data, image);
+    image_state->acquired = true;
+    image_state->shared_presentable = swapchain_data->shared_presentable;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout,
+                                                   VkSemaphore semaphore, VkFence fence, uint32_t *pImageIndex) {
+    layer_data *dev_data = GetLayerDataPtr(get_dispatch_key(device), layer_data_map);
+
+    unique_lock_t lock(global_lock);
+    bool skip = PreCallValidateAcquireNextImageKHR(dev_data, device, swapchain, timeout, semaphore, fence, pImageIndex);
     lock.unlock();
 
     if (skip) return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -9615,22 +9673,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainK
 
     lock.lock();
     if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) {
-        if (pFence) {
-            pFence->state = FENCE_INFLIGHT;
-            pFence->signaler.first = VK_NULL_HANDLE;  // ANI isn't on a queue, so this can't participate in a completion proof.
-        }
-
-        // A successful call to AcquireNextImageKHR counts as a signal operation on semaphore
-        if (pSemaphore) {
-            pSemaphore->signaled = true;
-            pSemaphore->signaler.first = VK_NULL_HANDLE;
-        }
-
-        // Mark the image as acquired.
-        auto image = swapchain_data->images[*pImageIndex];
-        auto image_state = GetImageState(dev_data, image);
-        image_state->acquired = true;
-        image_state->shared_presentable = swapchain_data->shared_presentable;
+        PostCallRecordAcquireNextImageKHR(dev_data, device, swapchain, timeout, semaphore, fence, pImageIndex);
     }
     lock.unlock();
 
