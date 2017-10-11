@@ -294,7 +294,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     hdr.vktrace_begin_time = hdr.entrypoint_begin_time = hdr.entrypoint_end_time = hdr.vktrace_end_time = lastPacketEndTime;
     hdr.next_buffers_offset = 0;
     hdr.pBody = (uintptr_t)NULL;
-    if (0 == fseek(pTraceFile, 0, SEEK_END) && 1 == fwrite(&hdr, sizeof(hdr), 1, pTraceFile) &&
+    if (0 == Fseek(pTraceFile, 0, SEEK_END) && 1 == fwrite(&hdr, sizeof(hdr), 1, pTraceFile) &&
         portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(size_t), portabilityTable.size(), pTraceFile)) {
         // Set the flag in the file header that indicates the portability table has been written
         if (0 == fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))

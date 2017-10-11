@@ -67,11 +67,11 @@ size_t vktrace_FileLike_GetFileLength(FILE* fp) {
     size_t byte_length = 0;
 
     // Get file length
-    long length = 0;
-    if (fseek(fp, 0, SEEK_END) != 0) {
+    int64_t length = 0;
+    if (Fseek(fp, 0, SEEK_END) != 0) {
         vktrace_LogError("Failed to fseek to the end of tracefile for replaying.");
     } else {
-        length = ftell(fp);
+        length = Ftell(fp);
         if (length == -1L) {
             vktrace_LogError("Failed to get the length of tracefile for replaying.");
             length = 0;
@@ -192,7 +192,7 @@ size_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
 
     switch (pFileLike->mMode) {
         case File: {
-            offset = ftell(pFileLike->mFile);
+            offset = Ftell(pFileLike->mFile);
             break;
         }
 
@@ -209,7 +209,7 @@ BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, size_t offset) {
 
     switch (pFileLike->mMode) {
         case File: {
-            if (fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
+            if (Fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
                 ret = TRUE;
             }
             break;
