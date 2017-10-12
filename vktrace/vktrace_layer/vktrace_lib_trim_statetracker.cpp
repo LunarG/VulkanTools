@@ -473,10 +473,19 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
         // note: Using the same memory as both the destination and the source.
         // We're copying what is currently there, which will properly result in
         // new copies of any pointed-to objects and arrays.
-        copy_VkGraphicsPipelineCreateInfo(pCreateInfo, obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo);
-        copy_VkComputePipelineCreateInfo(
-            const_cast<VkComputePipelineCreateInfo *>(&obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo),
-            obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo);
+        if (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline) {
+            // here we keep the original value of source to a copy, so we can
+            // change the destination value in pCreateInfo and make it a
+            // deepcopy of the source. note: src parameter in the define of
+            // copy_VkGraphicsPipelineCreateInfo function is a reference.
+            VkGraphicsPipelineCreateInfo createInfoCopy = obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
+            copy_VkGraphicsPipelineCreateInfo(pCreateInfo, createInfoCopy);
+        } else {
+            VkComputePipelineCreateInfo createInfoCopy = obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo;
+            copy_VkComputePipelineCreateInfo(
+                const_cast<VkComputePipelineCreateInfo *>(&obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo),
+                createInfoCopy);
+        }
     }
 
     createdQueues = other.createdQueues;
