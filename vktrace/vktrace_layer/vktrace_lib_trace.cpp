@@ -1829,13 +1829,19 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
 // numbers between 0 and the maximum binding number. the function is used to
 // convert the binding number to binding index starting from 0.
 uint32_t get_binding_index(VkDescriptorSet dstSet, uint32_t binding) {
-    uint32_t binding_index = 0;
+    uint32_t binding_index = trim::INVALID_BINDING_INDEX;
     trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(dstSet);
     for (uint32_t i = 0; i < pInfo->ObjectInfo.DescriptorSet.numBindings; i++) {
         if (binding == pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[i].dstBinding) {
             binding_index = i;
             break;
         }
+    }
+    if (binding_index == trim::INVALID_BINDING_INDEX) {
+        vktrace_LogWarning(
+            "The binding is invalid when the app tries to update the bindings of the DescriptorSet using "
+            "vkUpdateDescriptorSets.");
+        assert(false);
     }
     return binding_index;
 }
@@ -1879,6 +1885,12 @@ bool isUpdateDescriptorSetBindingNeeded(const VkWriteDescriptorSet* pDescriptorW
         pDescriptorWrites[WriteDescriptorIndex].dstSet;  // the DescriptorSet that we are going to update its bindings
     trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(dstSet);
     uint32_t initial_binding_index = get_binding_index(dstSet, pDescriptorWrites[WriteDescriptorIndex].dstBinding);
+    if (initial_binding_index == trim::INVALID_BINDING_INDEX) {
+        vktrace_LogWarning(
+            "The binding is invalid when the app tries to update the bindings of the DescriptorSet using "
+            "vkUpdateDescriptorSets.");
+        return false;
+    }
     uint32_t target_binding_Descriptor_count = pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[BindingIndex].descriptorCount;
     if ((BindingIndex < initial_binding_index) || (target_binding_Descriptor_count == 0)) {
         return false;

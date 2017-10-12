@@ -16,6 +16,7 @@
 #pragma once
 #include <list>
 #include <map>
+#include <limits>
 #include "vktrace_trace_packet_identifiers.h"
 
 #include "vktrace_lib_trim_generate.h"
@@ -89,6 +90,8 @@ enum enum_key_state {
 
 // return if hotkey triggered;
 bool is_hotkey_trim_triggered();
+
+static const uint32_t INVALID_BINDING_INDEX = std::numeric_limits<uint32_t>::max();
 
 // Use this to snapshot the global state tracker at the start of the trim
 // frames.
