@@ -1110,7 +1110,7 @@ vktrace_trace_packet_header *vkCreateGraphicsPipelines(bool makeCall, VkDevice d
     size_t total_size = 0;
     uint32_t i;
     for (i = 0; i < createInfoCount; i++) {
-        total_size += get_struct_chain_size((void *)&pCreateInfos[i]);
+        total_size += get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(&pCreateInfos[i]);
     }
     CREATE_TRACE_PACKET(vkCreateGraphicsPipelines,
                         total_size + sizeof(VkAllocationCallbacks) + createInfoCount * sizeof(VkPipeline));

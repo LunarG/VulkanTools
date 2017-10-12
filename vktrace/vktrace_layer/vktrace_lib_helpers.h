@@ -351,6 +351,26 @@ static void add_create_ds_layout_to_trace_packet(vktrace_trace_packet_header *pH
     return;
 }
 
+// The accurate size of VkGraphicsPipelineCreateInfo can be got from
+// get_struct_chain_size, but it's needed to ROUNDUP_TO_4 because
+// VkGraphicsPipelineCreateInfo might include valid entry point name of shader.
+static size_t get_VkGraphicsPipelineCreateInfo_size_ROUNDUP_TO_4(const VkGraphicsPipelineCreateInfo *pCreateInfos) {
+    size_t entryPointNameLength = 0;
+    size_t struct_size = get_struct_chain_size(pCreateInfos);
+
+    if ((pCreateInfos->stageCount) && (pCreateInfos->pStages != nullptr)) {
+        VkPipelineShaderStageCreateInfo *pStage = const_cast<VkPipelineShaderStageCreateInfo *>(pCreateInfos->pStages);
+        for (uint32_t i = 0; i < pCreateInfos->stageCount; i++) {
+            if (pStage->pName) {
+                entryPointNameLength = strlen(pStage->pName) + 1;
+                struct_size += ROUNDUP_TO_4(entryPointNameLength) - entryPointNameLength;
+            }
+            ++pStage;
+        }
+    }
+    return struct_size;
+}
+
 static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_packet_header *pHeader,
                                                               VkGraphicsPipelineCreateInfo *pPacket,
                                                               const VkGraphicsPipelineCreateInfo *pParam, uint32_t count) {
