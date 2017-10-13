@@ -131,6 +131,7 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         # Internal state - accumulators for different inner block text
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         self.intercepts = []
+        self.intercept_enums = ''                  # string containing API intercept enum values
 
     # Check if the parameter passed in is a pointer to an array
     def paramIsArray(self, param):
@@ -162,7 +163,6 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
-        # C-specific
         # Multiple inclusion protection & C++ namespace.
         self.header = False
         if (genOpts.protectFile and self.genOpts.filename and 'h' == self.genOpts.filename[-1]):
@@ -194,17 +194,19 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             write('};', file=self.outFile)
             write('static unordered_map<void *, device_layer_data *> device_layer_data_map;', file=self.outFile)
             write('static unordered_map<void *, instance_layer_data *> instance_layer_data_map;', file=self.outFile)
-
+            # Initialize Enum Section
+            self.intercept_enums += 'typedef enum InterceptIdentifiers {\n'
+    #
     def endFile(self):
-        # C-specific
         # Finish C++ namespace and multiple inclusion protection
         self.newline()
-        # record intercepted procedures
-        write('// Map of all APIs to be intercepted by this layer', file=self.outFile)
-        write('static const std::unordered_map<std::string, void*> name_to_funcptr_map = {', file=self.outFile)
-        write('\n'.join(self.intercepts), file=self.outFile)
-        write('};\n', file=self.outFile)
-        self.newline()
+        if not self.header:
+            # Record intercepted procedures
+            write('// Map of all APIs to be intercepted by this layer', file=self.outFile)
+            write('static const std::unordered_map<std::string, void*> name_to_funcptr_map = {', file=self.outFile)
+            write('\n'.join(self.intercepts), file=self.outFile)
+            write('};\n', file=self.outFile)
+            self.newline()
         write('} // namespace vulkan_layer_factory', file=self.outFile)
         if self.header:
             self.newline()
@@ -213,38 +215,27 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         OutputGenerator.endFile(self)
 
     def beginFeature(self, interface, emit):
-        #write('// starting beginFeature', file=self.outFile)
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
-        # C-specific
-        # Accumulate includes, defines, types, enums, function pointer typedefs,
-        # end function prototypes separately for this feature. They're only
-        # printed in endFeature().
+        # Accumulate includes, defines, types, enums, function pointer typedefs, end function prototypes separately for this
+        # feature. They're only printed in endFeature().
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
-        #write('// ending beginFeature', file=self.outFile)
 
     def endFeature(self):
-        # C-specific
         # Actually write the interface to the output file.
-        #write('// starting endFeature', file=self.outFile)
         if (self.emit):
             self.newline()
             if (self.genOpts.protectFeature):
                 write('#ifndef', self.featureName, file=self.outFile)
-            # If type declarations are needed by other features based on
-            # this one, it may be necessary to suppress the ExtraProtect,
+            # If type declarations are needed by other features based on this one, it may be necessary to suppress the ExtraProtect,
             # or move it below the 'for section...' loop.
-            #write('// endFeature looking at self.featureExtraProtect', file=self.outFile)
             if (self.featureExtraProtect != None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
-            #write('#define', self.featureName, '1', file=self.outFile)
             for section in self.TYPE_SECTIONS:
-                #write('// endFeature writing section'+section, file=self.outFile)
                 contents = self.sections[section]
                 if contents:
                     write('\n'.join(contents), file=self.outFile)
                     self.newline()
-            #write('// endFeature looking at self.sections[command]', file=self.outFile)
             if (self.sections['command']):
                 write('\n'.join(self.sections['command']), end=u'', file=self.outFile)
                 self.newline()
@@ -254,23 +245,18 @@ class LayerFactoryOutputGenerator(OutputGenerator):
                 write('#endif /*', self.featureName, '*/', file=self.outFile)
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
-        #write('// ending endFeature', file=self.outFile)
     #
     # Append a definition to the specified section
     def appendSection(self, section, text):
-        # self.sections[section].append('SECTION: ' + section + '\n')
         self.sections[section].append(text)
     #
     # Type generation
     def genType(self, typeinfo, name):
         pass
     #
-    # Struct (e.g. C "struct" type) generation.
-    # This is a special case of the <type> tag where the contents are
-    # interpreted as a set of <member> tags instead of freeform C
-    # C type declarations. The <member> tags are just like <param>
-    # tags - they are a declaration of a struct or union member.
-    # Only simple member declarations are supported (no nested
+    # Struct (e.g. C "struct" type) generation. This is a special case of the <type> tag where the contents are
+    # interpreted as a set of <member> tags instead of freeform C type declarations. The <member> tags are just like <param>
+    # tags - they are a declaration of a struct or union member. Only simple member declarations are supported (no nested
     # structs etc.)
     def genStruct(self, typeinfo, typeName):
         OutputGenerator.genStruct(self, typeinfo, typeName)
@@ -282,13 +268,11 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         body += '} ' + typeName + ';\n'
         self.appendSection('struct', body)
     #
-    # Group (e.g. C "enum" type) generation.
-    # These are concatenated together with other types.
+    # Group (e.g. C "enum" type) generation. These are concatenated together with other types.
     def genGroup(self, groupinfo, groupName):
         pass
     # Enumerant generation
-    # <enum> tags may specify their values in several ways, but are usually
-    # just integers.
+    # <enum> tags may specify their values in several ways, but are usually just integers.
     def genEnum(self, enuminfo, name):
         pass
     #
@@ -298,9 +282,13 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             self.appendSection('command', '')
             self.appendSection('command', self.makeCDecls(cmdinfo.elem)[0])
             if (self.featureExtraProtect != None):
+                self.intercept_enums += '#ifdef %s\n' % self.featureExtraProtect
                 self.intercepts += [ '#ifdef %s' % self.featureExtraProtect ]
+            self.intercept_enums += '    kPreCall%s,\n' % name[2:]
+            self.intercept_enums += '    kPostCall%s,\n' % name[2:]
             self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
             if (self.featureExtraProtect != None):
+                self.intercept_enums += '#endif\n'
                 self.intercepts += [ '#endif' ]
             return
 
@@ -332,7 +320,6 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
         if (self.featureExtraProtect != None):
             self.intercepts += [ '#endif' ]
-
         OutputGenerator.genCmd(self, cmdinfo, name)
         #
         decls = self.makeCDecls(cmdinfo.elem)
