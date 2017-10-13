@@ -317,3 +317,201 @@ void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header*
     buffer_location = (char*)(pHeader->pBody) + offset;
     return buffer_location;
 }
+
+void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApplicationInfo** ppStruct,
+                                     const VkApplicationInfo* pInStruct) {
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkApplicationInfo), pInStruct);
+    vktrace_add_buffer_to_trace_packet(
+        pHeader, (void**)&((*ppStruct)->pApplicationName),
+        (pInStruct->pApplicationName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pApplicationName) + 1) : 0,
+        pInStruct->pApplicationName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName),
+                                       (pInStruct->pEngineName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pEngineName) + 1) : 0,
+                                       pInStruct->pEngineName);
+    vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pApplicationName));
+    vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pEngineName));
+    vktrace_finalize_buffer_address(pHeader, (void**)&*ppStruct);
+}
+
+void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkInstanceCreateInfo** ppStruct,
+                                        VkInstanceCreateInfo* pInStruct) {
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkInstanceCreateInfo), pInStruct);
+    if (pInStruct->pApplicationInfo)
+        add_VkApplicationInfo_to_packet(pHeader, (VkApplicationInfo**)&((*ppStruct)->pApplicationInfo),
+                                        pInStruct->pApplicationInfo);
+    uint32_t i, siz = 0;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->ppEnabledLayerNames),
+                                       pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
+    if (pInStruct->enabledLayerCount > 0) {
+        for (i = 0; i < pInStruct->enabledLayerCount; i++) {
+            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
+                                               pInStruct->ppEnabledLayerNames[i]);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
+        }
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->ppEnabledExtensionNames),
+                                       pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
+    if (pInStruct->enabledExtensionCount > 0) {
+        for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
+            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
+                                               pInStruct->ppEnabledExtensionNames[i]);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
+        }
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames);
+    vktrace_finalize_buffer_address(pHeader, (void**)ppStruct);
+}
+
+void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDeviceCreateInfo** ppStruct,
+                                      const VkDeviceCreateInfo* pInStruct) {
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkDeviceCreateInfo), pInStruct);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(*ppStruct)->pQueueCreateInfos,
+                                       pInStruct->queueCreateInfoCount * sizeof(VkDeviceQueueCreateInfo),
+                                       pInStruct->pQueueCreateInfos);
+    uint32_t i, siz = 0;
+    for (i = 0; i < pInStruct->queueCreateInfoCount; i++) {
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(*ppStruct)->pQueueCreateInfos[i].pQueuePriorities,
+                                           pInStruct->pQueueCreateInfos[i].queueCount * sizeof(float),
+                                           pInStruct->pQueueCreateInfos[i].pQueuePriorities);
+        vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->pQueueCreateInfos[i].pQueuePriorities);
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->pQueueCreateInfos);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->ppEnabledLayerNames),
+                                       pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
+    if (pInStruct->enabledLayerCount > 0) {
+        for (i = 0; i < pInStruct->enabledLayerCount; i++) {
+            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
+                                               pInStruct->ppEnabledLayerNames[i]);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
+        }
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->ppEnabledExtensionNames),
+                                       pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
+    if (pInStruct->enabledExtensionCount > 0) {
+        for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
+            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
+                                               pInStruct->ppEnabledExtensionNames[i]);
+            vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
+        }
+    }
+    vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(*ppStruct)->pEnabledFeatures, sizeof(VkPhysicalDeviceFeatures),
+                                       pInStruct->pEnabledFeatures);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->pEnabledFeatures);
+    vktrace_finalize_buffer_address(pHeader, (void**)ppStruct);
+}
+
+VkInstanceCreateInfo* interpret_VkInstanceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable) {
+    VkInstanceCreateInfo* pVkInstanceCreateInfo =
+        (VkInstanceCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
+    uint32_t i;
+    if (pVkInstanceCreateInfo != NULL) {
+        pVkInstanceCreateInfo->pApplicationInfo = (VkApplicationInfo*)vktrace_trace_packet_interpret_buffer_pointer(
+            pHeader, (intptr_t)pVkInstanceCreateInfo->pApplicationInfo);
+        VkApplicationInfo** ppApplicationInfo = (VkApplicationInfo**)&pVkInstanceCreateInfo->pApplicationInfo;
+        if (pVkInstanceCreateInfo->pApplicationInfo) {
+            (*ppApplicationInfo)->pApplicationName = (const char*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkInstanceCreateInfo->pApplicationInfo->pApplicationName);
+            (*ppApplicationInfo)->pEngineName = (const char*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkInstanceCreateInfo->pApplicationInfo->pEngineName);
+        }
+        if (pVkInstanceCreateInfo->enabledLayerCount > 0) {
+            pVkInstanceCreateInfo->ppEnabledLayerNames = (const char* const*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkInstanceCreateInfo->ppEnabledLayerNames);
+            for (i = 0; i < pVkInstanceCreateInfo->enabledLayerCount; i++) {
+                char** ppTmp = (char**)&pVkInstanceCreateInfo->ppEnabledLayerNames[i];
+                *ppTmp = (char*)vktrace_trace_packet_interpret_buffer_pointer(
+                    pHeader, (intptr_t)pVkInstanceCreateInfo->ppEnabledLayerNames[i]);
+            }
+        }
+        if (pVkInstanceCreateInfo->enabledExtensionCount > 0) {
+            pVkInstanceCreateInfo->ppEnabledExtensionNames = (const char* const*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkInstanceCreateInfo->ppEnabledExtensionNames);
+            for (i = 0; i < pVkInstanceCreateInfo->enabledExtensionCount; i++) {
+                char** ppTmp = (char**)&pVkInstanceCreateInfo->ppEnabledExtensionNames[i];
+                *ppTmp = (char*)vktrace_trace_packet_interpret_buffer_pointer(
+                    pHeader, (intptr_t)pVkInstanceCreateInfo->ppEnabledExtensionNames[i]);
+            }
+        }
+    }
+    return pVkInstanceCreateInfo;
+}
+
+VkDeviceCreateInfo* interpret_VkDeviceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable) {
+    VkDeviceCreateInfo* pVkDeviceCreateInfo =
+        (VkDeviceCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
+    uint32_t i;
+    if (pVkDeviceCreateInfo != NULL) {
+        if (pVkDeviceCreateInfo->queueCreateInfoCount > 0) {
+            pVkDeviceCreateInfo->pQueueCreateInfos = (const VkDeviceQueueCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkDeviceCreateInfo->pQueueCreateInfos);
+            for (i = 0; i < pVkDeviceCreateInfo->queueCreateInfoCount; i++) {
+                float** ppQueuePriority = (float**)&pVkDeviceCreateInfo->pQueueCreateInfos[i].pQueuePriorities;
+                *ppQueuePriority = (float*)vktrace_trace_packet_interpret_buffer_pointer(
+                    pHeader, (intptr_t)pVkDeviceCreateInfo->pQueueCreateInfos[i].pQueuePriorities);
+            }
+        }
+        if (pVkDeviceCreateInfo->enabledLayerCount > 0) {
+            pVkDeviceCreateInfo->ppEnabledLayerNames = (const char* const*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkDeviceCreateInfo->ppEnabledLayerNames);
+            for (i = 0; i < pVkDeviceCreateInfo->enabledLayerCount; i++) {
+                char** ppTmp = (char**)&pVkDeviceCreateInfo->ppEnabledLayerNames[i];
+                *ppTmp = (char*)vktrace_trace_packet_interpret_buffer_pointer(
+                    pHeader, (intptr_t)pVkDeviceCreateInfo->ppEnabledLayerNames[i]);
+            }
+        }
+        if (pVkDeviceCreateInfo->enabledExtensionCount > 0) {
+            pVkDeviceCreateInfo->ppEnabledExtensionNames = (const char* const*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pVkDeviceCreateInfo->ppEnabledExtensionNames);
+            for (i = 0; i < pVkDeviceCreateInfo->enabledExtensionCount; i++) {
+                char** ppTmp = (char**)&pVkDeviceCreateInfo->ppEnabledExtensionNames[i];
+                *ppTmp = (char*)vktrace_trace_packet_interpret_buffer_pointer(
+                    pHeader, (intptr_t)pVkDeviceCreateInfo->ppEnabledExtensionNames[i]);
+            }
+        }
+        pVkDeviceCreateInfo->pEnabledFeatures = (const VkPhysicalDeviceFeatures*)vktrace_trace_packet_interpret_buffer_pointer(
+            pHeader, (intptr_t)pVkDeviceCreateInfo->pEnabledFeatures);
+    }
+    return pVkDeviceCreateInfo;
+}
+
+void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* pShader) {
+    if (pShader != NULL) {
+        pShader->pName = (const char*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pShader->pName);
+        // specialization info
+        pShader->pSpecializationInfo = (const VkSpecializationInfo*)vktrace_trace_packet_interpret_buffer_pointer(
+            pHeader, (intptr_t)pShader->pSpecializationInfo);
+        if (pShader->pSpecializationInfo != NULL) {
+            VkSpecializationInfo* pInfo = (VkSpecializationInfo*)pShader->pSpecializationInfo;
+            pInfo->pMapEntries = (const VkSpecializationMapEntry*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pShader->pSpecializationInfo->pMapEntries);
+            pInfo->pData =
+                (const void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pShader->pSpecializationInfo->pData);
+        }
+    }
+}
+
+VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
+                                                                             intptr_t ptr_variable) {
+    VkDeviceGroupDeviceCreateInfoKHX* pCreateInfo =
+        (VkDeviceGroupDeviceCreateInfoKHX*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
+    uint32_t i;
+    if (pCreateInfo != NULL) {
+        if (pCreateInfo->physicalDeviceCount > 0) {
+            pCreateInfo->pPhysicalDevices = (const VkPhysicalDevice*)vktrace_trace_packet_interpret_buffer_pointer(
+                pHeader, (intptr_t)pCreateInfo->pPhysicalDevices);
+            for (i = 0; i < pCreateInfo->physicalDeviceCount; i++) {
+                VkPhysicalDevice** ppTmp = (VkPhysicalDevice**)&pCreateInfo->pPhysicalDevices[i];
+                *ppTmp = (VkPhysicalDevice*)vktrace_trace_packet_interpret_buffer_pointer(
+                    pHeader, (intptr_t)pCreateInfo->pPhysicalDevices[i]);
+            }
+        }
+    }
+    return pCreateInfo;
+}

@@ -110,6 +110,21 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile);
 // converts a pointer variable that is currently byte offset into a pointer to the actual offset location
 void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
 
+// Adding to packets TODO: Move to codegen
+void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApplicationInfo** ppStruct,
+                                     const VkApplicationInfo* pInStruct);
+void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkInstanceCreateInfo** ppStruct,
+                                        VkInstanceCreateInfo* pInStruct);
+void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDeviceCreateInfo** ppStruct,
+                                      const VkDeviceCreateInfo* pInStruct);
+
+// Interpreting packets TODO: Move to codegen
+VkInstanceCreateInfo* interpret_VkInstanceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
+VkDeviceCreateInfo* interpret_VkDeviceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
+void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* pShader);
+VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
+                                                                             intptr_t ptr_variable);
+
 //=============================================================================
 // trace packet message
 // Interpretting a trace_packet_message should be done only when:
