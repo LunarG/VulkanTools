@@ -2942,6 +2942,212 @@ void mark_Framebuffer_reference(VkFramebuffer var) {
 //=========================================================================
 // Recreate all objects
 //=========================================================================
+
+// Check if it's a valid descriptor at specified location of descriptor
+// info array in pDescriptorWrites.
+// In the function, for the specified descriptor, according to the
+// descriptor type, we check all related objects still be tracked or
+// not to decide if it is still a valid object.
+//
+// Note: we check all needed objects, for example, if the descriptor type
+// is VK_DESCRIPTOR_TYPE_SAMPLER, we check both sampler and imageview.
+bool isValidDescriptorIndex(const VkWriteDescriptorSet *pDescriptorWrites, uint32_t index) {
+    bool isValidDescriptor = true;
+    trim::ObjectInfo *pInfo;
+    if (index < pDescriptorWrites->descriptorCount) {
+        switch (pDescriptorWrites->descriptorType) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                if (pDescriptorWrites->pImageInfo != nullptr) {
+                    if ((pDescriptorWrites->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) ||
+                        (pDescriptorWrites->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)) {
+                        if (nullptr == trim::get_Sampler_objectInfo(pDescriptorWrites->pImageInfo[index].sampler)) {
+                            isValidDescriptor = false;
+                        }
+                    }
+                    if ((isValidDescriptor) && ((pDescriptorWrites->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) ||
+                                                (pDescriptorWrites->descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
+                                                (pDescriptorWrites->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
+                                                (pDescriptorWrites->descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))) {
+                        if (nullptr == trim::get_ImageView_objectInfo(pDescriptorWrites->pImageInfo[index].imageView)) {
+                            isValidDescriptor = false;
+                        }
+                    }
+                } else {
+                    assert(false);
+                    isValidDescriptor = false;
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when trim generate vkUpdateDescriptorSets call for update the bindings "
+                        "of the DescriptorSet.");
+                }
+            } break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                if (pDescriptorWrites->pTexelBufferView != nullptr) {
+                    if (nullptr == trim::get_BufferView_objectInfo(pDescriptorWrites->pTexelBufferView[index])) {
+                        isValidDescriptor = false;
+                    }
+                } else {
+                    assert(false);
+                    isValidDescriptor = false;
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when trim generate vkUpdateDescriptorSets call for update the bindings "
+                        "of the DescriptorSet.");
+                }
+            } break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                if (pDescriptorWrites->pBufferInfo != nullptr) {
+                    if (nullptr == trim::get_Buffer_objectInfo(pDescriptorWrites->pBufferInfo[index].buffer)) {
+                        isValidDescriptor = false;
+                    }
+                } else {
+                    assert(false);
+                    isValidDescriptor = false;
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when trim generate vkUpdateDescriptorSets call for update the bindings "
+                        "of the DescriptorSet.");
+                }
+            } break;
+            default:
+                assert(false);
+                break;
+        }
+    } else {
+        assert(false);
+    }
+    return isValidDescriptor;
+}
+
+// Copy descriptor of location src to the location of dst. the location src,
+// dst is the index of the descriptor array: pImageInfo, pBufferInfo or
+// pTexelBufferView according to descriptorType.
+//
+// The function only copy related element from descriptorType specified array.
+// If src and dst descriptorType mismatch, a warning meesage will be given to
+// trace log.
+void copyDescriptorByIndex(const VkWriteDescriptorSet *pDescriptorWrites, uint32_t dst, uint32_t src) {
+    if ((dst < pDescriptorWrites->descriptorCount) && (src < pDescriptorWrites->descriptorCount)) {
+        switch (pDescriptorWrites->descriptorType) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                if (pDescriptorWrites->pImageInfo != nullptr) {
+                    memcpy(const_cast<VkDescriptorImageInfo *>(pDescriptorWrites->pImageInfo + dst),
+                           const_cast<VkDescriptorImageInfo *>(pDescriptorWrites->pImageInfo + src), sizeof(VkDescriptorImageInfo));
+                } else {
+                    assert(false);
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when trim generate vkUpdateDescriptorSets call for update the bindings "
+                        "of the DescriptorSet.");
+                }
+            } break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                if (pDescriptorWrites->pTexelBufferView != nullptr) {
+                    memcpy(const_cast<VkBufferView *>(pDescriptorWrites->pTexelBufferView + dst),
+                           const_cast<VkBufferView *>(pDescriptorWrites->pTexelBufferView + src), sizeof(VkBufferView));
+                } else {
+                    assert(false);
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when trim generate vkUpdateDescriptorSets call for update the bindings "
+                        "of the DescriptorSet.");
+                }
+            } break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                if (pDescriptorWrites->pBufferInfo != nullptr) {
+                    memcpy(const_cast<VkDescriptorBufferInfo *>(pDescriptorWrites->pBufferInfo + dst),
+                           const_cast<VkDescriptorBufferInfo *>(pDescriptorWrites->pBufferInfo + src),
+                           sizeof(VkDescriptorBufferInfo));
+                } else {
+                    assert(false);
+                    vktrace_LogWarning(
+                        "The descriptorType does not match when trim generate vkUpdateDescriptorSets call for update the bindings "
+                        "of the DescriptorSet.");
+                }
+            } break;
+            default:
+                break;
+        }
+    } else {
+        assert(false);
+    }
+}
+
+// In array of pDescriptorWrites, find the first valid descriptor info and
+// return its index in the array.
+//
+// If all are invalid, return -1;
+uint32_t getValidDescriptorIndexFromWriteDescriptorSet(const VkWriteDescriptorSet *pDescriptorWrites) {
+    uint32_t ValidDescriptorIndex = -1;
+    for (int i = 0; i < pDescriptorWrites->descriptorCount; i++) {
+        if (isValidDescriptorIndex(pDescriptorWrites, i)) {
+            ValidDescriptorIndex = i;
+            break;
+        }
+    }
+    return ValidDescriptorIndex;
+}
+
+// Remove all invalid descriptors from one VkWriteDescriptorSet and replace
+// with valid one.
+// on the following conditions, the function return true:
+//     1> it removed all invalid descriptors and replace with valid one.
+//     2> no descriptors found in this VkWriteDescriptorSet.
+// if the VkWriteDescriptorSet only include invalid descriptors, the
+// function return false.
+bool UpdateInvalidDescriptors(const VkWriteDescriptorSet *pDescriptorWrites) {
+    bool removeInvalidDescriptorsFlag = false;
+
+    // search and find the first valid one in the VkWriteDescriptorSet, we'll
+    // use it to replace any invalid one in the descriptor info array of
+    // the VkWriteDescriptorSet.
+    //
+    // note: we use this way to remove all invalid descriptors. for any
+    // invalid descriptor in a binding, we can assume its location is
+    // unused by target title at that time, so we can set it to any
+    // valid one.
+    //
+    // note: By Doc, the descriptor at a binding location can be invalid
+    // (just get vkAllocateDescriptorSets or corresponding object has been
+    // destroied) but any descriptor info in update call must be valid.
+    uint32_t validDescriptorIndex = getValidDescriptorIndexFromWriteDescriptorSet(pDescriptorWrites);
+    if ((validDescriptorIndex != -1) || (pDescriptorWrites->descriptorCount == 0)) {
+        // if we can remove all invalid descriptor info or pDescriptorWrites
+        // don't have any descriptors, the function return true.
+        removeInvalidDescriptorsFlag = true;
+
+        for (int i = 0; i < pDescriptorWrites->descriptorCount; i++) {
+            if (!isValidDescriptorIndex(pDescriptorWrites, i)) {
+                copyDescriptorByIndex(pDescriptorWrites, i, validDescriptorIndex);
+            }
+        }
+    }
+    return removeInvalidDescriptorsFlag;
+}
+
+// remove all invalid descriptors for every element from the
+// VkWriteDescriptorSet array of pDescriptorWrites.
+// please note: the way we remove it is to replace it with a
+// valid one.
+void UpdateInvalidDescriptors(uint32_t descriptorWriteCount, const VkWriteDescriptorSet *pDescriptorWrites) {
+    for (int i = 0; i < descriptorWriteCount; i++) {
+        if (!UpdateInvalidDescriptors(&pDescriptorWrites[i])) {
+            assert(false);
+        }
+    }
+}
+
 void write_all_referenced_object_calls() {
     if (g_trimPostProcess) {
         vktrace_LogDebug("vktrace marking references before recreating objects for trim.");
@@ -4255,6 +4461,28 @@ void write_all_referenced_object_calls() {
                 VkWriteDescriptorSet *pDescriptorWrites = setObj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets;
                 VkCopyDescriptorSet *pDescriptorCopies = setObj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets;
 
+                // In trim, we track target application descriptorset state when it
+                // call vkUpdateDescriptorSets to update descriptorset. By this way
+                // , trim maintain the every binding states of the descriptorset.
+                // when start to trim (press hotkey or reach frame range), trim
+                // dump the current descriptorset state to trace file.
+                //
+                // Because the tracking time and trim starting time is different,
+                // it's possible that some descriptors arenot valid anymore at trim
+                // starting time although valid at tracking time.
+                //
+                // For the target title in XCAP-759, some binding has thousands of
+                // descriptors to be updated, and at trim starting time, lots of them
+                // are already invalid and located sparsly.
+                //
+                // During playback, these invalid descriptors cause vkreplay skip
+                // related vkUpdateDescriptorSets call, and if we let vkreplay ignore
+                // and do those callS, it cause crash inside some driver.
+                //
+                // By Doc, descriptors must be valid in vkUpdateDescriptorSets call,
+                // so here, before we generate the update call, we check every
+                // descriptor in pDescriptorWrites and remove all invalid descriptors.
+                UpdateInvalidDescriptors(descriptorWriteCount, pDescriptorWrites);
                 vktrace_trace_packet_header *pHeader =
                     generate::vkUpdateDescriptorSets(false, setObj->second.belongsToDevice, descriptorWriteCount, pDescriptorWrites,
                                                      descriptorCopyCount, pDescriptorCopies);
