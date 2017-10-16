@@ -1,0 +1,29 @@
+{
+    "file_format_version" : "1.1.0",
+    "layer" : {
+        "name": "VK_LAYER_LUNARG_layer_factory",
+        "type": "GLOBAL",
+        "library_path": ".\\VkLayer_layer_factory.dll",
+        "api_version": "1.0.62",
+        "implementation_version": "1",
+        "description": "LunarG Validation Factory Layer",
+        "instance_extensions": [
+             {
+                 "name": "VK_EXT_debug_report",
+                 "spec_version": "6"
+             }
+         ],
+        "device_extensions": [
+             {
+                 "name": "VK_EXT_debug_marker",
+                 "spec_version": "4",
+                 "entrypoints": ["vkDebugMarkerSetObjectTagEXT",
+                        "vkDebugMarkerSetObjectNameEXT",
+                        "vkCmdDebugMarkerBeginEXT",
+                        "vkCmdDebugMarkerEndEXT",
+                        "vkCmdDebugMarkerInsertEXT"
+                       ]
+             }
+         ]
+    }
+}
