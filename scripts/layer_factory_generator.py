@@ -131,7 +131,8 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         # Internal state - accumulators for different inner block text
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         self.intercepts = []
-        self.intercept_enums = ''                  # string containing API intercept enum values
+        self.intercept_enums = ''                   # String containing API intercept enum values
+        self.layer_factory = ''                     # String containing base layer factory class definition
 
     # Check if the parameter passed in is a pointer to an array
     def paramIsArray(self, param):
@@ -180,6 +181,7 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             write('#include <unordered_map>\n', file=self.outFile)
         else:
             write('#include "vk_layer_data.h"', file=self.outFile)
+            write('#include "layer_factory.h"', file=self.outFile)
             write('#include <string.h>', file=self.outFile)
         write('namespace vulkan_layer_factory {', file=self.outFile)
         if not self.header:
@@ -194,8 +196,17 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             write('};', file=self.outFile)
             write('static unordered_map<void *, device_layer_data *> device_layer_data_map;', file=self.outFile)
             write('static unordered_map<void *, instance_layer_data *> instance_layer_data_map;', file=self.outFile)
+            write('static std::vector<std::vector<layer_factory *>> dispatch_intercepts;', file=self.outFile)
+
         # Initialize Enum Section
         self.intercept_enums += 'typedef enum InterceptIdentifiers {\n'
+        self.layer_factory += '// Layer Factory base class definition\n'
+        self.layer_factory += 'class layer_factory {\n'
+        self.layer_factory += '    public:\n'
+        self.layer_factory += '        std::string layer_name = "VLLF";\n'
+        self.layer_factory += '        virtual const std::vector<uint32_t> RegisterStateTracker() = 0;\n'
+        self.layer_factory += '\n'
+        self.layer_factory += '        // Pre/post hook point declarations\n'
     #
     def endFile(self):
         # Finish C++ namespace and multiple inclusion protection
@@ -210,8 +221,13 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         write('} // namespace vulkan_layer_factory', file=self.outFile)
         if self.header:
             self.newline()
+            # Output intercept identifer enum definition
             self.intercept_enums += '} InterceptIdentifiers;\n'
             write(self.intercept_enums, file=self.outFile)
+            # Output Layer Factory Class Definitions
+            self.layer_factory += '};\n'
+            write(self.layer_factory, file=self.outFile)
+
             write('#endif', file=self.outFile)
         # Finish processing in superclass
         OutputGenerator.endFile(self)
@@ -278,6 +294,18 @@ class LayerFactoryOutputGenerator(OutputGenerator):
     def genEnum(self, enuminfo, name):
         pass
     #
+    # Customize Cdecl for layer factory base class
+    def BaseClassCdecl(self, elem):
+        raw = self.makeCDecls(elem)[1]
+        # Change initial keyword
+        result = raw.replace("typedef", "virtual")
+        # Remove first set of parenthesis
+        result = result.replace("(", "", 1)
+        result = result.replace(")", "", 1)
+        pre_call = result.replace("VKAPI_PTR *PFN_vk", "PreCall")
+        post_call = pre_call.replace("PreCall", "PostCall")
+        return '        %s\n        %s\n' % (pre_call, post_call)
+    #
     # Command generation
     def genCmd(self, cmdinfo, name):
         if self.header: # In the header declare all intercepts
@@ -285,27 +313,32 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             self.appendSection('command', self.makeCDecls(cmdinfo.elem)[0])
             if (self.featureExtraProtect != None):
                 self.intercepts += [ '#ifdef %s' % self.featureExtraProtect ]
+                self.layer_factory += '#ifdef %s\n' % self.featureExtraProtect
             self.intercept_enums += '    kPreCall%s,\n' % name[2:]
             self.intercept_enums += '    kPostCall%s,\n' % name[2:]
+            # Update base class with virtual function declarations
+            self.layer_factory += self.BaseClassCdecl(cmdinfo.elem)
+            # Update function intercepts
             self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
             if (self.featureExtraProtect != None):
                 self.intercepts += [ '#endif' ]
+                self.layer_factory += '#endif\n'
             return
 
         manual_functions = [
             # Include functions here to be interecpted w/ manually implemented function bodies
-            'vkGetDeviceProcAddr',
-            'vkGetInstanceProcAddr',
-            'vkCreateDevice',
-            'vkDestroyDevice',
+            #'vkGetDeviceProcAddr',
+            #'vkGetInstanceProcAddr',
+            #'vkCreateDevice',
+            #'vkDestroyDevice',
             'vkCreateInstance',
-            'vkDestroyInstance',
-            'vkCreateDebugReportCallbackEXT',
-            'vkDestroyDebugReportCallbackEXT',
+            #'vkDestroyInstance',
+            #'vkCreateDebugReportCallbackEXT',
+            #'vkDestroyDebugReportCallbackEXT',
             'vkEnumerateInstanceLayerProperties',
             'vkEnumerateInstanceExtensionProperties',
-            'vkEnumerateDeviceLayerProperties',
-            'vkEnumerateDeviceExtensionProperties',
+            #'vkEnumerateDeviceLayerProperties',
+            #'vkEnumerateDeviceExtensionProperties',
         ]
         if name in manual_functions:
             decls = self.makeCDecls(cmdinfo.elem)
@@ -324,7 +357,7 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         #
         decls = self.makeCDecls(cmdinfo.elem)
         self.appendSection('command', '')
-        self.appendSection('command', '%s {\n' % decls[0][:-1])
+        self.appendSection('command', '%s {' % decls[0][:-1])
         # Setup common to call wrappers. First parameter is always dispatchable
         dispatchable_type = cmdinfo.elem.find('param/type').text
         dispatchable_name = cmdinfo.elem.find('param/name').text
@@ -332,15 +365,20 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         device_or_instance = 'device'
         dispatch_table_name = 'VkLayerDispatchTable'
         # Set to instance as necessary
-        if dispatchable_type in ["VkPhysicalDevice", "VkInstance"]:
+        if dispatchable_type in ["VkPhysicalDevice", "VkInstance"] or name == 'vkCreateInstance':
             device_or_instance = 'instance'
             dispatch_table_name = 'VkLayerInstanceDispatchTable'
-        self.appendSection('command', '    %s_layer_data *%s_data = GetLayerDataPtr(get_dispatch_key(%s), %s_layer_data_map);\n' % (device_or_instance, device_or_instance, dispatchable_name, device_or_instance))
+        self.appendSection('command', '    %s_layer_data *%s_data = GetLayerDataPtr(get_dispatch_key(%s), %s_layer_data_map);' % (device_or_instance, device_or_instance, dispatchable_name, device_or_instance))
         api_function_name = cmdinfo.elem.attrib.get('name')
         params = cmdinfo.elem.findall('param/name')
         paramstext = ', '.join([str(param.text) for param in params])
         API = api_function_name.replace('vk','%s_data->dispatch_table.' % (device_or_instance),1)
-        self.appendSection('command', '    PreCall%s(%s_data, %s);' % (api_function_name[2:], device_or_instance, paramstext))
+
+        # Generate pre-call object processing source code
+        self.appendSection('command', '    for (auto intercept : dispatch_intercepts[kPreCall%s]) {' % api_function_name[2:])
+        self.appendSection('command', '        intercept->PreCall%s(%s);' % (api_function_name[2:], paramstext))
+        self.appendSection('command', '    }')
+
         # Declare result variable, if any.
         resulttype = cmdinfo.elem.find('proto/type')
         if (resulttype != None and resulttype.text == 'void'):
@@ -351,7 +389,12 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             assignresult = ''
 
         self.appendSection('command', '    ' + assignresult + API + '(' + paramstext + ');')
-        self.appendSection('command', '    PostCall%s(%s_data, %s);' % (api_function_name[2:], device_or_instance, paramstext))
+
+        # Generate post-call object processing source code
+        self.appendSection('command', '    for (auto intercept : dispatch_intercepts[kPostCall%s]) {' % api_function_name[2:])
+        self.appendSection('command', '        intercept->PostCall%s(%s);' % (api_function_name[2:], paramstext))
+        self.appendSection('command', '    }')
+
         # Return result variable, if any.
         if (resulttype != None):
             self.appendSection('command', '    return result;')
