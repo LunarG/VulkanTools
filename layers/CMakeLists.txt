@@ -200,6 +200,9 @@ run_vk_xml_generate(parameter_validation_generator.py parameter_validation.cpp)
 run_vk_xml_generate(unique_objects_generator.py unique_objects_wrappers.h)
 run_vk_xml_generate(dispatch_table_helper_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(object_tracker_generator.py object_tracker.cpp)
+run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
+run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
+
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -220,6 +223,7 @@ add_vk_layer(object_tracker object_tracker.cpp object_tracker_utils.cpp vk_layer
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
 add_vk_layer(unique_objects unique_objects.cpp unique_objects_wrappers.h vk_layer_table.cpp)
 add_vk_layer(parameter_validation parameter_validation.cpp parameter_validation_utils.cpp parameter_validation.h vk_layer_table.cpp vk_validation_error_messages.h)
+add_vk_layer(layer_factory layer_factory.cpp layer_factory.h)
 
 # Core validation has additional dependencies
 target_include_directories(VkLayer_core_validation PRIVATE ${GLSLANG_SPIRV_INCLUDE_DIR})
