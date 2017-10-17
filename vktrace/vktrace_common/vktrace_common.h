@@ -67,6 +67,8 @@
 #define U_ASSERT_ONLY
 #endif
 
+static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
+
 // Enviroment variables used by vktrace/replay
 
 // VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1.
