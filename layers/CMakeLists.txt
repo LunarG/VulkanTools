@@ -223,7 +223,7 @@ add_vk_layer(object_tracker object_tracker.cpp object_tracker_utils.cpp vk_layer
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
 add_vk_layer(unique_objects unique_objects.cpp unique_objects_wrappers.h vk_layer_table.cpp)
 add_vk_layer(parameter_validation parameter_validation.cpp parameter_validation_utils.cpp parameter_validation.h vk_layer_table.cpp vk_validation_error_messages.h)
-add_vk_layer(layer_factory layer_factory.cpp layer_factory.h)
+add_vk_layer(layer_factory layer_factory.cpp layer_factory.h vk_layer_table.cpp)
 
 # Core validation has additional dependencies
 target_include_directories(VkLayer_core_validation PRIVATE ${GLSLANG_SPIRV_INCLUDE_DIR})
