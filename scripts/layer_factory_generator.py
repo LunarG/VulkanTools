@@ -123,6 +123,332 @@ class LayerFactoryOutputGenerator(OutputGenerator):
     TYPE_SECTIONS = ['include', 'define', 'basetype', 'handle', 'enum',
                      'group', 'bitmask', 'funcpointer', 'struct']
     ALL_SECTIONS = TYPE_SECTIONS + ['command']
+
+
+
+
+    inline_custom_source_preamble = """
+// This file is ***GENERATED***.  Do Not Edit.
+// See layer_factory_generator.py for modifications.
+
+/* Copyright (c) 2015-2017 The Khronos Group Inc.
+ * Copyright (c) 2015-2017 Valve Corporation
+ * Copyright (c) 2015-2017 LunarG, Inc.
+ * Copyright (c) 2015-2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author: Tobin Ehlis <tobine@google.com>
+ * Author: Mark Lobodzinski <mark@lunarg.com>
+ */
+
+#include <string.h>
+#include <mutex>
+
+#include "vk_loader_platform.h"
+#include "vk_dispatch_table_helper.h"
+#include "vk_layer_data.h"
+#include "vk_layer_extension_utils.h"
+#include "vk_layer_logging.h"
+#include "vk_extension_helper.h"
+#include "vk_layer_utils.h"
+
+class layer_factory;
+std::vector<layer_factory *> global_interceptor_list;
+debug_report_data *vllf_report_data = VK_NULL_HANDLE;
+
+#include "layer_factory.h"
+#include "interceptor_objects.h"
+
+using mutex_t = std::mutex;
+using lock_guard_t = std::lock_guard<mutex_t>;
+using unique_lock_t = std::unique_lock<mutex_t>;
+
+namespace vulkan_layer_factory {
+
+using std::unordered_map;
+
+static mutex_t global_lock;
+
+struct instance_layer_data {
+    VkLayerInstanceDispatchTable dispatch_table;
+    VkInstance instance = VK_NULL_HANDLE;
+    debug_report_data *report_data = nullptr;
+    std::vector<VkDebugReportCallbackEXT> logging_callback;
+    InstanceExtensions extensions;
+};
+
+struct device_layer_data {
+    debug_report_data *report_data = nullptr;
+    VkLayerDispatchTable dispatch_table;
+    DeviceExtensions extensions = {};
+    VkDevice device = VK_NULL_HANDLE;
+    VkPhysicalDevice physical_device = VK_NULL_HANDLE;
+    instance_layer_data *instance_data = nullptr;
+};
+
+static unordered_map<void *, device_layer_data *> device_layer_data_map;
+static unordered_map<void *, instance_layer_data *> instance_layer_data_map;
+static std::vector<std::vector<layer_factory *>> dispatch_intercepts;
+
+static const VkLayerProperties global_layer = {
+    "VK_LAYER_LUNARG_layer_factory", VK_LAYER_API_VERSION, 1, "LunarG Layer Factory Layer",
+};
+
+static const VkExtensionProperties instance_extensions[] = {{VK_EXT_DEBUG_REPORT_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_SPEC_VERSION}};
+
+extern const std::unordered_map<std::string, void*> name_to_funcptr_map;
+
+
+// Manually written functions
+
+// Add intercept points for each of the interceptor objects to the global list
+void InitializeDispatchIntercepts() {
+    dispatch_intercepts.resize(kMaxInterceptIdentifers);
+    for (auto interceptor : global_interceptor_list) {
+        for (auto intercept : interceptor->factory_object_intercepts) {
+            dispatch_intercepts[intercept].emplace_back(interceptor);
+        }
+    }
+}
+
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char *funcName) {
+    assert(device);
+    device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
+    const auto &item = name_to_funcptr_map.find(funcName);
+    if (item != name_to_funcptr_map.end()) {
+        return reinterpret_cast<PFN_vkVoidFunction>(item->second);
+    }
+    auto &table = device_data->dispatch_table;
+    if (!table.GetDeviceProcAddr) return nullptr;
+    return table.GetDeviceProcAddr(device, funcName);
+}
+
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *funcName) {
+    instance_layer_data *instance_data;
+    const auto &item = name_to_funcptr_map.find(funcName);
+    if (item != name_to_funcptr_map.end()) {
+        return reinterpret_cast<PFN_vkVoidFunction>(item->second);
+    }
+    instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    auto &table = instance_data->dispatch_table;
+    if (!table.GetInstanceProcAddr) return nullptr;
+    return table.GetInstanceProcAddr(instance, funcName);
+}
+
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *funcName) {
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    auto &table = instance_data->dispatch_table;
+    if (!table.GetPhysicalDeviceProcAddr) return nullptr;
+    return table.GetPhysicalDeviceProcAddr(instance, funcName);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
+    return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount,
+                                                              VkLayerProperties *pProperties) {
+    return util_GetLayerProperties(1, &global_layer, pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                    VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName))
+        return util_GetExtensionProperties(1, instance_extensions, pCount, pProperties);
+
+    return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char *pLayerName,
+                                                                  uint32_t *pCount, VkExtensionProperties *pProperties) {
+    if (pLayerName && !strcmp(pLayerName, global_layer.layerName)) return util_GetExtensionProperties(0, NULL, pCount, pProperties);
+
+    assert(physicalDevice);
+
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(physicalDevice), instance_layer_data_map);
+    return instance_data->dispatch_table.EnumerateDeviceExtensionProperties(physicalDevice, NULL, pCount, pProperties);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                              VkInstance *pInstance) {
+    VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+
+    assert(chain_info->u.pLayerInfo);
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance)fpGetInstanceProcAddr(NULL, "vkCreateInstance");
+    if (fpCreateInstance == NULL) return VK_ERROR_INITIALIZATION_FAILED;
+    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+
+    // Init dispatch array and call registration functions
+    InitializeDispatchIntercepts();
+    for (auto intercept : dispatch_intercepts[kPreCallCreateInstance]) {
+        intercept->PreCallCreateInstance(pCreateInfo, pAllocator, pInstance);
+    }
+
+    VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
+
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(*pInstance), instance_layer_data_map);
+    instance_data->instance = *pInstance;
+    layer_init_instance_dispatch_table(*pInstance, &instance_data->dispatch_table, fpGetInstanceProcAddr);
+    instance_data->report_data = debug_report_create_instance(
+        &instance_data->dispatch_table, *pInstance, pCreateInfo->enabledExtensionCount, pCreateInfo->ppEnabledExtensionNames);
+    instance_data->extensions.InitFromInstanceCreateInfo(pCreateInfo);
+    layer_debug_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
+
+    for (auto intercept : dispatch_intercepts[kPostCallCreateInstance]) {
+        intercept->PostCallCreateInstance(pCreateInfo, pAllocator, pInstance);
+    }
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    for (auto intercept : dispatch_intercepts[kPreCallDestroyInstance]) {
+        intercept->PreCallDestroyInstance(instance, pAllocator);
+    }
+
+    instance_data->dispatch_table.DestroyInstance(instance, pAllocator);
+
+    lock_guard_t lock(global_lock);
+    for (auto intercept : dispatch_intercepts[kPostCallDestroyInstance]) {
+        intercept->PostCallDestroyInstance(instance, pAllocator);
+    }
+    // Clean up logging callback, if any
+    while (instance_data->logging_callback.size() > 0) {
+        VkDebugReportCallbackEXT callback = instance_data->logging_callback.back();
+        layer_destroy_msg_callback(instance_data->report_data, callback, pAllocator);
+        instance_data->logging_callback.pop_back();
+    }
+    layer_debug_report_destroy_instance(instance_data->report_data);
+    FreeLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
+                                            const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(gpu), instance_layer_data_map);
+
+    unique_lock_t lock(global_lock);
+    VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
+    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(instance_data->instance, "vkCreateDevice");
+    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+
+    for (auto intercept : dispatch_intercepts[kPreCallCreateDevice]) {
+        intercept->PreCallCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
+    }
+    lock.unlock();
+
+    VkResult result = fpCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
+
+    lock.lock();
+    for (auto intercept : dispatch_intercepts[kPostCallCreateDevice]) {
+        intercept->PostCallCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
+    }
+    device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(*pDevice), device_layer_data_map);
+    device_data->instance_data = instance_data;
+    layer_init_device_dispatch_table(*pDevice, &device_data->dispatch_table, fpGetDeviceProcAddr);
+    device_data->device = *pDevice;
+    device_data->physical_device = gpu;
+    device_data->report_data = layer_debug_report_create_device(instance_data->report_data, *pDevice);
+    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, pCreateInfo);
+    lock.unlock();
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
+    device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
+
+    unique_lock_t lock(global_lock);
+    for (auto intercept : dispatch_intercepts[kPreCallDestroyDevice]) {
+        intercept->PreCallDestroyDevice(device, pAllocator);
+    }
+    layer_debug_report_destroy_device(device);
+    lock.unlock();
+
+    device_data->dispatch_table.DestroyDevice(device, pAllocator);
+
+    lock.lock();
+    for (auto intercept : dispatch_intercepts[kPostCallDestroyDevice]) {
+        intercept->PostCallDestroyDevice(device, pAllocator);
+    }
+
+    FreeLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
+}
+"""
+
+    inline_custom_source_postamble = """
+// loader-layer interface v0, just wrappers since there is only a layer
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
+                                                                                      VkExtensionProperties *pProperties) {
+    return vulkan_layer_factory::EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pCount,
+                                                                                  VkLayerProperties *pProperties) {
+    return vulkan_layer_factory::EnumerateInstanceLayerProperties(pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t *pCount,
+                                                                                VkLayerProperties *pProperties) {
+    // the layer command handles VK_NULL_HANDLE just fine internally
+    assert(physicalDevice == VK_NULL_HANDLE);
+    return vulkan_layer_factory::EnumerateDeviceLayerProperties(VK_NULL_HANDLE, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                                    const char *pLayerName, uint32_t *pCount,
+                                                                                    VkExtensionProperties *pProperties) {
+    // the layer command handles VK_NULL_HANDLE just fine internally
+    assert(physicalDevice == VK_NULL_HANDLE);
+    return vulkan_layer_factory::EnumerateDeviceExtensionProperties(VK_NULL_HANDLE, pLayerName, pCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice dev, const char *funcName) {
+    return vulkan_layer_factory::GetDeviceProcAddr(dev, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *funcName) {
+    return vulkan_layer_factory::GetInstanceProcAddr(instance, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance,
+                                                                                           const char *funcName) {
+    return vulkan_layer_factory::GetPhysicalDeviceProcAddr(instance, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct) {
+    assert(pVersionStruct != NULL);
+    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+    // Fill in the function pointers if our version is at least capable of having the structure contain them.
+    if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
+        pVersionStruct->pfnGetInstanceProcAddr = vkGetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = vkGetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = vk_layerGetPhysicalDeviceProcAddr;
+    }
+
+    return VK_SUCCESS;
+}"""
+
+
+
+
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -173,38 +499,31 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             write('#define', headerSym, '1', file=self.outFile)
             self.newline()
         # User-supplied prefix text, if any (list of strings)
-        if (genOpts.prefixText):
-            for s in genOpts.prefixText:
-                write(s, file=self.outFile)
         if self.header:
-            write('#include "vk_layer.h"', file=self.outFile)
+            if (genOpts.prefixText):
+                for s in genOpts.prefixText:
+                    write(s, file=self.outFile)
+            write('#include "vulkan/vk_layer.h"', file=self.outFile)
             write('#include <unordered_map>\n', file=self.outFile)
+            write('enum InterceptIdentifiers;', file=self.outFile)
+            write('class layer_factory;', file=self.outFile)
+            write('extern std::vector<layer_factory *> global_interceptor_list;', file=self.outFile)
+            write('extern debug_report_data *vllf_report_data;\n', file=self.outFile)
+            write('namespace vulkan_layer_factory {\n', file=self.outFile)
         else:
-            write('#include "vk_layer_data.h"', file=self.outFile)
-            write('#include "layer_factory.h"', file=self.outFile)
-            write('#include <string.h>', file=self.outFile)
-        write('namespace vulkan_layer_factory {', file=self.outFile)
-        if not self.header:
-            self.newline()
-            write('using std::unordered_map;\n', file=self.outFile)
-            # Provide structs to hold dispatch tables
-            write('struct instance_layer_data {', file=self.outFile)
-            write('    VkLayerInstanceDispatchTable dispatch_table;', file=self.outFile)
-            write('};', file=self.outFile)
-            write('struct device_layer_data {', file=self.outFile)
-            write('    VkLayerDispatchTable dispatch_table;', file=self.outFile)
-            write('};', file=self.outFile)
-            write('static unordered_map<void *, device_layer_data *> device_layer_data_map;', file=self.outFile)
-            write('static unordered_map<void *, instance_layer_data *> instance_layer_data_map;', file=self.outFile)
-            write('static std::vector<std::vector<layer_factory *>> dispatch_intercepts;', file=self.outFile)
+            write(self.inline_custom_source_preamble, file=self.outFile)
 
         # Initialize Enum Section
         self.intercept_enums += 'typedef enum InterceptIdentifiers {\n'
         self.layer_factory += '// Layer Factory base class definition\n'
         self.layer_factory += 'class layer_factory {\n'
         self.layer_factory += '    public:\n'
+        self.layer_factory += '        layer_factory(layer_factory *interceptor) {\n'
+        self.layer_factory += '            global_interceptor_list.emplace_back(this);\n'
+        self.layer_factory += '        };\n'
+        self.layer_factory += '\n'
         self.layer_factory += '        std::string layer_name = "VLLF";\n'
-        self.layer_factory += '        virtual const std::vector<uint32_t> RegisterStateTracker() = 0;\n'
+        self.layer_factory += '        std::vector<InterceptIdentifiers> factory_object_intercepts;\n'
         self.layer_factory += '\n'
         self.layer_factory += '        // Pre/post hook point declarations\n'
     #
@@ -222,6 +541,7 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         if self.header:
             self.newline()
             # Output intercept identifer enum definition
+            self.intercept_enums += '    kMaxInterceptIdentifers,\n'
             self.intercept_enums += '} InterceptIdentifiers;\n'
             write(self.intercept_enums, file=self.outFile)
             # Output Layer Factory Class Definitions
@@ -229,6 +549,8 @@ class LayerFactoryOutputGenerator(OutputGenerator):
             write(self.layer_factory, file=self.outFile)
 
             write('#endif', file=self.outFile)
+        else:
+            write(self.inline_custom_source_postamble, file=self.outFile)
         # Finish processing in superclass
         OutputGenerator.endFile(self)
 
@@ -302,6 +624,17 @@ class LayerFactoryOutputGenerator(OutputGenerator):
         # Remove first set of parenthesis
         result = result.replace("(", "", 1)
         result = result.replace(")", "", 1)
+        # Add default implementation: This map contains the default function definitions for the return types of Vulkan Commands.
+        # If any new return types are required, they'll need to be added to this dict.
+        return_map = {
+            'VkResult': ' { return VK_SUCCESS; };',
+            'void': ' {};',
+            'PFN_vkVoidFunction': ' { return nullptr; };',
+            'VkBool32': ' { return VK_TRUE; };',
+            }
+        return_type = result.split(" ")[1]
+        default_def = return_map[return_type]
+        result = result.replace(';', default_def, 1)
         pre_call = result.replace("VKAPI_PTR *PFN_vk", "PreCall")
         post_call = pre_call.replace("PreCall", "PostCall")
         return '        %s\n        %s\n' % (pre_call, post_call)
@@ -327,24 +660,25 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 
         manual_functions = [
             # Include functions here to be interecpted w/ manually implemented function bodies
-            #'vkGetDeviceProcAddr',
-            #'vkGetInstanceProcAddr',
-            #'vkCreateDevice',
-            #'vkDestroyDevice',
+            'vkGetDeviceProcAddr',
+            'vkGetInstanceProcAddr',
+            'vkGetPhysicalDeviceProcAddr',
+            'vkCreateDevice',
+            'vkDestroyDevice',
             'vkCreateInstance',
-            #'vkDestroyInstance',
+            'vkDestroyInstance',
             #'vkCreateDebugReportCallbackEXT',
             #'vkDestroyDebugReportCallbackEXT',
             'vkEnumerateInstanceLayerProperties',
             'vkEnumerateInstanceExtensionProperties',
-            #'vkEnumerateDeviceLayerProperties',
-            #'vkEnumerateDeviceExtensionProperties',
+            'vkEnumerateDeviceLayerProperties',
+            'vkEnumerateDeviceExtensionProperties',
         ]
         if name in manual_functions:
-            decls = self.makeCDecls(cmdinfo.elem)
-            self.appendSection('command', '')
-            self.appendSection('command', '// Declare only')
-            self.appendSection('command', decls[0])
+            ####decls = self.makeCDecls(cmdinfo.elem)
+            ####self.appendSection('command', '')
+            ####self.appendSection('command', '// Declare only')
+            ####self.appendSection('command', decls[0])
             self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
             return
         # Record that the function will be intercepted
