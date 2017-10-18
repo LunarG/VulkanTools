@@ -71,7 +71,7 @@ COMMON_CODEGEN = """
 
 //============================= Dump Functions ==============================//
 
-@foreach function where('{funcReturn}' != 'void')
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
@@ -560,7 +560,7 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 //========================= Function Implementations ========================//
 
-@foreach function where('{funcReturn}' != 'void')
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -886,7 +886,7 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 uint64_t next_frame = 0;
 
-@foreach function where('{funcReturn}' != 'void')
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
