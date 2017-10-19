@@ -60,16 +60,24 @@ enum ElementAlign { ALIGN_LEFT = 0, ALIGN_CENTER, ALIGN_RIGHT };
 
 struct PhysicalDeviceInfo {
     VkPhysicalDevice vulkan_phys_dev;
+    uint32_t api_version;
     std::vector<VkQueueFamilyProperties> queue_fam_props;
+};
+
+struct VulkanInfo {
+    VkInstance instance;
+    uint32_t api_version;
+    uint32_t max_supported_api_version;
+    std::vector<PhysicalDeviceInfo> phys_devices;
+    std::vector<VkDevice> log_devices;
 };
 
 struct GlobalItems {
     std::ofstream html_file_stream;
     bool sdk_found;
     std::string sdk_path;
-    VkInstance instance;
-    std::vector<PhysicalDeviceInfo> phys_devices;
-    std::vector<VkDevice> log_devices;
+    VulkanInfo min_vulkan_info;
+    VulkanInfo max_vulkan_info;
     uint32_t cur_table;
     std::string exe_directory;
     bool is_odd_row;
@@ -230,6 +238,7 @@ int main(int argc, char **argv) {
     }
 
     global_items.cur_table = 0;
+    global_items.max_vulkan_info.max_supported_api_version = VK_MAKE_VERSION(1, 0, 0);
 
 // Determine where we are executing at.
 #ifdef _WIN32
@@ -278,14 +287,20 @@ out:
 
     // Print out a useful message for any common errors.
     switch (res) {
-        case SUCCESSFUL:
+        case SUCCESSFUL: {
+            uint32_t max_version = global_items.max_vulkan_info.max_supported_api_version;
+            std::string vulkan_version_string = "Vulkan ";
+            vulkan_version_string += std::to_string(VK_VERSION_MAJOR(max_version));
+            vulkan_version_string += ".";
+            vulkan_version_string += std::to_string(VK_VERSION_MINOR(max_version));
             if (!global_items.sdk_found) {
-                std::cout << "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected"
-                          << std::endl;
+                std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                          << " instance/devices - However, No SDK Detected" << std::endl;
             } else {
-                std::cout << "SUCCESS: Vulkan analysis completed properly." << std::endl;
+                std::cout << "SUCCESS: Vulkan analysis completed properly using " << vulkan_version_string << std::endl;
             }
             break;
+        }
         case SYSTEM_CALL_FAILURE:
             std::cout << "ERROR: Failure occurred during system call." << std::endl;
             break;
@@ -361,12 +376,10 @@ void StartOutput(std::string output) {
 
     global_items.html_file_stream << "    <META charset=\"UTF-8\">" << std::endl
                                   << "    <style media=\"screen\" type=\"text/css\">" << std::endl
-                                  << "        html {"
-                                  << std::endl
+                                  << "        html {" << std::endl
                                   // By defining the color first, this won't override the background image
                                   // (unless the images aren't there).
-                                  << "            background-color: #0b1e48;"
-                                  << std::endl
+                                  << "            background-color: #0b1e48;" << std::endl
                                   // The following changes try to load the text image twice (locally, then
                                   // off the web) followed by the background image twice (locally, then
                                   // off the web).  The background color will only show if both background
@@ -390,8 +403,7 @@ void StartOutput(std::string output) {
                                   << "            background-repeat: no-repeat, no-repeat, no-repeat, "
                                      "no-repeat;"
                                   << std::endl
-                                  << "        }"
-                                  << std::endl
+                                  << "        }" << std::endl
                                   // h1.section is used for section headers, and h1.version is used to
                                   // print out the application version text (which shows up just under
                                   // the title).
@@ -1056,9 +1068,7 @@ ErrorResults PrintSystemInfo(void) {
                             PrintTableElement("Build");
                             PrintTableElement(output_string);
                             PrintEndTableRow();
-                            if (ReadRegKeyString(HKEY_LOCAL_MACHINE,
-                                                 "Software\\Microsoft\\Windo"
-                                                 "ws NT\\CurrentVersion",
+                            if (ReadRegKeyString(HKEY_LOCAL_MACHINE, "Software\\Microsoft\\Windows NT\\CurrentVersion",
                                                  "BuildBranch", MAX_STRING_LENGTH - 1, output_string)) {
                                 PrintBeginTableRow();
                                 PrintTableElement("");
@@ -1489,10 +1499,8 @@ ErrorResults PrintSystemInfo(void) {
 
     PrintBeginTableRow();
     PrintTableElement("Vulkan API Version");
-    uint32_t major = VK_VERSION_MAJOR(VK_API_VERSION_1_0);
-    uint32_t minor = VK_VERSION_MINOR(VK_API_VERSION_1_0);
-    uint32_t patch = VK_VERSION_PATCH(VK_HEADER_VERSION);
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", major, minor, patch);
+    // Update this version on a new release
+    snprintf(generic_string, MAX_STRING_LENGTH - 1, "1.1.%d", VK_VERSION_PATCH(VK_HEADER_VERSION));
     PrintTableElement(generic_string);
     PrintEndTableRow();
 
@@ -2938,10 +2946,7 @@ ErrorResults PrintSystemInfo(void) {
     PrintTableElement(APP_VERSION);
     PrintEndTableRow();
 
-    uint32_t major = VK_VERSION_MAJOR(VK_API_VERSION_1_0);
-    uint32_t minor = VK_VERSION_MINOR(VK_API_VERSION_1_0);
-    uint32_t patch = VK_VERSION_PATCH(VK_HEADER_VERSION);
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", major, minor, patch);
+    snprintf(generic_string, MAX_STRING_LENGTH - 1, "1.1.%d", VK_VERSION_PATCH(VK_HEADER_VERSION));
 
     PrintBeginTableRow();
     PrintTableElement("Vulkan API Version");
@@ -4645,6 +4650,7 @@ ErrorResults PrintInstanceInfo(void) {
     std::vector<VkExtensionProperties> ext_props;
     VkResult status;
     char generic_string[MAX_STRING_LENGTH];
+    uint32_t max_inst_api_version = VK_MAKE_VERSION(1, 0, 0);
 
     memset(&app_info, 0, sizeof(VkApplicationInfo));
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -4665,6 +4671,23 @@ ErrorResults PrintInstanceInfo(void) {
     inst_info.ppEnabledExtensionNames = NULL;
 
     PrintBeginTable("Instance", 3);
+
+    PFN_vkVoidFunction pfn_inst_version = vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkEnumerateInstanceVersion");
+    PrintBeginTableRow();
+    PrintTableElement("vkEnumerateInstanceVersion");
+    if (nullptr == pfn_inst_version) {
+        PrintTableElement("Not exposed by loader");
+        PrintTableElement("");
+    } else {
+        typedef VkResult(VKAPI_PTR * pfn_enum_inst_ver)(uint32_t * pApiVersion);
+        pfn_enum_inst_ver enum_inst_version = reinterpret_cast<pfn_enum_inst_ver>(pfn_inst_version);
+        enum_inst_version(&max_inst_api_version);
+        PrintTableElement("Max Instance Version");
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d.%d.%d", VK_VERSION_MAJOR(max_inst_api_version),
+                 VK_VERSION_MINOR(max_inst_api_version), VK_VERSION_PATCH(max_inst_api_version));
+        PrintTableElement(generic_string);
+    }
+    PrintEndTableRow();
 
     PrintBeginTableRow();
     PrintTableElement("vkEnumerateInstanceExtensionProperties");
@@ -4704,9 +4727,11 @@ ErrorResults PrintInstanceInfo(void) {
         }
     }
 
+    // Create a 1.0 instance
     PrintBeginTableRow();
-    PrintTableElement("vkCreateInstance");
-    status = vkCreateInstance(&inst_info, NULL, &global_items.instance);
+    PrintTableElement("vkCreateInstance [1.0]");
+    status = vkCreateInstance(&inst_info, NULL, &global_items.min_vulkan_info.instance);
+    global_items.min_vulkan_info.api_version = VK_MAKE_VERSION(1, 0, 0);
     if (status == VK_ERROR_INCOMPATIBLE_DRIVER) {
         PrintTableElement("ERROR: Incompatible Driver");
         res = VULKAN_CANT_FIND_DRIVER;
@@ -4722,6 +4747,35 @@ ErrorResults PrintInstanceInfo(void) {
     }
     PrintTableElement("");
     PrintEndTableRow();
+
+    // Create an instance up to the max version possible
+    if (nullptr != pfn_inst_version) {
+        app_info.apiVersion = max_inst_api_version;
+        global_items.max_vulkan_info.api_version = max_inst_api_version;
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkCreateInstance [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
+                 VK_VERSION_MINOR(max_inst_api_version));
+        PrintTableElement(generic_string);
+        status = vkCreateInstance(&inst_info, NULL, &global_items.max_vulkan_info.instance);
+        if (status == VK_ERROR_INCOMPATIBLE_DRIVER) {
+            PrintTableElement("ERROR: Incompatible Driver");
+            res = VULKAN_CANT_FIND_DRIVER;
+        } else if (status == VK_ERROR_OUT_OF_HOST_MEMORY) {
+            PrintTableElement("ERROR: Out of memory");
+            res = VULKAN_FAILED_OUT_OF_MEM;
+        } else if (status) {
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to create - %d", status);
+            PrintTableElement(generic_string);
+            res = VULKAN_FAILED_CREATE_INSTANCE;
+        } else {
+            PrintTableElement("SUCCESSFUL");
+        }
+        PrintTableElement("");
+        PrintEndTableRow();
+    } else {
+        global_items.max_vulkan_info.instance = VK_NULL_HANDLE;
+        global_items.max_vulkan_info.api_version = VK_MAKE_VERSION(1, 0, 0);
+    }
+
     PrintEndTable();
 
     return res;
@@ -4737,6 +4791,8 @@ ErrorResults PrintPhysDevInfo(void) {
     VkResult status;
     char generic_string[MAX_STRING_LENGTH];
     uint32_t gpu_count = 0;
+    uint32_t max_api_gpu_count = 0;
+    uint32_t max_overall_version = VK_MAKE_VERSION(1, 0, 0);
     uint32_t iii;
     uint32_t jjj;
 
@@ -4744,7 +4800,7 @@ ErrorResults PrintPhysDevInfo(void) {
 
     PrintBeginTableRow();
     PrintTableElement("vkEnumeratePhysicalDevices");
-    status = vkEnumeratePhysicalDevices(global_items.instance, &gpu_count, NULL);
+    status = vkEnumeratePhysicalDevices(global_items.min_vulkan_info.instance, &gpu_count, NULL);
     if (status) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to query - %d", status);
         PrintTableElement(generic_string);
@@ -4759,8 +4815,8 @@ ErrorResults PrintPhysDevInfo(void) {
     PrintEndTableRow();
 
     phys_devices.resize(gpu_count);
-    global_items.phys_devices.resize(gpu_count);
-    status = vkEnumeratePhysicalDevices(global_items.instance, &gpu_count, phys_devices.data());
+    global_items.min_vulkan_info.phys_devices.resize(gpu_count);
+    status = vkEnumeratePhysicalDevices(global_items.min_vulkan_info.instance, &gpu_count, phys_devices.data());
     if (VK_SUCCESS != status && VK_INCOMPLETE != status) {
         PrintBeginTableRow();
         PrintTableElement("");
@@ -4770,8 +4826,28 @@ ErrorResults PrintPhysDevInfo(void) {
         res = VULKAN_CANT_FIND_DRIVER;
         goto out;
     }
+
+    // Find out the max physical device API version first and set the max total version
+    // to the minimum of the instance version and the highest phsycial device version.
+    if (global_items.max_vulkan_info.instance != VK_NULL_HANDLE &&
+        global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0)) {
+        uint32_t max_api_gpu_version = VK_MAKE_VERSION(1, 0, 0);
+        for (iii = 0; iii < gpu_count; iii++) {
+            vkGetPhysicalDeviceProperties(phys_devices[iii], &props);
+            if (props.apiVersion > max_api_gpu_version) {
+                max_api_gpu_version = props.apiVersion;
+            }
+        }
+        if (global_items.max_vulkan_info.api_version >= max_api_gpu_version) {
+            max_overall_version = max_api_gpu_version;
+        } else {
+            max_overall_version = global_items.max_vulkan_info.api_version;
+        }
+        global_items.max_vulkan_info.max_supported_api_version = max_overall_version;
+    }
+
     for (iii = 0; iii < gpu_count; iii++) {
-        global_items.phys_devices[iii].vulkan_phys_dev = phys_devices[iii];
+        global_items.min_vulkan_info.phys_devices[iii].vulkan_phys_dev = phys_devices[iii];
 
         PrintBeginTableRow();
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", iii);
@@ -4896,9 +4972,9 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintTableElement("");
                 PrintEndTableRow();
 
-                global_items.phys_devices[iii].queue_fam_props.resize(queue_fam_count);
+                global_items.min_vulkan_info.phys_devices[iii].queue_fam_props.resize(queue_fam_count);
                 vkGetPhysicalDeviceQueueFamilyProperties(phys_devices[iii], &queue_fam_count,
-                                                         global_items.phys_devices[iii].queue_fam_props.data());
+                                                         global_items.min_vulkan_info.phys_devices[iii].queue_fam_props.data());
                 for (jjj = 0; jjj < queue_fam_count; jjj++) {
                     PrintBeginTableRow();
                     PrintTableElement("");
@@ -4906,7 +4982,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement(generic_string, ALIGN_RIGHT);
                     PrintTableElement("Queue Count");
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d",
-                             global_items.phys_devices[iii].queue_fam_props[jjj].queueCount);
+                             global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].queueCount);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4916,25 +4992,26 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("Queue Flags");
                     generic_string[0] = '\0';
                     bool prev_set = false;
-                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                    if (global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                         strncat(generic_string, "GRAPHICS", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
-                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                    if (global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_COMPUTE_BIT) {
                         if (prev_set) {
                             strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                         }
                         strncat(generic_string, "COMPUTE", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
-                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_TRANSFER_BIT) {
+                    if (global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_TRANSFER_BIT) {
                         if (prev_set) {
                             strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                         }
                         strncat(generic_string, "TRANSFER", MAX_STRING_LENGTH - 1);
                         prev_set = true;
                     }
-                    if (global_items.phys_devices[iii].queue_fam_props[jjj].queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) {
+                    if (global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].queueFlags &
+                        VK_QUEUE_SPARSE_BINDING_BIT) {
                         if (prev_set) {
                             strncat(generic_string, " | ", MAX_STRING_LENGTH - 1);
                         }
@@ -4952,7 +5029,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Timestamp Valid Bits");
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii].queue_fam_props[jjj].timestampValidBits);
+                             global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].timestampValidBits);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4968,7 +5045,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Width", ALIGN_RIGHT);
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.width);
+                             global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.width);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4976,8 +5053,9 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("");
                     PrintTableElement("Height", ALIGN_RIGHT);
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.height);
+                    snprintf(
+                        generic_string, MAX_STRING_LENGTH - 1, "0x%x",
+                        global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.height);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
 
@@ -4986,7 +5064,7 @@ ErrorResults PrintPhysDevInfo(void) {
                     PrintTableElement("");
                     PrintTableElement("Depth", ALIGN_RIGHT);
                     snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%x",
-                             global_items.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.depth);
+                             global_items.min_vulkan_info.phys_devices[iii].queue_fam_props[jjj].minImageTransferGranularity.depth);
                     PrintTableElement(generic_string);
                     PrintEndTableRow();
                 }
@@ -4997,6 +5075,23 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintTableElement("FAILED: Returned 0!");
                 PrintTableElement("");
                 PrintEndTableRow();
+            }
+
+            // If we have a non-1.0 max API, only add physical devices that support that new API to the max list.
+            if (global_items.max_vulkan_info.instance != VK_NULL_HANDLE &&
+                global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0) && props.apiVersion == max_overall_version) {
+                // Resize the max's physical device list by one more
+                size_t cur_size = global_items.max_vulkan_info.phys_devices.size();
+                global_items.max_vulkan_info.phys_devices.resize(cur_size + 1);
+                global_items.max_vulkan_info.phys_devices[max_api_gpu_count].vulkan_phys_dev = phys_devices[iii];
+                global_items.max_vulkan_info.phys_devices[max_api_gpu_count].api_version = props.apiVersion;
+                if (0 < queue_fam_count) {
+                    global_items.max_vulkan_info.phys_devices[max_api_gpu_count].queue_fam_props.resize(queue_fam_count);
+                    vkGetPhysicalDeviceQueueFamilyProperties(
+                        phys_devices[iii], &queue_fam_count,
+                        global_items.max_vulkan_info.phys_devices[max_api_gpu_count].queue_fam_props.data());
+                }
+                max_api_gpu_count++;
             }
 
             VkPhysicalDeviceMemoryProperties memory_props;
@@ -5152,89 +5247,109 @@ out:
 
 // Using the previously determine information, attempt to create a logical
 // device for each physical device we found.
-ErrorResults PrintLogicalDeviceInfo(void) {
+ErrorResults PrintLogicalDeviceInfo() {
     ErrorResults res = SUCCESSFUL;
     VkDeviceCreateInfo device_create_info;
     VkDeviceQueueCreateInfo queue_create_info;
     VkResult status = VK_SUCCESS;
-    uint32_t dev_count = static_cast<uint32_t>(global_items.phys_devices.size());
+    uint32_t dev_count;
     char generic_string[MAX_STRING_LENGTH];
     bool found_driver = false;
 
     PrintBeginTable("Logical Devices", 3);
 
-    PrintBeginTableRow();
-    PrintTableElement("vkCreateDevice");
-    snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
-    PrintTableElement(generic_string);
-    PrintTableElement("");
-    PrintEndTableRow();
-
-    global_items.log_devices.resize(dev_count);
-    for (uint32_t dev = 0; dev < dev_count; dev++) {
-        memset(&device_create_info, 0, sizeof(VkDeviceCreateInfo));
-        device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        device_create_info.pNext = NULL;
-        device_create_info.queueCreateInfoCount = 0;
-        device_create_info.pQueueCreateInfos = NULL;
-        device_create_info.enabledLayerCount = 0;
-        device_create_info.ppEnabledLayerNames = NULL;
-        device_create_info.enabledExtensionCount = 0;
-        device_create_info.ppEnabledExtensionNames = NULL;
-        device_create_info.queueCreateInfoCount = 1;
-        device_create_info.enabledLayerCount = 0;
-        device_create_info.ppEnabledLayerNames = NULL;
-        device_create_info.enabledExtensionCount = 0;
-        device_create_info.ppEnabledExtensionNames = NULL;
-
-        memset(&queue_create_info, 0, sizeof(VkDeviceQueueCreateInfo));
-        float queue_priority = 0;
-        queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queue_create_info.pNext = NULL;
-        queue_create_info.queueCount = 1;
-        queue_create_info.pQueuePriorities = &queue_priority;
-
-        for (uint32_t queue = 0; queue < global_items.phys_devices[dev].queue_fam_props.size(); queue++) {
-            if (0 != (global_items.phys_devices[dev].queue_fam_props[queue].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
-                queue_create_info.queueFamilyIndex = queue;
-                break;
-            }
-        }
-        device_create_info.pQueueCreateInfos = &queue_create_info;
+    for (uint32_t vers_index = 0; vers_index < 2; ++vers_index) {
+        VulkanInfo *vulkan_info;
 
         PrintBeginTableRow();
-        PrintTableElement("");
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
-        PrintTableElement(generic_string);
 
-        status = vkCreateDevice(global_items.phys_devices[dev].vulkan_phys_dev, &device_create_info, NULL,
-                                &global_items.log_devices[dev]);
-        if (VK_ERROR_INCOMPATIBLE_DRIVER == status) {
-            PrintTableElement("FAILED: Incompatible Driver");
-            if (!found_driver) {
-                res = VULKAN_CANT_FIND_DRIVER;
-            }
-        } else if (VK_ERROR_OUT_OF_HOST_MEMORY == status) {
-            PrintTableElement("FAILED: Out of Host Memory");
-            // If we haven't already found a driver, set an error
-            if (!found_driver) {
-                res = VULKAN_FAILED_OUT_OF_MEM;
-            }
-        } else if (VK_SUCCESS != status) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "FAILED : VkResult code = 0x%x", status);
-            PrintTableElement(generic_string);
-            // If we haven't already found a driver, set an error
-            if (!found_driver) {
-                res = VULKAN_FAILED_CREATE_DEVICE;
-            }
+        if (vers_index == 0) {
+            vulkan_info = &global_items.min_vulkan_info;
+            PrintTableElement("vkCreateDevice [1.0]");
         } else {
-            PrintTableElement("SUCCESSFUL");
-            found_driver = true;
-            // Clear any potential previous errors
-            res = SUCCESSFUL;
+            vulkan_info = &global_items.max_vulkan_info;
+            if (VK_NULL_HANDLE == vulkan_info->instance || 0 >= vulkan_info->phys_devices.size() ||
+                vulkan_info->max_supported_api_version < VK_MAKE_VERSION(1, 1, 0)) {
+                continue;
+            }
+            uint32_t max_inst_api_version = vulkan_info->max_supported_api_version;
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkCreateDevice [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
+                     VK_VERSION_MINOR(max_inst_api_version));
+            PrintTableElement("vkCreateDevice [%d.%d]");
         }
+        std::vector<PhysicalDeviceInfo> &phys_devices = vulkan_info->phys_devices;
+        dev_count = (uint32_t)phys_devices.size();
 
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
+        PrintTableElement(generic_string);
+        PrintTableElement("");
         PrintEndTableRow();
+
+        vulkan_info->log_devices.resize(dev_count);
+        for (uint32_t dev = 0; dev < dev_count; dev++) {
+            memset(&device_create_info, 0, sizeof(VkDeviceCreateInfo));
+            device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+            device_create_info.pNext = NULL;
+            device_create_info.queueCreateInfoCount = 0;
+            device_create_info.pQueueCreateInfos = NULL;
+            device_create_info.enabledLayerCount = 0;
+            device_create_info.ppEnabledLayerNames = NULL;
+            device_create_info.enabledExtensionCount = 0;
+            device_create_info.ppEnabledExtensionNames = NULL;
+            device_create_info.queueCreateInfoCount = 1;
+            device_create_info.enabledLayerCount = 0;
+            device_create_info.ppEnabledLayerNames = NULL;
+            device_create_info.enabledExtensionCount = 0;
+            device_create_info.ppEnabledExtensionNames = NULL;
+
+            memset(&queue_create_info, 0, sizeof(VkDeviceQueueCreateInfo));
+            float queue_priority = 0;
+            queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queue_create_info.pNext = NULL;
+            queue_create_info.queueCount = 1;
+            queue_create_info.pQueuePriorities = &queue_priority;
+
+            for (uint32_t queue = 0; queue < phys_devices[dev].queue_fam_props.size(); queue++) {
+                if (0 != (phys_devices[dev].queue_fam_props[queue].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+                    queue_create_info.queueFamilyIndex = queue;
+                    break;
+                }
+            }
+            device_create_info.pQueueCreateInfos = &queue_create_info;
+
+            PrintBeginTableRow();
+            PrintTableElement("");
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
+            PrintTableElement(generic_string);
+
+            status = vkCreateDevice(phys_devices[dev].vulkan_phys_dev, &device_create_info, NULL, &vulkan_info->log_devices[dev]);
+            if (VK_ERROR_INCOMPATIBLE_DRIVER == status) {
+                PrintTableElement("FAILED: Incompatible Driver");
+                if (!found_driver) {
+                    res = VULKAN_CANT_FIND_DRIVER;
+                }
+            } else if (VK_ERROR_OUT_OF_HOST_MEMORY == status) {
+                PrintTableElement("FAILED: Out of Host Memory");
+                // If we haven't already found a driver, set an error
+                if (!found_driver) {
+                    res = VULKAN_FAILED_OUT_OF_MEM;
+                }
+            } else if (VK_SUCCESS != status) {
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "FAILED : VkResult code = 0x%x", status);
+                PrintTableElement(generic_string);
+                // If we haven't already found a driver, set an error
+                if (!found_driver) {
+                    res = VULKAN_FAILED_CREATE_DEVICE;
+                }
+            } else {
+                PrintTableElement("SUCCESSFUL");
+                found_driver = true;
+                // Clear any potential previous errors
+                res = SUCCESSFUL;
+            }
+
+            PrintEndTableRow();
+        }
     }
 
     PrintEndTable();
@@ -5246,18 +5361,18 @@ ErrorResults PrintLogicalDeviceInfo(void) {
 // out if there are any problems.
 void PrintCleanupInfo(void) {
     char generic_string[MAX_STRING_LENGTH];
-    uint32_t dev_count = static_cast<uint32_t>(global_items.phys_devices.size());
+    uint32_t dev_count = static_cast<uint32_t>(global_items.min_vulkan_info.phys_devices.size());
 
     PrintBeginTable("Cleanup", 3);
 
     PrintBeginTableRow();
-    PrintTableElement("vkDestroyDevice");
+    PrintTableElement("vkDestroyDevic [1.0]");
     snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
     PrintTableElement(generic_string);
     PrintTableElement("");
     PrintEndTableRow();
     for (uint32_t dev = 0; dev < dev_count; dev++) {
-        vkDestroyDevice(global_items.log_devices[dev], NULL);
+        vkDestroyDevice(global_items.min_vulkan_info.log_devices[dev], NULL);
         PrintBeginTableRow();
         PrintTableElement("");
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
@@ -5267,13 +5382,44 @@ void PrintCleanupInfo(void) {
     }
 
     PrintBeginTableRow();
-    PrintTableElement("vkDestroyInstance");
-    vkDestroyInstance(global_items.instance, NULL);
+    PrintTableElement("vkDestroyInstance [1.0]");
+    vkDestroyInstance(global_items.min_vulkan_info.instance, NULL);
     PrintTableElement("SUCCESSFUL");
     PrintTableElement("");
     PrintEndTableRow();
+    PrintBeginTableRow();
 
-    PrintEndTable();
+    if (VK_NULL_HANDLE != global_items.max_vulkan_info.instance && 0 < global_items.max_vulkan_info.phys_devices.size() &&
+        global_items.max_vulkan_info.max_supported_api_version < VK_MAKE_VERSION(1, 1, 0)) {
+        uint32_t max_inst_api_version = global_items.max_vulkan_info.max_supported_api_version;
+        dev_count = static_cast<uint32_t>(global_items.max_vulkan_info.phys_devices.size());
+        PrintBeginTableRow();
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyDevice [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
+                 VK_VERSION_MINOR(max_inst_api_version));
+        PrintTableElement(generic_string);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
+        PrintTableElement(generic_string);
+        PrintTableElement("");
+        PrintEndTableRow();
+        for (uint32_t dev = 0; dev < dev_count; dev++) {
+            vkDestroyDevice(global_items.max_vulkan_info.log_devices[dev], NULL);
+            PrintBeginTableRow();
+            PrintTableElement("");
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
+            PrintTableElement(generic_string, ALIGN_RIGHT);
+            PrintTableElement("SUCCESSFUL");
+            PrintEndTableRow();
+        }
+
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyInstance [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
+                 VK_VERSION_MINOR(max_inst_api_version));
+        PrintTableElement(generic_string);
+        vkDestroyInstance(global_items.max_vulkan_info.instance, NULL);
+        PrintTableElement("SUCCESSFUL");
+        PrintTableElement("");
+        PrintEndTableRow();
+        PrintEndTable();
+    }
 }
 
 // Run any external tests we can find, and print the results of those
@@ -5345,6 +5491,7 @@ ErrorResults PrintTestResults(void) {
 ErrorResults PrintVulkanInfo(void) {
     ErrorResults res = SUCCESSFUL;
     bool created = false;
+
     BeginSection("Vulkan API Calls");
 
     res = PrintInstanceInfo();
