@@ -1,4 +1,4 @@
-#![LunarG's Vulkan Installation Analyzer (VIA)](images/lunarg_via_title.png)
+![LunarG's Vulkan Installation Analyzer (VIA)](images/lunarg_via_title.png)
 This document is an overview of how to use the [LunarG Vulkan Installation Analyzer (VIA)](https://vulkan.lunarg.com/doc/sdk/latest/windows/via.html).
 VIA is a tool that can:
  1. Determine the state of Vulkan components on your system
@@ -118,11 +118,12 @@ example, if the user runs `via --output_path /home/me/Documents`, then the outpu
 
 ## Common Command-Line Outputs
 
+<<<<<<< HEAD
 
-#### "SUCCESS: Vulkan analysis completed properly"
+#### "SUCCESS: Vulkan analysis completed properly using Vulkan X.Y"
 
 ##### Problem:
-LunarG's VIA could detect no problems with your setup.
+LunarG's VIA could detect no problems with your setup.  In fact it was able to create an instance and device up through Vulkan version X.Y.
 
 ##### Possible Reason:
 Your system is likely setup properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
@@ -131,7 +132,7 @@ Your system is likely setup properly.  If you have trouble running Vulkan from a
 Re-run VIA from the location your Vulkan application/game is supposed to run.
 
 
-#### "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected"
+#### "SUCCESS: Vulkan analysis able to create Vulkan X.Y instance/devices - However, No SDK Detected"
 
 ##### Problem:
 LunarG's VIA could detect no problems with your setup other than a missing SDK.  It was able to run some limited tests and create both a Vulkan instance and device.
