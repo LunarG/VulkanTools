@@ -3554,16 +3554,34 @@ void write_all_referenced_object_calls() {
 
     // write out the packets to recreate the command buffers that were allocated
     vktrace_enter_critical_section(&trimCommandBufferPacketLock);
+    // Secondary command buffers should be replayed before primary command buffers.
+    // 1. Go through secondary command buffers
     for (auto cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end();
          ++cmdBuffer) {
-        std::list<vktrace_trace_packet_header *> &packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
+        if (cmdBuffer->second.ObjectInfo.CommandBuffer.level == VK_COMMAND_BUFFER_LEVEL_SECONDARY) {
+            std::list<vktrace_trace_packet_header *> &packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
 
-        for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end(); ++packet) {
-            vktrace_trace_packet_header *pHeader = *packet;
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
+            for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end(); ++packet) {
+                vktrace_trace_packet_header *pHeader = *packet;
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+            }
+            packets.clear();
         }
-        packets.clear();
+    }
+    // 2. Go through primary command buffers
+    for (auto cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end();
+         ++cmdBuffer) {
+        if (cmdBuffer->second.ObjectInfo.CommandBuffer.level == VK_COMMAND_BUFFER_LEVEL_PRIMARY) {
+            std::list<vktrace_trace_packet_header *> &packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
+
+            for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end(); ++packet) {
+                vktrace_trace_packet_header *pHeader = *packet;
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+            }
+            packets.clear();
+        }
     }
     vktrace_leave_critical_section(&trimCommandBufferPacketLock);
 
