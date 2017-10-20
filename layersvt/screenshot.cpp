@@ -69,7 +69,10 @@ char *android_exec(const char *cmd) {
     // Only if the value is set will we get a string back
     if (strlen(android_env) > 0) {
         __android_log_print(ANDROID_LOG_INFO, "screenshot", "Vulkan screenshot layer capturing: %s", android_env);
-        return android_env;
+        // Do a right strip of " ", "\n", "\r", "\t" for the android_env string
+        string android_env_str(android_env);
+        android_env_str.erase(android_env_str.find_last_not_of(" \n\r\t") + 1);
+        return (char *)android_env_str.c_str();
     }
 
     return nullptr;
