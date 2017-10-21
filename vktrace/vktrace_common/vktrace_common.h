@@ -107,6 +107,39 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // processing to fix missed pmb writes.
 #define VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV "VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS"
 
+// VKTRACE_PAGEGUARD_ENABLE_LAZY_COPY_ENV env var enables lazy copy in PMB
+// support. It is only supported on Windows.
+//
+// The lazy copy method is first used for some title to improve the capture
+// speed, the target title heavily use memory map/unmap to transfer data,
+// not like other titles rely on read/write persistently mapped memory. It
+// cause the title capture speed extremely slow, the reason is it's needed
+// to sync the mapped memory to page guard shadow memory when calling
+// vkMapMemory even the target title only change small portion of whole
+// memory range.
+//
+// The lazy copy method delay the sync memcopy and only do it for some of
+// pages when target title really read/write to them. At that time, page
+// guard handler capture the target title read/write the data and only
+// transfer related page, this way fix the capture speed problem for that
+// target title.
+//
+// So far, most vulkan titles like this commit targeted use memory as
+// persistent mapped buffer, once map, the data transfer rely on read/write
+// the persistent mapped memory, not rely on the pair of map/unmap. For such
+// titles, lazy copy affect the capture speed not much. And from the current
+// target title, some corruption can be found at some location during
+// capture/playback when enable lazy copy, but no this problem if disable it
+//, the reason is not verified but there's possibility it relate to page guard
+// multithreading limitation. For such titles, lazy copy move the title data
+// loading process from the loading splash to other location and spread the
+// process in game playing.
+//
+// So here, the env variable give user the choice to enable/disable the lazy
+// copy process. If the variable is not defined, the lazy copy will be
+// disabled.
+#define VKTRACE_PAGEGUARD_ENABLE_LAZY_COPY_ENV "VKTRACE_PAGEGUARD_ENABLE_LAZY_COPY"
+
 // VKTRACE_TRIM_TRIGGER env var is set by the vktrace program to
 // communicate the --TraceTrigger command line argument to the
 // trace layer.
