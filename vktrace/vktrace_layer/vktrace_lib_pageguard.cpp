@@ -162,16 +162,29 @@ bool getPageGuardEnableFlag() {
 }
 
 bool getEnableReadProcessFlag(const char* name) {
+    bool EnableReadProcessFlag = (vktrace_get_global_var(name) != NULL);
+    return EnableReadProcessFlag;
+}
+
+bool getEnableReadPMBFlag() {
     static bool EnableReadPMB;
     static bool FirstTimeRun = true;
     if (FirstTimeRun) {
-        EnableReadPMB = (vktrace_get_global_var(name) != NULL);
+        EnableReadPMB = getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_PMB_ENV);
         FirstTimeRun = false;
     }
     return EnableReadPMB;
 }
-bool getEnableReadPMBFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_PMB_ENV); }
-bool getEnableReadPMBPostProcessFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV); }
+
+bool getEnableReadPMBPostProcessFlag() {
+    static bool EnableReadPMBPostProcess;
+    static bool FirstTimeRun = true;
+    if (FirstTimeRun) {
+        EnableReadPMBPostProcess = getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV);
+        FirstTimeRun = false;
+    }
+    return EnableReadPMBPostProcess;
+}
 
 #if defined(WIN32)
 void setPageGuardExceptionHandler() {
