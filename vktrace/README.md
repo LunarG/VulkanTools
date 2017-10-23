@@ -119,7 +119,7 @@ The vktrace tool provides the capability to trace Vulkan applications.  vktrace 
 <td>-tr &lt;string&gt;<br/>  
 ‑‑TraceTrigger &lt;string&gt;</td>
 
-<td>Start/stop trim by hotkey or frame range.<br/>String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]-&lt;framecount&gt<br>&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt</td>
+<td>Start/stop trim by hotkey or frame range.<br/>String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]-&lt;framecount&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;port-&lt;framecount&gt;[-portnumber]</td>
 
 <td>no trimming</td>
 
