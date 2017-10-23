@@ -20,35 +20,8 @@
 #include "vk_platform.h"
 #include "vulkan_core.h"
 
-#define VK_MAKE_VERSION(major, minor, patch) \
-    (((major) << 22) | ((minor) << 12) | (patch))
-
-// DEPRECATED: This define has been removed. Specific version defines (e.g. VK_API_VERSION_1_0), or the VK_MAKE_VERSION macro, should be used instead.
-//#define VK_API_VERSION VK_MAKE_VERSION(1, 0, 0) // Patch version should always be set to 0
-
-// Vulkan 1.0 version number
-#define VK_API_VERSION_1_0 VK_MAKE_VERSION(1, 0, 0)// Patch version should always be set to 0
-
-#define VK_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
-#define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
-#define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
-// Version of this file
-#define VK_HEADER_VERSION 65
-
-
-#define VK_NULL_HANDLE 0
-        
-
-
-#define VK_DEFINE_HANDLE(object) typedef struct object##_T* object;
-
-
-#if !defined(VK_DEFINE_NON_DISPATCHABLE_HANDLE)
-#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
-        #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
-#else
-        #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
-#endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#include "vulkan_android.h"
 #endif
         
 
@@ -1915,10 +1888,11 @@ typedef struct VkSparseImageMemoryBind {
 #include "vulkan_xlib_randr.h"
 #endif
 
-VKAPI_ATTR void VKAPI_CALL vkDestroyEvent(
-    VkDevice                                    device,
-    VkEvent                                     event,
-    const VkAllocationCallbacks*                pAllocator);
+#ifdef VK_USE_PLATFORM_XLIB_RANDR_EXT
+#include <X11/Xlib.h>
+#include <X11/extensions/Xrandr.h>
+#include "vulkan_xlib_randr.h"
+#endif
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetEventStatus(
     VkDevice                                    device,
