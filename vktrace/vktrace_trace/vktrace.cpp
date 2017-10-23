@@ -122,7 +122,8 @@ vktrace_SettingInfo g_settings_info[] = {
      "Start/stop trim by hotkey or frame range:\n\
                                          hotkey-[F1-F12|TAB|CONTROL]\n\
                                          hotkey-[F1-F12|TAB|CONTROL]-<frameCount>\n\
-                                         frames-<startFrame>-<endFrame>"},
+                                         frames-<startFrame>-<endFrame>\n\
+                                         port[:<portnumber>][,<frameCount>]\n"},
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause,
     //&g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger
     // can be attached)" },
