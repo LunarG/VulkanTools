@@ -313,8 +313,9 @@ void vktrace_platform_resume_thread(vktrace_thread* pThread) {
 int64_t vktrace_linux_sync_wait_for_thread(vktrace_thread* pThread) {
     void* retval;
     assert(pThread != NULL);
-    if (pthread_join(*pThread, &retval) != 0) {
-        vktrace_LogError("Error occurred while waiting for thread to end.");
+    int err;
+    if ((err = pthread_join(*pThread, &retval)) != 0) {
+        vktrace_LogError("Error occurred while waiting for thread to end: %d.", err);
     }
     return retval ? *((int64_t*)retval) : 0;
 }

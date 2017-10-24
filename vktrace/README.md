@@ -119,9 +119,9 @@ The vktrace tool provides the capability to trace Vulkan applications.  vktrace 
 <td>-tr &lt;string&gt;<br/>  
 ‑‑TraceTrigger &lt;string&gt;</td>
 
-<td>Start/stop trim by hotkey or frame range.<br/>String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]-&lt;framecount&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;port-&lt;framecount&gt;[-portnumber]</td>
+<td>Start/stop trim by hotkey or frame range.<br/>String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12|TAB|CONTROL]-&lt;framecount&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;port[:&lt;portnumber&gt;][,&lt;frameCount&gt;]</td>
 
-<td>no trimming</td>
+<td>no trimming; default port number is 8100</td>
 
 </tr>
 
@@ -144,6 +144,34 @@ Windows Powershell:
 **Note:** Subsequent command examples in this document are written using Linux shell commands. These example commands can be translated and used as Windows Powershell commands.
 
 Trace packets are written to the file `cubetrace.vktrace` in the current directory. Output messages from the replay operation are written to `stdout`.
+
+The port option to --TraceTrigger makes vktrace wait to be signalled on a socket. The message
+on the socket should be a single string containing either an integer or an arbitrary value.
+If the value is an integer it is taken as the number of frames to capture, over-riding any frame count
+given on the command line.
+If the value given is not an integer, then if a frame count is specified on the command line that
+many frames will be captured.  Otherwise, the capture will start, and will be stopped by the next
+message sent on the socket.
+
+For example:
+
+	$ vktrace -tr port:8100,40 -o foo -p cube &
+	$ echo | nc localhost 8100    # capture 40 frames
+	$
+	$ vktrace -tr port:8100 -o foo -p cube &
+	$ echo 200 | nc localhost 8100    # capture 200 frames
+	$ 
+	$ vktrace -tr port:8100 -o foo -p cube &
+	$ echo | nc localhost 8100    # start capture
+	$ echo | nc localhost 8100    # end capture
+	$
+	
+The default port is 8100, and so can be elided:
+
+	$ vktrace -tr port,50 -o foo -p cube &
+	$ echo 200 | nc localhost 8100    # capture 200 frames, overriding the command line.
+	$
+
 
 _Important_: Subsequent `vktrace` runs with the same `-o` option value will overwrite the trace file, preventing the generation of multiple, large trace files. Be sure to specify a unique output trace file name for each `vktrace` invocation if you do not desire this behaviour.
 
