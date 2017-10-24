@@ -127,7 +127,6 @@ def makeGenOpts(args):
     ]
 
     # Defaults for generating re-inclusion protection wrappers (or not)
-    protectFile = protect
     protectFeature = protect
 
     # Options for Vulkan Layer Factory header
@@ -145,7 +144,6 @@ def makeGenOpts(args):
             removeExtensions  = removeExtensionsPat,
             emitExtensions    = emitExtensionsPat,
             prefixText        = prefixStrings + vkPrefixStrings,
-            protectFeature    = False,
             apicall           = 'VKAPI_ATTR ',
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
