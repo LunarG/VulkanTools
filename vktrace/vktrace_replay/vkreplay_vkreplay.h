@@ -49,8 +49,10 @@ extern "C" {
 
 #include "vulkan/vulkan.h"
 
+#include "vk_layer_dispatch_table.h"
+#include "vk_dispatch_table_helper.h"
+
 #include "vkreplay_vkdisplay.h"
-#include "vkreplay_vk_func_ptrs.h"
 #include "vkreplay_vk_objmapper.h"
 
 #define CHECK_RETURN_VALUE(entrypoint) returnValue = handle_replay_errors(#entrypoint, replayResult, pPacket->result, returnValue);
@@ -77,7 +79,10 @@ class vkReplay {
     void reset_frame_number(int frameNumber) { m_frameNumber = frameNumber > 0 ? frameNumber : 0; }
 
    private:
-    struct vkFuncs m_vkFuncs;
+    void init_funcs(void* handle);
+    void* m_libHandle;
+    VkLayerInstanceDispatchTable m_vkFuncs;
+    VkLayerDispatchTable m_vkDeviceFuncs;
     vkReplayObjMapper m_objMapper;
     void (*m_pDSDump)(char*);
     void (*m_pCBDump)(char*);
