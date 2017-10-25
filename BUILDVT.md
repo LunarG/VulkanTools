@@ -4,10 +4,6 @@ This document contains the instructions for building this repository on Linux an
 This repository contains additional layers and the VkTrace trace/replay tools, supplementing the
 loader and validation layer core components found at https://github.com/KhronosGroup.
 
-This repository previously contained a sample Intel Vulkan driver that has since been deprecated.
-The final stable version of that source code is available from this repo by checking out the git
-tag "Vulkan-ICD-Snapshot". This source code is no longer supported.
-
 ## Git the Bits
 
 The public repository for the the LunarG VulkanTools is hosted at https://github.com/LunarG.
@@ -59,7 +55,7 @@ make
 
 Windows 7+ with additional required software packages:
 
-- Microsoft Visual Studio 2013 Professional.  Note: it is possible that lesser/older versions may work, but that has not been tested.
+- Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but that has not been tested.
 - CMake (from http://www.cmake.org/download/).  Notes:
   - In order to build the VkTrace tools, you need at least version 3.0.
   - Tell the installer to "Add CMake to the system PATH" environment variable.
@@ -72,7 +68,7 @@ Windows 7+ with additional required software packages:
   - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
 - glslang is required for tests.
   - You can download and configure it (in a peer directory) here: https://github.com/KhronosGroup/glslang/blob/master/README.md
-  - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2013 like so:
+  - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2015 (or VS2017) like so:
     - update_external_sources.bat --build-glslang
 
 Optional software packages:
@@ -87,12 +83,12 @@ Optional software packages:
 
 Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.  Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
-To build all Windows targets (e.g. in a "Developer Command Prompt for VS2013" window):
+To build all Windows targets (e.g. in a "Developer Command Prompt for VS2015" window):
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
 mkdir build
 cd build
-cmake -G "Visual Studio 12 Win64" ..
+cmake -G "Visual Studio 14 Win64" ..
 ```
 
 At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.  
@@ -114,11 +110,11 @@ To do this, simply create and build the release versions of each target:
 cd VulkanTools  # cd to the root of the Vulkan git repository
 mkdir build
 cd build
-cmake -G "Visual Studio 12 Win64" ..
+cmake -G "Visual Studio 14 Win64" ..
 msbuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Release
 mkdir build32
 cd build32
-cmake -G "Visual Studio 12" ..
+cmake -G "Visual Studio 14" ..
 msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release
 ```
 ## Android Build
@@ -178,7 +174,7 @@ cd build-android
 ndk-build -j $(sysctl -n hw.ncpu)
 ```
 #### Windows
-Follow the setup steps for Windows above, then from Developer Command Prompt for VS2013:
+Follow the setup steps for Windows above, then from Developer Command Prompt for VS2015:
 ```
 cd build-android
 update_external_sources_android.bat
