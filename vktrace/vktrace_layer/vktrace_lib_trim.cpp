@@ -33,6 +33,8 @@ uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
 bool g_trimAlreadyFinished = false;
+int g_trimPort = 8100;
+int g_trigger_socket = -1;
 
 namespace trim {
 // Tracks the existence of objects from the very beginning of the application
@@ -354,38 +356,84 @@ bool is_hotkey_trim_triggered() {
 }
 
 //=========================================================================
+// Refresh port read current state and detect if it's triggered or not.
+// Sets the end time from the message if successful.
+//=========================================================================
+bool is_port_trim_triggered() {
+return false;
+/*
+    char buf[256];
+    int fd;
+    
+    fd = accept(g_trigger_socket, nullptr, nullptr);
+    
+    if (fd < 0)
+        return false;
+        
+    int len = read(fd, buf, sizeof(buf)-1);
+    
+    close(fd);
+    
+    if (len != 0) {
+        buf[len+1] = '\0';
+        int nFrames = 0;
+        sscanf(buf, "%d", &nFrames);
+        if (nFrames != 0) {
+            g_trimEndFrame = nFrames;
+        }
+        return true;
+    }
+    
+    return true;
+*/
+}
+
+//=========================================================================
 char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType) {
     static const char TRIM_TRIGGER_HOTKEY_TYPE_STRING[] = "hotkey";
     static const char TRIM_TRIGGER_FRAMES_TYPE_STRING[] = "frames";
     static const char TRIM_TRIGGER_FRAMES_DEFAULT_HOTKEY_STRING[] = "F12";
+    static const char TRIM_TRIGGER_FRAMES_TYPE_PORT[] = "port";
 
     static bool firstTimeRunning = true;
     static enum enum_trim_trigger trimTriggerType = enum_trim_trigger::none;
-    static char trim_trigger_option[MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH] = "";
+    static char trim_trigger_option_buf[MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH] = "";
+    static char *trim_trigger_option = trim_trigger_option_buf;
 
     char typeString[MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH];
+    typeString[0] = '\0';
 
     if (firstTimeRunning) {
         firstTimeRunning = false;
         const char *trim_trigger_string = vktrace_get_global_var(VKTRACE_TRIM_TRIGGER_ENV);
-        if (trim_trigger_string) {
+        if (trim_trigger_string && trim_trigger_string[0] != '\0') {
+            trimTriggerType = enum_trim_trigger::frameCounter;
+            strcpy(trim_trigger_option, "20-30");
             assert(strlen(trim_trigger_string) < TRACE_TRIGGER_STRING_LENGTH);
 
             // only one type of trigger is allowed at same time
-            if (sscanf(trim_trigger_string, "%[^-]-%s", typeString, trim_trigger_option) == 2) {
-                if (strcmp(typeString, TRIM_TRIGGER_HOTKEY_TYPE_STRING) == 0) {
-                    trimTriggerType = enum_trim_trigger::hotKey;
+            
+            // Formatting is set to avoid buffer overruns.  This could
+            // be static, but this happens only once, and is clearer than
+            // stringizing magic.
+            char format[32];
+            snprintf(format, sizeof(format), "%%%d[a-zA-Z0-9]%%%ds", MAX_TRIM_TRIGGER_TYPE_STRING_LENGTH, MAX_TRIM_TRIGGER_OPTION_STRING_LENGTH);
+            sscanf(trim_trigger_string, format, typeString, trim_trigger_option);
+
+            if (strcmp(typeString, TRIM_TRIGGER_HOTKEY_TYPE_STRING) == 0) {
+                trimTriggerType = enum_trim_trigger::hotKey;
+                if (trim_trigger_option[0] == '-') {
+                    trim_trigger_option++; // Remove the '-'
                 } else {
-                    if (strcmp(typeString, TRIM_TRIGGER_FRAMES_TYPE_STRING) == 0) {
-                        trimTriggerType = enum_trim_trigger::frameCounter;
-                    }
-                }
-            } else {
-                if (strcmp(trim_trigger_string, TRIM_TRIGGER_HOTKEY_TYPE_STRING) == 0) {
-                    // default hotkey
-                    trimTriggerType = enum_trim_trigger::hotKey;
                     strcpy(trim_trigger_option, TRIM_TRIGGER_FRAMES_DEFAULT_HOTKEY_STRING);
                 }
+            } else if (strcmp(typeString, TRIM_TRIGGER_FRAMES_TYPE_STRING) == 0) {
+                trimTriggerType = enum_trim_trigger::frameCounter;
+                if (trim_trigger_option[0] == '-') {
+                    trim_trigger_option++; // Remove the '-'
+                }
+            } else if (strcmp(typeString, TRIM_TRIGGER_FRAMES_TYPE_PORT) == 0) {
+                trimTriggerType = enum_trim_trigger::port;
             }
         }
     }
@@ -411,51 +459,100 @@ void initialize() {
             g_trimIsInTrim = (g_trimStartFrame == 0);
         }
     }
-    if ((!g_trimEnabled) && (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey))) {
-
-        // There are two types of hotkey trigger, their command line option string
-        // are hotkey-<keyname> and hotkey-<keyname>-<frameCount>, the latter one
-        // means capture the next <frameCount> frames after pressing the hotkey
-        // once.
-        //
-        // Here we first get the hotkey option string, it's supposed to be <keyname>
-        // or <keyname>-<frameCount>, then we search "-" from the string. if include
-        // "-", it should not belong to the case of only <keyname> and  we need to
-        // handle hotkey-<keyname>-<frameCount>.
-        //
-        // the way of handling is we get frameCount here through parsing and save it
-        // to g_trimEndFrame, then when user press hotkey later, the frame counter at
-        // that time will be set to g_trimStartFrame and g_trimEndFrame will be added
-        // g_trimStartFrame.
-        //
-        // the following process is to get frameCount through parsing and save it to
-        // g_trimEndFrame. only valid value can be set to g_trimEndFrame, if the
-        // parsing meet any error, the g_trimEndFrame will keep it initial value
-        // UINT64_MAX which means the trim capture still stop by hotkey.
-        const char *trimHotKeyOption = getTraceTriggerOptionString(enum_trim_trigger::hotKey);
-        const char *trimHotKeyFrames = strstr(trimHotKeyOption,"-");
-        if (trimHotKeyFrames)
-        { //trimHotKeyOption include "-", we continue the parsing to get frameCount
-
-            uint32_t numFrames = 0;
-            trimHotKeyFrames++;//ignore the "-" symbol
-            if (!strstr(trimHotKeyFrames, "-"))
-            {
-                if (sscanf(trimHotKeyFrames, "%" PRIu32, &numFrames) == 1)
+    if (!g_trimEnabled) {
+        if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey)) {
+            // There are two types of hotkey trigger, their command line option string
+            // are hotkey-<keyname> and hotkey-<keyname>-<frameCount>, the latter one
+            // means capture the next <frameCount> frames after pressing the hotkey
+            // once.
+            //
+            // Here we first get the hotkey option string, it's supposed to be <keyname>
+            // or <keyname>-<frameCount>, then we search "-" from the string. if include
+            // "-", it should not belong to the case of only <keyname> and  we need to
+            // handle hotkey-<keyname>-<frameCount>.
+            //
+            // the way of handling is we get frameCount here through parsing and save it
+            // to g_trimEndFrame, then when user press hotkey later, the frame counter at
+            // that time will be set to g_trimStartFrame and g_trimEndFrame will be added
+            // g_trimStartFrame.
+            //
+            // the following process is to get frameCount through parsing and save it to
+            // g_trimEndFrame. only valid value can be set to g_trimEndFrame, if the
+            // parsing meet any error, the g_trimEndFrame will keep it initial value
+            // UINT64_MAX which means the trim capture still stop by hotkey.
+            const char *trimHotKeyOption = getTraceTriggerOptionString(enum_trim_trigger::hotKey);
+            const char *trimHotKeyFrames = strstr(trimHotKeyOption,"-");
+            if (trimHotKeyFrames)
+            { //trimHotKeyOption include "-", we continue the parsing to get frameCount
+    
+                uint32_t numFrames = 0;
+                trimHotKeyFrames++;//ignore the "-" symbol
+                if (!strstr(trimHotKeyFrames, "-"))
                 {
-                    //the frame number after hotkey press should not be 0 or negtive.
-                    if (numFrames > 0)
+                    if (sscanf(trimHotKeyFrames, "%" PRIu32, &numFrames) == 1)
                     {
-                        g_trimEndFrame = static_cast<uint64_t>(numFrames);
+                        //the frame number after hotkey press should not be 0 or negtive.
+                        if (numFrames > 0)
+                        {
+                            g_trimEndFrame = static_cast<uint64_t>(numFrames);
+                        }
                     }
                 }
             }
-        }
-        g_trimEnabled = true;
-        g_trimIsPreTrim = true;
-        g_trimIsInTrim = false;
+            g_trimEnabled = true;
+            g_trimIsPreTrim = true;
+            g_trimIsInTrim = false;
+        } else if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::port)) {
+            // The port specification looks like: port[:<port>][,frameCount]
+            //
+            const char *trimPortOption = getTraceTriggerOptionString(enum_trim_trigger::port);
+            uint32_t numFrames = 0;
+            int port;
+            if (trimPortOption != nullptr) {
+                // Parse [:<port>][,frameCount]
+                const char *trimPort = strstr(trimPortOption,":");
+                if (trimPort != nullptr) {
+                    sscanf(trimPort, "%d,", &port);
+                    if (port != 0) {
+                        g_trimPort = port;
+                    }
+                }
+                const char *trimFrameCount = strstr(trimPortOption,",");
+                if (trimFrameCount != nullptr) {
+                    sscanf(trimFrameCount, "%d,", &numFrames);
+                }
+            }
+            if (numFrames > 0)
+            {
+                g_trimEndFrame = static_cast<uint64_t>(numFrames);
+            } else {
+                g_trimEndFrame = UINT64_MAX;
+            }
+            vktrace_LogAlways("Port numFrames = %d", numFrames);
+            g_trimEnabled = true;
+            g_trimIsPreTrim = true;
+            g_trimIsInTrim = false;
+            
+            // Open the port
+            g_trigger_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+            if (g_trigger_socket < 0) {
+                vktrace_LogAlways("Failed to open socket");
+                exit(-1);
+            }
+            
+            struct sockaddr_in serv_addr;
+            bzero(&serv_addr, sizeof(serv_addr));
+             serv_addr.sin_family = AF_INET;
+             serv_addr.sin_addr.s_addr = INADDR_ANY;
+             serv_addr.sin_port = htons(g_trimPort);
+            int res = bind(g_trigger_socket, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            if (res != EINPROGRESS && res != 0) {
+                vktrace_LogAlways("Failed to bind socket to port %d", g_trimPort);
+                exit(-1);
+            }
+            res = listen(g_trigger_socket, 1);
+        } 
     }
-
     if (g_trimEnabled) {
         vktrace_create_critical_section(&trimStateTrackerLock);
         vktrace_create_critical_section(&trimRecordedPacketLock);
@@ -468,6 +565,9 @@ void initialize() {
 void deinitialize() {
     s_trimStateTrackerSnapshot.clear();
     s_trimGlobalStateTracker.clear();
+    
+    if (g_trigger_socket >= 0)
+        close(g_trigger_socket);
 
     vktrace_delete_critical_section(&trimRecordedPacketLock);
     vktrace_delete_critical_section(&trimStateTrackerLock);

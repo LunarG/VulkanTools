@@ -54,7 +54,8 @@ void deinitialize();
 enum enum_trim_trigger {
     none = 0,
     frameCounter,  // trim trigger base on startFrame and endFrame
-    hotKey         // trim trigger base on hotKey
+    hotKey,        // trim trigger base on hotKey
+    port,          // trim trigger based on a network message
 };
 
 // when the funtion first time run, it Check ENV viarable VKTRACE_TRIM_TRIGGER
@@ -89,6 +90,8 @@ enum enum_key_state {
 
 // return if hotkey triggered;
 bool is_hotkey_trim_triggered();
+// return if a read on the trigger port triggers.
+bool is_port_trim_triggered();
 
 // Use this to snapshot the global state tracker at the start of the trim
 // frames.

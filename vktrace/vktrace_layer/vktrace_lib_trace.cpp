@@ -3280,10 +3280,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
 
     if (g_trimEnabled) {
         g_trimFrameCounter++;
-        if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey)) {
+        if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey)
+         || trim::is_trim_trigger_enabled(trim::enum_trim_trigger::port)) {
             if (!g_trimAlreadyFinished)
             {
-                if (trim::is_hotkey_trim_triggered()) {
+                if ((trim::is_trim_trigger_enabled(trim::enum_trim_trigger::hotKey) 
+                     && trim::is_hotkey_trim_triggered())
+                  || (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::port)
+                     && trim::is_port_trim_triggered())) {
                     if (g_trimIsInTrim) {
                         vktrace_LogAlways("Trim stopping now at frame: %d", g_trimFrameCounter-1);
                         trim::stop();
