@@ -187,7 +187,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         self.CmdMemberData = namedtuple('CmdMemberData', ['name', 'members'])
         self.CmdExtraProtect = namedtuple('CmdExtraProtect', ['name', 'extra_protect'])
         self.StructType = namedtuple('StructType', ['name', 'value'])
-        self.CommandParam = namedtuple('CommandParam', ['type', 'name', 'ispointer', 'isstaticarray', 'isconst', 'iscount', 'len', 'cdecl', 'feature_protect'])
+        self.CommandParam = namedtuple('CommandParam', ['type', 'name', 'ispointer', 'isstaticarray', 'isconst', 'iscount', 'len', 'cdecl', 'feature_protect', 'handle'])
         self.StructMemberData = namedtuple('StructMemberData', ['name', 'members', 'ifdef_protect'])
     #
     # Called once at the beginning of each run
@@ -372,6 +372,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             isconst = True if 'const' in cdecl else False
             ispointer = self.paramIsPointer(member)
             isstaticarray = self.paramIsStaticArray(member)
+            handle = self.registry.tree.find("types/type/[name='" + type + "'][@category='handle']")
             membersInfo.append(self.CommandParam(type=type,
                                                  name=name,
                                                  ispointer=ispointer,
@@ -380,7 +381,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                  iscount=iscount,
                                                  len=len,
                                                  cdecl=cdecl,
-                                                 feature_protect=self.featureExtraProtect))
+                                                 feature_protect=self.featureExtraProtect,
+                                                 handle=handle))
         self.cmdMembers.append(self.CmdMemberData(name=cmdname, members=membersInfo))
         self.cmd_info_data.append(self.CmdInfoData(name=cmdname, cmdinfo=cmdinfo))
         self.cmd_extension_names.append(self.cmd_extension_data(name=cmdname, extension_name=self.current_feature_name))
@@ -406,6 +408,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             cdecl = self.makeCParamDecl(member, 1)
             # Store pointer/array/string info
             isstaticarray = self.paramIsStaticArray(member)
+            handle = self.registry.tree.find("types/type/[name='" + type + "'][@category='handle']")
             membersInfo.append(self.CommandParam(type=type,
                                                  name=name,
                                                  ispointer=self.paramIsPointer(member),
@@ -414,7 +417,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                  iscount=True if name in lens else False,
                                                  len=self.getLen(member),
                                                  cdecl=cdecl,
-                                                 feature_protect=self.featureExtraProtect))
+                                                 feature_protect=self.featureExtraProtect,
+                                                 handle=handle))
         self.structMembers.append(self.StructMemberData(name=typeName, members=membersInfo, ifdef_protect=self.featureExtraProtect))
     #
     def beginFeature(self, interface, emit):
@@ -512,31 +516,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             replay_objmapper_header += '    }\n'
         replay_objmapper_header += '};'
         return replay_objmapper_header
-    #
-    # Construct vkreplay func pointer header file
-    def GenerateReplayFuncptrHeader(self):
-        replay_funcptr_header  = '\n'
-        replay_funcptr_header += 'struct vkFuncs {'
-        replay_funcptr_header += '    void init_funcs(void * libHandle);'
-        replay_funcptr_header += '    void *m_libHandle;\n'
-        cmd_member_dict = dict(self.cmdMembers)
-        cmd_info_dict = dict(self.cmd_info_data)
-        cmd_protect_dict = dict(self.cmd_feature_protect)
-        for api in self.cmdMembers:
-            cmdname = api.name
-            cmdinfo = cmd_info_dict[api.name]
-            protect = cmd_protect_dict[cmdname]
-            decl = self.makeCDecls(cmdinfo.elem)[1]
-            typedef = decl.replace('VKAPI_PTR *PFN_', 'VKAPI_PTR *type_')
-            if protect is not None:
-                replay_funcptr_header += '#ifdef %s\n' % protect
-            replay_funcptr_header += '    %s\n' % typedef
-            replay_funcptr_header += '    type_%s real_%s;\n' % (cmdname, cmdname)
-            if protect is not None:
-                replay_funcptr_header += '#endif // %s\n' % protect
-            replay_funcptr_header += '\n'
-        replay_funcptr_header += '};\n'
-        return replay_funcptr_header
     #
     # Construct vkreplay replay gen source file
     def GenerateReplayGenSource(self):
@@ -641,23 +620,30 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_gen_source += 'extern "C" {\n'
         replay_gen_source += '#include "vktrace_vk_vk_packets.h"\n'
         replay_gen_source += '#include "vktrace_vk_packet_id.h"\n\n'
-        replay_gen_source += 'void vkFuncs::init_funcs(void * handle) {\n'
+        replay_gen_source += 'void vkReplay::init_funcs(void * handle) {\n'
         replay_gen_source += '    m_libHandle = handle;\n'
 
         for api in self.cmdMembers:
+            cmdname = api.name[2:]
             extension = cmd_extension_dict[api.name]
             if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
                 continue
-            if api.name[2:] in api_exclusions:
+            if cmdname in api_exclusions:
                 continue
-            cmdname = api.name
-            protect = cmd_protect_dict[cmdname]
+            protect = cmd_protect_dict[api.name]
             if protect is not None:
                 replay_gen_source += '#ifdef %s\n' % protect
+            disp_table = ""
+            cmdtarget = api.members[0].type
+            handle = api.members[0].handle
+            if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                disp_table = "m_vkFuncs"
+            else:
+                disp_table = "m_vkDeviceFuncs"
             if 'DebugReport' not in cmdname:
-                replay_gen_source += '    real_%s = (type_%s)(vktrace_platform_get_library_entrypoint(handle, "%s"));\n' % (cmdname, cmdname, cmdname)
+                replay_gen_source += '    %s.%s = (PFN_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));\n' % (disp_table, cmdname, cmdname, cmdname)
             else: # These func ptrs get assigned at GetProcAddr time
-                replay_gen_source += '    real_%s = (type_%s)NULL;\n' % (cmdname, cmdname)
+                replay_gen_source += '    %s.%s = (PFN_vk%s)NULL;\n' % (disp_table, cmdname, cmdname)
             if protect is not None:
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '}\n\n'
@@ -777,44 +763,52 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         last_name = p.name
 
                 if cmdname == 'DestroyInstance':
-                    replay_gen_source += '            if (m_vkFuncs.real_vkDestroyDebugReportCallbackEXT != NULL) {\n'
-                    replay_gen_source += '                m_vkFuncs.real_vkDestroyDebugReportCallbackEXT(remappedinstance, m_dbgMsgCallbackObj, pPacket->pAllocator);\n'
+                    replay_gen_source += '            if (m_vkFuncs.DestroyDebugReportCallbackEXT != NULL) {\n'
+                    replay_gen_source += '                m_vkFuncs.DestroyDebugReportCallbackEXT(remappedinstance, m_dbgMsgCallbackObj, pPacket->pAllocator);\n'
                     replay_gen_source += '            }\n'
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif cmdname == 'GetInstanceProcAddr':
                     for command in self.cmdMembers:
-                        extension = cmd_extension_dict[api.name]
+                        cmdtarget = command.members[0].type
+                        handle = command.members[0].handle
+                        if handle != None and cmdtarget != "VkInstance" and cmdtarget != 'VkPhysicalDevice':
+                            continue
+                        extension = cmd_extension_dict[command.name]
                         if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
                             continue
-                        if api.name[2:] in api_exclusions:
+                        command_name_novk = command.name[2:]
+                        if command_name_novk in api_exclusions:
                             continue
                         if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
                             gipa_params = cmd_member_dict[vk_cmdname]
                             gipa_protect = cmd_protect_dict[command.name]
                             if gipa_protect is not None:
                                 replay_gen_source += '#ifdef %s\n' % gipa_protect
-                            if (gipa_params[0].type == 'VkInstance'):
-                                replay_gen_source += '            if (strcmp(pPacket->pName, "%s") == 0) {\n' % (command.name)
-                                replay_gen_source += '               m_vkFuncs.real_%s = (PFN_%s)vk%s(remappedinstance, pPacket->pName);\n' % (command.name, command.name, cmdname)
-                                replay_gen_source += '            }\n'
+                            replay_gen_source += '            if (strcmp(pPacket->pName, "%s") == 0) {\n' % (command.name)
+                            replay_gen_source += '               m_vkFuncs.%s = (PFN_%s)vk%s(remappedinstance, pPacket->pName);\n' % (command_name_novk, command.name, cmdname)
+                            replay_gen_source += '            }\n'
                             if gipa_protect is not None:
                                 replay_gen_source += '#endif // %s\n' % gipa_protect
                 elif cmdname == 'GetDeviceProcAddr':
                     for command in self.cmdMembers:
-                        extension = cmd_extension_dict[api.name]
+                        cmdtarget = command.members[0].type
+                        handle = command.members[0].handle
+                        if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                            continue
+                        extension = cmd_extension_dict[command.name]
                         if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
                             continue
-                        if api.name[2:] in api_exclusions:
+                        command_name_novk = command.name[2:]
+                        if command_name_novk in api_exclusions:
                             continue
                         if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
                             gdpa_params = cmd_member_dict[vk_cmdname]
                             gdpa_protect = cmd_protect_dict[command.name]
                             if gdpa_protect is not None:
                                 replay_gen_source += '#ifdef %s\n' % gdpa_protect
-                            if gdpa_params[0].type != 'VkInstance' and gdpa_params[0].type != 'VkPhysicalDevice':
-                                replay_gen_source += '            if (strcmp(pPacket->pName, "%s") == 0) {\n' % (command.name)
-                                replay_gen_source += '               m_vkFuncs.real_%s = (PFN_%s)vk%s(remappeddevice, pPacket->pName);\n' % (command.name, command.name, cmdname)
-                                replay_gen_source += '            }\n'
+                            replay_gen_source += '            if (strcmp(pPacket->pName, "%s") == 0) {\n' % (command.name)
+                            replay_gen_source += '               m_vkDeviceFuncs.%s = (PFN_%s)vk%s(remappeddevice, pPacket->pName);\n' % (command_name_novk, command.name, cmdname)
+                            replay_gen_source += '            }\n'
                             if gdpa_protect is not None:
                                 replay_gen_source += '#endif // %s\n' % gdpa_protect
                 elif cmdname == 'GetPhysicalDeviceMemoryProperties':
@@ -828,7 +822,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         ret_value = False
                     else:
                         rr_string = '            replayResult = '
-                rr_string += 'm_vkFuncs.real_vk%s(' % cmdname
+                cmdtarget = api.members[0].type
+                handle = api.members[0].handle
+                if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                    rr_string += 'm_vkFuncs.%s(' % cmdname
+                else:
+                    rr_string += 'm_vkDeviceFuncs.%s(' % cmdname
                 for p in params:
                     if p.name is not '':
                         # For last param of Create funcs, pass address of param
@@ -2778,8 +2777,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     def OutputDestFile(self):
         if self.vktrace_file_type == 'vkreplay_objmapper_header':
             return self.GenerateReplayObjmapperHeader()
-        elif self.vktrace_file_type == 'vkreplay_funcptr_header':
-            return self.GenerateReplayFuncptrHeader()
         elif self.vktrace_file_type == 'vkreplay_replay_gen_source':
             return self.GenerateReplayGenSource()
         elif self.vktrace_file_type == 'vktrace_packet_id_header':
