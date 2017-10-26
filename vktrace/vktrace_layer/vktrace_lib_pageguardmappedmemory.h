@@ -68,6 +68,8 @@ typedef class PageGuardMappedMemory {
 
     PBYTE &getRealMappedDataPointer();  /// get pointer to real mapped memory in app process
 
+    PBYTE &getMappedDataPointer();  /// get pointer to mapped memory in app process
+
     VkDeviceSize &getMappedSize();  /// get the size of range
 
     bool isUseCopyForRealMappedMemory();

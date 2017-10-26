@@ -97,7 +97,7 @@
 VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
 bool getEnableReadPMBFlag();
-#if defined(WIN32)
+#if defined(WIN32) || defined(ANDROID)
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();
 #endif
@@ -120,6 +120,8 @@ void resetAllReadFlagAndPageGuard();
 
 #if defined(WIN32)
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
+#elif defined(ANDROID)
+void PageGuardExceptionHandler(int sig, siginfo_t *si, void *unused);
 #endif
 
 VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memoryRangeCount,

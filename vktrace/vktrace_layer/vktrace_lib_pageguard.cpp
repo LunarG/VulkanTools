@@ -25,7 +25,7 @@
 #if !defined(ANDROID)
 static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = true;
 #else
-static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = false;
+static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = true;
 #endif
 
 static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 2;  // cover all reasonal mapped memory size, the mapped memory size
@@ -36,7 +36,7 @@ static const VkDeviceSize PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN = 1;  // alr
                                                                           // size is 4k, so only range size=2 can cover small size
                                                                           // mapped memory.
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(ANDROID)
 static vktrace_sem_id ref_amount_sem_id;  // TODO if vktrace implement cross platform lib or dll load or unload function, this sem
                                           // can be putted in those functions, but now we leave it to process quit.
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
@@ -72,7 +72,7 @@ uint32_t OPTHandlerRefAmount = 0;  // for persistent map and multi-threading env
 // This function is needed because some Linux kernels may be
 // configured without /proc/self/pagemap support.
 static bool verifyPlatformPageGuardSupport(void) {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     int pmFd = -1, crFd = -1;
     void* p = nullptr;
     size_t pageSize = pageguardGetSystemPageSize();
@@ -173,11 +173,30 @@ bool getEnableReadProcessFlag(const char* name) {
 bool getEnableReadPMBFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_PMB_ENV); }
 bool getEnableReadPMBPostProcessFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV); }
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(ANDROID)
+#if defined(ANDROID)
+static struct sigaction g_old_sa;
+#endif
 void setPageGuardExceptionHandler() {
     vktrace_sem_wait(ref_amount_sem_id);
     if (!OPTHandler) {
+#if defined(WIN32)
         OPTHandler = AddVectoredExceptionHandler(1, PageGuardExceptionHandler);
+#elif defined(ANDROID)
+        struct sigaction sa;
+        sa.sa_flags = SA_SIGINFO;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_sigaction = PageGuardExceptionHandler;
+        if (sigaction(SIGSEGV, &sa, &g_old_sa) == -1)
+        {
+            OPTHandler = nullptr;
+            vktrace_LogError("Set page guard exception handler failed !");
+        }
+        else
+        {
+            OPTHandler = (void*)PageGuardExceptionHandler;
+        }
+#endif
         OPTHandlerRefAmount = 1;
     } else {
         OPTHandlerRefAmount++;
@@ -192,7 +211,14 @@ void removePageGuardExceptionHandler() {
             OPTHandlerRefAmount--;
         }
         if (!OPTHandlerRefAmount) {
+#if defined(WIN32)
             RemoveVectoredExceptionHandler(OPTHandler);
+#elif defined(ANDROID)
+            if (sigaction(SIGSEGV, &g_old_sa, NULL) == -1)
+            {
+                vktrace_LogError("Remove page guard exception handler failed !");
+            }
+#endif
             OPTHandler = nullptr;
         }
     }
@@ -388,6 +414,29 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     pageguardExit();
     return resultCode;
 }
+#elif defined(ANDROID)
+void PageGuardExceptionHandler(int sig, siginfo_t *si, void *unused)
+{
+    if (sig == SIGSEGV)
+    {
+        VkDeviceSize OffsetOfAddr;
+        PBYTE pBlock;
+        VkDeviceSize BlockSize;
+        PBYTE addr = (PBYTE)si->si_addr;
+        LPPageGuardMappedMemory pMappedMem = getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
+        if (pMappedMem)
+        {
+            uint64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
+
+            pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+
+            if (mprotect(pMappedMem->getMappedDataPointer() + index*pageguardGetSystemPageSize(),
+                         (SIZE_T)pMappedMem->getMappedBlockSize(index), (PROT_READ | PROT_WRITE)) == -1) {
+                vktrace_LogError("Clear memory protect on page(%d) failed !", index);
+            }
+        }
+    }
+}
 #endif
 
 // The function source code is modified from __HOOKED_vkFlushMappedMemoryRanges
@@ -440,20 +489,22 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
             assert(pEntry->totalSize >= (pRange->size + pRange->offset));
             assert(pEntry->totalSize >= pRange->size);
 #ifdef USE_PAGEGUARD_SPEEDUP
-            LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
-            VkDeviceSize OPTPackageSizeTemp = 0;
-            if (pOPTMemoryTemp) {
-                PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
-                setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                pOPTMemoryTemp->clearChangedDataPackage();
-                pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
-            } else {
-                PBYTE pOPTDataTemp =
-                    getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
-                setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
-                getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
+            if (dataSize > 0) {
+                LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
+                VkDeviceSize OPTPackageSizeTemp = 0;
+                if (pOPTMemoryTemp) {
+                    PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
+                    setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
+                    pOPTMemoryTemp->clearChangedDataPackage();
+                    pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
+                } else {
+                    PBYTE pOPTDataTemp =
+                        getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
+                    setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
+                    getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
+                }
             }
 #else
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size,
