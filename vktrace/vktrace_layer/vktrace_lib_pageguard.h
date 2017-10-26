@@ -98,10 +98,8 @@ VkDeviceSize& ref_target_range_size();
 bool getPageGuardEnableFlag();
 bool getEnableReadPMBFlag();
 bool getEnablePageGuardLazyCopyFlag();
-#if defined(WIN32)
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();
-#endif
 uint64_t pageguardGetAdjustedSize(uint64_t size);
 void* pageguardAllocateMemory(uint64_t size);
 void pageguardFreeMemory(void* pMemory);
@@ -121,6 +119,8 @@ void resetAllReadFlagAndPageGuard();
 
 #if defined(WIN32)
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
+#elif defined(ANDROID)
+void PageGuardExceptionHandler(int sig, siginfo_t* si, void* unused);
 #endif
 
 VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memoryRangeCount,

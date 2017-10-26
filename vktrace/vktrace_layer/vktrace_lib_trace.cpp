@@ -152,7 +152,7 @@ void* strip_create_extensions(const void* pNext) {
     return create_info;
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
 
 // Function to call mprotect and check for errors.
 // Returns 0 on success, -1 on failure.
@@ -460,7 +460,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
 #ifdef USE_PAGEGUARD_SPEEDUP
     void* PageGuardMappedData = NULL;
     pageguardEnter();
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     getMappedDirtyPagesLinux();
 #endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData,
@@ -531,7 +531,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
     pageguardEnter();
     if (getPageGuardControlInstance().findMappedMemoryObject(device, memory) != nullptr) {
         void* PageGuardMappedData = nullptr;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
         getMappedDirtyPagesLinux();
 #endif
         getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData,
@@ -668,7 +668,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     getMappedDirtyPagesLinux();
 #endif
     PBYTE* ppPackageData = new PBYTE[memoryRangeCount];
@@ -2273,7 +2273,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                                                                       const VkSubmitInfo* pSubmits, VkFence fence) {
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     getMappedDirtyPagesLinux();
 #endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);

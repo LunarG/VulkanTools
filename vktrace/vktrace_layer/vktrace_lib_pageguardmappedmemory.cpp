@@ -36,11 +36,14 @@ VkDeviceSize &PageGuardMappedMemory::getMappedOffset() { return MappedOffset; }
 
 PBYTE &PageGuardMappedMemory::getRealMappedDataPointer() { return pRealMappedData; }
 
+PBYTE &PageGuardMappedMemory::getMappedDataPointer() { return pMappedData; }
+
 VkDeviceSize &PageGuardMappedMemory::getMappedSize() { return MappedSize; }
 
 PageGuardMappedMemory::PageGuardMappedMemory()
     : MappedDevice(nullptr),
       MappedMemory((VkDeviceMemory) nullptr),
+      MappedOffset(0),
       pMappedData(nullptr),
       pRealMappedData(nullptr),
       pChangedDataPackage(nullptr),
@@ -220,6 +223,10 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
                 // the dirty page will trigger unexpected page guard, cause a deadlock.
                 setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ);
             }
+#elif defined(ANDROID)
+            if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1) {
+                vktrace_LogError("Set memory protect on page(%d) failed !", i);
+            }
 #endif
             setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
         }
@@ -233,6 +240,10 @@ void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard() {
 #if defined(WIN32)
             DWORD oldProt;
             VirtualProtect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
+#elif defined(ANDROID)
+            if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1) {
+                vktrace_LogError("Set memory protect on page(%d) failed !", i);
+            }
 #endif
             setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ_SNAPSHOT);
         }
@@ -250,6 +261,8 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
     bool setSuccessfully = true;
 #if defined(WIN32)
     DWORD dwMemSetting = bSetPageGuard ? (PAGE_READWRITE | PAGE_GUARD) : PAGE_READWRITE;
+#elif defined(ANDROID)
+    int prot = bSetPageGuard ? PROT_READ : (PROT_READ | PROT_WRITE);
 #endif
 
     for (uint64_t i = 0; i < PageGuardAmount; i++) {
@@ -257,6 +270,11 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
         DWORD oldProt, dwErr;
         if (!VirtualProtect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt)) {
             dwErr = GetLastError();
+            setSuccessfully = false;
+        }
+#elif defined(ANDROID)
+        if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), prot) == -1) {
+            vktrace_LogError("Set memory protect(%d) on page(%d) failed !", prot, i);
             setSuccessfully = false;
         }
 #endif
@@ -293,7 +311,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 #endif
     MappedSize = size;
 
-#ifdef WIN32
+#if defined(WIN32) || defined(ANDROID)
     setPageGuardExceptionHandler();
 #endif
 
@@ -326,7 +344,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void **MappedData) {
     if ((memory == MappedMemory) && (device == MappedDevice)) {
         setAllPageGuardAndFlag(false, false);
-#ifdef WIN32
+#if defined(WIN32) || defined(ANDROID)
         removePageGuardExceptionHandler();
 #endif
         clearChangedDataPackage();
