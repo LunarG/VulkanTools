@@ -183,13 +183,10 @@ void setPageGuardExceptionHandler() {
         sa.sa_flags = SA_SIGINFO;
         sigemptyset(&sa.sa_mask);
         sa.sa_sigaction = PageGuardExceptionHandler;
-        if (sigaction(SIGSEGV, &sa, &g_old_sa) == -1)
-        {
+        if (sigaction(SIGSEGV, &sa, &g_old_sa) == -1) {
             OPTHandler = nullptr;
             vktrace_LogError("Set page guard exception handler failed !");
-        }
-        else
-        {
+        } else {
             OPTHandler = (void*)PageGuardExceptionHandler;
         }
 #endif
@@ -210,8 +207,7 @@ void removePageGuardExceptionHandler() {
 #if defined(WIN32)
             RemoveVectoredExceptionHandler(OPTHandler);
 #elif defined(ANDROID)
-            if (sigaction(SIGSEGV, &g_old_sa, NULL) == -1)
-            {
+            if (sigaction(SIGSEGV, &g_old_sa, NULL) == -1) {
                 vktrace_LogError("Remove page guard exception handler failed !");
             }
 #endif
@@ -411,22 +407,20 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     return resultCode;
 }
 #elif defined(ANDROID)
-void PageGuardExceptionHandler(int sig, siginfo_t *si, void *unused)
-{
-    if (sig == SIGSEGV)
-    {
+void PageGuardExceptionHandler(int sig, siginfo_t* si, void* unused) {
+    if (sig == SIGSEGV) {
         VkDeviceSize OffsetOfAddr;
         PBYTE pBlock;
         VkDeviceSize BlockSize;
         PBYTE addr = (PBYTE)si->si_addr;
-        LPPageGuardMappedMemory pMappedMem = getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
-        if (pMappedMem)
-        {
+        LPPageGuardMappedMemory pMappedMem =
+            getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
+        if (pMappedMem) {
             uint64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
 
             pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
 
-            if (mprotect(pMappedMem->getMappedDataPointer() + index*pageguardGetSystemPageSize(),
+            if (mprotect(pMappedMem->getMappedDataPointer() + index * pageguardGetSystemPageSize(),
                          (SIZE_T)pMappedMem->getMappedBlockSize(index), (PROT_READ | PROT_WRITE)) == -1) {
                 vktrace_LogError("Clear memory protect on page(%d) failed !", index);
             }

@@ -224,8 +224,7 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
                 setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ);
             }
 #elif defined(ANDROID)
-            if (mprotect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1)
-            {
+            if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1) {
                 vktrace_LogError("Set memory protect on page(%d) failed !", i);
             }
 #endif
@@ -242,8 +241,7 @@ void PageGuardMappedMemory::resetMemoryObjectAllReadFlagAndPageGuard() {
             DWORD oldProt;
             VirtualProtect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
 #elif defined(ANDROID)
-            if (mprotect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1)
-            {
+            if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1) {
                 vktrace_LogError("Set memory protect on page(%d) failed !", i);
             }
 #endif
@@ -275,8 +273,7 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
             setSuccessfully = false;
         }
 #elif defined(ANDROID)
-        if (mprotect(pMappedData + i*PageGuardSize, (SIZE_T)getMappedBlockSize(i), prot) == -1)
-        {
+        if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), prot) == -1) {
             vktrace_LogError("Set memory protect(%d) on page(%d) failed !", prot, i);
             setSuccessfully = false;
         }

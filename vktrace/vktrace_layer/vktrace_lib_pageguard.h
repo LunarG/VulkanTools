@@ -121,7 +121,7 @@ void resetAllReadFlagAndPageGuard();
 #if defined(WIN32)
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
 #elif defined(ANDROID)
-void PageGuardExceptionHandler(int sig, siginfo_t *si, void *unused);
+void PageGuardExceptionHandler(int sig, siginfo_t* si, void* unused);
 #endif
 
 VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memoryRangeCount,

@@ -528,7 +528,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
     // so add process here for that situation.
     pageguardEnter();
     if (getPageGuardControlInstance().findMappedMemoryObject(device, memory) != nullptr) {
-        void *PageGuardMappedData = nullptr;
+        void* PageGuardMappedData = nullptr;
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
         getMappedDirtyPagesLinux();
 #endif
@@ -659,7 +659,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
-#if defined(PLATFORM_LINUX)  && !defined(ANDROID)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     getMappedDirtyPagesLinux();
 #endif
     PBYTE* ppPackageData = new PBYTE[memoryRangeCount];
@@ -2157,7 +2157,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                                                                       const VkSubmitInfo* pSubmits, VkFence fence) {
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
-#if defined(PLATFORM_LINUX)  && !defined(ANDROID)
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     getMappedDirtyPagesLinux();
 #endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
