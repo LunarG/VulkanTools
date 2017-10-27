@@ -310,7 +310,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 #endif
     MappedSize = size;
 
-#if defined(WIN32)  || defined(ANDROID)
+#if defined(WIN32) || defined(ANDROID)
     setPageGuardExceptionHandler();
 #endif
 

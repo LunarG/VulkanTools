@@ -22,11 +22,7 @@
 #include "vktrace_lib_pageguard.h"
 #include "vktrace_lib_trim.h"
 
-#if !defined(ANDROID)
 static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = true;
-#else
-static const bool PAGEGUARD_PAGEGUARD_ENABLE_DEFAULT = true;
-#endif
 
 static const VkDeviceSize PAGEGUARD_TARGET_RANGE_SIZE_DEFAULT = 2;  // cover all reasonal mapped memory size, the mapped memory size
                                                                     // may be less than 1 page, so processing for mapped memory
