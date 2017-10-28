@@ -48,6 +48,7 @@ The top-level sections of a configuration file are specified by the DevSim JSON 
 * `VkPhysicalDeviceFeatures` - Optional.  Only values specified in the JSON will be modified.
 * `VkPhysicalDeviceMemoryProperties` - Optional.  Only values specified in the JSON will be modified.
 * `ArrayOfVkQueueFamilyProperties` - Optional.  If present, all values of all elements must be specified.
+* `ArrayOfVkFormatProperties` - Optional.  If present, all values of all elements must be specified.
 * The remaining top-level sections of the schema are not yet supported by DevSim.
 
 The schema permits additional top-level sections to be optionally included in configuration files;
@@ -56,6 +57,10 @@ any additional top-level sections will be ignored by DevSim.
 The schema defines basic range checking for common Vulkan data types, but it cannot detect if a particular configuration makes no sense.
 If a configuration defines capabilities beyond what the actual device is natively capable of providing, the results are undefined.
 DevSim has some simple checking of configuration values and writes debug messages (if enabled) for values that are incompatible with the capabilities of the actual device.
+
+This version of DevSim currently supports only Vulkan v1.0.
+If the application requests an unsupported version of the Vulkan API, DevSim will emit an error message.
+If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` environment variable (see below).
 
 ## Example of a DevSim JSON configuration file
 ```json
