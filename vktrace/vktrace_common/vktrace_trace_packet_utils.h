@@ -87,6 +87,9 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer);
 
+// adds pNext structures to a trace packet
+void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHeader, void* pOut, const void* pIn);
+
 // converts buffer pointers into byte offset so that pointer can be interpretted after being read into memory
 void vktrace_finalize_buffer_address(vktrace_trace_packet_header* pHeader, void** ptr_address);
 
@@ -124,6 +127,8 @@ VkDeviceCreateInfo* interpret_VkDeviceCreateInfo(vktrace_trace_packet_header* pH
 void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* pShader);
 VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
                                                                              intptr_t ptr_variable);
+// converts the Vulkan struct pnext chain that is currently byte offsets into pointers
+void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr);
 
 //=============================================================================
 // trace packet message

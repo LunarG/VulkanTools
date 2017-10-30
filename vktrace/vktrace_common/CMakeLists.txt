@@ -5,6 +5,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
 include_directories(
+    ${PROJECT_BINARY_DIR}/../..
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
 )

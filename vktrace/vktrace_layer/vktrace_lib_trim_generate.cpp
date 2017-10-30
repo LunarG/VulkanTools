@@ -536,7 +536,7 @@ vktrace_trace_packet_header *vkAllocateMemory(bool makeCall, VkDevice device, co
     pPacket = interpret_body_as_vkAllocateMemory(pHeader);
     pPacket->device = device;
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocateInfo), sizeof(VkMemoryAllocateInfo), pAllocateInfo);
-    add_alloc_memory_to_trace_packet(pHeader, (void **)&(pPacket->pAllocateInfo->pNext), pAllocateInfo->pNext);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pAllocateInfo, (void *)pAllocateInfo);
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pMemory), sizeof(VkDeviceMemory), pMemory);
     pPacket->result = result;

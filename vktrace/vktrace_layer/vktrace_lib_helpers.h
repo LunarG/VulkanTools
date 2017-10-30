@@ -228,83 +228,6 @@ static void rm_handle_from_mem_info(const VkDeviceMemory handle) {
     vktrace_leave_critical_section(&g_memInfoLock);
 }
 
-static void add_alloc_memory_to_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
-    void **ppOutNext;
-    while (pIn) {
-        switch (((VkApplicationInfo *)pIn)->sType) {
-            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationMemoryAllocateInfoNV), pIn);
-                ppOutNext = (void **)&(((VkDedicatedAllocationMemoryAllocateInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExportMemoryAllocateInfoNV), pIn);
-                ppOutNext = (void **)&(((VkExportMemoryAllocateInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-            case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExportMemoryWin32HandleInfoNV), pIn);
-                ppOutNext = (void **)&(((VkExportMemoryWin32HandleInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-
-            case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkImportMemoryWin32HandleInfoNV), pIn);
-                ppOutNext = (void **)&(((VkImportMemoryWin32HandleInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-#endif
-            default:
-                vktrace_LogError("vkAllocateMemory: unrecognized pNext list structure");
-                break;
-        }
-        ppOut = ppOutNext;
-        pIn = ((VkApplicationInfo *)pIn)->pNext;
-    }
-}
-
-static void add_extension_to_createimage_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
-    void **ppOutNext;
-    while (pIn) {
-        switch (((VkExternalMemoryImageCreateInfoNV *)pIn)->sType) {
-            case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkExternalMemoryImageCreateInfoNV), pIn);
-                ppOutNext = (void **)&(((VkExternalMemoryImageCreateInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationImageCreateInfoNV), pIn);
-                ppOutNext = (void **)&(((VkDedicatedAllocationImageCreateInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-            default:
-                vktrace_LogError("vkCreateImage: unrecognized pNext list structure");
-                break;
-        }
-        ppOut = ppOutNext;
-        pIn = ((VkExternalMemoryImageCreateInfoNV *)pIn)->pNext;
-    }
-}
-
-static void add_extension_to_createbuffer_trace_packet(vktrace_trace_packet_header *pHeader, void **ppOut, const void *pIn) {
-    void **ppOutNext;
-    while (pIn) {
-        switch (((VkDedicatedAllocationBufferCreateInfoNV *)pIn)->sType) {
-            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
-                vktrace_add_buffer_to_trace_packet(pHeader, ppOut, sizeof(VkDedicatedAllocationBufferCreateInfoNV), pIn);
-                ppOutNext = (void **)&(((VkDedicatedAllocationBufferCreateInfoNV *)*ppOut)->pNext);
-                vktrace_finalize_buffer_address(pHeader, ppOut);
-                break;
-            default:
-                vktrace_LogError("vkCreateBuffer: unrecognized pNext list structure");
-                break;
-        }
-        ppOut = ppOutNext;
-        pIn = ((VkDedicatedAllocationBufferCreateInfoNV *)pIn)->pNext;
-    }
-}
-
 static void add_VkPipelineShaderStageCreateInfo_to_trace_packet(vktrace_trace_packet_header *pHeader,
                                                                 VkPipelineShaderStageCreateInfo *packetShader,
                                                                 const VkPipelineShaderStageCreateInfo *paramShader) {
@@ -385,6 +308,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             for (j = 0; j < pParam[i].stageCount; j++) {
                 add_VkPipelineShaderStageCreateInfo_to_trace_packet(
                     pHeader, (VkPipelineShaderStageCreateInfo *)&pPacket[i].pStages[j], &pParam[i].pStages[j]);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pStages[j]),
+                                                          (void *)&pParam[i].pStages[j]);
             }
             vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pStages));
 
@@ -392,6 +317,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pVertexInputState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pVertexInputState),
                                                    sizeof(VkPipelineVertexInputStateCreateInfo), pParam[i].pVertexInputState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pVertexInputState),
+                                                          pParam[i].pVertexInputState);
                 vktrace_add_buffer_to_trace_packet(
                     pHeader, (void **)&(pPacket[i].pVertexInputState->pVertexBindingDescriptions),
                     pParam[i].pVertexInputState->vertexBindingDescriptionCount * sizeof(VkVertexInputBindingDescription),
@@ -408,18 +335,23 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pInputAssemblyState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pInputAssemblyState),
                                                    sizeof(VkPipelineInputAssemblyStateCreateInfo), pParam[i].pInputAssemblyState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pInputAssemblyState),
+                                                          pParam[i].pInputAssemblyState);
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pInputAssemblyState));
             }
             // Tesselation State
             if (pParam[i].pTessellationState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pTessellationState),
                                                    sizeof(VkPipelineTessellationStateCreateInfo), pParam[i].pTessellationState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pTessellationState),
+                                                          pParam[i].pTessellationState);
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pTessellationState));
             }
             // Viewport State
             if (pParam[i].pViewportState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pViewportState),
                                                    sizeof(VkPipelineViewportStateCreateInfo), pParam[i].pViewportState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pViewportState), pParam[i].pViewportState);
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pViewportState->pViewports),
                                                    sizeof(VkViewport) * pParam[i].pViewportState->viewportCount,
                                                    pParam[i].pViewportState->pViewports);
@@ -435,6 +367,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pRasterizationState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pRasterizationState),
                                                    sizeof(VkPipelineRasterizationStateCreateInfo), pParam[i].pRasterizationState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pRasterizationState),
+                                                          pParam[i].pRasterizationState);
                 if (pParam[i].pRasterizationState->pNext != nullptr) {
                     // there's an extension struct here, we need to handle it. Without the extension handling,
                     // some tile crash during playback and the reason is the extension struct data is not
@@ -470,6 +404,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pMultisampleState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState),
                                                    sizeof(VkPipelineMultisampleStateCreateInfo), pParam[i].pMultisampleState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState),
+                                                          pParam[i].pMultisampleState);
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask),
                     sizeof(VkSampleMask)*((pParam[i].pMultisampleState->rasterizationSamples / 32) + 1), pParam[i].pMultisampleState->pSampleMask);
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pMultisampleState->pSampleMask));
@@ -480,6 +416,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pDepthStencilState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pDepthStencilState),
                                                    sizeof(VkPipelineDepthStencilStateCreateInfo), pParam[i].pDepthStencilState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pDepthStencilState),
+                                                          pParam[i].pDepthStencilState);
                 vktrace_finalize_buffer_address(pHeader, (void **)&(pPacket[i].pDepthStencilState));
             }
 
@@ -487,6 +425,8 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pColorBlendState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pColorBlendState),
                                                    sizeof(VkPipelineColorBlendStateCreateInfo), pParam[i].pColorBlendState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pColorBlendState),
+                                                          pParam[i].pColorBlendState);
                 vktrace_add_buffer_to_trace_packet(
                     pHeader, (void **)&(pPacket[i].pColorBlendState->pAttachments),
                     pParam[i].pColorBlendState->attachmentCount * sizeof(VkPipelineColorBlendAttachmentState),
@@ -499,6 +439,7 @@ static void add_VkGraphicsPipelineCreateInfos_to_trace_packet(vktrace_trace_pack
             if (pParam[i].pDynamicState) {
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pDynamicState),
                                                    sizeof(VkPipelineDynamicStateCreateInfo), pParam[i].pDynamicState);
+                vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket[i].pDynamicState), pParam[i].pDynamicState);
                 vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket[i].pDynamicState->pDynamicStates),
                                                    pParam[i].pDynamicState->dynamicStateCount * sizeof(VkDynamicState),
                                                    pParam[i].pDynamicState->pDynamicStates);
