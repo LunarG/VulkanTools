@@ -42,6 +42,7 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST} ${CXX_SRC_LIST} ${HDRS})
 
+add_dependencies(${PROJECT_NAME} generate_helper_files)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 target_link_libraries(${PROJECT_NAME}
