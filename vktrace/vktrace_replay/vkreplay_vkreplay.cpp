@@ -266,9 +266,11 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
         if (replayResult == VK_SUCCESS) {
             m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
 
+            auto tmp = m_vkFuncs.CreateInstance;
             // Build instance dispatch table
             layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
-            // Get CreateDevice entrypoint (not handled by codegen)
+            m_vkFuncs.CreateInstance = tmp; // This is clobbered by layer_init_instance_dispatch table
+            // Not handled by codegen
             m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
         }
     }
