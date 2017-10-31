@@ -983,6 +983,37 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
     }
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice,
+                                                                                      VkPhysicalDeviceProperties2KHR* pProperties) {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetPhysicalDeviceProperties2KHR* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceProperties2KHR, get_struct_chain_size((void*)pProperties));
+    // Munge the pipeline cache UUID so app won't use the pipeline cache. This increases portability of the trace file.
+    memset(pProperties->properties.pipelineCacheUUID, 0xff, sizeof(pProperties->properties.pipelineCacheUUID));
+    mid(physicalDevice)->instTable.GetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkGetPhysicalDeviceProperties2KHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProperties), sizeof(VkPhysicalDeviceProperties2KHR),
+                                       pProperties);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pProperties));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+            // See comment above in __HOOKED_vkGetPhysicalDeviceProperties
+            if (pInfo != nullptr) {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceProperties2KHRPacket = trim::copy_packet(pHeader);
+            }
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysicalDevice physicalDevice,
                                                                        const VkDeviceCreateInfo* pCreateInfo,
                                                                        const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
@@ -1568,8 +1599,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerPr
     }
     return result;
 }
-// TODO : This should be pretty easy to fit into codegen. Don't need to make the call prior to creating packet
-//  Just need to account for "count" number of queue properties
+
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFamilyProperties(
     VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties) {
     vktrace_trace_packet_header* pHeader;
@@ -1600,6 +1630,52 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
     } else {
         vktrace_finalize_trace_packet(pHeader);
 
+        trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
+        if (pInfo != NULL) {
+            if (pQueueFamilyProperties == nullptr) {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket = trim::copy_packet(pHeader);
+                pInfo->ObjectInfo.PhysicalDevice.queueFamilyCount = *pQueueFamilyPropertyCount;
+            } else {
+                pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket = trim::copy_packet(pHeader);
+            }
+        }
+
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
+    VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties2KHR* pQueueFamilyProperties) {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkGetPhysicalDeviceQueueFamilyProperties2KHR* pPacket = NULL;
+    uint64_t startTime;
+    uint64_t endTime;
+    uint64_t vktraceStartTime = vktrace_get_time();
+    startTime = vktrace_get_time();
+    mid(physicalDevice)
+        ->instTable.GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    endTime = vktrace_get_time();
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceQueueFamilyProperties2KHR,
+                        sizeof(uint32_t) + get_struct_chain_size((void*)pQueueFamilyProperties));
+    pHeader->vktrace_begin_time = vktraceStartTime;
+    pHeader->entrypoint_begin_time = startTime;
+    pHeader->entrypoint_end_time = endTime;
+    pPacket = interpret_body_as_vkGetPhysicalDeviceQueueFamilyProperties2KHR(pHeader);
+    pPacket->physicalDevice = physicalDevice;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyPropertyCount), sizeof(uint32_t),
+                                       pQueueFamilyPropertyCount);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyProperties),
+                                       (*pQueueFamilyPropertyCount) * sizeof(VkQueueFamilyProperties2KHR), pQueueFamilyProperties);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pQueueFamilyPropertyCount));
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pQueueFamilyProperties));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
         trim::ObjectInfo* pInfo = trim::get_PhysicalDevice_objectInfo(physicalDevice);
         if (pInfo != NULL) {
             if (pQueueFamilyProperties == nullptr) {
@@ -4376,6 +4452,18 @@ static inline PFN_vkVoidFunction layer_intercept_instance_proc(const char* name)
     if (!strcmp(name, "EnumerateDeviceLayerProperties")) return (PFN_vkVoidFunction)__HOOKED_vkEnumerateDeviceLayerProperties;
     if (!strcmp(name, "EnumerateDeviceExtensionProperties"))
         return (PFN_vkVoidFunction)__HOOKED_vkEnumerateDeviceExtensionProperties;
+    if (!strcmp(name, "GetPhysicalDeviceFeatures2KHR")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFeatures2KHR;
+    if (!strcmp(name, "GetPhysicalDeviceProperties2KHR")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceProperties2KHR;
+    if (!strcmp(name, "GetPhysicalDeviceFormatProperties2KHR"))
+        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFormatProperties2KHR;
+    if (!strcmp(name, "GetPhysicalDeviceImageFormatProperties2KHR"))
+        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceImageFormatProperties2KHR;
+    if (!strcmp(name, "GetPhysicalDeviceQueueFamilyProperties2KHR"))
+        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceQueueFamilyProperties2KHR;
+    if (!strcmp(name, "GetPhysicalDeviceMemoryProperties2KHR"))
+        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceMemoryProperties2KHR;
+    if (!strcmp(name, "GetPhysicalDeviceSparseImageFormatProperties2KHR"))
+        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSparseImageFormatProperties2KHR;
 
     return NULL;
 }

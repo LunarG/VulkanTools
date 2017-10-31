@@ -81,9 +81,12 @@ typedef struct _Trim_ObjectInfo {
         } Instance;
         struct _PhysicalDevice {  // VkPhysicalDevice
             vktrace_trace_packet_header *pGetPhysicalDevicePropertiesPacket;
+            vktrace_trace_packet_header *pGetPhysicalDeviceProperties2KHRPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceMemoryPropertiesPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyPropertiesCountPacket;
             vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyPropertiesPacket;
+            vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyProperties2KHRCountPacket;
+            vktrace_trace_packet_header *pGetPhysicalDeviceQueueFamilyProperties2KHRPacket;
             VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
             uint32_t queueFamilyCount;
         } PhysicalDevice;

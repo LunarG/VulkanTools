@@ -112,6 +112,8 @@ approved_ext = [
                 'VK_NV_win32_keyed_mutex',
                 'VK_NVX_device_generated_commands',
                 'VK_NVX_multiview_per_view_attributes',
+                'VK_EXT_sample_locations',
+                'VK_KHR_sampler_ycbcr_conversion',
                 ]
 
 api_exclusions = [
@@ -557,9 +559,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'FlushMappedMemoryRanges',
                                  'InvalidateMappedMemoryRanges',
                                  'GetPhysicalDeviceProperties',
+                                 'GetPhysicalDeviceProperties2KHR',
                                  'GetPhysicalDeviceMemoryProperties',
+                                 'GetPhysicalDeviceMemoryProperties2KHR',
                                  'GetPhysicalDeviceQueueFamilyProperties',
+                                 'GetPhysicalDeviceQueueFamilyProperties2KHR',
                                  'GetPhysicalDeviceSparseImageFormatProperties',
+                                 'GetPhysicalDeviceSparseImageFormatProperties2KHR',
                                  'GetPhysicalDeviceSurfaceSupportKHR',
                                  'GetPhysicalDeviceSurfaceCapabilitiesKHR',
                                  'GetPhysicalDeviceSurfaceFormatsKHR',
@@ -2243,6 +2249,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkBeginCommandBuffer',
                                          'vkCreateDescriptorPool',
                                          'vkGetPhysicalDeviceProperties',
+                                         'vkGetPhysicalDeviceProperties2KHR',
                                          'vkCreateDevice',
                                          'vkCreateFramebuffer',
                                          'vkCreateImage',
@@ -2272,6 +2279,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkEnumerateInstanceLayerProperties',
                                          'vkEnumerateDeviceLayerProperties',
                                          'vkGetPhysicalDeviceQueueFamilyProperties',
+                                         'vkGetPhysicalDeviceQueueFamilyProperties2KHR',
                                          'vkGetQueryPoolResults',
                                          'vkMapMemory',
                                          'vkUnmapMemory',
