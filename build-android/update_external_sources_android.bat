@@ -160,15 +160,6 @@ if %sync-spirv-headers% equ 1 (
    if %errorCode% neq 0 (goto:error)
 )
 
-if %sync-shaderc% equ 1 (
-   if not exist %SHADERC_DIR% (
-      call:create_shaderc
-   )
-   if %errorCode% neq 0 (goto:error)
-   call:update_shaderc
-   if %errorCode% neq 0 (goto:error)
-)
-
 if %sync-jsoncpp% equ 1 (
    if exist %JSONCPP_DIR% (
       rd /S /Q %JSONCPP_DIR%
