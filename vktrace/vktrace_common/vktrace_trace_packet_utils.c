@@ -663,6 +663,7 @@ VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vkt
     } while (0)
 
 void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr) {
+    uint32_t i;
     if (!struct_ptr) return;
 
     while (((VkApplicationInfo*)struct_ptr)->pNext) {
@@ -677,7 +678,7 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
                     (VkDescriptorSetLayoutCreateInfo*)(((VkApplicationInfo*)struct_ptr)->pNext);
                 struct_ptr_cur->pBindings = (VkDescriptorSetLayoutBinding*)vktrace_trace_packet_interpret_buffer_pointer(
                     pHeader, (intptr_t)struct_ptr_cur->pBindings);
-                for (uint32_t i = 0; i < struct_ptr_cur->bindingCount; i++) {
+                for (i = 0; i < struct_ptr_cur->bindingCount; i++) {
                     VkSampler** ppSamplers = (VkSampler**)&(struct_ptr_cur->pBindings[i].pImmutableSamplers);
                     *ppSamplers = (VkSampler*)vktrace_trace_packet_interpret_buffer_pointer(
                         pHeader, (intptr_t)struct_ptr_cur->pBindings[i].pImmutableSamplers);

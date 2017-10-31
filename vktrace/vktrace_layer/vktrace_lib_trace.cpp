@@ -638,7 +638,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     pPacket->device = device;
     pPacket->memoryRangeCount = memoryRangeCount;
     pPacket->result = result;
-    if (g_trimEnabled) {
+    if (!g_trimEnabled) {
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
