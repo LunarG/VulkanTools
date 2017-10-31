@@ -2404,6 +2404,19 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceProperties(packet_vkGetPhysica
     m_replay_drv_vers = (uint64_t)pPacket->pProperties->driverVersion;
 }
 
+void vkReplay::manually_replay_vkGetPhysicalDeviceProperties2KHR(packet_vkGetPhysicalDeviceProperties2KHR *pPacket) {
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in GetPhysicalDeviceProperties2KHR() due to invalid remapped VkPhysicalDevice.");
+        return;
+    }
+    // No need to remap pProperties
+    m_vkFuncs.GetPhysicalDeviceProperties2KHR(remappedphysicalDevice, pPacket->pProperties);
+    m_replay_gpu =
+        ((uint64_t)pPacket->pProperties->properties.vendorID << 32) | (uint64_t)pPacket->pProperties->properties.deviceID;
+    m_replay_drv_vers = (uint64_t)pPacket->pProperties->properties.driverVersion;
+}
+
 VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
 
@@ -2435,6 +2448,19 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetP
     traceMemoryProperties[pPacket->physicalDevice] = *(pPacket->pMemoryProperties);
     m_vkFuncs.GetPhysicalDeviceMemoryProperties(remappedphysicalDevice, pPacket->pMemoryProperties);
     replayMemoryProperties[remappedphysicalDevice] = *(pPacket->pMemoryProperties);
+    return;
+}
+
+void vkReplay::manually_replay_vkGetPhysicalDeviceMemoryProperties2KHR(packet_vkGetPhysicalDeviceMemoryProperties2KHR *pPacket) {
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (remappedphysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceMemoryProperties2KHR() due to invalid remapped VkPhysicalDevice.");
+        return;
+    }
+
+    traceMemoryProperties[pPacket->physicalDevice] = pPacket->pMemoryProperties->memoryProperties;
+    m_vkFuncs.GetPhysicalDeviceMemoryProperties2KHR(remappedphysicalDevice, pPacket->pMemoryProperties);
+    replayMemoryProperties[remappedphysicalDevice] = pPacket->pMemoryProperties->memoryProperties;
     return;
 }
 
@@ -2515,6 +2541,85 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_v
     return;
 }
 
+void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
+    packet_vkGetPhysicalDeviceQueueFamilyProperties2KHR *pPacket) {
+    static std::unordered_map<VkPhysicalDevice, uint32_t>
+        queueFamProp2KHRCnt;  // count returned when pQueueFamilyProperties is NULL
+    VkQueueFamilyProperties2KHR *savepQueueFamilyProperties = NULL;
+
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceQueueFamilyProperties() due to invalid remapped VkPhysicalDevice.");
+        return;
+    }
+
+    if (queueFamProp2KHRCnt.find(pPacket->physicalDevice) != queueFamProp2KHRCnt.end()) {
+        // This query was previously done with pQueueFamilyProperties set to null. It was a query
+        // to determine the size of data to be returned. We saved the size returned during
+        // that api call. Use that count instead to prevent a VK_INCOMPLETE error.
+        if (queueFamProp2KHRCnt[pPacket->physicalDevice] > *pPacket->pQueueFamilyPropertyCount) {
+            *pPacket->pQueueFamilyPropertyCount = queueFamProp2KHRCnt[pPacket->physicalDevice];
+            savepQueueFamilyProperties = pPacket->pQueueFamilyProperties;
+            pPacket->pQueueFamilyProperties = VKTRACE_NEW_ARRAY(VkQueueFamilyProperties2KHR, *pPacket->pQueueFamilyPropertyCount);
+        }
+    }
+
+    // If we haven't previously allocated queueFamilyProperties for the trace physical device, allocate it.
+    // If we previously allocated queueFamilyProperities for the trace physical device and the size of this
+    // query is larger than what we saved last time, then free the last properties map and allocate a new map.
+    if (traceQueueFamilyProperties.find(pPacket->physicalDevice) == traceQueueFamilyProperties.end() ||
+        *pPacket->pQueueFamilyPropertyCount > traceQueueFamilyProperties[pPacket->physicalDevice].count) {
+        if (traceQueueFamilyProperties.find(pPacket->physicalDevice) != traceQueueFamilyProperties.end()) {
+            free(traceQueueFamilyProperties[pPacket->physicalDevice].queueFamilyProperties);
+            traceQueueFamilyProperties.erase(pPacket->physicalDevice);
+        }
+        if (pPacket->pQueueFamilyProperties) {
+            traceQueueFamilyProperties[pPacket->physicalDevice].queueFamilyProperties =
+                (VkQueueFamilyProperties *)malloc(*pPacket->pQueueFamilyPropertyCount * sizeof(VkQueueFamilyProperties));
+            memcpy(traceQueueFamilyProperties[pPacket->physicalDevice].queueFamilyProperties, pPacket->pQueueFamilyProperties,
+                   *pPacket->pQueueFamilyPropertyCount * sizeof(VkQueueFamilyProperties));
+            traceQueueFamilyProperties[pPacket->physicalDevice].count = *pPacket->pQueueFamilyPropertyCount;
+        }
+    }
+
+    m_vkFuncs.GetPhysicalDeviceQueueFamilyProperties2KHR(remappedphysicalDevice, pPacket->pQueueFamilyPropertyCount,
+                                                         pPacket->pQueueFamilyProperties);
+
+    // If we haven't previously allocated queueFamilyProperties for the replay physical device, allocate it.
+    // If we previously allocated queueFamilyProperities for the replay physical device and the size of this
+    // query is larger than what we saved last time, then free the last properties map and allocate a new map.
+    if (replayQueueFamilyProperties.find(remappedphysicalDevice) == replayQueueFamilyProperties.end() ||
+        *pPacket->pQueueFamilyPropertyCount > replayQueueFamilyProperties[remappedphysicalDevice].count) {
+        if (replayQueueFamilyProperties.find(remappedphysicalDevice) != replayQueueFamilyProperties.end()) {
+            free(replayQueueFamilyProperties[remappedphysicalDevice].queueFamilyProperties);
+            replayQueueFamilyProperties.erase(remappedphysicalDevice);
+        }
+        if (pPacket->pQueueFamilyProperties) {
+            replayQueueFamilyProperties[remappedphysicalDevice].queueFamilyProperties =
+                (VkQueueFamilyProperties *)malloc(*pPacket->pQueueFamilyPropertyCount * sizeof(VkQueueFamilyProperties));
+            memcpy(replayQueueFamilyProperties[remappedphysicalDevice].queueFamilyProperties, pPacket->pQueueFamilyProperties,
+                   *pPacket->pQueueFamilyPropertyCount * sizeof(VkQueueFamilyProperties));
+            replayQueueFamilyProperties[remappedphysicalDevice].count = *pPacket->pQueueFamilyPropertyCount;
+        }
+    }
+
+    if (!pPacket->pQueueFamilyProperties) {
+        // This was a query to determine size. Save the returned size so we can use that size next time
+        // we're called with pQueueFamilyProperties not null. This is to prevent a VK_INCOMPLETE error.
+        queueFamProp2KHRCnt[pPacket->physicalDevice] = *pPacket->pQueueFamilyPropertyCount;
+    }
+
+    if (savepQueueFamilyProperties) {
+        // Restore pPacket->pQueueFamilyProperties. We do this because the replay will free the memory.
+        // Note that we don't copy the queried data - it wouldn't fit, and it's not used by the replayer anyway.
+        VKTRACE_DELETE(pPacket->pQueueFamilyProperties);
+        pPacket->pQueueFamilyProperties = savepQueueFamilyProperties;
+    }
+
+    return;
+}
+
 void vkReplay::manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
     packet_vkGetPhysicalDeviceSparseImageFormatProperties *pPacket) {
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
@@ -2522,7 +2627,7 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
     VkSparseImageFormatProperties *savepProperties = NULL;
 
     if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
-        vktrace_LogError("Skipping vkGetPhysicalDeviceQueueFamilyProperties() due to invalid remapped VkPhysicalDevice.");
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSparseImageFormatProperties() due to invalid remapped VkPhysicalDevice.");
         return;
     }
 
@@ -2545,6 +2650,47 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
         // This was a query to determine size. Save the returned size so we can use that size next time
         // we're called with pProperties not null. This is to prevent a VK_INCOMPLETE error.
         propCnt[pPacket->physicalDevice] = *pPacket->pPropertyCount;
+    }
+
+    if (savepProperties) {
+        // Restore pPacket->pProperties. We do this because the replay will free the memory.
+        // Note that we don't copy the queried data - it wouldn't fit, and it's not used by the replayer anyway.
+        VKTRACE_DELETE(pPacket->pProperties);
+        pPacket->pProperties = savepProperties;
+    }
+
+    return;
+}
+
+void vkReplay::manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
+    packet_vkGetPhysicalDeviceSparseImageFormatProperties2KHR *pPacket) {
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    static std::unordered_map<VkPhysicalDevice, uint32_t> prop2KHRCnt;  // count returned when pProperties is NULL
+    VkSparseImageFormatProperties2KHR *savepProperties = NULL;
+
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkGetPhysicalDeviceSparseImageFormatProperties() due to invalid remapped VkPhysicalDevice.");
+        return;
+    }
+
+    if (prop2KHRCnt.find(pPacket->physicalDevice) != prop2KHRCnt.end()) {
+        // This query was previously done with pProperties set to null. It was a query
+        // to determine the size of data to be returned. We saved the size returned during
+        // that api call. Use that count instead to prevent a VK_INCOMPLETE error.
+        if (prop2KHRCnt[pPacket->physicalDevice] > *pPacket->pPropertyCount) {
+            *pPacket->pPropertyCount = prop2KHRCnt[pPacket->physicalDevice];
+            savepProperties = pPacket->pProperties;
+            pPacket->pProperties = VKTRACE_NEW_ARRAY(VkSparseImageFormatProperties2KHR, *pPacket->pPropertyCount);
+        }
+    }
+
+    m_vkFuncs.GetPhysicalDeviceSparseImageFormatProperties2KHR(remappedphysicalDevice, pPacket->pFormatInfo,
+                                                               pPacket->pPropertyCount, pPacket->pProperties);
+
+    if (!pPacket->pProperties) {
+        // This was a query to determine size. Save the returned size so we can use that size next time
+        // we're called with pProperties not null. This is to prevent a VK_INCOMPLETE error.
+        prop2KHRCnt[pPacket->physicalDevice] = *pPacket->pPropertyCount;
     }
 
     if (savepProperties) {

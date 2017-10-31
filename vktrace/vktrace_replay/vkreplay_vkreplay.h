@@ -162,12 +162,17 @@ class vkReplay {
     VkResult manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappedMemoryRanges* pPacket);
     VkResult manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInvalidateMappedMemoryRanges* pPacket);
     void manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetPhysicalDeviceMemoryProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceMemoryProperties2KHR(packet_vkGetPhysicalDeviceMemoryProperties2KHR* pPacket);
     void manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_vkGetPhysicalDeviceQueueFamilyProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceQueueFamilyProperties2KHR(packet_vkGetPhysicalDeviceQueueFamilyProperties2KHR* pPacket);
     void manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
         packet_vkGetPhysicalDeviceSparseImageFormatProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
+        packet_vkGetPhysicalDeviceSparseImageFormatProperties2KHR* pPacket);
     void manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMemoryRequirements* pPacket);
     void manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferMemoryRequirements* pPacket);
     void manually_replay_vkGetPhysicalDeviceProperties(packet_vkGetPhysicalDeviceProperties* pPacket);
+    void manually_replay_vkGetPhysicalDeviceProperties2KHR(packet_vkGetPhysicalDeviceProperties2KHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_vkGetPhysicalDeviceSurfaceFormatsKHR* pPacket);
