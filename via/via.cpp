@@ -276,7 +276,11 @@ out:
     // Print out a useful message for any common errors.
     switch (res) {
         case SUCCESSFUL:
-            std::cout << "SUCCESS: Validation completed properly." << std::endl;
+            if (!global_items.sdk_found) {
+                std::cout << "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected" << std::endl;
+            } else {
+                std::cout << "SUCCESS: Vulkan analysis completed properly." << std::endl;
+            }
             break;
         case SYSTEM_CALL_FAILURE:
             std::cout << "ERROR: Failure occurred during system call." << std::endl;
