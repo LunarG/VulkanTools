@@ -23,6 +23,7 @@ import os,re,sys
 import xml.etree.ElementTree as etree
 from generator import *
 from collections import namedtuple
+from common_codegen import *
 
 approved_ext = [
                 'VK_AMD_draw_indirect_count',
@@ -167,32 +168,31 @@ class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
                  protectFile = True,
                  protectFeature = True,
-                 protectProto = None,
-                 protectProtoStr = None,
                  apicall = '',
                  apientry = '',
                  apientryp = '',
                  alignFuncParam = 0,
+                 expandEnumerants = True,
                  library_name = '',
                  vktrace_file_type = ''):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.prefixText       = prefixText
         self.genFuncPointers  = genFuncPointers
         self.protectFile      = protectFile
         self.protectFeature   = protectFeature
-        self.protectProto     = protectProto
-        self.protectProtoStr  = protectProtoStr
         self.apicall          = apicall
         self.apientry         = apientry
         self.apientryp        = apientryp
         self.alignFuncParam   = alignFuncParam
+        self.expandEnumerants = expandEnumerants,
         self.library_name     = library_name
         self.vktrace_file_type = vktrace_file_type
 #
@@ -382,6 +382,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     #
     # Capture command parameter info needed
     def genCmd(self, cmdinfo, cmdname):
+        if "GetPhysicalDeviceSurfacePresentModes" in cmdname:
+           stop="here"
         # Add struct-member type information to command parameter information
         OutputGenerator.genCmd(self, cmdinfo, cmdname)
         members = cmdinfo.elem.findall('.//param')
@@ -458,6 +460,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     def beginFeature(self, interface, emit):
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
+        self.featureExtraProtect = GetFeatureProtect(interface)
         self.current_feature_name = self.featureName
     #
     # Enum_string_header: Create a routine to convert an enumerated value into a string
@@ -627,8 +630,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'GetBufferMemoryRequirements',
                                  'GetBufferMemoryRequirements2KHR',
                                  'CreateDescriptorUpdateTemplateKHR',
+                                 'CreateDescriptorUpdateTemplate',
                                  'DestroyDescriptorUpdateTemplateKHR',
+                                 'DestroyDescriptorUpdateTemplate',
                                  'UpdateDescriptorSetWithTemplateKHR',
+                                 'UpdateDescriptorSetWithTemplate',
                                  'CmdPushDescriptorSetWithTemplateKHR',
                                  'BindBufferMemory',
                                  'BindImageMemory',
@@ -672,6 +678,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             cmdname = api.name[2:]
             if not isSupportedCmd(api, cmd_extension_dict):
                 continue;
+            temp_exclude = ['CreateInstance', 'EnumerateInstanceExtensionProperties', 'EnumerateInstanceLayerProperties', 'EnumerateInstanceVersion']
+            if cmdname in temp_exclude: # TODO verify this needs to be here
+                continue
             protect = cmd_protect_dict[api.name]
             if protect is not None:
                 replay_gen_source += '#ifdef %s\n' % protect
@@ -810,12 +819,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         if not isInstanceCmd(command):
                             continue
                         extension = cmd_extension_dict[command.name]
-                        if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                        if 'VK_VERSION_' not in extension and extension not in approved_ext:
                             continue
                         command_name_novk = command.name[2:]
                         if command_name_novk in api_exclusions:
                             continue
-                        if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
+                        if 'VK_VERSION_' not in cmd_extension_dict[command.name] and command.name not in api_exclusions:
                             gipa_params = cmd_member_dict[vk_cmdname]
                             gipa_protect = cmd_protect_dict[command.name]
                             if gipa_protect is not None:
@@ -830,12 +839,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         if isInstanceCmd(command):
                             continue
                         extension = cmd_extension_dict[command.name]
-                        if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+                        if 'VK_VERSION_' not in extension and extension not in approved_ext:
                             continue
                         command_name_novk = command.name[2:]
                         if command_name_novk in api_exclusions:
                             continue
-                        if cmd_extension_dict[command.name] != 'VK_VERSION_1_0' and command.name not in api_exclusions:
+                        if 'VK_VERSION_' not in cmd_extension_dict[command.name] and command.name not in api_exclusions:
                             gdpa_params = cmd_member_dict[vk_cmdname]
                             gdpa_protect = cmd_protect_dict[command.name]
                             if gdpa_protect is not None:
@@ -856,7 +865,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         ret_value = False
                     else:
                         rr_string = '            replayResult = '
-                if isInstanceCmd(api):
+                if cmdname == "EnumerateInstanceExtensionProperties" or cmdname == "EnumerateInstanceLayerProperties" or cmdname == "EnumerateInstanceVersion":
+                    rr_string += 'vk%s(' % cmdname # TODO figure out if we need this case
+                elif isInstanceCmd(api):
                     rr_string += 'm_vkFuncs.%s(' % cmdname
                 else:
                     rr_string += 'm_vkDeviceFuncs.%s(' % cmdname
@@ -1129,7 +1140,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             if api.name[2:] in api_exclusions:
                 continue
@@ -1154,7 +1165,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_member_dict = dict(self.cmdMembers)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             if api.name[2:] in api_exclusions:
                 continue
@@ -1206,7 +1217,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             if api.name[2:] in api_exclusions:
                 continue
@@ -1327,7 +1338,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
             extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             cmdinfo = cmd_info_dict[api.name]
             cdecl = self.makeCDecls(cmdinfo.elem)[0]
@@ -2336,8 +2347,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkGetPhysicalDeviceWin32PresentationSupportKHR',
                                          'vkCreateAndroidSurfaceKHR',
                                          'vkCreateDescriptorUpdateTemplateKHR',
+                                         'vkCreateDescriptorUpdateTemplate',
                                          'vkDestroyDescriptorUpdateTemplateKHR',
+                                         'vkDestroyDescriptorUpdateTemplate',
                                          'vkUpdateDescriptorSetWithTemplateKHR',
+                                         'vkUpdateDescriptorSetWithTemplate',
                                          'vkCmdPushDescriptorSetWithTemplateKHR',
                                          'vkAcquireXlibDisplayEXT',
                                          'vkGetRandROutputDisplayEXT',
@@ -2369,7 +2383,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
             cmdinfo = cmd_info_dict[proto.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext or proto.name[2:] in api_exclusions:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext or proto.name[2:] in api_exclusions:
                 trace_vk_src += '// TODO: Add support for __HOOKED_%s: Skipping for now.\n' % proto.name
                 continue
 
@@ -2773,7 +2787,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if 'VK_VERSION_' not in extension and extension not in approved_ext:
                 continue
             novk_name = proto.name[2:]
             if novk_name not in api_exclusions:

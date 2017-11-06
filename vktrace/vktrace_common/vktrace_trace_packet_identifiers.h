@@ -28,7 +28,10 @@
 #define VKTRACE_TRACE_FILE_VERSION_4 0x0004
 #define VKTRACE_TRACE_FILE_VERSION_5 0x0005
 #define VKTRACE_TRACE_FILE_VERSION_6 0x0006
-#define VKTRACE_TRACE_FILE_VERSION VKTRACE_TRACE_FILE_VERSION_6
+#define VKTRACE_TRACE_FILE_VERSION_7 0x0007  // Vulkan 1.1
+#define VKTRACE_TRACE_FILE_VERSION VKTRACE_TRACE_FILE_VERSION_7
+
+// vkreplay can replay version 6 (the final Vulkan 1.0 version)
 #define VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE VKTRACE_TRACE_FILE_VERSION_6
 
 #define VKTRACE_FILE_MAGIC 0xABADD068ADEAFD0C
@@ -317,21 +320,23 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceMultisamplePropertiesEXT = 242,
     VKTRACE_TPI_VK_vkCreateSamplerYcbcrConversionKHR = 243,
     VKTRACE_TPI_VK_vkDestroySamplerYcbcrConversionKHR = 244,
-    VKTRACE_TPI_VK_vkGetDisplayPlaneSupportedDisplaysKHR = 255,
-    VKTRACE_TPI_VK_vkImportFenceFdKHR = 256,
-    VKTRACE_TPI_VK_vkGetFenceFdKHR = 257,
-    VKTRACE_TPI_VK_vkImportFenceWin32HandleKHR = 258,
-    VKTRACE_TPI_VK_vkGetFenceWin32HandleKHR = 259,
-    VKTRACE_TPI_VK_vkGetMemoryWin32HandleKHR = 260,
-    VKTRACE_TPI_VK_vkGetMemoryWin32HandlePropertiesKHR = 261,
-    VKTRACE_TPI_VK_vkImportSemaphoreWin32HandleKHR = 262,
-    VKTRACE_TPI_VK_vkGetSemaphoreWin32HandleKHR = 263,
-    VKTRACE_TPI_VK_vkGetMemoryHostPointerPropertiesEXT = 264,
-    VKTRACE_TPI_VK_vkCreateValidationCacheEXT = 265,
-    VKTRACE_TPI_VK_vkDestroyValidationCacheEXT = 266,
-    VKTRACE_TPI_VK_vkMergeValidationCachesEXT = 267,
-    VKTRACE_TPI_VK_vkGetValidationCacheDataEXT = 268,
-    VKTRACE_TPI_VK_vkGetShaderInfoAMD = 269,
+    VKTRACE_TPI_VK_vkGetDisplayPlaneSupportedDisplaysKHR = 245,
+    VKTRACE_TPI_VK_vkImportFenceFdKHR = 246,
+    VKTRACE_TPI_VK_vkGetFenceFdKHR = 247,
+    VKTRACE_TPI_VK_vkImportFenceWin32HandleKHR = 248,
+    VKTRACE_TPI_VK_vkGetFenceWin32HandleKHR = 249,
+    VKTRACE_TPI_VK_vkGetMemoryWin32HandleKHR = 250,
+    VKTRACE_TPI_VK_vkGetMemoryWin32HandlePropertiesKHR = 251,
+    VKTRACE_TPI_VK_vkImportSemaphoreWin32HandleKHR = 252,
+    VKTRACE_TPI_VK_vkGetSemaphoreWin32HandleKHR = 253,
+    VKTRACE_TPI_VK_vkGetMemoryHostPointerPropertiesEXT = 254,
+    VKTRACE_TPI_VK_vkCreateValidationCacheEXT = 255,
+    VKTRACE_TPI_VK_vkDestroyValidationCacheEXT = 256,
+    VKTRACE_TPI_VK_vkMergeValidationCachesEXT = 257,
+    VKTRACE_TPI_VK_vkGetValidationCacheDataEXT = 258,
+    VKTRACE_TPI_VK_vkGetShaderInfoAMD = 259,
+    VKTRACE_TPI_VK_vkGetDeviceQueue2 = 260,
+    VKTRACE_TPI_VK_vkEnumerateInstanceVersion = 261,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1

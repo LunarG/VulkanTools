@@ -125,7 +125,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
 VkInstanceCreateInfo* interpret_VkInstanceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
 VkDeviceCreateInfo* interpret_VkDeviceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
 void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* pShader);
-VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
+VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
                                                                              intptr_t ptr_variable);
 // converts the Vulkan struct pnext chain that is currently byte offsets into pointers
 void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr);

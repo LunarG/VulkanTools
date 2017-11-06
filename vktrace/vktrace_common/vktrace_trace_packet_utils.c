@@ -277,30 +277,30 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
             vktrace_add_buffer_to_trace_packet(pHeader, ppOutNext, size, pInNext);
             // TODO: Might be able codegen this switch statement
             switch (((VkApplicationInfo*)*ppOutNext)->sType) {
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupDeviceCreateInfoKHX, VkPhysicalDevice, pPhysicalDevices,
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupDeviceCreateInfo, VkPhysicalDevice, pPhysicalDevices,
                                                      physicalDeviceCount);
                     break;
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupRenderPassBeginInfoKHX, VkRect2D, pDeviceRenderAreas,
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupRenderPassBeginInfo, VkRect2D, pDeviceRenderAreas,
                                                      deviceRenderAreaCount);
                     break;
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfoKHX, uint32_t, pWaitSemaphoreDeviceIndices,
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfo, uint32_t, pWaitSemaphoreDeviceIndices,
                                                      waitSemaphoreCount);
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfoKHX, uint32_t, pCommandBufferDeviceMasks,
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfo, uint32_t, pCommandBufferDeviceMasks,
                                                      commandBufferCount);
-                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfoKHX, uint32_t, pSignalSemaphoreDeviceIndices,
+                    AddPointerWithCountToTracebuffer(VkDeviceGroupSubmitInfo, uint32_t, pSignalSemaphoreDeviceIndices,
                                                      signalSemaphoreCount);
                     break;
-                case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkBindBufferMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices,
+                case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
+                    AddPointerWithCountToTracebuffer(VkBindBufferMemoryDeviceGroupInfo, uint32_t, pDeviceIndices,
                                                      deviceIndexCount);
                     break;
-                case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices,
+                case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
+                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices,
                                                      deviceIndexCount);
-                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfoKHX, VkRect2D, pSFRRects, SFRRectCount);
+                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions, splitInstanceBindRegionCount);
                     break;
                 case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                     AddPointerWithCountToTracebuffer(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks,
@@ -343,10 +343,10 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                 case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
                     AddPointerWithCountToTracebuffer(VkImageFormatListCreateInfoKHR, VkFormat, pViewFormats, viewFormatCount);
                     break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHX:
-                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pViewMasks, subpassCount);
-                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfoKHX, int32_t, pViewOffsets, dependencyCount);
-                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pCorrelationMasks,
+                case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, uint32_t, pViewMasks, subpassCount);
+                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, int32_t, pViewOffsets, dependencyCount);
+                    AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks,
                                                      correlationMaskCount);
                     break;
 #ifdef WIN32
@@ -637,10 +637,10 @@ void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHea
     }
 }
 
-VkDeviceGroupDeviceCreateInfoKHX* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
+VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfo(vktrace_trace_packet_header* pHeader,
                                                                              intptr_t ptr_variable) {
-    VkDeviceGroupDeviceCreateInfoKHX* pCreateInfo =
-        (VkDeviceGroupDeviceCreateInfoKHX*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
+    VkDeviceGroupDeviceCreateInfo* pCreateInfo =
+        (VkDeviceGroupDeviceCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
     uint32_t i;
     if (pCreateInfo != NULL) {
         if (pCreateInfo->physicalDeviceCount > 0) {
@@ -684,23 +684,23 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
                         pHeader, (intptr_t)struct_ptr_cur->pBindings[i].pImmutableSamplers);
                 }
             } break;
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX:
-                InterpretPointerInPNext(VkDeviceGroupDeviceCreateInfoKHX, VkPhysicalDevice, pPhysicalDevices);
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+                InterpretPointerInPNext(VkDeviceGroupDeviceCreateInfo, VkPhysicalDevice, pPhysicalDevices);
                 break;
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO_KHX:
-                InterpretPointerInPNext(VkDeviceGroupRenderPassBeginInfoKHX, VkRect2D, pDeviceRenderAreas);
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                InterpretPointerInPNext(VkDeviceGroupRenderPassBeginInfo, VkRect2D, pDeviceRenderAreas);
                 break;
-            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO_KHX:
-                InterpretPointerInPNext(VkDeviceGroupSubmitInfoKHX, uint32_t, pWaitSemaphoreDeviceIndices);
-                InterpretPointerInPNext(VkDeviceGroupSubmitInfoKHX, uint32_t, pCommandBufferDeviceMasks);
-                InterpretPointerInPNext(VkDeviceGroupSubmitInfoKHX, uint32_t, pSignalSemaphoreDeviceIndices);
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
+                InterpretPointerInPNext(VkDeviceGroupSubmitInfo, uint32_t, pWaitSemaphoreDeviceIndices);
+                InterpretPointerInPNext(VkDeviceGroupSubmitInfo, uint32_t, pCommandBufferDeviceMasks);
+                InterpretPointerInPNext(VkDeviceGroupSubmitInfo, uint32_t, pSignalSemaphoreDeviceIndices);
                 break;
-            case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX:
-                InterpretPointerInPNext(VkBindBufferMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices);
+            case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
+                InterpretPointerInPNext(VkBindBufferMemoryDeviceGroupInfo, uint32_t, pDeviceIndices);
                 break;
-            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX:
-                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfoKHX, uint32_t, pDeviceIndices);
-                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfoKHX, VkRect2D, pSFRRects);
+            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
+                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices);
+                InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions);
                 break;
             case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                 InterpretPointerInPNext(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks);
@@ -735,10 +735,10 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
             case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
                 InterpretPointerInPNext(VkImageFormatListCreateInfoKHR, VkFormat, pViewFormats);
                 break;
-            case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHX:
-                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pViewMasks);
-                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfoKHX, int32_t, pViewOffsets);
-                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfoKHX, uint32_t, pCorrelationMasks);
+            case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, uint32_t, pViewMasks);
+                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, int32_t, pViewOffsets);
+                InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks);
                 break;
 #ifdef WIN32
             case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:

@@ -186,9 +186,9 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
                 uint32_t count;
 
                 // query to find if ScreenShot layer is available
-                m_vkFuncs.EnumerateInstanceLayerProperties(&count, NULL);
+                vkEnumerateInstanceLayerProperties(&count, NULL);
                 VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
-                if (props && count > 0) m_vkFuncs.EnumerateInstanceLayerProperties(&count, props);
+                if (props && count > 0) vkEnumerateInstanceLayerProperties(&count, props);
                 for (uint32_t i = 0; i < count; i++) {
                     if (!strcmp(props[i].layerName, strScreenShot)) {
                         found_ss = true;
@@ -251,7 +251,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
         pCreateInfo->ppEnabledExtensionNames = extension_names.data();
         pCreateInfo->enabledExtensionCount = (uint32_t)extension_names.size();
 
-        replayResult = m_vkFuncs.CreateInstance(pPacket->pCreateInfo, NULL, &inst);
+        replayResult = vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
 
         pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
         pCreateInfo->enabledExtensionCount = savedExtensionCount;
@@ -266,10 +266,8 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
         if (replayResult == VK_SUCCESS) {
             m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
 
-            auto tmp = m_vkFuncs.CreateInstance;
             // Build instance dispatch table
             layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
-            m_vkFuncs.CreateInstance = tmp; // This is clobbered by layer_init_instance_dispatch table
             // Not handled by codegen
             m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
         }
@@ -3794,6 +3792,10 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKH
 static std::unordered_map<VkDescriptorUpdateTemplateKHR, VkDescriptorUpdateTemplateCreateInfoKHR *>
     descriptorUpdateTemplateCreateInfo;
 
+VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplate(packet_vkCreateDescriptorUpdateTemplate *pPacket) {
+    return manually_replay_vkCreateDescriptorUpdateTemplateKHR((packet_vkCreateDescriptorUpdateTemplateKHR*)pPacket);
+}
+
 VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vkCreateDescriptorUpdateTemplateKHR *pPacket) {
     VkResult replayResult;
     VkDescriptorUpdateTemplateKHR local_pDescriptorUpdateTemplate;
@@ -3813,7 +3815,7 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vk
     replayResult = m_vkDeviceFuncs.CreateDescriptorUpdateTemplateKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
                                                                      &local_pDescriptorUpdateTemplate);
     if (replayResult == VK_SUCCESS) {
-        m_objMapper.add_to_descriptorupdatetemplatekhrs_map(*(pPacket->pDescriptorUpdateTemplate), local_pDescriptorUpdateTemplate);
+        m_objMapper.add_to_descriptorupdatetemplates_map(*(pPacket->pDescriptorUpdateTemplate), local_pDescriptorUpdateTemplate);
         descriptorUpdateTemplateCreateInfo[local_pDescriptorUpdateTemplate] =
             (VkDescriptorUpdateTemplateCreateInfoKHR *)malloc(sizeof(VkDescriptorUpdateTemplateCreateInfoKHR));
         memcpy(descriptorUpdateTemplateCreateInfo[local_pDescriptorUpdateTemplate], pPacket->pCreateInfo,
@@ -3828,6 +3830,10 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vk
     return replayResult;
 }
 
+void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplate(packet_vkDestroyDescriptorUpdateTemplate *pPacket) {
+    manually_replay_vkDestroyDescriptorUpdateTemplateKHR((packet_vkDestroyDescriptorUpdateTemplateKHR*)pPacket);
+}
+
 void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDestroyDescriptorUpdateTemplateKHR *pPacket) {
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
@@ -3835,14 +3841,14 @@ void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDes
         return;
     }
     VkDescriptorUpdateTemplateKHR remappedDescriptorUpdateTemplate =
-        m_objMapper.remap_descriptorupdatetemplatekhrs(pPacket->descriptorUpdateTemplate);
+        m_objMapper.remap_descriptorupdatetemplates(pPacket->descriptorUpdateTemplate);
     if (pPacket->descriptorUpdateTemplate != VK_NULL_HANDLE && remappedDescriptorUpdateTemplate == VK_NULL_HANDLE) {
         vktrace_LogError(
             "Error detected in DestroyDescriptorUpdateTemplateKHR() due to invalid remapped VkDescriptorUpdateTemplateKHR.");
         return;
     }
     m_vkDeviceFuncs.DestroyDescriptorUpdateTemplateKHR(remappeddevice, remappedDescriptorUpdateTemplate, pPacket->pAllocator);
-    m_objMapper.rm_from_descriptorupdatetemplatekhrs_map(pPacket->descriptorUpdateTemplate);
+    m_objMapper.rm_from_descriptorupdatetemplates_map(pPacket->descriptorUpdateTemplate);
 
     if (descriptorUpdateTemplateCreateInfo.find(remappedDescriptorUpdateTemplate) != descriptorUpdateTemplateCreateInfo.end()) {
         if (descriptorUpdateTemplateCreateInfo[remappedDescriptorUpdateTemplate]) {
@@ -3906,6 +3912,10 @@ void vkReplay::remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTem
     }
 }
 
+void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplate(packet_vkUpdateDescriptorSetWithTemplate *pPacket) {
+    manually_replay_vkUpdateDescriptorSetWithTemplateKHR((packet_vkUpdateDescriptorSetWithTemplateKHR*)pPacket);
+}
+
 void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpdateDescriptorSetWithTemplateKHR *pPacket) {
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
@@ -3920,7 +3930,7 @@ void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpd
     }
 
     VkDescriptorUpdateTemplateKHR remappedDescriptorUpdateTemplate =
-        m_objMapper.remap_descriptorupdatetemplatekhrs(pPacket->descriptorUpdateTemplate);
+        m_objMapper.remap_descriptorupdatetemplates(pPacket->descriptorUpdateTemplate);
     if (pPacket->descriptorUpdateTemplate != VK_NULL_HANDLE && remappedDescriptorUpdateTemplate == VK_NULL_HANDLE) {
         vktrace_LogError(
             "Error detected in UpdateDescriptorSetWithTemplateKHR() due to invalid remapped VkDescriptorUpdateTemplateKHR.");
@@ -3942,7 +3952,7 @@ void vkReplay::manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCm
     }
 
     VkDescriptorUpdateTemplateKHR remappedDescriptorUpdateTemplate =
-        m_objMapper.remap_descriptorupdatetemplatekhrs(pPacket->descriptorUpdateTemplate);
+        m_objMapper.remap_descriptorupdatetemplates(pPacket->descriptorUpdateTemplate);
     if (pPacket->descriptorUpdateTemplate != VK_NULL_HANDLE && remappedDescriptorUpdateTemplate == VK_NULL_HANDLE) {
         vktrace_LogError(
             "Error detected in CmdPushDescriptorSetWithTemplateKHR() due to invalid remapped VkDescriptorUpdateTemplateKHR.");
