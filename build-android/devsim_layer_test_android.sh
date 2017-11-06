@@ -162,12 +162,10 @@ else
     NC=''
 fi
 
-# compare vkjson output against gold for the #lines of input
-# echo will trim any leading whitespace
-NUM_LINES=$(cut -f1 -d ' ' <(echo $(wc -l ${goldJSON})))
-diff ${goldJSON} <(head -n ${NUM_LINES} ${resultJSON}) #>/dev/null
+# reformat/extract/sort vkjson output using jq, then compare against gold.
+diff ${goldJSON} \
+    <(jq -S '{properties,features,memory,queues,formats}' ${resultJSON})
 RES=$?
-#rm ${FILENAME_01_OUT}
 
 if [ "$RES" -eq 0 ] ; then
    printf "$GREEN[  PASSED  ]$NC ${PGM}\n"
