@@ -2494,9 +2494,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
     size_t customSize;
     customSize = (memoryBarrierCount * sizeof(VkMemoryBarrier)) + (bufferMemoryBarrierCount * sizeof(VkBufferMemoryBarrier)) +
                  (imageMemoryBarrierCount * sizeof(VkImageMemoryBarrier));
-    for (uint32_t i = 0; i < memoryBarrierCount; i++) customSize = get_struct_chain_size(&pMemoryBarriers[i]);
-    for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++) customSize = get_struct_chain_size(&pBufferMemoryBarriers[i]);
-    for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) customSize = get_struct_chain_size(&pImageMemoryBarriers[i]);
+    for (uint32_t i = 0; i < memoryBarrierCount; i++) customSize += get_struct_chain_size(&pMemoryBarriers[i]);
+    for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++) customSize += get_struct_chain_size(&pBufferMemoryBarriers[i]);
+    for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) customSize += get_struct_chain_size(&pImageMemoryBarriers[i]);
     CREATE_TRACE_PACKET(vkCmdPipelineBarrier, customSize);
     mdd(commandBuffer)
         ->devTable.CmdPipelineBarrier(commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount,
