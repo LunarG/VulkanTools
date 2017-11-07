@@ -969,14 +969,14 @@ TRACKED_STATE = {
         'if(result == VK_SUCCESS)\n' +
             'ApiDumpInstance::current().addCmdBuffers(\n' +
                 'device,\n' +
-                'pAllocateInfo->commandPool,\n' + 
+                'pAllocateInfo->commandPool,\n' +
                 'std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + pAllocateInfo->commandBufferCount),\n' +
                 'pAllocateInfo->level\n'
             ');',
-    'vkDestroyCommandPool': 
+    'vkDestroyCommandPool':
         'ApiDumpInstance::current().eraseCmdBufferPool(device, commandPool);'
     ,
-    'vkFreeCommandBuffers': 
+    'vkFreeCommandBuffers':
         'ApiDumpInstance::current().eraseCmdBuffers(device, commandPool, std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + commandBufferCount));'
     ,
 }
@@ -1047,7 +1047,8 @@ VALIDITY_CHECKS = {
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || ' +
-            '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE)',
+            '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) || ' +
+            '(object.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT)',
         'pBufferInfo':
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || ' +
