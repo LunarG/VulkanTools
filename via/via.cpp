@@ -376,10 +376,12 @@ void StartOutput(std::string output) {
 
     global_items.html_file_stream << "    <META charset=\"UTF-8\">" << std::endl
                                   << "    <style media=\"screen\" type=\"text/css\">" << std::endl
-                                  << "        html {" << std::endl
+                                  << "        html {"
+                                  << std::endl
                                   // By defining the color first, this won't override the background image
                                   // (unless the images aren't there).
-                                  << "            background-color: #0b1e48;" << std::endl
+                                  << "            background-color: #0b1e48;"
+                                  << std::endl
                                   // The following changes try to load the text image twice (locally, then
                                   // off the web) followed by the background image twice (locally, then
                                   // off the web).  The background color will only show if both background
@@ -403,7 +405,8 @@ void StartOutput(std::string output) {
                                   << "            background-repeat: no-repeat, no-repeat, no-repeat, "
                                      "no-repeat;"
                                   << std::endl
-                                  << "        }" << std::endl
+                                  << "        }"
+                                  << std::endl
                                   // h1.section is used for section headers, and h1.version is used to
                                   // print out the application version text (which shows up just under
                                   // the title).
@@ -4752,6 +4755,7 @@ ErrorResults PrintInstanceInfo(void) {
     if (nullptr != pfn_inst_version) {
         app_info.apiVersion = max_inst_api_version;
         global_items.max_vulkan_info.api_version = max_inst_api_version;
+        PrintBeginTableRow();
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkCreateInstance [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
                  VK_VERSION_MINOR(max_inst_api_version));
         PrintTableElement(generic_string);
@@ -5389,37 +5393,40 @@ void PrintCleanupInfo(void) {
     PrintEndTableRow();
     PrintBeginTableRow();
 
-    if (VK_NULL_HANDLE != global_items.max_vulkan_info.instance && 0 < global_items.max_vulkan_info.phys_devices.size() &&
-        global_items.max_vulkan_info.max_supported_api_version < VK_MAKE_VERSION(1, 1, 0)) {
+    if (VK_NULL_HANDLE != global_items.max_vulkan_info.instance &&
+        global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0)) {
         uint32_t max_inst_api_version = global_items.max_vulkan_info.max_supported_api_version;
-        dev_count = static_cast<uint32_t>(global_items.max_vulkan_info.phys_devices.size());
-        PrintBeginTableRow();
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyDevice [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
-                 VK_VERSION_MINOR(max_inst_api_version));
-        PrintTableElement(generic_string);
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
-        PrintTableElement(generic_string);
-        PrintTableElement("");
-        PrintEndTableRow();
-        for (uint32_t dev = 0; dev < dev_count; dev++) {
-            vkDestroyDevice(global_items.max_vulkan_info.log_devices[dev], NULL);
+        dev_count = static_cast<uint32_t>(global_items.max_vulkan_info.log_devices.size());
+        if (0 < dev_count) {
             PrintBeginTableRow();
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyDevice [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
+                     VK_VERSION_MINOR(max_inst_api_version));
+            PrintTableElement(generic_string);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
+            PrintTableElement(generic_string);
             PrintTableElement("");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
-            PrintTableElement(generic_string, ALIGN_RIGHT);
-            PrintTableElement("SUCCESSFUL");
             PrintEndTableRow();
+            for (uint32_t dev = 0; dev < dev_count; dev++) {
+                vkDestroyDevice(global_items.max_vulkan_info.log_devices[dev], NULL);
+                PrintBeginTableRow();
+                PrintTableElement("");
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", dev);
+                PrintTableElement(generic_string, ALIGN_RIGHT);
+                PrintTableElement("SUCCESSFUL");
+                PrintEndTableRow();
+            }
         }
 
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyInstance [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
-                 VK_VERSION_MINOR(max_inst_api_version));
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyInstance [%d.%d]",
+                 VK_VERSION_MAJOR(global_items.max_vulkan_info.api_version),
+                 VK_VERSION_MINOR(global_items.max_vulkan_info.api_version));
         PrintTableElement(generic_string);
         vkDestroyInstance(global_items.max_vulkan_info.instance, NULL);
         PrintTableElement("SUCCESSFUL");
         PrintTableElement("");
         PrintEndTableRow();
-        PrintEndTable();
     }
+    PrintEndTable();
 }
 
 // Run any external tests we can find, and print the results of those
@@ -5509,6 +5516,7 @@ ErrorResults PrintVulkanInfo(void) {
     }
 
 out:
+
     if (created) {
         PrintCleanupInfo();
     }
