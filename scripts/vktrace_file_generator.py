@@ -133,6 +133,10 @@ approved_ext = [
                 'VK_NVX_multiview_per_view_attributes',
                 'VK_EXT_sample_locations',
                 'VK_KHR_sampler_ycbcr_conversion',
+                'VK_KHR_get_display_properties2',
+                'VK_KHR_memory2',
+                'VK_KHR_protected_memory',
+                'VK_KHX_subgroup',
                 ]
 
 api_exclusions = [
@@ -2320,6 +2324,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkInvalidateMappedMemoryRanges',
                                          'vkGetDeviceProcAddr',
                                          'vkGetInstanceProcAddr',
+                                         'vkEnumerateInstanceVersion',
                                          'vkEnumerateInstanceExtensionProperties',
                                          'vkEnumerateDeviceExtensionProperties',
                                          'vkEnumerateInstanceLayerProperties',

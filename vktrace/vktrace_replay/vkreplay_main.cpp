@@ -419,11 +419,15 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     // set global version num
     vktrace_set_trace_version(fileHeader.trace_file_version);
 
-    // Make sure trace file version is supported
-    if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE) {
+    // Make sure trace file version is supported.
+    // We can't play trace files with a version prior to the minimum compatible version.
+    // We also won't attempt to play trace files that are newer than this replayer.
+    if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE ||
+        fileHeader.trace_file_version > VKTRACE_TRACE_FILE_VERSION) {
         vktrace_LogError(
-            "Trace file version %u is older than minimum compatible version (%u).\nYou'll need to make a new trace file, or use an "
-            "older replayer.",
+            "Trace file version %u is not compatible with this replayer version (%u).\nYou'll need to make a new trace file, or "
+            "use "
+            "the appropriate replayer.",
             fileHeader.trace_file_version, VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE);
         fclose(tracefp);
         vktrace_free(pTraceFile);

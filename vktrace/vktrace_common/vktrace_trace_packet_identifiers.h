@@ -31,7 +31,7 @@
 #define VKTRACE_TRACE_FILE_VERSION_7 0x0007  // Vulkan 1.1
 #define VKTRACE_TRACE_FILE_VERSION VKTRACE_TRACE_FILE_VERSION_7
 
-// vkreplay can replay version 6 (the final Vulkan 1.0 version)
+// vkreplay can replay version 6 (the last Vulkan 1.0 format)
 #define VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE VKTRACE_TRACE_FILE_VERSION_6
 
 #define VKTRACE_FILE_MAGIC 0xABADD068ADEAFD0C
@@ -337,6 +337,12 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetShaderInfoAMD = 259,
     VKTRACE_TPI_VK_vkGetDeviceQueue2 = 260,
     VKTRACE_TPI_VK_vkEnumerateInstanceVersion = 261,
+    VKTRACE_TPI_VK_vkGetDescriptorSetLayoutSupport = 262,
+    VKTRACE_TPI_VK_vkGetDeviceGroupPresentCapabilitiesKHR = 263,
+    VKTRACE_TPI_VK_vkGetDeviceGroupSurfacePresentModesKHR = 264,
+    VKTRACE_TPI_VK_vkGetPhysicalDevicePresentRectanglesKHR = 265,
+    VKTRACE_TPI_VK_vkAcquireNextImage2KHR = 266,
+
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1
