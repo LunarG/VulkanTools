@@ -247,9 +247,13 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                 // If the packet is one we need to track, add it to the table
                 if (pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory2KHR ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory2KHR ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkAllocateMemory || pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkCreateBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkCreateImage) {
+                    vktrace_LogDebug("Add packet to portability table: %s",
+                                     vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id));
                     portabilityTable.push_back(fileOffset);
                 }
                 lastPacketIndex = pHeader->global_packet_index;
