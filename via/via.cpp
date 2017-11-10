@@ -4791,7 +4791,8 @@ ErrorResults PrintInstanceInfo(void) {
 ErrorResults PrintPhysDevInfo(void) {
     ErrorResults res = SUCCESSFUL;
     VkPhysicalDeviceProperties props;
-    std::vector<VkPhysicalDevice> phys_devices;
+    std::vector<VkPhysicalDevice> min_phys_devices;
+    std::vector<VkPhysicalDevice> max_phys_devices;
     VkResult status;
     char generic_string[MAX_STRING_LENGTH];
     uint32_t gpu_count = 0;
@@ -4803,55 +4804,40 @@ ErrorResults PrintPhysDevInfo(void) {
     PrintBeginTable("Physical Devices", 4);
 
     PrintBeginTableRow();
-    PrintTableElement("vkEnumeratePhysicalDevices");
+    PrintTableElement("vkEnumeratePhysicalDevices [1.0]");
     status = vkEnumeratePhysicalDevices(global_items.min_vulkan_info.instance, &gpu_count, NULL);
     if (status) {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to query - %d", status);
         PrintTableElement(generic_string);
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
         res = VULKAN_CANT_FIND_DRIVER;
         goto out;
     } else {
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", gpu_count);
         PrintTableElement(generic_string);
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
     }
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintEndTableRow();
 
-    phys_devices.resize(gpu_count);
+    min_phys_devices.resize(gpu_count);
     global_items.min_vulkan_info.phys_devices.resize(gpu_count);
-    status = vkEnumeratePhysicalDevices(global_items.min_vulkan_info.instance, &gpu_count, phys_devices.data());
+    status = vkEnumeratePhysicalDevices(global_items.min_vulkan_info.instance, &gpu_count, min_phys_devices.data());
     if (VK_SUCCESS != status && VK_INCOMPLETE != status) {
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("Failed to enumerate physical devices!");
+        PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
         res = VULKAN_CANT_FIND_DRIVER;
         goto out;
     }
 
-    // Find out the max physical device API version first and set the max total version
-    // to the minimum of the instance version and the highest phsycial device version.
-    if (global_items.max_vulkan_info.instance != VK_NULL_HANDLE &&
-        global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0)) {
-        uint32_t max_api_gpu_version = VK_MAKE_VERSION(1, 0, 0);
-        for (iii = 0; iii < gpu_count; iii++) {
-            vkGetPhysicalDeviceProperties(phys_devices[iii], &props);
-            if (props.apiVersion > max_api_gpu_version) {
-                max_api_gpu_version = props.apiVersion;
-            }
-        }
-        if (global_items.max_vulkan_info.api_version >= max_api_gpu_version) {
-            max_overall_version = max_api_gpu_version;
-        } else {
-            max_overall_version = global_items.max_vulkan_info.api_version;
-        }
-        global_items.max_vulkan_info.max_supported_api_version = max_overall_version;
-    }
-
     for (iii = 0; iii < gpu_count; iii++) {
-        global_items.min_vulkan_info.phys_devices[iii].vulkan_phys_dev = phys_devices[iii];
+        global_items.min_vulkan_info.phys_devices[iii].vulkan_phys_dev = min_phys_devices[iii];
 
         PrintBeginTableRow();
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", iii);
@@ -4863,13 +4849,13 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintTableElement("");
             PrintEndTableRow();
         } else {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%p", phys_devices[iii]);
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%p", min_phys_devices[iii]);
             PrintTableElement(generic_string);
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
 
-            vkGetPhysicalDeviceProperties(phys_devices[iii], &props);
+            vkGetPhysicalDeviceProperties(min_phys_devices[iii], &props);
 
             PrintBeginTableRow();
             PrintTableElement("");
@@ -4966,7 +4952,7 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintEndTableRow();
 
             uint32_t queue_fam_count;
-            vkGetPhysicalDeviceQueueFamilyProperties(phys_devices[iii], &queue_fam_count, NULL);
+            vkGetPhysicalDeviceQueueFamilyProperties(min_phys_devices[iii], &queue_fam_count, NULL);
             if (queue_fam_count > 0) {
                 PrintBeginTableRow();
                 PrintTableElement("");
@@ -4977,7 +4963,7 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintEndTableRow();
 
                 global_items.min_vulkan_info.phys_devices[iii].queue_fam_props.resize(queue_fam_count);
-                vkGetPhysicalDeviceQueueFamilyProperties(phys_devices[iii], &queue_fam_count,
+                vkGetPhysicalDeviceQueueFamilyProperties(min_phys_devices[iii], &queue_fam_count,
                                                          global_items.min_vulkan_info.phys_devices[iii].queue_fam_props.data());
                 for (jjj = 0; jjj < queue_fam_count; jjj++) {
                     PrintBeginTableRow();
@@ -5081,25 +5067,8 @@ ErrorResults PrintPhysDevInfo(void) {
                 PrintEndTableRow();
             }
 
-            // If we have a non-1.0 max API, only add physical devices that support that new API to the max list.
-            if (global_items.max_vulkan_info.instance != VK_NULL_HANDLE &&
-                global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0) && props.apiVersion == max_overall_version) {
-                // Resize the max's physical device list by one more
-                size_t cur_size = global_items.max_vulkan_info.phys_devices.size();
-                global_items.max_vulkan_info.phys_devices.resize(cur_size + 1);
-                global_items.max_vulkan_info.phys_devices[max_api_gpu_count].vulkan_phys_dev = phys_devices[iii];
-                global_items.max_vulkan_info.phys_devices[max_api_gpu_count].api_version = props.apiVersion;
-                if (0 < queue_fam_count) {
-                    global_items.max_vulkan_info.phys_devices[max_api_gpu_count].queue_fam_props.resize(queue_fam_count);
-                    vkGetPhysicalDeviceQueueFamilyProperties(
-                        phys_devices[iii], &queue_fam_count,
-                        global_items.max_vulkan_info.phys_devices[max_api_gpu_count].queue_fam_props.data());
-                }
-                max_api_gpu_count++;
-            }
-
             VkPhysicalDeviceMemoryProperties memory_props;
-            vkGetPhysicalDeviceMemoryProperties(phys_devices[iii], &memory_props);
+            vkGetPhysicalDeviceMemoryProperties(min_phys_devices[iii], &memory_props);
 
             PrintBeginTableRow();
             PrintTableElement("");
@@ -5206,7 +5175,7 @@ ErrorResults PrintPhysDevInfo(void) {
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("Device Extensions");
-            status = vkEnumerateDeviceExtensionProperties(phys_devices[iii], NULL, &num_ext_props, NULL);
+            status = vkEnumerateDeviceExtensionProperties(min_phys_devices[iii], NULL, &num_ext_props, NULL);
             if (VK_SUCCESS != status) {
                 PrintTableElement("FAILED querying number of extensions");
                 PrintTableElement("");
@@ -5217,7 +5186,7 @@ ErrorResults PrintPhysDevInfo(void) {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", num_ext_props);
                 PrintTableElement(generic_string);
                 ext_props.resize(num_ext_props);
-                status = vkEnumerateDeviceExtensionProperties(phys_devices[iii], NULL, &num_ext_props, ext_props.data());
+                status = vkEnumerateDeviceExtensionProperties(min_phys_devices[iii], NULL, &num_ext_props, ext_props.data());
                 if (VK_SUCCESS != status) {
                     PrintTableElement("FAILED querying actual extension info");
                     PrintEndTableRow();
@@ -5240,6 +5209,81 @@ ErrorResults PrintPhysDevInfo(void) {
                 }
             }
         }
+    }
+
+    // Find out the max physical device API version first and set the max total version
+    // to the minimum of the instance version and the highest phsycial device version.
+    if (global_items.max_vulkan_info.instance != VK_NULL_HANDLE &&
+        global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0)) {
+        uint32_t max_inst_api_version = global_items.max_vulkan_info.api_version;
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkEnumeratePhysicalDevices [%d.%d]",
+                 VK_VERSION_MAJOR(max_inst_api_version), VK_VERSION_MINOR(max_inst_api_version));
+        PrintBeginTableRow();
+        PrintTableElement(generic_string);
+        status = vkEnumeratePhysicalDevices(global_items.max_vulkan_info.instance, &gpu_count, NULL);
+        if (status) {
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "ERROR: Failed to query - %d", status);
+            PrintTableElement(generic_string);
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+            res = VULKAN_CANT_FIND_DRIVER;
+            goto out;
+        }
+
+        max_phys_devices.resize(gpu_count);
+        status = vkEnumeratePhysicalDevices(global_items.max_vulkan_info.instance, &gpu_count, max_phys_devices.data());
+        if (VK_SUCCESS != status && VK_INCOMPLETE != status) {
+            PrintTableElement("Failed to enumerate physical devices!");
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+            res = VULKAN_CANT_FIND_DRIVER;
+            goto out;
+        }
+
+        uint32_t max_api_gpu_version = VK_MAKE_VERSION(1, 0, 0);
+        for (iii = 0; iii < gpu_count; iii++) {
+            vkGetPhysicalDeviceProperties(max_phys_devices[iii], &props);
+            if (props.apiVersion > max_api_gpu_version) {
+                max_api_gpu_version = props.apiVersion;
+            }
+        }
+
+        if (global_items.max_vulkan_info.api_version >= max_api_gpu_version) {
+            max_overall_version = max_api_gpu_version;
+        } else {
+            max_overall_version = global_items.max_vulkan_info.api_version;
+        }
+        global_items.max_vulkan_info.max_supported_api_version = max_overall_version;
+
+        if (max_api_gpu_version >= VK_MAKE_VERSION(1, 1, 0)) {
+            for (iii = 0; iii < gpu_count; iii++) {
+                vkGetPhysicalDeviceProperties(max_phys_devices[iii], &props);
+                if (props.apiVersion == max_overall_version) {
+                    // Resize the max's physical device list by one more
+                    size_t cur_size = global_items.max_vulkan_info.phys_devices.size();
+                    global_items.max_vulkan_info.phys_devices.resize(cur_size + 1);
+                    global_items.max_vulkan_info.phys_devices[max_api_gpu_count].vulkan_phys_dev = max_phys_devices[iii];
+                    global_items.max_vulkan_info.phys_devices[max_api_gpu_count].api_version = props.apiVersion;
+
+                    uint32_t queue_fam_count = 0;
+                    vkGetPhysicalDeviceQueueFamilyProperties(min_phys_devices[iii], &queue_fam_count, NULL);
+                    if (0 < queue_fam_count) {
+                        global_items.max_vulkan_info.phys_devices[max_api_gpu_count].queue_fam_props.resize(queue_fam_count);
+                        vkGetPhysicalDeviceQueueFamilyProperties(
+                            max_phys_devices[iii], &queue_fam_count,
+                            global_items.max_vulkan_info.phys_devices[max_api_gpu_count].queue_fam_props.data());
+                    }
+                    max_api_gpu_count++;
+                }
+            }
+        }
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", max_api_gpu_count);
+        PrintTableElement(generic_string);
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
     }
 
     PrintEndTable();
@@ -5279,7 +5323,7 @@ ErrorResults PrintLogicalDeviceInfo() {
             uint32_t max_inst_api_version = vulkan_info->max_supported_api_version;
             snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkCreateDevice [%d.%d]", VK_VERSION_MAJOR(max_inst_api_version),
                      VK_VERSION_MINOR(max_inst_api_version));
-            PrintTableElement("vkCreateDevice [%d.%d]");
+            PrintTableElement(generic_string);
         }
         std::vector<PhysicalDeviceInfo> &phys_devices = vulkan_info->phys_devices;
         dev_count = (uint32_t)phys_devices.size();
@@ -5370,7 +5414,7 @@ void PrintCleanupInfo(void) {
     PrintBeginTable("Cleanup", 3);
 
     PrintBeginTableRow();
-    PrintTableElement("vkDestroyDevic [1.0]");
+    PrintTableElement("vkDestroyDevice [1.0]");
     snprintf(generic_string, MAX_STRING_LENGTH - 1, "%d", dev_count);
     PrintTableElement(generic_string);
     PrintTableElement("");
@@ -5417,6 +5461,7 @@ void PrintCleanupInfo(void) {
             }
         }
 
+        PrintBeginTableRow();
         snprintf(generic_string, MAX_STRING_LENGTH - 1, "vkDestroyInstance [%d.%d]",
                  VK_VERSION_MAJOR(global_items.max_vulkan_info.api_version),
                  VK_VERSION_MINOR(global_items.max_vulkan_info.api_version));
