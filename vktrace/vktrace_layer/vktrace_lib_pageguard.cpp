@@ -196,6 +196,16 @@ bool getEnablePageGuardLazyCopyFlag() {
     return EnablePageGuardLazyCopyFlag;
 }
 
+bool getEnablePageGuardLazyCopyFlag() {
+    static bool EnablePageGuardLazyCopyFlag;
+    static bool FirstTimeRun = true;
+    if (FirstTimeRun) {
+        EnablePageGuardLazyCopyFlag = (vktrace_get_global_var(VKTRACE_PAGEGUARD_ENABLE_LAZY_COPY_ENV) != NULL);
+        FirstTimeRun = false;
+    }
+    return EnablePageGuardLazyCopyFlag;
+}
+
 #if defined(WIN32)
 void setPageGuardExceptionHandler() {
     vktrace_sem_wait(ref_amount_sem_id);
