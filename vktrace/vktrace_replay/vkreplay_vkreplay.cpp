@@ -1085,6 +1085,8 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
             for (unsigned int i = 0; i < pInfo->bindingCount; i++) {
                 VkDescriptorSetLayoutBinding *pBindings = (VkDescriptorSetLayoutBinding *)&pInfo->pBindings[i];
                 if (pBindings->pImmutableSamplers != NULL) {
+                    pBindings->pImmutableSamplers = (const VkSampler *)vktrace_trace_packet_interpret_buffer_pointer(
+                        pPacket->header, (intptr_t)pBindings->pImmutableSamplers);
                     for (unsigned int j = 0; j < pBindings->descriptorCount; j++) {
                         VkSampler *pSampler = (VkSampler *)&pBindings->pImmutableSamplers[j];
                         *pSampler = m_objMapper.remap_samplers(pBindings->pImmutableSamplers[j]);
@@ -3608,13 +3610,21 @@ void vkReplay::remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTem
             char *update_entry = pData + offset;
             switch (
                 descriptorUpdateTemplateCreateInfo[remappedDescriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorType) {
-                case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLER: {
+                    auto image_entry = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
+                    image_entry->sampler = m_objMapper.remap_samplers(image_entry->sampler);
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER: {
+                    auto image_entry = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
+                    image_entry->sampler = m_objMapper.remap_samplers(image_entry->sampler);
+                    image_entry->imageView = m_objMapper.remap_imageviews(image_entry->imageView);
+                    break;
+                }
                 case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
                     auto image_entry = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
-                    image_entry->sampler = m_objMapper.remap_samplers(image_entry->sampler);
                     image_entry->imageView = m_objMapper.remap_imageviews(image_entry->imageView);
                     break;
                 }
