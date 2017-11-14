@@ -342,7 +342,6 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetDeviceGroupSurfacePresentModesKHR = 264,
     VKTRACE_TPI_VK_vkGetPhysicalDevicePresentRectanglesKHR = 265,
     VKTRACE_TPI_VK_vkAcquireNextImage2KHR = 266,
-
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1

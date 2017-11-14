@@ -1260,6 +1260,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->memoryRequirements.size, (%s == NULL)?0:%s->memoryRequirements.alignment, (%s == NULL)?0:%s->memoryRequirements.memoryTypeBits" % (name, name, name, name, name, name, name), "")
         elif "VkMemoryRequirements" in vk_type:
             return ("%p {size=%\" PRIu64 \", alignment=%\" PRIu64 \", memoryTypeBits=%0x08X}", "%s, (%s == NULL)?0:%s->size, (%s == NULL)?0:%s->alignment, (%s == NULL)?0:%s->memoryTypeBits" % (name, name, name, name, name, name, name), "")
+        if "VkFenceGet" in vk_type:
+            return ("%p {fence=%\" PRIx64 \", handleType=%\" PRIx64 \"}", "%s, (%s == NULL)?0:(uint64_t)%s->fence, (%s == NULL)?0:(uint64_t)%s->handleType" % (name, name, name, name, name), "")
         if "VkClearColor" in vk_type:
             return ("%p", "(void*)&%s" % name, deref)
         if "_type" in vk_type.lower(): # TODO : This should be generic ENUM check
@@ -2385,6 +2387,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cmd_extension_dict = dict(self.cmd_extension_names)
         cmd_protect_dict = dict(self.cmd_feature_protect)
         cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
             cmdinfo = cmd_info_dict[proto.name]
@@ -2427,6 +2430,30 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # Just declare function for manually written entrypoints. Declaration needed for proc mapping
                 trace_vk_src += ';\n';
             else:
+                raw_packet_update_list = [] # Non-ptr elements placed directly into packet
+                ptr_packet_update_list = [] # Ptr elements to be updated into packet
+                return_txt = ''
+                packet_size = []
+                in_data_size = False # Flag when we need to capture local input size variable for in/out size
+                resulttype = cmdinfo.elem.find('proto/type')
+                resulttype = resulttype.text if not None else ''
+
+                trace_vk_src += 'VKTRACER_EXPORT VKAPI_ATTR %s VKAPI_CALL __HOOKED_%s(\n' % (resulttype, proto.name)
+                for p in proto.members: # TODO : For all of the ptr types, check them for NULL and return 0 if NULL
+                    if p.name == '':
+                        continue
+                    trace_vk_src += '%s,\n' % p.cdecl
+                    if p.ispointer and p.name not in ['pSysMem', 'pReserved']:
+                        if 'pDataSize' in p.name:
+                            in_data_size = True;
+                    elif 'pfnMsgCallback' == p.name:
+                        raw_packet_update_list.append('    PFN_vkDebugReportCallbackEXT* pNonConstCallback = (PFN_vkDebugReportCallbackEXT*)&pPacket->pfnMsgCallback;')
+                        raw_packet_update_list.append('    *pNonConstCallback = pfnMsgCallback;')
+                    elif p.isstaticarray:
+                        raw_packet_update_list.append('    memcpy((void *) pPacket->%s, %s, sizeof(pPacket->%s));' % (p.name, p.name, p.name))
+                    else:
+                        raw_packet_update_list.append('    pPacket->%s = %s;' % (p.name, p.name))
+                trace_vk_src = trace_vk_src[:-2] + ')\n'
                 # Get list of packet size modifiers due to ptr params
                 packet_size = self.GetPacketSize(proto.members)
                 ptr_packet_update_list = self.GetPacketPtrParamList(proto.members)
