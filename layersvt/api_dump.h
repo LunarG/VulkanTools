@@ -736,3 +736,8 @@ inline std::ostream &dump_html_int(int object, const ApiDumpSettings &settings, 
     settings.stream() << object;
     return settings.stream() << "</div>";
 }
+
+inline VkResult vkDebugMarkerSetObjectNameEXT(VkDevice device, const VkDebugMarkerObjectNameInfoEXT *pNameInfo) {
+    VkResult result;
+    return result;
+}
