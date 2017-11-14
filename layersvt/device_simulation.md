@@ -84,7 +84,9 @@ If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` env
 
 ## Environment variables used by DevSim layer.
 
-* `VK_DEVSIM_FILENAME` - Name of the configuration file to load.
+* `VK_DEVSIM_FILENAME` - Name of one or more configuration file(s) to load.
+  _Added in v1.2.1:_ This variable can have a delimited list of files to be loaded.  On Windows, the delimiter is `;` else it is `:`.
+  Files are loaded in order.  Later files can override settings from earlier files.
 * `VK_DEVSIM_DEBUG_ENABLE` - A non-zero integer enables debug message output.
 * `VK_DEVSIM_EXIT_ON_ERROR` - A non-zero integer enables exit-on-error.
 
@@ -99,6 +101,8 @@ export VK_INSTANCE_LAYERS="VK_LAYER_LUNARG_device_simulation"
 
 # Specify the simulated device's configuration file.
 export VK_DEVSIM_FILENAME="${VulkanTools}/layersvt/device_simulation_examples/tiny1.json" 
+# A list of files could look like:
+# export VK_DEVSIM_FILENAME="/home/foo/first.json:/home/foo/second.json"
 
 # Enable verbose messages from the DevSim layer.
 export VK_DEVSIM_DEBUG_ENABLE="1"

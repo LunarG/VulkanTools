@@ -63,7 +63,7 @@ namespace {
 // When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 2;
-const uint32_t kVersionDevsimPatch = 0;
+const uint32_t kVersionDevsimPatch = 1;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
@@ -269,11 +269,11 @@ const VkFormat StandardVkFormatEnumList[] = {
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
 #if defined(__ANDROID__)
-const char *const kEnvarDevsimFilename = "debug.vulkan.devsim.filepath";        // path of the configuration file to load.
+const char *const kEnvarDevsimFilename = "debug.vulkan.devsim.filepath";        // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "debug.vulkan.devsim.debugenable";  // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "debug.vulkan.devsim.exitonerror";  // a non-zero integer will enable exit-on-error.
 #else
-const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file to load.
+const char *const kEnvarDevsimFilename = "VK_DEVSIM_FILENAME";          // path of the configuration file(s) to load.
 const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non-zero integer will enable debugging output.
 const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non-zero integer will enable exit-on-error.
 #endif
@@ -500,6 +500,7 @@ class JsonLoader {
     JsonLoader(const JsonLoader &) = delete;
     JsonLoader &operator=(const JsonLoader &) = delete;
 
+    bool LoadFiles(const char *filename_list);
     bool LoadFile(const char *filename);
 
    private:
@@ -715,14 +716,33 @@ class JsonLoader {
     PhysicalDeviceData &pdd_;
 };
 
+bool JsonLoader::LoadFiles(const char *filename_list) {
+#if defined(_WIN32)
+    const char delimiter = ';';
+#else
+    const char delimiter = ':';
+#endif
+    std::stringstream ss_list(filename_list);
+    std::string filename;
+
+    while (std::getline(ss_list, filename, delimiter)) {
+        if (!filename.empty()) {
+            if (!LoadFile(filename.c_str())) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool JsonLoader::LoadFile(const char *filename) {
+    DebugPrintf("JsonLoader::LoadFile(\"%s\")\n", filename);
     std::ifstream json_file(filename);
     if (!json_file) {
         ErrorPrintf("JsonLoader failed to open file \"%s\"\n", filename);
         return false;
     }
 
-    DebugPrintf("JsonCpp version %s\n", JSONCPP_VERSION_STRING);
     Json::Reader reader;
     Json::Value root = Json::nullValue;
     bool success = reader.parse(json_file, root, false);
@@ -770,7 +790,7 @@ JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
     }
 
     if (schema_id != SchemaId::kUnknown) {
-        DebugPrintf("Document schema \"%s\" is schema_id %d\n", schema_string, schema_id);
+        DebugPrintf("\tDocument schema \"%s\" is schema_id %d\n", schema_string, schema_id);
     } else {
         ErrorPrintf("Document schema \"%s\" not supported by %s\n", schema_string, kOurLayerName);
     }
@@ -1090,6 +1110,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
                                               VkInstance *pInstance) {
     DebugPrintf("CreateInstance START {\n");
     DebugPrintf("%s version %d.%d.%d\n", kOurLayerName, kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
+    DebugPrintf("JsonCpp version %s\n", JSONCPP_VERSION_STRING);
 
     const VkApplicationInfo *app_info = pCreateInfo->pApplicationInfo;
     const uint32_t requested_version = (app_info && app_info->apiVersion) ? app_info->apiVersion : VK_API_VERSION_1_0;
@@ -1106,7 +1127,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     // Our layer-specific initialization...
 
-    // Get the name of our configuration file.
+    // Get the name(s) of our configuration file(s).
     std::string filename = GetEnvarValue(kEnvarDevsimFilename);
     DebugPrintf("\t\tenvar %s = \"%s\"\n", kEnvarDevsimFilename, filename.c_str());
     if (filename.empty()) {
@@ -1145,9 +1166,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
             }
         }
 
-        // Override PDD members with values from the configuration file.
+        // Override PDD members with values from configuration file(s).
         JsonLoader json_loader(pdd);
-        json_loader.LoadFile(filename.c_str());
+        json_loader.LoadFiles(filename.c_str());
     }
 
     DebugPrintf("CreateInstance END instance %p }\n", *pInstance);
