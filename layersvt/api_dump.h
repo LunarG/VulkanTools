@@ -437,6 +437,8 @@ class ApiDumpInstance {
 
     static inline ApiDumpInstance &current() { return current_instance; }
 
+    std::unordered_map<uint64_t, std::string> *objectNameMap;
+
    private:
     static ApiDumpInstance current_instance;
 
@@ -735,9 +737,4 @@ inline std::ostream &dump_html_int(int object, const ApiDumpSettings &settings, 
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     return settings.stream() << "</div>";
-}
-
-inline VkResult vkDebugMarkerSetObjectNameEXT(VkDevice device, const VkDebugMarkerObjectNameInfoEXT *pNameInfo) {
-    VkResult result;
-    return result;
 }
