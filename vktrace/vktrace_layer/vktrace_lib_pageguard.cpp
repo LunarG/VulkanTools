@@ -424,6 +424,11 @@ void PageGuardExceptionHandler(int sig, siginfo_t* si, void* unused) {
                          (SIZE_T)pMappedMem->getMappedBlockSize(index), (PROT_READ | PROT_WRITE)) == -1) {
                 vktrace_LogError("Clear memory protect on page(%d) failed !", index);
             }
+        } else if (g_old_sa.sa_sigaction) {
+            g_old_sa.sa_sigaction(sig, si, unused);
+        } else {
+            vktrace_LogError("Unhandled SIGSEGV on address: 0x%lx !", (long)addr);
+            exit(EXIT_FAILURE);
         }
     }
 }
