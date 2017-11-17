@@ -1,5 +1,7 @@
 #! /bin/bash
-# simple test of devsim layer
+# Simple test of devsim layer
+# Uses 'jq' v1.5 (https://stedolan.github.io/jq/) to extract sections of
+# test's JSON output and reformat for consistent comparison with gold file.
 
 set errexit
 set nounset
@@ -40,9 +42,10 @@ FILENAME_01_STDOUT="device_simulation_layer_test_1.txt"
 export VK_DEVSIM_FILENAME="${FILENAME_01_IN}"
 ${VKJSON_INFO} > ${FILENAME_01_STDOUT}
 
-# compare vkjson output against gold
-NUM_LINES=$(cut -f1 -d' ' <(wc -l ${FILENAME_01_GOLD}))
-diff ${FILENAME_01_GOLD} <(head -n ${NUM_LINES} ${FILENAME_01_RESULT}) >> ${FILENAME_01_STDOUT}
+# reformat/extract/sort vkjson output using jq, then compare against gold.
+diff ${FILENAME_01_GOLD} \
+    <(jq -S '{properties,features,memory,queues,formats}' ${FILENAME_01_RESULT}) \
+    >> ${FILENAME_01_STDOUT}
 RES=$?
 rm ${FILENAME_01_RESULT}
 rm ${FILENAME_01_STDOUT}

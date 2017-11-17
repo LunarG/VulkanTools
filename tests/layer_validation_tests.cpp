@@ -2867,10 +2867,10 @@ TEST_F(VkLayerTest, ImageSampleCounts) {
     blit_region.dstOffsets[0] = {0, 0, 0};
     blit_region.dstOffsets[1] = {128, 128, 1};
 
-    // Create two images, the source with sampleCount = 2, and attempt to blit
+    // Create two images, the source with sampleCount = 4, and attempt to blit
     // between them
     {
-        image_create_info.samples = VK_SAMPLE_COUNT_2_BIT;
+        image_create_info.samples = VK_SAMPLE_COUNT_4_BIT;
         image_create_info.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         vk_testing::Image src_image;
         src_image.init(*m_device, (const VkImageCreateInfo &)image_create_info, reqs);
@@ -2923,33 +2923,33 @@ TEST_F(VkLayerTest, ImageSampleCounts) {
     {
         vk_testing::Buffer src_buffer;
         src_buffer.init_as_src(*m_device, 128 * 128 * 4, reqs);
-        image_create_info.samples = VK_SAMPLE_COUNT_8_BIT;
+        image_create_info.samples = VK_SAMPLE_COUNT_4_BIT;
         image_create_info.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         vk_testing::Image dst_image;
         dst_image.init(*m_device, (const VkImageCreateInfo &)image_create_info, reqs);
         m_commandBuffer->begin();
         m_errorMonitor->SetDesiredFailureMsg(
             VK_DEBUG_REPORT_ERROR_BIT_EXT,
-            "was created with a sample count of VK_SAMPLE_COUNT_8_BIT but must be VK_SAMPLE_COUNT_1_BIT");
+            "was created with a sample count of VK_SAMPLE_COUNT_4_BIT but must be VK_SAMPLE_COUNT_1_BIT");
         vkCmdCopyBufferToImage(m_commandBuffer->handle(), src_buffer.handle(), dst_image.handle(),
                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy_region);
         m_errorMonitor->VerifyFound();
         m_commandBuffer->end();
     }
 
-    // Create dst buffer and src image with sampleCount = 2 and attempt to copy
+    // Create dst buffer and src image with sampleCount = 4 and attempt to copy
     // image to buffer
     {
         vk_testing::Buffer dst_buffer;
         dst_buffer.init_as_dst(*m_device, 128 * 128 * 4, reqs);
-        image_create_info.samples = VK_SAMPLE_COUNT_2_BIT;
+        image_create_info.samples = VK_SAMPLE_COUNT_4_BIT;
         image_create_info.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         vk_testing::Image src_image;
         src_image.init(*m_device, (const VkImageCreateInfo &)image_create_info, reqs);
         m_commandBuffer->begin();
         m_errorMonitor->SetDesiredFailureMsg(
             VK_DEBUG_REPORT_ERROR_BIT_EXT,
-            "was created with a sample count of VK_SAMPLE_COUNT_2_BIT but must be VK_SAMPLE_COUNT_1_BIT");
+            "was created with a sample count of VK_SAMPLE_COUNT_4_BIT but must be VK_SAMPLE_COUNT_1_BIT");
         vkCmdCopyImageToBuffer(m_commandBuffer->handle(), src_image.handle(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                dst_buffer.handle(), 1, &copy_region);
         m_errorMonitor->VerifyFound();
@@ -4122,6 +4122,254 @@ TEST_F(VkLayerTest, ImageBarrierSubpassConflict) {
 
     vkDestroyFramebuffer(m_device->device(), fb, nullptr);
     vkDestroyRenderPass(m_device->device(), rp, nullptr);
+}
+
+TEST_F(VkLayerTest, TemporaryExternalSemaphore) {
+#ifdef _WIN32
+    const auto extension_name = VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHR;
+#else
+    const auto extension_name = VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;
+#endif
+    // Check for external semaphore instance extensions
+    if (InstanceExtensionSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME)) {
+        m_instance_extension_names.push_back(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME);
+        m_instance_extension_names.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    } else {
+        printf("             External semaphore extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+
+    // Check for external semaphore device extensions
+    if (DeviceExtensionSupported(gpu(), nullptr, extension_name)) {
+        m_device_extension_names.push_back(extension_name);
+        m_device_extension_names.push_back(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME);
+    } else {
+        printf("             External semaphore extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // Check for external semaphore import and export capability
+    VkPhysicalDeviceExternalSemaphoreInfoKHR esi = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHR, nullptr,
+                                                    handle_type};
+    VkExternalSemaphorePropertiesKHR esp = {VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHR, nullptr};
+    auto vkGetPhysicalDeviceExternalSemaphorePropertiesKHR =
+        (PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR)vkGetInstanceProcAddr(
+            instance(), "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR");
+    vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(gpu(), &esi, &esp);
+
+    if (!(esp.externalSemaphoreFeatures & VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT_KHR) ||
+        !(esp.externalSemaphoreFeatures & VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT_KHR)) {
+        printf("             External semaphore does not support importing and exporting, skipping test\n");
+        return;
+    }
+
+    VkResult err;
+
+    // Create a semaphore to export payload from
+    VkExportSemaphoreCreateInfoKHR esci = {VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHR, nullptr, handle_type};
+    VkSemaphoreCreateInfo sci = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, &esci, 0};
+
+    VkSemaphore export_semaphore;
+    err = vkCreateSemaphore(m_device->device(), &sci, nullptr, &export_semaphore);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create a semaphore to import payload into
+    sci.pNext = nullptr;
+    VkSemaphore import_semaphore;
+    err = vkCreateSemaphore(m_device->device(), &sci, nullptr, &import_semaphore);
+    ASSERT_VK_SUCCESS(err);
+
+#ifdef _WIN32
+    // Export semaphore payload to an opaque handle
+    HANDLE handle = nullptr;
+    VkSemaphoreGetWin32HandleInfoKHR ghi = {VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR, nullptr, export_semaphore,
+                                            handle_type};
+    auto vkGetSemaphoreWin32HandleKHR =
+        (PFN_vkGetSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetSemaphoreWin32HandleKHR");
+    err = vkGetSemaphoreWin32HandleKHR(m_device->device(), &ghi, &handle);
+    ASSERT_VK_SUCCESS(err);
+
+    // Import opaque handle exported above *temporarily*
+    VkImportSemaphoreWin32HandleInfoKHR ihi = {VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR,
+                                               nullptr,
+                                               import_semaphore,
+                                               VK_SEMAPHORE_IMPORT_TEMPORARY_BIT_KHR,
+                                               handle_type,
+                                               handle,
+                                               nullptr};
+    auto vkImportSemaphoreWin32HandleKHR =
+        (PFN_vkImportSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportSemaphoreWin32HandleKHR");
+    err = vkImportSemaphoreWin32HandleKHR(m_device->device(), &ihi);
+    ASSERT_VK_SUCCESS(err);
+#else
+    // Export semaphore payload to an opaque handle
+    int fd = 0;
+    VkSemaphoreGetFdInfoKHR ghi = {VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR, nullptr, export_semaphore, handle_type};
+    auto vkGetSemaphoreFdKHR = (PFN_vkGetSemaphoreFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetSemaphoreFdKHR");
+    err = vkGetSemaphoreFdKHR(m_device->device(), &ghi, &fd);
+    ASSERT_VK_SUCCESS(err);
+
+    // Import opaque handle exported above *temporarily*
+    VkImportSemaphoreFdInfoKHR ihi = {VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR, nullptr,     import_semaphore,
+                                      VK_SEMAPHORE_IMPORT_TEMPORARY_BIT_KHR,          handle_type, fd};
+    auto vkImportSemaphoreFdKHR = (PFN_vkImportSemaphoreFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportSemaphoreFdKHR");
+    err = vkImportSemaphoreFdKHR(m_device->device(), &ihi);
+    ASSERT_VK_SUCCESS(err);
+#endif
+
+    // Wait on the imported semaphore twice in vkQueueSubmit, the second wait should be an error
+    VkPipelineStageFlags flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    VkSubmitInfo si[] = {
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, &flags, 0, nullptr, 1, &export_semaphore},
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 1, &import_semaphore, &flags, 0, nullptr, 0, nullptr},
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, &flags, 0, nullptr, 1, &export_semaphore},
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 1, &import_semaphore, &flags, 0, nullptr, 0, nullptr},
+    };
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "has no way to be signaled");
+    vkQueueSubmit(m_device->m_queue, 4, si, VK_NULL_HANDLE);
+    m_errorMonitor->VerifyFound();
+
+    // Wait on the imported semaphore twice in vkQueueBindSparse, the second wait should be an error
+    VkBindSparseInfo bi[] = {
+        {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 1, &export_semaphore},
+        {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 1, &import_semaphore, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr},
+        {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 1, &export_semaphore},
+        {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 1, &import_semaphore, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr},
+    };
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "has no way to be signaled");
+    vkQueueBindSparse(m_device->m_queue, 4, bi, VK_NULL_HANDLE);
+    m_errorMonitor->VerifyFound();
+
+    // Cleanup
+    err = vkQueueWaitIdle(m_device->m_queue);
+    ASSERT_VK_SUCCESS(err);
+    vkDestroySemaphore(m_device->device(), export_semaphore, nullptr);
+    vkDestroySemaphore(m_device->device(), import_semaphore, nullptr);
+}
+
+TEST_F(VkLayerTest, TemporaryExternalFence) {
+#ifdef _WIN32
+    const auto extension_name = VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHR;
+#else
+    const auto extension_name = VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;
+#endif
+    // Check for external fence instance extensions
+    if (InstanceExtensionSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME)) {
+        m_instance_extension_names.push_back(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME);
+        m_instance_extension_names.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    } else {
+        printf("             External fence extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+
+    // Check for external fence device extensions
+    if (DeviceExtensionSupported(gpu(), nullptr, extension_name)) {
+        m_device_extension_names.push_back(extension_name);
+        m_device_extension_names.push_back(VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME);
+    } else {
+        printf("             External fence extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // Check for external fence import and export capability
+    VkPhysicalDeviceExternalFenceInfoKHR efi = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO_KHR, nullptr, handle_type};
+    VkExternalFencePropertiesKHR efp = {VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES_KHR, nullptr};
+    auto vkGetPhysicalDeviceExternalFencePropertiesKHR = (PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR)vkGetInstanceProcAddr(
+        instance(), "vkGetPhysicalDeviceExternalFencePropertiesKHR");
+    vkGetPhysicalDeviceExternalFencePropertiesKHR(gpu(), &efi, &efp);
+
+    if (!(efp.externalFenceFeatures & VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT_KHR) ||
+        !(efp.externalFenceFeatures & VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT_KHR)) {
+        printf("             External fence does not support importing and exporting, skipping test\n");
+        return;
+    }
+
+    VkResult err;
+
+    // Create a fence to export payload from
+    VkFence export_fence;
+    {
+        VkExportFenceCreateInfoKHR efci = {VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO_KHR, nullptr, handle_type};
+        VkFenceCreateInfo fci = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, &efci, 0};
+        err = vkCreateFence(m_device->device(), &fci, nullptr, &export_fence);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Create a fence to import payload into
+    VkFence import_fence;
+    {
+        VkFenceCreateInfo fci = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0};
+        err = vkCreateFence(m_device->device(), &fci, nullptr, &import_fence);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+#ifdef _WIN32
+    // Export fence payload to an opaque handle
+    HANDLE handle = nullptr;
+    {
+        VkFenceGetWin32HandleInfoKHR ghi = {VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR, nullptr, export_fence, handle_type};
+        auto vkGetFenceWin32HandleKHR =
+            (PFN_vkGetFenceWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetFenceWin32HandleKHR");
+        err = vkGetFenceWin32HandleKHR(m_device->device(), &ghi, &handle);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Import opaque handle exported above
+    {
+        VkImportFenceWin32HandleInfoKHR ifi = {VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR,
+                                               nullptr,
+                                               import_fence,
+                                               VK_FENCE_IMPORT_TEMPORARY_BIT_KHR,
+                                               handle_type,
+                                               handle,
+                                               nullptr};
+        auto vkImportFenceWin32HandleKHR =
+            (PFN_vkImportFenceWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportFenceWin32HandleKHR");
+        err = vkImportFenceWin32HandleKHR(m_device->device(), &ifi);
+        ASSERT_VK_SUCCESS(err);
+    }
+#else
+    // Export fence payload to an opaque handle
+    int fd = 0;
+    {
+        VkFenceGetFdInfoKHR gfi = {VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR, nullptr, export_fence, handle_type};
+        auto vkGetFenceFdKHR = (PFN_vkGetFenceFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetFenceFdKHR");
+        err = vkGetFenceFdKHR(m_device->device(), &gfi, &fd);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Import opaque handle exported above
+    {
+        VkImportFenceFdInfoKHR ifi = {VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR, nullptr,     import_fence,
+                                      VK_FENCE_IMPORT_TEMPORARY_BIT_KHR,          handle_type, fd};
+        auto vkImportFenceFdKHR = (PFN_vkImportFenceFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportFenceFdKHR");
+        err = vkImportFenceFdKHR(m_device->device(), &ifi);
+        ASSERT_VK_SUCCESS(err);
+    }
+#endif
+
+    // Undo the temporary import
+    vkResetFences(m_device->device(), 1, &import_fence);
+
+    // Signal the previously imported fence twice, the second signal should produce a validation error
+    vkQueueSubmit(m_device->m_queue, 0, nullptr, import_fence);
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "is already in use by another submission.");
+    vkQueueSubmit(m_device->m_queue, 0, nullptr, import_fence);
+    m_errorMonitor->VerifyFound();
+
+    // Cleanup
+    err = vkQueueWaitIdle(m_device->m_queue);
+    ASSERT_VK_SUCCESS(err);
+    vkDestroyFence(m_device->device(), export_fence, nullptr);
+    vkDestroyFence(m_device->device(), import_fence, nullptr);
 }
 
 TEST_F(VkPositiveLayerTest, SecondaryCommandBufferBarrier) {
@@ -7511,6 +7759,8 @@ TEST_F(VkLayerTest, DescriptorSetNotUpdated) {
 
 TEST_F(VkLayerTest, InvalidBufferViewObject) {
     // Create a single TEXEL_BUFFER descriptor and send it an invalid bufferView
+    // First, cause the bufferView to be invalid due to underlying buffer being destroyed
+    // Then destroy view itself and verify that same error is hit
     VkResult err;
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_15c00286);
@@ -7556,7 +7806,50 @@ TEST_F(VkLayerTest, InvalidBufferViewObject) {
     err = vkAllocateDescriptorSets(m_device->device(), &alloc_info, &descriptorSet);
     ASSERT_VK_SUCCESS(err);
 
-    VkBufferView view = (VkBufferView)((size_t)0xbaadbeef);  // invalid bufferView object
+    // Create a valid bufferView to start with
+    VkBuffer buffer;
+    uint32_t queue_family_index = 0;
+    VkBufferCreateInfo buffer_create_info = {};
+    buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_create_info.size = 1024;
+    buffer_create_info.usage = VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+    buffer_create_info.queueFamilyIndexCount = 1;
+    buffer_create_info.pQueueFamilyIndices = &queue_family_index;
+
+    err = vkCreateBuffer(m_device->device(), &buffer_create_info, NULL, &buffer);
+    ASSERT_VK_SUCCESS(err);
+
+    VkMemoryRequirements memory_reqs;
+    VkDeviceMemory buffer_memory;
+
+    VkMemoryAllocateInfo memory_info = {};
+    memory_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memory_info.allocationSize = 0;
+    memory_info.memoryTypeIndex = 0;
+
+    vkGetBufferMemoryRequirements(m_device->device(), buffer, &memory_reqs);
+    memory_info.allocationSize = memory_reqs.size;
+    bool pass = m_device->phy().set_memory_type(memory_reqs.memoryTypeBits, &memory_info, 0);
+    ASSERT_TRUE(pass);
+
+    err = vkAllocateMemory(m_device->device(), &memory_info, NULL, &buffer_memory);
+    ASSERT_VK_SUCCESS(err);
+    err = vkBindBufferMemory(m_device->device(), buffer, buffer_memory, 0);
+    ASSERT_VK_SUCCESS(err);
+
+    VkBufferView view;
+    VkBufferViewCreateInfo bvci = {};
+    bvci.sType = VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO;
+    bvci.buffer = buffer;
+    bvci.format = VK_FORMAT_R32_SFLOAT;
+    bvci.range = VK_WHOLE_SIZE;
+
+    err = vkCreateBufferView(m_device->device(), &bvci, NULL, &view);
+    ASSERT_VK_SUCCESS(err);
+
+    // First Destroy buffer underlying view which should hit error in CV
+    vkDestroyBuffer(m_device->device(), buffer, NULL);
+
     VkWriteDescriptorSet descriptor_write;
     memset(&descriptor_write, 0, sizeof(descriptor_write));
     descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -7567,9 +7860,15 @@ TEST_F(VkLayerTest, InvalidBufferViewObject) {
     descriptor_write.pTexelBufferView = &view;
 
     vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
-
     m_errorMonitor->VerifyFound();
 
+    // Now destroy view itself and verify same error, which is hit in PV this time
+    vkDestroyBufferView(m_device->device(), view, NULL);
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_15c00286);
+    vkUpdateDescriptorSets(m_device->device(), 1, &descriptor_write, 0, NULL);
+    m_errorMonitor->VerifyFound();
+
+    vkFreeMemory(m_device->device(), buffer_memory, NULL);
     vkDestroyDescriptorSetLayout(m_device->device(), ds_layout, NULL);
     vkDestroyDescriptorPool(m_device->device(), ds_pool, NULL);
 }
@@ -10672,7 +10971,8 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     buf_barrier.size = VK_WHOLE_SIZE;
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "which is not less than total size");
-    buf_barrier.offset = 257;
+    // Exceed the internal memory size
+    buf_barrier.offset = buffer.memory_requirements().size + 1;
     // Offset greater than total size
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
@@ -10681,7 +10981,7 @@ TEST_F(VkLayerTest, InvalidBarriers) {
     buf_barrier.offset = 0;
 
     m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, "whose sum is greater than total size");
-    buf_barrier.size = 257;
+    buf_barrier.size = buffer.memory_requirements().size + 1;
     // Size greater than total size
     vkCmdPipelineBarrier(m_commandBuffer->handle(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 1, &buf_barrier, 0,
@@ -12308,6 +12608,39 @@ TEST_F(VkLayerTest, CopyDescriptorUpdateErrors) {
     m_errorMonitor->VerifyFound();
 
     vkDestroySampler(m_device->device(), sampler, NULL);
+}
+
+TEST_F(VkPositiveLayerTest, CopyNonupdatedDescriptors) {
+    TEST_DESCRIPTION("Copy nonupdated descriptors");
+    unsigned int i;
+
+    ASSERT_NO_FATAL_FAILURE(Init());
+    OneOffDescriptorSet src_ds(m_device->device(), {
+        { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL, nullptr },
+        { 1, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_ALL, nullptr },
+        { 2, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_ALL, nullptr },
+    });
+    OneOffDescriptorSet dst_ds(m_device->device(), {
+        { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL, nullptr },
+        { 1, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_ALL, nullptr },
+    });
+
+    m_errorMonitor->ExpectSuccess();
+
+    const unsigned int copy_size = 2;
+    VkCopyDescriptorSet copy_ds_update[copy_size];
+    memset(copy_ds_update, 0, sizeof(copy_ds_update));
+    for (i = 0; i < copy_size; i++) {
+        copy_ds_update[i].sType = VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
+        copy_ds_update[i].srcSet = src_ds.set_;
+        copy_ds_update[i].srcBinding = i;
+        copy_ds_update[i].dstSet = dst_ds.set_;
+        copy_ds_update[i].dstBinding = i;
+        copy_ds_update[i].descriptorCount = 1;
+    }
+    vkUpdateDescriptorSets(m_device->device(), 0, NULL, copy_size, copy_ds_update);
+
+    m_errorMonitor->VerifyNotFound();
 }
 
 TEST_F(VkLayerTest, NumSamplesMismatch) {
@@ -20148,6 +20481,62 @@ TEST_F(VkLayerTest, InvalidCreateDescriptorPool) {
 // POSITIVE VALIDATION TESTS
 //
 // These tests do not expect to encounter ANY validation errors pass only if this is true
+
+TEST_F(VkPositiveLayerTest, UncompressedToCompressedImageCopy) {
+    TEST_DESCRIPTION("Image copies between compressed and uncompressed images");
+    ASSERT_NO_FATAL_FAILURE(Init());
+
+    VkImageObj uncomp_color_image(m_device);
+    VkImageObj comp_color_image(m_device);
+
+    if (!ImageFormatIsSupported(gpu(), VK_FORMAT_R16G16B16A16_UINT, VK_IMAGE_TILING_OPTIMAL) ||
+        !ImageFormatIsSupported(gpu(), VK_FORMAT_BC1_RGBA_SRGB_BLOCK, VK_IMAGE_TILING_OPTIMAL) ||
+        !ImageFeatureIsSupported(gpu(), VK_FORMAT_R16G16B16A16_UINT, VK_IMAGE_TILING_OPTIMAL,
+                                 VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR | VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR) ||
+        !ImageFeatureIsSupported(gpu(), VK_FORMAT_BC1_RGBA_SRGB_BLOCK, VK_IMAGE_TILING_OPTIMAL,
+                                 VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR | VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR)) {
+        printf("             Required formats/features not supported - UncompressedToCompressedImageCopy skipped.\n");
+        return;
+    }
+
+    uncomp_color_image.Init(3, 3, 1, VK_FORMAT_R16G16B16A16_UINT,
+                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    comp_color_image.Init(12, 12, 1, VK_FORMAT_BC1_RGBA_SRGB_BLOCK,
+                          VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
+    if (!uncomp_color_image.initialized() || !comp_color_image.initialized()) {
+        printf("             Unable to initialize surfaces - UncompressedToCompressedImageCopy skipped.\n");
+        return;
+    }
+
+    m_errorMonitor->ExpectSuccess();
+
+    VkImageCopy copyRegion;
+    copyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.srcSubresource.mipLevel = 0;
+    copyRegion.srcSubresource.baseArrayLayer = 0;
+    copyRegion.srcSubresource.layerCount = 1;
+    copyRegion.srcOffset = {0, 0, 0};
+    copyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.dstSubresource.mipLevel = 0;
+    copyRegion.dstSubresource.baseArrayLayer = 0;
+    copyRegion.dstSubresource.layerCount = 1;
+    copyRegion.dstOffset = {0, 0, 0};
+    copyRegion.extent = {3, 3, 1};
+
+    m_commandBuffer->begin();
+
+    // Copy from uncompressed to compressed
+    vkCmdCopyImage(m_commandBuffer->handle(), uncomp_color_image.handle(), VK_IMAGE_LAYOUT_GENERAL, comp_color_image.handle(),
+                   VK_IMAGE_LAYOUT_GENERAL, 1, &copyRegion);
+    // And from compressed to uncompressed
+    vkCmdCopyImage(m_commandBuffer->handle(), comp_color_image.handle(), VK_IMAGE_LAYOUT_GENERAL, uncomp_color_image.handle(),
+                   VK_IMAGE_LAYOUT_GENERAL, 1, &copyRegion);
+
+    m_errorMonitor->VerifyNotFound();
+    m_commandBuffer->end();
+}
+
 TEST_F(VkPositiveLayerTest, DeleteDescriptorSetLayoutsBeforeDescriptorSets) {
     TEST_DESCRIPTION("Create DSLayouts and DescriptorSets and then delete the DSLayouts before the DescriptorSets.");
     ASSERT_NO_FATAL_FAILURE(Init());
@@ -20767,6 +21156,10 @@ TEST_F(VkPositiveLayerTest, EmptyDescriptorUpdateTest) {
         vkDestroyBuffer(m_device->device(), buffer, NULL);
         return;
     }
+    // Make sure allocation is sufficiently large to accommodate buffer requirements
+    if (mem_reqs.size > mem_alloc.allocationSize) {
+        mem_alloc.allocationSize = mem_reqs.size;
+    }
 
     VkDeviceMemory mem;
     err = vkAllocateMemory(m_device->device(), &mem_alloc, NULL, &mem);
@@ -20795,6 +21188,63 @@ TEST_F(VkPositiveLayerTest, EmptyDescriptorUpdateTest) {
     // Cleanup
     vkFreeMemory(m_device->device(), mem, NULL);
     vkDestroyBuffer(m_device->device(), buffer, NULL);
+}
+
+TEST_F(VkLayerTest, MultiplePushDescriptorSets) {
+    TEST_DESCRIPTION("Verify an error message for multiple push descriptor sets.");
+    VkResult err;
+    if (InstanceExtensionSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
+        m_instance_extension_names.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    } else {
+        printf("             Did not find VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME; skipped.\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+    if (DeviceExtensionSupported(gpu(), nullptr, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME)) {
+        m_device_extension_names.push_back(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME);
+    } else {
+        printf("             Push Descriptors Extension not supported, skipping tests\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    VkDescriptorSetLayoutBinding dsl_binding = {};
+    dsl_binding.binding = 0;
+    dsl_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    dsl_binding.descriptorCount = 1;
+    dsl_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    dsl_binding.pImmutableSamplers = NULL;
+    VkDescriptorSetLayoutCreateInfo ds_layout_ci = {};
+    ds_layout_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    ds_layout_ci.pNext = NULL;
+    ds_layout_ci.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
+    ds_layout_ci.bindingCount = 1;
+    ds_layout_ci.pBindings = &dsl_binding;
+    const unsigned int descriptor_set_layout_count = 2;
+    VkDescriptorSetLayout ds_layouts[descriptor_set_layout_count];
+    for (unsigned int i = 0; i < descriptor_set_layout_count; ++i) {
+        dsl_binding.binding = i;
+        err = vkCreateDescriptorSetLayout(m_device->device(), &ds_layout_ci, NULL, &ds_layouts[i]);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    VkPipelineLayout pipeline_layout;
+    VkPipelineLayoutCreateInfo pipeline_layout_ci = {};
+    pipeline_layout_ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layout_ci.pNext = NULL;
+    pipeline_layout_ci.pushConstantRangeCount = 0;
+    pipeline_layout_ci.pPushConstantRanges = NULL;
+    pipeline_layout_ci.setLayoutCount = descriptor_set_layout_count;
+    pipeline_layout_ci.pSetLayouts = ds_layouts;
+
+    m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_0fe0024a);
+    err = vkCreatePipelineLayout(m_device->device(), &pipeline_layout_ci, NULL, &pipeline_layout);
+    m_errorMonitor->VerifyFound();
+
+    if (err == VK_SUCCESS)
+        vkDestroyPipelineLayout(m_device->device(), pipeline_layout, NULL);
+    for (unsigned int i = 0; i < descriptor_set_layout_count; ++i)
+        vkDestroyDescriptorSetLayout(m_device->device(), ds_layouts[i], NULL);
 }
 
 // This is a positive test. No failures are expected.
@@ -24889,6 +25339,256 @@ TEST_F(VkPositiveLayerTest, LongSemaphoreChain) {
     for (auto semaphore : semaphores) vkDestroySemaphore(m_device->device(), semaphore, nullptr);
 
     vkDestroyFence(m_device->device(), fence, nullptr);
+
+    m_errorMonitor->VerifyNotFound();
+}
+
+TEST_F(VkPositiveLayerTest, ExternalSemaphore) {
+#ifdef _WIN32
+    const auto extension_name = VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHR;
+#else
+    const auto extension_name = VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;
+#endif
+    // Check for external semaphore instance extensions
+    if (InstanceExtensionSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME)) {
+        m_instance_extension_names.push_back(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME);
+        m_instance_extension_names.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    } else {
+        printf("             External semaphore extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+
+    // Check for external semaphore device extensions
+    if (DeviceExtensionSupported(gpu(), nullptr, extension_name)) {
+        m_device_extension_names.push_back(extension_name);
+        m_device_extension_names.push_back(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME);
+    } else {
+        printf("             External semaphore extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // Check for external semaphore import and export capability
+    VkPhysicalDeviceExternalSemaphoreInfoKHR esi = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHR, nullptr,
+                                                    handle_type};
+    VkExternalSemaphorePropertiesKHR esp = {VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHR, nullptr};
+    auto vkGetPhysicalDeviceExternalSemaphorePropertiesKHR =
+        (PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR)vkGetInstanceProcAddr(
+            instance(), "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR");
+    vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(gpu(), &esi, &esp);
+
+    if (!(esp.externalSemaphoreFeatures & VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT_KHR) ||
+        !(esp.externalSemaphoreFeatures & VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT_KHR)) {
+        printf("             External semaphore does not support importing and exporting, skipping test\n");
+        return;
+    }
+
+    VkResult err;
+    m_errorMonitor->ExpectSuccess();
+
+    // Create a semaphore to export payload from
+    VkExportSemaphoreCreateInfoKHR esci = {VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHR, nullptr, handle_type};
+    VkSemaphoreCreateInfo sci = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, &esci, 0};
+
+    VkSemaphore export_semaphore;
+    err = vkCreateSemaphore(m_device->device(), &sci, nullptr, &export_semaphore);
+    ASSERT_VK_SUCCESS(err);
+
+    // Create a semaphore to import payload into
+    sci.pNext = nullptr;
+    VkSemaphore import_semaphore;
+    err = vkCreateSemaphore(m_device->device(), &sci, nullptr, &import_semaphore);
+    ASSERT_VK_SUCCESS(err);
+
+#ifdef _WIN32
+    // Export semaphore payload to an opaque handle
+    HANDLE handle = nullptr;
+    VkSemaphoreGetWin32HandleInfoKHR ghi = {VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR, nullptr, export_semaphore,
+                                            handle_type};
+    auto vkGetSemaphoreWin32HandleKHR =
+        (PFN_vkGetSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetSemaphoreWin32HandleKHR");
+    err = vkGetSemaphoreWin32HandleKHR(m_device->device(), &ghi, &handle);
+    ASSERT_VK_SUCCESS(err);
+
+    // Import opaque handle exported above
+    VkImportSemaphoreWin32HandleInfoKHR ihi = {
+        VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR, nullptr, import_semaphore, 0, handle_type, handle, nullptr};
+    auto vkImportSemaphoreWin32HandleKHR =
+        (PFN_vkImportSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportSemaphoreWin32HandleKHR");
+    err = vkImportSemaphoreWin32HandleKHR(m_device->device(), &ihi);
+    ASSERT_VK_SUCCESS(err);
+#else
+    // Export semaphore payload to an opaque handle
+    int fd = 0;
+    VkSemaphoreGetFdInfoKHR ghi = {VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR, nullptr, export_semaphore, handle_type};
+    auto vkGetSemaphoreFdKHR = (PFN_vkGetSemaphoreFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetSemaphoreFdKHR");
+    err = vkGetSemaphoreFdKHR(m_device->device(), &ghi, &fd);
+    ASSERT_VK_SUCCESS(err);
+
+    // Import opaque handle exported above
+    VkImportSemaphoreFdInfoKHR ihi = {
+        VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR, nullptr, import_semaphore, 0, handle_type, fd};
+    auto vkImportSemaphoreFdKHR = (PFN_vkImportSemaphoreFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportSemaphoreFdKHR");
+    err = vkImportSemaphoreFdKHR(m_device->device(), &ihi);
+    ASSERT_VK_SUCCESS(err);
+#endif
+
+    // Signal the exported semaphore and wait on the imported semaphore
+    VkPipelineStageFlags flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    VkSubmitInfo si[] = {
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, &flags, 0, nullptr, 1, &export_semaphore},
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 1, &import_semaphore, &flags, 0, nullptr, 0, nullptr},
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, &flags, 0, nullptr, 1, &export_semaphore},
+        {VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 1, &import_semaphore, &flags, 0, nullptr, 0, nullptr},
+    };
+    err = vkQueueSubmit(m_device->m_queue, 4, si, VK_NULL_HANDLE);
+    ASSERT_VK_SUCCESS(err);
+
+    if (m_device->phy().features().sparseBinding) {
+        // Signal the imported semaphore and wait on the exported semaphore
+        VkBindSparseInfo bi[] = {
+            {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 1, &import_semaphore},
+            {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 1, &export_semaphore, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr},
+            {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 1, &import_semaphore},
+            {VK_STRUCTURE_TYPE_BIND_SPARSE_INFO, nullptr, 1, &export_semaphore, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr},
+        };
+        err = vkQueueBindSparse(m_device->m_queue, 4, bi, VK_NULL_HANDLE);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Cleanup
+    err = vkQueueWaitIdle(m_device->m_queue);
+    ASSERT_VK_SUCCESS(err);
+    vkDestroySemaphore(m_device->device(), export_semaphore, nullptr);
+    vkDestroySemaphore(m_device->device(), import_semaphore, nullptr);
+
+    m_errorMonitor->VerifyNotFound();
+}
+
+TEST_F(VkPositiveLayerTest, ExternalFence) {
+#ifdef _WIN32
+    const auto extension_name = VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHR;
+#else
+    const auto extension_name = VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME;
+    const auto handle_type = VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;
+#endif
+    // Check for external fence instance extensions
+    if (InstanceExtensionSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME)) {
+        m_instance_extension_names.push_back(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME);
+        m_instance_extension_names.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    } else {
+        printf("             External fence extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+
+    // Check for external fence device extensions
+    if (DeviceExtensionSupported(gpu(), nullptr, extension_name)) {
+        m_device_extension_names.push_back(extension_name);
+        m_device_extension_names.push_back(VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME);
+    } else {
+        printf("             External fence extension not supported, skipping test\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // Check for external fence import and export capability
+    VkPhysicalDeviceExternalFenceInfoKHR efi = {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO_KHR, nullptr, handle_type};
+    VkExternalFencePropertiesKHR efp = {VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES_KHR, nullptr};
+    auto vkGetPhysicalDeviceExternalFencePropertiesKHR = (PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR)vkGetInstanceProcAddr(
+        instance(), "vkGetPhysicalDeviceExternalFencePropertiesKHR");
+    vkGetPhysicalDeviceExternalFencePropertiesKHR(gpu(), &efi, &efp);
+
+    if (!(efp.externalFenceFeatures & VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT_KHR) ||
+        !(efp.externalFenceFeatures & VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT_KHR)) {
+        printf("             External fence does not support importing and exporting, skipping test\n");
+        return;
+    }
+
+    VkResult err;
+    m_errorMonitor->ExpectSuccess();
+
+    // Create a fence to export payload from
+    VkFence export_fence;
+    {
+        VkExportFenceCreateInfoKHR efci = {VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO_KHR, nullptr, handle_type};
+        VkFenceCreateInfo fci = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, &efci, 0};
+        err = vkCreateFence(m_device->device(), &fci, nullptr, &export_fence);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Create a fence to import payload into
+    VkFence import_fence;
+    {
+        VkFenceCreateInfo fci = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0};
+        err = vkCreateFence(m_device->device(), &fci, nullptr, &import_fence);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+#ifdef _WIN32
+    // Export fence payload to an opaque handle
+    HANDLE handle = nullptr;
+    {
+        VkFenceGetWin32HandleInfoKHR ghi = {VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR, nullptr, export_fence, handle_type};
+        auto vkGetFenceWin32HandleKHR =
+            (PFN_vkGetFenceWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetFenceWin32HandleKHR");
+        err = vkGetFenceWin32HandleKHR(m_device->device(), &ghi, &handle);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Import opaque handle exported above
+    {
+        VkImportFenceWin32HandleInfoKHR ifi = {
+            VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR, nullptr, import_fence, 0, handle_type, handle, nullptr};
+        auto vkImportFenceWin32HandleKHR =
+            (PFN_vkImportFenceWin32HandleKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportFenceWin32HandleKHR");
+        err = vkImportFenceWin32HandleKHR(m_device->device(), &ifi);
+        ASSERT_VK_SUCCESS(err);
+    }
+#else
+    // Export fence payload to an opaque handle
+    int fd = 0;
+    {
+        VkFenceGetFdInfoKHR gfi = {VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR, nullptr, export_fence, handle_type};
+        auto vkGetFenceFdKHR = (PFN_vkGetFenceFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkGetFenceFdKHR");
+        err = vkGetFenceFdKHR(m_device->device(), &gfi, &fd);
+        ASSERT_VK_SUCCESS(err);
+    }
+
+    // Import opaque handle exported above
+    {
+        VkImportFenceFdInfoKHR ifi = {VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR, nullptr, import_fence, 0, handle_type, fd};
+        auto vkImportFenceFdKHR = (PFN_vkImportFenceFdKHR)vkGetDeviceProcAddr(m_device->device(), "vkImportFenceFdKHR");
+        err = vkImportFenceFdKHR(m_device->device(), &ifi);
+        ASSERT_VK_SUCCESS(err);
+    }
+#endif
+
+    // Signal the exported fence and wait on the imported fence
+    vkQueueSubmit(m_device->m_queue, 0, nullptr, export_fence);
+    vkWaitForFences(m_device->device(), 1, &import_fence, VK_TRUE, 1000000000);
+    vkResetFences(m_device->device(), 1, &import_fence);
+    vkQueueSubmit(m_device->m_queue, 0, nullptr, export_fence);
+    vkWaitForFences(m_device->device(), 1, &import_fence, VK_TRUE, 1000000000);
+    vkResetFences(m_device->device(), 1, &import_fence);
+
+    // Signal the imported fence and wait on the exported fence
+    vkQueueSubmit(m_device->m_queue, 0, nullptr, import_fence);
+    vkWaitForFences(m_device->device(), 1, &export_fence, VK_TRUE, 1000000000);
+    vkResetFences(m_device->device(), 1, &export_fence);
+    vkQueueSubmit(m_device->m_queue, 0, nullptr, import_fence);
+    vkWaitForFences(m_device->device(), 1, &export_fence, VK_TRUE, 1000000000);
+    vkResetFences(m_device->device(), 1, &export_fence);
+
+    // Cleanup
+    err = vkQueueWaitIdle(m_device->m_queue);
+    ASSERT_VK_SUCCESS(err);
+    vkDestroyFence(m_device->device(), export_fence, nullptr);
+    vkDestroyFence(m_device->device(), import_fence, nullptr);
 
     m_errorMonitor->VerifyNotFound();
 }

@@ -300,6 +300,10 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
     // for non-win32 platforms, so far we haven't found similiar page guard handler, so need
     // to keep this memcpy.
     vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
+#else
+    if (!getEnablePageGuardLazyCopyFlag()) {
+        vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
+    }
 #endif
     *ppData = pMappedData;
 #else

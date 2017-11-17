@@ -118,7 +118,8 @@ example, if the user runs `via --output_path /home/me/Documents`, then the outpu
 
 ## Common Command-Line Outputs
 
-#### "SUCCESS: Validation completed properly"
+
+#### "SUCCESS: Vulkan analysis completed properly"
 
 ##### Problem:
 LunarG's VIA could detect no problems with your setup.
@@ -128,6 +129,18 @@ Your system is likely setup properly.  If you have trouble running Vulkan from a
 
 ##### Next Step:
 Re-run VIA from the location your Vulkan application/game is supposed to run.
+
+
+#### "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected"
+
+##### Problem:
+LunarG's VIA could detect no problems with your setup other than a missing SDK.  It was able to run some limited tests and create both a Vulkan instance and device.
+
+##### Possible Reason:
+Your system is likely setup properly, but is either missing an installed Vulkan SDK or you didn't setup your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+
+##### Next Step:
+Install the LunarG Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
 
 
 #### "ERROR: Failed to find Vulkan Driver JSON in registry"

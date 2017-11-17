@@ -28,6 +28,7 @@ from helper_file_generator import HelperFileOutputGenerator, HelperFileOutputGen
 from loader_extension_generator import LoaderExtensionOutputGenerator, LoaderExtensionGeneratorOptions
 from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN
 from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
+from mock_icd_generator import MockICDGeneratorOptions, MockICDOutputGenerator
 
 # Simple timer functions
 startTime = None
@@ -123,7 +124,6 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48)
         ]
-
 
     # Options for parameter validation layer
     genOpts['parameter_validation.cpp'] = [
@@ -426,6 +426,49 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             helper_file_type  = 'extension_helper_header')
         ]
 
+    # Options for mock ICD header
+    genOpts['mock_icd.h'] = [
+          MockICDOutputGenerator,
+          MockICDGeneratorOptions(
+            filename          = 'mock_icd.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'mock_icd_header')
+        ]
+
+    # Options for mock ICD cpp
+    genOpts['mock_icd.cpp'] = [
+          MockICDOutputGenerator,
+          MockICDGeneratorOptions(
+            filename          = 'mock_icd.cpp',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'mock_icd_source')
+        ]
 
     # API dump generator options for api_dump.cpp
     genOpts['api_dump.cpp'] = [

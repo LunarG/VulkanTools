@@ -158,16 +158,39 @@ bool getPageGuardEnableFlag() {
 }
 
 bool getEnableReadProcessFlag(const char* name) {
+    bool EnableReadProcessFlag = (vktrace_get_global_var(name) != NULL);
+    return EnableReadProcessFlag;
+}
+
+bool getEnableReadPMBFlag() {
     static bool EnableReadPMB;
     static bool FirstTimeRun = true;
     if (FirstTimeRun) {
-        EnableReadPMB = (vktrace_get_global_var(name) != NULL);
+        EnableReadPMB = getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_PMB_ENV);
         FirstTimeRun = false;
     }
     return EnableReadPMB;
 }
-bool getEnableReadPMBFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_PMB_ENV); }
-bool getEnableReadPMBPostProcessFlag() { return getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV); }
+
+bool getEnableReadPMBPostProcessFlag() {
+    static bool EnableReadPMBPostProcess;
+    static bool FirstTimeRun = true;
+    if (FirstTimeRun) {
+        EnableReadPMBPostProcess = getEnableReadProcessFlag(VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS_ENV);
+        FirstTimeRun = false;
+    }
+    return EnableReadPMBPostProcess;
+}
+
+bool getEnablePageGuardLazyCopyFlag() {
+    static bool EnablePageGuardLazyCopyFlag;
+    static bool FirstTimeRun = true;
+    if (FirstTimeRun) {
+        EnablePageGuardLazyCopyFlag = (vktrace_get_global_var(VKTRACE_PAGEGUARD_ENABLE_LAZY_COPY_ENV) != NULL);
+        FirstTimeRun = false;
+    }
+    return EnablePageGuardLazyCopyFlag;
+}
 
 #if defined(WIN32) || defined(ANDROID)
 #if defined(ANDROID)
@@ -358,7 +381,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
                     // is written, and we don't have a way to find out about the
                     // change.
 
-                    if (!pMappedMem->isMappedBlockLoaded(index)) {
+                    if ((!pMappedMem->isMappedBlockLoaded(index)) && (getEnablePageGuardLazyCopyFlag())) {
                         // the page never get accessed since the time of the shadow
                         // memory creation in map process. so here we copy the page
                         // from real mapped memory to shadow memory. after the memcpy,
@@ -373,7 +396,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
                     pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
                 } else {
 #ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
-                    if (!pMappedMem->isMappedBlockLoaded(index)) {
+                    if ((!pMappedMem->isMappedBlockLoaded(index)) && (getEnablePageGuardLazyCopyFlag())) {
                         // Target app read the page which is never accessed since the
                         // shadow memory creation in map process.
                         // here we only set the loaded flag, we still need to do memcpy

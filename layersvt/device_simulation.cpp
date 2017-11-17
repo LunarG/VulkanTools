@@ -62,7 +62,7 @@ namespace {
 // For any changes, at least increment the patch level.
 // When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 1;
+const uint32_t kVersionDevsimMinor = 2;
 const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
@@ -77,6 +77,194 @@ const char *kOurLayerName = kLayerProperties[0].layerName;
 
 const VkExtensionProperties *kExtensionProperties = nullptr;
 const uint32_t kExtensionPropertiesCount = 0;
+
+// The "standard" VkFormat enum values (not including extension enums)
+const VkFormat StandardVkFormatEnumList[] = {
+    VK_FORMAT_R4G4_UNORM_PACK8,
+    VK_FORMAT_R4G4B4A4_UNORM_PACK16,
+    VK_FORMAT_B4G4R4A4_UNORM_PACK16,
+    VK_FORMAT_R5G6B5_UNORM_PACK16,
+    VK_FORMAT_B5G6R5_UNORM_PACK16,
+    VK_FORMAT_R5G5B5A1_UNORM_PACK16,
+    VK_FORMAT_B5G5R5A1_UNORM_PACK16,
+    VK_FORMAT_A1R5G5B5_UNORM_PACK16,
+    VK_FORMAT_R8_UNORM,
+    VK_FORMAT_R8_SNORM,
+    VK_FORMAT_R8_USCALED,
+    VK_FORMAT_R8_SSCALED,
+    VK_FORMAT_R8_UINT,
+    VK_FORMAT_R8_SINT,
+    VK_FORMAT_R8_SRGB,
+    VK_FORMAT_R8G8_UNORM,
+    VK_FORMAT_R8G8_SNORM,
+    VK_FORMAT_R8G8_USCALED,
+    VK_FORMAT_R8G8_SSCALED,
+    VK_FORMAT_R8G8_UINT,
+    VK_FORMAT_R8G8_SINT,
+    VK_FORMAT_R8G8_SRGB,
+    VK_FORMAT_R8G8B8_UNORM,
+    VK_FORMAT_R8G8B8_SNORM,
+    VK_FORMAT_R8G8B8_USCALED,
+    VK_FORMAT_R8G8B8_SSCALED,
+    VK_FORMAT_R8G8B8_UINT,
+    VK_FORMAT_R8G8B8_SINT,
+    VK_FORMAT_R8G8B8_SRGB,
+    VK_FORMAT_B8G8R8_UNORM,
+    VK_FORMAT_B8G8R8_SNORM,
+    VK_FORMAT_B8G8R8_USCALED,
+    VK_FORMAT_B8G8R8_SSCALED,
+    VK_FORMAT_B8G8R8_UINT,
+    VK_FORMAT_B8G8R8_SINT,
+    VK_FORMAT_B8G8R8_SRGB,
+    VK_FORMAT_R8G8B8A8_UNORM,
+    VK_FORMAT_R8G8B8A8_SNORM,
+    VK_FORMAT_R8G8B8A8_USCALED,
+    VK_FORMAT_R8G8B8A8_SSCALED,
+    VK_FORMAT_R8G8B8A8_UINT,
+    VK_FORMAT_R8G8B8A8_SINT,
+    VK_FORMAT_R8G8B8A8_SRGB,
+    VK_FORMAT_B8G8R8A8_UNORM,
+    VK_FORMAT_B8G8R8A8_SNORM,
+    VK_FORMAT_B8G8R8A8_USCALED,
+    VK_FORMAT_B8G8R8A8_SSCALED,
+    VK_FORMAT_B8G8R8A8_UINT,
+    VK_FORMAT_B8G8R8A8_SINT,
+    VK_FORMAT_B8G8R8A8_SRGB,
+    VK_FORMAT_A8B8G8R8_UNORM_PACK32,
+    VK_FORMAT_A8B8G8R8_SNORM_PACK32,
+    VK_FORMAT_A8B8G8R8_USCALED_PACK32,
+    VK_FORMAT_A8B8G8R8_SSCALED_PACK32,
+    VK_FORMAT_A8B8G8R8_UINT_PACK32,
+    VK_FORMAT_A8B8G8R8_SINT_PACK32,
+    VK_FORMAT_A8B8G8R8_SRGB_PACK32,
+    VK_FORMAT_A2R10G10B10_UNORM_PACK32,
+    VK_FORMAT_A2R10G10B10_SNORM_PACK32,
+    VK_FORMAT_A2R10G10B10_USCALED_PACK32,
+    VK_FORMAT_A2R10G10B10_SSCALED_PACK32,
+    VK_FORMAT_A2R10G10B10_UINT_PACK32,
+    VK_FORMAT_A2R10G10B10_SINT_PACK32,
+    VK_FORMAT_A2B10G10R10_UNORM_PACK32,
+    VK_FORMAT_A2B10G10R10_SNORM_PACK32,
+    VK_FORMAT_A2B10G10R10_USCALED_PACK32,
+    VK_FORMAT_A2B10G10R10_SSCALED_PACK32,
+    VK_FORMAT_A2B10G10R10_UINT_PACK32,
+    VK_FORMAT_A2B10G10R10_SINT_PACK32,
+    VK_FORMAT_R16_UNORM,
+    VK_FORMAT_R16_SNORM,
+    VK_FORMAT_R16_USCALED,
+    VK_FORMAT_R16_SSCALED,
+    VK_FORMAT_R16_UINT,
+    VK_FORMAT_R16_SINT,
+    VK_FORMAT_R16_SFLOAT,
+    VK_FORMAT_R16G16_UNORM,
+    VK_FORMAT_R16G16_SNORM,
+    VK_FORMAT_R16G16_USCALED,
+    VK_FORMAT_R16G16_SSCALED,
+    VK_FORMAT_R16G16_UINT,
+    VK_FORMAT_R16G16_SINT,
+    VK_FORMAT_R16G16_SFLOAT,
+    VK_FORMAT_R16G16B16_UNORM,
+    VK_FORMAT_R16G16B16_SNORM,
+    VK_FORMAT_R16G16B16_USCALED,
+    VK_FORMAT_R16G16B16_SSCALED,
+    VK_FORMAT_R16G16B16_UINT,
+    VK_FORMAT_R16G16B16_SINT,
+    VK_FORMAT_R16G16B16_SFLOAT,
+    VK_FORMAT_R16G16B16A16_UNORM,
+    VK_FORMAT_R16G16B16A16_SNORM,
+    VK_FORMAT_R16G16B16A16_USCALED,
+    VK_FORMAT_R16G16B16A16_SSCALED,
+    VK_FORMAT_R16G16B16A16_UINT,
+    VK_FORMAT_R16G16B16A16_SINT,
+    VK_FORMAT_R16G16B16A16_SFLOAT,
+    VK_FORMAT_R32_UINT,
+    VK_FORMAT_R32_SINT,
+    VK_FORMAT_R32_SFLOAT,
+    VK_FORMAT_R32G32_UINT,
+    VK_FORMAT_R32G32_SINT,
+    VK_FORMAT_R32G32_SFLOAT,
+    VK_FORMAT_R32G32B32_UINT,
+    VK_FORMAT_R32G32B32_SINT,
+    VK_FORMAT_R32G32B32_SFLOAT,
+    VK_FORMAT_R32G32B32A32_UINT,
+    VK_FORMAT_R32G32B32A32_SINT,
+    VK_FORMAT_R32G32B32A32_SFLOAT,
+    VK_FORMAT_R64_UINT,
+    VK_FORMAT_R64_SINT,
+    VK_FORMAT_R64_SFLOAT,
+    VK_FORMAT_R64G64_UINT,
+    VK_FORMAT_R64G64_SINT,
+    VK_FORMAT_R64G64_SFLOAT,
+    VK_FORMAT_R64G64B64_UINT,
+    VK_FORMAT_R64G64B64_SINT,
+    VK_FORMAT_R64G64B64_SFLOAT,
+    VK_FORMAT_R64G64B64A64_UINT,
+    VK_FORMAT_R64G64B64A64_SINT,
+    VK_FORMAT_R64G64B64A64_SFLOAT,
+    VK_FORMAT_B10G11R11_UFLOAT_PACK32,
+    VK_FORMAT_E5B9G9R9_UFLOAT_PACK32,
+    VK_FORMAT_D16_UNORM,
+    VK_FORMAT_X8_D24_UNORM_PACK32,
+    VK_FORMAT_D32_SFLOAT,
+    VK_FORMAT_S8_UINT,
+    VK_FORMAT_D16_UNORM_S8_UINT,
+    VK_FORMAT_D24_UNORM_S8_UINT,
+    VK_FORMAT_D32_SFLOAT_S8_UINT,
+    VK_FORMAT_BC1_RGB_UNORM_BLOCK,
+    VK_FORMAT_BC1_RGB_SRGB_BLOCK,
+    VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
+    VK_FORMAT_BC1_RGBA_SRGB_BLOCK,
+    VK_FORMAT_BC2_UNORM_BLOCK,
+    VK_FORMAT_BC2_SRGB_BLOCK,
+    VK_FORMAT_BC3_UNORM_BLOCK,
+    VK_FORMAT_BC3_SRGB_BLOCK,
+    VK_FORMAT_BC4_UNORM_BLOCK,
+    VK_FORMAT_BC4_SNORM_BLOCK,
+    VK_FORMAT_BC5_UNORM_BLOCK,
+    VK_FORMAT_BC5_SNORM_BLOCK,
+    VK_FORMAT_BC6H_UFLOAT_BLOCK,
+    VK_FORMAT_BC6H_SFLOAT_BLOCK,
+    VK_FORMAT_BC7_UNORM_BLOCK,
+    VK_FORMAT_BC7_SRGB_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK,
+    VK_FORMAT_EAC_R11_UNORM_BLOCK,
+    VK_FORMAT_EAC_R11_SNORM_BLOCK,
+    VK_FORMAT_EAC_R11G11_UNORM_BLOCK,
+    VK_FORMAT_EAC_R11G11_SNORM_BLOCK,
+    VK_FORMAT_ASTC_4x4_UNORM_BLOCK,
+    VK_FORMAT_ASTC_4x4_SRGB_BLOCK,
+    VK_FORMAT_ASTC_5x4_UNORM_BLOCK,
+    VK_FORMAT_ASTC_5x4_SRGB_BLOCK,
+    VK_FORMAT_ASTC_5x5_UNORM_BLOCK,
+    VK_FORMAT_ASTC_5x5_SRGB_BLOCK,
+    VK_FORMAT_ASTC_6x5_UNORM_BLOCK,
+    VK_FORMAT_ASTC_6x5_SRGB_BLOCK,
+    VK_FORMAT_ASTC_6x6_UNORM_BLOCK,
+    VK_FORMAT_ASTC_6x6_SRGB_BLOCK,
+    VK_FORMAT_ASTC_8x5_UNORM_BLOCK,
+    VK_FORMAT_ASTC_8x5_SRGB_BLOCK,
+    VK_FORMAT_ASTC_8x6_UNORM_BLOCK,
+    VK_FORMAT_ASTC_8x6_SRGB_BLOCK,
+    VK_FORMAT_ASTC_8x8_UNORM_BLOCK,
+    VK_FORMAT_ASTC_8x8_SRGB_BLOCK,
+    VK_FORMAT_ASTC_10x5_UNORM_BLOCK,
+    VK_FORMAT_ASTC_10x5_SRGB_BLOCK,
+    VK_FORMAT_ASTC_10x6_UNORM_BLOCK,
+    VK_FORMAT_ASTC_10x6_SRGB_BLOCK,
+    VK_FORMAT_ASTC_10x8_UNORM_BLOCK,
+    VK_FORMAT_ASTC_10x8_SRGB_BLOCK,
+    VK_FORMAT_ASTC_10x10_UNORM_BLOCK,
+    VK_FORMAT_ASTC_10x10_SRGB_BLOCK,
+    VK_FORMAT_ASTC_12x10_UNORM_BLOCK,
+    VK_FORMAT_ASTC_12x10_SRGB_BLOCK,
+    VK_FORMAT_ASTC_12x12_UNORM_BLOCK,
+    VK_FORMAT_ASTC_12x12_SRGB_BLOCK,
+};
 
 // Environment variables defined by this layer ///////////////////////////////////////////////////////////////////////////////////
 
@@ -236,6 +424,24 @@ std::mutex global_lock;  // Enforce thread-safety for this layer's containers.
 uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
 
 typedef std::vector<VkQueueFamilyProperties> ArrayOfVkQueueFamilyProperties;
+typedef std::unordered_map<uint32_t /*VkFormat*/, VkFormatProperties> ArrayOfVkFormatProperties;
+
+// FormatProperties utilities ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// This is the structure of format property data used in JSON, as defined by the Devsim schema.
+// It will be split to create a VkFormat value and a VkFormatProperties structure after reading from JSON.
+struct DevsimFormatProperties {
+    VkFormat formatID;
+    VkFormatFeatureFlags linearTilingFeatures;
+    VkFormatFeatureFlags optimalTilingFeatures;
+    VkFormatFeatureFlags bufferFeatures;
+};
+
+bool IsFormatSupported(const VkFormatProperties &props) {
+    // Per [SPEC] section 30.3.2 "Format Properties":
+    // "... if no format feature flags are supported, the format itself is not supported ..."
+    return !(!props.linearTilingFeatures && !props.optimalTilingFeatures && !props.bufferFeatures);
+}
 
 // PhysicalDeviceData : creates and manages the simulated device configurations //////////////////////////////////////////////////
 
@@ -265,6 +471,7 @@ class PhysicalDeviceData {
     VkPhysicalDeviceFeatures physical_device_features_;
     VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
     ArrayOfVkQueueFamilyProperties arrayof_queue_family_properties_;
+    ArrayOfVkFormatProperties arrayof_format_properties_;
 
    private:
     PhysicalDeviceData() = delete;
@@ -311,6 +518,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkPhysicalDeviceMemoryProperties *dest);
     void GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest);
     void GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest);
+    void GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest);
 
     // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
     static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
@@ -433,7 +641,7 @@ class JsonLoader {
         int count = 0;
         dest[0] = '\0';
         if (new_value) {
-            count = strlen(new_value);
+            count = static_cast<int>(strlen(new_value));
             strcpy(dest, new_value);
         }
         return count;
@@ -476,7 +684,32 @@ class JsonLoader {
             GetValue(value, i, &queue_family_properties);
             dest->push_back(queue_family_properties);
         }
-        return dest->size();
+        return static_cast<int>(dest->size());
+    }
+
+    int GetArray(const Json::Value &parent, const char *name, ArrayOfVkFormatProperties *dest) {
+        DebugPrintf("\t\tJsonLoader::GetArray(ArrayOfVkFormatProperties)\n");
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        dest->clear();
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            // Get a format structure from JSON.
+            DevsimFormatProperties devsim_format_properties = {};
+            GetValue(value, i, &devsim_format_properties);
+            // Split the JSON-acquired data into VkFormat and VkFormatProperties.
+            const VkFormat format = devsim_format_properties.formatID;
+            VkFormatProperties vk_format_properties = {};
+            vk_format_properties.linearTilingFeatures = devsim_format_properties.linearTilingFeatures;
+            vk_format_properties.optimalTilingFeatures = devsim_format_properties.optimalTilingFeatures;
+            vk_format_properties.bufferFeatures = devsim_format_properties.bufferFeatures;
+            if (IsFormatSupported(vk_format_properties)) {
+                dest->insert({format, vk_format_properties});
+            }
+        }
+        return static_cast<int>(dest->size());
     }
 
     PhysicalDeviceData &pdd_;
@@ -513,6 +746,7 @@ bool JsonLoader::LoadFile(const char *filename) {
             GetValue(root, "VkPhysicalDeviceFeatures", &pdd_.physical_device_features_);
             GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
             GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
+            GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
             break;
         case SchemaId::kUnknown:
         default:
@@ -756,7 +990,6 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest) {
-    DebugPrintf("\t\tJsonLoader::GetValue(VkExtent3D)\n");
     const Json::Value value = parent[name];
     if (value.type() != Json::objectValue) {
         return;
@@ -767,7 +1000,6 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkExtent3
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest) {
-    DebugPrintf("\t\tJsonLoader::GetValue(VkQueueFamilyProperties)\n");
     const Json::Value value = parent[index];
     if (value.type() != Json::objectValue) {
         return;
@@ -779,7 +1011,6 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkQueueFamilyPro
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, int index, VkMemoryType *dest) {
-    DebugPrintf("\t\tJsonLoader::GetValue(VkMemoryType %d)\n", index);
     const Json::Value value = parent[index];
     if (value.type() != Json::objectValue) {
         return;
@@ -789,7 +1020,6 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkMemoryType *de
 }
 
 void JsonLoader::GetValue(const Json::Value &parent, int index, VkMemoryHeap *dest) {
-    DebugPrintf("\t\tJsonLoader::GetValue(VkMemoryHeap %d)\n", index);
     const Json::Value value = parent[index];
     if (value.type() != Json::objectValue) {
         return;
@@ -820,6 +1050,17 @@ void JsonLoader::GetValue(const Json::Value &parent, const char *name, VkPhysica
     }
 }
 
+void JsonLoader::GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest) {
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_VALUE(formatID);
+    GET_VALUE(linearTilingFeatures);
+    GET_VALUE(optimalTilingFeatures);
+    GET_VALUE(bufferFeatures);
+}
+
 #undef GET_VALUE
 #undef GET_ARRAY
 
@@ -848,6 +1089,13 @@ VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                               VkInstance *pInstance) {
     DebugPrintf("CreateInstance START {\n");
+    DebugPrintf("%s version %d.%d.%d\n", kOurLayerName, kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
+
+    const VkApplicationInfo *app_info = pCreateInfo->pApplicationInfo;
+    const uint32_t requested_version = (app_info && app_info->apiVersion) ? app_info->apiVersion : VK_API_VERSION_1_0;
+    if (requested_version != VK_API_VERSION_1_0) {
+        ErrorPrintf("%s currently supports only VK_API_VERSION_1_0\n", kOurLayerName);
+    }
 
     std::lock_guard<std::mutex> lock(global_lock);
 
@@ -857,8 +1105,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     }
 
     // Our layer-specific initialization...
-
-    DebugPrintf("%s version %d.%d.%d\n", kOurLayerName, kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
     // Get the name of our configuration file.
     std::string filename = GetEnvarValue(kEnvarDevsimFilename);
@@ -890,6 +1136,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
                                                   dt->GetPhysicalDeviceQueueFamilyProperties(physical_device, count, results);
                                                   return VK_SUCCESS;
                                               });
+        // Query every standard VkFormat's properties.
+        for (const VkFormat format : StandardVkFormatEnumList) {
+            VkFormatProperties format_properties = {};
+            dt->GetPhysicalDeviceFormatProperties(physical_device, format, &format_properties);
+            if (IsFormatSupported(format_properties)) {
+                pdd.arrayof_format_properties_.insert({format, format_properties});
+            }
+        }
 
         // Override PDD members with values from the configuration file.
         JsonLoader json_loader(pdd);
@@ -925,6 +1179,11 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physical
     }
 }
 
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice,
+                                                           VkPhysicalDeviceProperties2KHR *pProperties) {
+    GetPhysicalDeviceProperties(physicalDevice, &pProperties->properties);
+}
+
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures *pFeatures) {
     std::lock_guard<std::mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
@@ -936,6 +1195,10 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDe
     } else {
         dt->GetPhysicalDeviceFeatures(physicalDevice, pFeatures);
     }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures2KHR *pFeatures) {
+    GetPhysicalDeviceFeatures(physicalDevice, &pFeatures->features);
 }
 
 template <typename T>
@@ -994,6 +1257,11 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice ph
     }
 }
 
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(VkPhysicalDevice physicalDevice,
+                                                                 VkPhysicalDeviceMemoryProperties2KHR *pMemoryProperties) {
+    GetPhysicalDeviceMemoryProperties(physicalDevice, &pMemoryProperties->memoryProperties);
+}
+
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice physicalDevice,
                                                                   uint32_t *pQueueFamilyPropertyCount,
                                                                   VkQueueFamilyProperties *pQueueFamilyProperties) {
@@ -1001,13 +1269,42 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
-    DebugPrintf("GetPhysicalDeviceQueueFamilyProperties physicalDevice %p pdd %p\n", physicalDevice, pdd);
     if (pdd) {
-        EnumerateProperties(pdd->arrayof_queue_family_properties_.size(), pdd->arrayof_queue_family_properties_.data(),
-                            pQueueFamilyPropertyCount, pQueueFamilyProperties);
+        EnumerateProperties(static_cast<uint32_t>(pdd->arrayof_queue_family_properties_.size()),
+                            pdd->arrayof_queue_family_properties_.data(), pQueueFamilyPropertyCount, pQueueFamilyProperties);
     } else {
         dt->GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
     }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice physicalDevice,
+                                                                      uint32_t *pQueueFamilyPropertyCount,
+                                                                      VkQueueFamilyProperties2KHR *pQueueFamilyProperties) {
+    if (pQueueFamilyPropertyCount && pQueueFamilyProperties) {
+        GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount,
+                                               &pQueueFamilyProperties->queueFamilyProperties);
+    } else {
+        GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, nullptr);
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format,
+                                                             VkFormatProperties *pFormatProperties) {
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    if (pdd) {
+        const auto iter = pdd->arrayof_format_properties_.find(format);
+        *pFormatProperties = (iter != pdd->arrayof_format_properties_.end()) ? iter->second : VkFormatProperties{};
+    } else {
+        dt->GetPhysicalDeviceFormatProperties(physicalDevice, format, pFormatProperties);
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(VkPhysicalDevice physicalDevice, VkFormat format,
+                                                                 VkFormatProperties2KHR *pFormatProperties) {
+    GetPhysicalDeviceFormatProperties(physicalDevice, format, &pFormatProperties->formatProperties);
 }
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char *pName) {
@@ -1021,9 +1318,15 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(EnumerateDeviceExtensionProperties);
     GET_PROC_ADDR(DestroyInstance);
     GET_PROC_ADDR(GetPhysicalDeviceProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceProperties2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceFeatures);
+    GET_PROC_ADDR(GetPhysicalDeviceFeatures2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceMemoryProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceMemoryProperties2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceQueueFamilyProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceQueueFamilyProperties2KHR);
+    GET_PROC_ADDR(GetPhysicalDeviceFormatProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceFormatProperties2KHR);
 #undef GET_PROC_ADDR
 
     if (!instance) {

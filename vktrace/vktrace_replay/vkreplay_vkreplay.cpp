@@ -61,7 +61,7 @@ FileLike *traceFile;
 
 vkReplay::~vkReplay() {
     delete m_display;
-    vktrace_platform_close_library(m_vkFuncs.m_libHandle);
+    vktrace_platform_close_library(m_libHandle);
 }
 
 int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
@@ -76,7 +76,7 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
         vktrace_LogError("Failed to open vulkan library.");
         return -1;
     }
-    m_vkFuncs.init_funcs(handle);
+    init_funcs(handle);
     disp.set_implementation(m_display);
     if ((err = m_display->init(disp.get_gpu())) != 0) {
         vktrace_LogError("Failed to init vulkan display.");
@@ -186,9 +186,9 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
                 uint32_t count;
 
                 // query to find if ScreenShot layer is available
-                m_vkFuncs.real_vkEnumerateInstanceLayerProperties(&count, NULL);
+                m_vkFuncs.EnumerateInstanceLayerProperties(&count, NULL);
                 VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
-                if (props && count > 0) m_vkFuncs.real_vkEnumerateInstanceLayerProperties(&count, props);
+                if (props && count > 0) m_vkFuncs.EnumerateInstanceLayerProperties(&count, props);
                 for (uint32_t i = 0; i < count; i++) {
                     if (!strcmp(props[i].layerName, strScreenShot)) {
                         found_ss = true;
@@ -251,7 +251,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
         pCreateInfo->ppEnabledExtensionNames = extension_names.data();
         pCreateInfo->enabledExtensionCount = (uint32_t)extension_names.size();
 
-        replayResult = m_vkFuncs.real_vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
+        replayResult = m_vkFuncs.CreateInstance(pPacket->pCreateInfo, NULL, &inst);
 
         pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
         pCreateInfo->enabledExtensionCount = savedExtensionCount;
@@ -265,6 +265,13 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
 
         if (replayResult == VK_SUCCESS) {
             m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
+
+            auto tmp = m_vkFuncs.CreateInstance;
+            // Build instance dispatch table
+            layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
+            m_vkFuncs.CreateInstance = tmp; // This is clobbered by layer_init_instance_dispatch table
+            // Not handled by codegen
+            m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
         }
     }
     return replayResult;
@@ -355,6 +362,8 @@ bool vkReplay::getQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, ui
 
 VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    for (uint32_t i = 0; i < pPacket->pCreateInfo->queueCreateInfoCount; i++)
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[i]);
     if (!m_display->m_initedVK) {
         VkDevice device;
         VkPhysicalDevice remappedPhysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
@@ -380,9 +389,9 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
                 uint32_t count;
 
                 // query to find if ScreenShot layer is available
-                m_vkFuncs.real_vkEnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, NULL);
+                m_vkFuncs.EnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, NULL);
                 VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
-                if (props && count > 0) m_vkFuncs.real_vkEnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, props);
+                if (props && count > 0) m_vkFuncs.EnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, props);
                 for (uint32_t i = 0; i < count; i++) {
                     if (!strcmp(props[i].layerName, strScreenShot)) {
                         found_ss = true;
@@ -417,7 +426,7 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
             }
         }
 
-        replayResult = m_vkFuncs.real_vkCreateDevice(remappedPhysicalDevice, pPacket->pCreateInfo, NULL, &device);
+        replayResult = m_vkFuncs.CreateDevice(remappedPhysicalDevice, pPacket->pCreateInfo, NULL, &device);
         if (ppEnabledLayerNames) {
             // restore the packets CreateInfo struct
             vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
@@ -428,46 +437,10 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
             m_objMapper.add_to_devices_map(*(pPacket->pDevice), device);
             tracePhysicalDevices[*(pPacket->pDevice)] = pPacket->physicalDevice;
             replayPhysicalDevices[device] = remappedPhysicalDevice;
+
+            // Build device dispatch table
+            layer_init_device_dispatch_table(device, &m_vkDeviceFuncs, m_vkDeviceFuncs.GetDeviceProcAddr);
         }
-        m_vkFuncs.real_vkCreateDescriptorUpdateTemplateKHR =
-            (vkFuncs::type_vkCreateDescriptorUpdateTemplateKHR)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkCreateDescriptorUpdateTemplateKHR");
-        m_vkFuncs.real_vkDestroyDescriptorUpdateTemplateKHR =
-            (vkFuncs::type_vkDestroyDescriptorUpdateTemplateKHR)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkDestroyDescriptorUpdateTemplateKHR");
-        m_vkFuncs.real_vkUpdateDescriptorSetWithTemplateKHR =
-            (vkFuncs::type_vkUpdateDescriptorSetWithTemplateKHR)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkUpdateDescriptorSetWithTemplateKHR");
-        m_vkFuncs.real_vkCmdPushDescriptorSetWithTemplateKHR =
-            (vkFuncs::type_vkCmdPushDescriptorSetWithTemplateKHR)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkCmdPushDescriptorSetWithTemplateKHR");
-        m_vkFuncs.real_vkCreateObjectTableNVX =
-            (vkFuncs::type_vkCreateObjectTableNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkCreateObjectTableNVX");
-        m_vkFuncs.real_vkCmdProcessCommandsNVX =
-            (vkFuncs::type_vkCmdProcessCommandsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkCmdProcessCommandsNVX");
-        m_vkFuncs.real_vkCmdReserveSpaceForCommandsNVX =
-            (vkFuncs::type_vkCmdReserveSpaceForCommandsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkCmdReserveSpaceForCommandsNVX");
-        m_vkFuncs.real_vkCreateIndirectCommandsLayoutNVX =
-            (vkFuncs::type_vkCreateIndirectCommandsLayoutNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkCreateIndirectCommandsLayoutNVX");
-        m_vkFuncs.real_vkRegisterObjectsNVX =
-            (vkFuncs::type_vkRegisterObjectsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkRegisterObjectsNVX");
-        m_vkFuncs.real_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX =
-            (vkFuncs::type_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX");
-        m_vkFuncs.real_vkDestroyIndirectCommandsLayoutNVX =
-            (vkFuncs::type_vkDestroyIndirectCommandsLayoutNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkDestroyIndirectCommandsLayoutNVX");
-        m_vkFuncs.real_vkDestroyObjectTableNVX =
-            (vkFuncs::type_vkDestroyObjectTableNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkDestroyObjectTableNVX");
-        m_vkFuncs.real_vkUnregisterObjectsNVX =
-            (vkFuncs::type_vkUnregisterObjectsNVX)m_vkFuncs.real_vkGetDeviceProcAddr(
-                device, "vkUnregisterObjectsNVX");
     }
     return replayResult;
 }
@@ -497,7 +470,7 @@ VkResult vkReplay::manually_replay_vkCreateBuffer(packet_vkCreateBuffer *pPacket
         }
     }
 
-    replayResult = m_vkFuncs.real_vkCreateBuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_bufferObj.replayBuffer);
+    replayResult = m_vkDeviceFuncs.CreateBuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_bufferObj.replayBuffer);
     if (replayResult == VK_SUCCESS) {
         traceBufferToDevice[*pPacket->pBuffer] = pPacket->device;
         replayBufferToDevice[local_bufferObj.replayBuffer] = remappedDevice;
@@ -531,7 +504,7 @@ VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage *pPacket) 
         }
     }
 
-    replayResult = m_vkFuncs.real_vkCreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);
+    replayResult = m_vkDeviceFuncs.CreateImage(remappedDevice, pPacket->pCreateInfo, NULL, &local_imageObj.replayImage);
     if (replayResult == VK_SUCCESS) {
         traceImageToDevice[*pPacket->pImage] = pPacket->device;
         replayImageToDevice[local_imageObj.replayImage] = remappedDevice;
@@ -562,7 +535,7 @@ VkResult vkReplay::manually_replay_vkCreateCommandPool(packet_vkCreateCommandPoo
     }
 
     replayResult =
-        m_vkFuncs.real_vkCreateCommandPool(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pCommandPool);
+        m_vkDeviceFuncs.CreateCommandPool(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pCommandPool);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_commandpools_map(*(pPacket->pCommandPool), local_pCommandPool);
     }
@@ -581,7 +554,7 @@ VkResult vkReplay::manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumerate
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
         if (pPacket->pPhysicalDevices != NULL) pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
-        replayResult = m_vkFuncs.real_vkEnumeratePhysicalDevices(remappedInstance, &deviceCount, pDevices);
+        replayResult = m_vkFuncs.EnumeratePhysicalDevices(remappedInstance, &deviceCount, pDevices);
 
         // TODO handle different number of physical devices in trace versus replay
         if (deviceCount != *(pPacket->pPhysicalDeviceCount)) {
@@ -614,7 +587,7 @@ void vkReplay::manually_replay_vkDestroyBuffer(packet_vkDestroyBuffer *pPacket) 
         vktrace_LogError("Error detected in vkDestroyBuffer() due to invalid remapped VkBuffer.");
         return;
     }
-    m_vkFuncs.real_vkDestroyBuffer(remappedDevice, remappedBuffer, pPacket->pAllocator);
+    m_vkDeviceFuncs.DestroyBuffer(remappedDevice, remappedBuffer, pPacket->pAllocator);
     m_objMapper.rm_from_buffers_map(pPacket->buffer);
     if (replayGetBufferMemoryRequirements.find(remappedBuffer) != replayGetBufferMemoryRequirements.end())
         replayGetBufferMemoryRequirements.erase(remappedBuffer);
@@ -632,7 +605,7 @@ void vkReplay::manually_replay_vkDestroyImage(packet_vkDestroyImage *pPacket) {
         vktrace_LogError("Error detected in vkDestroyImage() due to invalid remapped VkImage.");
         return;
     }
-    m_vkFuncs.real_vkDestroyImage(remappedDevice, remappedImage, pPacket->pAllocator);
+    m_vkDeviceFuncs.DestroyImage(remappedDevice, remappedImage, pPacket->pAllocator);
     m_objMapper.rm_from_images_map(pPacket->image);
     if (replayGetImageMemoryRequirements.find(remappedImage) != replayGetImageMemoryRequirements.end())
         replayGetImageMemoryRequirements.erase(remappedImage);
@@ -658,6 +631,7 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit *pPacket) 
     remappedSubmits = VKTRACE_NEW_ARRAY(VkSubmitInfo, pPacket->submitCount);
     VkCommandBuffer *pRemappedBuffers = NULL;
     VkSemaphore *pRemappedWaitSems = NULL, *pRemappedSignalSems = NULL;
+
     for (uint32_t submit_idx = 0; submit_idx < pPacket->submitCount; submit_idx++) {
         const VkSubmitInfo *submit = &pPacket->pSubmits[submit_idx];
         VkSubmitInfo *remappedSubmit = &remappedSubmits[submit_idx];
@@ -713,7 +687,7 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit *pPacket) 
             }
         }
     }
-    replayResult = m_vkFuncs.real_vkQueueSubmit(remappedQueue, pPacket->submitCount, remappedSubmits, remappedFence);
+    replayResult = m_vkDeviceFuncs.QueueSubmit(remappedQueue, pPacket->submitCount, remappedSubmits, remappedFence);
     VKTRACE_DELETE(pRemappedBuffers);
     VKTRACE_DELETE(pRemappedWaitSems);
     VKTRACE_DELETE(pRemappedSignalSems);
@@ -723,7 +697,6 @@ VkResult vkReplay::manually_replay_vkQueueSubmit(packet_vkQueueSubmit *pPacket) 
 
 VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkQueue remappedQueue = m_objMapper.remap_queues(pPacket->queue);
     if (remappedQueue == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkQueueBindSparse() due to invalid remapped VkQueue.");
@@ -749,6 +722,8 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *p
     memcpy((void *)remappedBindSparseInfos, (void *)(pPacket->pBindInfo), sizeof(VkBindSparseInfo) * pPacket->bindInfoCount);
 
     for (uint32_t bindInfo_idx = 0; bindInfo_idx < pPacket->bindInfoCount; bindInfo_idx++) {
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&remappedBindSparseInfos[bindInfo_idx]);
+
         if (remappedBindSparseInfos[bindInfo_idx].pBufferBinds) {
             sBMBinf = VKTRACE_NEW_ARRAY(VkSparseBufferMemoryBindInfo, remappedBindSparseInfos[bindInfo_idx].bufferBindCount);
             remappedBindSparseInfos[bindInfo_idx].pBufferBinds =
@@ -877,7 +852,7 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *p
         }
     }
 
-    replayResult = m_vkFuncs.real_vkQueueBindSparse(remappedQueue, pPacket->bindInfoCount, remappedBindSparseInfos, remappedFence);
+    replayResult = m_vkDeviceFuncs.QueueBindSparse(remappedQueue, pPacket->bindInfoCount, remappedBindSparseInfos, remappedFence);
 
 FAILURE:
     VKTRACE_DELETE(remappedBindSparseInfos);
@@ -900,12 +875,18 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
     }
 
     // allocate a new array for the writes and clear the memory, we'll update the contents further down
-    VkWriteDescriptorSet *pRemappedWrites = VKTRACE_NEW_ARRAY(VkWriteDescriptorSet, pPacket->descriptorWriteCount);
-    memset(pRemappedWrites, 0, pPacket->descriptorWriteCount * sizeof(VkWriteDescriptorSet));
+    VkWriteDescriptorSet *pRemappedWrites = NULL;
+    if (pPacket->descriptorWriteCount > 0) {
+        pRemappedWrites = VKTRACE_NEW_ARRAY(VkWriteDescriptorSet, pPacket->descriptorWriteCount);
+        memset(pRemappedWrites, 0, pPacket->descriptorWriteCount * sizeof(VkWriteDescriptorSet));
+    }
 
     // allocate a new array for the copies, and simply copy the original data in since there are no pointers to update.
-    VkCopyDescriptorSet *pRemappedCopies = VKTRACE_NEW_ARRAY(VkCopyDescriptorSet, pPacket->descriptorCopyCount);
-    memcpy(pRemappedCopies, pPacket->pDescriptorCopies, pPacket->descriptorCopyCount * sizeof(VkCopyDescriptorSet));
+    VkCopyDescriptorSet *pRemappedCopies = NULL;
+    if (pPacket->descriptorCopyCount > 0) {
+        pRemappedCopies = VKTRACE_NEW_ARRAY(VkCopyDescriptorSet, pPacket->descriptorCopyCount);
+        memcpy(pRemappedCopies, pPacket->pDescriptorCopies, pPacket->descriptorCopyCount * sizeof(VkCopyDescriptorSet));
+    }
 
     bool errorBadRemap = false;
 
@@ -1048,8 +1029,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSets(packet_vkUpdateDescriptorS
     if (!errorBadRemap) {
         // If an error occurred, don't call the real function, but skip ahead so that memory is cleaned up!
 
-        m_vkFuncs.real_vkUpdateDescriptorSets(remappedDevice, pPacket->descriptorWriteCount, pRemappedWrites,
-                                              pPacket->descriptorCopyCount, pRemappedCopies);
+        m_vkDeviceFuncs.UpdateDescriptorSets(remappedDevice, pPacket->descriptorWriteCount, pRemappedWrites,
+                                             pPacket->descriptorCopyCount, pRemappedCopies);
     }
 
     for (uint32_t d = 0; d < pPacket->descriptorWriteCount; d++) {
@@ -1099,9 +1080,13 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
     VkDescriptorSetLayoutCreateInfo *pInfo = (VkDescriptorSetLayoutCreateInfo *)pPacket->pCreateInfo;
     if (pInfo != NULL) {
         if (pInfo->pBindings != NULL) {
+            pInfo->pBindings = (VkDescriptorSetLayoutBinding *)vktrace_trace_packet_interpret_buffer_pointer(
+                pPacket->header, (intptr_t)pInfo->pBindings);
             for (unsigned int i = 0; i < pInfo->bindingCount; i++) {
                 VkDescriptorSetLayoutBinding *pBindings = (VkDescriptorSetLayoutBinding *)&pInfo->pBindings[i];
                 if (pBindings->pImmutableSamplers != NULL) {
+                    pBindings->pImmutableSamplers = (const VkSampler *)vktrace_trace_packet_interpret_buffer_pointer(
+                        pPacket->header, (intptr_t)pBindings->pImmutableSamplers);
                     for (unsigned int j = 0; j < pBindings->descriptorCount; j++) {
                         VkSampler *pSampler = (VkSampler *)&pBindings->pImmutableSamplers[j];
                         *pSampler = m_objMapper.remap_samplers(pBindings->pImmutableSamplers[j]);
@@ -1115,7 +1100,7 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
         }
     }
     VkDescriptorSetLayout setLayout;
-    replayResult = m_vkFuncs.real_vkCreateDescriptorSetLayout(remappedDevice, pPacket->pCreateInfo, NULL, &setLayout);
+    replayResult = m_vkDeviceFuncs.CreateDescriptorSetLayout(remappedDevice, pPacket->pCreateInfo, NULL, &setLayout);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_descriptorsetlayouts_map(*(pPacket->pSetLayout), setLayout);
     }
@@ -1129,7 +1114,7 @@ void vkReplay::manually_replay_vkDestroyDescriptorSetLayout(packet_vkDestroyDesc
         return;
     }
 
-    m_vkFuncs.real_vkDestroyDescriptorSetLayout(remappedDevice, pPacket->descriptorSetLayout, NULL);
+    m_vkDeviceFuncs.DestroyDescriptorSetLayout(remappedDevice, pPacket->descriptorSetLayout, NULL);
     m_objMapper.rm_from_descriptorsetlayouts_map(pPacket->descriptorSetLayout);
 }
 
@@ -1168,7 +1153,7 @@ VkResult vkReplay::manually_replay_vkAllocateDescriptorSets(packet_vkAllocateDes
     }
 
     VkDescriptorSet *pDescriptorSets = NULL;
-    replayResult = m_vkFuncs.real_vkAllocateDescriptorSets(remappedDevice, pPacket->pAllocateInfo, pDescriptorSets);
+    replayResult = m_vkDeviceFuncs.AllocateDescriptorSets(remappedDevice, pPacket->pAllocateInfo, pDescriptorSets);
     if (replayResult == VK_SUCCESS) {
         for (uint32_t i = 0; i < pPacket->pAllocateInfo->descriptorSetCount; ++i) {
             m_objMapper.add_to_descriptorsets_map(pPacket->pDescriptorSets[i], pDescriptorSets[i]);
@@ -1208,7 +1193,7 @@ VkResult vkReplay::manually_replay_vkFreeDescriptorSets(packet_vkFreeDescriptorS
     }
 
     replayResult =
-        m_vkFuncs.real_vkFreeDescriptorSets(remappedDevice, remappedDescriptorPool, pPacket->descriptorSetCount, localDSs);
+        m_vkDeviceFuncs.FreeDescriptorSets(remappedDevice, remappedDescriptorPool, pPacket->descriptorSetCount, localDSs);
     if (replayResult == VK_SUCCESS) {
         for (i = 0; i < pPacket->descriptorSetCount; ++i) {
             m_objMapper.rm_from_descriptorsets_map(pPacket->pDescriptorSets[i]);
@@ -1246,9 +1231,9 @@ void vkReplay::manually_replay_vkCmdBindDescriptorSets(packet_vkCmdBindDescripto
         }
     }
 
-    m_vkFuncs.real_vkCmdBindDescriptorSets(remappedCommandBuffer, pPacket->pipelineBindPoint, remappedLayout, pPacket->firstSet,
-                                           pPacket->descriptorSetCount, pRemappedSets, pPacket->dynamicOffsetCount,
-                                           pPacket->pDynamicOffsets);
+    m_vkDeviceFuncs.CmdBindDescriptorSets(remappedCommandBuffer, pPacket->pipelineBindPoint, remappedLayout, pPacket->firstSet,
+                                          pPacket->descriptorSetCount, pRemappedSets, pPacket->dynamicOffsetCount,
+                                          pPacket->pDynamicOffsets);
     vktrace_free(pRemappedSets);
     return;
 }
@@ -1278,8 +1263,8 @@ void vkReplay::manually_replay_vkCmdBindVertexBuffers(packet_vkCmdBindVertexBuff
             }
         }
     }
-    m_vkFuncs.real_vkCmdBindVertexBuffers(remappedCommandBuffer, pPacket->firstBinding, pPacket->bindingCount, pPacket->pBuffers,
-                                          pPacket->pOffsets);
+    m_vkDeviceFuncs.CmdBindVertexBuffers(remappedCommandBuffer, pPacket->firstBinding, pPacket->bindingCount, pPacket->pBuffers,
+                                         pPacket->pOffsets);
     for (uint32_t k = 0; k < i; k++) {
         VkBuffer *pBuff = (VkBuffer *)&(pPacket->pBuffers[k]);
         *pBuff = pSaveBuff[k];
@@ -1304,11 +1289,11 @@ VkResult vkReplay::manually_replay_vkGetPipelineCacheData(packet_vkGetPipelineCa
     }
 
     // Since the returned data size may not be equal to size of the buffer in the trace packet allocate a local buffer as needed
-    replayResult = m_vkFuncs.real_vkGetPipelineCacheData(remappeddevice, remappedpipelineCache, &dataSize, NULL);
+    replayResult = m_vkDeviceFuncs.GetPipelineCacheData(remappeddevice, remappedpipelineCache, &dataSize, NULL);
     if (replayResult != VK_SUCCESS) return replayResult;
     if (pPacket->pData) {
         uint8_t *pData = VKTRACE_NEW_ARRAY(uint8_t, dataSize);
-        replayResult = m_vkFuncs.real_vkGetPipelineCacheData(remappeddevice, remappedpipelineCache, &dataSize, pData);
+        replayResult = m_vkDeviceFuncs.GetPipelineCacheData(remappeddevice, remappedpipelineCache, &dataSize, pData);
         VKTRACE_DELETE(pData);
     }
     return replayResult;
@@ -1331,6 +1316,8 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
 
     // Fix up stage sub-elements
     for (i = 0; i < pPacket->createInfoCount; i++) {
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);
+
         pLocalCIs[i].stage.module = m_objMapper.remap_shadermodules(pLocalCIs[i].stage.module);
 
         if (pLocalCIs[i].stage.pName)
@@ -1357,8 +1344,8 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
 
     VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
 
-    replayResult = m_vkFuncs.real_vkCreateComputePipelines(remappeddevice, pipelineCache, pPacket->createInfoCount, pLocalCIs, NULL,
-                                                           local_pPipelines);
+    replayResult = m_vkDeviceFuncs.CreateComputePipelines(remappeddevice, pipelineCache, pPacket->createInfoCount, pLocalCIs, NULL,
+                                                          local_pPipelines);
 
     if (replayResult == VK_SUCCESS) {
         for (i = 0; i < pPacket->createInfoCount; i++) {
@@ -1376,7 +1363,6 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
 
 VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGraphicsPipelines *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateGraphicsPipelines() due to invalid remapped VkDevice.");
@@ -1409,6 +1395,19 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
                 return VK_ERROR_VALIDATION_FAILED_EXT;
             }
         }
+
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pStages);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pVertexInputState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pInputAssemblyState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pTessellationState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pViewportState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pRasterizationState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pMultisampleState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDepthStencilState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pColorBlendState);
+        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDynamicState);
+
         VkPipelineShaderStageCreateInfo **ppSSCI = (VkPipelineShaderStageCreateInfo **)&(pLocalCIs[i].pStages);
         *ppSSCI = pRemappedStages;
 
@@ -1472,8 +1471,8 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
     uint32_t createInfoCount = pPacket->createInfoCount;
     VkPipeline *local_pPipelines = VKTRACE_NEW_ARRAY(VkPipeline, pPacket->createInfoCount);
 
-    replayResult = m_vkFuncs.real_vkCreateGraphicsPipelines(remappedDevice, remappedPipelineCache, createInfoCount, pLocalCIs, NULL,
-                                                            local_pPipelines);
+    replayResult = m_vkDeviceFuncs.CreateGraphicsPipelines(remappedDevice, remappedPipelineCache, createInfoCount, pLocalCIs, NULL,
+                                                           local_pPipelines);
 
     if (replayResult == VK_SUCCESS) {
         for (i = 0; i < pPacket->createInfoCount; i++) {
@@ -1515,7 +1514,7 @@ VkResult vkReplay::manually_replay_vkCreatePipelineLayout(packet_vkCreatePipelin
         *pSL = m_objMapper.remap_descriptorsetlayouts(pPacket->pCreateInfo->pSetLayouts[i]);
     }
     VkPipelineLayout localPipelineLayout;
-    replayResult = m_vkFuncs.real_vkCreatePipelineLayout(remappedDevice, pPacket->pCreateInfo, NULL, &localPipelineLayout);
+    replayResult = m_vkDeviceFuncs.CreatePipelineLayout(remappedDevice, pPacket->pCreateInfo, NULL, &localPipelineLayout);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_pipelinelayouts_map(*(pPacket->pPipelineLayout), localPipelineLayout);
     }
@@ -1605,10 +1604,10 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents *pPacket) 
             return;
         }
     }
-    m_vkFuncs.real_vkCmdWaitEvents(remappedCommandBuffer, pPacket->eventCount, pPacket->pEvents, pPacket->srcStageMask,
-                                   pPacket->dstStageMask, pPacket->memoryBarrierCount, pPacket->pMemoryBarriers,
-                                   pPacket->bufferMemoryBarrierCount, pPacket->pBufferMemoryBarriers,
-                                   pPacket->imageMemoryBarrierCount, pPacket->pImageMemoryBarriers);
+    m_vkDeviceFuncs.CmdWaitEvents(remappedCommandBuffer, pPacket->eventCount, pPacket->pEvents, pPacket->srcStageMask,
+                                  pPacket->dstStageMask, pPacket->memoryBarrierCount, pPacket->pMemoryBarriers,
+                                  pPacket->bufferMemoryBarrierCount, pPacket->pBufferMemoryBarriers,
+                                  pPacket->imageMemoryBarrierCount, pPacket->pImageMemoryBarriers);
 
     for (idx = 0; idx < pPacket->bufferMemoryBarrierCount; idx++) {
         VkBufferMemoryBarrier *pNextBuf = (VkBufferMemoryBarrier *)&(pPacket->pBufferMemoryBarriers[idx]);
@@ -1690,10 +1689,10 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier 
             return;
         }
     }
-    m_vkFuncs.real_vkCmdPipelineBarrier(remappedCommandBuffer, pPacket->srcStageMask, pPacket->dstStageMask,
-                                        pPacket->dependencyFlags, pPacket->memoryBarrierCount, pPacket->pMemoryBarriers,
-                                        pPacket->bufferMemoryBarrierCount, pPacket->pBufferMemoryBarriers,
-                                        pPacket->imageMemoryBarrierCount, pPacket->pImageMemoryBarriers);
+    m_vkDeviceFuncs.CmdPipelineBarrier(remappedCommandBuffer, pPacket->srcStageMask, pPacket->dstStageMask,
+                                       pPacket->dependencyFlags, pPacket->memoryBarrierCount, pPacket->pMemoryBarriers,
+                                       pPacket->bufferMemoryBarrierCount, pPacket->pBufferMemoryBarriers,
+                                       pPacket->imageMemoryBarrierCount, pPacket->pImageMemoryBarriers);
 
     for (idx = 0; idx < pPacket->bufferMemoryBarrierCount; idx++) {
         VkBufferMemoryBarrier *pNextBuf = (VkBufferMemoryBarrier *)&(pPacket->pBufferMemoryBarriers[idx]);
@@ -1710,7 +1709,6 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier 
 
 VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffer *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateFramebuffer() due to invalid remapped VkDevice.");
@@ -1745,7 +1743,7 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
     }
 
     VkFramebuffer local_framebuffer;
-    replayResult = m_vkFuncs.real_vkCreateFramebuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_framebuffer);
+    replayResult = m_vkDeviceFuncs.CreateFramebuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_framebuffer);
     pInfo->pAttachments = pSavedAttachments;
     pInfo->renderPass = savedRP;
     if (replayResult == VK_SUCCESS) {
@@ -1759,7 +1757,6 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
 
 VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateRenderPass() due to invalid remapped VkDevice.");
@@ -1767,7 +1764,7 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass 
     }
 
     VkRenderPass local_renderpass;
-    replayResult = m_vkFuncs.real_vkCreateRenderPass(remappedDevice, pPacket->pCreateInfo, NULL, &local_renderpass);
+    replayResult = m_vkDeviceFuncs.CreateRenderPass(remappedDevice, pPacket->pCreateInfo, NULL, &local_renderpass);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_renderpasss_map(*(pPacket->pRenderPass), local_renderpass);
     }
@@ -1776,10 +1773,12 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass 
 
 void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass *pPacket) {
     VkCommandBuffer remappedCommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
+
     if (remappedCommandBuffer == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCmdBeginRenderPass() due to invalid remapped VkCommandBuffer.");
         return;
     }
+
     VkRenderPassBeginInfo local_renderPassBeginInfo;
     memcpy((void *)&local_renderPassBeginInfo, (void *)pPacket->pRenderPassBegin, sizeof(VkRenderPassBeginInfo));
     local_renderPassBeginInfo.pClearValues = (const VkClearValue *)pPacket->pRenderPassBegin->pClearValues;
@@ -1793,13 +1792,12 @@ void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass 
         vktrace_LogError("Skipping vkCmdBeginRenderPass() due to invalid remapped VkRenderPass.");
         return;
     }
-    m_vkFuncs.real_vkCmdBeginRenderPass(remappedCommandBuffer, &local_renderPassBeginInfo, pPacket->contents);
+    m_vkDeviceFuncs.CmdBeginRenderPass(remappedCommandBuffer, &local_renderPassBeginInfo, pPacket->contents);
     return;
 }
 
 VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuffer *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-
     VkCommandBuffer remappedCommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
     if (remappedCommandBuffer == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkBeginCommandBuffer() due to invalid remapped VkCommandBuffer.");
@@ -1819,7 +1817,7 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
         *pRP = m_objMapper.remap_renderpasss(savedRP);
         *pFB = m_objMapper.remap_framebuffers(savedFB);
     }
-    replayResult = m_vkFuncs.real_vkBeginCommandBuffer(remappedCommandBuffer, pPacket->pBeginInfo);
+    replayResult = m_vkDeviceFuncs.BeginCommandBuffer(remappedCommandBuffer, pPacket->pBeginInfo);
     if (pInfo != NULL && pHinfo != NULL) {
         pHinfo->renderPass = savedRP;
         pHinfo->framebuffer = savedFB;
@@ -1847,14 +1845,14 @@ VkResult vkReplay::manually_replay_vkWaitForFences(packet_vkWaitForFences *pPack
         }
     }
     if (pPacket->result == VK_SUCCESS) {
-        replayResult = m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll,
-                                                      UINT64_MAX);  // mean as long as possible
+        replayResult = m_vkDeviceFuncs.WaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll,
+                                                     UINT64_MAX);  // mean as long as possible
     } else {
         if (pPacket->result == VK_TIMEOUT) {
-            replayResult = m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, 0);
+            replayResult = m_vkDeviceFuncs.WaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, 0);
         } else {
             replayResult =
-                m_vkFuncs.real_vkWaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, pPacket->timeout);
+                m_vkDeviceFuncs.WaitForFences(remappedDevice, pPacket->fenceCount, pFence, pPacket->waitAll, pPacket->timeout);
         }
     }
     VKTRACE_DELETE(pFence);
@@ -1961,14 +1959,18 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    if (pPacket->pAllocateInfo->pNext) {
-        VkDedicatedAllocationMemoryAllocateInfoNV *x = (VkDedicatedAllocationMemoryAllocateInfoNV *)(pPacket->pAllocateInfo->pNext);
-
-        if (x->sType == VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV) {
-            x->image = m_objMapper.remap_images(x->image);
-            x->buffer = m_objMapper.remap_buffers(x->buffer);
-            if (!(x->image == VK_NULL_HANDLE || x->buffer == VK_NULL_HANDLE))
-                vktrace_LogError("Invalid handle in vkAllocateMemory pAllocate->pNext structure.");
+    if (pPacket->pAllocateInfo) {
+        const void *pNext = pPacket->pAllocateInfo->pNext;
+        while (pNext) {
+            VkDedicatedAllocationMemoryAllocateInfoNV *x =
+                (VkDedicatedAllocationMemoryAllocateInfoNV *)(pPacket->pAllocateInfo->pNext);
+            if (x->sType == VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV) {
+                x->image = m_objMapper.remap_images(x->image);
+                x->buffer = m_objMapper.remap_buffers(x->buffer);
+                if (!(x->image == VK_NULL_HANDLE || x->buffer == VK_NULL_HANDLE))
+                    vktrace_LogError("Invalid handle in vkAllocateMemory pAllocate->pNext structure.");
+            }
+            pNext = x->pNext;
         }
     }
 
@@ -2123,13 +2125,13 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         // Call GIMR/GBMR for the replay image/buffer
         if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory) {
             if (replayGetImageMemoryRequirements.find(remappedImage) == replayGetImageMemoryRequirements.end()) {
-                m_vkFuncs.real_vkGetImageMemoryRequirements(remappedDevice, remappedImage, &memRequirements);
+                m_vkDeviceFuncs.GetImageMemoryRequirements(remappedDevice, remappedImage, &memRequirements);
                 replayGetImageMemoryRequirements[remappedImage] = memRequirements;
             }
             memRequirements = replayGetImageMemoryRequirements[remappedImage];
         } else {
             if (replayGetBufferMemoryRequirements.find((VkBuffer)remappedImage) == replayGetBufferMemoryRequirements.end()) {
-                m_vkFuncs.real_vkGetBufferMemoryRequirements(remappedDevice, (VkBuffer)remappedImage, &memRequirements);
+                m_vkDeviceFuncs.GetBufferMemoryRequirements(remappedDevice, (VkBuffer)remappedImage, &memRequirements);
                 replayGetBufferMemoryRequirements[(VkBuffer)remappedImage] = memRequirements;
             }
             memRequirements = replayGetBufferMemoryRequirements[(VkBuffer)remappedImage];
@@ -2171,7 +2173,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
 wrapItUp:
 
     if (doAllocate) {
-        replayResult = m_vkFuncs.real_vkAllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory);
+        replayResult = m_vkDeviceFuncs.AllocateMemory(remappedDevice, pPacket->pAllocateInfo, NULL, &local_mem.replayDeviceMemory);
     }
 
     if (saveFilePos) {
@@ -2202,7 +2204,7 @@ void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory *pPacket) {
     devicememoryObj local_mem;
     local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
     // TODO how/when to free pendingAlloc that did not use and existing devicememoryObj
-    m_vkFuncs.real_vkFreeMemory(remappedDevice, local_mem.replayDeviceMemory, NULL);
+    m_vkDeviceFuncs.FreeMemory(remappedDevice, local_mem.replayDeviceMemory, NULL);
     delete local_mem.pGpuMem;
     m_objMapper.rm_from_devicememorys_map(pPacket->memory);
 }
@@ -2219,8 +2221,8 @@ VkResult vkReplay::manually_replay_vkMapMemory(packet_vkMapMemory *pPacket) {
     devicememoryObj local_mem = m_objMapper.m_devicememorys.find(pPacket->memory)->second;
     void *pData;
     if (!local_mem.pGpuMem->isPendingAlloc()) {
-        replayResult = m_vkFuncs.real_vkMapMemory(remappedDevice, local_mem.replayDeviceMemory, pPacket->offset, pPacket->size,
-                                                  pPacket->flags, &pData);
+        replayResult = m_vkDeviceFuncs.MapMemory(remappedDevice, local_mem.replayDeviceMemory, pPacket->offset, pPacket->size,
+                                                 pPacket->flags, &pData);
         if (replayResult == VK_SUCCESS) {
             if (local_mem.pGpuMem) {
                 local_mem.pGpuMem->setMemoryMapRange(pData, (size_t)pPacket->size, (size_t)pPacket->offset, false);
@@ -2247,7 +2249,7 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory *pPacket) {
             if (pPacket->pData)
                 local_mem.pGpuMem->copyMappingData(pPacket->pData, true, 0, 0);  // copies data from packet into memory buffer
         }
-        m_vkFuncs.real_vkUnmapMemory(remappedDevice, local_mem.replayDeviceMemory);
+        m_vkDeviceFuncs.UnmapMemory(remappedDevice, local_mem.replayDeviceMemory);
     } else {
         if (local_mem.pGpuMem) {
             unsigned char *pBuf = (unsigned char *)vktrace_malloc(local_mem.pGpuMem->getMemoryMapSize());
@@ -2334,7 +2336,7 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
     if (!vktrace_check_min_version(VKTRACE_TRACE_FILE_VERSION_5) || !isvkFlushMappedMemoryRangesSpecial((PBYTE)pPacket->ppData[0]))
 #endif
     {
-        replayResult = m_vkFuncs.real_vkFlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
+        replayResult = m_vkDeviceFuncs.FlushMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
     }
 
     VKTRACE_DELETE(localRanges);
@@ -2384,7 +2386,7 @@ VkResult vkReplay::manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInval
         }
     }
 
-    replayResult = m_vkFuncs.real_vkInvalidateMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
+    replayResult = m_vkDeviceFuncs.InvalidateMappedMemoryRanges(remappedDevice, pPacket->memoryRangeCount, localRanges);
 
     VKTRACE_DELETE(localRanges);
     VKTRACE_DELETE(pLocalMems);
@@ -2398,7 +2400,7 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceProperties(packet_vkGetPhysica
         vktrace_LogError("Error detected in GetPhysicalDeviceProperties() due to invalid remapped VkPhysicalDevice.");
         return;
     }
-    m_vkFuncs.real_vkGetPhysicalDeviceProperties(remappedphysicalDevice, pPacket->pProperties);
+    m_vkFuncs.GetPhysicalDeviceProperties(remappedphysicalDevice, pPacket->pProperties);
     m_replay_gpu = ((uint64_t)pPacket->pProperties->vendorID << 32) | (uint64_t)pPacket->pProperties->deviceID;
     m_replay_drv_vers = (uint64_t)pPacket->pProperties->driverVersion;
 }
@@ -2418,8 +2420,8 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_v
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                       remappedSurfaceKHR, pPacket->pSupported);
+    replayResult = m_vkFuncs.GetPhysicalDeviceSurfaceSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                remappedSurfaceKHR, pPacket->pSupported);
 
     return replayResult;
 }
@@ -2432,7 +2434,7 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceMemoryProperties(packet_vkGetP
     }
 
     traceMemoryProperties[pPacket->physicalDevice] = *(pPacket->pMemoryProperties);
-    m_vkFuncs.real_vkGetPhysicalDeviceMemoryProperties(remappedphysicalDevice, pPacket->pMemoryProperties);
+    m_vkFuncs.GetPhysicalDeviceMemoryProperties(remappedphysicalDevice, pPacket->pMemoryProperties);
     replayMemoryProperties[remappedphysicalDevice] = *(pPacket->pMemoryProperties);
     return;
 }
@@ -2477,8 +2479,8 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceQueueFamilyProperties(packet_v
         }
     }
 
-    m_vkFuncs.real_vkGetPhysicalDeviceQueueFamilyProperties(remappedphysicalDevice, pPacket->pQueueFamilyPropertyCount,
-                                                            pPacket->pQueueFamilyProperties);
+    m_vkFuncs.GetPhysicalDeviceQueueFamilyProperties(remappedphysicalDevice, pPacket->pQueueFamilyPropertyCount,
+                                                     pPacket->pQueueFamilyProperties);
 
     // If we haven't previously allocated queueFamilyProperties for the replay physical device, allocate it.
     // If we previously allocated queueFamilyProperities for the replay physical device and the size of this
@@ -2536,9 +2538,9 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties(
         }
     }
 
-    m_vkFuncs.real_vkGetPhysicalDeviceSparseImageFormatProperties(remappedphysicalDevice, pPacket->format, pPacket->type,
-                                                                  pPacket->samples, pPacket->usage, pPacket->tiling,
-                                                                  pPacket->pPropertyCount, pPacket->pProperties);
+    m_vkFuncs.GetPhysicalDeviceSparseImageFormatProperties(remappedphysicalDevice, pPacket->format, pPacket->type, pPacket->samples,
+                                                           pPacket->usage, pPacket->tiling, pPacket->pPropertyCount,
+                                                           pPacket->pProperties);
 
     if (!pPacket->pProperties) {
         // This was a query to determine size. Save the returned size so we can use that size next time
@@ -2582,16 +2584,16 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
             // be done in many apps.  Call vkGetBufferMemoryRequirements for this buffer and add result to
             // replayGetBufferMemoryRequirements map.
             VkMemoryRequirements mem_reqs;
-            m_vkFuncs.real_vkGetBufferMemoryRequirements(remappeddevice, remappedbuffer, &mem_reqs);
+            m_vkDeviceFuncs.GetBufferMemoryRequirements(remappeddevice, remappedbuffer, &mem_reqs);
             replayGetBufferMemoryRequirements[remappedbuffer] = mem_reqs;
         }
         assert(replayGetBufferMemoryRequirements[remappedbuffer].alignment);
         memOffsetTemp = pPacket->memoryOffset + replayGetBufferMemoryRequirements[remappedbuffer].alignment - 1;
         memOffsetTemp = memOffsetTemp / replayGetBufferMemoryRequirements[remappedbuffer].alignment;
         memOffsetTemp = memOffsetTemp * replayGetBufferMemoryRequirements[remappedbuffer].alignment;
-        replayResult = m_vkFuncs.real_vkBindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, memOffsetTemp);
+        replayResult = m_vkDeviceFuncs.BindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, memOffsetTemp);
     } else {
-        replayResult = m_vkFuncs.real_vkBindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, pPacket->memoryOffset);
+        replayResult = m_vkDeviceFuncs.BindBufferMemory(remappeddevice, remappedbuffer, remappedmemory, pPacket->memoryOffset);
     }
     return replayResult;
 }
@@ -2609,7 +2611,7 @@ void vkReplay::manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMem
         return;
     }
 
-    m_vkFuncs.real_vkGetImageMemoryRequirements(remappedDevice, remappedImage, pPacket->pMemoryRequirements);
+    m_vkDeviceFuncs.GetImageMemoryRequirements(remappedDevice, remappedImage, pPacket->pMemoryRequirements);
     replayGetImageMemoryRequirements[remappedImage] = *(pPacket->pMemoryRequirements);
     return;
 }
@@ -2627,7 +2629,7 @@ void vkReplay::manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferM
         return;
     }
 
-    m_vkFuncs.real_vkGetBufferMemoryRequirements(remappedDevice, remappedBuffer, pPacket->pMemoryRequirements);
+    m_vkDeviceFuncs.GetBufferMemoryRequirements(remappedDevice, remappedBuffer, pPacket->pMemoryRequirements);
     replayGetBufferMemoryRequirements[remappedBuffer] = *(pPacket->pMemoryRequirements);
     return;
 }
@@ -2651,8 +2653,8 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     m_display->resize_window(pPacket->pSurfaceCapabilities->currentExtent.width,
                              pPacket->pSurfaceCapabilities->currentExtent.height);
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(remappedphysicalDevice, remappedSurfaceKHR,
-                                                                            pPacket->pSurfaceCapabilities);
+    replayResult = m_vkFuncs.GetPhysicalDeviceSurfaceCapabilitiesKHR(remappedphysicalDevice, remappedSurfaceKHR,
+                                                                     pPacket->pSurfaceCapabilities);
     return replayResult;
 }
 
@@ -2684,8 +2686,8 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceFormatsKHR(packet_v
         }
     }
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfaceFormatsKHR(remappedphysicalDevice, remappedSurfaceKHR,
-                                                                       pPacket->pSurfaceFormatCount, pPacket->pSurfaceFormats);
+    replayResult = m_vkFuncs.GetPhysicalDeviceSurfaceFormatsKHR(remappedphysicalDevice, remappedSurfaceKHR,
+                                                                pPacket->pSurfaceFormatCount, pPacket->pSurfaceFormats);
 
     if (!pPacket->pSurfaceFormats) {
         // This was a query to determine size. Save the returned size so we can use that size next time
@@ -2732,8 +2734,8 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(
         }
     }
 
-    replayResult = m_vkFuncs.real_vkGetPhysicalDeviceSurfacePresentModesKHR(remappedphysicalDevice, remappedSurfaceKHR,
-                                                                            pPacket->pPresentModeCount, pPacket->pPresentModes);
+    replayResult = m_vkFuncs.GetPhysicalDeviceSurfacePresentModesKHR(remappedphysicalDevice, remappedSurfaceKHR,
+                                                                     pPacket->pPresentModeCount, pPacket->pPresentModes);
 
     if (!pPacket->pPresentModes) {
         // This was a query to determine size. Save the returned size so we can use that size next time
@@ -2825,8 +2827,7 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     }
     free(surfFormats);
 
-    replayResult =
-        m_vkFuncs.real_vkCreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
+    replayResult = m_vkDeviceFuncs.CreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_swapchainkhrs_map(*(pPacket->pSwapchain), local_pSwapchain);
     }
@@ -2856,7 +2857,7 @@ void vkReplay::manually_replay_vkDestroySwapchainKHR(packet_vkDestroySwapchainKH
         traceSwapchainToImages[pPacket->swapchain].pop_back();
     }
 
-    m_vkFuncs.real_vkDestroySwapchainKHR(remappeddevice, remappedswapchain, pPacket->pAllocator);
+    m_vkDeviceFuncs.DestroySwapchainKHR(remappeddevice, remappedswapchain, pPacket->pAllocator);
     m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);
 }
 
@@ -2887,8 +2888,8 @@ VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchain
         }
     }
 
-    replayResult = m_vkFuncs.real_vkGetSwapchainImagesKHR(remappeddevice, remappedswapchain, pPacket->pSwapchainImageCount,
-                                                          pPacket->pSwapchainImages);
+    replayResult = m_vkDeviceFuncs.GetSwapchainImagesKHR(remappeddevice, remappedswapchain, pPacket->pSwapchainImageCount,
+                                                         pPacket->pSwapchainImages);
     if (replayResult == VK_SUCCESS) {
         if (numImages != 0) {
             VkImage *pReplayImages = (VkImage *)pPacket->pSwapchainImages;
@@ -2988,7 +2989,7 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR *p
             present.pResults = pResults;
         }
 
-        replayResult = m_vkFuncs.real_vkQueuePresentKHR(remappedQueue, &present);
+        replayResult = m_vkDeviceFuncs.QueuePresentKHR(remappedQueue, &present);
 
         m_frameNumber++;
 
@@ -3038,7 +3039,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined VK_USE_PLATFORM_XLIB_KHR && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
     VkXlibSurfaceCreateInfoKHR createInfo;
@@ -3047,7 +3048,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.dpy = pSurf->dpy;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXlibSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXlibSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined VK_USE_PLATFORM_WAYLAND_KHR && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
     VkWaylandSurfaceCreateInfoKHR createInfo;
@@ -3056,7 +3057,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.display = pSurf->display;
     createInfo.surface = pSurf->surface;
-    replayResult = m_vkFuncs.real_vkCreateWaylandSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWaylandSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #endif
 #elif defined WIN32
     VkIcdSurfaceWin32 *pSurf = (VkIcdSurfaceWin32 *)m_display->get_surface();
@@ -3066,7 +3067,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #else
     vktrace_LogError("manually_replay_vkCreateXcbSurfaceKHR not implemented on this vkreplay platform");
     replayResult = VK_ERROR_FEATURE_NOT_PRESENT;
@@ -3095,7 +3096,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.dpy = pSurf->dpy;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXlibSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXlibSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_XCB_KHR && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
     VkXcbSurfaceCreateInfoKHR createInfo;
@@ -3104,7 +3105,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXcbSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_WAYLAND_KHR && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
     VkWaylandSurfaceCreateInfoKHR createInfo;
@@ -3113,7 +3114,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.display = pSurf->display;
     createInfo.surface = pSurf->surface;
-    replayResult = m_vkFuncs.real_vkCreateWaylandSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWaylandSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
 // TODO
 #elif defined PLATFORM_LINUX
@@ -3126,7 +3127,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #else
     vktrace_LogError("manually_replay_vkCreateXlibSurfaceKHR not implemented on this playback platform");
     replayResult = VK_ERROR_FEATURE_NOT_PRESENT;
@@ -3154,7 +3155,7 @@ VkResult vkReplay::manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWayl
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.display = pSurf->display;
     createInfo.surface = pSurf->surface;
-    replayResult = m_vkFuncs.real_vkCreateWaylandSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWaylandSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_XCB_KHR && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
     VkXcbSurfaceCreateInfoKHR createInfo;
@@ -3163,7 +3164,7 @@ VkResult vkReplay::manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWayl
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXcbSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_XLIB_KHR && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
     VkXlibSurfaceCreateInfoKHR createInfo;
@@ -3172,7 +3173,7 @@ VkResult vkReplay::manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWayl
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.dpy = pSurf->dpy;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXlibSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXlibSurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
 // TODO
 #elif defined PLATFORM_LINUX
@@ -3185,7 +3186,7 @@ VkResult vkReplay::manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWayl
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #else
     vktrace_LogError("manually_replay_vkCreateWaylandSurfaceKHR not implemented on this playback platform");
     replayResult = VK_ERROR_FEATURE_NOT_PRESENT;
@@ -3213,7 +3214,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined(PLATFORM_LINUX) && !defined(ANDROID)
 #if defined VK_USE_PLATFORM_XCB_KHR && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
@@ -3223,7 +3224,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined VK_USE_PLATFORM_XLIB_KHR && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
     VkXlibSurfaceCreateInfoKHR createInfo;
@@ -3232,7 +3233,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.dpy = pSurf->dpy;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXlibSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXlibSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined VK_USE_PLATFORM_WAYLAND_KHR && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
     VkWaylandSurfaceCreateInfoKHR createInfo;
@@ -3241,7 +3242,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.display = pSurf->display;
     createInfo.surface = pSurf->surface;
-    replayResult = m_vkFuncs.real_vkCreateWaylandSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWaylandSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #endif
 #else
     vktrace_LogError("manually_replay_vkCreateWin32SurfaceKHR not implemented on this playback platform");
@@ -3270,7 +3271,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
-    replayResult = m_vkFuncs.real_vkCreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined(PLATFORM_LINUX)
 #if !defined(ANDROID)
 #if defined VK_USE_PLATFORM_XCB_KHR && defined VKREPLAY_USE_WSI_XCB
@@ -3281,7 +3282,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.connection = pSurf->connection;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXcbSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined VK_USE_PLATFORM_XLIB_KHR && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
     VkXlibSurfaceCreateInfoKHR createInfo;
@@ -3290,7 +3291,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.dpy = pSurf->dpy;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateXlibSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateXlibSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #elif defined VK_USE_PLATFORM_WAYLAND_KHR && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
     VkWaylandSurfaceCreateInfoKHR createInfo;
@@ -3299,7 +3300,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.display = pSurf->display;
     createInfo.surface = pSurf->surface;
-    replayResult = m_vkFuncs.real_vkCreateWaylandSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateWaylandSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #endif
 #else
     VkIcdSurfaceAndroid *pSurf = (VkIcdSurfaceAndroid *)m_display->get_surface();
@@ -3308,7 +3309,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.pNext = pPacket->pCreateInfo->pNext;
     createInfo.flags = pPacket->pCreateInfo->flags;
     createInfo.window = pSurf->window;
-    replayResult = m_vkFuncs.real_vkCreateAndroidSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
+    replayResult = m_vkFuncs.CreateAndroidSurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
 #endif  // ANDROID
 #else
     vktrace_LogError("manually_replay_vkCreateAndroidSurfaceKHR not implemented on this playback platform");
@@ -3329,7 +3330,7 @@ VkResult vkReplay::manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreat
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    if (!g_fpDbgMsgCallback || !m_vkFuncs.real_vkCreateDebugReportCallbackEXT) {
+    if (!g_fpDbgMsgCallback || !m_vkFuncs.CreateDebugReportCallbackEXT) {
         // just eat this call as we don't have local call back function defined
         return VK_SUCCESS;
     } else {
@@ -3339,7 +3340,7 @@ VkResult vkReplay::manually_replay_vkCreateDebugReportCallbackEXT(packet_vkCreat
         dbgCreateInfo.flags = pPacket->pCreateInfo->flags;
         dbgCreateInfo.pfnCallback = g_fpDbgMsgCallback;
         dbgCreateInfo.pUserData = NULL;
-        replayResult = m_vkFuncs.real_vkCreateDebugReportCallbackEXT(remappedInstance, &dbgCreateInfo, NULL, &local_msgCallback);
+        replayResult = m_vkFuncs.CreateDebugReportCallbackEXT(remappedInstance, &dbgCreateInfo, NULL, &local_msgCallback);
         if (replayResult == VK_SUCCESS) {
             m_objMapper.add_to_debugreportcallbackexts_map(*(pPacket->pCallback), local_msgCallback);
         }
@@ -3365,7 +3366,7 @@ void vkReplay::manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyD
         // just eat this call as we don't have local call back function defined
         return;
     } else {
-        m_vkFuncs.real_vkDestroyDebugReportCallbackEXT(remappedInstance, remappedMsgCallback, NULL);
+        m_vkFuncs.DestroyDebugReportCallbackEXT(remappedInstance, remappedMsgCallback, NULL);
     }
 }
 
@@ -3387,7 +3388,7 @@ VkResult vkReplay::manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCom
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    replayResult = m_vkFuncs.real_vkAllocateCommandBuffers(remappedDevice, pPacket->pAllocateInfo, local_pCommandBuffers);
+    replayResult = m_vkDeviceFuncs.AllocateCommandBuffers(remappedDevice, pPacket->pAllocateInfo, local_pCommandBuffers);
     ((VkCommandBufferAllocateInfo *)pPacket->pAllocateInfo)->commandPool = local_CommandPool;
 
     if (replayResult == VK_SUCCESS) {
@@ -3410,23 +3411,23 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(
 
 #if defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXcbPresentationSupportKHR(
-        remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->connection, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXcbPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                 pSurf->connection, m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                         pSurf->dpy, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->dpy,
+                                                                  m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                            pSurf->display));
+    return (m_vkFuncs.GetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                     pSurf->display));
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
     // This is not defined for anndroid
     return VK_TRUE;
 #elif defined PLATFORM_LINUX
 #error manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR on PLATFORM_LINUX requires one of VKREPLAY_USE_WSI_XCB or VKREPLAY_USE_WSI_XLIB or VKREPLAY_USE_WSI_WAYLAND or VK_USE_PLATFORM_ANDROID_KHR
 #elif defined WIN32
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
+    return (m_vkFuncs.GetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
 #else
     vktrace_LogError("manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR not implemented on this playback platform");
     return VK_FALSE;
@@ -3444,23 +3445,23 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR
 
 #if defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXcbPresentationSupportKHR(
-        remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->connection, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXcbPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                 pSurf->connection, m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                         pSurf->dpy, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->dpy,
+                                                                  m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                            pSurf->display));
+    return (m_vkFuncs.GetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                     pSurf->display));
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
     // This is not defined for Android
     return VK_TRUE;
 #elif defined PLATFORM_LINUX
 #error manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR on PLATFORM_LINUX requires one of VKREPLAY_USE_WSI_XCB or VKREPLAY_USE_WSI_XLIB or VKREPLAY_USE_WSI_WAYLAND or VK_USE_PLATFORM_ANDROID_KHR
 #elif defined WIN32
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
+    return (m_vkFuncs.GetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
 #else
     vktrace_LogError("manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR not implemented on this playback platform");
     return VK_FALSE;
@@ -3478,23 +3479,23 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceWaylandPresentationSupport
 
 #if defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXcbPresentationSupportKHR(
-        remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->connection, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXcbPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                 pSurf->connection, m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                         pSurf->dpy, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->dpy,
+                                                                  m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                            pSurf->display));
+    return (m_vkFuncs.GetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                     pSurf->display));
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
     // This is not defined for Android
     return VK_TRUE;
 #elif defined PLATFORM_LINUX
 #error manually_replay_vkGetPhysicalDeviceWaylandPresentationSupportKHR on PLATFORM_LINUX requires one of VKREPLAY_USE_WSI_XCB or VKREPLAY_USE_WSI_XLIB or VKREPLAY_USE_WSI_WAYLAND or VK_USE_PLATFORM_ANDROID_KHR
 #elif defined WIN32
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
+    return (m_vkFuncs.GetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
 #else
     vktrace_LogError("manually_replay_vkGetPhysicalDeviceWaylandPresentationSupportKHR not implemented on this playback platform");
     return VK_FALSE;
@@ -3509,19 +3510,19 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceWin32PresentationSupportKH
     }
 
 #if defined WIN32
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
+    return (m_vkFuncs.GetPhysicalDeviceWin32PresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXcbPresentationSupportKHR(
-        remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->connection, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXcbPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                 pSurf->connection, m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_XLIB
     VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                         pSurf->dpy, m_display->get_screen_handle()->root_visual));
+    return (m_vkFuncs.GetPhysicalDeviceXlibPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex, pSurf->dpy,
+                                                                  m_display->get_screen_handle()->root_visual));
 #elif defined PLATFORM_LINUX && defined VKREPLAY_USE_WSI_WAYLAND
     VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
-    return (m_vkFuncs.real_vkGetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
-                                                                            pSurf->display));
+    return (m_vkFuncs.GetPhysicalDeviceWaylandPresentationSupportKHR(remappedphysicalDevice, pPacket->queueFamilyIndex,
+                                                                     pSurf->display));
 #elif defined PLATFORM_LINUX && defined VK_USE_PLATFORM_ANDROID_KHR
     // This is not defined for Android
     return VK_TRUE;
@@ -3552,8 +3553,8 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vk
     *((VkDescriptorSetLayout *)&pPacket->pCreateInfo->descriptorSetLayout) =
         m_objMapper.remap_descriptorsetlayouts(pPacket->pCreateInfo->descriptorSetLayout);
 
-    replayResult = m_vkFuncs.real_vkCreateDescriptorUpdateTemplateKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
-                                                                      &local_pDescriptorUpdateTemplate);
+    replayResult = m_vkDeviceFuncs.CreateDescriptorUpdateTemplateKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
+                                                                     &local_pDescriptorUpdateTemplate);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_descriptorupdatetemplatekhrs_map(*(pPacket->pDescriptorUpdateTemplate), local_pDescriptorUpdateTemplate);
         descriptorUpdateTemplateCreateInfo[local_pDescriptorUpdateTemplate] =
@@ -3583,7 +3584,7 @@ void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDes
             "Error detected in DestroyDescriptorUpdateTemplateKHR() due to invalid remapped VkDescriptorUpdateTemplateKHR.");
         return;
     }
-    m_vkFuncs.real_vkDestroyDescriptorUpdateTemplateKHR(remappeddevice, remappedDescriptorUpdateTemplate, pPacket->pAllocator);
+    m_vkDeviceFuncs.DestroyDescriptorUpdateTemplateKHR(remappeddevice, remappedDescriptorUpdateTemplate, pPacket->pAllocator);
     m_objMapper.rm_from_descriptorupdatetemplatekhrs_map(pPacket->descriptorUpdateTemplate);
 
     if (descriptorUpdateTemplateCreateInfo.find(remappedDescriptorUpdateTemplate) != descriptorUpdateTemplateCreateInfo.end()) {
@@ -3609,13 +3610,21 @@ void vkReplay::remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTem
             char *update_entry = pData + offset;
             switch (
                 descriptorUpdateTemplateCreateInfo[remappedDescriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorType) {
-                case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLER: {
+                    auto image_entry = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
+                    image_entry->sampler = m_objMapper.remap_samplers(image_entry->sampler);
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER: {
+                    auto image_entry = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
+                    image_entry->sampler = m_objMapper.remap_samplers(image_entry->sampler);
+                    image_entry->imageView = m_objMapper.remap_imageviews(image_entry->imageView);
+                    break;
+                }
                 case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
                     auto image_entry = reinterpret_cast<VkDescriptorImageInfo *>(update_entry);
-                    image_entry->sampler = m_objMapper.remap_samplers(image_entry->sampler);
                     image_entry->imageView = m_objMapper.remap_imageviews(image_entry->imageView);
                     break;
                 }
@@ -3664,8 +3673,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpd
     // Map handles inside of pData
     remapHandlesInDescriptorSetWithTemplateData(remappedDescriptorUpdateTemplate, (char *)pPacket->pData);
 
-    m_vkFuncs.real_vkUpdateDescriptorSetWithTemplateKHR(remappeddevice, remappedDescriptorSet, remappedDescriptorUpdateTemplate,
-                                                        pPacket->pData);
+    m_vkDeviceFuncs.UpdateDescriptorSetWithTemplateKHR(remappeddevice, remappedDescriptorSet, remappedDescriptorUpdateTemplate,
+                                                       pPacket->pData);
 }
 
 void vkReplay::manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCmdPushDescriptorSetWithTemplateKHR *pPacket) {
@@ -3692,20 +3701,20 @@ void vkReplay::manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCm
     // Map handles inside of pData
     remapHandlesInDescriptorSetWithTemplateData(remappedDescriptorUpdateTemplate, (char *)pPacket->pData);
 
-    m_vkFuncs.real_vkCmdPushDescriptorSetWithTemplateKHR(remappedcommandBuffer, remappedDescriptorUpdateTemplate, remappedlayout,
-                                                         pPacket->set, pPacket->pData);
+    m_vkDeviceFuncs.CmdPushDescriptorSetWithTemplateKHR(remappedcommandBuffer, remappedDescriptorUpdateTemplate, remappedlayout,
+                                                        pPacket->set, pPacket->pData);
 }
-
 VkResult vkReplay::manually_replay_vkRegisterDeviceEventEXT(packet_vkRegisterDeviceEventEXT *pPacket) {
     VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
     if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
         vktrace_LogError("Error detected in RegisterDeviceEventEXT() due to invalid remapped VkDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
+
     // No need to remap pDeviceEventInfo
     // No need to remap pAllocator
     VkFence fence;
-    auto result = m_vkFuncs.real_vkRegisterDeviceEventEXT(remappeddevice, pPacket->pDeviceEventInfo, pPacket->pAllocator, &fence);
+    auto result = m_vkDeviceFuncs.RegisterDeviceEventEXT(remappeddevice, pPacket->pDeviceEventInfo, pPacket->pAllocator, &fence);
     if (result == VK_SUCCESS) {
         m_objMapper.add_to_fences_map(*pPacket->pFence, fence);
     }
@@ -3723,10 +3732,12 @@ VkResult vkReplay::manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDi
         vktrace_LogError("Error detected in RegisterDisplayEventEXT() due to invalid remapped VkDisplayKHR.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
+
     // No need to remap pDisplayEventInfo
     // No need to remap pAllocator
     VkFence fence;
-    auto result = m_vkFuncs.real_vkRegisterDisplayEventEXT(remappeddevice, remappeddisplay, pPacket->pDisplayEventInfo, pPacket->pAllocator, &fence);
+    auto result = m_vkDeviceFuncs.RegisterDisplayEventEXT(remappeddevice, remappeddisplay, pPacket->pDisplayEventInfo,
+                                                          pPacket->pAllocator, &fence);
     if (result == VK_SUCCESS) {
         m_objMapper.add_to_fences_map(*pPacket->pFence, fence);
     }
@@ -3753,7 +3764,8 @@ VkResult vkReplay::manually_replay_vkCreateObjectTableNVX(packet_vkCreateObjectT
     *((VkObjectEntryUsageFlagsNVX **)&pPacket->pCreateInfo->pObjectEntryUsageFlags) =
         (VkObjectEntryUsageFlagsNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pObjectEntryUsageFlags);
 
-    auto result = m_vkFuncs.real_vkCreateObjectTableNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pObjectTable);
+    auto result =
+        m_vkDeviceFuncs.CreateObjectTableNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pObjectTable);
 
     if (result == VK_SUCCESS) {
         m_objMapper.add_to_objecttablenvxs_map(*(pPacket->pObjectTable), local_pObjectTable);
@@ -3773,8 +3785,7 @@ void vkReplay::manually_replay_vkCmdProcessCommandsNVX(packet_vkCmdProcessComman
     *((VkIndirectCommandsTokenNVX **)&pPacket->pProcessCommandsInfo->pIndirectCommandsTokens) =
         (VkIndirectCommandsTokenNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pProcessCommandsInfo->pIndirectCommandsTokens);
 
-    m_vkFuncs.real_vkCmdProcessCommandsNVX(remappedcommandBuffer, pPacket->pProcessCommandsInfo);
-
+    m_vkDeviceFuncs.CmdProcessCommandsNVX(remappedcommandBuffer, pPacket->pProcessCommandsInfo);
 }
 
 
@@ -3794,7 +3805,8 @@ VkResult vkReplay::manually_replay_vkCreateIndirectCommandsLayoutNVX(packet_vkCr
     *((VkIndirectCommandsLayoutTokenNVX **)&pPacket->pCreateInfo->pTokens) =
         (VkIndirectCommandsLayoutTokenNVX *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pPacket->pCreateInfo->pTokens);
 
-    auto result = m_vkFuncs.real_vkCreateIndirectCommandsLayoutNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pIndirectCommandsLayout);
+    auto result = m_vkDeviceFuncs.CreateIndirectCommandsLayoutNVX(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator,
+                                                                  &local_pIndirectCommandsLayout);
 
     if (result == VK_SUCCESS) {
         m_objMapper.add_to_indirectcommandslayoutnvxs_map(*(pPacket->pIndirectCommandsLayout), local_pIndirectCommandsLayout);

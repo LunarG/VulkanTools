@@ -643,6 +643,14 @@ VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool comman
         }
     } else {
         commandBuffer = s_deviceToCommandBufferMap[device];
+
+        // by Doc, "Executable command buffers can be submitted, reset, or
+        // recorded to another command buffer.", the command buffer here
+        // will be reused to record command, reset is needed to make it
+        // come back to initial state. Directly using without reset is
+        // not supported by Doc, for the target title, vkBeginCommandBuffer
+        // return fail can be found on specific hardware and driver.
+        mdd(device)->devTable.ResetCommandBuffer(commandBuffer, 0);
     }
 
     return commandBuffer;
