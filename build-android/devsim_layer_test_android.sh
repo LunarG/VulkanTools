@@ -111,10 +111,23 @@ fi
 #
 
 outJSON="/sdcard/Android/device_simulation_layer_test_1.json"
-hostJSON="${CURRENT_DIR}/../tests/devsim_test1.json"
 goldJSON="${CURRENT_DIR}/../tests/devsim_test1_gold.json"
-targetJSON="/sdcard/Android/devsim_test1.json"
 resultJSON="device_simulation_layer_test_1.json"
+
+# There are multiple source json files that must be uploaded
+hostJSON=( \
+"${CURRENT_DIR}/../tests/devsim_test1_in.json" \
+"${CURRENT_DIR}/../tests/devsim_test1_in_ArrayOfVkFormatProperties.json" \
+)
+
+targetJSON=( \
+"/sdcard/Android/devsim_test1_in.json" \
+"/sdcard/Android/devsim_test1_in_ArrayOfVkFormatProperties.json" \
+)
+
+devsimFilenames="\
+/sdcard/Android/devsim_test1_in.json:\
+/sdcard/Android/devsim_test1_in_ArrayOfVkFormatProperties.json"
 
 # Wake up the device
 adb $serialFlag root
@@ -138,10 +151,15 @@ adb $serialFlag shell mkdir -p /data/local/debug/vulkan
 adb $serialFlag push libs/$target_abi/libVkLayer_device_simulation.so /data/local/debug/vulkan/
 
 # Set up device simulation parameters
-adb $serialFlag push ${hostJSON} ${targetJSON}
-adb $serialFlag shell setprop debug.vulkan.devsim.filepath ${targetJSON}
-#adb $serialFlag shell setprop debug.vulkan.devsim.debugenable 1
-#adb $serialFlag shell setprop debug.vulkan.devsim.exitonerror 1
+fileCount=${#hostJSON[@]}
+for (( i=0; i<${fileCount}; i++ ));
+do
+  adb $serialFlag push ${hostJSON[$i]} ${targetJSON[$i]}
+done
+
+adb $serialFlag shell settings put global debug.vulkan.devsim.filepath ${devsimFilenames}
+#adb $serialFlag shell settings put global debug.vulkan.devsim.debugenable 1
+#adb $serialFlag shell settings put global debug.vulkan.devsim.exitonerror 1
 
 # Enable the layer and run the test
 adb $serialFlag shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_device_simulation
@@ -149,6 +167,7 @@ adb $serialFlag shell /data/tmp/vkjson_info
 adb $serialFlag pull ${outJSON} ${resultJSON}
 
 # clean up
+adb $serialFlag shell settings delete global debug.vulkan.devsim.filepath
 adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
 
 # the rest is a quick port from devsim_layer_test.sh

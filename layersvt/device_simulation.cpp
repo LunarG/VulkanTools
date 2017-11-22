@@ -286,7 +286,7 @@ const uint32_t MAX_BUFFER_SIZE = 255;
 typedef enum { VK_LOG_NONE = 0, VK_LOG_ERROR, VK_LOG_WARNING, VK_LOG_VERBOSE, VK_LOG_DEBUG } VkLogLevel;
 
 const char *AndroidGetEnv(const char *key) {
-    std::string command("getprop ");
+    std::string command("settings get global ");
     command += key;
 
     std::string android_env;
