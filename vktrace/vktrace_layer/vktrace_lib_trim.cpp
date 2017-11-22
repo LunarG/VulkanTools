@@ -926,318 +926,328 @@ void snapshot_state_tracker() {
         VkDevice device = imageIter->second.belongsToDevice;
         VkImage image = imageIter->first;
 
-        // 1a) Transition the image into host-readable state.
+        if ((imageIter->second.ObjectInfo.Image.memorySize != 0) && (device != VK_NULL_HANDLE)) {
+            // If the memorysize is zero, it mean the image is not bound to any
+            // memory so far, it might be just created when starting to trim.
+            // for such case, what we need to do is recreating the image in
+            // playback without copy its content to host side, it doesn't
+            // has any content now and the title might set its content after
+            // the trim starting. So skip the following process.
+            // Some target title belong to such case, the following process
+            // cause the title running crash during tracing because
+            // the following part of loop suppose the image is bound to
+            // memory so memorysize is not zero.
+            // If device is VK_NULL_HANDLE, this is likely a swapchain image
+            // which we haven't associated a device to, just skip over it.
 
-        if (device == VK_NULL_HANDLE) {
-            // this is likely a swapchain image which we haven't associated a
-            // device to, just skip over it.
-            continue;
-        }
+            // 1a) Transition the image into host-readable state.
 
-        uint32_t queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+            uint32_t queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
 
-        if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
-            queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        }
-
-        VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
-
-        // Begin the command buffer
-        VkCommandBufferBeginInfo commandBufferBeginInfo;
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext = NULL;
-        commandBufferBeginInfo.pInheritanceInfo = NULL;
-        commandBufferBeginInfo.flags = 0;
-        VkResult result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-        assert(result == VK_SUCCESS);
-        if (result != VK_SUCCESS) continue;
-
-        if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
-            StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer,
-                                                          (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
-                                                          imageIter->second.ObjectInfo.Image.memorySize);
-
-            // From Docs: srcImage must have a sample count equal to
-            // VK_SAMPLE_COUNT_1_BIT
-            // From Docs: srcImage must have been created with
-            // VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag
-
-            // Copy from device_local image to host_visible buffer
-
-            VkImageAspectFlags aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
-            if (aspectMask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
-                stagingInfo.imageCopyRegions.reserve(2);
-
-                // First depth, then stencil
-                VkImageSubresource sub;
-                sub.arrayLayer = 0;
-                sub.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-                sub.mipLevel = 0;
-                {
-                    VkSubresourceLayout layout;
-                    mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
-
-                    VkBufferImageCopy copyRegion = {};
-
-                    copyRegion.bufferRowLength = 0;
-                    copyRegion.bufferImageHeight = 0;
-                    // On some platform, originally set to layout.rowPitch and layout.arrayPitch
-                    // cause write outside of staging buffer memory size and hang at following
-                    // queue submission in other frames after finish trim starting process when
-                    // trim some titles.
-                    //
-                    // Here we set bufferRowLength and bufferImageHeight to 0 make the image
-                    // copy to be tightly packed according to the imageExtent, the change fix
-                    // the above problem.
-                    //
-                    // Although bufferRowLength,bufferImageHeight can be set to greater than
-                    // the width and height member of imageExtent, but because we allocate memory
-                    // for the staging buffer by image memory size and here we copy whole image,
-                    // so greater than imageExtent take a risk that the copy beyond the staging
-                    // buffer memory size.
-
-                    copyRegion.bufferOffset = layout.offset;
-                    copyRegion.imageExtent.depth = 1;
-                    copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
-                    copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
-                    copyRegion.imageOffset.x = 0;
-                    copyRegion.imageOffset.y = 0;
-                    copyRegion.imageOffset.z = 0;
-                    copyRegion.imageSubresource.aspectMask = sub.aspectMask;
-                    copyRegion.imageSubresource.baseArrayLayer = 0;
-                    copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
-                    copyRegion.imageSubresource.mipLevel = 0;
-
-                    stagingInfo.imageCopyRegions.push_back(copyRegion);
-                }
-
-                sub.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
-                {
-                    VkSubresourceLayout layout;
-                    mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
-
-                    VkBufferImageCopy copyRegion = {};
-
-                    copyRegion.bufferRowLength = 0;
-                    copyRegion.bufferImageHeight = 0;
-                    // set bufferRowLength and bufferImageHeight to 0 make the image
-                    // copy to be tightly packed according to the imageExtent.
-
-                    copyRegion.bufferOffset = layout.offset;
-                    copyRegion.imageExtent.depth = 1;
-                    copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
-                    copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
-                    copyRegion.imageOffset.x = 0;
-                    copyRegion.imageOffset.y = 0;
-                    copyRegion.imageOffset.z = 0;
-                    copyRegion.imageSubresource.aspectMask = sub.aspectMask;
-                    copyRegion.imageSubresource.baseArrayLayer = 0;
-                    copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
-                    copyRegion.imageSubresource.mipLevel = 0;
-
-                    stagingInfo.imageCopyRegions.push_back(copyRegion);
-                }
-            } else {
-                VkImageSubresource sub;
-                sub.arrayLayer = 0;
-                sub.aspectMask = aspectMask;
-                sub.mipLevel = 0;
-
-                // need to make a VkBufferImageCopy for each mip level
-                stagingInfo.imageCopyRegions.reserve(imageIter->second.ObjectInfo.Image.mipLevels);
-                for (uint32_t i = 0; i < imageIter->second.ObjectInfo.Image.mipLevels; i++) {
-                    VkSubresourceLayout lay;
-                    sub.mipLevel = i;
-                    mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
-
-                    VkBufferImageCopy copyRegion = {};
-                    copyRegion.bufferRowLength = 0;    //< tightly packed texels
-                    copyRegion.bufferImageHeight = 0;  //< tightly packed texels
-                    copyRegion.bufferOffset = lay.offset;
-                    copyRegion.imageExtent.depth = 1;
-                    copyRegion.imageExtent.width = (imageIter->second.ObjectInfo.Image.extent.width >> i);
-                    copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
-                    copyRegion.imageOffset.x = 0;
-                    copyRegion.imageOffset.y = 0;
-                    copyRegion.imageOffset.z = 0;
-                    copyRegion.imageSubresource.aspectMask = aspectMask;
-                    copyRegion.imageSubresource.baseArrayLayer = 0;
-                    copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
-                    copyRegion.imageSubresource.mipLevel = i;
-
-                    stagingInfo.imageCopyRegions.push_back(copyRegion);
-                }
+            if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
+                queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             }
 
-            // From docs: srcImageLayout must specify the layout of the image
-            // subresources of srcImage specified in pRegions at the time this
-            // command is executed on a VkDevice
-            // From docs: srcImageLayout must be either of
-            // VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL
-            VkImageLayout srcImageLayout = imageIter->second.ObjectInfo.Image.mostRecentLayout;
+            VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
 
-            // Transition the image so that it's in an optimal transfer source
-            // layout.
-            transitionImage(device, commandBuffer, image, imageIter->second.ObjectInfo.Image.accessFlags,
-                            imageIter->second.ObjectInfo.Image.accessFlags, queueFamilyIndex, srcImageLayout,
-                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspectMask, imageIter->second.ObjectInfo.Image.arrayLayers,
-                            imageIter->second.ObjectInfo.Image.mipLevels);
+            // Begin the command buffer
+            VkCommandBufferBeginInfo commandBufferBeginInfo;
+            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext = NULL;
+            commandBufferBeginInfo.pInheritanceInfo = NULL;
+            commandBufferBeginInfo.flags = 0;
+            VkResult result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+            assert(result == VK_SUCCESS);
+            if (result != VK_SUCCESS) continue;
 
-            mdd(device)->devTable.CmdCopyImageToBuffer(
-                commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingInfo.buffer,
-                static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()), stagingInfo.imageCopyRegions.data());
+            if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
+                StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer,
+                                                              (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
+                                                              imageIter->second.ObjectInfo.Image.memorySize);
 
-            // save the staging info for later
-            s_imageToStagedInfoMap[image] = stagingInfo;
+                // From Docs: srcImage must have a sample count equal to
+                // VK_SAMPLE_COUNT_1_BIT
+                // From Docs: srcImage must have been created with
+                // VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag
 
-            // now that the image data is in a host-readable buffer
-            // transition image back to it's previous layout
-            transitionImage(device, commandBuffer, image, imageIter->second.ObjectInfo.Image.accessFlags,
-                            imageIter->second.ObjectInfo.Image.accessFlags, queueFamilyIndex, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                            srcImageLayout, aspectMask, imageIter->second.ObjectInfo.Image.arrayLayers,
-                            imageIter->second.ObjectInfo.Image.mipLevels);
-        } else {
-            // Create a pipeline barrier to make it host readable
-            transitionImage(device, commandBuffer, image, imageIter->second.ObjectInfo.Image.accessFlags, VK_ACCESS_HOST_READ_BIT,
-                            queueFamilyIndex, imageIter->second.ObjectInfo.Image.mostRecentLayout,
-                            imageIter->second.ObjectInfo.Image.mostRecentLayout, imageIter->second.ObjectInfo.Image.aspectMask,
-                            imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
-        }
+                // Copy from device_local image to host_visible buffer
 
-        // End the CommandBuffer
-        mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+                VkImageAspectFlags aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
+                if (aspectMask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
+                    stagingInfo.imageCopyRegions.reserve(2);
 
-        // now submit the command buffer
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.pNext = NULL;
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = NULL;
-        submitInfo.pWaitDstStageMask = NULL;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-        submitInfo.signalSemaphoreCount = 0;
-        submitInfo.pSignalSemaphores = NULL;
+                    // First depth, then stencil
+                    VkImageSubresource sub;
+                    sub.arrayLayer = 0;
+                    sub.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                    sub.mipLevel = 0;
+                    {
+                        VkSubresourceLayout layout;
+                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
 
-        // Submit the queue and wait for it to complete
-        VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+                        VkBufferImageCopy copyRegion = {};
 
-        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
-        assert(waitResult == VK_SUCCESS);
-        if (waitResult != VK_SUCCESS) continue;
+                        copyRegion.bufferRowLength = 0;
+                        copyRegion.bufferImageHeight = 0;
+                        // On some platform, originally set to layout.rowPitch and layout.arrayPitch
+                        // cause write outside of staging buffer memory size and hang at following
+                        // queue submission in other frames after finish trim starting process when
+                        // trim some titles.
+                        //
+                        // Here we set bufferRowLength and bufferImageHeight to 0 make the image
+                        // copy to be tightly packed according to the imageExtent, the change fix
+                        // the above problem.
+                        //
+                        // Although bufferRowLength,bufferImageHeight can be set to greater than
+                        // the width and height member of imageExtent, but because we allocate memory
+                        // for the staging buffer by image memory size and here we copy whole image,
+                        // so greater than imageExtent take a risk that the copy beyond the staging
+                        // buffer memory size.
 
-        // 2a) Map, copy, unmap the image.
-        device = imageIter->second.belongsToDevice;
-        image = imageIter->first;
+                        copyRegion.bufferOffset = layout.offset;
+                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
+                        copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
+                        copyRegion.imageOffset.x = 0;
+                        copyRegion.imageOffset.y = 0;
+                        copyRegion.imageOffset.z = 0;
+                        copyRegion.imageSubresource.aspectMask = sub.aspectMask;
+                        copyRegion.imageSubresource.baseArrayLayer = 0;
+                        copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
+                        copyRegion.imageSubresource.mipLevel = 0;
 
-        VkDeviceMemory memory = imageIter->second.ObjectInfo.Image.memory;
-        VkDeviceSize offset = imageIter->second.ObjectInfo.Image.memoryOffset;
-        VkDeviceSize size = ROUNDUP_TO_4(imageIter->second.ObjectInfo.Image.memorySize);
-
-        if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
-            // Note that the staged memory object won't be in the state tracker,
-            // so we want to swap out the buffer and memory
-            // that will be mapped / unmapped.
-            StagingInfo staged = s_imageToStagedInfoMap[image];
-            memory = staged.memory;
-            offset = 0;
-
-            void *mappedAddress = NULL;
-
-            if (size != 0) {
-                generateMapUnmap(true, device, memory, offset, size, 0, mappedAddress,
-                                 &imageIter->second.ObjectInfo.Image.pMapMemoryPacket,
-                                 &imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket);
-            }
-        } else {
-            auto memoryIter = s_trimStateTrackerSnapshot.createdDeviceMemorys.find(memory);
-
-            if (memoryIter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end()) {
-                void *mappedAddress = memoryIter->second.ObjectInfo.DeviceMemory.mappedAddress;
-                VkDeviceSize mappedOffset = memoryIter->second.ObjectInfo.DeviceMemory.mappedOffset;
-                VkDeviceSize mappedSize = memoryIter->second.ObjectInfo.DeviceMemory.mappedSize;
-
-                if (size != 0) {
-                    // actually map the memory if it was not already mapped.
-                    bool bAlreadyMapped = (mappedAddress != NULL);
-                    if (bAlreadyMapped) {
-                        // I imagine there could be a scenario where the
-                        // application has persistently
-                        // mapped PART of the memory, which may not contain the
-                        // image that we're trying to copy right now.
-                        // In that case, there will be errors due to this code.
-                        // We know the range of memory that is mapped
-                        // so we should be able to confirm whether or not we get
-                        // into this situation.
-                        bAlreadyMapped = (offset >= mappedOffset && (offset + size) <= (mappedOffset + mappedSize));
+                        stagingInfo.imageCopyRegions.push_back(copyRegion);
                     }
 
-                    generateMapUnmap(!bAlreadyMapped, device, memory, offset, size, 0, mappedAddress,
+                    sub.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+                    {
+                        VkSubresourceLayout layout;
+                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+
+                        VkBufferImageCopy copyRegion = {};
+
+                        copyRegion.bufferRowLength = 0;
+                        copyRegion.bufferImageHeight = 0;
+                        // set bufferRowLength and bufferImageHeight to 0 make the image
+                        // copy to be tightly packed according to the imageExtent.
+
+                        copyRegion.bufferOffset = layout.offset;
+                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
+                        copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
+                        copyRegion.imageOffset.x = 0;
+                        copyRegion.imageOffset.y = 0;
+                        copyRegion.imageOffset.z = 0;
+                        copyRegion.imageSubresource.aspectMask = sub.aspectMask;
+                        copyRegion.imageSubresource.baseArrayLayer = 0;
+                        copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
+                        copyRegion.imageSubresource.mipLevel = 0;
+
+                        stagingInfo.imageCopyRegions.push_back(copyRegion);
+                    }
+                } else {
+                    VkImageSubresource sub;
+                    sub.arrayLayer = 0;
+                    sub.aspectMask = aspectMask;
+                    sub.mipLevel = 0;
+
+                    // need to make a VkBufferImageCopy for each mip level
+                    stagingInfo.imageCopyRegions.reserve(imageIter->second.ObjectInfo.Image.mipLevels);
+                    for (uint32_t i = 0; i < imageIter->second.ObjectInfo.Image.mipLevels; i++) {
+                        VkSubresourceLayout lay;
+                        sub.mipLevel = i;
+                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
+
+                        VkBufferImageCopy copyRegion = {};
+                        copyRegion.bufferRowLength = 0;    //< tightly packed texels
+                        copyRegion.bufferImageHeight = 0;  //< tightly packed texels
+                        copyRegion.bufferOffset = lay.offset;
+                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.width = (imageIter->second.ObjectInfo.Image.extent.width >> i);
+                        copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
+                        copyRegion.imageOffset.x = 0;
+                        copyRegion.imageOffset.y = 0;
+                        copyRegion.imageOffset.z = 0;
+                        copyRegion.imageSubresource.aspectMask = aspectMask;
+                        copyRegion.imageSubresource.baseArrayLayer = 0;
+                        copyRegion.imageSubresource.layerCount = imageIter->second.ObjectInfo.Image.arrayLayers;
+                        copyRegion.imageSubresource.mipLevel = i;
+
+                        stagingInfo.imageCopyRegions.push_back(copyRegion);
+                    }
+                }
+
+                // From docs: srcImageLayout must specify the layout of the image
+                // subresources of srcImage specified in pRegions at the time this
+                // command is executed on a VkDevice
+                // From docs: srcImageLayout must be either of
+                // VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL
+                VkImageLayout srcImageLayout = imageIter->second.ObjectInfo.Image.mostRecentLayout;
+
+                // Transition the image so that it's in an optimal transfer source
+                // layout.
+                transitionImage(device, commandBuffer, image, imageIter->second.ObjectInfo.Image.accessFlags,
+                                imageIter->second.ObjectInfo.Image.accessFlags, queueFamilyIndex, srcImageLayout,
+                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspectMask, imageIter->second.ObjectInfo.Image.arrayLayers,
+                                imageIter->second.ObjectInfo.Image.mipLevels);
+
+                mdd(device)->devTable.CmdCopyImageToBuffer(
+                    commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingInfo.buffer,
+                    static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()), stagingInfo.imageCopyRegions.data());
+
+                // save the staging info for later
+                s_imageToStagedInfoMap[image] = stagingInfo;
+
+                // now that the image data is in a host-readable buffer
+                // transition image back to it's previous layout
+                transitionImage(device, commandBuffer, image, imageIter->second.ObjectInfo.Image.accessFlags,
+                                imageIter->second.ObjectInfo.Image.accessFlags, queueFamilyIndex,
+                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, srcImageLayout, aspectMask,
+                                imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
+            } else {
+                // Create a pipeline barrier to make it host readable
+                transitionImage(device, commandBuffer, image, imageIter->second.ObjectInfo.Image.accessFlags,
+                                VK_ACCESS_HOST_READ_BIT, queueFamilyIndex, imageIter->second.ObjectInfo.Image.mostRecentLayout,
+                                imageIter->second.ObjectInfo.Image.mostRecentLayout, imageIter->second.ObjectInfo.Image.aspectMask,
+                                imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
+            }
+
+            // End the CommandBuffer
+            mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+
+            // now submit the command buffer
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = NULL;
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = NULL;
+            submitInfo.pWaitDstStageMask = NULL;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+            submitInfo.signalSemaphoreCount = 0;
+            submitInfo.pSignalSemaphores = NULL;
+
+            // Submit the queue and wait for it to complete
+            VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+
+            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+            assert(waitResult == VK_SUCCESS);
+            if (waitResult != VK_SUCCESS) continue;
+
+            // 2a) Map, copy, unmap the image.
+            device = imageIter->second.belongsToDevice;
+            image = imageIter->first;
+
+            VkDeviceMemory memory = imageIter->second.ObjectInfo.Image.memory;
+            VkDeviceSize offset = imageIter->second.ObjectInfo.Image.memoryOffset;
+            VkDeviceSize size = ROUNDUP_TO_4(imageIter->second.ObjectInfo.Image.memorySize);
+
+            if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
+                // Note that the staged memory object won't be in the state tracker,
+                // so we want to swap out the buffer and memory
+                // that will be mapped / unmapped.
+                StagingInfo staged = s_imageToStagedInfoMap[image];
+                memory = staged.memory;
+                offset = 0;
+
+                void *mappedAddress = NULL;
+
+                if (size != 0) {
+                    generateMapUnmap(true, device, memory, offset, size, 0, mappedAddress,
                                      &imageIter->second.ObjectInfo.Image.pMapMemoryPacket,
                                      &imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket);
                 }
+            } else {
+                auto memoryIter = s_trimStateTrackerSnapshot.createdDeviceMemorys.find(memory);
+
+                if (memoryIter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end()) {
+                    void *mappedAddress = memoryIter->second.ObjectInfo.DeviceMemory.mappedAddress;
+                    VkDeviceSize mappedOffset = memoryIter->second.ObjectInfo.DeviceMemory.mappedOffset;
+                    VkDeviceSize mappedSize = memoryIter->second.ObjectInfo.DeviceMemory.mappedSize;
+
+                    if (size != 0) {
+                        // actually map the memory if it was not already mapped.
+                        bool bAlreadyMapped = (mappedAddress != NULL);
+                        if (bAlreadyMapped) {
+                            // I imagine there could be a scenario where the
+                            // application has persistently
+                            // mapped PART of the memory, which may not contain the
+                            // image that we're trying to copy right now.
+                            // In that case, there will be errors due to this code.
+                            // We know the range of memory that is mapped
+                            // so we should be able to confirm whether or not we get
+                            // into this situation.
+                            bAlreadyMapped = (offset >= mappedOffset && (offset + size) <= (mappedOffset + mappedSize));
+                        }
+
+                        generateMapUnmap(!bAlreadyMapped, device, memory, offset, size, 0, mappedAddress,
+                                         &imageIter->second.ObjectInfo.Image.pMapMemoryPacket,
+                                         &imageIter->second.ObjectInfo.Image.pUnmapMemoryPacket);
+                    }
+                }
             }
+
+            // 3a) Transition the image back to their previous state.
+            device = imageIter->second.belongsToDevice;
+            image = imageIter->first;
+
+            queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
+
+            if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
+                queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            }
+
+            commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+            commandBuffer = getCommandBufferFromDevice(device, commandPool);
+
+            // Begin the command buffer
+            memset(reinterpret_cast<void *>(&commandBufferBeginInfo), 0, sizeof(VkCommandBufferBeginInfo));
+            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext = NULL;
+            commandBufferBeginInfo.pInheritanceInfo = NULL;
+            commandBufferBeginInfo.flags = 0;
+            result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+            assert(result == VK_SUCCESS);
+            if (result != VK_SUCCESS) continue;
+
+            // only need to restore the images that did NOT need a staging buffer
+            if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
+                // delete the staging objects
+                StagingInfo staged = s_imageToStagedInfoMap[image];
+                mdd(device)->devTable.DestroyBuffer(device, staged.buffer, NULL);
+                mdd(device)->devTable.FreeMemory(device, staged.memory, NULL);
+            } else {
+                transitionImage(device, commandBuffer, image, VK_ACCESS_HOST_READ_BIT,
+                                imageIter->second.ObjectInfo.Image.accessFlags, queueFamilyIndex,
+                                imageIter->second.ObjectInfo.Image.mostRecentLayout,
+                                imageIter->second.ObjectInfo.Image.mostRecentLayout, imageIter->second.ObjectInfo.Image.aspectMask,
+                                imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
+            }
+
+            // End the CommandBuffer
+            mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+
+            // now submit the command buffer
+            memset(reinterpret_cast<void *>(&submitInfo), 0, sizeof(VkSubmitInfo));
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = NULL;
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = NULL;
+            submitInfo.pWaitDstStageMask = NULL;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+            submitInfo.signalSemaphoreCount = 0;
+            submitInfo.pSignalSemaphores = NULL;
+
+            // Submit the queue and wait for it to complete
+            queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+
+            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+            assert(waitResult == VK_SUCCESS);
         }
-
-        // 3a) Transition the image back to their previous state.
-        device = imageIter->second.belongsToDevice;
-        image = imageIter->first;
-
-        queueFamilyIndex = imageIter->second.ObjectInfo.Image.queueFamilyIndex;
-
-        if (imageIter->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
-            queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        }
-
-        commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
-        commandBuffer = getCommandBufferFromDevice(device, commandPool);
-
-        // Begin the command buffer
-        memset(reinterpret_cast<void *>(&commandBufferBeginInfo), 0, sizeof(VkCommandBufferBeginInfo));
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext = NULL;
-        commandBufferBeginInfo.pInheritanceInfo = NULL;
-        commandBufferBeginInfo.flags = 0;
-        result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-        assert(result == VK_SUCCESS);
-        if (result != VK_SUCCESS) continue;
-
-        // only need to restore the images that did NOT need a staging buffer
-        if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
-            // delete the staging objects
-            StagingInfo staged = s_imageToStagedInfoMap[image];
-            mdd(device)->devTable.DestroyBuffer(device, staged.buffer, NULL);
-            mdd(device)->devTable.FreeMemory(device, staged.memory, NULL);
-        } else {
-            transitionImage(device, commandBuffer, image, VK_ACCESS_HOST_READ_BIT, imageIter->second.ObjectInfo.Image.accessFlags,
-                            queueFamilyIndex, imageIter->second.ObjectInfo.Image.mostRecentLayout,
-                            imageIter->second.ObjectInfo.Image.mostRecentLayout, imageIter->second.ObjectInfo.Image.aspectMask,
-                            imageIter->second.ObjectInfo.Image.arrayLayers, imageIter->second.ObjectInfo.Image.mipLevels);
-        }
-
-        // End the CommandBuffer
-        mdd(device)->devTable.EndCommandBuffer(commandBuffer);
-
-        // now submit the command buffer
-        memset(reinterpret_cast<void *>(&submitInfo), 0, sizeof(VkSubmitInfo));
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.pNext = NULL;
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = NULL;
-        submitInfo.pWaitDstStageMask = NULL;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-        submitInfo.signalSemaphoreCount = 0;
-        submitInfo.pSignalSemaphores = NULL;
-
-        // Submit the queue and wait for it to complete
-        queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
-
-        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
-        assert(waitResult == VK_SUCCESS);
     }
 
     // b) Dump all buffers, the process include the following sub-process:
@@ -1249,181 +1259,188 @@ void snapshot_state_tracker() {
         VkDevice device = bufferIter->second.belongsToDevice;
         VkBuffer buffer = static_cast<VkBuffer>(bufferIter->first);
 
-        // 1b) Transition the buffer into host-readable state.
+        if ((bufferIter->second.ObjectInfo.Buffer.pBindBufferMemoryPacket != nullptr) &&
+            (bufferIter->second.ObjectInfo.Buffer.size != 0)) {
+            // Similiar with image handling, skip the following process
+            // if the buffer is not bound to any memory.
 
-        uint32_t queueFamilyIndex = bufferIter->second.ObjectInfo.Buffer.queueFamilyIndex;
+            // 1b) Transition the buffer into host-readable state.
 
-        VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
-        VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
+            uint32_t queueFamilyIndex = bufferIter->second.ObjectInfo.Buffer.queueFamilyIndex;
 
-        // Begin the command buffer
-        VkCommandBufferBeginInfo commandBufferBeginInfo;
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext = NULL;
-        commandBufferBeginInfo.pInheritanceInfo = NULL;
-        commandBufferBeginInfo.flags = 0;
-        VkResult result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-        assert(result == VK_SUCCESS);
-        if (result != VK_SUCCESS) continue;
+            VkCommandPool commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+            VkCommandBuffer commandBuffer = getCommandBufferFromDevice(device, commandPool);
 
-        // If the buffer needs a staging buffer, it's because it's on
-        // DEVICE_LOCAL memory that is not HOST_VISIBLE.
-        // So we have to create another buffer and memory that IS HOST_VISIBLE
-        // so that we can copy the data
-        // from the DEVICE_LOCAL memory into HOST_VISIBLE memory, then map /
-        // unmap the HOST_VISIBLE memory object.
-        // The staging info is kept so that we can generate similar calls in the
-        // trace file in order to recreate
-        // the DEVICE_LOCAL buffer.
-        if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
-            StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer, queueFamilyIndex,
-                                                          bufferIter->second.ObjectInfo.Buffer.size);
+            // Begin the command buffer
+            VkCommandBufferBeginInfo commandBufferBeginInfo;
+            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext = NULL;
+            commandBufferBeginInfo.pInheritanceInfo = NULL;
+            commandBufferBeginInfo.flags = 0;
+            VkResult result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+            assert(result == VK_SUCCESS);
+            if (result != VK_SUCCESS) continue;
 
-            // Copy from device_local buffer to host_visible buffer
-            stagingInfo.copyRegion.srcOffset = 0;
-            stagingInfo.copyRegion.dstOffset = 0;
-            stagingInfo.copyRegion.size = bufferIter->second.ObjectInfo.Buffer.size;
+            // If the buffer needs a staging buffer, it's because it's on
+            // DEVICE_LOCAL memory that is not HOST_VISIBLE.
+            // So we have to create another buffer and memory that IS HOST_VISIBLE
+            // so that we can copy the data
+            // from the DEVICE_LOCAL memory into HOST_VISIBLE memory, then map /
+            // unmap the HOST_VISIBLE memory object.
+            // The staging info is kept so that we can generate similar calls in the
+            // trace file in order to recreate
+            // the DEVICE_LOCAL buffer.
+            if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
+                StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer, queueFamilyIndex,
+                                                              bufferIter->second.ObjectInfo.Buffer.size);
 
-            transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_FLAG_BITS_MAX_ENUM, VK_ACCESS_TRANSFER_READ_BIT, 0,
-                             bufferIter->second.ObjectInfo.Buffer.size, true);
-            mdd(device)->devTable.CmdCopyBuffer(commandBuffer, buffer, stagingInfo.buffer, 1, &stagingInfo.copyRegion);
-            transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_TRANSFER_READ_BIT,
-                             bufferIter->second.ObjectInfo.Buffer.accessFlags, 0, bufferIter->second.ObjectInfo.Buffer.size, true);
+                // Copy from device_local buffer to host_visible buffer
+                stagingInfo.copyRegion.srcOffset = 0;
+                stagingInfo.copyRegion.dstOffset = 0;
+                stagingInfo.copyRegion.size = bufferIter->second.ObjectInfo.Buffer.size;
 
-            // save the staging info for later
-            s_bufferToStagedInfoMap[buffer] = stagingInfo;
-        } else {
-            transitionBuffer(device, commandBuffer, buffer, bufferIter->second.ObjectInfo.Buffer.accessFlags,
-                             VK_ACCESS_HOST_READ_BIT, 0, bufferIter->second.ObjectInfo.Buffer.size);
-        }
+                transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_FLAG_BITS_MAX_ENUM, VK_ACCESS_TRANSFER_READ_BIT, 0,
+                                 bufferIter->second.ObjectInfo.Buffer.size, true);
+                mdd(device)->devTable.CmdCopyBuffer(commandBuffer, buffer, stagingInfo.buffer, 1, &stagingInfo.copyRegion);
+                transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_TRANSFER_READ_BIT,
+                                 bufferIter->second.ObjectInfo.Buffer.accessFlags, 0, bufferIter->second.ObjectInfo.Buffer.size,
+                                 true);
 
-        // TODO: LESS THAN IDEAL TO END & SUBMIT these super small command buffers
-        // End the CommandBuffer
-        mdd(device)->devTable.EndCommandBuffer(commandBuffer);
-
-        // now submit the command buffer
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.pNext = NULL;
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = NULL;
-        submitInfo.pWaitDstStageMask = NULL;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-        submitInfo.signalSemaphoreCount = 0;
-        submitInfo.pSignalSemaphores = NULL;
-
-        // Submit the queue and wait for it to complete
-        VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
-
-        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
-        assert(waitResult == VK_SUCCESS);
-        if (waitResult != VK_SUCCESS) continue;
-
-        // 2b) Map, copy, unmap the buffer.
-
-        device = bufferIter->second.belongsToDevice;
-        buffer = bufferIter->first;
-
-        VkDeviceMemory memory = bufferIter->second.ObjectInfo.Buffer.memory;
-        VkDeviceSize offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
-        VkDeviceSize size = ROUNDUP_TO_4(bufferIter->second.ObjectInfo.Buffer.size);
-
-        void *mappedAddress = NULL;
-        VkDeviceSize mappedOffset = 0;
-        VkDeviceSize mappedSize = 0;
-
-        if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
-            // Note that the staged memory object won't be in the state tracker,
-            // so we want to swap out the buffer and memory
-            // that will be mapped / unmapped.
-            StagingInfo staged = s_bufferToStagedInfoMap[buffer];
-            buffer = staged.buffer;
-            memory = staged.memory;
-            offset = 0;
-        } else {
-            auto memoryIter = s_trimStateTrackerSnapshot.createdDeviceMemorys.find(memory);
-            assert(memoryIter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end());
-            if (memoryIter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end()) {
-                mappedAddress = memoryIter->second.ObjectInfo.DeviceMemory.mappedAddress;
-                mappedOffset = memoryIter->second.ObjectInfo.DeviceMemory.mappedOffset;
-                mappedSize = memoryIter->second.ObjectInfo.DeviceMemory.mappedSize;
-            }
-        }
-
-        if (size != 0) {
-            // actually map the memory if it was not already mapped.
-            bool bAlreadyMapped = (mappedAddress != NULL);
-            if (bAlreadyMapped) {
-                // I imagine there could be a scenario where the application has
-                // persistently
-                // mapped PART of the memory, which may not contain the image
-                // that we're trying to copy right now.
-                // In that case, there will be errors due to this code. We know
-                // the range of memory that is mapped
-                // so we should be able to confirm whether or not we get into
-                // this situation.
-                bAlreadyMapped = (offset >= mappedOffset && (offset + size) <= (mappedOffset + mappedSize));
+                // save the staging info for later
+                s_bufferToStagedInfoMap[buffer] = stagingInfo;
+            } else {
+                transitionBuffer(device, commandBuffer, buffer, bufferIter->second.ObjectInfo.Buffer.accessFlags,
+                                 VK_ACCESS_HOST_READ_BIT, 0, bufferIter->second.ObjectInfo.Buffer.size);
             }
 
-            generateMapUnmap(!bAlreadyMapped, device, memory, offset, size, 0, mappedAddress,
-                             &bufferIter->second.ObjectInfo.Buffer.pMapMemoryPacket,
-                             &bufferIter->second.ObjectInfo.Buffer.pUnmapMemoryPacket);
+            // TODO: LESS THAN IDEAL TO END & SUBMIT these super small command buffers
+            // End the CommandBuffer
+            mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+
+            // now submit the command buffer
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = NULL;
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = NULL;
+            submitInfo.pWaitDstStageMask = NULL;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+            submitInfo.signalSemaphoreCount = 0;
+            submitInfo.pSignalSemaphores = NULL;
+
+            // Submit the queue and wait for it to complete
+            VkQueue queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+
+            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+            assert(waitResult == VK_SUCCESS);
+            if (waitResult != VK_SUCCESS) continue;
+
+            // 2b) Map, copy, unmap the buffer.
+
+            device = bufferIter->second.belongsToDevice;
+            buffer = bufferIter->first;
+
+            VkDeviceMemory memory = bufferIter->second.ObjectInfo.Buffer.memory;
+            VkDeviceSize offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
+            VkDeviceSize size = ROUNDUP_TO_4(bufferIter->second.ObjectInfo.Buffer.size);
+
+            void *mappedAddress = NULL;
+            VkDeviceSize mappedOffset = 0;
+            VkDeviceSize mappedSize = 0;
+
+            if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
+                // Note that the staged memory object won't be in the state tracker,
+                // so we want to swap out the buffer and memory
+                // that will be mapped / unmapped.
+                StagingInfo staged = s_bufferToStagedInfoMap[buffer];
+                buffer = staged.buffer;
+                memory = staged.memory;
+                offset = 0;
+            } else {
+                auto memoryIter = s_trimStateTrackerSnapshot.createdDeviceMemorys.find(memory);
+                assert(memoryIter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end());
+                if (memoryIter != s_trimStateTrackerSnapshot.createdDeviceMemorys.end()) {
+                    mappedAddress = memoryIter->second.ObjectInfo.DeviceMemory.mappedAddress;
+                    mappedOffset = memoryIter->second.ObjectInfo.DeviceMemory.mappedOffset;
+                    mappedSize = memoryIter->second.ObjectInfo.DeviceMemory.mappedSize;
+                }
+            }
+
+            if (size != 0) {
+                // actually map the memory if it was not already mapped.
+                bool bAlreadyMapped = (mappedAddress != NULL);
+                if (bAlreadyMapped) {
+                    // I imagine there could be a scenario where the application has
+                    // persistently
+                    // mapped PART of the memory, which may not contain the image
+                    // that we're trying to copy right now.
+                    // In that case, there will be errors due to this code. We know
+                    // the range of memory that is mapped
+                    // so we should be able to confirm whether or not we get into
+                    // this situation.
+                    bAlreadyMapped = (offset >= mappedOffset && (offset + size) <= (mappedOffset + mappedSize));
+                }
+
+                generateMapUnmap(!bAlreadyMapped, device, memory, offset, size, 0, mappedAddress,
+                                 &bufferIter->second.ObjectInfo.Buffer.pMapMemoryPacket,
+                                 &bufferIter->second.ObjectInfo.Buffer.pUnmapMemoryPacket);
+            }
+
+            // 3b) Transition the buffer back to their previous state.
+
+            device = bufferIter->second.belongsToDevice;
+            buffer = static_cast<VkBuffer>(bufferIter->first);
+
+            queueFamilyIndex = bufferIter->second.ObjectInfo.Buffer.queueFamilyIndex;
+
+            commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
+            commandBuffer = getCommandBufferFromDevice(device, commandPool);
+
+            // Begin the command buffer
+            memset(reinterpret_cast<void *>(&commandBufferBeginInfo), 0, sizeof(VkCommandBufferBeginInfo));
+            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext = NULL;
+            commandBufferBeginInfo.pInheritanceInfo = NULL;
+            commandBufferBeginInfo.flags = 0;
+            result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+            assert(result == VK_SUCCESS);
+            if (result != VK_SUCCESS) continue;
+
+            if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
+                // if this buffer had a staging buffer, then we only need to do
+                // delete the staging objects
+                StagingInfo staged = s_bufferToStagedInfoMap[buffer];
+                mdd(device)->devTable.DestroyBuffer(device, staged.buffer, NULL);
+                mdd(device)->devTable.FreeMemory(device, staged.memory, NULL);
+            } else {
+                transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_HOST_READ_BIT,
+                                 bufferIter->second.ObjectInfo.Buffer.accessFlags, 0, bufferIter->second.ObjectInfo.Buffer.size);
+            }
+
+            // End the CommandBuffer
+            mdd(device)->devTable.EndCommandBuffer(commandBuffer);
+
+            // now submit the command buffer
+            memset(reinterpret_cast<void *>(&submitInfo), 0, sizeof(VkSubmitInfo));
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = NULL;
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = NULL;
+            submitInfo.pWaitDstStageMask = NULL;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+            submitInfo.signalSemaphoreCount = 0;
+            submitInfo.pSignalSemaphores = NULL;
+
+            // Submit the queue and wait for it to complete
+            queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
+
+            mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+            waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
+            assert(waitResult == VK_SUCCESS);
         }
-
-        // 3b) Transition the buffer back to their previous state.
-
-        device = bufferIter->second.belongsToDevice;
-        buffer = static_cast<VkBuffer>(bufferIter->first);
-
-        queueFamilyIndex = bufferIter->second.ObjectInfo.Buffer.queueFamilyIndex;
-
-        commandPool = getCommandPoolFromDevice(device, queueFamilyIndex);
-        commandBuffer = getCommandBufferFromDevice(device, commandPool);
-
-        // Begin the command buffer
-        memset(reinterpret_cast<void *>(&commandBufferBeginInfo), 0, sizeof(VkCommandBufferBeginInfo));
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.pNext = NULL;
-        commandBufferBeginInfo.pInheritanceInfo = NULL;
-        commandBufferBeginInfo.flags = 0;
-        result = mdd(device)->devTable.BeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-        assert(result == VK_SUCCESS);
-        if (result != VK_SUCCESS) continue;
-
-        if (bufferIter->second.ObjectInfo.Buffer.needsStagingBuffer) {
-            // if this buffer had a staging buffer, then we only need to do
-            // delete the staging objects
-            StagingInfo staged = s_bufferToStagedInfoMap[buffer];
-            mdd(device)->devTable.DestroyBuffer(device, staged.buffer, NULL);
-            mdd(device)->devTable.FreeMemory(device, staged.memory, NULL);
-        } else {
-            transitionBuffer(device, commandBuffer, buffer, VK_ACCESS_HOST_READ_BIT,
-                             bufferIter->second.ObjectInfo.Buffer.accessFlags, 0, bufferIter->second.ObjectInfo.Buffer.size);
-        }
-
-        // End the CommandBuffer
-        mdd(device)->devTable.EndCommandBuffer(commandBuffer);
-
-        // now submit the command buffer
-        memset(reinterpret_cast<void *>(&submitInfo), 0, sizeof(VkSubmitInfo));
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.pNext = NULL;
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = NULL;
-        submitInfo.pWaitDstStageMask = NULL;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-        submitInfo.signalSemaphoreCount = 0;
-        submitInfo.pSignalSemaphores = NULL;
-
-        // Submit the queue and wait for it to complete
-        queue = trim::get_DeviceQueue(device, queueFamilyIndex, 0);
-
-        mdd(device)->devTable.QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
-        assert(waitResult == VK_SUCCESS);
     }
     // 4) Destroy the command pools / command buffers and fences
     for (auto deviceIter = s_trimStateTrackerSnapshot.createdDevices.begin();
@@ -2820,269 +2837,277 @@ void write_all_referenced_object_calls() {
             continue;
         }
 
-        uint32_t queueFamilyIndex = obj->second.ObjectInfo.Image.queueFamilyIndex;
-        if (obj->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
-            queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        }
+        if (obj->second.ObjectInfo.Image.memorySize != 0) {
+            // If the image is not bound to any memory, skip the following
+            // process because it base on the assumption of memory binding.
 
-        if (obj->second.ObjectInfo.Image.needsStagingBuffer) {
-            // make a staging buffer and copy the data into the image (similar
-            // to what we do for buffers)
-            StagingInfo stagingInfo = s_imageToStagedInfoMap[image];
-            stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-
-            // generate packets needed to create a staging buffer
-            generateCreateStagingBuffer(device, stagingInfo);
-
-            // here's where we map / unmap to insert data into the buffer
-            {
-                // write map / unmap packets so the memory contents gets set on
-                // replay
-                if (obj->second.ObjectInfo.Image.pMapMemoryPacket != NULL) {
-                    vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pMapMemoryPacket, vktrace_trace_get_trace_file());
-                    vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pMapMemoryPacket));
-                }
-
-                if (obj->second.ObjectInfo.Image.pUnmapMemoryPacket != NULL) {
-                    vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
-                    vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pUnmapMemoryPacket));
-                }
+            uint32_t queueFamilyIndex = obj->second.ObjectInfo.Image.queueFamilyIndex;
+            if (obj->second.ObjectInfo.Image.sharingMode == VK_SHARING_MODE_CONCURRENT) {
+                queueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             }
 
-            const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
-                VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, NULL,
-                VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                obj->second.ObjectInfo.Image.queueFamilyIndex};
-            vktrace_trace_packet_header *pCreateCommandPoolPacket =
-                generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
-            vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
+            if (obj->second.ObjectInfo.Image.needsStagingBuffer) {
+                // make a staging buffer and copy the data into the image (similar
+                // to what we do for buffers)
+                StagingInfo stagingInfo = s_imageToStagedInfoMap[image];
+                stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-            // create command buffer
-            VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-            commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            commandBufferAllocateInfo.pNext = NULL;
-            commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            commandBufferAllocateInfo.commandBufferCount = 1;
-            commandBufferAllocateInfo.commandPool = stagingInfo.commandPool;
+                // generate packets needed to create a staging buffer
+                generateCreateStagingBuffer(device, stagingInfo);
 
-            vktrace_trace_packet_header *pHeader =
-                generate::vkAllocateCommandBuffers(false, device, &commandBufferAllocateInfo, &stagingInfo.commandBuffer);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
+                // here's where we map / unmap to insert data into the buffer
+                {
+                    // write map / unmap packets so the memory contents gets set on
+                    // replay
+                    if (obj->second.ObjectInfo.Image.pMapMemoryPacket != NULL) {
+                        vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pMapMemoryPacket, vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pMapMemoryPacket));
+                    }
 
-            VkCommandBufferBeginInfo commandBufferBeginInfo;
-            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            commandBufferBeginInfo.pNext = NULL;
-            commandBufferBeginInfo.flags = 0;
-            commandBufferBeginInfo.pInheritanceInfo = NULL;
+                    if (obj->second.ObjectInfo.Image.pUnmapMemoryPacket != NULL) {
+                        vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Image.pUnmapMemoryPacket));
+                    }
+                }
 
-            pHeader = generate::vkBeginCommandBuffer(false, stagingInfo.commandBuffer, &commandBufferBeginInfo);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // Transition image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-            generateTransitionImage(device, stagingInfo.commandBuffer, image, 0, VK_ACCESS_TRANSFER_WRITE_BIT, queueFamilyIndex,
-                                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                    obj->second.ObjectInfo.Image.aspectMask, obj->second.ObjectInfo.Image.arrayLayers,
-                                    obj->second.ObjectInfo.Image.mipLevels);
-
-            // issue call to copy buffer
-            pHeader = generate::vkCmdCopyBufferToImage(
-                false, stagingInfo.commandBuffer, stagingInfo.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()), stagingInfo.imageCopyRegions.data());
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // transition image to final layout
-            generateTransitionImage(device, stagingInfo.commandBuffer, image, VK_ACCESS_TRANSFER_WRITE_BIT,
-                                    obj->second.ObjectInfo.Image.accessFlags, queueFamilyIndex,
-                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, obj->second.ObjectInfo.Image.mostRecentLayout,
-                                    obj->second.ObjectInfo.Image.aspectMask, obj->second.ObjectInfo.Image.arrayLayers,
-                                    obj->second.ObjectInfo.Image.mipLevels);
-
-            pHeader = generate::vkEndCommandBuffer(false, stagingInfo.commandBuffer);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // Queue submit the command buffer
-            VkSubmitInfo submitInfo = {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.pNext = NULL;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &stagingInfo.commandBuffer;
-            submitInfo.pSignalSemaphores = NULL;
-            submitInfo.signalSemaphoreCount = 0;
-            submitInfo.pWaitDstStageMask = NULL;
-            submitInfo.pWaitSemaphores = NULL;
-            submitInfo.waitSemaphoreCount = 0;
-
-            pHeader = generate::vkQueueSubmit(false, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // wait for queue to finish
-            pHeader = generate::vkQueueWaitIdle(false, stagingInfo.queue);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // delete staging buffer
-            generateDestroyStagingBuffer(device, stagingInfo);
-
-            // delete command buffer
-            pHeader = generate::vkFreeCommandBuffers(false, device, stagingInfo.commandPool, 1, &stagingInfo.commandBuffer);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // delete command pool
-            vktrace_trace_packet_header *pDestroyCommandPoolPacket =
-                generate::vkDestroyCommandPool(false, device, stagingInfo.commandPool, nullptr);
-            vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
-        } else {
-            VkImageLayout initialLayout = obj->second.ObjectInfo.Image.initialLayout;
-            VkImageLayout desiredLayout = obj->second.ObjectInfo.Image.mostRecentLayout;
-
-            // Need to make sure images have the correct VkImageLayout.
-            if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false) {
-                uint32_t mipLevels = obj->second.ObjectInfo.Image.mipLevels;
-                uint32_t arrayLayers = obj->second.ObjectInfo.Image.arrayLayers;
-                VkFormat format = obj->second.ObjectInfo.Image.format;
-                uint32_t srcAccessMask = (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) ? VK_ACCESS_HOST_WRITE_BIT : 0;
-                VkImageAspectFlags aspectMask = getImageAspectFromFormat(format);
-
-                uint32_t srcQueueFamilyIndex = queueFamilyIndex;
-                uint32_t dstQueueFamilyIndex = queueFamilyIndex;
-
-                // This current approach is SUPER _NOT_ efficient.
-                // We should create a command pool on each device only once.
-                // We should only create one Command Buffer in each pool.
-                // We should batch all the VkImageMemoryBarrier structs into a
-                // single call to VkCmdPipelineBarrier (per-device).
-                // We should only end the command buffers once
-                // We should only queue submit them once
-                // We should only delete them once
-                // Instead, this code is doing all of the above, for every
-                // single image transition.
-
-                // This means:
-                // 0) Need a VkCommandPool. Arbitrarily name it something
-                // so that it has a unique handle which will be replaced
-                // at replay time.
-                uint64_t cmdPoolUint = 0xAAAAAAAA;
-                VkCommandPool tmpCommandPool = (VkCommandPool)cmdPoolUint;
                 const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
                     VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, NULL,
                     VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
                     obj->second.ObjectInfo.Image.queueFamilyIndex};
-
-                // Need to actually make these calls so that we get a
-                // commandPool and CommandBuffer object to use in the generated
-                // call
                 vktrace_trace_packet_header *pCreateCommandPoolPacket =
-                    generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &tmpCommandPool);
+                    generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
                 vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
 
-                // 1) Create & begin a command buffer. Arbitrarily name it something
-                // so that it has a unique handle which will be replaced
-                // at replay time.
-                uint64_t cmdBufferUint = 0xBBBBBBBB;
-                VkCommandBuffer tmpCommandBuffer = (VkCommandBuffer)cmdBufferUint;
-                const VkCommandBufferAllocateInfo cmdBufferAllocInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
-                                                                        tmpCommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
-                vktrace_trace_packet_header *pAllocateCommandBufferPacket =
-                    generate::vkAllocateCommandBuffers(false, device, &cmdBufferAllocInfo, &tmpCommandBuffer);
-                vktrace_write_trace_packet(pAllocateCommandBufferPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pAllocateCommandBufferPacket);
+                // create command buffer
+                VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+                commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                commandBufferAllocateInfo.pNext = NULL;
+                commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                commandBufferAllocateInfo.commandBufferCount = 1;
+                commandBufferAllocateInfo.commandPool = stagingInfo.commandPool;
 
-                VkCommandBufferBeginInfo cmdBufferBeginInfo = {
-                    VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, NULL, 0, NULL,
-                };
+                vktrace_trace_packet_header *pHeader =
+                    generate::vkAllocateCommandBuffers(false, device, &commandBufferAllocateInfo, &stagingInfo.commandBuffer);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                vktrace_trace_packet_header *pBeginCommandBufferPacket =
-                    generate::vkBeginCommandBuffer(false, tmpCommandBuffer, &cmdBufferBeginInfo);
-                vktrace_write_trace_packet(pBeginCommandBufferPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pBeginCommandBufferPacket);
+                VkCommandBufferBeginInfo commandBufferBeginInfo;
+                commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+                commandBufferBeginInfo.pNext = NULL;
+                commandBufferBeginInfo.flags = 0;
+                commandBufferBeginInfo.pInheritanceInfo = NULL;
 
-                // 2) Make VkImageMemoryBarrier structs to change the image's
-                // layout
-                VkImageMemoryBarrier imageMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                                                           NULL,
-                                                           srcAccessMask,
-                                                           0,  // dstAccessMask, determined below
-                                                           initialLayout,
-                                                           desiredLayout,
-                                                           srcQueueFamilyIndex,
-                                                           dstQueueFamilyIndex,
-                                                           image,
-                                                           {aspectMask, 0, mipLevels, 0, arrayLayers}};
+                pHeader = generate::vkBeginCommandBuffer(false, stagingInfo.commandBuffer, &commandBufferBeginInfo);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                if (desiredLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-                    /* Make sure anything that was copying from this image has
-                     * completed */
-                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                }
+                // Transition image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+                generateTransitionImage(device, stagingInfo.commandBuffer, image, 0, VK_ACCESS_TRANSFER_WRITE_BIT, queueFamilyIndex,
+                                        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        obj->second.ObjectInfo.Image.aspectMask, obj->second.ObjectInfo.Image.arrayLayers,
+                                        obj->second.ObjectInfo.Image.mipLevels);
 
-                if (desiredLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
-                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                }
+                // issue call to copy buffer
+                pHeader = generate::vkCmdCopyBufferToImage(
+                    false, stagingInfo.commandBuffer, stagingInfo.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    static_cast<uint32_t>(stagingInfo.imageCopyRegions.size()), stagingInfo.imageCopyRegions.data());
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                if (desiredLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-                }
+                // transition image to final layout
+                generateTransitionImage(device, stagingInfo.commandBuffer, image, VK_ACCESS_TRANSFER_WRITE_BIT,
+                                        obj->second.ObjectInfo.Image.accessFlags, queueFamilyIndex,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, obj->second.ObjectInfo.Image.mostRecentLayout,
+                                        obj->second.ObjectInfo.Image.aspectMask, obj->second.ObjectInfo.Image.arrayLayers,
+                                        obj->second.ObjectInfo.Image.mipLevels);
 
-                if (desiredLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-                    /* Make sure any Copy or CPU writes to image are flushed */
-                    imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-                }
+                pHeader = generate::vkEndCommandBuffer(false, stagingInfo.commandBuffer);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                VkImageMemoryBarrier *pmemory_barrier = &imageMemoryBarrier;
+                // Queue submit the command buffer
+                VkSubmitInfo submitInfo = {};
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submitInfo.pNext = NULL;
+                submitInfo.commandBufferCount = 1;
+                submitInfo.pCommandBuffers = &stagingInfo.commandBuffer;
+                submitInfo.pSignalSemaphores = NULL;
+                submitInfo.signalSemaphoreCount = 0;
+                submitInfo.pWaitDstStageMask = NULL;
+                submitInfo.pWaitSemaphores = NULL;
+                submitInfo.waitSemaphoreCount = 0;
 
-                VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-                VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                pHeader = generate::vkQueueSubmit(false, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                // 3) Use VkCmdPipelineBarrier to transition the images
-                vktrace_trace_packet_header *pCmdPipelineBarrierPacket = generate::vkCmdPipelineBarrier(
-                    false, tmpCommandBuffer, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
-                vktrace_write_trace_packet(pCmdPipelineBarrierPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pCmdPipelineBarrierPacket);
+                // wait for queue to finish
+                pHeader = generate::vkQueueWaitIdle(false, stagingInfo.queue);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                // 4) VkEndCommandBuffer()
-                vktrace_trace_packet_header *pEndCommandBufferPacket = generate::vkEndCommandBuffer(false, tmpCommandBuffer);
-                vktrace_write_trace_packet(pEndCommandBufferPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pEndCommandBufferPacket);
+                // delete staging buffer
+                generateDestroyStagingBuffer(device, stagingInfo);
 
-                VkQueue trimQueue = VK_NULL_HANDLE;
-                uint32_t queueIndex = 0;  // just using the first queue
-                                          // available, we don't yet verify if
-                                          // this even exists, just assuming.
-                trimQueue = trim::get_DeviceQueue(device, queueFamilyIndex, queueIndex);
+                // delete command buffer
+                pHeader = generate::vkFreeCommandBuffers(false, device, stagingInfo.commandPool, 1, &stagingInfo.commandBuffer);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
 
-                // 5) vkQueueSubmit()
-                VkSubmitInfo submitInfo = {VK_STRUCTURE_TYPE_SUBMIT_INFO, NULL, 0, NULL, NULL, 1, &tmpCommandBuffer, 0, NULL};
-                VkFence nullFence = VK_NULL_HANDLE;
-                vktrace_trace_packet_header *pQueueSubmitPacket =
-                    generate::vkQueueSubmit(false, trimQueue, 1, &submitInfo, nullFence);
-                vktrace_write_trace_packet(pQueueSubmitPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pQueueSubmitPacket);
-
-                // 5a) vkWaitQueueIdle()
-                vktrace_trace_packet_header *pQueueWaitIdlePacket = generate::vkQueueWaitIdle(false, trimQueue);
-                vktrace_write_trace_packet(pQueueWaitIdlePacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pQueueWaitIdlePacket);
-
-                // 6) vkResetCommandPool() or vkFreeCommandBuffers()
-                vktrace_trace_packet_header *pResetCommandPoolPacket =
-                    generate::vkResetCommandPool(false, device, tmpCommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
-                vktrace_write_trace_packet(pResetCommandPoolPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&pResetCommandPoolPacket);
-
-                // 7) vkDestroyCommandPool()
+                // delete command pool
                 vktrace_trace_packet_header *pDestroyCommandPoolPacket =
-                    generate::vkDestroyCommandPool(false, device, tmpCommandPool, NULL);
+                    generate::vkDestroyCommandPool(false, device, stagingInfo.commandPool, nullptr);
                 vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
+            } else {
+                VkImageLayout initialLayout = obj->second.ObjectInfo.Image.initialLayout;
+                VkImageLayout desiredLayout = obj->second.ObjectInfo.Image.mostRecentLayout;
+
+                // Need to make sure images have the correct VkImageLayout.
+                if (obj->second.ObjectInfo.Image.bIsSwapchainImage == false) {
+                    uint32_t mipLevels = obj->second.ObjectInfo.Image.mipLevels;
+                    uint32_t arrayLayers = obj->second.ObjectInfo.Image.arrayLayers;
+                    VkFormat format = obj->second.ObjectInfo.Image.format;
+                    uint32_t srcAccessMask = (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED) ? VK_ACCESS_HOST_WRITE_BIT : 0;
+                    VkImageAspectFlags aspectMask = getImageAspectFromFormat(format);
+
+                    uint32_t srcQueueFamilyIndex = queueFamilyIndex;
+                    uint32_t dstQueueFamilyIndex = queueFamilyIndex;
+
+                    // This current approach is SUPER _NOT_ efficient.
+                    // We should create a command pool on each device only once.
+                    // We should only create one Command Buffer in each pool.
+                    // We should batch all the VkImageMemoryBarrier structs into a
+                    // single call to VkCmdPipelineBarrier (per-device).
+                    // We should only end the command buffers once
+                    // We should only queue submit them once
+                    // We should only delete them once
+                    // Instead, this code is doing all of the above, for every
+                    // single image transition.
+
+                    // This means:
+                    // 0) Need a VkCommandPool. Arbitrarily name it something
+                    // so that it has a unique handle which will be replaced
+                    // at replay time.
+                    uint64_t cmdPoolUint = 0xAAAAAAAA;
+                    VkCommandPool tmpCommandPool = (VkCommandPool)cmdPoolUint;
+                    const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
+                        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, NULL,
+                        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                        obj->second.ObjectInfo.Image.queueFamilyIndex};
+
+                    // Need to actually make these calls so that we get a
+                    // commandPool and CommandBuffer object to use in the generated
+                    // call
+                    vktrace_trace_packet_header *pCreateCommandPoolPacket =
+                        generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &tmpCommandPool);
+                    vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
+
+                    // 1) Create & begin a command buffer. Arbitrarily name it something
+                    // so that it has a unique handle which will be replaced
+                    // at replay time.
+                    uint64_t cmdBufferUint = 0xBBBBBBBB;
+                    VkCommandBuffer tmpCommandBuffer = (VkCommandBuffer)cmdBufferUint;
+                    const VkCommandBufferAllocateInfo cmdBufferAllocInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
+                                                                            tmpCommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
+                    vktrace_trace_packet_header *pAllocateCommandBufferPacket =
+                        generate::vkAllocateCommandBuffers(false, device, &cmdBufferAllocInfo, &tmpCommandBuffer);
+                    vktrace_write_trace_packet(pAllocateCommandBufferPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pAllocateCommandBufferPacket);
+
+                    VkCommandBufferBeginInfo cmdBufferBeginInfo = {
+                        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                        NULL,
+                        0,
+                        NULL,
+                    };
+
+                    vktrace_trace_packet_header *pBeginCommandBufferPacket =
+                        generate::vkBeginCommandBuffer(false, tmpCommandBuffer, &cmdBufferBeginInfo);
+                    vktrace_write_trace_packet(pBeginCommandBufferPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pBeginCommandBufferPacket);
+
+                    // 2) Make VkImageMemoryBarrier structs to change the image's
+                    // layout
+                    VkImageMemoryBarrier imageMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                                                               NULL,
+                                                               srcAccessMask,
+                                                               0,  // dstAccessMask, determined below
+                                                               initialLayout,
+                                                               desiredLayout,
+                                                               srcQueueFamilyIndex,
+                                                               dstQueueFamilyIndex,
+                                                               image,
+                                                               {aspectMask, 0, mipLevels, 0, arrayLayers}};
+
+                    if (desiredLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+                        /* Make sure anything that was copying from this image has
+                         * completed */
+                        imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    }
+
+                    if (desiredLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+                        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    }
+
+                    if (desiredLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+                        imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                    }
+
+                    if (desiredLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+                        /* Make sure any Copy or CPU writes to image are flushed */
+                        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+                    }
+
+                    VkImageMemoryBarrier *pmemory_barrier = &imageMemoryBarrier;
+
+                    VkPipelineStageFlags src_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                    VkPipelineStageFlags dest_stages = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+                    // 3) Use VkCmdPipelineBarrier to transition the images
+                    vktrace_trace_packet_header *pCmdPipelineBarrierPacket = generate::vkCmdPipelineBarrier(
+                        false, tmpCommandBuffer, src_stages, dest_stages, 0, 0, NULL, 0, NULL, 1, pmemory_barrier);
+                    vktrace_write_trace_packet(pCmdPipelineBarrierPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pCmdPipelineBarrierPacket);
+
+                    // 4) VkEndCommandBuffer()
+                    vktrace_trace_packet_header *pEndCommandBufferPacket = generate::vkEndCommandBuffer(false, tmpCommandBuffer);
+                    vktrace_write_trace_packet(pEndCommandBufferPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pEndCommandBufferPacket);
+
+                    VkQueue trimQueue = VK_NULL_HANDLE;
+                    uint32_t queueIndex = 0;  // just using the first queue
+                                              // available, we don't yet verify if
+                                              // this even exists, just assuming.
+                    trimQueue = trim::get_DeviceQueue(device, queueFamilyIndex, queueIndex);
+
+                    // 5) vkQueueSubmit()
+                    VkSubmitInfo submitInfo = {VK_STRUCTURE_TYPE_SUBMIT_INFO, NULL, 0, NULL, NULL, 1, &tmpCommandBuffer, 0, NULL};
+                    VkFence nullFence = VK_NULL_HANDLE;
+                    vktrace_trace_packet_header *pQueueSubmitPacket =
+                        generate::vkQueueSubmit(false, trimQueue, 1, &submitInfo, nullFence);
+                    vktrace_write_trace_packet(pQueueSubmitPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pQueueSubmitPacket);
+
+                    // 5a) vkWaitQueueIdle()
+                    vktrace_trace_packet_header *pQueueWaitIdlePacket = generate::vkQueueWaitIdle(false, trimQueue);
+                    vktrace_write_trace_packet(pQueueWaitIdlePacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pQueueWaitIdlePacket);
+
+                    // 6) vkResetCommandPool() or vkFreeCommandBuffers()
+                    vktrace_trace_packet_header *pResetCommandPoolPacket =
+                        generate::vkResetCommandPool(false, device, tmpCommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+                    vktrace_write_trace_packet(pResetCommandPoolPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pResetCommandPoolPacket);
+
+                    // 7) vkDestroyCommandPool()
+                    vktrace_trace_packet_header *pDestroyCommandPoolPacket =
+                        generate::vkDestroyCommandPool(false, device, tmpCommandPool, NULL);
+                    vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
+                    vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
+                }
             }
         }
     }
@@ -3107,21 +3132,127 @@ void write_all_referenced_object_calls() {
             vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pCreatePacket));
         }
 
-        // BindBufferMemory
-        if (obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket != NULL) {
-            vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket));
-        }
+        if ((obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket != nullptr) && (obj->second.ObjectInfo.Buffer.size != 0)) {
+            // If the buffer is not bound to memory, it might be just created
+            // when starting to trim, so the following process should be
+            // skipped on the above condition.
 
-        if (obj->second.ObjectInfo.Buffer.needsStagingBuffer) {
-            StagingInfo stagingInfo = s_bufferToStagedInfoMap[buffer];
-            stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+            // BindBufferMemory
+            if (obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket != NULL) {
+                vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket));
+            }
 
-            // Generate packets to create the staging buffer
-            generateCreateStagingBuffer(device, stagingInfo);
+            if (obj->second.ObjectInfo.Buffer.needsStagingBuffer) {
+                StagingInfo stagingInfo = s_bufferToStagedInfoMap[buffer];
+                stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-            // here's where we map / unmap to insert data into the buffer
-            {
+                // Generate packets to create the staging buffer
+                generateCreateStagingBuffer(device, stagingInfo);
+
+                // here's where we map / unmap to insert data into the buffer
+                {
+                    // write map / unmap packets so the memory contents gets set on
+                    // replay
+                    if (obj->second.ObjectInfo.Buffer.pMapMemoryPacket != NULL) {
+                        vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pMapMemoryPacket, vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pMapMemoryPacket));
+                    }
+
+                    if (obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket != NULL) {
+                        vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket,
+                                                   vktrace_trace_get_trace_file());
+                        vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket));
+                    }
+                }
+
+                const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
+                    VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, NULL,
+                    VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                    obj->second.ObjectInfo.Buffer.queueFamilyIndex};
+                vktrace_trace_packet_header *pCreateCommandPoolPacket =
+                    generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
+                vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
+
+                // create command buffer
+                VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+                commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                commandBufferAllocateInfo.pNext = NULL;
+                commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                commandBufferAllocateInfo.commandBufferCount = 1;
+                commandBufferAllocateInfo.commandPool = stagingInfo.commandPool;
+
+                vktrace_trace_packet_header *pHeader =
+                    generate::vkAllocateCommandBuffers(false, device, &commandBufferAllocateInfo, &stagingInfo.commandBuffer);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                VkCommandBufferBeginInfo commandBufferBeginInfo;
+                commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+                commandBufferBeginInfo.pNext = NULL;
+                commandBufferBeginInfo.flags = 0;
+                commandBufferBeginInfo.pInheritanceInfo = NULL;
+
+                pHeader = generate::vkBeginCommandBuffer(false, stagingInfo.commandBuffer, &commandBufferBeginInfo);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // Transition Buffer to be writeable
+                generateTransitionBuffer(device, stagingInfo.commandBuffer, buffer, 0, VK_ACCESS_TRANSFER_WRITE_BIT, 0,
+                                         obj->second.ObjectInfo.Buffer.size);
+
+                // issue call to copy buffer
+                stagingInfo.copyRegion.dstOffset = 0;
+                stagingInfo.copyRegion.srcOffset = 0;
+                pHeader = generate::vkCmdCopyBuffer(false, stagingInfo.commandBuffer, stagingInfo.buffer, buffer, 1,
+                                                    &stagingInfo.copyRegion);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // transition buffer to final access mask
+                generateTransitionBuffer(device, stagingInfo.commandBuffer, buffer, VK_ACCESS_TRANSFER_WRITE_BIT,
+                                         obj->second.ObjectInfo.Buffer.accessFlags, 0, obj->second.ObjectInfo.Buffer.size);
+
+                pHeader = generate::vkEndCommandBuffer(false, stagingInfo.commandBuffer);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // Queue submit the command buffer
+                VkSubmitInfo submitInfo = {};
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submitInfo.pNext = NULL;
+                submitInfo.commandBufferCount = 1;
+                submitInfo.pCommandBuffers = &stagingInfo.commandBuffer;
+                submitInfo.pSignalSemaphores = NULL;
+                submitInfo.signalSemaphoreCount = 0;
+                submitInfo.pWaitDstStageMask = NULL;
+                submitInfo.pWaitSemaphores = NULL;
+                submitInfo.waitSemaphoreCount = 0;
+
+                pHeader = generate::vkQueueSubmit(false, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // wait for queue to finish
+                pHeader = generate::vkQueueWaitIdle(false, stagingInfo.queue);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // delete staging buffer
+                generateDestroyStagingBuffer(device, stagingInfo);
+
+                // delete command buffer
+                pHeader = generate::vkFreeCommandBuffers(false, device, stagingInfo.commandPool, 1, &stagingInfo.commandBuffer);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // delete command pool
+                vktrace_trace_packet_header *pDestroyCommandPoolPacket =
+                    generate::vkDestroyCommandPool(false, device, stagingInfo.commandPool, nullptr);
+                vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
+            } else {
                 // write map / unmap packets so the memory contents gets set on
                 // replay
                 if (obj->second.ObjectInfo.Buffer.pMapMemoryPacket != NULL) {
@@ -3133,105 +3264,6 @@ void write_all_referenced_object_calls() {
                     vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
                     vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket));
                 }
-            }
-
-            const VkCommandPoolCreateInfo cmdPoolCreateInfo = {
-                VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, NULL,
-                VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                obj->second.ObjectInfo.Buffer.queueFamilyIndex};
-            vktrace_trace_packet_header *pCreateCommandPoolPacket =
-                generate::vkCreateCommandPool(false, device, &cmdPoolCreateInfo, NULL, &stagingInfo.commandPool);
-            vktrace_write_trace_packet(pCreateCommandPoolPacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
-
-            // create command buffer
-            VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-            commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            commandBufferAllocateInfo.pNext = NULL;
-            commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            commandBufferAllocateInfo.commandBufferCount = 1;
-            commandBufferAllocateInfo.commandPool = stagingInfo.commandPool;
-
-            vktrace_trace_packet_header *pHeader =
-                generate::vkAllocateCommandBuffers(false, device, &commandBufferAllocateInfo, &stagingInfo.commandBuffer);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            VkCommandBufferBeginInfo commandBufferBeginInfo;
-            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            commandBufferBeginInfo.pNext = NULL;
-            commandBufferBeginInfo.flags = 0;
-            commandBufferBeginInfo.pInheritanceInfo = NULL;
-
-            pHeader = generate::vkBeginCommandBuffer(false, stagingInfo.commandBuffer, &commandBufferBeginInfo);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // Transition Buffer to be writeable
-            generateTransitionBuffer(device, stagingInfo.commandBuffer, buffer, 0, VK_ACCESS_TRANSFER_WRITE_BIT, 0,
-                                     obj->second.ObjectInfo.Buffer.size);
-
-            // issue call to copy buffer
-            stagingInfo.copyRegion.dstOffset = 0;
-            stagingInfo.copyRegion.srcOffset = 0;
-            pHeader =
-                generate::vkCmdCopyBuffer(false, stagingInfo.commandBuffer, stagingInfo.buffer, buffer, 1, &stagingInfo.copyRegion);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // transition buffer to final access mask
-            generateTransitionBuffer(device, stagingInfo.commandBuffer, buffer, VK_ACCESS_TRANSFER_WRITE_BIT,
-                                     obj->second.ObjectInfo.Buffer.accessFlags, 0, obj->second.ObjectInfo.Buffer.size);
-
-            pHeader = generate::vkEndCommandBuffer(false, stagingInfo.commandBuffer);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // Queue submit the command buffer
-            VkSubmitInfo submitInfo = {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.pNext = NULL;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &stagingInfo.commandBuffer;
-            submitInfo.pSignalSemaphores = NULL;
-            submitInfo.signalSemaphoreCount = 0;
-            submitInfo.pWaitDstStageMask = NULL;
-            submitInfo.pWaitSemaphores = NULL;
-            submitInfo.waitSemaphoreCount = 0;
-
-            pHeader = generate::vkQueueSubmit(false, stagingInfo.queue, 1, &submitInfo, VK_NULL_HANDLE);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // wait for queue to finish
-            pHeader = generate::vkQueueWaitIdle(false, stagingInfo.queue);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // delete staging buffer
-            generateDestroyStagingBuffer(device, stagingInfo);
-
-            // delete command buffer
-            pHeader = generate::vkFreeCommandBuffers(false, device, stagingInfo.commandPool, 1, &stagingInfo.commandBuffer);
-            vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pHeader);
-
-            // delete command pool
-            vktrace_trace_packet_header *pDestroyCommandPoolPacket =
-                generate::vkDestroyCommandPool(false, device, stagingInfo.commandPool, nullptr);
-            vktrace_write_trace_packet(pDestroyCommandPoolPacket, vktrace_trace_get_trace_file());
-            vktrace_delete_trace_packet(&pDestroyCommandPoolPacket);
-        } else {
-            // write map / unmap packets so the memory contents gets set on
-            // replay
-            if (obj->second.ObjectInfo.Buffer.pMapMemoryPacket != NULL) {
-                vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pMapMemoryPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pMapMemoryPacket));
-            }
-
-            if (obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket != NULL) {
-                vktrace_write_trace_packet(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket, vktrace_trace_get_trace_file());
-                vktrace_delete_trace_packet(&(obj->second.ObjectInfo.Buffer.pUnmapMemoryPacket));
             }
         }
     }
