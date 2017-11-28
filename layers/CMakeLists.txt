@@ -31,6 +31,7 @@ set(LAYER_JSON_FILES_WITH_DEPENDENCIES
     VkLayer_unique_objects
     VkLayer_parameter_validation
     VkLayer_threading
+    VkLayer_layer_factory
     )
 
 set(LAYER_JSON_FILES_NO_DEPENDENCIES
