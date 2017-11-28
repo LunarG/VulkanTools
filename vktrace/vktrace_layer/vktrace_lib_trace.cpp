@@ -152,201 +152,6 @@ void* strip_create_extensions(const void* pNext) {
     return create_info;
 }
 
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-
-// Function to call mprotect and check for errors.
-// Returns 0 on success, -1 on failure.
-static int32_t mprotectWithErrorCheck(void* addr, size_t size, int prot) {
-    while (0 != mprotect(addr, size, prot)) {
-        if (errno == EAGAIN) continue;
-
-        // Something bad happened, and it's fatal.
-        return -1;
-    }
-    return 0;
-}
-
-// When quering dirty pages from /proc/self/pagemap, there is a
-// small window between the reading of this file and when the dirty bits
-// are cleared in which some other thread might modify mapped memory.
-// We trap these memory writes by setting mapped memory pages to read-only and
-// setting the signal handler for SIGSEGV. The signal handler writes the
-// addresses that caused a SIGSEGV to a pipe, which are read and handled
-// by getMappedDirtyPagesLinux.
-
-// Note that we call mprotect(2) and write(2) in this signal handler.
-// Calling mprotect(2) in a signal hander is not POSIX compliant, but
-// is known to work on Linux. Calling write(2) in a signal hander is
-// allowed by POSIX.
-
-static int pipefd[2];
-
-static void segvHandler(int sig, siginfo_t* si, void* ununsed) {
-    size_t pageSize = pageguardGetSystemPageSize();
-    void* addr;
-
-    addr = si->si_addr;
-    if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr))) {
-        // Write to pipe failed. This could happen if the app generates 8k SIGSEGV exceptions and the pipe overflows. We'll just
-        // abort in that case.
-        abort();
-    }
-
-    // Change the protection of this page to allow the write to proceed.
-    if (mprotectWithErrorCheck((void*)((uint64_t)si->si_addr & ~(pageSize - 1)), pageSize, PROT_READ | PROT_WRITE) != 0) {
-        // If the mprotect failed, write addr to the pipe a second time.  getMappedDirtyPagesLinux will read consective identical
-        // values from the pipe and generate an error.
-        if (sizeof(addr) != write(pipefd[1], &addr, sizeof(addr))) abort();
-    }
-}
-
-// This function is called when we need to update our list of mapped memory
-// that is dirty.  On Linux, we use the /proc/self/pagemap to detect which pages
-// changed. But we also use mprotect with a signal handler for the rare case
-// in which mapped memory is written to between when we read the dirty bits
-// from /proc/self/pagemap dirty and clear the dirty bits.
-
-void getMappedDirtyPagesLinux(void) {
-    LPPageGuardMappedMemory pMappedMem;
-    PBYTE addr, alignedAddrStart, alignedAddrEnd, previousAddr;
-    uint64_t nPages;
-    VkDeviceMemory mappedMemory;
-    off_t pmOffset;
-    int64_t index;
-    size_t pageSize = pageguardGetSystemPageSize();
-    size_t readLen;
-    VKAllocInfo* pEntry;
-    struct sigaction sigAction;
-    static int pmFd = -1;
-    static std::vector<uint64_t> pageEntries;
-
-    // If pageguard isn't enabled, we don't need to do anythhing
-    if (!getPageGuardEnableFlag()) return;
-
-    vktrace_enter_critical_section(&g_memInfoLock);
-
-    // Open pagefile, open the pipe, and set a SIGSEGV handler
-    if (pmFd == -1) {
-        pmFd = open("/proc/self/pagemap", O_RDONLY);
-        if (pmFd < 0) VKTRACE_FATAL_ERROR("Failed to open pagemap file. Is your kernel configured with CONFIG_MEM_SOFT_DIRTY?");
-
-        if (0 != pipe2(pipefd, O_NONBLOCK)) VKTRACE_FATAL_ERROR("Failed to create pipe.");
-
-        // Set the SIGSEGV signal handler
-        sigAction.sa_sigaction = segvHandler;
-        sigfillset(&sigAction.sa_mask);
-        sigAction.sa_flags = SA_SIGINFO;
-        if (0 != sigaction(SIGSEGV, &sigAction, NULL)) VKTRACE_FATAL_ERROR("sigaction sys call failed.");
-    }
-
-    // Iterate through all mapped memory allocations.
-    // Check dirty bits of each page in each mapped memory allocation.
-    for (std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>::iterator it =
-             getPageGuardControlInstance().getMapMemory().begin();
-         it != getPageGuardControlInstance().getMapMemory().end(); it++) {
-        pMappedMem = &(it->second);
-        mappedMemory = pMappedMem->getMappedMemory();
-        pEntry = find_mem_info_entry(mappedMemory);
-        addr = pEntry->pData;
-        if (!addr) continue;
-        alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize - 1));
-        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize - 1));
-        nPages = (alignedAddrEnd - alignedAddrStart) / pageSize;
-
-        // Make pages in this memory allocation non-writable so we get a SIGSEGV
-        // if some other thread writes to this memory while we are examining
-        // and clearing its dirty bit.
-        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ);
-
-        // Read all the pagemap entries for this mapped memory allocation
-        if (pageEntries.size() < nPages) pageEntries.resize(nPages);
-        pmOffset = (off_t)((uint64_t)alignedAddrStart / (uint64_t)pageSize) * 8;
-        lseek(pmFd, pmOffset, SEEK_SET);
-        readLen = read(pmFd, &pageEntries[0], 8 * nPages);
-        assert(readLen == 8 * nPages);
-        if (readLen != 8 * nPages) VKTRACE_FATAL_ERROR("Failed to read from pagemap file.");
-
-        // Examine the dirty bits in each pagemap entry
-        addr = alignedAddrStart;
-        for (uint64_t i = 0; i < nPages; i++) {
-            if ((pageEntries[i] & PTE_DIRTY_BIT) != 0) {
-                index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-                if (index >= 0) {
-                    // If the page is not already marked changed, compute a
-                    // checksum.
-                    // Mark the page as changed if the new checksum doesn't
-                    // match the
-                    // saved checksum, and save the new checksum.
-                    if (!pMappedMem->isMappedBlockChanged(index, BLOCK_FLAG_ARRAY_CHANGED)) {
-                        uint64_t checksum = pMappedMem->computePageChecksum(addr);
-                        if (checksum != pMappedMem->getPageChecksum(index)) {
-                            pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-                            pMappedMem->setPageChecksum(index, checksum);
-                        }
-                    }
-                }
-            }
-            addr += pageSize;
-        }
-    }
-
-// Clear all dirty bits for this process
-#if !defined(ANDROID)
-    getPageGuardControlInstance().pageRefsDirtyClear();
-#endif
-
-    // Re-enable write permission for all mapped memory
-    for (std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>::iterator it =
-             getPageGuardControlInstance().getMapMemory().begin();
-         it != getPageGuardControlInstance().getMapMemory().end(); it++) {
-        pMappedMem = &(it->second);
-        mappedMemory = pMappedMem->getMappedMemory();
-        pEntry = find_mem_info_entry(mappedMemory);
-        addr = pEntry->pData;
-        if (!addr) continue;
-        alignedAddrStart = (PBYTE)((uint64_t)addr & ~(pageSize - 1));
-        alignedAddrEnd = (PBYTE)(((uint64_t)addr + pEntry->rangeSize + pageSize - 1) & ~(pageSize - 1));
-        mprotectWithErrorCheck(alignedAddrStart, (size_t)(alignedAddrEnd - alignedAddrStart), PROT_READ | PROT_WRITE);
-    }
-
-    // Read all the addresses that caused a segv and mark those pages dirty
-
-    previousAddr = 0;
-    while ((sizeof(addr) == read(pipefd[0], &addr, sizeof(addr)))) {
-        // If we get consecutive identical addresses, the sig handler is getting called repeatedly with the same address, the
-        // mprotect call in the sig handler failed, or the app is writing to the same address from different threads.  Generate an
-        // error and exit.
-        if (previousAddr == addr) {
-            VKTRACE_FATAL_ERROR("vktrace layer trapped SIGSEGV but unable to handle.");
-        }
-        previousAddr = addr;
-
-        for (std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>::iterator it =
-                 getPageGuardControlInstance().getMapMemory().begin();
-             it != getPageGuardControlInstance().getMapMemory().end(); it++) {
-            pMappedMem = &(it->second);
-            index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-            if (index >= 0) {
-                // Mark block as changed, and set checksum to invalid.
-                // We have to set the checksum to invalid because the block
-                // may be changed by another thread in this process, so
-                // the checksum we compute would be incorrect. We
-                // can only compute checksums while memory is mprotect'ed.
-                pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-                pMappedMem->setPageChecksum(index, PageGuardMappedMemory::CHECKSUM_INVALID);
-                break;
-            } else {
-                // We can't give an error here if we didn't find the address
-                // in mapped memory. The arrival of a signal might be delayed
-                // due to process scheduling, and thus might arrive after the
-                // mapped memory has been unmapped.
-            }
-        }
-    }
-    vktrace_leave_critical_section(&g_memInfoLock);
-}
-#endif
-
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkDeviceMemory* pMemory) {
@@ -460,9 +265,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
 #ifdef USE_PAGEGUARD_SPEEDUP
     void* PageGuardMappedData = NULL;
     pageguardEnter();
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    getMappedDirtyPagesLinux();
-#endif
     getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData,
                                                                &vkFlushMappedMemoryRangesWithoutAPICall);
 #endif
@@ -531,9 +333,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
     pageguardEnter();
     if (getPageGuardControlInstance().findMappedMemoryObject(device, memory) != nullptr) {
         void* PageGuardMappedData = nullptr;
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-        getMappedDirtyPagesLinux();
-#endif
         getPageGuardControlInstance().vkUnmapMemoryPageGuardHandle(device, memory, &PageGuardMappedData,
                                                                    &vkFlushMappedMemoryRangesWithoutAPICall);
         if (PageGuardMappedData != nullptr) {
@@ -668,9 +467,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    getMappedDirtyPagesLinux();
-#endif
     PBYTE* ppPackageData = new PBYTE[memoryRangeCount];
     getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(
         device, memoryRangeCount, pMemoryRanges, ppPackageData);  // the packet is not needed if no any change on data of all ranges
@@ -2273,9 +2069,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                                                                       const VkSubmitInfo* pSubmits, VkFence fence) {
 #ifdef USE_PAGEGUARD_SPEEDUP
     pageguardEnter();
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    getMappedDirtyPagesLinux();
-#endif
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
     resetAllReadFlagAndPageGuard();
     pageguardExit();

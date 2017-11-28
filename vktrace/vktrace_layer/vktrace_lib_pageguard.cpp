@@ -32,11 +32,9 @@ static const VkDeviceSize PAGEGUARD_PAGEGUARD_TARGET_RANGE_SIZE_MIN = 1;  // alr
                                                                           // size is 4k, so only range size=2 can cover small size
                                                                           // mapped memory.
 
-#if defined(WIN32) || defined(ANDROID)
 static vktrace_sem_id ref_amount_sem_id;  // TODO if vktrace implement cross platform lib or dll load or unload function, this sem
                                           // can be putted in those functions, but now we leave it to process quit.
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
-#endif
 static vktrace_sem_id map_lock_sem_id;
 #if defined(PLATFORM_LINUX)
 static bool map_lock_sem_id_create_success __attribute__((unused)) = vktrace_sem_create(&map_lock_sem_id, 1);
@@ -44,7 +42,14 @@ static bool map_lock_sem_id_create_success __attribute__((unused)) = vktrace_sem
 static bool map_lock_sem_id_create_success = vktrace_sem_create(&map_lock_sem_id, 1);
 #endif
 
-void pageguardEnter() { vktrace_sem_wait(map_lock_sem_id); }
+void pageguardEnter() {
+    // Reference this variable to avoid compiler warnings
+    if (!map_lock_sem_id_create_success) {
+        vktrace_LogError("Semaphore create failed!");
+    }
+    vktrace_sem_wait(map_lock_sem_id);
+}
+
 void pageguardExit() { vktrace_sem_post(map_lock_sem_id); }
 
 VkDeviceSize& ref_target_range_size() {
@@ -65,67 +70,6 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo);
 PVOID OPTHandler = nullptr;        // use to remove page guard handler
 uint32_t OPTHandlerRefAmount = 0;  // for persistent map and multi-threading environment, map and unmap maybe overlap, we need to
                                    // make sure remove handler after all persistent map has been unmapped.
-
-// Function to verify pageguard support on current platform.
-// Generates warning if platform does not support pageguard.
-// Returns true if platform can support pageguard, false otherwise.
-// This function is needed because some Linux kernels may be
-// configured without /proc/self/pagemap support.
-static bool verifyPlatformPageGuardSupport(void) {
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    int pmFd = -1, crFd = -1;
-    void* p = nullptr;
-    size_t pageSize = pageguardGetSystemPageSize();
-    off_t fileOffset;
-    uint64_t ptEntry;
-    char four = '4';
-
-    pmFd = open("/proc/self/pagemap", O_RDONLY);
-    if (pmFd <= 0) goto error;
-    crFd = open("/proc/self/clear_refs", O_WRONLY);
-    if (crFd <= 0) goto error;
-    p = (uint32_t*)pageguardAllocateMemory(sizeof(uint32_t));
-    if (p == nullptr) goto error;
-
-    fileOffset = ((off_t)((((size_t)p & ~(pageSize - 1)) / pageSize))) * 8;
-
-    // Use clear_refs to clear dirty bit and verify it is cleared
-    if (write(crFd, &four, 1) <= 0) goto error;
-    if (fileOffset != lseek(pmFd, fileOffset, SEEK_SET)) goto error;
-    if (sizeof(ptEntry) != read(pmFd, &ptEntry, sizeof(ptEntry))) goto error;
-    if ((ptEntry & PTE_DIRTY_BIT) != 0) goto error;
-
-    // Make sure a write to *p results in dirty bit being set
-    *((uint64_t*)p) = 1;
-    if (fileOffset != lseek(pmFd, fileOffset, SEEK_SET)) goto error;
-    if (sizeof(ptEntry) != read(pmFd, &ptEntry, sizeof(ptEntry))) goto error;
-    if ((ptEntry & PTE_DIRTY_BIT) == 0) goto error;
-
-    // Use clear_refs to clear dirty bit and verify it is cleared
-    if (write(crFd, &four, 1) <= 0) goto error;
-    if (fileOffset != lseek(pmFd, fileOffset, SEEK_SET)) goto error;
-    if (sizeof(ptEntry) != read(pmFd, &ptEntry, sizeof(ptEntry))) goto error;
-    if ((ptEntry & PTE_DIRTY_BIT) != 0) goto error;
-
-    // Clean up
-    pageguardFreeMemory(p);
-    close(pmFd);
-    close(crFd);
-    return true;
-
-error:
-    vktrace_LogAlways("Cannot enable pmb tracing, using --PMB false.");
-    vktrace_LogAlways("Linux kernel seems to not be configured with CONFIG_MEM_SOFT_DIRTY.");
-    if (p != nullptr) pageguardFreeMemory(p);
-    if (pmFd != -1) close(pmFd);
-    if (crFd != -1) close(crFd);
-    return false;
-
-#else
-    // Windows always supports pageguard
-    return true;
-#endif
-}
 
 // return if enable pageguard;
 // if enable page guard, then check if need to update target range size, page guard only work for those persistent mapped memory
@@ -155,8 +99,6 @@ bool getPageGuardEnableFlag() {
                 }
             }
         }
-        // Make sure current platform can support pageguard
-        if (EnablePageGuard) EnablePageGuard = verifyPlatformPageGuardSupport();
     }
     return EnablePageGuard;
 }
@@ -196,16 +138,21 @@ bool getEnablePageGuardLazyCopyFlag() {
     return EnablePageGuardLazyCopyFlag;
 }
 
-#if defined(WIN32) || defined(ANDROID)
-#if defined(ANDROID)
+#if defined(PLATFORM_LINUX)
 static struct sigaction g_old_sa;
 #endif
+
 void setPageGuardExceptionHandler() {
+    // Reference this variable to avoid compiler warnings
+    if (!ref_amount_sem_id_create_success) {
+        vktrace_LogError("Semaphore create failed!");
+    }
+
     vktrace_sem_wait(ref_amount_sem_id);
     if (!OPTHandler) {
 #if defined(WIN32)
         OPTHandler = AddVectoredExceptionHandler(1, PageGuardExceptionHandler);
-#elif defined(ANDROID)
+#else
         struct sigaction sa;
         sa.sa_flags = SA_SIGINFO;
         sigemptyset(&sa.sa_mask);
@@ -233,7 +180,7 @@ void removePageGuardExceptionHandler() {
         if (!OPTHandlerRefAmount) {
 #if defined(WIN32)
             RemoveVectoredExceptionHandler(OPTHandler);
-#elif defined(ANDROID)
+#else
             if (sigaction(SIGSEGV, &g_old_sa, NULL) == -1) {
                 vktrace_LogError("Remove page guard exception handler failed !");
             }
@@ -243,7 +190,6 @@ void removePageGuardExceptionHandler() {
     }
     vktrace_sem_post(ref_amount_sem_id);
 }
-#endif
 
 uint64_t pageguardGetAdjustedSize(uint64_t size) {
     uint64_t pagesize = pageguardGetSystemPageSize();
@@ -377,14 +323,6 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
             int64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
             if (index >= 0) {
                 if (!getEnableReadPMBFlag() || bWrite) {
-                    // We don't attempt to use checksums on Windows to determine
-                    // if a page is being written with the same data.
-                    // We can't compute and save a checksum here because
-                    // PAGEGUARD is a one-shot, and the saved checksum
-                    // would be incorrect once the next word in the same block
-                    // is written, and we don't have a way to find out about the
-                    // change.
-
                     if ((!pMappedMem->isMappedBlockLoaded(index)) && (getEnablePageGuardLazyCopyFlag())) {
                         // the page never get accessed since the time of the shadow
                         // memory creation in map process. so here we copy the page
@@ -433,20 +371,19 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     pageguardExit();
     return resultCode;
 }
-#elif defined(ANDROID)
+#else
 void PageGuardExceptionHandler(int sig, siginfo_t* si, void* unused) {
     if (sig == SIGSEGV) {
         VkDeviceSize OffsetOfAddr;
         PBYTE pBlock;
         VkDeviceSize BlockSize;
         PBYTE addr = (PBYTE)si->si_addr;
+        pageguardEnter();
         LPPageGuardMappedMemory pMappedMem =
             getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
         if (pMappedMem) {
             uint64_t index = pMappedMem->getIndexOfChangedBlockByAddr(addr);
-
             pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-
             if (mprotect(pMappedMem->getMappedDataPointer() + index * pageguardGetSystemPageSize(),
                          (SIZE_T)pMappedMem->getMappedBlockSize(index), (PROT_READ | PROT_WRITE)) == -1) {
                 vktrace_LogError("Clear memory protect on page(%d) failed !", index);
@@ -457,6 +394,7 @@ void PageGuardExceptionHandler(int sig, siginfo_t* si, void* unused) {
             vktrace_LogError("Unhandled SIGSEGV on address: 0x%lx !", (long)addr);
             exit(EXIT_FAILURE);
         }
+        pageguardExit();
     }
 }
 #endif
