@@ -2006,8 +2006,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 packetHeader1.packet_id == VKTRACE_TPI_VK_vkAllocateMemory) {
                 // Found it
                 // Save away the vkAM return val from the trace file
-                traceAllocateMemoryRval =
-                    *((VkDeviceMemory *)((PBYTE)pPacket->header + pPacket->header->size - sizeof(VkDeviceMemory *)));
+                traceAllocateMemoryRval = *pPacket->pMemory;
 
                 // Save the index where we will start the next search for vkAM
                 amSearchPos = amIdx + 1;
