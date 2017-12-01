@@ -376,6 +376,35 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
 
     FreeLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
 }
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
+                                                            const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
+                                                            const VkAllocationCallbacks *pAllocator,
+                                                            VkDebugReportCallbackEXT *pCallback) {
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    for (auto intercept : global_interceptor_list) {
+        intercept->PreCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+    }
+    VkResult result = instance_data->dispatch_table.CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+    result = layer_create_msg_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
+    for (auto intercept : global_interceptor_list) {
+        intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback,
+                                                         const VkAllocationCallbacks *pAllocator) {
+    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    for (auto intercept : global_interceptor_list) {
+        intercept->PreCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
+    }
+    instance_data->dispatch_table.DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
+    layer_destroy_msg_callback(instance_data->report_data, callback, pAllocator);
+    for (auto intercept : global_interceptor_list) {
+        intercept->PostCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
+    }
+}
 """
 
     inline_custom_source_postamble = """
@@ -645,8 +674,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             'vkDestroyDevice',
             'vkCreateInstance',
             'vkDestroyInstance',
-            #'vkCreateDebugReportCallbackEXT',
-            #'vkDestroyDebugReportCallbackEXT',
+            'vkCreateDebugReportCallbackEXT',
+            'vkDestroyDebugReportCallbackEXT',
             'vkEnumerateInstanceLayerProperties',
             'vkEnumerateInstanceExtensionProperties',
             'vkEnumerateDeviceLayerProperties',
