@@ -91,19 +91,20 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 }}
 @end function
 
-@foreach function where('{funcReturn}' != 'void' and '{funcName}' in ['vkDebugMarkerSetObjectNameEXT'])
+@foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT' and '{funcReturn}' != 'void')
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
-    // This is a SPECIAL function       -       TODO Take this comment out
+    // TODO - Remove the following stream output; How to test?
+    dump_inst.settings().stream() << "In DebugMarkerSetObjectNameEXT\\n";
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
 
     if (pNameInfo->pObjectName)
     {{
-        dump_inst.objectNameMap->insert(std::make_pair<uint64_t, std::string>((uint64_t &&)pNameInfo->object, pNameInfo->pObjectName));
+        dump_inst.object_name_map.insert(std::make_pair<uint64_t, std::string>((uint64_t &&)pNameInfo->object, pNameInfo->pObjectName));
     }}
     else
     {{
-        dump_inst.objectNameMap->erase(pNameInfo->object);
+        dump_inst.object_name_map.erase(pNameInfo->object);
     }}
 
     switch(dump_inst.settings().format())
@@ -361,6 +362,7 @@ TEXT_CODEGEN = """
  * limitations under the License.
  *
  * Author: Lenny Komow <lenny@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 /*
@@ -371,6 +373,7 @@ TEXT_CODEGEN = """
 
 #include "api_dump.h"
 
+std::unordered_set<std::string> handles({{@foreach handle"{hdlName}", @end handle}});
 @foreach struct
 std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
 @end struct
@@ -414,11 +417,19 @@ inline std::ostream& dump_text_{sysName}(const {sysType} object, const ApiDumpSe
 
 @foreach handle
 inline std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        return settings.stream() << object;
-    else
-        return settings.stream() << "address";
+{{        
+    if(settings.showAddress()) {{
+        settings.stream() << object << " " << ApiDumpInstance::current().object_name_map.size() << " "; // TODO - REMOVE THE MAP SIZE
+        
+        std::unordered_map<uint64_t, std::string>::const_iterator is_named = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (is_named != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << " I\\'M IN" << is_named->second;
+        }}
+    }} else {{
+        settings.stream() << "address";
+    }}
+        
+    return settings.stream();
 }}
 @end handle
 
@@ -598,7 +609,6 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-
     if(settings.showParams())
     {{
         @foreach parameter

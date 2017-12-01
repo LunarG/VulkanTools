@@ -16,6 +16,7 @@
  * limitations under the License.
  *
  * Author: Lenny Komow <lenny@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 #pragma once
@@ -437,7 +438,7 @@ class ApiDumpInstance {
 
     static inline ApiDumpInstance &current() { return current_instance; }
 
-    std::unordered_map<uint64_t, std::string> *objectNameMap;
+    std::unordered_map<uint64_t, std::string> object_name_map;
 
    private:
     static ApiDumpInstance current_instance;
@@ -534,6 +535,10 @@ inline void dump_text_value(const T object, const ApiDumpSettings &settings, con
                             std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
     settings.formatNameType(settings.stream(), indents, name, type_string);
     dump(object, settings, indents, args...) << "\n";
+//    auto search = handles.find(std::string(type_string));
+//    if (search != handles.end()) {
+//        settings.stream() << "garbage";
+//    }
 }
 
 template <typename T, typename... Args>
