@@ -510,8 +510,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '            global_interceptor_list.emplace_back(this);\n'
         self.layer_factory += '        };\n'
         self.layer_factory += '\n'
-        self.layer_factory += '        std::string layer_name = "VLLF";\n'
-        self.layer_factory += '        std::vector<InterceptIdentifiers> factory_object_intercepts;\n'
+        self.layer_factory += '        std::string layer_name = "VLF";\n'
         self.layer_factory += '\n'
         self.layer_factory += '        // Pre/post hook point declarations\n'
     #
