@@ -445,7 +445,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         # Internal state - accumulators for different inner block text
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         self.intercepts = []
-        self.intercept_enums = ''                   # String containing API intercept enum values
         self.layer_factory = ''                     # String containing base layer factory class definition
 
     # Check if the parameter passed in is a pointer to an array
@@ -493,7 +492,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
                     write(s, file=self.outFile)
             write('#include "vulkan/vk_layer.h"', file=self.outFile)
             write('#include <unordered_map>\n', file=self.outFile)
-            write('enum InterceptIdentifiers;', file=self.outFile)
             write('class layer_factory;', file=self.outFile)
             write('extern std::vector<layer_factory *> global_interceptor_list;', file=self.outFile)
             write('extern debug_report_data *vllf_report_data;\n', file=self.outFile)
@@ -502,7 +500,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             write(self.inline_custom_source_preamble, file=self.outFile)
 
         # Initialize Enum Section
-        self.intercept_enums += 'typedef enum InterceptIdentifiers {\n'
         self.layer_factory += '// Layer Factory base class definition\n'
         self.layer_factory += 'class layer_factory {\n'
         self.layer_factory += '    public:\n'
@@ -527,10 +524,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         write('} // namespace vulkan_layer_factory', file=self.outFile)
         if self.header:
             self.newline()
-            # Output intercept identifer enum definition
-            self.intercept_enums += '    kMaxInterceptIdentifers,\n'
-            self.intercept_enums += '} InterceptIdentifiers;\n'
-            write(self.intercept_enums, file=self.outFile)
             # Output Layer Factory Class Definitions
             self.layer_factory += '};\n'
             write(self.layer_factory, file=self.outFile)
@@ -634,8 +627,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             if (self.featureExtraProtect != None):
                 self.intercepts += [ '#ifdef %s' % self.featureExtraProtect ]
                 self.layer_factory += '#ifdef %s\n' % self.featureExtraProtect
-            self.intercept_enums += '    kPreCall%s,\n' % name[2:]
-            self.intercept_enums += '    kPostCall%s,\n' % name[2:]
             # Update base class with virtual function declarations
             self.layer_factory += self.BaseClassCdecl(cmdinfo.elem)
             # Update function intercepts
