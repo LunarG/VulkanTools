@@ -292,7 +292,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     // Init dispatch array and call registration functions
     InitializeDispatchIntercepts();
-    for (auto intercept : dispatch_intercepts[kPreCallCreateInstance]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PreCallCreateInstance(pCreateInfo, pAllocator, pInstance);
     }
 
@@ -306,7 +306,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     instance_data->extensions.InitFromInstanceCreateInfo(pCreateInfo);
     layer_debug_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
 
-    for (auto intercept : dispatch_intercepts[kPostCallCreateInstance]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateInstance(pCreateInfo, pAllocator, pInstance);
     }
 
@@ -315,14 +315,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
-    for (auto intercept : dispatch_intercepts[kPreCallDestroyInstance]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PreCallDestroyInstance(instance, pAllocator);
     }
 
     instance_data->dispatch_table.DestroyInstance(instance, pAllocator);
 
     lock_guard_t lock(global_lock);
-    for (auto intercept : dispatch_intercepts[kPostCallDestroyInstance]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PostCallDestroyInstance(instance, pAllocator);
     }
     // Clean up logging callback, if any
@@ -346,7 +346,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(instance_data->instance, "vkCreateDevice");
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
-    for (auto intercept : dispatch_intercepts[kPreCallCreateDevice]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PreCallCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
     }
     lock.unlock();
@@ -354,7 +354,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     VkResult result = fpCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
 
     lock.lock();
-    for (auto intercept : dispatch_intercepts[kPostCallCreateDevice]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
     }
     device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(*pDevice), device_layer_data_map);
@@ -373,7 +373,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
 
     unique_lock_t lock(global_lock);
-    for (auto intercept : dispatch_intercepts[kPreCallDestroyDevice]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PreCallDestroyDevice(device, pAllocator);
     }
     layer_debug_report_destroy_device(device);
@@ -382,7 +382,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     device_data->dispatch_table.DestroyDevice(device, pAllocator);
 
     lock.lock();
-    for (auto intercept : dispatch_intercepts[kPostCallDestroyDevice]) {
+    for (auto intercept : global_interceptor_list) {
         intercept->PostCallDestroyDevice(device, pAllocator);
     }
 
