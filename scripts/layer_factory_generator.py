@@ -709,7 +709,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         API = api_function_name.replace('vk','%s_data->dispatch_table.' % (device_or_instance),1)
 
         # Generate pre-call object processing source code
-        self.appendSection('command', '    for (auto intercept : dispatch_intercepts[kPreCall%s]) {' % api_function_name[2:])
+        self.appendSection('command', '    for (auto intercept : global_interceptor_list) {')
         self.appendSection('command', '        intercept->PreCall%s(%s);' % (api_function_name[2:], paramstext))
         self.appendSection('command', '    }')
 
@@ -725,7 +725,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.appendSection('command', '    ' + assignresult + API + '(' + paramstext + ');')
 
         # Generate post-call object processing source code
-        self.appendSection('command', '    for (auto intercept : dispatch_intercepts[kPostCall%s]) {' % api_function_name[2:])
+        self.appendSection('command', '    for (auto intercept : global_interceptor_list) {')
         self.appendSection('command', '        intercept->PostCall%s(%s);' % (api_function_name[2:], paramstext))
         self.appendSection('command', '    }')
 
