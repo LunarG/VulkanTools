@@ -737,10 +737,17 @@ inline std::ostream& dump_html_{sysName}(const {sysType} object, const ApiDumpSe
 inline std::ostream& dump_html_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
-    if(settings.showAddress())
-        settings.stream() << object;
-    else
+    if(settings.showAddress()) {{
+        settings.stream() << object << "</div>";
+        
+        std::unordered_map<uint64_t, std::string>::const_iterator is_named = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (is_named != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << " " << is_named->second;
+            // TODO - Remove the above output
+        }}
+    }} else {{
         settings.stream() << "address";
+    }}
     return settings.stream() << "</div></summary>";
 }}
 @end handle
