@@ -165,7 +165,7 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 
 class layer_factory;
 std::vector<layer_factory *> global_interceptor_list;
-debug_report_data *vllf_report_data = VK_NULL_HANDLE;
+debug_report_data *vlf_report_data = VK_NULL_HANDLE;
 
 #include "layer_factory.h"
 #include "interceptor_objects.h"
@@ -293,6 +293,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
         &instance_data->dispatch_table, *pInstance, pCreateInfo->enabledExtensionCount, pCreateInfo->ppEnabledExtensionNames);
     instance_data->extensions.InitFromInstanceCreateInfo(pCreateInfo);
     layer_debug_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
+    vlf_report_data = instance_data->report_data;
 
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateInstance(pCreateInfo, pAllocator, pInstance);
@@ -523,7 +524,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             write('#include <unordered_map>\n', file=self.outFile)
             write('class layer_factory;', file=self.outFile)
             write('extern std::vector<layer_factory *> global_interceptor_list;', file=self.outFile)
-            write('extern debug_report_data *vllf_report_data;\n', file=self.outFile)
+            write('extern debug_report_data *vlf_report_data;\n', file=self.outFile)
             write('namespace vulkan_layer_factory {\n', file=self.outFile)
         else:
             write(self.inline_custom_source_preamble, file=self.outFile)
@@ -538,6 +539,28 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '\n'
         self.layer_factory += '        std::string layer_name = "VLF";\n'
         self.layer_factory += '\n'
+        self.layer_factory += '        // Pre/post hook point declarations\n'
+        self.layer_factory += '        bool Information(const std::string &message) {\n'
+        self.layer_factory += '            return log_msg(vlf_report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, 0, 0,\n'
+        self.layer_factory += '                           layer_name.c_str(), "%s", message.c_str());\n'
+        self.layer_factory += '        }\n'
+        self.layer_factory += '\n'
+        self.layer_factory += '        bool PerformanceWarning(const std::string &message) {\n'
+        self.layer_factory += '            return log_msg(vlf_report_data, VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT,\n'
+        self.layer_factory += '                           0, 0, 0, layer_name.c_str(), "%s", message.c_str());\n'
+        self.layer_factory += '        }\n'
+        self.layer_factory += '\n'
+        self.layer_factory += '        bool Warning(const std::string &message) {\n'
+        self.layer_factory += '            return log_msg(vlf_report_data, VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, 0, 0,\n'
+        self.layer_factory += '                           layer_name.c_str(), "%s", message.c_str());\n'
+        self.layer_factory += '        }\n'
+        self.layer_factory += '\n'
+        self.layer_factory += '        bool Error(const std::string &message) {\n'
+        self.layer_factory += '            return log_msg(vlf_report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, 0, 0,\n'
+        self.layer_factory += '                           layer_name.c_str(), "%s", message.c_str());\n'
+        self.layer_factory += '        }\n'
+        self.layer_factory += '\n'
+
         self.layer_factory += '        // Pre/post hook point declarations\n'
     #
     def endFile(self):
