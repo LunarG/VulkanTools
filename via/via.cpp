@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#ifdef _WIN32
+#include <tuple>
+#endif
 #include <time.h>
 #include <inttypes.h>
 
@@ -73,7 +76,7 @@ struct GlobalItems {
 
 #ifdef _WIN32
     bool is_wow64;
-    std::vector<DEVINST> device_ids;
+    std::vector<std::tuple<std::string, DEVINST>> device_ids;
 #endif
 };
 
@@ -277,7 +280,8 @@ out:
     switch (res) {
         case SUCCESSFUL:
             if (!global_items.sdk_found) {
-                std::cout << "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected" << std::endl;
+                std::cout << "SUCCESS: Vulkan analysis able to create Vulkan Instance/Devices - However, No SDK Detected"
+                          << std::endl;
             } else {
                 std::cout << "SUCCESS: Vulkan analysis completed properly." << std::endl;
             }
@@ -357,12 +361,10 @@ void StartOutput(std::string output) {
 
     global_items.html_file_stream << "    <META charset=\"UTF-8\">" << std::endl
                                   << "    <style media=\"screen\" type=\"text/css\">" << std::endl
-                                  << "        html {"
-                                  << std::endl
+                                  << "        html {" << std::endl
                                   // By defining the color first, this won't override the background image
                                   // (unless the images aren't there).
-                                  << "            background-color: #0b1e48;"
-                                  << std::endl
+                                  << "            background-color: #0b1e48;" << std::endl
                                   // The following changes try to load the text image twice (locally, then
                                   // off the web) followed by the background image twice (locally, then
                                   // off the web).  The background color will only show if both background
@@ -386,8 +388,7 @@ void StartOutput(std::string output) {
                                   << "            background-repeat: no-repeat, no-repeat, no-repeat, "
                                      "no-repeat;"
                                   << std::endl
-                                  << "        }"
-                                  << std::endl
+                                  << "        }" << std::endl
                                   // h1.section is used for section headers, and h1.version is used to
                                   // print out the application version text (which shows up just under
                                   // the title).
@@ -493,7 +494,7 @@ void PrintBeginTable(const char *table_name, uint32_t num_cols) {
                                   << "        <tr class=\"header\">" << std::endl
                                   << "            <td colspan=\"" << num_cols << "\" class=\"header\">" << table_name << "</td>"
                                   << std::endl
-                                  << "         </tr>" << std::endl;
+                                  << "        </tr>" << std::endl;
 
     global_items.is_odd_row = true;
 }
@@ -593,121 +594,6 @@ out:
 // Windows registry.
 
 const char g_uninstall_reg_path[] = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
-
-bool FindDriverIdsFromPlugAndPlay() {
-    const char *software_component_guid = "{5c4c3332-344d-483c-8739-259e934c9cc8}";
-    const char *display_guid = "{4d36e968-e325-11ce-bfc1-08002be10318}";
-    const ULONG flags = CM_GETIDLIST_FILTER_CLASS | CM_GETIDLIST_FILTER_PRESENT;
-    char child_guid[MAX_GUID_STRING_LEN + 2];  // +2 for brackets {}
-    ULONG child_guid_size = sizeof(child_guid);
-    DEVINST device_id = 0;
-    DEVINST child_id = 0;
-    char *device_names = NULL;
-    ULONG device_names_size = 0;
-    bool success = true;
-    bool found = false;
-
-    // Attempt to get the device names list.
-    do {
-        CM_Get_Device_ID_List_Size(&device_names_size, display_guid, flags);
-
-        if (device_names != NULL) {
-            free(device_names);
-        }
-
-        device_names = new char[device_names_size];
-        if (nullptr == device_names) {
-            goto out;
-        }
-    } while (CM_Get_Device_ID_List(display_guid, device_names, device_names_size, flags) == CR_BUFFER_SMALL);
-
-    for (char *device_name = device_names; *device_name; device_name += strlen(device_name) + 1) {
-        ULONG dev_node_status;
-        ULONG dev_node_problem;
-        // Locate the first device node and check it's status.  If no problems, then we'll want to
-        // add it to the list of possible devices.
-        if (CR_SUCCESS != CM_Locate_DevNode(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL)) {
-            continue;
-        }
-        if (CR_SUCCESS != CM_Get_DevNode_Status(&dev_node_status, &dev_node_problem, device_id, 0)) {
-            continue;
-        }
-        if ((dev_node_status & DN_HAS_PROBLEM) &&
-            (dev_node_problem == CM_PROB_NEED_RESTART || dev_node_problem == DN_NEED_RESTART)) {
-            continue;
-        }
-
-        // Add this device
-        global_items.device_ids.push_back(device_id);
-
-        if (CR_SUCCESS != CM_Get_Child(&child_id, device_id, 0)) {
-            continue;
-        }
-
-        do {
-            char buffer[MAX_DEVICE_ID_LEN];
-            CM_Get_Device_ID(child_id, buffer, MAX_DEVICE_ID_LEN, 0);
-
-            if (CR_SUCCESS !=
-                CM_Get_DevNode_Registry_Property(child_id, CM_DRP_CLASSGUID, NULL, &child_guid, &child_guid_size, 0)) {
-                continue;
-            }
-            if (strcmp(child_guid, software_component_guid) != 0) {
-                continue;
-            }
-
-            // Add this child as a device on interest
-            global_items.device_ids.push_back(device_id);
-
-        } while (CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
-    }
-
-out:
-
-    if (nullptr != device_names) {
-        delete device_names;
-    }
-
-    return success;
-}
-
-bool ReadDriverSpecificRegistry(const std::string &key_name, std::vector<HKEY> &keys, std::vector<std::string> &values) {
-    for (uint32_t device = 0; device < global_items.device_ids.size(); device++) {
-        HKEY hkey;
-        DWORD required_size;
-        DWORD data_type;
-        char *path;
-        DEVINST dev_id = global_items.device_ids[device];
-        if (CR_SUCCESS !=
-            CM_Open_DevNode_Key(dev_id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &hkey, CM_REGISTRY_SOFTWARE)) {
-            continue;
-        }
-
-        // Figure out how big the string is
-        if (ERROR_SUCCESS != RegQueryValueEx(hkey, key_name.c_str(), nullptr, nullptr, nullptr, &required_size)) {
-            continue;
-        }
-
-        // Allocate something to temporarily store the information
-        path = new char[required_size + 1];
-        if (nullptr == path) {
-            continue;
-        }
-
-        // Figure out how big the string is
-        if (ERROR_SUCCESS !=
-                RegQueryValueEx(hkey, key_name.c_str(), nullptr, &data_type, reinterpret_cast<LPBYTE>(path), &required_size) ||
-            data_type != REG_SZ) {
-            delete path;
-            continue;
-        }
-
-        values.push_back(path);
-        keys.push_back(HKEY_LOCAL_MACHINE);
-        delete path;
-    }
-    return true;
-}
 
 bool ReadRegKeyString(HKEY regFolder, const char *keyPath, const char *valueName, const int maxLength, char *retString) {
     bool retVal = false;
@@ -888,15 +774,157 @@ bool FindNextRegValue(HKEY regFolder, const char *keyPath, const char *valueSear
     return retVal;
 }
 
-// Registry prototypes for Windows
-bool ReadRegKeyDword(HKEY regFolder, const char *keyPath, const char *valueName, unsigned int *returnInt);
-bool ReadRegKeyString(HKEY regFolder, const char *keyPath, const char *valueName, const int maxLength, char *retString);
-bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keySearch, const int startIndex, const int maxLength,
-                    char *retString);
-bool FindNextRegValue(HKEY regFolder, const char *keyPath, const char *valueSearch, const int startIndex, const int maxLength,
-                      char *retString, uint32_t *retValue);
-bool WriteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName, char *valueValue);
-bool DeleteRegKeyString(HKEY regFolder, const char *keyPath, char *valueName);
+bool FindDriverIdsFromPlugAndPlay() {
+    const char *software_component_guid = "{5c4c3332-344d-483c-8739-259e934c9cc8}";
+    const char *display_guid = "{4d36e968-e325-11ce-bfc1-08002be10318}";
+    const ULONG flags = CM_GETIDLIST_FILTER_CLASS | CM_GETIDLIST_FILTER_PRESENT;
+    char child_guid[MAX_GUID_STRING_LEN + 2];  // +2 for brackets {}
+    ULONG child_guid_size = sizeof(child_guid);
+    DEVINST device_id = 0;
+    DEVINST child_id = 0;
+    char *device_names = NULL;
+    ULONG device_names_size = 0;
+    bool success = true;
+    bool found = false;
+
+    // Attempt to get the device names list.
+    do {
+        CM_Get_Device_ID_List_Size(&device_names_size, display_guid, flags);
+
+        if (device_names != NULL) {
+            free(device_names);
+        }
+
+        device_names = new char[device_names_size];
+        if (nullptr == device_names) {
+            goto out;
+        }
+    } while (CM_Get_Device_ID_List(display_guid, device_names, device_names_size, flags) == CR_BUFFER_SMALL);
+
+    for (char *device_name = device_names; *device_name; device_name += strlen(device_name) + 1) {
+        ULONG dev_node_status;
+        ULONG dev_node_problem;
+        // Locate the first device node and check it's status.  If no problems, then we'll want to
+        // add it to the list of possible devices.
+        if (CR_SUCCESS != CM_Locate_DevNode(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL)) {
+            continue;
+        }
+        if (CR_SUCCESS != CM_Get_DevNode_Status(&dev_node_status, &dev_node_problem, device_id, 0)) {
+            continue;
+        }
+        if ((dev_node_status & DN_HAS_PROBLEM) &&
+            (dev_node_problem == CM_PROB_NEED_RESTART || dev_node_problem == DN_NEED_RESTART)) {
+            continue;
+        }
+
+        // Add this device
+        global_items.device_ids.emplace_back(device_name, device_id);
+
+        if (CR_SUCCESS != CM_Get_Child(&child_id, device_id, 0)) {
+            continue;
+        }
+
+        do {
+            char buffer[MAX_DEVICE_ID_LEN];
+            CM_Get_Device_ID(child_id, buffer, MAX_DEVICE_ID_LEN, 0);
+
+            if (CR_SUCCESS !=
+                CM_Get_DevNode_Registry_Property(child_id, CM_DRP_CLASSGUID, NULL, &child_guid, &child_guid_size, 0)) {
+                continue;
+            }
+            if (strcmp(child_guid, software_component_guid) != 0) {
+                continue;
+            }
+
+            // Add this child as a device on interest
+            global_items.device_ids.emplace_back(buffer, device_id);
+
+        } while (CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
+    }
+
+out:
+
+    if (nullptr != device_names) {
+        delete device_names;
+    }
+
+    return success;
+}
+
+// Find registry JSON files in the standard locations
+void FindRegistryJsons(std::vector<HKEY> &registry_top_hkey, std::vector<std::string> &registry_locations, std::vector<std::tuple<std::string, bool, std::string>> &json_paths) {
+    uint32_t loop_size = static_cast<uint32_t>(registry_top_hkey.size());
+    if (registry_top_hkey.size() > registry_locations.size()) {
+        loop_size = static_cast<uint32_t>(registry_locations.size());
+    }
+    for (uint32_t iter = 0; iter < loop_size; iter++) {
+        std::string full_registry_path;
+        if (registry_top_hkey[iter] == HKEY_LOCAL_MACHINE) {
+            full_registry_path = "HKEY_LOCAL_MACHINE\\";
+        } else if (registry_top_hkey[iter] == HKEY_CURRENT_USER) {
+            full_registry_path = "HKEY_CURRENT_USER\\";
+        } else {
+            full_registry_path = "<UNKNOWN>\\";
+        }
+        full_registry_path += registry_locations[iter];
+
+        // Find the registry settings indicating the location of the driver
+        // JSON files.
+        uint32_t i = 0;
+        uint32_t returned_value = 0;
+        char cur_vulkan_driver_json[1024];
+        while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, MAX_STRING_LENGTH - 1,
+                                cur_vulkan_driver_json, &returned_value)) {
+            json_paths.emplace_back(full_registry_path, (returned_value == 0), cur_vulkan_driver_json);
+            i++;
+        }
+    }
+}
+
+// Find registry JSON files in the driver-specific registry locations
+bool FindDriverSpecificRegistryJsons(const std::string &key_name, std::vector<std::tuple<std::string, bool, std::string>> &json_paths) {
+    for (uint32_t device = 0; device < global_items.device_ids.size(); device++) {
+        HKEY hkey;
+        DWORD required_size;
+        DWORD data_type;
+        char *path;
+        DEVINST dev_id = std::get<1>(global_items.device_ids[device]);
+        if (CR_SUCCESS !=
+            CM_Open_DevNode_Key(dev_id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &hkey, CM_REGISTRY_SOFTWARE)) {
+            continue;
+        }
+
+        // Figure out the size of the driver-specific path for this registry item
+        if (ERROR_SUCCESS != RegQueryValueEx(hkey, key_name.c_str(), nullptr, nullptr, nullptr, &required_size)) {
+            continue;
+        }
+
+        // Allocate something to temporarily store the information
+        path = new char[required_size + 1];
+        if (nullptr == path) {
+            continue;
+        }
+
+        // Figure out the driver-specific path for this registry item
+        if (ERROR_SUCCESS !=
+            RegQueryValueEx(hkey, key_name.c_str(), nullptr, &data_type, reinterpret_cast<LPBYTE>(path), &required_size)) {
+            delete path;
+            continue;
+        }
+        if (data_type == REG_SZ) {
+            json_paths.emplace_back(std::get<0>(global_items.device_ids[device]), true, path);
+        } else if (data_type == REG_MULTI_SZ) {
+            // Grab each individual string out of the multi-string and add it here.
+            for (char *cur_filename = path; cur_filename[0] != '\0'; cur_filename += strlen(cur_filename) + 1) {
+                json_paths.emplace_back(std::get<0>(global_items.device_ids[device]), true, cur_filename);
+            }
+        } else {
+            // Bad type
+        }
+        delete path;
+    }
+    return true;
+}
 
 // Functionality to determine if this 32-bit process is running on Windows 64.
 //
@@ -1521,7 +1549,7 @@ bool GetFileVersion(const char *filename, const uint32_t max_len, char *version_
     return success;
 }
 
-bool ReadDriverJson(std::string cur_driver_json, std::string system_path, bool &found_lib) {
+bool PrintDriverRegistryInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_driver_json, std::string system_path, bool &found_lib) {
     bool found_json = false;
     std::ifstream *stream = NULL;
     Json::Value root = Json::nullValue;
@@ -1531,98 +1559,141 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path, bool &
     char full_driver_path[MAX_STRING_LENGTH];
     char generic_string[MAX_STRING_LENGTH];
     uint32_t j = 0;
-
-    stream = new std::ifstream(cur_driver_json.c_str(), std::ifstream::in);
-    if (nullptr == stream || stream->fail()) {
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("Error reading JSON file");
-        PrintTableElement(cur_driver_json);
-        PrintEndTableRow();
-        goto out;
-    }
-
-    if (!reader.parse(*stream, root, false) || root.isNull()) {
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintTableElement("Error reading JSON file");
-        PrintTableElement(reader.getFormattedErrorMessages());
-        PrintEndTableRow();
-        goto out;
-    }
+    std::string cur_reg_name;
 
     PrintBeginTableRow();
+    PrintTableElement("Drivers in Registry");
     PrintTableElement("");
     PrintTableElement("");
-    PrintTableElement("JSON File Version");
-    if (!root["file_format_version"].isNull()) {
-        PrintTableElement(root["file_format_version"].asString());
-    } else {
-        PrintTableElement("MISSING!");
-    }
+    PrintTableElement("");
     PrintEndTableRow();
 
-    if (root["ICD"].isNull()) {
+    for (uint32_t i = 0; i < cur_driver_json.size(); ++i) {
+        std::string driver_json_name = std::get<0>(cur_driver_json[i]);
+        std::string driver_json_path = std::get<2>(cur_driver_json[i]);
+        if (cur_reg_name != driver_json_name) {
+            PrintBeginTableRow();
+            PrintTableElement(driver_json_name);
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+            cur_reg_name = driver_json_name;
+        }
+        PrintBeginTableRow();
+        PrintTableElement(driver_json_path, ALIGN_RIGHT);
+        if (std::get<1>(cur_driver_json[i])) {
+            PrintTableElement("Enabled");
+        } else {
+            PrintTableElement("Disabled");
+        }
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
+        cur_reg_name = driver_json_name;
+
+        stream = new std::ifstream(driver_json_path.c_str(), std::ifstream::in);
+        if (nullptr == stream || stream->fail()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("Error reading JSON file");
+            PrintTableElement(driver_json_path);
+            PrintEndTableRow();
+            goto out;
+        }
+
+        if (!reader.parse(*stream, root, false) || root.isNull()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("Error reading JSON file");
+            PrintTableElement(reader.getFormattedErrorMessages());
+            PrintEndTableRow();
+            goto out;
+        }
+
         PrintBeginTableRow();
         PrintTableElement("");
         PrintTableElement("");
-        PrintTableElement("ICD Section");
-        PrintTableElement("MISSING!");
-        PrintEndTableRow();
-        goto out;
-    }
-
-    found_json = true;
-
-    PrintBeginTableRow();
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintTableElement("API Version");
-    if (!root["ICD"]["api_version"].isNull()) {
-        PrintTableElement(root["ICD"]["api_version"].asString());
-    } else {
-        PrintTableElement("MISSING!");
-    }
-    PrintEndTableRow();
-
-    PrintBeginTableRow();
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintTableElement("Library Path");
-    if (!root["ICD"]["library_path"].isNull()) {
-        std::string driver_name = root["ICD"]["library_path"].asString();
-        PrintTableElement(driver_name);
+        PrintTableElement("JSON File Version");
+        if (!root["file_format_version"].isNull()) {
+            PrintTableElement(root["file_format_version"].asString());
+        } else {
+            PrintTableElement("MISSING!");
+        }
         PrintEndTableRow();
 
-        if (GenerateLibraryPath(cur_driver_json.c_str(), driver_name.c_str(), MAX_STRING_LENGTH, full_driver_path)) {
-            std::string system_name = system_path;
-            system_name += "\\";
-            system_name += driver_name;
+        if (root["ICD"].isNull()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("ICD Section");
+            PrintTableElement("MISSING!");
+            PrintEndTableRow();
+            goto out;
+        }
 
-            if (GetFileVersion(full_driver_path, MAX_STRING_LENGTH - 1, generic_string)) {
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintTableElement("Library File Version");
-                PrintTableElement(generic_string);
-                PrintEndTableRow();
+        found_json = true;
 
-                found_lib = true;
-            } else if (GetFileVersion(system_name.c_str(), MAX_STRING_LENGTH - 1, generic_string)) {
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintTableElement("Library File Version");
-                PrintTableElement(generic_string);
-                PrintEndTableRow();
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintTableElement("API Version");
+        if (!root["ICD"]["api_version"].isNull()) {
+            PrintTableElement(root["ICD"]["api_version"].asString());
+        } else {
+            PrintTableElement("MISSING!");
+        }
+        PrintEndTableRow();
 
-                found_lib = true;
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintTableElement("Library Path");
+        if (!root["ICD"]["library_path"].isNull()) {
+            std::string driver_name = root["ICD"]["library_path"].asString();
+            PrintTableElement(driver_name);
+            PrintEndTableRow();
+
+            if (GenerateLibraryPath(driver_json_path.c_str(), driver_name.c_str(), MAX_STRING_LENGTH, full_driver_path)) {
+                std::string system_name = system_path;
+                system_name += "\\";
+                system_name += driver_name;
+
+                if (GetFileVersion(full_driver_path, MAX_STRING_LENGTH - 1, generic_string)) {
+                    PrintBeginTableRow();
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement("Library File Version");
+                    PrintTableElement(generic_string);
+                    PrintEndTableRow();
+
+                    found_lib = true;
+                } else if (GetFileVersion(system_name.c_str(), MAX_STRING_LENGTH - 1, generic_string)) {
+                    PrintBeginTableRow();
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement("Library File Version");
+                    PrintTableElement(generic_string);
+                    PrintEndTableRow();
+
+                    found_lib = true;
+                } else {
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1,
+                             "Failed to find driver %s  or %sreferenced by JSON %s",
+                             root["ICD"]["library_path"].asString().c_str(), full_driver_path, driver_json_path.c_str());
+                    PrintBeginTableRow();
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement(generic_string);
+                    PrintEndTableRow();
+                }
             } else {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                         "Failed to find driver %s "
-                         " or %sreferenced by JSON %s",
-                         root["ICD"]["library_path"].asString().c_str(), full_driver_path, cur_driver_json.c_str());
+                         "Failed to find driver %s referenced by JSON %s",
+                         full_driver_path, driver_json_path.c_str());
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("");
@@ -1631,73 +1702,67 @@ bool ReadDriverJson(std::string cur_driver_json, std::string system_path, bool &
                 PrintEndTableRow();
             }
         } else {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                     "Failed to find driver %s "
-                     "referenced by JSON %s",
-                     full_driver_path, cur_driver_json.c_str());
+            PrintTableElement("MISSING!");
+            PrintEndTableRow();
+        }
+
+        char count_str[MAX_STRING_LENGTH];
+        j = 0;
+        dev_exts = root["ICD"]["device_extensions"];
+        if (!dev_exts.isNull() && dev_exts.isArray()) {
+            snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", dev_exts.size());
             PrintBeginTableRow();
             PrintTableElement("");
             PrintTableElement("");
-            PrintTableElement("");
-            PrintTableElement(generic_string);
+            PrintTableElement("Device Extensions");
+            PrintTableElement(count_str);
             PrintEndTableRow();
-        }
-    } else {
-        PrintTableElement("MISSING!");
-        PrintEndTableRow();
-    }
 
-    char count_str[MAX_STRING_LENGTH];
-    j = 0;
-    dev_exts = root["ICD"]["device_extensions"];
-    if (!dev_exts.isNull() && dev_exts.isArray()) {
-        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", dev_exts.size());
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintTableElement("Device Extensions");
-        PrintTableElement(count_str);
-        PrintEndTableRow();
+            for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
+                Json::Value dev_ext = (*dev_ext_it);
+                Json::Value dev_ext_name = dev_ext["name"];
+                if (!dev_ext_name.isNull()) {
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
 
-        for (Json::ValueIterator dev_ext_it = dev_exts.begin(); dev_ext_it != dev_exts.end(); dev_ext_it++) {
-            Json::Value dev_ext = (*dev_ext_it);
-            Json::Value dev_ext_name = dev_ext["name"];
-            if (!dev_ext_name.isNull()) {
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
-
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintTableElement(generic_string, ALIGN_RIGHT);
-                PrintTableElement(dev_ext_name.asString());
-                PrintEndTableRow();
+                    PrintBeginTableRow();
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement(generic_string, ALIGN_RIGHT);
+                    PrintTableElement(dev_ext_name.asString());
+                    PrintEndTableRow();
+                }
             }
         }
-    }
-    inst_exts = root["ICD"]["instance_extensions"];
-    j = 0;
-    if (!inst_exts.isNull() && inst_exts.isArray()) {
-        snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", inst_exts.size());
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintTableElement("Instance Extensions");
-        PrintTableElement(count_str);
-        PrintEndTableRow();
+        inst_exts = root["ICD"]["instance_extensions"];
+        j = 0;
+        if (!inst_exts.isNull() && inst_exts.isArray()) {
+            snprintf(count_str, MAX_STRING_LENGTH - 1, "%d", inst_exts.size());
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("Instance Extensions");
+            PrintTableElement(count_str);
+            PrintEndTableRow();
 
-        for (Json::ValueIterator inst_ext_it = inst_exts.begin(); inst_ext_it != inst_exts.end(); inst_ext_it++) {
-            Json::Value inst_ext = (*inst_ext_it);
-            Json::Value inst_ext_name = inst_ext["name"];
-            if (!inst_ext_name.isNull()) {
-                snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
+            for (Json::ValueIterator inst_ext_it = inst_exts.begin(); inst_ext_it != inst_exts.end(); inst_ext_it++) {
+                Json::Value inst_ext = (*inst_ext_it);
+                Json::Value inst_ext_name = inst_ext["name"];
+                if (!inst_ext_name.isNull()) {
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", j);
 
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintTableElement(generic_string, ALIGN_RIGHT);
-                PrintTableElement(inst_ext_name.asString());
-                PrintEndTableRow();
+                    PrintBeginTableRow();
+                    PrintTableElement("");
+                    PrintTableElement("");
+                    PrintTableElement(generic_string, ALIGN_RIGHT);
+                    PrintTableElement(inst_ext_name.asString());
+                    PrintEndTableRow();
+                }
             }
+        }
+        if (nullptr != stream) {
+            stream->close();
+            delete stream;
+            stream = NULL;
         }
     }
 
@@ -1712,83 +1777,183 @@ out:
     return found_json;
 }
 
-void PrintDriverRegInfo(std::vector<HKEY> &registry_top_hkey, std::vector<std::string> &registry_locations, const char *system_path,
-                        bool found_this_lib, char *cur_vulkan_driver_json, char *generic_string, bool &found_registry,
-                        bool &found_json, bool &found_lib) {
-    size_t loop_size = registry_top_hkey.size();
-    if (registry_top_hkey.size() > registry_locations.size()) {
-        loop_size = registry_locations.size();
+bool PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_string, char *generic_string) {
+    uint32_t i = 0;
+    bool found = false;
+    while (FindNextRegKey(reg_folder, g_uninstall_reg_path, "VulkanSDK", i, MAX_STRING_LENGTH, output_string)) {
+        found = true;
+        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
+        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
+        ReadRegKeyString(reg_folder, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string);
+
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement(count_string, ALIGN_RIGHT);
+        PrintTableElement(output_string);
+        PrintTableElement("");
+        PrintEndTableRow();
     }
+    return found;
+}
+
+bool PrintExplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_layer_json, ErrorResults &res) {
+    bool found = false;
+    std::string cur_registry_loc;
+    char temp_string[1024];
+
     PrintBeginTableRow();
-    PrintTableElement("Drivers in Registry");
+    PrintTableElement("Explicit Layers in Registry");
     PrintTableElement("");
     PrintTableElement("");
     PrintTableElement("");
     PrintEndTableRow();
-    for (uint32_t iter = 0; iter < static_cast<uint32_t>(loop_size); iter++) {
-        std::string full_registry_path;
-        if (registry_top_hkey[iter] == HKEY_LOCAL_MACHINE) {
-            full_registry_path = "HKEY_LOCAL_MACHINE\\";
-        } else if (registry_top_hkey[iter] == HKEY_CURRENT_USER) {
-            full_registry_path = "HKEY_CURRENT_USER\\";
-        } else {
-            full_registry_path = "<UNKNOWN>\\";
+
+    for (uint32_t layer = 0; layer < static_cast<uint32_t>(cur_layer_json.size()); layer++) {
+        std::string cur_layer_json_path = std::get<2>(cur_layer_json[layer]);
+
+        if (cur_registry_loc != std::get<0>(cur_layer_json[layer])) {
+            PrintBeginTableRow();
+            PrintTableElement(std::get<0>(cur_layer_json[layer]));
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+            cur_registry_loc = std::get<0>(cur_layer_json[layer]);
         }
-        full_registry_path += registry_locations[iter];
+
+        snprintf(temp_string, 1023, "[%d]", layer);
         PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement(full_registry_path);
-        PrintTableElement("");
+        PrintTableElement(temp_string, ALIGN_RIGHT);
+        PrintTableElement(cur_layer_json_path.c_str());
+
+        snprintf(temp_string, 1023, "0x%08x", std::get<1>(cur_layer_json[layer]));
+        PrintTableElement(temp_string);
         PrintTableElement("");
         PrintEndTableRow();
 
-        // Find the registry settings indicating the location of the driver
-        // JSON files.
-        uint32_t i = 0;
-        uint32_t returned_value = 0;
-        while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, MAX_STRING_LENGTH - 1,
-                                cur_vulkan_driver_json, &returned_value)) {
-            found_registry |= true;
-
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "Driver %d", i++);
-
+        std::ifstream *stream = NULL;
+        stream = new std::ifstream(cur_layer_json_path, std::ifstream::in);
+        if (nullptr == stream || stream->fail()) {
             PrintBeginTableRow();
             PrintTableElement("");
-            PrintTableElement(generic_string, ALIGN_RIGHT);
-            PrintTableElement(cur_vulkan_driver_json);
-
-            if (returned_value != 0) {
-                PrintTableElement("DISABLED");
-            } else {
-                PrintTableElement("ENABLED");
-            }
+            PrintTableElement("ERROR reading JSON file!");
+            PrintTableElement("");
+            PrintTableElement("");
             PrintEndTableRow();
-
-            // Parse the driver JSON file.
-            if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
-                found_json |= true;
-                found_lib |= found_this_lib;
+            res = MISSING_LAYER_JSON;
+        } else {
+            Json::Value root = Json::nullValue;
+            Json::Reader reader;
+            if (!reader.parse(*stream, root, false) || root.isNull()) {
+                // Report to the user the failure and their locations in the
+                // document.
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("ERROR parsing JSON file!");
+                PrintTableElement(reader.getFormattedErrorMessages());
+                PrintTableElement("");
+                PrintEndTableRow();
+                res = LAYER_JSON_PARSING_ERROR;
+            } else {
+                PrintExplicitLayerJsonInfo(cur_layer_json_path.c_str(), root);
             }
+
+            stream->close();
+            delete stream;
+            stream = NULL;
         }
     }
+    return found;
+}
+
+bool PrintImplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_layer_json, ErrorResults &res) {
+    bool found = false;
+    std::string cur_registry_loc;
+    char temp_string[1024];
+
+    PrintBeginTableRow();
+    PrintTableElement("Implicit Layers in Registry");
+    PrintTableElement("");
+    PrintTableElement("");
+    PrintTableElement("");
+    PrintEndTableRow();
+
+    for (uint32_t layer = 0; layer < static_cast<uint32_t>(cur_layer_json.size()); layer++) {
+        std::string cur_layer_json_path = std::get<2>(cur_layer_json[layer]);
+
+        if (cur_registry_loc != std::get<0>(cur_layer_json[layer])) {
+            PrintBeginTableRow();
+            PrintTableElement(std::get<0>(cur_layer_json[layer]));
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+            cur_registry_loc = std::get<0>(cur_layer_json[layer]);
+        }
+
+        snprintf(temp_string, 1023, "[%d]", layer);
+        PrintBeginTableRow();
+        PrintTableElement(temp_string, ALIGN_RIGHT);
+        PrintTableElement(cur_layer_json_path.c_str());
+
+        snprintf(temp_string, 1023, "0x%08x", std::get<1>(cur_layer_json[layer]));
+        PrintTableElement(temp_string);
+        PrintTableElement("");
+        PrintEndTableRow();
+
+        std::ifstream *stream = NULL;
+        stream = new std::ifstream(cur_layer_json_path, std::ifstream::in);
+        if (nullptr == stream || stream->fail()) {
+            PrintBeginTableRow();
+            PrintTableElement("");
+            PrintTableElement("ERROR reading JSON file!");
+            PrintTableElement("");
+            PrintTableElement("");
+            PrintEndTableRow();
+            res = MISSING_LAYER_JSON;
+        } else {
+            Json::Value root = Json::nullValue;
+            Json::Reader reader;
+            if (!reader.parse(*stream, root, false) || root.isNull()) {
+                // Report to the user the failure and their locations in the
+                // document.
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("ERROR parsing JSON file!");
+                PrintTableElement(reader.getFormattedErrorMessages());
+                PrintTableElement("");
+                PrintEndTableRow();
+                res = LAYER_JSON_PARSING_ERROR;
+            } else {
+                std::vector<std::string> override_paths;
+                PrintImplicitLayerJsonInfo(cur_layer_json_path.c_str(), root, override_paths);
+                found = true;
+            }
+
+            stream->close();
+            delete stream;
+            stream = NULL;
+        }
+    }
+    return found;
 }
 
 // Print out the information for every driver in the appropriate
 // Windows registry location and its corresponding JSON file.
 ErrorResults PrintDriverInfo(void) {
     ErrorResults res = SUCCESSFUL;
-    const char vulkan_public_reg_base[] = "SOFTWARE\\Khronos\\Vulkan\\Drivers";
-    const char vulkan_driver_reg_key[] = "DriverName";
-    const char vulkan_public_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan\\Drivers";
-    const char vulkan_driver_reg_key_wow64[] = "DriverNameWow";
     std::vector<std::string> registry_locations;
+    const char vulkan_public_reg_base[] = "SOFTWARE\\Khronos\\Vulkan\\Drivers";
+    const char vulkan_driver_reg_key[] = "VulkanDriverName";
+    const char vulkan_public_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan\\Drivers";
+    const char vulkan_driver_reg_key_wow64[] = "VulkanDriverNameWow";
+    std::vector<std::tuple<std::string, bool, std::string>> driver_jsons;
     std::vector<HKEY> registry_top_hkey;
     std::string system_path;
     char cur_vulkan_driver_json[MAX_STRING_LENGTH];
     char env_value[MAX_STRING_LENGTH];
     uint32_t i = 0;
     std::ifstream *stream = NULL;
-    bool found_registry = false;
     bool found_json = false;
     bool found_lib = false;
     bool found_this_lib = false;
@@ -1803,7 +1968,7 @@ ErrorResults PrintDriverInfo(void) {
     registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
     registry_locations.push_back(reg_path);
     registry_top_hkey.push_back(HKEY_CURRENT_USER);
-    ReadDriverSpecificRegistry(vulkan_driver_reg_key, registry_top_hkey, registry_locations);
+    FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, driver_jsons);
 
 #else
     if (global_items.is_wow64) {
@@ -1813,7 +1978,7 @@ ErrorResults PrintDriverInfo(void) {
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
-        ReadDriverSpecificRegistry(vulkan_driver_reg_key_wow64, registry_top_hkey, registry_locations);
+        FindDriverSpecificRegistryJsons(vulkan_driver_reg_key_wow64, driver_jsons);
     } else {
         system_path += "\\system32\\";
         std::string reg_path = vulkan_public_reg_base;
@@ -1821,14 +1986,19 @@ ErrorResults PrintDriverInfo(void) {
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
-        ReadDriverSpecificRegistry(vulkan_driver_reg_key, registry_top_hkey, registry_locations);
+        FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, driver_jsons);
     }
 #endif
 
     PrintBeginTable("Vulkan Driver Info", 4);
+    FindRegistryJsons(registry_top_hkey, registry_locations, driver_jsons);
 
-    PrintDriverRegInfo(registry_top_hkey, registry_locations, system_path.c_str(), found_this_lib, cur_vulkan_driver_json,
-                       generic_string, found_registry, found_json, found_lib);
+    if (driver_jsons.size() > 0) {
+        if (PrintDriverRegistryInfo(driver_jsons, system_path.c_str(), found_this_lib)) {
+            found_json |= true;
+            found_lib |= found_this_lib;
+        }
+    }
 
     // The user can override the drivers path manually
     if (0 != GetEnvironmentVariableA("VK_DRIVERS_PATH", env_value, MAX_STRING_LENGTH - 1) && 0 != strlen(env_value)) {
@@ -1881,7 +2051,9 @@ ErrorResults PrintDriverInfo(void) {
                         PrintEndTableRow();
 
                         // Parse the driver JSON file.
-                        if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
+                        std::vector<std::tuple<std::string, bool, std::string>> cur_driver_jsons;
+                        cur_driver_jsons.emplace_back(ffd.cFileName, true, cur_vulkan_driver_json);
+                        if (PrintDriverRegistryInfo(cur_driver_jsons, system_path, found_this_lib)) {
                             found_json = true;
                             found_lib |= found_this_lib;
                         }
@@ -1934,10 +2106,9 @@ ErrorResults PrintDriverInfo(void) {
             hFind = FindFirstFileA(full_driver_path, &ffd);
             if (hFind != INVALID_HANDLE_VALUE) {
                 if (0 == (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-                    strcpy(cur_vulkan_driver_json, full_driver_path);
-                    // Parse the driver JSON file.
-                    if (ReadDriverJson(cur_vulkan_driver_json, system_path, found_this_lib)) {
-                        found_json = true;
+                    std::vector<std::tuple<std::string, bool, std::string>> cur_driver_jsons;
+                    cur_driver_jsons.emplace_back(ffd.cFileName, true, full_driver_path);
+                    if (PrintDriverRegistryInfo(cur_driver_jsons, system_path, found_this_lib)) {
                         found_lib |= found_this_lib;
                     }
                 }
@@ -1962,9 +2133,7 @@ ErrorResults PrintDriverInfo(void) {
 
     PrintEndTable();
 
-    if (!found_registry) {
-        res = MISSING_DRIVER_REGISTRY;
-    } else if (!found_json) {
+    if (!found_json) {
         res = MISSING_DRIVER_JSON;
     } else if (!found_lib) {
         res = MISSING_DRIVER_LIB;
@@ -2112,114 +2281,6 @@ ErrorResults PrintRunTimeInfo(void) {
     return res;
 }
 
-bool PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_string, char *generic_string) {
-    uint32_t i = 0;
-    bool found = false;
-    while (FindNextRegKey(reg_folder, g_uninstall_reg_path, "VulkanSDK", i, MAX_STRING_LENGTH, output_string)) {
-        found = true;
-        snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-        snprintf(generic_string, MAX_STRING_LENGTH - 1, "%s\\%s", g_uninstall_reg_path, output_string);
-        ReadRegKeyString(reg_folder, generic_string, "InstallDir", MAX_STRING_LENGTH, output_string);
-
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement(count_string, ALIGN_RIGHT);
-        PrintTableElement(output_string);
-        PrintTableElement("");
-        PrintEndTableRow();
-    }
-    return found;
-}
-
-bool PrintExplicitLayersRegInfo(std::vector<HKEY> &registry_top_hkey, std::vector<std::string> &registry_locations,
-                                const char *sdk_env_dir, char *output_string, char *count_string, char *cur_vulkan_layer_json,
-                                ErrorResults &res) {
-    size_t loop_size = registry_top_hkey.size();
-    bool found = false;
-
-    if (registry_top_hkey.size() > registry_locations.size()) {
-        loop_size = registry_locations.size();
-    }
-
-    PrintBeginTableRow();
-    PrintTableElement("Explicit Layers in Registry");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintEndTableRow();
-
-    for (uint32_t iter = 0; iter < static_cast<uint32_t>(loop_size); iter++) {
-        std::string full_registry_path;
-        if (registry_top_hkey[iter] == HKEY_LOCAL_MACHINE) {
-            full_registry_path = "HKEY_LOCAL_MACHINE\\";
-        } else if (registry_top_hkey[iter] == HKEY_CURRENT_USER) {
-            full_registry_path = "HKEY_CURRENT_USER\\";
-        } else {
-            full_registry_path = "<UNKNOWN>\\";
-        }
-        full_registry_path += registry_locations[iter];
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement(full_registry_path);
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintEndTableRow();
-
-        uint32_t i = 0;
-        uint32_t returned_value = 0;
-        while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, MAX_STRING_LENGTH,
-                                cur_vulkan_layer_json, &returned_value)) {
-            found = true;
-
-            // Create a short json file name so we don't use up too much space
-            snprintf(output_string, MAX_STRING_LENGTH - 1, ".%s", &cur_vulkan_layer_json[strlen(sdk_env_dir)]);
-
-            snprintf(count_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-            PrintBeginTableRow();
-            PrintTableElement(count_string, ALIGN_RIGHT);
-            PrintTableElement(output_string);
-
-            snprintf(output_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
-            PrintTableElement(output_string);
-            PrintTableElement("");
-            PrintEndTableRow();
-
-            std::ifstream *stream = NULL;
-            stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
-            if (nullptr == stream || stream->fail()) {
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("ERROR reading JSON file!");
-                PrintTableElement("");
-                PrintTableElement("");
-                PrintEndTableRow();
-                res = MISSING_LAYER_JSON;
-            } else {
-                Json::Value root = Json::nullValue;
-                Json::Reader reader;
-                if (!reader.parse(*stream, root, false) || root.isNull()) {
-                    // Report to the user the failure and their locations in the
-                    // document.
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("ERROR parsing JSON file!");
-                    PrintTableElement(reader.getFormattedErrorMessages());
-                    PrintTableElement("");
-                    PrintEndTableRow();
-                    res = LAYER_JSON_PARSING_ERROR;
-                } else {
-                    PrintExplicitLayerJsonInfo(cur_vulkan_layer_json, root);
-                }
-
-                stream->close();
-                delete stream;
-                stream = NULL;
-            }
-        }
-    }
-    return found;
-}
-
 // Print out information on whatever LunarG Vulkan SDKs we can find on
 // the system using the registry, and environmental variables.  This
 // includes listing what layers are available from the SDK.
@@ -2228,14 +2289,14 @@ ErrorResults PrintSDKInfo(void) {
     char generic_string[MAX_STRING_LENGTH];
     char count_string[MAX_STRING_LENGTH];
     char output_string[MAX_STRING_LENGTH];
-    char cur_vulkan_layer_json[MAX_STRING_LENGTH];
     char sdk_env_dir[MAX_STRING_LENGTH];
     uint32_t i = 0;
     uint32_t j = 0;
     FILE *fp = NULL;
     bool found = false;
-    std::vector<std::string> registry_locations;
     std::vector<HKEY> registry_top_hkey;
+    std::vector<std::string> registry_locations;
+    std::vector<std::tuple<std::string, bool, std::string>> layer_jsons;
     const char vulkan_public_reg_base[] = "SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers";
     const char vulkan_driver_reg_key[] = "VulkanExplicitLayerPaths";
     const char vulkan_public_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan\\ExplicitLayers";
@@ -2247,7 +2308,7 @@ ErrorResults PrintSDKInfo(void) {
     registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
     registry_locations.push_back(reg_path);
     registry_top_hkey.push_back(HKEY_CURRENT_USER);
-    ReadDriverSpecificRegistry(vulkan_driver_reg_key, registry_top_hkey, registry_locations);
+    FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
 #else
     if (global_items.is_wow64) {
         std::string reg_path = vulkan_public_reg_base_wow64;
@@ -2255,16 +2316,17 @@ ErrorResults PrintSDKInfo(void) {
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
-        ReadDriverSpecificRegistry(vulkan_driver_reg_key_wow64, registry_top_hkey, registry_locations);
+        FindDriverSpecificRegistryJsons(vulkan_driver_reg_key_wow64, layer_jsons);
     } else {
         std::string reg_path = vulkan_public_reg_base;
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
-        ReadDriverSpecificRegistry(vulkan_driver_reg_key, registry_top_hkey, registry_locations);
+        FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
     }
 #endif
+    FindRegistryJsons(registry_top_hkey, registry_locations, layer_jsons);
 
     PrintBeginTable("LunarG Vulkan SDKs", 4);
     PrintBeginTableRow();
@@ -2320,8 +2382,9 @@ ErrorResults PrintSDKInfo(void) {
     PrintTableElement("");
     PrintEndTableRow();
 
-    found = PrintExplicitLayersRegInfo(registry_top_hkey, registry_locations, sdk_env_dir, output_string, count_string,
-                                       cur_vulkan_layer_json, res);
+    if (layer_jsons.size() > 0) {
+        found |= PrintExplicitLayersRegInfo(layer_jsons, res);
+    }
 
     if (!found) {
         PrintBeginTableRow();
@@ -2335,87 +2398,6 @@ ErrorResults PrintSDKInfo(void) {
     PrintEndTable();
 
     return res;
-}
-
-void PrintImplicitLayersRegInfo(std::vector<HKEY> &registry_top_hkey, std::vector<std::string> &registry_locations,
-                                char *cur_vulkan_layer_json, char *generic_string, std::vector<std::string> &override_paths,
-                                ErrorResults &res) {
-    size_t loop_size = registry_top_hkey.size();
-    if (registry_top_hkey.size() > registry_locations.size()) {
-        loop_size = registry_locations.size();
-    }
-
-    PrintBeginTableRow();
-    PrintTableElement("Implicit Layers in Registry");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintEndTableRow();
-
-    for (uint32_t iter = 0; iter < static_cast<uint32_t>(loop_size); iter++) {
-        std::string full_registry_path;
-        if (registry_top_hkey[iter] == HKEY_LOCAL_MACHINE) {
-            full_registry_path = "HKEY_LOCAL_MACHINE\\";
-        } else if (registry_top_hkey[iter] == HKEY_CURRENT_USER) {
-            full_registry_path = "HKEY_CURRENT_USER\\";
-        } else {
-            full_registry_path = "<UNKNOWN>\\";
-        }
-        full_registry_path += registry_locations[iter];
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement(full_registry_path);
-        PrintTableElement("");
-        PrintTableElement("");
-        PrintEndTableRow();
-
-        // For each implicit layer listed in the registry, find its JSON and
-        // print out the useful information stored in it.
-        uint32_t i = 0;
-        uint32_t returned_value = 0;
-        while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, MAX_STRING_LENGTH,
-                                cur_vulkan_layer_json, &returned_value)) {
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "[%d]", i++);
-
-            PrintBeginTableRow();
-            PrintTableElement(generic_string, ALIGN_RIGHT);
-            PrintTableElement(cur_vulkan_layer_json);
-            PrintTableElement("");
-            snprintf(generic_string, MAX_STRING_LENGTH - 1, "0x%08x", returned_value);
-            PrintTableElement(generic_string);
-            PrintEndTableRow();
-
-            std::ifstream *stream = NULL;
-            stream = new std::ifstream(cur_vulkan_layer_json, std::ifstream::in);
-            if (nullptr == stream || stream->fail()) {
-                PrintBeginTableRow();
-                PrintTableElement("");
-                PrintTableElement("ERROR reading JSON file!");
-                PrintTableElement("");
-                PrintEndTableRow();
-                res = MISSING_LAYER_JSON;
-            } else {
-                Json::Value root = Json::nullValue;
-                Json::Reader reader;
-                if (!reader.parse(*stream, root, false) || root.isNull()) {
-                    // Report to the user the failure and their locations in the
-                    // document.
-                    PrintBeginTableRow();
-                    PrintTableElement("");
-                    PrintTableElement("ERROR parsing JSON file!");
-                    PrintTableElement(reader.getFormattedErrorMessages());
-                    PrintEndTableRow();
-                    res = LAYER_JSON_PARSING_ERROR;
-                } else {
-                    PrintImplicitLayerJsonInfo(cur_vulkan_layer_json, root, override_paths);
-                }
-
-                stream->close();
-                delete stream;
-                stream = NULL;
-            }
-        }
-    }
 }
 
 ErrorResults FindAndPrintAllExplicitLayersInPath(const std::string &layer_path) {
@@ -2491,12 +2473,12 @@ ErrorResults FindAndPrintAllExplicitLayersInPath(const std::string &layer_path) 
 ErrorResults PrintLayerInfo(void) {
     ErrorResults res = SUCCESSFUL;
     char generic_string[MAX_STRING_LENGTH];
-    char cur_vulkan_layer_json[MAX_STRING_LENGTH];
     char env_value[MAX_STRING_LENGTH];
     FILE *fp = NULL;
     std::vector<std::string> override_search_paths;
-    std::vector<std::string> registry_locations;
     std::vector<HKEY> registry_top_hkey;
+    std::vector<std::string> registry_locations;
+    std::vector<std::tuple<std::string, bool, std::string>> layer_jsons;
     const char vulkan_public_reg_base[] = "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers";
     const char vulkan_driver_reg_key[] = "VulkanImplicitLayerPaths";
     const char vulkan_public_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan\\ImplicitLayers";
@@ -2508,7 +2490,7 @@ ErrorResults PrintLayerInfo(void) {
     registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
     registry_locations.push_back(reg_path);
     registry_top_hkey.push_back(HKEY_CURRENT_USER);
-    ReadDriverSpecificRegistry(vulkan_driver_reg_key, registry_top_hkey, registry_locations);
+    FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
 #else
     if (global_items.is_wow64) {
         std::string reg_path = vulkan_public_reg_base_wow64;
@@ -2516,21 +2498,23 @@ ErrorResults PrintLayerInfo(void) {
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
-        ReadDriverSpecificRegistry(vulkan_driver_reg_key_wow64, registry_top_hkey, registry_locations);
+        FindDriverSpecificRegistryJsons(vulkan_driver_reg_key_wow64, layer_jsons);
     } else {
         std::string reg_path = vulkan_public_reg_base;
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
-        ReadDriverSpecificRegistry(vulkan_driver_reg_key, registry_top_hkey, registry_locations);
+        FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
     }
 #endif
+    FindRegistryJsons(registry_top_hkey, registry_locations, layer_jsons);
 
-    PrintBeginTable("Implicit Layers", 4);
-    PrintImplicitLayersRegInfo(registry_top_hkey, registry_locations, cur_vulkan_layer_json, generic_string, override_search_paths,
-                               res);
-    PrintEndTable();
+    if (layer_jsons.size() > 0) {
+        PrintBeginTable("Implicit Layers", 4);
+        PrintImplicitLayersRegInfo(layer_jsons, res);
+        PrintEndTable();
+    }
 
     if (0 != override_search_paths.size()) {
         PrintBeginTable("Override Path Explicit Layers", 4);
