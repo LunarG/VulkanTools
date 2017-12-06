@@ -25,29 +25,7 @@ else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
 
-set(LAYER_JSON_FILES_WITH_DEPENDENCIES
-    VkLayer_core_validation
-    VkLayer_object_tracker
-    VkLayer_unique_objects
-    VkLayer_parameter_validation
-    VkLayer_threading
-    VkLayer_layer_factory
-#####    VkLayer_layer_factory
-    )
-
-set(LAYER_JSON_FILES_NO_DEPENDENCIES
-    VkLayer_standard_validation
-    )
-
-set(LAYER_JSON_FILES ${LAYER_JSON_FILES_WITH_DEPENDENCIES} ${LAYER_JSON_FILES_NO_DEPENDENCIES})
-
-set(LAYER_BINARY_JSON_FILES
-    VkLayer_device_simulation
-    )
-
-set(LAYER_BINARY_FILES
-    libVkLayer_device_simulation
-    )
+set(LAYER_JSON_FILES VkLayer_layer_factory)
 
 if (WIN32)
         if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
@@ -87,18 +65,6 @@ else()
                 VERBATIM
                 )
         endforeach(config_file)
-        foreach (config_file ${LAYER_BINARY_JSON_FILES})
-            add_custom_target(${config_file}-bin-json ALL
-                COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-                VERBATIM
-                )
-        endforeach(config_file)
-        foreach (config_file ${LAYER_BINARY_FILES})
-            add_custom_target(${config_file}-so ALL
-                COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.so
-                VERBATIM
-                )
-        endforeach(config_file)
         # Add link to vk_validation_error_messages.h in build dir for scripts to pick up
         add_custom_target(vk_validation_error_messages ALL
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vk_validation_error_messages.h
@@ -108,21 +74,9 @@ else()
 endif()
 # If a layer has a direct dependency on a project with the same name, use it.
 if ((Win32) OR (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)))
-    foreach (config_file ${LAYER_JSON_FILES_WITH_DEPENDENCIES})
+    foreach (config_file ${LAYER_JSON_FILES})
         add_dependencies(${config_file}-json ${config_file})
     endforeach(config_file)
-    # If a layer has no direct dependencies, give it one so it copies in the proper order
-    foreach (config_file ${LAYER_JSON_FILES_NO_DEPENDENCIES})
-        add_dependencies(${config_file}-json VkLayer_utils)
-    endforeach(config_file)
-    if(UNIX)
-        foreach (config_file ${LAYER_BINARY_JSON_FILES})
-            add_dependencies(${config_file}-bin-json VkLayer_utils)
-        endforeach(config_file)
-        foreach (config_file ${LAYER_BINARY_FILES})
-            add_dependencies(${config_file}-so VkLayer_utils)
-        endforeach(config_file)
-    endif()
 endif()
 
 # Add targets for JSON file install on Linux.
@@ -176,11 +130,12 @@ include_directories(
 )
 
 if (WIN32)
-    # Applies to all configurations
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    # Avoid: fatal error C1128: number of sections exceeded object file format limit: compile with /bigobj
-    set_source_files_properties(core_validation.cpp threading.cpp
-        PROPERTIES COMPILE_FLAGS "/bigobj")
+    set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_CRT_SECURE_NO_WARNINGS")
+    set (CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE} -D_CRT_SECURE_NO_WARNINGS")
+    set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -D_CRT_SECURE_NO_WARNINGS")
+    set (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -D_CRT_SECURE_NO_WARNINGS")
+    set (CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS /bigobj")
+    set (CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS /bigobj")
     # Turn off transitional "changed behavior" warning message for Visual Studio versions prior to 2015.
     # The changed behavior is that constructor initializers are now fixed to clear the struct members.
     add_compile_options("$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,19>>:/wd4351>")
@@ -189,21 +144,9 @@ else()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
 endif()
 
-# Clang (and not gcc) warns about unused const variables.
-# Generated files may purposely contain unused consts, so
-# silence this warning in Clang. 
-if (CMAKE_C_COMPILER_ID MATCHES "Clang")
-   set_source_files_properties(parameter_validation.cpp PROPERTIES
-        COMPILE_FLAGS "-Wno-unused-const-variable")
-endif()
+run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
+run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
 
-run_vk_xml_generate(threading_generator.py thread_check.h)
-run_vk_xml_generate(parameter_validation_generator.py parameter_validation.cpp)
-run_vk_xml_generate(unique_objects_generator.py unique_objects_wrappers.h)
-run_vk_xml_generate(dispatch_table_helper_generator.py vk_dispatch_table_helper.h)
-run_vk_xml_generate(object_tracker_generator.py object_tracker.cpp)
-#####run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
-#####run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -219,18 +162,7 @@ endif()
 
 add_dependencies(VkLayer_utils generate_helper_files)
 
-#####set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory)
-#####file(GLOB LAYER_FACTORY_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.cpp)
+set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory)
+file(GLOB LAYER_FACTORY_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.cpp)
 
-add_vk_layer(core_validation core_validation.cpp vk_layer_table.cpp descriptor_sets.cpp buffer_validation.cpp shader_validation.cpp xxhash.c)
-add_vk_layer(object_tracker object_tracker.cpp object_tracker_utils.cpp vk_layer_table.cpp)
-# generated
-add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
-add_vk_layer(unique_objects unique_objects.cpp unique_objects_wrappers.h vk_layer_table.cpp)
-add_vk_layer(parameter_validation parameter_validation.cpp parameter_validation_utils.cpp parameter_validation.h vk_layer_table.cpp vk_validation_error_messages.h)
-########## add_vk_layer(layer_factory layer_factory.cpp layer_factory.h vk_layer_table.cpp ${LAYER_FACTORY_SOURCES})
-
-# Core validation has additional dependencies
-target_include_directories(VkLayer_core_validation PRIVATE ${GLSLANG_SPIRV_INCLUDE_DIR})
-target_include_directories(VkLayer_core_validation PRIVATE ${SPIRV_TOOLS_INCLUDE_DIR})
-target_link_libraries(VkLayer_core_validation ${SPIRV_TOOLS_LIBRARIES})
+add_vk_layer(layer_factory layer_factory.cpp layer_factory.h vk_layer_table.cpp ${LAYER_FACTORY_SOURCES})
