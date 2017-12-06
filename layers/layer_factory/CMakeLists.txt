@@ -28,33 +28,24 @@ endif()
 set(LAYER_JSON_FILES VkLayer_layer_factory)
 
 if (WIN32)
-        if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
-            foreach (config_file ${LAYER_JSON_FILES})
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${config_file}.json dst_json)
-                add_custom_target(${config_file}-json ALL
-                    COMMAND copy ${src_json} ${dst_json}
-                    VERBATIM
-                    )
-            endforeach(config_file)
-        else()
-            foreach (config_file ${LAYER_JSON_FILES})
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${config_file}.json dst_json)
-                add_custom_target(${config_file}-json ALL
-                    COMMAND copy ${src_json} ${dst_json}
-                    VERBATIM
-                    )
-            endforeach(config_file)
-        endif()
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        # Copy vk_validation_error_messages.h from source to build dir for scripts to pick up
-        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/vk_validation_error_messages.h src_val_msgs)
-        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/vk_validation_error_messages.h dst_val_msgs)
-        add_custom_target(vk_validation_error_messages ALL
-            COMMAND copy ${src_val_msgs} ${dst_val_msgs}
-            VERBATIM
-            )
+    if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
+        foreach (config_file ${LAYER_JSON_FILES})
+            FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
+            FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${config_file}.json dst_json)
+            add_custom_target(${config_file}-json ALL
+                COMMAND copy ${src_json} ${dst_json}
+                VERBATIM
+                )
+        endforeach(config_file)
+    else()
+        foreach (config_file ${LAYER_JSON_FILES})
+            FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
+            FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${config_file}.json dst_json)
+            add_custom_target(${config_file}-json ALL
+                COMMAND copy ${src_json} ${dst_json}
+                VERBATIM
+                )
+        endforeach(config_file)
     endif()
 else()
     # extra setup for out-of-tree builds
@@ -96,29 +87,29 @@ if(UNIX)
     endif()
 endif()
 
-if (WIN32)
-    macro(add_vk_layer target)
-    FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
-    add_custom_target(copy-${target}-def-file ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} VkLayer_${target}.def
-        VERBATIM
-    )
-    add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    add_dependencies(VkLayer_${target} generate_helper_files)
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
-    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
-    endmacro()
-else()
-    macro(add_vk_layer target)
-    add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
-    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
-    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
-    if(INSTALL_LVL_FILES)
-        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-    endif()
-    endmacro()
-endif()
+#if (WIN32)
+#    macro(add_vk_layer target)
+#    FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
+#    add_custom_target(copy-${target}-def-file ALL
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} VkLayer_${target}.def
+#        VERBATIM
+#    )
+#    add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
+#    add_dependencies(VkLayer_${target} generate_helper_files)
+#    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+#    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
+#    endmacro()
+#else()
+#    macro(add_vk_layer target)
+#    add_library(VkLayer_${target} SHARED ${ARGN})
+#    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+#    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
+#    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
+#    if(INSTALL_LVL_FILES)
+#        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+#    endif()
+#    endmacro()
+#endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -147,22 +138,9 @@ endif()
 run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
 run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
 
-
-# Layer Utils Library
-# For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
-# path that can't be easily modified to point it to the same directory that contains the layers.
-if (WIN32)
-    add_library(VkLayer_utils STATIC vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp vk_format_utils.cpp)
-else()
-    add_library(VkLayer_utils SHARED vk_layer_config.cpp vk_layer_extension_utils.cpp vk_layer_utils.cpp vk_format_utils.cpp)
-    if(INSTALL_LVL_FILES)
-        install(TARGETS VkLayer_utils DESTINATION ${CMAKE_INSTALL_LIBDIR})
-    endif()
-endif()
-
 add_dependencies(VkLayer_utils generate_helper_files)
 
 set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory)
 file(GLOB LAYER_FACTORY_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.cpp)
 
-add_vk_layer(layer_factory layer_factory.cpp layer_factory.h vk_layer_table.cpp ${LAYER_FACTORY_SOURCES})
+add_vk_layer(layer_factory layer_factory.cpp layer_factory.h ../vk_layer_table.cpp ${LAYER_FACTORY_SOURCES})
