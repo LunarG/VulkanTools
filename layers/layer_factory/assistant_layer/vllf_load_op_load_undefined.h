@@ -6,7 +6,7 @@
 
 class LoadAndUndefined : public layer_factory {
 public:
-    // Constructor for state_tracker
+    // Constructor for interceptor
     LoadAndUndefined() : layer_factory(this) {};
 
     // Intercept CreateRenderPassCalls calls and check LoadOp and Layout

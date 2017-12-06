@@ -579,7 +579,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         if not self.header:
             # Record intercepted procedures
             write('// Map of all APIs to be intercepted by this layer', file=self.outFile)
-            write('static const std::unordered_map<std::string, void*> name_to_funcptr_map = {', file=self.outFile)
+            write('const std::unordered_map<std::string, void*> name_to_funcptr_map = {', file=self.outFile)
             write('\n'.join(self.intercepts), file=self.outFile)
             write('};\n', file=self.outFile)
             self.newline()

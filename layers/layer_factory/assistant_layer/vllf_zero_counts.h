@@ -6,7 +6,7 @@
 
 class ZeroCounts : public layer_factory {
 public:
-    // Constructor for state_tracker
+    // Constructor for interceptor
     ZeroCounts() : layer_factory(this) {};
 
     // Intercept CmdDraw calls and check instanceCount
