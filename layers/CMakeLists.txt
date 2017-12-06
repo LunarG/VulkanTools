@@ -31,8 +31,6 @@ set(LAYER_JSON_FILES_WITH_DEPENDENCIES
     VkLayer_unique_objects
     VkLayer_parameter_validation
     VkLayer_threading
-    VkLayer_layer_factory
-#####    VkLayer_layer_factory
     )
 
 set(LAYER_JSON_FILES_NO_DEPENDENCIES
@@ -202,8 +200,6 @@ run_vk_xml_generate(parameter_validation_generator.py parameter_validation.cpp)
 run_vk_xml_generate(unique_objects_generator.py unique_objects_wrappers.h)
 run_vk_xml_generate(dispatch_table_helper_generator.py vk_dispatch_table_helper.h)
 run_vk_xml_generate(object_tracker_generator.py object_tracker.cpp)
-#####run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
-#####run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -219,18 +215,16 @@ endif()
 
 add_dependencies(VkLayer_utils generate_helper_files)
 
-#####set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory)
-#####file(GLOB LAYER_FACTORY_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.cpp)
-
 add_vk_layer(core_validation core_validation.cpp vk_layer_table.cpp descriptor_sets.cpp buffer_validation.cpp shader_validation.cpp xxhash.c)
 add_vk_layer(object_tracker object_tracker.cpp object_tracker_utils.cpp vk_layer_table.cpp)
 # generated
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)
 add_vk_layer(unique_objects unique_objects.cpp unique_objects_wrappers.h vk_layer_table.cpp)
 add_vk_layer(parameter_validation parameter_validation.cpp parameter_validation_utils.cpp parameter_validation.h vk_layer_table.cpp vk_validation_error_messages.h)
-########## add_vk_layer(layer_factory layer_factory.cpp layer_factory.h vk_layer_table.cpp ${LAYER_FACTORY_SOURCES})
 
 # Core validation has additional dependencies
 target_include_directories(VkLayer_core_validation PRIVATE ${GLSLANG_SPIRV_INCLUDE_DIR})
 target_include_directories(VkLayer_core_validation PRIVATE ${SPIRV_TOOLS_INCLUDE_DIR})
 target_link_libraries(VkLayer_core_validation ${SPIRV_TOOLS_LIBRARIES})
+
+add_subdirectory(layer_factory)
