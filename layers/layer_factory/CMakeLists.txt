@@ -30,22 +30,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..)
 
-# Add targets for JSON file install on Linux.
-# Need to remove the "./" from the library path before installing to /etc.
-##if(UNIX)
-##    if(INSTALL_LVL_FILES)
-##        foreach (config_file ${LAYER_JSON_FILES})
-##            add_custom_target(${config_file}-staging-json ALL
-##                COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-##                COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-##                COMMAND sed -i -e "/\"library_path\":/s$./libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json
-##                VERBATIM
-##                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-##                )
-##            install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
-##        endforeach(config_file)
-##    endif()
-##endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -127,9 +111,9 @@ else()
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
     add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
-#    if(INSTALL_LVL_FILES)
-#        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-#    endif()
+    if(INSTALL_LVL_FILES)
+        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endif()
     endmacro()
 endif()
 
@@ -142,5 +126,20 @@ FOREACH(subdir ${ST_SUBDIRS})
     add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ../vk_layer_table.cpp ${INTERCEPTOR_SOURCES})
 ENDFOREACH()
 
-#####file(GLOB INTECEPTOR_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/*.cpp)
-#add_vk_layer(layer_factory layer_factory.cpp layer_factory.h ../vk_layer_table.cpp ${INTERCEPTOR_SOURCES})
+# Add targets for JSON file install on Linux.
+# Need to remove the "./" from the library path before installing to /etc.
+if(UNIX)
+    if(INSTALL_LVL_FILES)
+        foreach (factory_layer ${ST_SUBDIRS})
+            set(config_file VkLayer_${factory_layer})
+            add_custom_target(${config_file}-staging-json ALL
+                COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/../staging-json
+                COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/../${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/../staging-json
+                COMMAND sed -i -e "/\"library_path\":/s$./libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/../staging-json/${config_file}.json
+                VERBATIM
+                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../${config_file}.json
+                )
+            install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+        endforeach(factory_layer)
+    endif()
+endif()
