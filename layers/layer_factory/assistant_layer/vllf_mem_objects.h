@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vector"
-#include "string"
+#include <string>
+#include <sstream>
 #include <algorithm>
 
 static const uint32_t kMemoryObjectWarningLimit = 350;
@@ -19,9 +19,9 @@ public:
         _number_mem_objects++;
 
         if (_number_mem_objects > kMemoryObjectWarningLimit) {
-            std::string message =
-                "Performance Warning:  This app has > " + std::to_string(kMemoryObjectWarningLimit) + " memory objects.";
-            PerformanceWarning(message);
+            std::stringstream message;
+            message << "Performance Warning:  This app has > " << kMemoryObjectWarningLimit << " memory objects.";
+            PerformanceWarning(message.str());
         }
         return VK_SUCCESS;
     };
