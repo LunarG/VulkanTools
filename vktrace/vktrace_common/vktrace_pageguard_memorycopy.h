@@ -46,10 +46,10 @@ using namespace concurrency;
 #endif
 
 typedef struct __PageGuardChangedBlockInfo {
-    uint32_t offset;
-    uint32_t length;
-    uint32_t reserve0;
-    uint32_t reserve1;
+    size_t offset;
+    size_t length;
+    size_t reserve0;
+    size_t reserve1;
 } PageGuardChangedBlockInfo, *pPageGuardChangedBlockInfo;
 
 #if defined(WIN32)

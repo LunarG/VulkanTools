@@ -357,9 +357,9 @@ void PageGuardMappedMemory::backupBlockChangedArraySnapshot() { pPageStatus->bac
 
 void PageGuardMappedMemory::backupBlockReadArraySnapshot() { pPageStatus->backupReadArray(); }
 
-DWORD PageGuardMappedMemory::getChangedBlockAmount(int useWhich) {
-    DWORD dwAmount = 0;
-    for (uint64_t i = 0; i < PageGuardAmount; i++) {
+size_t PageGuardMappedMemory::getChangedBlockAmount(int useWhich) {
+    size_t dwAmount = 0;
+    for (size_t i = 0; i < PageGuardAmount; i++) {
         if (isMappedBlockChanged(i, useWhich)) {
             dwAmount++;
         }
@@ -393,10 +393,10 @@ bool PageGuardMappedMemory::isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDev
 // VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
 // RangeSize, if RangeOffset<0, consider whole mapped memory
 // return the amount of changed blocks.
-DWORD PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, DWORD *pdwSaveSize,
-                                                 DWORD *pInfoSize, PBYTE pData, DWORD DataOffset, int useWhich) {
-    DWORD dwAmount = getChangedBlockAmount(useWhich), dwIndex = 0, offset = 0;
-    DWORD infosize = sizeof(PageGuardChangedBlockInfo) * (dwAmount + 1), SaveSize = 0, CurrentBlockSize = 0;
+size_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, size_t *pdwSaveSize,
+                                                 size_t *pInfoSize, PBYTE pData, size_t DataOffset, int useWhich) {
+    size_t dwAmount = getChangedBlockAmount(useWhich), dwIndex = 0, offset = 0;
+    size_t infosize = sizeof(PageGuardChangedBlockInfo) * (dwAmount + 1), SaveSize = 0, CurrentBlockSize = 0;
     PBYTE pChangedData;
     PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)(pData ? (pData + DataOffset) : nullptr);
     void *srcAddr;
@@ -468,7 +468,7 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(VkDevice dev
                                                                     VkDeviceSize size, VkDeviceSize *pChangedSize,
                                                                     VkDeviceSize *pDataPackageSize, PBYTE *ppChangedDataPackage) {
     bool handleSuccessfully = false;
-    DWORD dwSaveSize, InfoSize;
+    size_t dwSaveSize, InfoSize;
 
     backupBlockChangedArraySnapshot();
     getChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, nullptr, 0,
@@ -490,8 +490,8 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(VkDevice dev
     PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pChangedDataPackage;
     if (pChangedInfoArray[0].length) {
         PBYTE pChangedData = (PBYTE)pChangedDataPackage + sizeof(PageGuardChangedBlockInfo) * (pChangedInfoArray[0].offset + 1);
-        DWORD CurrentOffset = 0;
-        for (DWORD i = 0; i < pChangedInfoArray[0].offset; i++) {
+        size_t CurrentOffset = 0;
+        for (size_t i = 0; i < pChangedInfoArray[0].offset; i++) {
             vktrace_pageguard_memcpy(pRealMappedData + pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset,
                                      (size_t)pChangedInfoArray[i + 1].length);
             CurrentOffset += pChangedInfoArray[i + 1].length;
