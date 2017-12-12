@@ -53,6 +53,7 @@ approved_ext = [
                 'VK_IMG_format_pvrtc',
                 'VK_KHR_16bit_storage',
                 'VK_KHR_android_surface',
+                'VK_KHR_bind_memory2',
                 'VK_KHR_dedicated_allocation',
                 'VK_KHR_descriptor_update_template',
                 'VK_KHR_display',
@@ -623,6 +624,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'CreateObjectTableNVX',
                                  'CmdProcessCommandsNVX',
                                  'CreateIndirectCommandsLayoutNVX',
+                                 'BindBufferMemory2KHR',
+                                 'BindImageMemory2KHR',
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
