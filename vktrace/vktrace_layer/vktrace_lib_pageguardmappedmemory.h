@@ -107,7 +107,7 @@ typedef class PageGuardMappedMemory {
 
     void backupBlockReadArraySnapshot();
 
-    DWORD getChangedBlockAmount(int useWhich);
+    size_t getChangedBlockAmount(int useWhich);
 
     /// is RangeLimit cover or partly cover Range
     bool isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDeviceSize RangeSizeLimit, VkDeviceSize RangeOffset,
@@ -125,8 +125,8 @@ typedef class PageGuardMappedMemory {
     /// VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
     /// RangeSize, if RangeOffset<0, consider whole mapped memory
     /// return the amount of changed blocks.
-    DWORD getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, DWORD *pdwSaveSize, DWORD *pInfoSize, PBYTE pData,
-                              DWORD DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
+    size_t getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, size_t *pdwSaveSize, size_t *pInfoSize, PBYTE pData,
+                              size_t DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
 
     /// return: if memory already changed;
     ///        evenif no change to mmeory, it will still allocate memory for info array which only include one

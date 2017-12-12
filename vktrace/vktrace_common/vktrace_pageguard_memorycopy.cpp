@@ -159,7 +159,7 @@ typedef struct {
 typedef struct {
     int index;
     vktrace_pageguard_task_unit_parameters *ptask_units;
-    int amount;
+    size_t amount;
     vktrace_sem_id sem_id_access;
 } vktrace_pageguard_task_queue;
 
@@ -213,8 +213,8 @@ void vktrace_pageguard_delete_thread(vktrace_pageguard_thread_id tid) {
 #endif
 }
 
-int vktrace_pageguard_get_cpu_core_count() {
-    int iret = 4;
+uint32_t vktrace_pageguard_get_cpu_core_count() {
+    uint32_t iret = 4;
 #if defined(WIN32)
     SYSTEM_INFO sSysInfo;
     GetSystemInfo(&sSysInfo);
@@ -353,7 +353,7 @@ extern "C" void vktrace_pageguard_done_multi_threads_memcpy() {
 }
 
 // must keep units until vktrace_pageguard_multi_threads_memcpy_run finished
-void vktrace_pageguard_set_task_queue(vktrace_pageguard_task_unit_parameters *units, int unitamount) {
+void vktrace_pageguard_set_task_queue(vktrace_pageguard_task_unit_parameters *units, size_t unitamount) {
     vktrace_sem_wait(glocal_sem_id);
     vktrace_pageguard_task_queue *pqueue = vktrace_pageguard_get_task_queue();
     pqueue->amount = unitamount;
@@ -393,12 +393,12 @@ void vktrace_pageguard_multi_threads_memcpy_run() {
 
 void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n) {
     static const size_t PAGEGUARD_MEMCPY_MULTITHREAD_UNIT_SIZE = 0x10000;
-    int thread_number = vktrace_pageguard_get_cpu_core_count();
+    uint32_t thread_number = vktrace_pageguard_get_cpu_core_count();
 
     // taskunitamount should be >=thread_number, but should not >= a value which make the unit too small and the cost of switch
     // thread > memcpy that unit, on the other side, too small is also not best if consider last task will determine the memcpy
     // speed.
-    int taskunitamount = n / PAGEGUARD_MEMCPY_MULTITHREAD_UNIT_SIZE;
+    size_t taskunitamount = n / PAGEGUARD_MEMCPY_MULTITHREAD_UNIT_SIZE;
     if (taskunitamount < thread_number) {
         taskunitamount = thread_number;
     }
@@ -406,7 +406,7 @@ void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n)
     vktrace_pageguard_task_unit_parameters *units = reinterpret_cast<vktrace_pageguard_task_unit_parameters *>(
         new uint8_t[taskunitamount * sizeof(vktrace_pageguard_task_unit_parameters)]);
     assert(units);
-    for (int i = 0; i < taskunitamount; i++) {
+    for (uint32_t i = 0; i < taskunitamount; i++) {
         size = size_per_unit;
         if ((i + 1) == taskunitamount) {
             size += size_left;
