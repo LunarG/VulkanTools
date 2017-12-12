@@ -118,6 +118,9 @@ LOCAL_LDFLAGS   += -Wl,-Bsymbolic
 LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL
 include $(BUILD_SHARED_LIBRARY)
 
+# Pick up VLF layers
+include $(LOCAL_PATH)/$(LAYER_DIR)/include/Android.mk
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_api_dump
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/api_dump.cpp
