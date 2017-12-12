@@ -123,6 +123,24 @@ api_exclusions = [
                 # VK_KHR_display_swapchain
                 'CreateSharedSwapchainsKHR'
                 ]
+
+# Helper functions
+
+def isSupportedCmd(cmd, cmd_extension_dict):
+    extension = cmd_extension_dict[cmd.name]
+    if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+        return False
+
+    cmdname = cmd.name[2:]
+    if cmdname in api_exclusions:
+        return False
+    return True
+
+def isInstanceCmd(cmd):
+    cmdtarget = cmd.members[0].type
+    handle = cmd.members[0].handle
+    return handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice'
+
 #
 # VkTraceFileOutputGeneratorOptions - subclass of GeneratorOptions.
 class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
@@ -632,18 +650,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
         for api in self.cmdMembers:
             cmdname = api.name[2:]
-            extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
-                continue
-            if cmdname in api_exclusions:
-                continue
+            if not isSupportedCmd(api, cmd_extension_dict):
+                continue;
             protect = cmd_protect_dict[api.name]
             if protect is not None:
                 replay_gen_source += '#ifdef %s\n' % protect
             disp_table = ""
-            cmdtarget = api.members[0].type
-            handle = api.members[0].handle
-            if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+            if isInstanceCmd(api):
                 disp_table = "m_vkFuncs"
             else:
                 disp_table = "m_vkDeviceFuncs"
@@ -668,15 +681,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_gen_source += '        }\n'
 
         for api in self.cmdMembers:
-            extension = cmd_extension_dict[api.name]
-            if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+            if not isSupportedCmd(api, cmd_extension_dict):
                 continue
-            cmdname = api.name
-            vk_cmdname = cmdname
+
+            vk_cmdname = api.name
             # Strip off 'vk' from command name
-            cmdname = cmdname[2:]
-            if cmdname in api_exclusions:
-                continue
+            cmdname = api.name[2:]
+
             cmdinfo = cmd_info_dict[vk_cmdname]
             protect = cmd_protect_dict[vk_cmdname]
             if protect is not None:
@@ -776,9 +787,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
                 elif cmdname == 'GetInstanceProcAddr':
                     for command in self.cmdMembers:
-                        cmdtarget = command.members[0].type
-                        handle = command.members[0].handle
-                        if handle != None and cmdtarget != "VkInstance" and cmdtarget != 'VkPhysicalDevice':
+                        if not isInstanceCmd(command):
                             continue
                         extension = cmd_extension_dict[command.name]
                         if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
@@ -798,9 +807,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                 replay_gen_source += '#endif // %s\n' % gipa_protect
                 elif cmdname == 'GetDeviceProcAddr':
                     for command in self.cmdMembers:
-                        cmdtarget = command.members[0].type
-                        handle = command.members[0].handle
-                        if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                        if isInstanceCmd(command):
                             continue
                         extension = cmd_extension_dict[command.name]
                         if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
@@ -829,9 +836,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         ret_value = False
                     else:
                         rr_string = '            replayResult = '
-                cmdtarget = api.members[0].type
-                handle = api.members[0].handle
-                if handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice':
+                if isInstanceCmd(api):
                     rr_string += 'm_vkFuncs.%s(' % cmdname
                 else:
                     rr_string += 'm_vkDeviceFuncs.%s(' % cmdname
@@ -2240,7 +2245,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_vk_src += '#elif defined(PLATFORM_LINUX)\n'
         trace_vk_src += '    return;\n}\n'
         trace_vk_src += '#endif\n'
-        trace_vk_src += ''
+        trace_vk_src += '\n'
 
         # Generate functions used to trace API calls and store the input and result data into a packet
         # Here's the general flow of code insertion w/ option items flagged w/ "?"
@@ -2339,6 +2344,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 sys.exit("Entry '%s' in manually_written_hooked_funcs list is not in the vulkan function prototypes" % func)
         # Process each of the entrypoint prototypes
         cmd_extension_dict = dict(self.cmd_extension_names)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
         cmd_info_dict = dict(self.cmd_info_data)
         for proto in self.cmdMembers:
             extension = cmd_extension_dict[proto.name]
@@ -2346,37 +2352,43 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if extension != 'VK_VERSION_1_0' and extension not in approved_ext or proto.name[2:] in api_exclusions:
                 trace_vk_src += '// TODO: Add support for __HOOKED_%s: Skipping for now.\n' % proto.name
                 continue
+
             if proto.name in manually_written_hooked_funcs:
-                trace_vk_src += '// __HOOKED_%s is manually written. Look in vktrace_lib_trace.cpp\n' % proto.name
+                trace_vk_src += '// __HOOKED_%s is manually written. Look in vktrace_lib_trace.cpp. Stub for proc mapping function.\n' % proto.name
+
+            resulttype = cmdinfo.elem.find('proto/type')
+            resulttype = resulttype.text if not None else ''
+            raw_packet_update_list = [] # Non-ptr elements placed directly into packet
+            ptr_packet_update_list = [] # Ptr elements to be updated into packet
+            return_txt = ''
+            packet_size = []
+            in_data_size = False # Flag when we need to capture local input size variable for in/out size
+            trace_vk_src += 'VKTRACER_EXPORT VKAPI_ATTR %s VKAPI_CALL __HOOKED_%s(\n' % (resulttype, proto.name)
+            for p in proto.members: # TODO : For all of the ptr types, check them for NULL and return 0 if NULL
+                if p.name == '':
+                    continue
+                trace_vk_src += '%s,\n' % p.cdecl
+                if p.ispointer and p.name not in ['pSysMem', 'pReserved']:
+                    if 'pDataSize' in p.name:
+                        in_data_size = True;
+                elif 'pfnMsgCallback' == p.name:
+                    raw_packet_update_list.append('    PFN_vkDebugReportCallbackEXT* pNonConstCallback = (PFN_vkDebugReportCallbackEXT*)&pPacket->pfnMsgCallback;')
+                    raw_packet_update_list.append('    *pNonConstCallback = pfnMsgCallback;')
+                elif p.isstaticarray:
+                    raw_packet_update_list.append('    memcpy((void *) pPacket->%s, %s, sizeof(pPacket->%s));' % (p.name, p.name, p.name))
+                else:
+                    raw_packet_update_list.append('    pPacket->%s = %s;' % (p.name, p.name))
+            trace_vk_src = trace_vk_src[:-2] + ')'
+
+            if proto.name in manually_written_hooked_funcs:
+                # Just declare function for manually written entrypoints. Declaration needed for proc mapping
+                trace_vk_src += ';\n';
             else:
-                raw_packet_update_list = [] # Non-ptr elements placed directly into packet
-                ptr_packet_update_list = [] # Ptr elements to be updated into packet
-                return_txt = ''
-                packet_size = []
-                in_data_size = False # Flag when we need to capture local input size variable for in/out size
-                resulttype = cmdinfo.elem.find('proto/type')
-                resulttype = resulttype.text if not None else ''
-                trace_vk_src += 'VKTRACER_EXPORT VKAPI_ATTR %s VKAPI_CALL __HOOKED_%s(\n' % (resulttype, proto.name)
-                for p in proto.members: # TODO : For all of the ptr types, check them for NULL and return 0 if NULL
-                    if p.name == '':
-                        continue
-                    trace_vk_src += '%s,\n' % p.cdecl
-                    if p.ispointer and p.name not in ['pSysMem', 'pReserved']:
-                        if 'pDataSize' in p.name:
-                            in_data_size = True;
-                    elif 'pfnMsgCallback' == p.name:
-                        raw_packet_update_list.append('    PFN_vkDebugReportCallbackEXT* pNonConstCallback = (PFN_vkDebugReportCallbackEXT*)&pPacket->pfnMsgCallback;')
-                        raw_packet_update_list.append('    *pNonConstCallback = pfnMsgCallback;')
-                    elif p.isstaticarray:
-                        raw_packet_update_list.append('    memcpy((void *) pPacket->%s, %s, sizeof(pPacket->%s));' % (p.name, p.name, p.name))
-                    else:
-                        raw_packet_update_list.append('    pPacket->%s = %s;' % (p.name, p.name))
-                trace_vk_src = trace_vk_src[:-2] + ')\n'
                 # Get list of packet size modifiers due to ptr params
                 packet_size = self.GetPacketSize(proto.members)
                 ptr_packet_update_list = self.GetPacketPtrParamList(proto.members)
                 # End of function declaration portion, begin function body
-                trace_vk_src += '{\n'
+                trace_vk_src += ' {\n'
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    %s result;\n' % resulttype
                     return_txt = 'result = '
@@ -2492,6 +2504,43 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    return result;\n'
                 trace_vk_src += '}\n'
+
+        # Add name to intercept proc mapping functions
+        trace_vk_src += 'PFN_vkVoidFunction layer_intercept_instance_proc(const char* name) {\n'
+        trace_vk_src += '    if (!name || name[0] != \'v\' || name[1] != \'k\') return NULL;\n'
+        trace_vk_src += '    name += 2;\n'
+
+        for cmd in self.cmdMembers:
+            cmdname = cmd.name[2:]
+            if not isSupportedCmd(cmd, cmd_extension_dict) or not isInstanceCmd(cmd):
+                continue
+            protect = cmd_protect_dict[cmd.name]
+            if protect is not None:
+                trace_vk_src += '#ifdef %s\n' % protect
+            trace_vk_src += '   if (!strcmp(name, "%s")) return (PFN_vkVoidFunction)__HOOKED_vk%s;\n' % (cmdname, cmdname)
+            if protect is not None:
+                trace_vk_src += '#endif // %s\n' % protect
+
+        trace_vk_src += '    return NULL;\n'
+        trace_vk_src += '}\n\n'
+
+        trace_vk_src += 'PFN_vkVoidFunction layer_intercept_proc(const char* name) {\n'
+        trace_vk_src += '    if (!name || name[0] != \'v\' || name[1] != \'k\') return NULL;\n'
+        trace_vk_src += '    name += 2;\n'
+
+        for cmd in self.cmdMembers:
+            cmdname = cmd.name[2:]
+            if not isSupportedCmd(cmd, cmd_extension_dict) or isInstanceCmd(cmd):
+                continue
+            protect = cmd_protect_dict[cmd.name]
+            if protect is not None:
+                trace_vk_src += '#ifdef %s\n' % protect
+            trace_vk_src += '   if (!strcmp(name, "%s")) return (PFN_vkVoidFunction)__HOOKED_vk%s;\n' % (cmdname, cmdname)
+            if protect is not None:
+                trace_vk_src += '#endif // %s\n' % protect
+
+        trace_vk_src += '    return NULL;\n'
+        trace_vk_src += '}\n\n'
 
         return trace_vk_src
     #

@@ -71,6 +71,9 @@ VKTRACER_LEAVE _Unload(void) {
     }
 }
 
+PFN_vkVoidFunction layer_intercept_instance_proc(const char* name);
+PFN_vkVoidFunction layer_intercept_proc(const char* name);
+
 // declared as extern in vktrace_lib_helpers.h
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
 VKMemInfo g_memInfo = {0, NULL, NULL, 0};
@@ -4284,191 +4287,6 @@ pSurfaceDescription);
 }
 */
 
-static inline PFN_vkVoidFunction layer_intercept_proc(const char* name) {
-    if (!name || name[0] != 'v' || name[1] != 'k') return NULL;
-
-    name += 2;
-
-    if (!strcmp(name, "CreateDevice")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDevice;
-    if (!strcmp(name, "DestroyDevice")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyDevice;
-    if (!strcmp(name, "GetDeviceQueue")) return (PFN_vkVoidFunction)__HOOKED_vkGetDeviceQueue;
-    if (!strcmp(name, "QueueSubmit")) return (PFN_vkVoidFunction)__HOOKED_vkQueueSubmit;
-    if (!strcmp(name, "QueueWaitIdle")) return (PFN_vkVoidFunction)__HOOKED_vkQueueWaitIdle;
-    if (!strcmp(name, "DeviceWaitIdle")) return (PFN_vkVoidFunction)__HOOKED_vkDeviceWaitIdle;
-    if (!strcmp(name, "AllocateMemory")) return (PFN_vkVoidFunction)__HOOKED_vkAllocateMemory;
-    if (!strcmp(name, "FreeMemory")) return (PFN_vkVoidFunction)__HOOKED_vkFreeMemory;
-    if (!strcmp(name, "MapMemory")) return (PFN_vkVoidFunction)__HOOKED_vkMapMemory;
-    if (!strcmp(name, "UnmapMemory")) return (PFN_vkVoidFunction)__HOOKED_vkUnmapMemory;
-    if (!strcmp(name, "FlushMappedMemoryRanges")) return (PFN_vkVoidFunction)__HOOKED_vkFlushMappedMemoryRanges;
-    if (!strcmp(name, "InvalidateMappedMemoryRanges")) return (PFN_vkVoidFunction)__HOOKED_vkInvalidateMappedMemoryRanges;
-    if (!strcmp(name, "GetDeviceMemoryCommitment")) return (PFN_vkVoidFunction)__HOOKED_vkGetDeviceMemoryCommitment;
-    if (!strcmp(name, "BindBufferMemory")) return (PFN_vkVoidFunction)__HOOKED_vkBindBufferMemory;
-    if (!strcmp(name, "BindImageMemory")) return (PFN_vkVoidFunction)__HOOKED_vkBindImageMemory;
-    if (!strcmp(name, "GetBufferMemoryRequirements")) return (PFN_vkVoidFunction)__HOOKED_vkGetBufferMemoryRequirements;
-    if (!strcmp(name, "GetImageMemoryRequirements")) return (PFN_vkVoidFunction)__HOOKED_vkGetImageMemoryRequirements;
-    if (!strcmp(name, "GetImageSparseMemoryRequirements")) return (PFN_vkVoidFunction)__HOOKED_vkGetImageSparseMemoryRequirements;
-    if (!strcmp(name, "GetPhysicalDeviceSparseImageFormatProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSparseImageFormatProperties;
-    if (!strcmp(name, "QueueBindSparse")) return (PFN_vkVoidFunction)__HOOKED_vkQueueBindSparse;
-    if (!strcmp(name, "CreateFence")) return (PFN_vkVoidFunction)__HOOKED_vkCreateFence;
-    if (!strcmp(name, "DestroyFence")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyFence;
-    if (!strcmp(name, "ResetFences")) return (PFN_vkVoidFunction)__HOOKED_vkResetFences;
-    if (!strcmp(name, "GetFenceStatus")) return (PFN_vkVoidFunction)__HOOKED_vkGetFenceStatus;
-    if (!strcmp(name, "WaitForFences")) return (PFN_vkVoidFunction)__HOOKED_vkWaitForFences;
-    if (!strcmp(name, "CreateSemaphore")) return (PFN_vkVoidFunction)__HOOKED_vkCreateSemaphore;
-    if (!strcmp(name, "DestroySemaphore")) return (PFN_vkVoidFunction)__HOOKED_vkDestroySemaphore;
-    if (!strcmp(name, "CreateEvent")) return (PFN_vkVoidFunction)__HOOKED_vkCreateEvent;
-    if (!strcmp(name, "DestroyEvent")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyEvent;
-    if (!strcmp(name, "GetEventStatus")) return (PFN_vkVoidFunction)__HOOKED_vkGetEventStatus;
-    if (!strcmp(name, "SetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkSetEvent;
-    if (!strcmp(name, "ResetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkResetEvent;
-    if (!strcmp(name, "CreateQueryPool")) return (PFN_vkVoidFunction)__HOOKED_vkCreateQueryPool;
-    if (!strcmp(name, "DestroyQueryPool")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyQueryPool;
-    if (!strcmp(name, "GetQueryPoolResults")) return (PFN_vkVoidFunction)__HOOKED_vkGetQueryPoolResults;
-    if (!strcmp(name, "CreateBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCreateBuffer;
-    if (!strcmp(name, "DestroyBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyBuffer;
-    if (!strcmp(name, "CreateBufferView")) return (PFN_vkVoidFunction)__HOOKED_vkCreateBufferView;
-    if (!strcmp(name, "DestroyBufferView")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyBufferView;
-    if (!strcmp(name, "CreateImage")) return (PFN_vkVoidFunction)__HOOKED_vkCreateImage;
-    if (!strcmp(name, "DestroyImage")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyImage;
-    if (!strcmp(name, "GetImageSubresourceLayout")) return (PFN_vkVoidFunction)__HOOKED_vkGetImageSubresourceLayout;
-    if (!strcmp(name, "CreateImageView")) return (PFN_vkVoidFunction)__HOOKED_vkCreateImageView;
-    if (!strcmp(name, "DestroyImageView")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyImageView;
-    if (!strcmp(name, "CreateShaderModule")) return (PFN_vkVoidFunction)__HOOKED_vkCreateShaderModule;
-    if (!strcmp(name, "DestroyShaderModule")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyShaderModule;
-    if (!strcmp(name, "CreatePipelineCache")) return (PFN_vkVoidFunction)__HOOKED_vkCreatePipelineCache;
-    if (!strcmp(name, "DestroyPipelineCache")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyPipelineCache;
-    if (!strcmp(name, "GetPipelineCacheData")) return (PFN_vkVoidFunction)__HOOKED_vkGetPipelineCacheData;
-    if (!strcmp(name, "MergePipelineCaches")) return (PFN_vkVoidFunction)__HOOKED_vkMergePipelineCaches;
-    if (!strcmp(name, "CreateGraphicsPipelines")) return (PFN_vkVoidFunction)__HOOKED_vkCreateGraphicsPipelines;
-    if (!strcmp(name, "CreateComputePipelines")) return (PFN_vkVoidFunction)__HOOKED_vkCreateComputePipelines;
-    if (!strcmp(name, "DestroyPipeline")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyPipeline;
-    if (!strcmp(name, "CreatePipelineLayout")) return (PFN_vkVoidFunction)__HOOKED_vkCreatePipelineLayout;
-    if (!strcmp(name, "DestroyPipelineLayout")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyPipelineLayout;
-    if (!strcmp(name, "CreateSampler")) return (PFN_vkVoidFunction)__HOOKED_vkCreateSampler;
-    if (!strcmp(name, "DestroySampler")) return (PFN_vkVoidFunction)__HOOKED_vkDestroySampler;
-    if (!strcmp(name, "CreateDescriptorSetLayout")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDescriptorSetLayout;
-    if (!strcmp(name, "DestroyDescriptorSetLayout")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyDescriptorSetLayout;
-    if (!strcmp(name, "CreateDescriptorPool")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDescriptorPool;
-    if (!strcmp(name, "DestroyDescriptorPool")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyDescriptorPool;
-    if (!strcmp(name, "ResetDescriptorPool")) return (PFN_vkVoidFunction)__HOOKED_vkResetDescriptorPool;
-    if (!strcmp(name, "AllocateDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkAllocateDescriptorSets;
-    if (!strcmp(name, "FreeDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkFreeDescriptorSets;
-    if (!strcmp(name, "UpdateDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkUpdateDescriptorSets;
-    if (!strcmp(name, "CreateCommandPool")) return (PFN_vkVoidFunction)__HOOKED_vkCreateCommandPool;
-    if (!strcmp(name, "DestroyCommandPool")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyCommandPool;
-    if (!strcmp(name, "ResetCommandPool")) return (PFN_vkVoidFunction)__HOOKED_vkResetCommandPool;
-    if (!strcmp(name, "AllocateCommandBuffers")) return (PFN_vkVoidFunction)__HOOKED_vkAllocateCommandBuffers;
-    if (!strcmp(name, "FreeCommandBuffers")) return (PFN_vkVoidFunction)__HOOKED_vkFreeCommandBuffers;
-    if (!strcmp(name, "BeginCommandBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkBeginCommandBuffer;
-    if (!strcmp(name, "EndCommandBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkEndCommandBuffer;
-    if (!strcmp(name, "ResetCommandBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkResetCommandBuffer;
-    if (!strcmp(name, "CmdBindPipeline")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindPipeline;
-    if (!strcmp(name, "CmdSetViewport")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetViewport;
-    if (!strcmp(name, "CmdSetScissor")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetScissor;
-    if (!strcmp(name, "CmdSetLineWidth")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetLineWidth;
-    if (!strcmp(name, "CmdSetDepthBias")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetDepthBias;
-    if (!strcmp(name, "CmdSetBlendConstants")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetBlendConstants;
-    if (!strcmp(name, "CmdSetDepthBounds")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetDepthBounds;
-    if (!strcmp(name, "CmdSetStencilCompareMask")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetStencilCompareMask;
-    if (!strcmp(name, "CmdSetStencilWriteMask")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetStencilWriteMask;
-    if (!strcmp(name, "CmdSetStencilReference")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetStencilReference;
-    if (!strcmp(name, "CmdBindDescriptorSets")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindDescriptorSets;
-    if (!strcmp(name, "CmdBindIndexBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindIndexBuffer;
-    if (!strcmp(name, "CmdBindVertexBuffers")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBindVertexBuffers;
-    if (!strcmp(name, "CmdDraw")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDraw;
-    if (!strcmp(name, "CmdDrawIndexed")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDrawIndexed;
-    if (!strcmp(name, "CmdDrawIndirect")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDrawIndirect;
-    if (!strcmp(name, "CmdDrawIndexedIndirect")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDrawIndexedIndirect;
-    if (!strcmp(name, "CmdDispatch")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDispatch;
-    if (!strcmp(name, "CmdDispatchIndirect")) return (PFN_vkVoidFunction)__HOOKED_vkCmdDispatchIndirect;
-    if (!strcmp(name, "CmdCopyBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyBuffer;
-    if (!strcmp(name, "CmdCopyImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyImage;
-    if (!strcmp(name, "CmdBlitImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBlitImage;
-    if (!strcmp(name, "CmdCopyBufferToImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyBufferToImage;
-    if (!strcmp(name, "CmdCopyImageToBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyImageToBuffer;
-    if (!strcmp(name, "CmdUpdateBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdUpdateBuffer;
-    if (!strcmp(name, "CmdFillBuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCmdFillBuffer;
-    if (!strcmp(name, "CmdClearColorImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdClearColorImage;
-    if (!strcmp(name, "CmdClearDepthStencilImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdClearDepthStencilImage;
-    if (!strcmp(name, "CmdClearAttachments")) return (PFN_vkVoidFunction)__HOOKED_vkCmdClearAttachments;
-    if (!strcmp(name, "CmdResolveImage")) return (PFN_vkVoidFunction)__HOOKED_vkCmdResolveImage;
-    if (!strcmp(name, "CmdSetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkCmdSetEvent;
-    if (!strcmp(name, "CmdResetEvent")) return (PFN_vkVoidFunction)__HOOKED_vkCmdResetEvent;
-    if (!strcmp(name, "CmdWaitEvents")) return (PFN_vkVoidFunction)__HOOKED_vkCmdWaitEvents;
-    if (!strcmp(name, "CmdPipelineBarrier")) return (PFN_vkVoidFunction)__HOOKED_vkCmdPipelineBarrier;
-    if (!strcmp(name, "CmdBeginQuery")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBeginQuery;
-    if (!strcmp(name, "CmdEndQuery")) return (PFN_vkVoidFunction)__HOOKED_vkCmdEndQuery;
-    if (!strcmp(name, "CmdResetQueryPool")) return (PFN_vkVoidFunction)__HOOKED_vkCmdResetQueryPool;
-    if (!strcmp(name, "CmdWriteTimestamp")) return (PFN_vkVoidFunction)__HOOKED_vkCmdWriteTimestamp;
-    if (!strcmp(name, "CmdCopyQueryPoolResults")) return (PFN_vkVoidFunction)__HOOKED_vkCmdCopyQueryPoolResults;
-    if (!strcmp(name, "CreateFramebuffer")) return (PFN_vkVoidFunction)__HOOKED_vkCreateFramebuffer;
-    if (!strcmp(name, "DestroyFramebuffer")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyFramebuffer;
-    if (!strcmp(name, "CreateRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkCreateRenderPass;
-    if (!strcmp(name, "DestroyRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyRenderPass;
-    if (!strcmp(name, "GetRenderAreaGranularity")) return (PFN_vkVoidFunction)__HOOKED_vkGetRenderAreaGranularity;
-    if (!strcmp(name, "CmdBeginRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkCmdBeginRenderPass;
-    if (!strcmp(name, "CmdNextSubpass")) return (PFN_vkVoidFunction)__HOOKED_vkCmdNextSubpass;
-    if (!strcmp(name, "CmdPushConstants")) return (PFN_vkVoidFunction)__HOOKED_vkCmdPushConstants;
-    if (!strcmp(name, "CmdEndRenderPass")) return (PFN_vkVoidFunction)__HOOKED_vkCmdEndRenderPass;
-    if (!strcmp(name, "CmdExecuteCommands")) return (PFN_vkVoidFunction)__HOOKED_vkCmdExecuteCommands;
-    if (!strcmp(name, "CreateDescriptorUpdateTemplateKHR")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDescriptorUpdateTemplateKHR;
-    if (!strcmp(name, "DestroyDescriptorUpdateTemplateKHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkDestroyDescriptorUpdateTemplateKHR;
-    if (!strcmp(name, "UpdateDescriptorSetWithTemplateKHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkUpdateDescriptorSetWithTemplateKHR;
-    if (!strcmp(name, "CmdPushDescriptorSetWithTemplateKHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkCmdPushDescriptorSetWithTemplateKHR;
-    if (!strcmp(name, "CreateObjectTableNVX")) return (PFN_vkVoidFunction)__HOOKED_vkCreateObjectTableNVX;
-    if (!strcmp(name, "CmdProcessCommandsNVX")) return (PFN_vkVoidFunction)__HOOKED_vkCmdProcessCommandsNVX;
-    if (!strcmp(name, "CmdReserveSpaceForCommandsNVX")) return(PFN_vkVoidFunction)__HOOKED_vkCmdReserveSpaceForCommandsNVX;
-    if (!strcmp(name, "CreateIndirectCommandsLayoutNVX")) return(PFN_vkVoidFunction)__HOOKED_vkCreateIndirectCommandsLayoutNVX;
-    if (!strcmp(name, "vkRegisterObjectsNVX")) return (PFN_vkVoidFunction)__HOOKED_vkRegisterObjectsNVX;
-    if (!strcmp(name, "GetPhysicalDeviceGeneratedCommandsPropertiesNVX")) return(PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX;
-    if (!strcmp(name, "DestroyIndirectCommandsLayoutNVX")) return(PFN_vkVoidFunction)__HOOKED_vkDestroyIndirectCommandsLayoutNVX;
-    if (!strcmp(name, "DestroyObjectTableNVX")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyObjectTableNVX;
-    if (!strcmp(name, "UnregisterObjectsNVX")) return (PFN_vkVoidFunction)__HOOKED_vkUnregisterObjectsNVX;
-
-    return NULL;
-}
-
-static inline PFN_vkVoidFunction layer_intercept_instance_proc(const char* name) {
-    if (!name || name[0] != 'v' || name[1] != 'k') return NULL;
-
-    name += 2;
-    if (!strcmp(name, "CreateDevice")) return (PFN_vkVoidFunction)__HOOKED_vkCreateDevice;
-    if (!strcmp(name, "CreateInstance")) return (PFN_vkVoidFunction)__HOOKED_vkCreateInstance;
-    if (!strcmp(name, "DestroyInstance")) return (PFN_vkVoidFunction)__HOOKED_vkDestroyInstance;
-    if (!strcmp(name, "EnumeratePhysicalDevices")) return (PFN_vkVoidFunction)__HOOKED_vkEnumeratePhysicalDevices;
-    if (!strcmp(name, "GetPhysicalDeviceFeatures")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFeatures;
-    if (!strcmp(name, "GetPhysicalDeviceFormatProperties")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFormatProperties;
-    if (!strcmp(name, "GetPhysicalDeviceImageFormatProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceImageFormatProperties;
-    if (!strcmp(name, "GetPhysicalDeviceSparseImageFormatProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSparseImageFormatProperties;
-    if (!strcmp(name, "GetPhysicalDeviceProperties")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceProperties;
-    if (!strcmp(name, "GetPhysicalDeviceQueueFamilyProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceQueueFamilyProperties;
-    if (!strcmp(name, "GetPhysicalDeviceMemoryProperties")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceMemoryProperties;
-    if (!strcmp(name, "EnumerateDeviceLayerProperties")) return (PFN_vkVoidFunction)__HOOKED_vkEnumerateDeviceLayerProperties;
-    if (!strcmp(name, "EnumerateDeviceExtensionProperties"))
-        return (PFN_vkVoidFunction)__HOOKED_vkEnumerateDeviceExtensionProperties;
-    if (!strcmp(name, "GetPhysicalDeviceFeatures2KHR")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFeatures2KHR;
-    if (!strcmp(name, "GetPhysicalDeviceProperties2KHR")) return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceProperties2KHR;
-    if (!strcmp(name, "GetPhysicalDeviceFormatProperties2KHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceFormatProperties2KHR;
-    if (!strcmp(name, "GetPhysicalDeviceImageFormatProperties2KHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceImageFormatProperties2KHR;
-    if (!strcmp(name, "GetPhysicalDeviceQueueFamilyProperties2KHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceQueueFamilyProperties2KHR;
-    if (!strcmp(name, "GetPhysicalDeviceMemoryProperties2KHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceMemoryProperties2KHR;
-    if (!strcmp(name, "GetPhysicalDeviceSparseImageFormatProperties2KHR"))
-        return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceSparseImageFormatProperties2KHR;
-
-    return NULL;
-}
-
 /**
  * Want trace packets created for GetDeviceProcAddr that is app initiated
  * but not for loader initiated calls to GDPA. Thus need two versions of GDPA.
@@ -4691,6 +4509,17 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
         return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
 
     return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceExtensionProperties(const char* pLayerName,
+                                                                                               uint32_t* pPropertyCount,
+                                                                                               VkExtensionProperties* pProperties) {
+    return vkEnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
+                                                                                           VkLayerProperties* pProperties) {
+    return vkEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice,
