@@ -65,11 +65,7 @@ if __name__ == '__main__':
         layer_factory_path = "%s/*/" % vlf_dir
         layer_factory_dirs = glob(layer_factory_path)
 
-        # Makefile source common to all factory layers
-        contents =  '#pragma once\n\n'
-        contents += 'LOCAL_PATH := $(call my-dir)\n'
-        contents += 'SRC_DIR := ../../..\n'
-        contents += 'LAYER_DIR := .\n'
+        contents = ''
 
         # Output makefile target section for each factory layer in dest sub-directory
         for layer_factory_path in layer_factory_dirs:
@@ -77,17 +73,17 @@ if __name__ == '__main__':
             contents += '\n'
             contents += 'include $(CLEAR_VARS)\n'
             contents += 'LOCAL_MODULE := VkLayer_%s\n' % factory_layer
-            contents += 'LOCAL_SRC_FILES += $(LAYER_DIR)/layer_factory.cpp\n'
+            contents += 'LOCAL_SRC_FILES += $(LAYER_DIR)/include/layer_factory.cpp\n'
             contents += 'LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp\n'
             # Add *.cpp files (if any) to makefile dependencies
             for path, subdirs, files in os.walk(factory_layer):
                 for file in files:
                     if '.cpp' in file:
-                        contents += 'LOCAL_SRC_FILES += $(LOCAL_PATH)/$(SRC_DIR)/layers/layer_factory/%s/%s\n' & (factory_layer, file)
+                        contents += 'LOCAL_SRC_FILES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s/%s\n' & (factory_layer, file)
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LAYER_DIR)/include\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/layers\n'
-            contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/layers/layer_factory/%s\n' % factory_layer
+            contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s\n' % factory_layer
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/loader\n'
             contents += 'LOCAL_STATIC_LIBRARIES += layer_utils\n'
             contents += 'LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable\n'
