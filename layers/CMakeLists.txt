@@ -212,7 +212,6 @@ else()
         install(TARGETS VkLayer_utils DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
 endif()
-
 add_dependencies(VkLayer_utils generate_helper_files)
 
 add_vk_layer(core_validation core_validation.cpp vk_layer_table.cpp descriptor_sets.cpp buffer_validation.cpp shader_validation.cpp xxhash.c)
@@ -226,5 +225,3 @@ add_vk_layer(parameter_validation parameter_validation.cpp parameter_validation_
 target_include_directories(VkLayer_core_validation PRIVATE ${GLSLANG_SPIRV_INCLUDE_DIR})
 target_include_directories(VkLayer_core_validation PRIVATE ${SPIRV_TOOLS_INCLUDE_DIR})
 target_link_libraries(VkLayer_core_validation ${SPIRV_TOOLS_LIBRARIES})
-
-add_subdirectory(layer_factory)
