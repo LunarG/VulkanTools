@@ -560,7 +560,17 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '                           layer_name.c_str(), "%s", message.c_str());\n'
         self.layer_factory += '        }\n'
         self.layer_factory += '\n'
-
+        self.layer_factory += '        void Breakpoint(void) {\n'
+        self.layer_factory += '#ifdef WIN32\n'
+        self.layer_factory += '            DebugBreak();\n'
+        self.layer_factory += '#else\n'
+        self.layer_factory += '            raise(SIGTRAP);\n'
+        self.layer_factory += '#endif\n'
+        self.layer_factory += '        }\n'
+        self.layer_factory += '\n'
+        self.layer_factory += '        virtual void PreCallApiFunction(const char *api_name) {};\n'
+        self.layer_factory += '        virtual void PostCallApiFunction(const char *api_name) {};\n'
+        self.layer_factory += '\n'
         self.layer_factory += '        // Pre/post hook point declarations\n'
     #
     def endFile(self):
