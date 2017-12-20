@@ -317,6 +317,15 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceMultisamplePropertiesEXT = 242,
     VKTRACE_TPI_VK_vkCreateSamplerYcbcrConversionKHR = 243,
     VKTRACE_TPI_VK_vkDestroySamplerYcbcrConversionKHR = 244,
+    VKTRACE_TPI_VK_vkGetDisplayPlaneSupportedDisplaysKHR = 255,
+    VKTRACE_TPI_VK_vkImportFenceFdKHR = 256,
+    VKTRACE_TPI_VK_vkGetFenceFdKHR = 257,
+    VKTRACE_TPI_VK_vkImportFenceWin32HandleKHR = 258,
+    VKTRACE_TPI_VK_vkGetFenceWin32HandleKHR = 259,
+    VKTRACE_TPI_VK_vkGetMemoryWin32HandleKHR = 260,
+    VKTRACE_TPI_VK_vkGetMemoryWin32HandlePropertiesKHR = 261,
+    VKTRACE_TPI_VK_vkImportSemaphoreWin32HandleKHR = 262,
+    VKTRACE_TPI_VK_vkGetSemaphoreWin32HandleKHR = 263,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1

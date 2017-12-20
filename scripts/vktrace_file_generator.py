@@ -60,23 +60,26 @@ approved_ext = [
                 'VK_KHR_display_swapchain',
                 'VK_KHR_external_fence',
                 'VK_KHR_external_fence_capabilities',
-                #'VK_KHR_external_fence_fd',
-                #'VK_KHR_external_fence_win32',
+                'VK_KHR_external_fence_fd',
+                'VK_KHR_external_fence_win32',
                 'VK_KHR_external_memory',
                 'VK_KHR_external_memory_capabilities',
                 'VK_KHR_external_memory_fd',
-                #'VK_KHR_external_memory_win32',
+                'VK_KHR_external_memory_win32',
                 'VK_KHR_external_semaphore',
                 'VK_KHR_external_semaphore_capabilities',
                 'VK_KHR_external_semaphore_fd',
-                #'VK_KHR_external_semaphore_win32',
+                'VK_KHR_external_semaphore_win32',
                 'VK_KHR_get_memory_requirements2',
                 'VK_KHR_get_physical_device_properties2',
                 'VK_KHR_get_surface_capabilities2',
+                'VK_KHR_image_format_list',
                 'VK_KHR_incremental_present',
                 'VK_KHR_maintenance1',
+                'VK_KHR_maintenance2',
                 #'VK_KHR_mir_surface',
                 'VK_KHR_push_descriptor',
+                'VK_KHR_relaxed_block_layout',
                 'VK_KHR_sampler_filter_minmax',
                 'VK_KHR_sampler_mirror_clamp_to_edge',
                 'VK_KHR_shader_draw_parameters',
@@ -118,11 +121,6 @@ approved_ext = [
                 ]
 
 api_exclusions = [
-                # VK_KHR_display
-                'GetDisplayPlaneSupportedDisplaysKHR',
-
-                # VK_KHR_display_swapchain
-                'CreateSharedSwapchainsKHR'
                 ]
 
 # Helper functions
@@ -626,6 +624,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'CreateIndirectCommandsLayoutNVX',
                                  'BindBufferMemory2KHR',
                                  'BindImageMemory2KHR',
+                                 'GetDisplayPlaneSupportedDisplaysKHR',
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
@@ -1261,7 +1260,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if param.ispointer:
                 return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
             return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
-        if "VkFence" in vk_type:
+        if "VkFence" == vk_type:
             if param.ispointer:
                 return ("%p {%\" PRIx64 \"}", "(void*)%s, (%s == NULL) ? 0 : (uint64_t)*(%s)" % (name, name, name), "*")
             return ("%p", "(void*)%s" %(name), deref)
@@ -1453,7 +1452,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         skip_list = [] # store params that are already accounted for so we don't count them twice
         # Dict of specific params with unique custom sizes
         # TODO: Now using bitfields for all stages, need pSetBindPoints to accommodate that.
-        custom_size_dict = {'VkSwapchainCreateInfoKHR' : 'vk_size_vkswapchaincreateinfokhr(pCreateInfo)',
+        custom_size_dict = {'VkSwapchainCreateInfoKHR' : 'vk_size_vkswapchaincreateinfokhr',
                             }
         for p in params:
             # First handle custom cases
@@ -1464,10 +1463,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 ps.append('get_struct_chain_size((void*)%s)' % (p.name))
                 skip_list.append(p.name)
             elif p.name in custom_size_dict:
-                ps.append(custom_size_dict[p.name])
+                ps.append('%s(%s)' % (custom_size_dict[p.name], p.name))
                 skip_list.append(p.name)
             if p.type in custom_size_dict:
-                ps.append(custom_size_dict[p.type])
+                ps.append('%s(%s)' % (custom_size_dict[p.type], p.name))
                 skip_list.append(p.name)
             # Skip any params already handled
             if p.name in skip_list:
