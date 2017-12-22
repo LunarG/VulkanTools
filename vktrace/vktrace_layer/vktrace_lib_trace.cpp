@@ -3889,6 +3889,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
 
 static std::unordered_map<VkDescriptorUpdateTemplateKHR, VkDescriptorUpdateTemplateCreateInfoKHR*>
     descriptorUpdateTemplateCreateInfo;
+static vktrace_sem_id descriptorUpdateTemplateCreateInfo_sem_id;
+static bool descriptorUpdateTemplateCreateInfo_success = vktrace_sem_create(&descriptorUpdateTemplateCreateInfo_sem_id, 1);
+
+void lockDescriptorUpdateTemplateCreateInfo() {
+    if (!descriptorUpdateTemplateCreateInfo_success) {
+        vktrace_LogError("Semaphore create failed!");
+    }
+    vktrace_sem_wait(descriptorUpdateTemplateCreateInfo_sem_id);
+}
+
+void unlockDescriptorUpdateTemplateCreateInfo() { vktrace_sem_post(descriptorUpdateTemplateCreateInfo_sem_id); }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdateTemplateKHR(
     VkDevice device, const VkDescriptorUpdateTemplateCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator,
@@ -3904,6 +3915,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdate
     result = mdd(device)->devTable.CreateDescriptorUpdateTemplateKHR(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     vktrace_set_packet_entrypoint_end_time(pHeader);
 
+    lockDescriptorUpdateTemplateCreateInfo();
     descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate] =
         (VkDescriptorUpdateTemplateCreateInfoKHR*)malloc(sizeof(VkDescriptorUpdateTemplateCreateInfoKHR));
     memcpy(descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate], pCreateInfo,
@@ -3914,6 +3926,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdate
     memcpy((void*)descriptorUpdateTemplateCreateInfo[*pDescriptorUpdateTemplate]->pDescriptorUpdateEntries,
            pCreateInfo->pDescriptorUpdateEntries,
            sizeof(VkDescriptorUpdateTemplateEntryKHR) * pCreateInfo->descriptorUpdateEntryCount);
+    unlockDescriptorUpdateTemplateCreateInfo();
 
     pPacket = interpret_body_as_vkCreateDescriptorUpdateTemplateKHR(pHeader);
     pPacket->device = device;
@@ -3968,6 +3981,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
             vktrace_delete_trace_packet(&pHeader);
         }
     }
+    lockDescriptorUpdateTemplateCreateInfo();
     if (descriptorUpdateTemplateCreateInfo.find(descriptorUpdateTemplate) != descriptorUpdateTemplateCreateInfo.end()) {
         if (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]) {
             if (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries)
@@ -3976,10 +3990,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
         }
         descriptorUpdateTemplateCreateInfo.erase(descriptorUpdateTemplate);
     }
+    unlockDescriptorUpdateTemplateCreateInfo();
 }
 
 static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate) {
     size_t dataSize = 0;
+    lockDescriptorUpdateTemplateCreateInfo();
     for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->descriptorUpdateEntryCount; i++) {
         for (uint32_t j = 0;
              j < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorCount; j++) {
@@ -4018,6 +4034,7 @@ static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorU
             dataSize = std::max(dataSize, thisSize);
         }
     }
+    unlockDescriptorUpdateTemplateCreateInfo();
     return dataSize;
 }
 
