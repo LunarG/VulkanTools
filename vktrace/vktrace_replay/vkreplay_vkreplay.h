@@ -92,6 +92,7 @@ class vkReplay {
     int m_frameNumber;
     vktrace_trace_file_header* m_pFileHeader;
     struct_gpuinfo* m_pGpuinfo;
+    uint32_t m_imageIndex = UINT32_MAX;
 
     // Replay platform description
     uint64_t m_replay_endianess;
@@ -256,6 +257,15 @@ class vkReplay {
     // Map VkPhysicalDevice to VkPhysicalDeviceMemoryProperites
     std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> traceMemoryProperties;
     std::unordered_map<VkPhysicalDevice, VkPhysicalDeviceMemoryProperties> replayMemoryProperties;
+
+    // Map swapchain image index to VkImage, VkImageView, VkFramebuffer, so we can replace swapchain image and frame buffer with the
+    // acquired ones
+    std::unordered_map<uint32_t, VkImage> traceImageIndexToImage;
+    std::unordered_map<VkImage, uint32_t> traceImageToImageIndex;
+    std::unordered_map<uint32_t, VkImageView> traceImageIndexToImageView;
+    std::unordered_map<VkImageView, uint32_t> traceImageViewToImageIndex;
+    std::unordered_map<uint32_t, VkFramebuffer> traceImageIndexToFramebuffer;
+    std::unordered_map<VkFramebuffer, uint32_t> traceFramebufferToImageIndex;
 
     // Map VkImage to VkMemoryRequirements
     std::unordered_map<VkImage, VkMemoryRequirements> replayGetImageMemoryRequirements;

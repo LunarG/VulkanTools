@@ -360,7 +360,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             result = str(result).replace('::', '->')
         return result
     #
-    # Check if a structure is or contains a dispatchable (dispatchable = True) or 
+    # Check if a structure is or contains a dispatchable (dispatchable = True) or
     # non-dispatchable (dispatchable = False) handle
     def TypeContainsObjectHandle(self, handle_type, dispatchable):
         if dispatchable:
@@ -883,6 +883,16 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                    rr_string = rr_string.replace('pPacket->pFences', 'fences')
                 # Insert the real_*(..) call
                 replay_gen_source += '%s\n' % rr_string
+                if cmdname == 'DestroyFramebuffer':
+                    replay_gen_source += '            if (traceFramebufferToImageIndex.find(pPacket->framebuffer) != traceFramebufferToImageIndex.end()) {\n'
+                    replay_gen_source += '                traceImageIndexToFramebuffer.erase(traceFramebufferToImageIndex[pPacket->framebuffer]);\n'
+                    replay_gen_source += '                traceFramebufferToImageIndex.erase(pPacket->framebuffer);\n'
+                    replay_gen_source += '            }\n'
+                elif cmdname == 'DestroyImageView':
+                    replay_gen_source += '            if (traceImageViewToImageIndex.find(pPacket->imageView) != traceImageViewToImageIndex.end()) {\n'
+                    replay_gen_source += '                traceImageIndexToImageView.erase(traceImageViewToImageIndex[pPacket->imageView]);\n'
+                    replay_gen_source += '                traceImageViewToImageIndex.erase(pPacket->imageView);\n'
+                    replay_gen_source += '            }\n'
                 # Handle return values or anything that needs to happen after the real_*(..) call
                 get_ext_layers_proto = ['EnumerateInstanceExtensionProperties', 'EnumerateDeviceExtensionProperties','EnumerateInstanceLayerProperties', 'EnumerateDeviceLayerProperties']
                 if 'DestroyDevice' in cmdname:
@@ -904,6 +914,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            }\n'
                 elif 'AcquireNextImage' in cmdname:
                     replay_gen_source += '            m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
+                    replay_gen_source += '            m_imageIndex = local_pImageIndex;\n'
                 elif 'DestroyInstance' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     replay_gen_source += '                // TODO need to handle multiple instances and only clearing maps within an instance.\n'
@@ -941,6 +952,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '                m_objMapper.add_to_%ss_map(*(pPacket->%s), local_%s);\n' % (clean_type.lower()[2:], params[-1].name, params[-1].name)
                     if 'AllocateMemory' == cmdname:
                         replay_gen_source += '                m_objMapper.add_entry_to_mapData(local_%s, pPacket->pAllocateInfo->allocationSize);\n' % (params[-1].name)
+                    elif 'CreateImageView' == cmdname:
+                        replay_gen_source += '                if (traceImageToImageIndex.find(pPacket->pCreateInfo->image) != traceImageToImageIndex.end()) {\n'
+                        replay_gen_source += '                    traceImageIndexToImageView[traceImageToImageIndex[pPacket->pCreateInfo->image]] = *(pPacket->pView);\n'
+                        replay_gen_source += '                    traceImageViewToImageIndex[*(pPacket->pView)] = traceImageToImageIndex[pPacket->pCreateInfo->image];\n'
+                        replay_gen_source += '                }\n'
                     if ret_value:
                         replay_gen_source += '            }\n'
                 elif cmdname in do_while_dict:
@@ -2278,7 +2294,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         # Assign packet values
         # FINISH packet
         # return result if needed
-       
+
         manually_written_hooked_funcs = ['vkAllocateCommandBuffers',
                                          'vkAllocateMemory',
                                          'vkAllocateDescriptorSets',
@@ -2499,7 +2515,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    if (!g_trimEnabled) {\n'
                 # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
                 trace_vk_src += '        FINISH_TRACE_PACKET();\n'
-       
+
                 # Else half of g_trimEnabled conditional
                 # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
                 trace_vk_src += '    } else {\n'
@@ -2518,13 +2534,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     trace_vk_src += '            vktrace_delete_trace_packet(&pHeader);\n'
                     trace_vk_src += '        }\n'
                 trace_vk_src += '    }\n'
-       
+
                 # Clean up instance or device data if needed
                 if proto.name == "vkDestroyInstance":
                     trace_vk_src += '    g_instanceDataMap.erase(key);\n'
                 elif proto.name == "vkDestroyDevice":
                     trace_vk_src += '    g_deviceDataMap.erase(key);\n'
-       
+
                 # Return result if needed
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    return result;\n'
