@@ -35,6 +35,7 @@
 #include "core_validation_types.h"
 #include "shader_validation.h"
 #include "spirv-tools/libspirv.h"
+#include "xxhash.h"
 
 enum FORMAT_TYPE {
     FORMAT_TYPE_FLOAT = 1,  // UNORM, SNORM, FLOAT, USCALED, SSCALED, SRGB -- anything we consider float in the shader
@@ -584,8 +585,8 @@ static std::map<location_t, interface_var> collect_interface_by_location(shader_
             unsigned id = insn.word(2);
             unsigned type = insn.word(1);
 
-            int location = value_or_default(var_locations, id, -1);
-            int builtin = value_or_default(var_builtins, id, -1);
+            int location = value_or_default(var_locations, id, static_cast<unsigned>(-1));
+            int builtin = value_or_default(var_builtins, id, static_cast<unsigned>(-1));
             unsigned component = value_or_default(var_components, id, 0);  // Unspecified is OK, is 0
             bool is_patch = var_patch.find(id) != var_patch.end();
             bool is_relaxed_precision = var_relaxed_precision.find(id) != var_relaxed_precision.end();
@@ -770,7 +771,7 @@ static bool validate_vi_against_vs_inputs(debug_report_data const *report_data, 
 static bool validate_fs_outputs_against_render_pass(debug_report_data const *report_data, shader_module const *fs,
                                                     spirv_inst_iter entrypoint, PIPELINE_STATE const *pipeline,
                                                     uint32_t subpass_index) {
-    auto rpci = pipeline->render_pass_ci.ptr();
+    auto rpci = pipeline->rp_state->createInfo.ptr();
 
     std::map<uint32_t, VkFormat> color_attachments;
     auto subpass = rpci->pSubpasses[subpass_index];
@@ -1355,7 +1356,7 @@ static bool validate_pipeline_shader_stage(
     if (pStage->stage == VK_SHADER_STAGE_FRAGMENT_BIT) {
         auto input_attachment_uses = collect_interface_by_input_attachment_index(module, accessible_ids);
 
-        auto rpci = pipeline->render_pass_ci.ptr();
+        auto rpci = pipeline->rp_state->createInfo.ptr();
         auto subpass = pipeline->graphicsPipelineCI.subpass;
 
         for (auto use : input_attachment_uses) {
@@ -1517,6 +1518,20 @@ bool validate_compute_pipeline(layer_data *dev_data, PIPELINE_STATE *pipeline) {
     return validate_pipeline_shader_stage(dev_data, &pCreateInfo->stage, pipeline, &module, &entrypoint);
 }
 
+uint32_t ValidationCache::MakeShaderHash(VkShaderModuleCreateInfo const *smci) {
+        return XXH32(smci->pCode, smci->codeSize, 0);
+}
+
+static ValidationCache *GetValidationCacheInfo(
+    VkShaderModuleCreateInfo const *pCreateInfo) {
+    while ((pCreateInfo = (VkShaderModuleCreateInfo const *)pCreateInfo->pNext) != nullptr) {
+        if (pCreateInfo->sType == VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT)
+            return (ValidationCache *)((VkShaderModuleValidationCacheCreateInfoEXT const *)pCreateInfo)->validationCache;
+    }
+
+    return nullptr;
+}
+
 bool PreCallValidateCreateShaderModule(layer_data *dev_data, VkShaderModuleCreateInfo const *pCreateInfo, bool *spirv_valid) {
     bool skip = false;
     spv_result_t spv_valid = SPV_SUCCESS;
@@ -1534,6 +1549,14 @@ bool PreCallValidateCreateShaderModule(layer_data *dev_data, VkShaderModuleCreat
                         "SPIR-V module not valid: Codesize must be a multiple of 4 but is " PRINTF_SIZE_T_SPECIFIER ". %s",
                         pCreateInfo->codeSize, validation_error_map[VALIDATION_ERROR_12a00ac0]);
     } else {
+        auto cache = GetValidationCacheInfo(pCreateInfo);
+        uint32_t hash = 0;
+        if (cache) {
+            hash = ValidationCache::MakeShaderHash(pCreateInfo);
+            if (cache->Contains(hash))
+                return false;
+        }
+
         // Use SPIRV-Tools validator to try and catch any issues with the module itself
         spv_context ctx = spvContextCreate(SPV_ENV_VULKAN_1_0);
         spv_const_binary_t binary{ pCreateInfo->pCode, pCreateInfo->codeSize / sizeof(uint32_t) };
@@ -1546,6 +1569,10 @@ bool PreCallValidateCreateShaderModule(layer_data *dev_data, VkShaderModuleCreat
                                 spv_valid == SPV_WARNING ? VK_DEBUG_REPORT_WARNING_BIT_EXT : VK_DEBUG_REPORT_ERROR_BIT_EXT,
                                 VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__, SHADER_CHECKER_INCONSISTENT_SPIRV, "SC",
                                 "SPIR-V module not valid: %s", diag && diag->error ? diag->error : "(no error text)");
+            }
+        } else {
+            if (cache) {
+                cache->Insert(hash);
             }
         }
 

@@ -22,12 +22,30 @@
 #ifndef VKTESTBINDING_H
 #define VKTESTBINDING_H
 
+#include <algorithm>
 #include <assert.h>
+#include <iterator>
 #include <vector>
 
 #include "vulkan/vulkan.h"
 
 namespace vk_testing {
+
+template <class Dst, class Src>
+std::vector<Dst> MakeVkHandles(const std::vector<Src> &v) {
+    std::vector<Dst> handles;
+    handles.reserve(v.size());
+    std::transform(v.begin(), v.end(), std::back_inserter(handles), [](const Src &o) { return o.handle(); });
+    return handles;
+}
+
+template <class Dst, class Src>
+std::vector<Dst> MakeVkHandles(const std::vector<Src *> &v) {
+    std::vector<Dst> handles;
+    handles.reserve(v.size());
+    std::transform(v.begin(), v.end(), std::back_inserter(handles), [](const Src *o) { return o->handle(); });
+    return handles;
+}
 
 typedef void (*ErrorCallback)(const char *expr, const char *file, unsigned int line, const char *function);
 void set_error_callback(ErrorCallback callback);
@@ -66,13 +84,25 @@ template <typename T>
 class Handle {
    public:
     const T &handle() const { return handle_; }
-    bool initialized() const { return (handle_ != VK_NULL_HANDLE); }
+    bool initialized() const { return (handle_ != T{}); }
 
    protected:
     typedef T handle_type;
 
-    explicit Handle() : handle_(VK_NULL_HANDLE) {}
+    explicit Handle() : handle_{} {}
     explicit Handle(T handle) : handle_(handle) {}
+
+    // handles are non-copyable
+    Handle(const Handle &) = delete;
+    Handle &operator=(const Handle &) = delete;
+
+    // handles can be moved out
+    Handle(Handle &&src) noexcept : handle_{src.handle_} { src.handle_ = {}; }
+    Handle &operator=(Handle &&src) noexcept {
+        handle_ = src.handle_;
+        src.handle_ = {};
+        return *this;
+    }
 
     void init(T handle) {
         assert(!initialized());
@@ -80,10 +110,6 @@ class Handle {
     }
 
    private:
-    // handles are non-copyable
-    Handle(const Handle &);
-    Handle &operator=(const Handle &);
-
     T handle_;
 };
 
@@ -92,6 +118,9 @@ class NonDispHandle : public Handle<T> {
    protected:
     explicit NonDispHandle() : Handle<T>(), dev_handle_(VK_NULL_HANDLE) {}
     explicit NonDispHandle(VkDevice dev, T handle) : Handle<T>(handle), dev_handle_(dev) {}
+
+    NonDispHandle(NonDispHandle &&src) = default;
+    NonDispHandle &operator=(NonDispHandle &&src) = default;
 
     const VkDevice &device() const { return dev_handle_; }
 
@@ -138,6 +167,17 @@ class PhysicalDevice : public internal::Handle<VkPhysicalDevice> {
     VkPhysicalDeviceProperties device_properties_;
 };
 
+class QueueCreateInfoArray {
+   private:
+    std::vector<VkDeviceQueueCreateInfo> queue_info_;
+    std::vector<std::vector<float>> queue_priorities_;
+
+   public:
+    QueueCreateInfoArray(const std::vector<VkQueueFamilyProperties> &queue_props);
+    size_t size() const { return queue_info_.size(); }
+    const VkDeviceQueueCreateInfo *data() const { return queue_info_.data(); }
+};
+
 class Device : public internal::Handle<VkDevice> {
    public:
     explicit Device(VkPhysicalDevice phy) : phy_(phy) {}
@@ -153,6 +193,9 @@ class Device : public internal::Handle<VkDevice> {
     };
 
     const PhysicalDevice &phy() const { return phy_; }
+
+    std::vector<const char *> GetEnabledExtensions() { return enabled_extensions_; }
+    bool IsEnbledExtension(const char *extension);
 
     // vkGetDeviceProcAddr()
     PFN_vkVoidFunction get_proc(const char *name) const { return vkGetDeviceProcAddr(handle(), name); }
@@ -218,6 +261,8 @@ class Device : public internal::Handle<VkDevice> {
 
     PhysicalDevice phy_;
 
+    std::vector<const char *> enabled_extensions_;
+
     std::vector<Queue *> queues_[QUEUE_COUNT];
     std::vector<Format> formats_;
 };
@@ -257,6 +302,8 @@ class DeviceMemory : public internal::NonDispHandle<VkDeviceMemory> {
     void unmap() const;
 
     static VkMemoryAllocateInfo alloc_info(VkDeviceSize size, uint32_t memory_type_index);
+    static VkMemoryAllocateInfo get_resource_alloc_info(const vk_testing::Device &dev, const VkMemoryRequirements &reqs,
+                                                        VkMemoryPropertyFlags mem_props);
 };
 
 class Fence : public internal::NonDispHandle<VkFence> {
@@ -495,7 +542,15 @@ class Pipeline : public internal::NonDispHandle<VkPipeline> {
 
 class PipelineLayout : public internal::NonDispHandle<VkPipelineLayout> {
    public:
+    PipelineLayout() noexcept : NonDispHandle(){};
     ~PipelineLayout();
+
+    PipelineLayout(PipelineLayout &&src) = default;
+    PipelineLayout &operator=(PipelineLayout &&src) {
+        this->~PipelineLayout();
+        this->NonDispHandle::operator=(std::move(src));
+        return *this;
+    };
 
     // vCreatePipelineLayout()
     void init(const Device &dev, VkPipelineLayoutCreateInfo &info, const std::vector<const DescriptorSetLayout *> &layouts);
@@ -511,7 +566,15 @@ class Sampler : public internal::NonDispHandle<VkSampler> {
 
 class DescriptorSetLayout : public internal::NonDispHandle<VkDescriptorSetLayout> {
    public:
+    DescriptorSetLayout() noexcept : NonDispHandle(){};
     ~DescriptorSetLayout();
+
+    DescriptorSetLayout(DescriptorSetLayout &&src) = default;
+    DescriptorSetLayout &operator=(DescriptorSetLayout &&src) noexcept {
+        this->~DescriptorSetLayout();
+        this->NonDispHandle::operator=(std::move(src));
+        return *this;
+    }
 
     // vkCreateDescriptorSetLayout()
     void init(const Device &dev, const VkDescriptorSetLayoutCreateInfo &info);
@@ -853,6 +916,6 @@ inline VkCommandBufferAllocateInfo CommandBuffer::create_info(VkCommandPool cons
     return info;
 }
 
-};  // namespace vk_testing
+}  // namespace vk_testing
 
 #endif  // VKTESTBINDING_H
