@@ -62,7 +62,7 @@ function create_APK() {
 (
 pushd $LAYER_BUILD_DIR/vkreplay
 mkdir -p bin/libs/lib
-for abi in armeabi-v7a arm64-v8a x86 x86_64 mips mips64
+for abi in armeabi-v7a arm64-v8a x86 x86_64
 do
     mkdir -p $LAYER_BUILD_DIR/vkreplay/bin/libs/lib/${abi}
     cp $LAYER_BUILD_DIR/libs/${abi}/libvkreplay.so $LAYER_BUILD_DIR/vkreplay/bin/libs/lib/${abi}/libvkreplay.so
