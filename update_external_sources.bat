@@ -16,11 +16,13 @@ set BUILD_DIR=%~dp0
 set BASE_DIR="%BUILD_DIR%external"
 set REVISION_DIR="%BUILD_DIR%external_revisions"
 set GLSLANG_DIR=%BASE_DIR%\glslang
+set JSONCPP_DIR=%BASE_DIR%\jsoncpp
 
 REM // ======== Parameter parsing ======== //
 
    set arg-use-implicit-component-list=1
    set arg-do-glslang=0
+   set arg-do-jsoncpp=0
    set arg-no-sync=0
    set arg-no-build=0
 
@@ -75,8 +77,11 @@ REM // ======== Parameter parsing ======== //
 
       if "%1" == "--all" (
          set arg-do-glslang=1
+         set arg-do-jsoncpp=1
          set arg-use-implicit-component-list=0
-         echo Building glslang ^(%1^)
+         echo Building glslang, spirv-tools ^(%1^)
+         shift
+         goto:parameterLoop
       )
 
       if "%1" == "--spirv-tools" (
@@ -107,6 +112,7 @@ REM // ======== Parameter parsing ======== //
       echo.
       echo   Available options:
       echo     -g ^| --glslang      enable glslang component
+      echo     -j ^| --jsoncpp      enable jsoncpp component
       echo     --all               enable all components
       echo     --no-sync           skip sync from git
       echo     --no-build          skip build
@@ -125,10 +131,13 @@ REM // ======== Parameter parsing ======== //
    if %arg-use-implicit-component-list% equ 1 (
       echo Building glslang
       set arg-do-glslang=1
+      set arg-do-jsoncpp=1
    )
 
    set sync-glslang=0
+   set sync-jsoncpp=0
    set build-glslang=0
+   set build-jsoncpp=0
    set check-glslang-build-dependencies=0
 
    if %arg-do-glslang% equ 1 (
@@ -138,6 +147,15 @@ REM // ======== Parameter parsing ======== //
       if %arg-no-build% equ 0 (
          set check-glslang-build-dependencies=1
          set build-glslang=1
+      )
+   )
+
+   if %arg-do-jsoncpp% equ 1 (
+      if %arg-no-sync% equ 0 (
+         set sync-jsoncpp=1
+      )
+      if %arg-no-build% equ 0 (
+         set build-jsoncpp=1
       )
    )
 
@@ -200,11 +218,21 @@ if not exist %REVISION_DIR%\glslang_revision (
    goto:error
 )
 
+
+if not exist %REVISION_DIR%\jsoncpp_revision (
+   echo.
+   echo Missing jsoncpp_revision file!  Place it in %REVISION_DIR% with target version in it.
+   set errorCode=1
+   goto:error
+)
+
 set /p GLSLANG_GITURL= < %REVISION_DIR%\glslang_giturl
 set /p GLSLANG_REVISION= < %REVISION_DIR%\glslang_revision
+set /p JSONCPP_REVISION= < %REVISION_DIR%\jsoncpp_revision
 
 echo GLSLANG_GITURL=%GLSLANG_GITURL%
 echo GLSLANG_REVISION=%GLSLANG_REVISION%
+echo JSONCPP_REVISION=%JSONCPP_REVISION%
 
 
 echo Creating and/or updating glslang in %BASE_DIR%
@@ -218,8 +246,28 @@ if %sync-glslang% equ 1 (
    if %errorCode% neq 0 (goto:error)
 )
 
+
+if %sync-jsoncpp% equ 1 (
+   if exist %JSONCPP_DIR% (
+      rd /S /Q %JSONCPP_DIR%
+   )
+   if %errorlevel% neq 0 (goto:error)
+   if not exist %JSONCPP_DIR% (
+      call:create_jsoncpp
+   )
+   if %errorCode% neq 0 (goto:error)
+   call:update_jsoncpp
+   if %errorCode% neq 0 (goto:error)
+)
+
 if %build-glslang% equ 1 (
    call:build_glslang
+   if %errorCode% neq 0 (goto:error)
+)
+
+
+if %build-jsoncpp% equ 1 (
+   call:build_jsoncpp
    if %errorCode% neq 0 (goto:error)
 )
 

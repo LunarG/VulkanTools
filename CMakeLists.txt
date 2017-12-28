@@ -322,6 +322,8 @@ if (WIN32)
                  HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(SPIRV_TOOLS_DLIB NAMES SPIRV-Toolsd
                  HINTS ${SPIRV_TOOLS_DEBUG_SEARCH_PATH} )
+    find_library(JSONCPP_DLIB NAMES jsoncpp
+                 HINTS ${JSONCPP_DEBUG_SEARCH_PATH} )
     find_library(SPIRV_TOOLS_OPT_DLIB NAMES SPIRV-Tools-optd
                  HINTS ${SPIRV_TOOLS_OPT_DEBUG_SEARCH_PATH} )
 
