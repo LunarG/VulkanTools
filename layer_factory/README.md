@@ -11,6 +11,10 @@ A complete layer with the attendant support files can be produced by simply crea
 subdirectory in the layer\_factory directory and adding in a simple header file
 and then running cmake. This layer can be used just as any other Vulkan layer.
 
+The Vulkan Layer Factory framework produces 'Factory Layers' comprising one or more
+'interceptor' objects. Interceptor objects override functions to be called before (PreCallApiName)
+or after (PostCallApiName) each Vulkan entrypoint of interest. Each interceptor is independent
+of all others within a Factory Layer, and their call order is not guaranteed.
 
 ### Layer Factory sample code
 
@@ -29,7 +33,7 @@ for the final layer
 
 Step 2: Add your state tracker file(s) to the subdirectory.
 
-    This can be a single header file, or mulitple header and source files.
+    This can be a single header file, or multiple header and source files.
 
 Step 3: Create or copy an 'interceptor\_objects.h' file into your new directory
 
@@ -39,9 +43,13 @@ Step 3: Create or copy an 'interceptor\_objects.h' file into your new directory
 
 Step 4: Run CMake and build.
 
+    CMake will discover all Factory Layer subdirectories in layer_factory each time it is run.
     A *.json and *.def file (for Windows) will also be created with your layer binary.
     These files end up in the existing layers binary directory, and will be picked up
     by the usual VK_LAYERS_PATH environment variable.
+
+    Note that adding or removing a layer_factory subdirectory requires re-running CMake in order to
+    properly recognize the additions/deletions.
 
 ## Using Layers
 
