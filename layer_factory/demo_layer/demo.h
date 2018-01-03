@@ -27,11 +27,7 @@
 class MemDemo : public layer_factory {
 public:
     // Constructor for state_tracker
-    MemDemo() : layer_factory(this) {
-        _number_mem_objects = 0;
-        _total_memory = 0;
-        _present_count = 0;
-    };
+    MemDemo() : layer_factory(this), number_mem_objects_(0), total_memory_(0), present_count_(0) {};
 
     void PreCallApiFunction(const char* api_name);
 
@@ -43,9 +39,9 @@ public:
     VkResult PreCallQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo);
 
 private:
-    uint32_t _number_mem_objects;
-    VkDeviceSize _total_memory;
-    uint32_t _present_count;
-    std::unordered_map<VkDeviceMemory, VkDeviceSize> mem_size_map;
+    uint32_t number_mem_objects_;
+    VkDeviceSize total_memory_;
+    uint32_t present_count_;
+    std::unordered_map<VkDeviceMemory, VkDeviceSize> mem_size_map_;
 };
 
