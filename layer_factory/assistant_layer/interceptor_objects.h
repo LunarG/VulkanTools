@@ -23,3 +23,4 @@
 #include "stage_all_warn.h"
 #include "load_op_load_undefined.h"
 #include "pipeline_cache_warning.h"
+#include "extension_type_warning.h"
