@@ -168,17 +168,6 @@ std::vector<layer_factory *> global_interceptor_list;
 debug_report_data *vlf_report_data = VK_NULL_HANDLE;
 
 #include "layer_factory.h"
-#include "interceptor_objects.h"
-
-using mutex_t = std::mutex;
-using lock_guard_t = std::lock_guard<mutex_t>;
-using unique_lock_t = std::unique_lock<mutex_t>;
-
-namespace vulkan_layer_factory {
-
-using std::unordered_map;
-
-static mutex_t global_lock;
 
 struct instance_layer_data {
     VkLayerInstanceDispatchTable dispatch_table;
@@ -197,8 +186,20 @@ struct device_layer_data {
     instance_layer_data *instance_data = nullptr;
 };
 
-static unordered_map<void *, device_layer_data *> device_layer_data_map;
-static unordered_map<void *, instance_layer_data *> instance_layer_data_map;
+static std::unordered_map<void *, device_layer_data *> device_layer_data_map;
+static std::unordered_map<void *, instance_layer_data *> instance_layer_data_map;
+
+#include "interceptor_objects.h"
+
+using mutex_t = std::mutex;
+using lock_guard_t = std::lock_guard<mutex_t>;
+using unique_lock_t = std::unique_lock<mutex_t>;
+
+namespace vulkan_layer_factory {
+
+using std::unordered_map;
+
+static mutex_t global_lock;
 
 static const VkLayerProperties global_layer = {
     "VK_LAYER_LUNARG_layer_factory", VK_LAYER_API_VERSION, 1, "LunarG Layer Factory Layer",
