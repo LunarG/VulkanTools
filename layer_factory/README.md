@@ -109,37 +109,33 @@ In this example, there is a single interceptor in which the child object is name
     class MemAllocLevel : public layer_factory {
         public:
             // Constructor for interceptor
-            MemAllocLevel() : layer_factory(this) {
-                _number_mem_objects = 0;
-                _total_memory = 0;
-                _present_count = 0;
-            };
+            MemAllocLevel() : layer_factory(this), number_mem_objects_(0), total_memory_(0), present_count_(0) {};
 
             // Intercept memory allocation calls and increment counter
             VkResult PostCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,
                     const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory) {
-                _number_mem_objects++;
-                _total_memory += pAllocateInfo->allocationSize;
-                _mem_size_map[*pMemory] = pAllocateInfo->allocationSize;
+                number_mem_objects_++;
+                total_memory_ += pAllocateInfo->allocationSize;
+                mem_size_map_[*pMemory] = pAllocateInfo->allocationSize;
                 return VK_SUCCESS;
             };
 
             // Intercept free memory calls and update totals
             void PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks *pAllocator) {
                 if (memory != VK_NULL_HANDLE) {
-                    _number_mem_objects--;
-                    VkDeviceSize this_alloc = _mem_size_map[memory];
-                    _total_memory -= this_alloc;
+                    number_mem_objects_--;
+                    VkDeviceSize this_alloc = mem_size_map_[memory];
+                    total_memory_ -= this_alloc;
                 }
             }
 
             VkResult PreCallQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
-                _present_count++;
-                if (_present_count >= display_rate) {
-                    _present_count = 0;
+                present_count_++;
+                if (present_count_ >= display_rate) {
+                    present_count_ = 0;
                     std::stringstream message;
-                    message << "Memory Allocation Count: " << _number_mem_objects << "\n";
-                    message << "Total Memory Allocation Size: " << _total_memory << "\n\n";
+                    message << "Memory Allocation Count: " << number_mem_objects_ << "\n";
+                    message << "Total Memory Allocation Size: " << total_memory_ << "\n\n";
                     Information(message.str());
                 }
                 return VK_SUCCESS;
@@ -147,13 +143,13 @@ In this example, there is a single interceptor in which the child object is name
 
         private:
             // Counter for the number of currently active memory allocations
-            uint32_t _number_mem_objects;
-            VkDeviceSize _total_memory;
-            uint32_t _present_count;
-            std::unordered_map<VkDeviceMemory, VkDeviceSize> _mem_size_map;
+            uint32_t number_mem_objects_;
+            VkDeviceSize total_memory_;
+            uint32_t present_count_;
+            std::unordered_map<VkDeviceMemory, VkDeviceSize> mem_size_map_;
     };
 
-    MemAllocLevel high_water_mark;
+    MemAllocLevel memory_allocation_stats;
 
 ### Current known issues
 

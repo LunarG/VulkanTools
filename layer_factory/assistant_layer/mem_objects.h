@@ -28,16 +28,14 @@ static const uint32_t kMemoryObjectWarningLimit = 350;
 class TooManyMemObjects : public layer_factory {
 public:
     // Constructor for interceptor
-    TooManyMemObjects() : layer_factory(this) {
-        _number_mem_objects = 0;
-    };
+    TooManyMemObjects() : layer_factory(this), number_mem_objects_(0) {};
 
     // Intercept the memory allocation calls and increment the counter
     VkResult PreCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,
                                    const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory) {
-        _number_mem_objects++;
+        number_mem_objects_++;
 
-        if (_number_mem_objects > kMemoryObjectWarningLimit) {
+        if (number_mem_objects_ > kMemoryObjectWarningLimit) {
             std::stringstream message;
             message << "Performance Warning:  This app has > " << kMemoryObjectWarningLimit << " memory objects.";
             PerformanceWarning(message.str());
@@ -48,13 +46,13 @@ public:
     // Intercept the free memory calls and decrement the allocation count
     void PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks *pAllocator) {
         if (memory != VK_NULL_HANDLE) {
-            _number_mem_objects--;
+            number_mem_objects_--;
         }
     }
 
 private:
     // Counter for the number of currently active memory allocations
-    uint32_t _number_mem_objects;
+    uint32_t number_mem_objects_;
 };
 
 TooManyMemObjects mem_object_count;
