@@ -97,8 +97,8 @@ class Handle {
     Handle &operator=(const Handle &) = delete;
 
     // handles can be moved out
-    Handle(Handle &&src) noexcept : handle_{src.handle_} { src.handle_ = {}; }
-    Handle &operator=(Handle &&src) noexcept {
+    Handle(Handle &&src) NOEXCEPT : handle_{src.handle_} { src.handle_ = {}; }
+    Handle &operator=(Handle &&src) NOEXCEPT {
         handle_ = src.handle_;
         src.handle_ = {};
         return *this;
@@ -119,8 +119,16 @@ class NonDispHandle : public Handle<T> {
     explicit NonDispHandle() : Handle<T>(), dev_handle_(VK_NULL_HANDLE) {}
     explicit NonDispHandle(VkDevice dev, T handle) : Handle<T>(handle), dev_handle_(dev) {}
 
-    NonDispHandle(NonDispHandle &&src) = default;
-    NonDispHandle &operator=(NonDispHandle &&src) = default;
+    NonDispHandle(NonDispHandle &&src) : Handle<T>(std::move(src)) {
+        dev_handle_ = src.dev_handle_;
+        src.dev_handle_ = VK_NULL_HANDLE;
+    }
+    NonDispHandle &operator=(NonDispHandle &&src) {
+        Handle<T>::operator=(std::move(src));
+        dev_handle_ = src.dev_handle_;
+        src.dev_handle_ = VK_NULL_HANDLE;
+        return *this;
+    }
 
     const VkDevice &device() const { return dev_handle_; }
 
@@ -542,10 +550,12 @@ class Pipeline : public internal::NonDispHandle<VkPipeline> {
 
 class PipelineLayout : public internal::NonDispHandle<VkPipelineLayout> {
    public:
-    PipelineLayout() noexcept : NonDispHandle(){};
+    PipelineLayout() NOEXCEPT : NonDispHandle(){};
     ~PipelineLayout();
 
-    PipelineLayout(PipelineLayout &&src) = default;
+    // Move constructor for Visual Studio 2013
+    PipelineLayout(PipelineLayout &&src) : NonDispHandle(std::move(src)){};
+
     PipelineLayout &operator=(PipelineLayout &&src) {
         this->~PipelineLayout();
         this->NonDispHandle::operator=(std::move(src));
@@ -566,11 +576,13 @@ class Sampler : public internal::NonDispHandle<VkSampler> {
 
 class DescriptorSetLayout : public internal::NonDispHandle<VkDescriptorSetLayout> {
    public:
-    DescriptorSetLayout() noexcept : NonDispHandle(){};
+    DescriptorSetLayout() NOEXCEPT : NonDispHandle(){};
     ~DescriptorSetLayout();
 
-    DescriptorSetLayout(DescriptorSetLayout &&src) = default;
-    DescriptorSetLayout &operator=(DescriptorSetLayout &&src) noexcept {
+    // Move constructor for Visual Studio 2013
+    DescriptorSetLayout(DescriptorSetLayout &&src) : NonDispHandle(std::move(src)){};
+
+    DescriptorSetLayout &operator=(DescriptorSetLayout &&src) NOEXCEPT {
         this->~DescriptorSetLayout();
         this->NonDispHandle::operator=(std::move(src));
         return *this;

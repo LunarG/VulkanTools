@@ -724,6 +724,7 @@ class VkBufferTest {
         eInvalidDeviceOffset,
         eInvalidMemoryOffset,
         eBindNullBuffer,
+        eBindFakeBuffer,
         eFreeInvalidHandle,
         eNone,
     };
@@ -760,9 +761,20 @@ class VkBufferTest {
 
     // A constructor which performs validation tests within construction.
     VkBufferTest(VkDeviceObj *aVulkanDevice, VkBufferUsageFlags aBufferUsage, eTestEnFlags aTestFlag = eNone)
-        : AllocateCurrent(false), BoundCurrent(false), CreateCurrent(false), VulkanDevice(aVulkanDevice->device()) {
-        if (eBindNullBuffer == aTestFlag) {
-            VulkanMemory = 0;
+        : AllocateCurrent(true),
+          BoundCurrent(false),
+          CreateCurrent(false),
+          InvalidDeleteEn(false),
+          VulkanDevice(aVulkanDevice->device()) {
+        if (eBindNullBuffer == aTestFlag || eBindFakeBuffer == aTestFlag) {
+            VkMemoryAllocateInfo memory_allocate_info = {};
+            memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            memory_allocate_info.allocationSize = 1;   // fake size -- shouldn't matter for the test
+            memory_allocate_info.memoryTypeIndex = 0;  // fake type -- shouldn't matter for the test
+            vkAllocateMemory(VulkanDevice, &memory_allocate_info, nullptr, &VulkanMemory);
+
+            VulkanBuffer = (aTestFlag == eBindNullBuffer) ? VK_NULL_HANDLE : (VkBuffer)0xCDCDCDCDCDCDCDCD;
+
             vkBindBufferMemory(VulkanDevice, VulkanBuffer, VulkanMemory, 0);
         } else {
             VkBufferCreateInfo buffer_create_info = {};
@@ -789,7 +801,6 @@ class VkBufferTest {
             }
 
             vkAllocateMemory(VulkanDevice, &memory_allocate_info, NULL, &VulkanMemory);
-            AllocateCurrent = true;
             // NB: 1 is intentionally an invalid offset value
             const bool offset_en = eInvalidDeviceOffset == aTestFlag || eInvalidMemoryOffset == aTestFlag;
             vkBindBufferMemory(VulkanDevice, VulkanBuffer, VulkanMemory, offset_en ? eOffsetAlignment : 0);
@@ -13053,10 +13064,17 @@ TEST_F(VkLayerTest, VertexBufferInvalid) {
 
     {
         // Attempt to bind a null buffer.
+        m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                             "vkBindBufferMemory: required parameter buffer specified as VK_NULL_HANDLE");
+        VkBufferTest buffer_test(m_device, 0, VkBufferTest::eBindNullBuffer);
+        (void)buffer_test;
+        m_errorMonitor->VerifyFound();
+    }
+
+    {
+        // Attempt to bind a fake buffer.
         m_errorMonitor->SetDesiredFailureMsg(VK_DEBUG_REPORT_ERROR_BIT_EXT, VALIDATION_ERROR_17001a01);
-        m_errorMonitor->SetUnexpectedError("required parameter memory specified as VK_NULL_HANDLE");
-        m_errorMonitor->SetUnexpectedError("memory must be a valid VkDeviceMemory handle");
-        VkBufferTest buffer_test(m_device, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VkBufferTest::eBindNullBuffer);
+        VkBufferTest buffer_test(m_device, 0, VkBufferTest::eBindFakeBuffer);
         (void)buffer_test;
         m_errorMonitor->VerifyFound();
     }
@@ -15303,6 +15321,89 @@ TEST_F(VkLayerTest, CreateShaderModuleCheckBadCapability) {
     vkCreateShaderModule(m_device->handle(), &module_create_info, NULL, &shader_module);
 
     m_errorMonitor->VerifyFound();
+}
+
+TEST_F(VkPositiveLayerTest, CreatePipelineCheckShaderCapabilityExtension1of2) {
+    // This is a positive test, no errors expected
+    // Verifies the ability to deal with a shader that declares a non-unique SPIRV capability ID
+    TEST_DESCRIPTION("Create a shader in which uses a non-unique capability ID extension, 1 of 2");
+
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+    if (!DeviceExtensionSupported(gpu(), nullptr, VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME)) {
+        printf("             Extension %s not supported, skipping this pass. \n",
+               VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME);
+        return;
+    }
+    m_device_extension_names.push_back(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME);
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // These tests require that the device support multiViewport
+    if (!m_device->phy().features().multiViewport) {
+        printf("             Device does not support multiViewport, test skipped.\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    // Vertex shader using viewport array capability
+    char const *vsSource =
+        "#version 450\n"
+        "#extension GL_ARB_shader_viewport_layer_array : enable\n"
+        "void main() {\n"
+        "    gl_ViewportIndex = 1;\n"
+        "}\n";
+
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+
+    VkPipelineObj pipe(m_device);
+    pipe.AddDefaultColorAttachment();
+    pipe.AddShader(&vs);
+
+    const VkPipelineLayoutObj pipe_layout(m_device, {});
+
+    m_errorMonitor->ExpectSuccess();
+    pipe.CreateVKPipeline(pipe_layout.handle(), renderPass());
+    m_errorMonitor->VerifyNotFound();
+}
+
+TEST_F(VkPositiveLayerTest, CreatePipelineCheckShaderCapabilityExtension2of2) {
+    // This is a positive test, no errors expected
+    // Verifies the ability to deal with a shader that declares a non-unique SPIRV capability ID
+    TEST_DESCRIPTION("Create a shader in which uses a non-unique capability ID extension, 2 of 2");
+
+    ASSERT_NO_FATAL_FAILURE(InitFramework(myDbgFunc, m_errorMonitor));
+    if (!DeviceExtensionSupported(gpu(), nullptr, VK_NV_VIEWPORT_ARRAY2_EXTENSION_NAME)) {
+        printf("             Extension %s not supported, skipping this pass. \n", VK_NV_VIEWPORT_ARRAY2_EXTENSION_NAME);
+        return;
+    }
+    m_device_extension_names.push_back(VK_NV_VIEWPORT_ARRAY2_EXTENSION_NAME);
+    ASSERT_NO_FATAL_FAILURE(InitState());
+
+    // These tests require that the device support multiViewport
+    if (!m_device->phy().features().multiViewport) {
+        printf("             Device does not support multiViewport, test skipped.\n");
+        return;
+    }
+    ASSERT_NO_FATAL_FAILURE(InitRenderTarget());
+
+    // Vertex shader using viewport array capability
+    char const *vsSource =
+        "#version 450\n"
+        "#extension GL_ARB_shader_viewport_layer_array : enable\n"
+        "void main() {\n"
+        "    gl_ViewportIndex = 1;\n"
+        "}\n";
+
+    VkShaderObj vs(m_device, vsSource, VK_SHADER_STAGE_VERTEX_BIT, this);
+
+    VkPipelineObj pipe(m_device);
+    pipe.AddDefaultColorAttachment();
+    pipe.AddShader(&vs);
+
+    const VkPipelineLayoutObj pipe_layout(m_device, {});
+
+    m_errorMonitor->ExpectSuccess();
+    pipe.CreateVKPipeline(pipe_layout.handle(), renderPass());
+    m_errorMonitor->VerifyNotFound();
 }
 
 TEST_F(VkLayerTest, CreatePipelineFragmentInputNotProvided) {
