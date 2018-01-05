@@ -96,6 +96,16 @@ approved_ext = [
                 'VK_KHX_device_group',
                 'VK_KHX_device_group_creation',
                 'VK_KHX_multiview',
+                'VK_EXT_depth_range_unrestricted',
+                'VK_EXT_external_memory_dma_buf',
+                'VK_EXT_external_memory_host',
+                'VK_EXT_global_priority',
+                'VK_EXT_post_depth_coverage',
+                'VK_EXT_queue_family_foreign',
+                'VK_EXT_sampler_filter_minmax',
+                'VK_EXT_shader_stencil_export',
+                'VK_EXT_shader_viewport_index_layer',
+                'VK_EXT_validation_cache',
                 #'VK_MVK_ios_surface',
                 #'VK_MVK_macos_surface',
                 #'VK_MVK_moltenvk',
@@ -1276,6 +1286,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%u", name, deref)
         if "RROutput" in vk_type:
             return ("%u", "(uint32_t)(%s)" % name, "")
+        if "PointerProperties" in vk_type and "int" != vk_type:
+            return ("%p", "(void*)(%s)" % name, deref)
         if True in [t in vk_type.lower() for t in ["int", "flags", "mask", "xcb_window_t"]]:
             if param.isstaticarray > 0: # handle array, current hard-coded to 4 (TODO: Make this dynamic)
                 return ("[%i, %i, %i, %i]", "%s[0], %s[1], %s[2], %s[3]" % (name, name, name, name), deref)
@@ -1435,7 +1447,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     # TODO : This is custom hack to account for 2 pData items with dataSize param for sizing
                     if 'pData' == p.name and 'dataSize' == params[params.index(p)-1].name:
                         pp_dict['add_txt'] = pp_dict['add_txt'].replace('_dataSize', 'dataSize')
-                elif 'void' in p.type and (p.name == 'pData' or p.name == 'pValues'):
+                elif 'void' in p.type and (p.name == 'pData' or p.name == 'pValues' or p.name == 'pHostPointer'):
                     pp_dict['add_txt'] = '//TODO FIXME vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->%s), sizeof(%s), %s)' % (p.name, p.type.strip('*').replace('const ', ''), p.name)
                     pp_dict['finalize_txt'] = '//TODO FIXME vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->%s))' % (p.name)
                 else:
@@ -1475,7 +1487,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if p.len:
                 if p.ispointer:
                     if p.type == 'void':
-                        ps.append('%s' % p.len)
+                        if p.len[0] == 'p':
+                            ps.append('(*%s)' % p.len)
+                        else:
+                            ps.append('%s' % p.len)
                     else:
                         if p.len[0] == 'p':
                             ps.append('(*%s) * sizeof(%s)' % (p.len, p.type))
@@ -2358,6 +2373,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if proto.name in manually_written_hooked_funcs:
                 trace_vk_src += '// __HOOKED_%s is manually written. Look in vktrace_lib_trace.cpp. Stub for proc mapping function.\n' % proto.name
 
+            protect = cmd_protect_dict[proto.name]
+            if protect is not None:
+                trace_vk_src += '#ifdef %s\n' % protect
+
             resulttype = cmdinfo.elem.find('proto/type')
             resulttype = resulttype.text if not None else ''
             raw_packet_update_list = [] # Non-ptr elements placed directly into packet
@@ -2506,6 +2525,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    return result;\n'
                 trace_vk_src += '}\n'
+
+            # Close off protect preprocessor if necessary
+            if protect is not None:
+                trace_vk_src += '#endif // %s\n' % protect
 
         # Add name to intercept proc mapping functions
         trace_vk_src += 'PFN_vkVoidFunction layer_intercept_instance_proc(const char* name) {\n'
