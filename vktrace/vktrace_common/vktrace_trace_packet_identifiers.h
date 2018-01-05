@@ -326,6 +326,11 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetMemoryWin32HandlePropertiesKHR = 261,
     VKTRACE_TPI_VK_vkImportSemaphoreWin32HandleKHR = 262,
     VKTRACE_TPI_VK_vkGetSemaphoreWin32HandleKHR = 263,
+    VKTRACE_TPI_VK_vkGetMemoryHostPointerPropertiesEXT = 264,
+    VKTRACE_TPI_VK_vkCreateValidationCacheEXT = 265,
+    VKTRACE_TPI_VK_vkDestroyValidationCacheEXT = 266,
+    VKTRACE_TPI_VK_vkMergeValidationCachesEXT = 267,
+    VKTRACE_TPI_VK_vkGetValidationCacheDataEXT = 268,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1

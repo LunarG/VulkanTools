@@ -130,6 +130,7 @@ typedef struct { ANativeWindow* window; } VkIcdSurfaceAndroid;
 typedef void* HINSTANCE;
 typedef void* HWND;
 typedef void* HANDLE;
+typedef const uint16_t* LPCWSTR;
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
 typedef struct VkWin32SurfaceCreateInfoKHR {
     VkStructureType sType;
@@ -142,6 +143,53 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, co
                                                          const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
 typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
                                                                                 uint32_t queueFamilyIndex);
+
+typedef struct VkMemoryWin32HandlePropertiesKHR {
+    VkStructureType sType;
+    void* pNext;
+    uint32_t memoryTypeBits;
+} VkMemoryWin32HandlePropertiesKHR;
+
+typedef struct VkMemoryGetWin32HandleInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkDeviceMemory memory;
+    VkExternalMemoryHandleTypeFlagBitsKHR handleType;
+} VkMemoryGetWin32HandleInfoKHR;
+
+typedef struct VkImportSemaphoreWin32HandleInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkSemaphore semaphore;
+    VkSemaphoreImportFlagsKHR flags;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR handleType;
+    HANDLE handle;
+    LPCWSTR name;
+} VkImportSemaphoreWin32HandleInfoKHR;
+
+typedef struct VkSemaphoreGetWin32HandleInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkSemaphore semaphore;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR handleType;
+} VkSemaphoreGetWin32HandleInfoKHR;
+
+typedef struct VkImportFenceWin32HandleInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkFence fence;
+    VkFenceImportFlagsKHR flags;
+    VkExternalFenceHandleTypeFlagBitsKHR handleType;
+    HANDLE handle;
+    LPCWSTR name;
+} VkImportFenceWin32HandleInfoKHR;
+
+typedef struct VkFenceGetWin32HandleInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkFence fence;
+    VkExternalFenceHandleTypeFlagBitsKHR handleType;
+} VkFenceGetWin32HandleInfoKHR;
 
 #endif
 
