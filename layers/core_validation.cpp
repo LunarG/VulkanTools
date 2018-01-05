@@ -572,17 +572,22 @@ bool ValidateMemoryIsBoundToBuffer(const layer_data *dev_data, const BUFFER_STAT
 
 // SetMemBinding is used to establish immutable, non-sparse binding between a single image/buffer object and memory object.
 // Corresponding valid usage checks are in ValidateSetMemBinding().
-static void SetMemBinding(layer_data *dev_data, VkDeviceMemory mem, uint64_t handle, VulkanObjectType type, const char *apiName) {
+static void SetMemBinding(layer_data *dev_data, VkDeviceMemory mem, BINDABLE *mem_binding, VkDeviceSize memory_offset,
+                          uint64_t handle, VulkanObjectType type, const char *apiName) {
+    assert(mem_binding);
+    mem_binding->binding.mem = mem;
+    mem_binding->UpdateBoundMemorySet();  // force recreation of cached set
+    mem_binding->binding.offset = memory_offset;
+    mem_binding->binding.size = mem_binding->requirements.size;
+
     if (mem != VK_NULL_HANDLE) {
-        BINDABLE *mem_binding = GetObjectMemBinding(dev_data, handle, type);
-        assert(mem_binding);
         DEVICE_MEM_INFO *mem_info = GetMemObjInfo(dev_data, mem);
         if (mem_info) {
             mem_info->obj_bindings.insert({handle, type});
             // For image objects, make sure default memory state is correctly set
             // TODO : What's the best/correct way to handle this?
             if (kVulkanObjectTypeImage == type) {
-                auto const image_state = GetImageState(dev_data, VkImage(handle));
+                auto const image_state = reinterpret_cast<const IMAGE_STATE *>(mem_binding);
                 if (image_state) {
                     VkImageCreateInfo ici = image_state->createInfo;
                     if (ici.usage & (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)) {
@@ -590,7 +595,6 @@ static void SetMemBinding(layer_data *dev_data, VkDeviceMemory mem, uint64_t han
                     }
                 }
             }
-            mem_binding->binding.mem = mem;
         }
     }
 }
@@ -673,6 +677,7 @@ static bool SetSparseMemBinding(layer_data *dev_data, MEM_BINDING binding, uint6
             mem_info->obj_bindings.insert({handle, type});
             // Need to set mem binding for this object
             mem_binding->sparse_bindings.insert(binding);
+            mem_binding->UpdateBoundMemorySet();
         }
     }
     return skip;
@@ -1179,15 +1184,24 @@ static bool ValidateDrawState(layer_data *dev_data, GLOBAL_CB_NODE *cb_node, CMD
                 cvdescriptorset::DescriptorSet *descriptor_set = state.boundDescriptorSets[setIndex];
                 // Validate the draw-time state for this descriptor set
                 std::string err_str;
-                if (!descriptor_set->IsPushDescriptor() &&
-                    !descriptor_set->ValidateDrawState(set_binding_pair.second, state.dynamicOffsets[setIndex], cb_node, function,
-                                                       &err_str)) {
-                    auto set = descriptor_set->GetSet();
-                    result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
-                                      VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(set), __LINE__,
-                                      DRAWSTATE_DESCRIPTOR_SET_NOT_UPDATED, "DS",
-                                      "Descriptor set 0x%" PRIx64 " encountered the following validation error at %s time: %s",
-                                      HandleToUint64(set), function, err_str.c_str());
+                if (!descriptor_set->IsPushDescriptor()) {
+                    // For the "bindless" style resource usage with many descriptors, need to optimize command <-> descriptor
+                    // binding validation. Take the requested binding set and prefilter it to eliminate redundant validation checks.
+                    // Here, the currently bound pipeline determines whether an image validation check is redundant...
+                    // for images are the "req" portion of the binding_req is indirectly (but tightly) coupled to the pipeline.
+                    const cvdescriptorset::PrefilterBindRequestMap reduced_map(*descriptor_set, set_binding_pair.second, cb_node,
+                                                                               pPipe);
+                    const auto &binding_req_map = reduced_map.Map();
+
+                    if (!descriptor_set->ValidateDrawState(binding_req_map, state.dynamicOffsets[setIndex], cb_node, function,
+                                                           &err_str)) {
+                        auto set = descriptor_set->GetSet();
+                        result |= log_msg(dev_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT,
+                                          VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT, HandleToUint64(set), __LINE__,
+                                          DRAWSTATE_DESCRIPTOR_SET_NOT_UPDATED, "DS",
+                                          "Descriptor set 0x%" PRIx64 " encountered the following validation error at %s time: %s",
+                                          HandleToUint64(set), function, err_str.c_str());
+                    }
                 }
             }
         }
@@ -1209,10 +1223,14 @@ static void UpdateDrawState(layer_data *dev_data, GLOBAL_CB_NODE *cb_state, cons
             // Pull the set node
             cvdescriptorset::DescriptorSet *descriptor_set = state.boundDescriptorSets[setIndex];
             if (!descriptor_set->IsPushDescriptor()) {
+                // For the "bindless" style resource usage with many descriptors, need to optimize command <-> descriptor binding
+                const cvdescriptorset::PrefilterBindRequestMap reduced_map(*descriptor_set, set_binding_pair.second, cb_state);
+                const auto &binding_req_map = reduced_map.Map();
+
                 // Bind this set and its active descriptor resources to the command buffer
-                descriptor_set->BindCommandBuffer(cb_state, set_binding_pair.second);
+                descriptor_set->BindCommandBuffer(cb_state, binding_req_map);
                 // For given active slots record updated images & buffers
-                descriptor_set->GetStorageUpdates(set_binding_pair.second, &cb_state->updateBuffers, &cb_state->updateImages);
+                descriptor_set->GetStorageUpdates(binding_req_map, &cb_state->updateBuffers, &cb_state->updateImages);
             }
         }
     }
@@ -1757,6 +1775,7 @@ static void ResetCommandBufferState(layer_data *dev_data, const VkCommandBuffer 
         pCB->hasDrawCmd = false;
         pCB->state = CB_NEW;
         pCB->submitCount = 0;
+        pCB->image_layout_change_count = 1;  // Start at 1. 0 is insert value for validation cache versions, s.t. new == dirty
         pCB->status = 0;
         pCB->static_status = 0;
         pCB->viewportMask = 0;
@@ -2890,23 +2909,22 @@ static void PostCallRecordFreeMemory(layer_data *dev_data, VkDeviceMemory mem, D
         log_msg(dev_data->report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, get_debug_report_enum[obj.type], obj.handle, __LINE__,
                 MEMTRACK_FREED_MEM_REF, "MEM", "VK Object 0x%" PRIx64 " still has a reference to mem obj 0x%" PRIx64,
                 HandleToUint64(obj.handle), HandleToUint64(mem_info->mem));
+        BINDABLE *bindable_state = nullptr;
         switch (obj.type) {
-            case kVulkanObjectTypeImage: {
-                auto image_state = GetImageState(dev_data, reinterpret_cast<VkImage &>(obj.handle));
-                assert(image_state);  // Any destroyed images should already be removed from bindings
-                image_state->binding.mem = MEMORY_UNBOUND;
+            case kVulkanObjectTypeImage:
+                bindable_state = GetImageState(dev_data, reinterpret_cast<VkImage &>(obj.handle));
                 break;
-            }
-            case kVulkanObjectTypeBuffer: {
-                auto buffer_state = GetBufferState(dev_data, reinterpret_cast<VkBuffer &>(obj.handle));
-                assert(buffer_state);  // Any destroyed buffers should already be removed from bindings
-                buffer_state->binding.mem = MEMORY_UNBOUND;
+            case kVulkanObjectTypeBuffer:
+                bindable_state = GetBufferState(dev_data, reinterpret_cast<VkBuffer &>(obj.handle));
                 break;
-            }
             default:
                 // Should only have buffer or image objects bound to memory
                 assert(0);
         }
+
+        assert(bindable_state);
+        bindable_state->binding.mem = MEMORY_UNBOUND;
+        bindable_state->UpdateBoundMemorySet();
     }
     // Any bound cmd buffers are now invalid
     invalidateCommandBuffers(dev_data, mem_info->cb_bindings, obj_struct);
@@ -3801,11 +3819,7 @@ static void PostCallRecordBindBufferMemory(layer_data *dev_data, VkBuffer buffer
 
         // Track objects tied to memory
         uint64_t buffer_handle = HandleToUint64(buffer);
-        SetMemBinding(dev_data, mem, buffer_handle, kVulkanObjectTypeBuffer, "vkBindBufferMemory()");
-
-        buffer_state->binding.mem = mem;
-        buffer_state->binding.offset = memoryOffset;
-        buffer_state->binding.size = buffer_state->requirements.size;
+        SetMemBinding(dev_data, mem, buffer_state, memoryOffset, buffer_handle, kVulkanObjectTypeBuffer, "vkBindBufferMemory()");
     }
 }
 
@@ -5369,6 +5383,13 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(VkCommandBuffer commandBuffer,
 
     return result;
 }
+static void PostCallRecordEndCommandBuffer(layer_data *dev_data, GLOBAL_CB_NODE *cb_state) {
+    // Cached validation is specific to a specific recording of a specific command buffer.
+    for (auto descriptor_set : cb_state->validated_descriptor_sets) {
+        descriptor_set->ClearCachedValidation(cb_state);
+    }
+    cb_state->validated_descriptor_sets.clear();
+}
 
 VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(VkCommandBuffer commandBuffer) {
     bool skip = false;
@@ -5394,6 +5415,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(VkCommandBuffer commandBuffer) {
         lock.unlock();
         auto result = dev_data->dispatch_table.EndCommandBuffer(commandBuffer);
         lock.lock();
+        PostCallRecordEndCommandBuffer(dev_data, pCB);
         if (VK_SUCCESS == result) {
             pCB->state = CB_RECORDED;
         }
@@ -5709,6 +5731,7 @@ static void PreCallRecordCmdBindDescriptorSets(layer_data *device_data, GLOBAL_C
                                           pDynamicOffsets + total_dynamic_descriptors + set_dynamic_descriptor_count);
                 total_dynamic_descriptors += set_dynamic_descriptor_count;
             }
+            cb_state->validated_descriptor_sets.insert(descriptor_set);
         }
         // For any previously bound sets, need to set them to "invalid" if they were disturbed by this update
         if (firstSet > 0) {
@@ -8947,11 +8970,7 @@ static void PostCallRecordBindImageMemory(layer_data *dev_data, VkImage image, I
 
         // Track objects tied to memory
         uint64_t image_handle = HandleToUint64(image);
-        SetMemBinding(dev_data, mem, image_handle, kVulkanObjectTypeImage, "vkBindImageMemory()");
-
-        image_state->binding.mem = mem;
-        image_state->binding.offset = memoryOffset;
-        image_state->binding.size = image_state->requirements.size;
+        SetMemBinding(dev_data, mem, image_state, memoryOffset, image_handle, kVulkanObjectTypeImage, "vkBindImageMemory()");
     }
 }
 
