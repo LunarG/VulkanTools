@@ -306,7 +306,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
 
 // ------------------------------------------------------------------------------------------------
 int main(int argc, char* argv[]) {
-    uint64_t exitval = 0;
+    int exitval = 0;
     memset(&g_settings, 0, sizeof(vktrace_settings));
 
     vktrace_LogSetCallback(loggingCallback);
@@ -502,7 +502,7 @@ int main(int argc, char* argv[]) {
             vktrace_platform_resume_thread(&procInfo.hThread);
 
             // Now into the main message loop, listen for hotkeys to send over.
-            exitval = MessageLoop();
+            exitval = (int)MessageLoop();
 #endif
         }
         vktrace_appendPortabilityPacket(procInfo.pTraceFile);

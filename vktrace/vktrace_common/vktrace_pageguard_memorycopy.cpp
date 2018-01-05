@@ -157,14 +157,14 @@ typedef struct {
 } vktrace_pageguard_task_unit_parameters;
 
 typedef struct {
-    int index;
+    size_t index;
     vktrace_pageguard_task_unit_parameters *ptask_units;
     size_t amount;
     vktrace_sem_id sem_id_access;
 } vktrace_pageguard_task_queue;
 
 typedef struct {
-    int index;
+    size_t index;
     vktrace_pageguard_thread_id thread_id;
     vktrace_sem_id sem_id_task_start;
     vktrace_sem_id sem_id_task_end;

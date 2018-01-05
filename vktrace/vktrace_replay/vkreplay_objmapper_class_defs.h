@@ -67,7 +67,7 @@ class gpuMemory {
         PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pSrcData;
         if (pChangedInfoArray[0].length) {
             PBYTE pChangedData = (PBYTE)(pSrcData) + sizeof(PageGuardChangedBlockInfo) * (pChangedInfoArray[0].offset + 1);
-            DWORD CurrentOffset = 0;
+            size_t CurrentOffset = 0;
             for (DWORD i = 0; i < pChangedInfoArray[0].offset; i++) {
                 if ((size_t)pChangedInfoArray[i + 1].length) {
                     memcpy(mr.pData + (size_t)pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset,

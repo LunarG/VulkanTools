@@ -77,23 +77,23 @@ void PageStatusArray::toggleReadArray() {
 }
 
 bool PageStatusArray::getBlockChangedArray(uint64_t index) {
-    return activeChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (activeChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockChangedArraySnapshot(uint64_t index) {
-    return capturedChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (capturedChangesArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockReadArray(uint64_t index) {
-    return activeReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (activeReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockReadArraySnapshot(uint64_t index) {
-    return capturedReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (capturedReadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 bool PageStatusArray::getBlockFirstTimeLoadArray(uint64_t index) {
-    return firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE));
+    return (firstTimeLoadArray[index >> PAGE_NUMBER_FROM_BIT_SHIFT] & (1 << (index % PAGE_FLAG_AMOUNT_PER_BYTE))) != 0;
 }
 
 void PageStatusArray::setBlockChangedArray(uint64_t index, bool changed) {

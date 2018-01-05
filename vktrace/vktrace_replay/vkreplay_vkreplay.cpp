@@ -167,7 +167,7 @@ int vkReplay::dump_validation_data() {
 VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkInstanceCreateInfo *pCreateInfo;
-    char **ppEnabledLayerNames = NULL, **saved_ppLayers;
+    char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
     if (!m_display->m_initedVK) {
         VkInstance inst;
 
@@ -327,7 +327,8 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysica
             mask = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
         else if (j == 1)
             mask = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
-        else if (j == 2)
+        else
+            // j == 2
             mask = (VK_QUEUE_GRAPHICS_BIT);
         for (uint32_t i = 0; i < replayQueueFamilyProperties[replayPhysicalDevice].count; i++) {
             if ((replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags & mask) == mask) {
@@ -368,7 +369,7 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
         VkDevice device;
         VkPhysicalDevice remappedPhysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
         VkDeviceCreateInfo *pCreateInfo;
-        char **ppEnabledLayerNames = NULL, **saved_ppLayers;
+        char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
         if (remappedPhysicalDevice == VK_NULL_HANDLE) {
             vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
             return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1716,7 +1717,7 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
     }
 
     VkFramebufferCreateInfo *pInfo = (VkFramebufferCreateInfo *)pPacket->pCreateInfo;
-    VkImageView *pAttachments, *pSavedAttachments = (VkImageView *)pInfo->pAttachments;
+    VkImageView *pAttachments = NULL, *pSavedAttachments = (VkImageView *)pInfo->pAttachments;
     bool allocatedAttachments = false;
     if (pSavedAttachments != NULL) {
         allocatedAttachments = true;
@@ -1807,8 +1808,8 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
     VkCommandBufferBeginInfo *pInfo = (VkCommandBufferBeginInfo *)pPacket->pBeginInfo;
     VkCommandBufferInheritanceInfo *pHinfo = (VkCommandBufferInheritanceInfo *)((pInfo) ? pInfo->pInheritanceInfo : NULL);
     // Save the original RP & FB, then overwrite packet with remapped values
-    VkRenderPass savedRP, *pRP;
-    VkFramebuffer savedFB, *pFB;
+    VkRenderPass savedRP = NULL, *pRP;
+    VkFramebuffer savedFB = NULL, *pFB;
     if (pInfo != NULL && pHinfo != NULL) {
         savedRP = pHinfo->renderPass;
         savedFB = pHinfo->framebuffer;
@@ -1943,15 +1944,22 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     devicememoryObj local_mem;
     VkMemoryRequirements memRequirements;
     uint32_t replayMemTypeIndex;
+#if defined(PLATFORM_LINUX)
+    // gcc on Linux doesn't give a warning if these vars are not initialized, but Windows does
     vktrace_trace_packet_header packetHeader1;
-    VkDeviceMemory traceAllocateMemoryRval;
-    packet_vkBindImageMemory bimPacket;              // We rely on the fact that packet_vkBindBufferMemory is the same size
+    packet_vkBindImageMemory bimPacket;
+#else
+    // gcc on Linux doesn't like this form of structure intialization
+    vktrace_trace_packet_header packetHeader1 = {0};
+    packet_vkBindImageMemory bimPacket = {0};
+#endif
+    VkDeviceMemory traceAllocateMemoryRval = NULL;
     packet_vkFreeMemory freeMemoryPacket;
     bool foundBindMem;
     VkImage remappedImage = VK_NULL_HANDLE;
     size_t saveFilePos = 0;
     bool doAllocate = true;
-    size_t bindMemIdx;
+    size_t bindMemIdx = 0;
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {

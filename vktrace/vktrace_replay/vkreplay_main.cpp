@@ -294,7 +294,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 
 static bool readPortabilityTable() {
     size_t tableSize;
-    int originalFilePos;
+    size_t originalFilePos;
 
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
     if (-1 == originalFilePos) return false;

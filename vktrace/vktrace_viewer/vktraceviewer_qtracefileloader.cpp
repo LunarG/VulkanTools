@@ -141,7 +141,7 @@ bool vktraceviewer_QTraceFileLoader::load_controllers(vktraceviewer_trace_file_i
         return false;
     }
 
-    for (int i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
+    for (uint64_t i = 0; i < pTraceFileInfo->pHeader->tracer_count; i++) {
         uint8_t tracerId = pTraceFileInfo->pHeader->tracer_id_array[i].id;
 
         const VKTRACE_TRACER_REPLAYER_INFO* pReplayerInfo = &(gs_tracerReplayerInfo[tracerId]);

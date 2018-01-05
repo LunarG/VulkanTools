@@ -347,7 +347,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
         PBYTE pBlock;
         VkDeviceSize BlockSize;
         PBYTE addr = reinterpret_cast<PBYTE>(ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
-        bool bWrite = ExceptionInfo->ExceptionRecord->ExceptionInformation[0];
+        bool bWrite = (ExceptionInfo->ExceptionRecord->ExceptionInformation[0] != NULL);
 
         LPPageGuardMappedMemory pMappedMem =
             getPageGuardControlInstance().findMappedMemoryObject(addr, &OffsetOfAddr, &pBlock, &BlockSize);
