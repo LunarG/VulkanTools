@@ -202,6 +202,8 @@ REM // ======== Parameter parsing ======== //
       )
       if %arg-no-build% equ 0 (
          set build-jsoncpp=1
+      )
+   )
    if %arg-32% equ 1 (
        set do_32=1
    )
