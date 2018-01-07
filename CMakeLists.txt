@@ -146,6 +146,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_VKTRACE "Build VkTrace" ON)
     option(BUILD_VKJSON "Build vkjson" ON)
     option(BUILD_VIA "Build via" ON)
+    option(BUILD_ICD "Build icd" ON)
     option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
     option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
