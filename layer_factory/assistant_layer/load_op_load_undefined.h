@@ -24,13 +24,13 @@
 #include <algorithm>
 
 class LoadAndUndefined : public layer_factory {
-public:
+   public:
     // Constructor for interceptor
-    LoadAndUndefined() : layer_factory(this) {};
+    LoadAndUndefined() : layer_factory(this){};
 
     // Intercept CreateRenderPassCalls calls and check LoadOp and Layout
     VkResult PreCallCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo *pCreateInfo,
-                                 const VkAllocationCallbacks *pAllocator, VkRenderPass *pRenderPass) {
+                                     const VkAllocationCallbacks *pAllocator, VkRenderPass *pRenderPass) {
         for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
             VkFormat format = pCreateInfo->pAttachments[i].format;
             if (pCreateInfo->pAttachments[i].initialLayout == VK_IMAGE_LAYOUT_UNDEFINED) {

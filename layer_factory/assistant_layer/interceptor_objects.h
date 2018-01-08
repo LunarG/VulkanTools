@@ -17,7 +17,6 @@
  * Author: Mark Lobodzinski <mark@lunarg.com>
  */
 
-
 #include "mem_objects.h"
 #include "zero_counts.h"
 #include "stage_all_warn.h"

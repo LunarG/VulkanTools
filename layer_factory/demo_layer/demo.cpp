@@ -23,9 +23,7 @@
 static uint32_t display_rate = 60;
 
 // This function will be called for every API call
-void MemDemo::PreCallApiFunction(const char* api_name) {
-    printf("Calling %s\n", api_name);
-}
+void MemDemo::PreCallApiFunction(const char *api_name) { printf("Calling %s\n", api_name); }
 
 // Intercept the memory allocation calls and increment the counter
 VkResult MemDemo::PostCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,

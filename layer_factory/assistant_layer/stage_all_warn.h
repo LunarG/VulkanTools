@@ -20,9 +20,9 @@
 #pragma once
 
 class WarnOnPipelineStageAll : public layer_factory {
-public:
+   public:
     // Constructor for interceptor
-    WarnOnPipelineStageAll() : layer_factory(this) {};
+    WarnOnPipelineStageAll() : layer_factory(this){};
 
     void CheckPipelineStageFlags(std::string api_name, const VkPipelineStageFlags flags) {
         if (flags & VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT) {
@@ -44,7 +44,7 @@ public:
     };
 
     VkResult PreCallCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo* pCreateInfo,
-        const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass) {
+                                     const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass) {
         for (uint32_t dependency = 0; dependency < pCreateInfo->dependencyCount; dependency++) {
             CheckPipelineStageFlags("vkCreateRenderPass", pCreateInfo->pDependencies[dependency].srcStageMask);
             CheckPipelineStageFlags("vkCreateRenderPass", pCreateInfo->pDependencies[dependency].dstStageMask);
@@ -61,28 +61,27 @@ public:
     };
 
     void PreCallCmdWaitEvents(VkCommandBuffer commandBuffer, uint32_t eventCount, const VkEvent* pEvents,
-        VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, uint32_t memoryBarrierCount,
-        const VkMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount,
-        const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
-        const VkImageMemoryBarrier* pImageMemoryBarriers) {
+                              VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, uint32_t memoryBarrierCount,
+                              const VkMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount,
+                              const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
+                              const VkImageMemoryBarrier* pImageMemoryBarriers) {
         CheckPipelineStageFlags("vkCmdWaitEvents", srcStageMask);
         CheckPipelineStageFlags("vkCmdWaitEvents", dstStageMask);
     };
 
     void PreCallCmdPipelineBarrier(VkCommandBuffer commandBuffer, VkPipelineStageFlags srcStageMask,
-        VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags,
-        uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers,
-        uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers,
-        uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers) {
+                                   VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags,
+                                   uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers,
+                                   uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers,
+                                   uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers) {
         CheckPipelineStageFlags("vkCmdPipelineBarrier", srcStageMask);
         CheckPipelineStageFlags("vkCmdPipelineBarrier", dstStageMask);
     };
 
     void PreCallCmdWriteTimestamp(VkCommandBuffer commandBuffer, VkPipelineStageFlagBits pipelineStage, VkQueryPool queryPool,
-        uint32_t query) {
+                                  uint32_t query) {
         CheckPipelineStageFlags("vkCmdWriteTimestamp", pipelineStage);
     };
-
 };
 
 WarnOnPipelineStageAll warn_stage_all;
