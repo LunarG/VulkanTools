@@ -94,8 +94,6 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 @foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT' and '{funcReturn}' != 'void')
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
-    // TODO - Remove the following stream output; How to test?
-    dump_inst.settings().stream() << "In DebugMarkerSetObjectNameEXT\\n";
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
 
     if (pNameInfo->pObjectName)
@@ -373,7 +371,6 @@ TEXT_CODEGEN = """
 
 #include "api_dump.h"
 
-std::unordered_set<std::string> handles({{@foreach handle"{hdlName}", @end handle}});
 @foreach struct
 std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars});
 @end struct
@@ -417,18 +414,18 @@ inline std::ostream& dump_text_{sysName}(const {sysType} object, const ApiDumpSe
 
 @foreach handle
 inline std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
-{{        
+{{
     if(settings.showAddress()) {{
-        settings.stream() << object << " " << ApiDumpInstance::current().object_name_map.size() << " "; // TODO - REMOVE THE MAP SIZE
-        
-        std::unordered_map<uint64_t, std::string>::const_iterator is_named = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-        if (is_named != ApiDumpInstance::current().object_name_map.end()) {{
-            settings.stream() << " I\\'M IN" << is_named->second;
+        settings.stream() << object;
+
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << " [" << it->second << "]";
         }}
     }} else {{
         settings.stream() << "address";
     }}
-        
+
     return settings.stream();
 }}
 @end handle
@@ -680,6 +677,7 @@ HTML_CODEGEN = """
  *
  * Author: Lenny Komow <lenny@lunarg.com>
  * Author: Joey Bzdek <joey@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 /*
@@ -738,12 +736,11 @@ inline std::ostream& dump_html_{hdlName}(const {hdlName} object, const ApiDumpSe
 {{
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {{
-        settings.stream() << object << "</div>";
-        
-        std::unordered_map<uint64_t, std::string>::const_iterator is_named = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-        if (is_named != ApiDumpInstance::current().object_name_map.end()) {{
-            settings.stream() << " " << is_named->second;
-            // TODO - Remove the above output
+        settings.stream() << object;
+
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << "</div><div class='val'>[" << it->second << "]";
         }}
     }} else {{
         settings.stream() << "address";
