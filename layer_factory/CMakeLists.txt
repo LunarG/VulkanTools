@@ -77,7 +77,8 @@ ENDMACRO()
 # Paths for the layer factory json template and the destination for factory layer json files
 if (WIN32)
     set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory_windows.json)
-    set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers/$<CONFIGURATION>)
+    set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR})
+    set (JSON_DECORATED_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers/$<CONFIGURATION>)
 else()
     set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory_linux.json)
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers)
@@ -90,9 +91,15 @@ if (WIN32)
     file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_layer_factory.def def_file_template)
     string(REPLACE "layer_factory" ${target} target_def_file ${def_file_template})
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/VkLayer_${target}.def ${target_def_file})
-    # Create custom target for the copies so that json template is copied and edited at compile time
-    add_custom_target(${target}jsoncopy ALL
-        COMMAND ${CMAKE_COMMAND} -Dsrcfile=${JSON_TEMPLATE_PATH} -Ddstpath=${JSON_DEST_PATH} -Dtarget=${target} -Dsubdir=${subdir} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_json_file.cmake
+    # Edit json template and copy to build\layers dir at cmake time
+    file(READ "${JSON_TEMPLATE_PATH}" json_file_template)
+    string(REPLACE "layer_factory" "${target}" target_json_file "${json_file_template}")
+    file(TO_NATIVE_PATH ${JSON_DEST_PATH}/VkLayer_${target}.json dst_json)
+    file(WRITE ${dst_json} ${target_json_file})
+    # Copy target json file from build/layers to final directory at compile time
+    file(TO_NATIVE_PATH ${JSON_DECORATED_DEST_PATH}/VkLayer_${target}.json decorated_dst_json)
+    add_custom_target(${target}json-copy ALL
+        COMMAND ${CMAKE_COMMAND} -E copy ${dst_json} ${decorated_dst_json}
         VERBATIM
         )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
@@ -103,10 +110,10 @@ if (WIN32)
 else()
     macro(add_factory_layer target subdir)
     # Create custom target for the copies so that json template is copied and edited at compile time
-    add_custom_target(${target}jsoncopy ALL
-        COMMAND ${CMAKE_COMMAND} -Dsrcfile=${JSON_TEMPLATE_PATH} -Ddstpath=${JSON_DEST_PATH} -Dtarget=${target} -Dsubdir=${subdir} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_json_file.cmake
-        VERBATIM
-        )
+    file(READ "${JSON_TEMPLATE_PATH}" json_file_template)
+    string(REPLACE "layer_factory" "${target}" target_json_file "${json_file_template}")
+    file(TO_NATIVE_PATH ${JSON_DEST_PATH}/VkLayer_${target}.json dst_json)
+    file(WRITE ${dst_json} ${target_json_file})
     add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} VkLayer_utils)
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
