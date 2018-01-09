@@ -118,7 +118,7 @@ approved_ext = [
                 'VK_NV_dedicated_allocation',
                 'VK_NV_external_memory',
                 'VK_NV_external_memory_capabilities',
-                #'VK_NV_external_memory_win32',
+                'VK_NV_external_memory_win32',
                 'VK_NV_fill_rectangle',
                 'VK_NV_fragment_coverage_to_color',
                 'VK_NV_framebuffer_mixed_samples',
