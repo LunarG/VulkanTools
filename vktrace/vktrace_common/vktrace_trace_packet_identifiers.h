@@ -331,6 +331,7 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkDestroyValidationCacheEXT = 266,
     VKTRACE_TPI_VK_vkMergeValidationCachesEXT = 267,
     VKTRACE_TPI_VK_vkGetValidationCacheDataEXT = 268,
+    VKTRACE_TPI_VK_vkGetShaderInfoAMD = 269,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1
