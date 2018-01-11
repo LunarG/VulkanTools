@@ -69,6 +69,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(INSTALL_LVL_FILES "Install content from LoaderAndValidationLayers repo" ON)
 endif()
 
+
+
+
+
+#[[
+
 set(SCRIPTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 
 # Header file for CMake settings
@@ -479,3 +485,6 @@ endif()
 if(BUILD_ICD)
     add_subdirectory(icd)
 endif()
+
+
+]]
