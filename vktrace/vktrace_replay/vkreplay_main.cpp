@@ -297,7 +297,6 @@ static bool readPortabilityTable() {
     size_t originalFilePos;
 
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
-    if (-1 == originalFilePos) return false;
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(size_t))) return false;
     if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(size_t))) return false;
     if (tableSize == 0) return true;

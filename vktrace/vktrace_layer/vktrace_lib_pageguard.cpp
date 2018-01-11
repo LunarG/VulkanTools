@@ -42,7 +42,11 @@ static vktrace_sem_id ref_amount_sem_id;  // TODO if vktrace implement cross pla
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
 #endif
 static vktrace_sem_id map_lock_sem_id;
+#if defined(PLATFORM_LINUX)
+static bool map_lock_sem_id_create_success __attribute__((unused)) = vktrace_sem_create(&map_lock_sem_id, 1);
+#else
 static bool map_lock_sem_id_create_success = vktrace_sem_create(&map_lock_sem_id, 1);
+#endif
 
 void pageguardEnter() { vktrace_sem_wait(map_lock_sem_id); }
 void pageguardExit() { vktrace_sem_post(map_lock_sem_id); }

@@ -444,7 +444,7 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
                 disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
             }
 
-            int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
+            int err __attribute__((unused)) = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
             assert(err == 0);
         }
     }

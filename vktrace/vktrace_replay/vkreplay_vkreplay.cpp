@@ -1808,8 +1808,8 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
     VkCommandBufferBeginInfo *pInfo = (VkCommandBufferBeginInfo *)pPacket->pBeginInfo;
     VkCommandBufferInheritanceInfo *pHinfo = (VkCommandBufferInheritanceInfo *)((pInfo) ? pInfo->pInheritanceInfo : NULL);
     // Save the original RP & FB, then overwrite packet with remapped values
-    VkRenderPass savedRP = NULL, *pRP;
-    VkFramebuffer savedFB = NULL, *pFB;
+    VkRenderPass savedRP = VK_NULL_HANDLE, *pRP;
+    VkFramebuffer savedFB = VK_NULL_HANDLE, *pFB;
     if (pInfo != NULL && pHinfo != NULL) {
         savedRP = pHinfo->renderPass;
         savedFB = pHinfo->framebuffer;
@@ -1953,7 +1953,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     vktrace_trace_packet_header packetHeader1 = {0};
     packet_vkBindImageMemory bimPacket = {0};
 #endif
-    VkDeviceMemory traceAllocateMemoryRval = NULL;
+    VkDeviceMemory traceAllocateMemoryRval = VK_NULL_HANDLE;
     packet_vkFreeMemory freeMemoryPacket;
     bool foundBindMem;
     VkImage remappedImage = VK_NULL_HANDLE;
