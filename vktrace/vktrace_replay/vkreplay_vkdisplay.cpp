@@ -312,7 +312,7 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
     }
 
     // create the window
-    RECT wr = {0, 0, width, height};
+    RECT wr = {0, 0, (LONG)width, (LONG)height};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
     m_windowHandle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPEDWINDOW, 0, 0, wr.right - wr.left, wr.bottom - wr.top, NULL, NULL,
                                   wcex.hInstance, NULL);
@@ -358,7 +358,7 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 // In Wayland, the shell_surface should resize based on the Vulkan surface automagically
 #endif
 #elif defined(WIN32)
-        RECT wr = {0, 0, width, height};
+        RECT wr = {0, 0, (LONG)width, (LONG)height};
         AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
         SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE);
 
