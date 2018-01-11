@@ -71,6 +71,7 @@ endif()
 
 
 
+add_subdirectory(submodules/Vulkan-LoaderAndValidationLayers)
 
 
 #[[
