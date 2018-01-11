@@ -120,13 +120,13 @@ typedef class PageGuardMappedMemory {
     ///               blocks data
     ///
     /// if pData==nullptr, only get size
-    /// DWORD *pdwSaveSize, the size of all changed blocks
-    /// DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo
+    /// size_t *pdwSaveSize, the size of all changed blocks
+    /// size_t *pInfoSize, the size of array of PageGuardChangedBlockInfo
     /// VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
     /// RangeSize, if RangeOffset<0, consider whole mapped memory
     /// return the amount of changed blocks.
-    size_t getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, size_t *pdwSaveSize, size_t *pInfoSize, PBYTE pData,
-                              size_t DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
+    uint64_t getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, uint64_t *pdwSaveSize, uint64_t *pInfoSize,
+                                 PBYTE pData, uint64_t DataOffset, int useWhich = BLOCK_FLAG_ARRAY_CHANGED);
 
     /// return: if memory already changed;
     ///        evenif no change to mmeory, it will still allocate memory for info array which only include one

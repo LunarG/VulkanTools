@@ -52,15 +52,15 @@ static QString g_PROJECT_NAME = "VkTrace Viewer";
 void loggingCallback(VktraceLogLevel level, const char* pMessage) {
     switch (level) {
         case VKTRACE_LOG_ERROR:
-            gs_OUTPUT.error(-1, QString(pMessage));
+            gs_OUTPUT.error((uint64_t)-1, QString(pMessage));
             break;
         case VKTRACE_LOG_WARNING:
-            gs_OUTPUT.warning(-1, QString(pMessage));
+            gs_OUTPUT.warning((uint64_t)-1, QString(pMessage));
             break;
         case VKTRACE_LOG_DEBUG:
         case VKTRACE_LOG_VERBOSE:
         default:
-            gs_OUTPUT.message(-1, QString(pMessage));
+            gs_OUTPUT.message((uint64_t)-1, QString(pMessage));
             break;
     }
 
@@ -1110,7 +1110,9 @@ void vktraceviewer::prompt_generate_trace() {
     }
 }
 
-void vktraceviewer::OnOutputMessage(VktraceLogLevel level, const QString& message) { OnOutputMessage(level, -1, message); }
+void vktraceviewer::OnOutputMessage(VktraceLogLevel level, const QString& message) {
+    OnOutputMessage(level, (uint64_t)-1, message);
+}
 
 void vktraceviewer::OnOutputMessage(VktraceLogLevel level, uint64_t packetIndex, const QString& message) {
     switch (level) {

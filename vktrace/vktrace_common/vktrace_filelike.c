@@ -63,8 +63,8 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in) {
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
-size_t vktrace_FileLike_GetFileLength(FILE* fp) {
-    size_t byte_length = 0;
+uint64_t vktrace_FileLike_GetFileLength(FILE* fp) {
+    uint64_t byte_length = 0;
 
     // Get file length
     int64_t length = 0;
@@ -114,9 +114,9 @@ FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream) {
 }
 
 // ------------------------------------------------------------------------------------------------
-size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len) {
-    size_t minSize = 0;
-    size_t bytesInStream = 0;
+uint64_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, uint64_t _len) {
+    uint64_t minSize = 0;
+    uint64_t bytesInStream = 0;
     if (vktrace_FileLike_ReadRaw(pFileLike, &bytesInStream, sizeof(bytesInStream)) == FALSE) return 0;
 
     minSize = (_len < bytesInStream) ? _len : bytesInStream;
@@ -129,13 +129,13 @@ size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len) {
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len) {
+BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, uint64_t _len) {
     BOOL result = TRUE;
     assert((pFileLike->mFile != 0) ^ (pFileLike->mMessageStream != 0));
 
     switch (pFileLike->mMode) {
         case File: {
-            if (1 != fread(_bytes, _len, 1, pFileLike->mFile)) {
+            if (1 != fread(_bytes, (size_t)_len, 1, pFileLike->mFile)) {
                 if (ferror(pFileLike->mFile) != 0) {
                     perror("fread error");
                 } else if (feof(pFileLike->mFile) != 0) {
@@ -157,7 +157,7 @@ BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len) {
     return result;
 }
 
-void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len) {
+void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, uint64_t _len) {
     vktrace_FileLike_WriteRaw(pFileLike, &_len, sizeof(_len));
     if (_len) {
         vktrace_FileLike_WriteRaw(pFileLike, _bytes, _len);
@@ -165,12 +165,12 @@ void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len) {
+BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, uint64_t _len) {
     BOOL result = TRUE;
     assert((pFile->mFile != 0) ^ (pFile->mMessageStream != 0));
     switch (pFile->mMode) {
         case File:
-            if (1 != fwrite(_bytes, _len, 1, pFile->mFile)) {
+            if (1 != fwrite(_bytes, (size_t)_len, 1, pFile->mFile)) {
                 result = FALSE;
             }
             break;
@@ -186,8 +186,8 @@ BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len)
 }
 
 // ------------------------------------------------------------------------------------------------
-size_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
-    size_t offset = 0;
+uint64_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
+    uint64_t offset = 0;
     assert((pFileLike->mFile != 0));
 
     switch (pFileLike->mMode) {
@@ -203,7 +203,7 @@ size_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, size_t offset) {
+BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, uint64_t offset) {
     BOOL ret = FALSE;
     assert((pFileLike->mFile != 0));
 

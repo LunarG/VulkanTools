@@ -61,11 +61,11 @@ VKTRACE_CRITICAL_SECTION trimCommandBufferPacketLock;
 // the buffer into the trace file.
 //=========================================================================
 struct StagingInfo {
-    VkBuffer buffer = {};
+    VkBuffer buffer = VK_NULL_HANDLE;
     VkBufferCreateInfo bufferCreateInfo = {};
     VkMemoryRequirements bufferMemoryRequirements = {};
 
-    VkDeviceMemory memory = {};
+    VkDeviceMemory memory = VK_NULL_HANDLE;
     VkMemoryAllocateInfo memoryAllocationInfo = {};
 
     // Region for copying buffers
@@ -1025,7 +1025,7 @@ void snapshot_state_tracker() {
                         VkSubresourceLayout layout;
                         mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
 
-                        VkBufferImageCopy copyRegion = {};
+                        VkBufferImageCopy copyRegion;
 
                         copyRegion.bufferRowLength = 0;
                         copyRegion.bufferImageHeight = 0;
@@ -1059,7 +1059,7 @@ void snapshot_state_tracker() {
                         sub.mipLevel = i;
                         mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
 
-                        VkBufferImageCopy copyRegion = {};
+                        VkBufferImageCopy copyRegion;
                         copyRegion.bufferRowLength = 0;    //< tightly packed texels
                         copyRegion.bufferImageHeight = 0;  //< tightly packed texels
                         copyRegion.bufferOffset = lay.offset;
@@ -1117,7 +1117,7 @@ void snapshot_state_tracker() {
             mdd(device)->devTable.EndCommandBuffer(commandBuffer);
 
             // now submit the command buffer
-            VkSubmitInfo submitInfo = {};
+            VkSubmitInfo submitInfo;
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.pNext = NULL;
             submitInfo.waitSemaphoreCount = 0;
@@ -1318,7 +1318,7 @@ void snapshot_state_tracker() {
             mdd(device)->devTable.EndCommandBuffer(commandBuffer);
 
             // now submit the command buffer
-            VkSubmitInfo submitInfo = {};
+            VkSubmitInfo submitInfo;
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.pNext = NULL;
             submitInfo.waitSemaphoreCount = 0;
@@ -2709,7 +2709,7 @@ void write_all_referenced_object_calls() {
                     VKTRACE_DELETE(pSurfaceFormats);
                 }
 
-                VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
+                VkSurfaceCapabilitiesKHR surfaceCapabilities;
                 vktrace_trace_packet_header *pSurfaceCapabilitiesHeader =
                     generate::vkGetPhysicalDeviceSurfaceCapabilitiesKHR(true, physicalDevice, surface, &surfaceCapabilities);
                 vktrace_write_trace_packet(pSurfaceCapabilitiesHeader, vktrace_trace_get_trace_file());
@@ -2900,7 +2900,7 @@ void write_all_referenced_object_calls() {
                 vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
 
                 // create command buffer
-                VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+                VkCommandBufferAllocateInfo commandBufferAllocateInfo;
                 commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 commandBufferAllocateInfo.pNext = NULL;
                 commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -2947,7 +2947,7 @@ void write_all_referenced_object_calls() {
                 vktrace_delete_trace_packet(&pHeader);
 
                 // Queue submit the command buffer
-                VkSubmitInfo submitInfo = {};
+                VkSubmitInfo submitInfo;
                 submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
                 submitInfo.pNext = NULL;
                 submitInfo.commandBufferCount = 1;
@@ -3196,7 +3196,7 @@ void write_all_referenced_object_calls() {
                 vktrace_delete_trace_packet(&pCreateCommandPoolPacket);
 
                 // create command buffer
-                VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+                VkCommandBufferAllocateInfo commandBufferAllocateInfo;
                 commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 commandBufferAllocateInfo.pNext = NULL;
                 commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -3239,7 +3239,7 @@ void write_all_referenced_object_calls() {
                 vktrace_delete_trace_packet(&pHeader);
 
                 // Queue submit the command buffer
-                VkSubmitInfo submitInfo = {};
+                VkSubmitInfo submitInfo;
                 submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
                 submitInfo.pNext = NULL;
                 submitInfo.commandBufferCount = 1;
@@ -3520,7 +3520,7 @@ void write_all_referenced_object_calls() {
         VkFence fence = obj->first;
         VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
 
-        VkFenceCreateInfo createInfo = {};
+        VkFenceCreateInfo createInfo;
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         createInfo.flags = (obj->second.ObjectInfo.Fence.signaled) ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
@@ -3545,7 +3545,7 @@ void write_all_referenced_object_calls() {
         if (commandBuffer != VK_NULL_HANDLE) {
             VkQueryPool queryPool = obj->first;
 
-            VkCommandBufferBeginInfo beginInfo = {};
+            VkCommandBufferBeginInfo beginInfo;
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginInfo.pNext = nullptr;
             beginInfo.pInheritanceInfo = nullptr;
@@ -3596,7 +3596,7 @@ void write_all_referenced_object_calls() {
             ObjectInfo *cbInfo = s_trimStateTrackerSnapshot.get_CommandBuffer(commandBuffer);
             VkQueue queue = cbInfo->ObjectInfo.CommandBuffer.submitQueue;
 
-            VkSubmitInfo submitInfo = {};
+            VkSubmitInfo submitInfo;
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.pNext = NULL;
             submitInfo.waitSemaphoreCount = 0;

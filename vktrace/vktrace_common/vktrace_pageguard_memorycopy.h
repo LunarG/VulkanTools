@@ -65,10 +65,10 @@ bool vktrace_sem_create(vktrace_sem_id *sem_id, uint32_t initvalue);
 void vktrace_sem_delete(vktrace_sem_id sid);
 void vktrace_sem_wait(vktrace_sem_id sid);
 void vktrace_sem_post(vktrace_sem_id sid);
-void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n);
-extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, size_t size);
+void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, uint64_t n);
+extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, uint64_t size);
 #else
-void* vktrace_pageguard_memcpy(void* destination, const void* source, size_t size);
+void* vktrace_pageguard_memcpy(void* destination, const void* source, uint64_t size);
 #endif
 
 #define PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES 0X00000001

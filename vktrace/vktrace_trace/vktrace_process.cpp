@@ -120,14 +120,14 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     uint64_t fileHeaderSize;
     vktrace_trace_file_header file_header;
     vktrace_trace_packet_header* pHeader = NULL;
-    size_t bytes_written;
-    size_t fileOffset;
+    uint64_t bytes_written;
+    uint64_t fileOffset;
 #if defined(WIN32)
     BOOL rval;
 #elif defined(PLATFORM_LINUX)
-    sighandler_t rval;
+    sighandler_t rval __attribute__((unused));
 #elif defined(PLATFORM_OSX)
-    sig_t rval;
+    sig_t rval __attribute__((unused));
 #endif
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);

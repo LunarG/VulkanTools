@@ -56,7 +56,7 @@ vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_head
     m_platformMatch = -1;
 }
 
-std::vector<size_t> portabilityTable;
+std::vector<uint64_t> portabilityTable;
 FileLike *traceFile;
 
 vkReplay::~vkReplay() {
@@ -167,7 +167,7 @@ int vkReplay::dump_validation_data() {
 VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkInstanceCreateInfo *pCreateInfo;
-    char **ppEnabledLayerNames = NULL, **saved_ppLayers;
+    char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
     if (!m_display->m_initedVK) {
         VkInstance inst;
 
@@ -327,7 +327,8 @@ bool vkReplay::getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysica
             mask = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
         else if (j == 1)
             mask = (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
-        else if (j == 2)
+        else
+            // j == 2
             mask = (VK_QUEUE_GRAPHICS_BIT);
         for (uint32_t i = 0; i < replayQueueFamilyProperties[replayPhysicalDevice].count; i++) {
             if ((replayQueueFamilyProperties[replayPhysicalDevice].queueFamilyProperties[i].queueFlags & mask) == mask) {
@@ -368,7 +369,7 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
         VkDevice device;
         VkPhysicalDevice remappedPhysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
         VkDeviceCreateInfo *pCreateInfo;
-        char **ppEnabledLayerNames = NULL, **saved_ppLayers;
+        char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
         if (remappedPhysicalDevice == VK_NULL_HANDLE) {
             vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
             return VK_ERROR_VALIDATION_FAILED_EXT;
@@ -1716,7 +1717,7 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
     }
 
     VkFramebufferCreateInfo *pInfo = (VkFramebufferCreateInfo *)pPacket->pCreateInfo;
-    VkImageView *pAttachments, *pSavedAttachments = (VkImageView *)pInfo->pAttachments;
+    VkImageView *pAttachments = NULL, *pSavedAttachments = (VkImageView *)pInfo->pAttachments;
     bool allocatedAttachments = false;
     if (pSavedAttachments != NULL) {
         allocatedAttachments = true;
@@ -1807,8 +1808,8 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
     VkCommandBufferBeginInfo *pInfo = (VkCommandBufferBeginInfo *)pPacket->pBeginInfo;
     VkCommandBufferInheritanceInfo *pHinfo = (VkCommandBufferInheritanceInfo *)((pInfo) ? pInfo->pInheritanceInfo : NULL);
     // Save the original RP & FB, then overwrite packet with remapped values
-    VkRenderPass savedRP, *pRP;
-    VkFramebuffer savedFB, *pFB;
+    VkRenderPass savedRP = VK_NULL_HANDLE, *pRP;
+    VkFramebuffer savedFB = VK_NULL_HANDLE, *pFB;
     if (pInfo != NULL && pHinfo != NULL) {
         savedRP = pHinfo->renderPass;
         savedFB = pHinfo->framebuffer;
@@ -1943,15 +1944,22 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     devicememoryObj local_mem;
     VkMemoryRequirements memRequirements;
     uint32_t replayMemTypeIndex;
+#if defined(PLATFORM_LINUX)
+    // gcc on Linux doesn't give a warning if these vars are not initialized, but Windows does
     vktrace_trace_packet_header packetHeader1;
-    VkDeviceMemory traceAllocateMemoryRval;
-    packet_vkBindImageMemory bimPacket;              // We rely on the fact that packet_vkBindBufferMemory is the same size
+    packet_vkBindImageMemory bimPacket;
+#else
+    // gcc on Linux doesn't like this form of structure intialization
+    vktrace_trace_packet_header packetHeader1 = {0};
+    packet_vkBindImageMemory bimPacket = {0};
+#endif
+    VkDeviceMemory traceAllocateMemoryRval = VK_NULL_HANDLE;
     packet_vkFreeMemory freeMemoryPacket;
     bool foundBindMem;
     VkImage remappedImage = VK_NULL_HANDLE;
-    size_t saveFilePos = 0;
+    uint64_t saveFilePos = 0;
     bool doAllocate = true;
-    size_t bindMemIdx;
+    size_t bindMemIdx = 0;
 
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
@@ -1999,7 +2007,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         // First find this vkAM call in portabilityTable
         pPacket->header = (vktrace_trace_packet_header *)((PBYTE)pPacket - sizeof(vktrace_trace_packet_header));
         for (amIdx = amSearchPos; amIdx < portabilityTable.size(); amIdx++) {
-            FSEEK(traceFile, (long)portabilityTable[amIdx], SEEK_SET);
+            FSEEK(traceFile, portabilityTable[amIdx], SEEK_SET);
             FREAD(&packetHeader1, sizeof(vktrace_trace_packet_header), 1, traceFile);  // Read the packet header
 
             if (packetHeader1.global_packet_index == pPacket->header->global_packet_index &&
@@ -2024,7 +2032,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         // If we don't find one, generate an error and do the best we can.
         foundBindMem = false;
         for (size_t i = amIdx + 1; !foundBindMem && i < portabilityTable.size(); i++) {
-            FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+            FSEEK(traceFile, portabilityTable[i], SEEK_SET);
             FREAD(&packetHeader1, sizeof(vktrace_trace_packet_header), 1, traceFile);  // Read the packet header
 
             if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
@@ -2068,20 +2076,20 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
                 vktrace_trace_packet_header createPacketHeaderHeader;
                 vktrace_trace_packet_header *pCreatePacketFull;
                 packet_vkCreateImage *pCreatePacket;
-                FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+                FSEEK(traceFile, portabilityTable[i], SEEK_SET);
                 FREAD(&createPacketHeaderHeader, sizeof(vktrace_trace_packet_header), 1, traceFile);
                 if ((packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory &&
                      createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateImage) ||
                     (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory &&
                      createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateBuffer)) {
                     // Read the whole packet
-                    pCreatePacketFull = (vktrace_trace_packet_header *)vktrace_malloc(createPacketHeaderHeader.size);
+                    pCreatePacketFull = (vktrace_trace_packet_header *)vktrace_malloc((size_t)createPacketHeaderHeader.size);
                     if (!pCreatePacketFull) {
                         vktrace_LogError("malloc failed during vkAllocateMemory()");
                         vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
                         return VK_ERROR_OUT_OF_HOST_MEMORY;
                     }
-                    FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+                    FSEEK(traceFile, portabilityTable[i], SEEK_SET);
                     FREAD(pCreatePacketFull, createPacketHeaderHeader.size, 1, traceFile);
                     pCreatePacket = (packet_vkCreateImage *)(pCreatePacketFull + 1);
                     pCreatePacket->header = pCreatePacketFull;
@@ -2722,7 +2730,7 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
     }
 
     if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
-        size_t memOffsetTemp;
+        uint64_t memOffsetTemp;
         if (replayGetBufferMemoryRequirements.find(remappedbuffer) == replayGetBufferMemoryRequirements.end()) {
             // vkBindBufferMemory is being called on a buffer for which vkGetBufferMemoryRequirements
             // was not called. This might be a violation of the spec on the part of the app, but seems to
@@ -3978,7 +3986,7 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory2KHR(packet_vkBindBufferMem
         *((VkBuffer *)&pPacket->pBindInfos[i].buffer) = remappedBuffer;
         *((VkDeviceMemory *)&pPacket->pBindInfos[i].memory) = m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
         if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
-            size_t memOffsetTemp;
+            uint64_t memOffsetTemp;
             if (replayGetBufferMemoryRequirements.find(remappedBuffer) == replayGetBufferMemoryRequirements.end()) {
                 // vkBindBufferMemory2KHR is being called with a buffer for which vkGetBufferMemoryRequirements
                 // was not called. This might be violation of the spec on the part of the app, but seems to
@@ -4018,7 +4026,7 @@ VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemor
         *((VkImage *)&pPacket->pBindInfos[i].image) = remappedImage;
         *((VkDeviceMemory *)&pPacket->pBindInfos[i].memory) = m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
         if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
-            size_t memOffsetTemp;
+            uint64_t memOffsetTemp;
             if (replayGetImageMemoryRequirements.find(remappedImage) == replayGetImageMemoryRequirements.end()) {
                 // vkBindImageMemory2KHR is being called with an image for which vkGetImageMemoryRequirements
                 // was not called. This might be violation of the spec on the part of the app, but seems to
@@ -4052,7 +4060,7 @@ VkResult vkReplay::manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_
 
     // Get remapped displays
     VkDisplayKHR *remapped_displays = VKTRACE_NEW_ARRAY(VkDisplayKHR, *pPacket->pDisplayCount);
-    for (int i = 0; i < *pPacket->pDisplayCount; ++i) {
+    for (uint32_t i = 0; i < *pPacket->pDisplayCount; ++i) {
         remapped_displays[i] = m_objMapper.remap_displaykhrs(*(pPacket->pDisplays + i));
     }
 

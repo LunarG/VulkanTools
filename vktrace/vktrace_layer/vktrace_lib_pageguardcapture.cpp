@@ -117,7 +117,7 @@ bool PageGuardCapture::vkFlushMappedMemoryRangesPageGuardHandle(VkDevice device,
             pInfoTemp[0].length = (DWORD)RealRangeSize;
             pInfoTemp[0].reserve0 = 0;
             pInfoTemp[0].reserve1 = 0;
-            pInfoTemp[1].offset = pRange->offset - getMappedMemoryOffset(device, pRange->memory);
+            pInfoTemp[1].offset = (uint32_t)pRange->offset - (uint32_t)getMappedMemoryOffset(device, pRange->memory);
             pInfoTemp[1].length = (DWORD)RealRangeSize;
             pInfoTemp[1].reserve0 = 0;
             pInfoTemp[1].reserve1 = 0;

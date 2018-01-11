@@ -29,9 +29,9 @@ vktrace_trace_packet_header *copy_packet(vktrace_trace_packet_header *pHeader) {
     }
 
     uint64_t packetSize = pHeader->size;
-    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc(packetSize));
+    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc((size_t)packetSize));
     if (pCopy != nullptr) {
-        memcpy(pCopy, pHeader, packetSize);
+        memcpy(pCopy, pHeader, (size_t)packetSize);
     }
     return pCopy;
 }
