@@ -388,8 +388,8 @@ bool PageGuardMappedMemory::isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDev
 //               data
 //
 // if pData==nullptr, only get size
-// DWORD *pdwSaveSize, the size of all changed blocks
-// DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo
+// size_t *pdwSaveSize, the size of all changed blocks
+// size_t *pInfoSize, the size of array of PageGuardChangedBlockInfo
 // VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
 // RangeSize, if RangeOffset<0, consider whole mapped memory
 // return the amount of changed blocks.
@@ -409,8 +409,8 @@ size_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDe
         offset = getMappedBlockOffset(i);
         if (isMappedBlockChanged(i, useWhich)) {
             if (pChangedInfoArray) {
-                pChangedInfoArray[dwIndex + 1].offset = offset;
-                pChangedInfoArray[dwIndex + 1].length = CurrentBlockSize;
+                pChangedInfoArray[dwIndex + 1].offset = (uint32_t)offset;
+                pChangedInfoArray[dwIndex + 1].length = (uint32_t)CurrentBlockSize;
                 pChangedInfoArray[dwIndex + 1].reserve0 = 0;
                 pChangedInfoArray[dwIndex + 1].reserve1 = 0;
                 pChangedData = pData + DataOffset + infosize + SaveSize;
@@ -446,8 +446,8 @@ size_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDe
         }
     }
     if (pChangedInfoArray) {
-        pChangedInfoArray[0].offset = dwAmount;
-        pChangedInfoArray[0].length = SaveSize;
+        pChangedInfoArray[0].offset = (uint32_t)dwAmount;
+        pChangedInfoArray[0].length = (uint32_t)SaveSize;
     }
     if (pdwSaveSize) {
         *pdwSaveSize = SaveSize;

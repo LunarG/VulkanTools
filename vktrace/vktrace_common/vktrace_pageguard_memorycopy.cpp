@@ -157,14 +157,14 @@ typedef struct {
 } vktrace_pageguard_task_unit_parameters;
 
 typedef struct {
-    int index;
+    size_t index;
     vktrace_pageguard_task_unit_parameters *ptask_units;
     size_t amount;
     vktrace_sem_id sem_id_access;
 } vktrace_pageguard_task_queue;
 
 typedef struct {
-    int index;
+    size_t index;
     vktrace_pageguard_thread_id thread_id;
     vktrace_sem_id sem_id_task_start;
     vktrace_sem_id sem_id_task_end;
@@ -172,7 +172,7 @@ typedef struct {
 } vktrace_pageguard_task_control_block;
 
 #if defined(WIN32)
-typedef uint32_t (*vktrace_pageguard_thread_function_ptr)(void *parameters);
+typedef void (*vktrace_pageguard_thread_function_ptr)(void *parameters);
 #else
 typedef void *(*vktrace_pageguard_thread_function_ptr)(void *parameters);
 #endif
@@ -259,7 +259,7 @@ vktrace_pageguard_task_control_block *vktrace_pageguard_get_task_control_block()
     return ptask_control_block;
 }
 
-uint32_t vktrace_pageguard_thread_function(void *ptcbpara) {
+void vktrace_pageguard_thread_function(void *ptcbpara) {
     vktrace_pageguard_task_control_block *ptasktcb = reinterpret_cast<vktrace_pageguard_task_control_block *>(ptcbpara);
     vktrace_pageguard_task_unit_parameters *parameters;
     bool stop_loop;
@@ -299,7 +299,11 @@ bool vktrace_pageguard_init_multi_threads_memcpy_custom(vktrace_pageguard_thread
 }
 
 static vktrace_sem_id glocal_sem_id;
+#if defined(PLATFORM_LINUX)
+static bool glocal_sem_id_create_success __attribute__((unused)) = vktrace_sem_create(&glocal_sem_id, 1);
+#else
 static bool glocal_sem_id_create_success = vktrace_sem_create(&glocal_sem_id, 1);
+#endif
 
 int vktrace_pageguard_ref_count(bool release) {
     static int ref_count = 0;

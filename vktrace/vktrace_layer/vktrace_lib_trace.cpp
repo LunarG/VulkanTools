@@ -3986,7 +3986,7 @@ static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorU
     for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->descriptorUpdateEntryCount; i++) {
         for (uint32_t j = 0;
              j < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorCount; j++) {
-            size_t thisSize;
+            size_t thisSize = 0;
             switch (descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i].descriptorType) {
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:

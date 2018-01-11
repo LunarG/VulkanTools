@@ -31,7 +31,7 @@ extern "C" {
 namespace vktrace_replay {
 
 struct seqBookmark {
-    unsigned int file_offset;
+    size_t file_offset;
 };
 
 // replay Sequencer interface

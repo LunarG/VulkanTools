@@ -125,9 +125,9 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 #if defined(WIN32)
     BOOL rval;
 #elif defined(PLATFORM_LINUX)
-    sighandler_t rval;
+    sighandler_t rval __attribute__((unused));
 #elif defined(PLATFORM_OSX)
-    sig_t rval;
+    sig_t rval __attribute__((unused));
 #endif
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);

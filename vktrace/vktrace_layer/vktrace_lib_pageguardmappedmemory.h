@@ -120,8 +120,8 @@ typedef class PageGuardMappedMemory {
     ///               blocks data
     ///
     /// if pData==nullptr, only get size
-    /// DWORD *pdwSaveSize, the size of all changed blocks
-    /// DWORD *pInfoSize, the size of array of PageGuardChangedBlockInfo
+    /// size_t *pdwSaveSize, the size of all changed blocks
+    /// size_t *pInfoSize, the size of array of PageGuardChangedBlockInfo
     /// VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
     /// RangeSize, if RangeOffset<0, consider whole mapped memory
     /// return the amount of changed blocks.
