@@ -11,6 +11,6 @@
 # files to always have CRLF line endings on checkout.
 *.bat text eol=crlf
 
-# files to always have CR line endings on checkout.
-*.sh text eol=cr
+# files to always have LF line endings on checkout.
+*.sh text eol=lf
 
