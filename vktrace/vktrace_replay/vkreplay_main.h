@@ -33,7 +33,7 @@ typedef struct vkreplayer_settings {
 } vkreplayer_settings;
 
 #include <vector>
-extern std::vector<size_t> portabilityTable;
+extern std::vector<uint64_t> portabilityTable;
 extern FileLike* traceFile;
 
 #endif  // VKREPLAY__MAIN_H

@@ -227,8 +227,8 @@ void removePageGuardExceptionHandler() {
 }
 #endif
 
-size_t pageguardGetAdjustedSize(size_t size) {
-    size_t pagesize = pageguardGetSystemPageSize();
+uint64_t pageguardGetAdjustedSize(uint64_t size) {
+    uint64_t pagesize = pageguardGetSystemPageSize();
     if (size % pagesize) {
         size = size - (size % pagesize) + pagesize;
     }
@@ -246,11 +246,11 @@ static std::unordered_map<void*, size_t> allocateMemoryMap;
 // to track it (or check dirty bits in /proc/<pid>/pagemap).
 // So we allocate virtual memory to return to the app and we
 // keep it sync'ed it with real device memory.
-void* pageguardAllocateMemory(size_t size) {
+void* pageguardAllocateMemory(uint64_t size) {
     void* pMemory = nullptr;
     if (size != 0) {
 #if defined(WIN32)
-        pMemory = (PBYTE)VirtualAlloc(nullptr, pageguardGetAdjustedSize(size), MEM_WRITE_WATCH | MEM_RESERVE | MEM_COMMIT,
+        pMemory = (PBYTE)VirtualAlloc(nullptr, (size_t)pageguardGetAdjustedSize(size), MEM_WRITE_WATCH | MEM_RESERVE | MEM_COMMIT,
                                       PAGE_READWRITE);
 #else
         pMemory = mmap(NULL, pageguardGetAdjustedSize(size), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -272,7 +272,7 @@ void pageguardFreeMemory(void* pMemory) {
     }
 }
 
-DWORD pageguardGetSystemPageSize() {
+uint64_t pageguardGetSystemPageSize() {
 #if defined(PLATFORM_LINUX)
     return getpagesize();
 #elif defined(WIN32)
@@ -423,8 +423,8 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
                                                  const VkMappedMemoryRange* pMemoryRanges) {
     VkResult result = VK_SUCCESS;
     vktrace_trace_packet_header* pHeader;
-    size_t rangesSize = 0;
-    size_t dataSize = 0;
+    uint64_t rangesSize = 0;
+    uint64_t dataSize = 0;
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = nullptr;
 

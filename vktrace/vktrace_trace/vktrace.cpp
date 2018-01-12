@@ -265,7 +265,7 @@ char* find_available_filename(const char* originalFilename, bool bForceOverwrite
 // we need to access to determine what memory index should be used
 // in vkAllocateMemory during trace playback. This table is appended
 // to the trace file.
-std::vector<size_t> portabilityTable;
+std::vector<uint64_t> portabilityTable;
 uint32_t lastPacketThreadId;
 uint64_t lastPacketIndex;
 uint64_t lastPacketEndTime;
@@ -286,7 +286,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     portabilityTable.push_back(portabilityTable.size());
 
     // Append the table packet to the trace file.
-    hdr.size = sizeof(hdr) + portabilityTable.size() * sizeof(size_t);
+    hdr.size = sizeof(hdr) + portabilityTable.size() * sizeof(uint64_t);
     hdr.global_packet_index = lastPacketIndex + 1;
     hdr.tracer_id = VKTRACE_TID_VULKAN;
     hdr.packet_id = VKTRACE_TPI_PORTABILITY_TABLE;
@@ -295,7 +295,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     hdr.next_buffers_offset = 0;
     hdr.pBody = (uintptr_t)NULL;
     if (0 == Fseek(pTraceFile, 0, SEEK_END) && 1 == fwrite(&hdr, sizeof(hdr), 1, pTraceFile) &&
-        portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(size_t), portabilityTable.size(), pTraceFile)) {
+        portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(uint64_t), portabilityTable.size(), pTraceFile)) {
         // Set the flag in the file header that indicates the portability table has been written
         if (0 == fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))
             fwrite(&one_64, sizeof(uint64_t), 1, pTraceFile);

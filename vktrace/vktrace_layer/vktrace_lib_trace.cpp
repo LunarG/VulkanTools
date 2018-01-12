@@ -661,9 +661,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
                                                                                   const VkMappedMemoryRange* pMemoryRanges) {
     VkResult result;
     vktrace_trace_packet_header* pHeader;
-    size_t rangesSize = 0;
-    size_t dataSize = 0;
-    size_t pnextSize = 0;
+    uint64_t rangesSize = 0;
+    uint64_t dataSize = 0;
+    uint64_t pnextSize = 0;
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = NULL;
 #ifdef USE_PAGEGUARD_SPEEDUP

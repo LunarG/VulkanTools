@@ -293,21 +293,18 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 }
 
 static bool readPortabilityTable() {
-    size_t tableSize;
-    size_t originalFilePos;
+    uint64_t tableSize;
+    uint64_t originalFilePos;
 
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(size_t))) return false;
-    if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(size_t))) return false;
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(uint64_t))) return false;
+    if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(uint64_t))) return false;
     if (tableSize == 0) return true;
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(size_t)))) return false;
-    portabilityTable.resize(tableSize);
-    if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(size_t) * tableSize)) return false;
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t)))) return false;
+    portabilityTable.resize((size_t)tableSize);
+    if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
-
     vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
-    for (size_t i = 0; i < tableSize; i++) vktrace_LogDebug("   %p %ld", &portabilityTable[i], portabilityTable[i]);
-
     return true;
 }
 
@@ -447,7 +444,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
 
     // Allocate a new header that includes space for all gpuinfo structs
     if (!(pFileHeader = (vktrace_trace_file_header*)vktrace_malloc(sizeof(vktrace_trace_file_header) +
-                                                                   fileHeader.n_gpuinfo * sizeof(struct_gpuinfo)))) {
+                                                                   (size_t)(fileHeader.n_gpuinfo * sizeof(struct_gpuinfo))))) {
         vktrace_LogError("Can't allocate space for trace file header.");
         if (pAllSettings != NULL) {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);

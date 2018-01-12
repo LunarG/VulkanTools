@@ -89,7 +89,7 @@ void vktrace_sem_post(vktrace_sem_id sid) {
 #define PARALLEL_INVOKE_NUM \
     10  // this is the maximum task number that  parallel_invoke can use, how many threads are actually used to finish these task
         // depand on system concurrency algorithm.
-extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, size_t size) {
+extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, uint64_t size) {
     void *pRet = NULL;
     if (size < SIZE_LIMIT_TO_USE_OPTIMIZATION) {
         pRet = memcpy(destination, source, (size_t)size);
@@ -142,7 +142,7 @@ extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source,
     return pRet;
 }
 #else  // defined(PAGEGUARD_MEMCPY_USE_PPL_LIB), Linux
-extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, size_t size) {
+extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, uint64_t size) {
     return memcpy(destination, source, (size_t)size);
 }
 #endif
@@ -425,7 +425,7 @@ void vktrace_pageguard_memcpy_multithread(void *dest, const void *src, size_t n)
     vktrace_pageguard_clear_task_queue();
 }
 
-extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, size_t size) {
+extern "C" void *vktrace_pageguard_memcpy(void *destination, const void *source, uint64_t size) {
     void *pRet = NULL;
     if (size < SIZE_LIMIT_TO_USE_OPTIMIZATION) {
         pRet = memcpy(destination, source, (size_t)size);

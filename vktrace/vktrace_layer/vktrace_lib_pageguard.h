@@ -102,10 +102,10 @@ bool getEnablePageGuardLazyCopyFlag();
 void setPageGuardExceptionHandler();
 void removePageGuardExceptionHandler();
 #endif
-size_t pageguardGetAdjustedSize(size_t size);
-void* pageguardAllocateMemory(size_t size);
+uint64_t pageguardGetAdjustedSize(uint64_t size);
+void* pageguardAllocateMemory(uint64_t size);
 void pageguardFreeMemory(void* pMemory);
-DWORD pageguardGetSystemPageSize();
+uint64_t pageguardGetSystemPageSize();
 
 void pageguardEnter();
 void pageguardExit();

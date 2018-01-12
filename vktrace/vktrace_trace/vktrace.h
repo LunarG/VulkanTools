@@ -53,7 +53,7 @@ extern vktrace_settings g_settings;
 // we need to access to determine what memory index should be used
 // in vkAllocateMemory during trace playback. This table is appended
 // to the trace file.
-extern std::vector<size_t> portabilityTable;
+extern std::vector<uint64_t> portabilityTable;
 extern uint32_t lastPacketThreadId;
 extern uint64_t lastPacketIndex;
 extern uint64_t lastPacketEndTime;

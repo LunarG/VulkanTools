@@ -189,8 +189,8 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
     for (uint64_t i = 0; i < PageGuardAmount; i++) {
         if (isMappedBlockChanged(i, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT)) {
 #if defined(WIN32)
-            SIZE_T pageSize = pageguardGetSystemPageSize();
-            SIZE_T pmask = ~(pageSize - 1);
+            uint64_t pageSize = pageguardGetSystemPageSize();
+            uint64_t pmask = ~(pageSize - 1);
             PVOID Addresses[1];
             ULONG Granularity;
             ULONG_PTR Count = 1;
@@ -199,7 +199,7 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
             void *pgAddr = (void *)((uint64_t)(pMappedData + i * PageGuardSize));
             assert(((SIZE_T)pgAddr & (~pmask)) == 0);
             VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
-            rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, pageSize, &Addresses[0], &Count, &Granularity);
+            rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, (size_t)pageSize, &Addresses[0], &Count, &Granularity);
             assert(rval == 0);
             assert(Count == 0 || Count == 1);
             assert(Granularity == pageSize);
@@ -308,7 +308,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
         handleSuccessfully = false;
     }
 
-    pPageChecksum = new uint64_t[PageGuardAmount];
+    pPageChecksum = new uint64_t[(size_t)PageGuardAmount];
     assert(pPageChecksum);
 #ifdef PLATFORM_LINUX
     // We can't do page checksums on Windows - see the explanation in
@@ -388,15 +388,15 @@ bool PageGuardMappedMemory::isRangeIncluded(VkDeviceSize RangeOffsetLimit, VkDev
 //               data
 //
 // if pData==nullptr, only get size
-// size_t *pdwSaveSize, the size of all changed blocks
-// size_t *pInfoSize, the size of array of PageGuardChangedBlockInfo
+// uint64_t *pdwSaveSize, the size of all changed blocks
+// uint64_t *pInfoSize, the size of array of PageGuardChangedBlockInfo
 // VkDeviceSize RangeOffset, RangeSize, only consider the block which is in the range which start from RangeOffset and size is
 // RangeSize, if RangeOffset<0, consider whole mapped memory
 // return the amount of changed blocks.
-size_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, size_t *pdwSaveSize,
-                                                 size_t *pInfoSize, PBYTE pData, size_t DataOffset, int useWhich) {
-    size_t dwAmount = getChangedBlockAmount(useWhich), dwIndex = 0, offset = 0;
-    size_t infosize = sizeof(PageGuardChangedBlockInfo) * (dwAmount + 1), SaveSize = 0, CurrentBlockSize = 0;
+uint64_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDeviceSize RangeSize, uint64_t *pdwSaveSize,
+                                                    uint64_t *pInfoSize, PBYTE pData, uint64_t DataOffset, int useWhich) {
+    uint64_t dwAmount = getChangedBlockAmount(useWhich), dwIndex = 0, offset = 0;
+    uint64_t infosize = sizeof(PageGuardChangedBlockInfo) * (dwAmount + 1), SaveSize = 0, CurrentBlockSize = 0;
     PBYTE pChangedData;
     PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)(pData ? (pData + DataOffset) : nullptr);
     void *srcAddr;
@@ -426,14 +426,14 @@ size_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, VkDe
                 // the VirtualProtect to see if it was written to between the copy
                 // and the VirtualProtect.
 
-                SIZE_T pageSize = pageguardGetSystemPageSize();
-                SIZE_T pmask = ~(pageSize - 1);
+                uint64_t pageSize = pageguardGetSystemPageSize();
+                uint64_t pmask = ~(pageSize - 1);
                 PVOID Addresses[1];
                 ULONG Granularity;
                 ULONG_PTR Count = 1;
                 UINT rval;
                 assert((((SIZE_T)(srcAddr)) & (~pmask)) == 0);
-                rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, srcAddr, pageSize, Addresses, &Count, &Granularity);
+                rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, srcAddr, (size_t)pageSize, Addresses, &Count, &Granularity);
                 assert(rval == 0);
                 assert(Count == 0 || Count == 1);
                 assert(Granularity == pageSize);
@@ -468,7 +468,7 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(VkDevice dev
                                                                     VkDeviceSize size, VkDeviceSize *pChangedSize,
                                                                     VkDeviceSize *pDataPackageSize, PBYTE *ppChangedDataPackage) {
     bool handleSuccessfully = false;
-    size_t dwSaveSize, InfoSize;
+    uint64_t dwSaveSize, InfoSize;
 
     backupBlockChangedArraySnapshot();
     getChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, nullptr, 0,
