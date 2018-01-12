@@ -6,7 +6,7 @@
 find_package(PkgConfig)
 
 if(NOT XCB_FIND_COMPONENTS)
-    set(XCB_FIND_COMPONENTS xcb xcb-keysyms)
+    set(XCB_FIND_COMPONENTS xcb)
 endif()
 
 include(FindPackageHandleStandardArgs)
@@ -18,7 +18,7 @@ foreach(comp ${XCB_FIND_COMPONENTS})
     string(TOUPPER ${comp} compname)
     string(REPLACE "-" "_" compname ${compname})
     # header name
-    string(REPLACE "xcb-" "xcb_" headername xcb/${comp}.h)
+    string(REPLACE "xcb-" "" headername xcb/${comp}.h)
     # library name
     set(libname ${comp})
 
