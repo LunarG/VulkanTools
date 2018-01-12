@@ -62,14 +62,14 @@ VKTRACE_CRITICAL_SECTION trimCommandBufferPacketLock;
 //=========================================================================
 struct StagingInfo {
     VkBuffer buffer = VK_NULL_HANDLE;
-    VkBufferCreateInfo bufferCreateInfo = {VK_STRUCTURE_TYPE_APPLICATION_INFO, 0, 0, 0, 0, VK_SHARING_MODE_EXCLUSIVE, 0, 0};
-    VkMemoryRequirements bufferMemoryRequirements = {0, 0, 0};
+    VkBufferCreateInfo bufferCreateInfo = {};
+    VkMemoryRequirements bufferMemoryRequirements = {};
 
     VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkMemoryAllocateInfo memoryAllocationInfo = {VK_STRUCTURE_TYPE_APPLICATION_INFO, 0, 0, 0};
+    VkMemoryAllocateInfo memoryAllocationInfo = {};
 
     // Region for copying buffers
-    VkBufferCopy copyRegion = {0, 0, 0};
+    VkBufferCopy copyRegion = {};
 
     // Per-miplevel region for copying images
     std::vector<VkBufferImageCopy> imageCopyRegions;
