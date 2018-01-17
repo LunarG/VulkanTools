@@ -361,10 +361,12 @@ void StartOutput(std::string output) {
 
     global_items.html_file_stream << "    <META charset=\"UTF-8\">" << std::endl
                                   << "    <style media=\"screen\" type=\"text/css\">" << std::endl
-                                  << "        html {" << std::endl
+                                  << "        html {"
+                                  << std::endl
                                   // By defining the color first, this won't override the background image
                                   // (unless the images aren't there).
-                                  << "            background-color: #0b1e48;" << std::endl
+                                  << "            background-color: #0b1e48;"
+                                  << std::endl
                                   // The following changes try to load the text image twice (locally, then
                                   // off the web) followed by the background image twice (locally, then
                                   // off the web).  The background color will only show if both background
@@ -388,7 +390,8 @@ void StartOutput(std::string output) {
                                   << "            background-repeat: no-repeat, no-repeat, no-repeat, "
                                      "no-repeat;"
                                   << std::endl
-                                  << "        }" << std::endl
+                                  << "        }"
+                                  << std::endl
                                   // h1.section is used for section headers, and h1.version is used to
                                   // print out the application version text (which shows up just under
                                   // the title).
@@ -852,7 +855,8 @@ out:
 }
 
 // Find registry JSON files in the standard locations
-void FindRegistryJsons(std::vector<HKEY> &registry_top_hkey, std::vector<std::string> &registry_locations, std::vector<std::tuple<std::string, bool, std::string>> &json_paths) {
+void FindRegistryJsons(std::vector<HKEY> &registry_top_hkey, std::vector<std::string> &registry_locations,
+                       std::vector<std::tuple<std::string, bool, std::string>> &json_paths) {
     uint32_t loop_size = static_cast<uint32_t>(registry_top_hkey.size());
     if (registry_top_hkey.size() > registry_locations.size()) {
         loop_size = static_cast<uint32_t>(registry_locations.size());
@@ -882,7 +886,8 @@ void FindRegistryJsons(std::vector<HKEY> &registry_top_hkey, std::vector<std::st
 }
 
 // Find registry JSON files in the driver-specific registry locations
-bool FindDriverSpecificRegistryJsons(const std::string &key_name, std::vector<std::tuple<std::string, bool, std::string>> &json_paths) {
+bool FindDriverSpecificRegistryJsons(const std::string &key_name,
+                                     std::vector<std::tuple<std::string, bool, std::string>> &json_paths) {
     for (uint32_t device = 0; device < global_items.device_ids.size(); device++) {
         HKEY hkey;
         DWORD required_size;
@@ -1549,7 +1554,8 @@ bool GetFileVersion(const char *filename, const uint32_t max_len, char *version_
     return success;
 }
 
-bool PrintDriverRegistryInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_driver_json, std::string system_path, bool &found_lib) {
+bool PrintDriverRegistryInfo(std::vector<std::tuple<std::string, bool, std::string>> &cur_driver_json, std::string system_path,
+                             bool &found_lib) {
     bool found_json = false;
     std::ifstream *stream = NULL;
     Json::Value root = Json::nullValue;
@@ -1680,8 +1686,7 @@ bool PrintDriverRegistryInfo(std::vector<std::tuple<std::string, bool, std::stri
 
                     found_lib = true;
                 } else {
-                    snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                             "Failed to find driver %s  or %sreferenced by JSON %s",
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "Failed to find driver %s  or %sreferenced by JSON %s",
                              root["ICD"]["library_path"].asString().c_str(), full_driver_path, driver_json_path.c_str());
                     PrintBeginTableRow();
                     PrintTableElement("");
@@ -1691,9 +1696,8 @@ bool PrintDriverRegistryInfo(std::vector<std::tuple<std::string, bool, std::stri
                     PrintEndTableRow();
                 }
             } else {
-                snprintf(generic_string, MAX_STRING_LENGTH - 1,
-                         "Failed to find driver %s referenced by JSON %s",
-                         full_driver_path, driver_json_path.c_str());
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "Failed to find driver %s referenced by JSON %s", full_driver_path,
+                         driver_json_path.c_str());
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("");
@@ -1796,7 +1800,7 @@ bool PrintSdkUninstallRegInfo(HKEY reg_folder, char *output_string, char *count_
     return found;
 }
 
-bool PrintExplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_layer_json, ErrorResults &res) {
+bool PrintExplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>> &cur_layer_json, ErrorResults &res) {
     bool found = false;
     std::string cur_registry_loc;
     char temp_string[1024];
@@ -1866,7 +1870,7 @@ bool PrintExplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::s
     return found;
 }
 
-bool PrintImplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>>& cur_layer_json, ErrorResults &res) {
+bool PrintImplicitLayersRegInfo(std::vector<std::tuple<std::string, bool, std::string>> &cur_layer_json, ErrorResults &res) {
     bool found = false;
     std::string cur_registry_loc;
     char temp_string[1024];
@@ -3966,18 +3970,18 @@ static void PrintSettingsJsonInfo(const std::string &settings_file) {
 
     // Load the file from the appropriate location
     PrintBeginTableRow();
-    PrintTableElement(settings_file);
+    PrintTableElement("");
 
     std::ifstream *settings_stream = new std::ifstream(settings_file, std::ifstream::in);
     if (nullptr == settings_stream || settings_stream->fail()) {
         // No file was found.  This is NOT an error.
-        PrintTableElement("Not Found");
-        PrintTableElement("");
+        PrintTableElement(settings_file);
+        PrintTableElement("Failed to open settings file");
         PrintTableElement("");
         PrintEndTableRow();
     } else {
         // We found a file, so parse it.
-        PrintTableElement("Found");
+        PrintTableElement(settings_file);
         PrintTableElement("");
         PrintTableElement("");
         PrintEndTableRow();
@@ -4141,8 +4145,8 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
             }
             full_registry_path += registry_locations[iter];
             PrintBeginTableRow();
+            PrintTableElement(full_registry_path, ALIGN_RIGHT);
             PrintTableElement("");
-            PrintTableElement(full_registry_path);
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
@@ -4150,10 +4154,21 @@ ErrorResults PrintLayerSettingsFileInfo(void) {
             // Find the registry settings indicating the location of the settings JSON files.
             uint32_t i = 0;
             uint32_t returned_value = 0;
+            bool printed = false;
             char cur_vulkan_driver_json[MAX_STRING_LENGTH];
             while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, MAX_STRING_LENGTH - 1,
                                     cur_vulkan_driver_json, &returned_value)) {
                 PrintSettingsJsonInfo(cur_vulkan_driver_json);
+                i++;
+                printed = true;
+            }
+            if (!printed) {
+                PrintBeginTableRow();
+                PrintTableElement("");
+                PrintTableElement("No Settings Found");
+                PrintTableElement("");
+                PrintTableElement("");
+                PrintEndTableRow();
             }
         }
     }
