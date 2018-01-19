@@ -8,6 +8,7 @@ include_directories(
     ${PROJECT_BINARY_DIR}/../..
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
+    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

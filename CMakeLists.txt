@@ -69,17 +69,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(INSTALL_LVL_FILES "Install content from LoaderAndValidationLayers repo" ON)
 endif()
 
+set (V_LVL_RELATIVE_LOCATION submodules/Vulkan-LoaderAndValidationLayers)
 
+add_subdirectory(${V_LVL_RELATIVE_LOCATION})
 
-add_subdirectory(submodules/Vulkan-LoaderAndValidationLayers)
+set (V_LVL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${V_LVL_RELATIVE_LOCATION})
 
-
-#[[
-
-set(SCRIPTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+set(VT_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
+set(LVL_SCRIPTS_DIR ${V_LVL_ROOT_DIR}/scripts)
 
 # Header file for CMake settings
-include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories(${V_LVL_ROOT_DIR}/include)
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(COMMON_COMPILE_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
@@ -185,8 +185,7 @@ set(SPIRV_TOOLS_BINARY_ROOT "${CMAKE_BINARY_DIR}/../SPIRV-Tools" CACHE STRING "U
 set(SPIRV_TOOLS_OPT_BINARY_ROOT "${CMAKE_BINARY_DIR}/../SPIRV-Tools/opt" CACHE STRING "User defined path to the SPIRV-Tools-opt binaries for this project")
 
 # Define a variable for a default root location to the gslang, SPIRV-Tools and other external sources and cache it to allow the user to customize it as needed
-set(EXTERNAL_SOURCE_ROOT "${CMAKE_SOURCE_DIR}/external" CACHE STRING "Root path to external sources such as glslang and SPIRV-Tools")
-
+set(EXTERNAL_SOURCE_ROOT "${V_LVL_ROOT_DIR}/external" CACHE STRING "Root path to external sources such as glslang and SPIRV-Tools")
 
 if (WIN32)
     if(CUSTOM_GLSLANG_BIN_ROOT)
@@ -376,33 +375,33 @@ set (PYTHON_CMD ${PYTHON_EXECUTABLE})
 # Define macro used for building vkxml generated files
 macro(run_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml ${output}
-    DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/${dependency} ${SCRIPTS_DIR}/lvl_genvk.py ${SCRIPTS_DIR}/reg.py
+    COMMAND ${PYTHON_CMD} ${VT_SCRIPTS_DIR}/lvl_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml ${output}
+    DEPENDS ${LVL_SCRIPTS_DIR}/vk.xml ${LVL_SCRIPTS_DIR}/generator.py ${VT_SCRIPTS_DIR}/${dependency} ${VT_SCRIPTS_DIR}/lvl_genvk.py ${LVL_SCRIPTS_DIR}/reg.py
     )
 endmacro()
 
 # Define macro used for generating header files containing commit IDs for external dependencies
 macro(run_external_revision_generate source_dir symbol_name output)
     add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/external_revision_generator.py ${source_dir} ${symbol_name} ${output}
-    DEPENDS ${SCRIPTS_DIR}/external_revision_generator.py ${source_dir}/.git/HEAD ${source_dir}/.git/index
+    COMMAND ${PYTHON_CMD} ${LVL_SCRIPTS_DIR}/external_revision_generator.py ${source_dir} ${symbol_name} ${output}
+    DEPENDS ${LVL_SCRIPTS_DIR}/external_revision_generator.py ${source_dir}/.git/HEAD ${source_dir}/.git/index
     )
 endmacro()
 
 # Custom target for generated vulkan helper file dependencies
-add_custom_target(generate_helper_files DEPENDS
-    vk_enum_string_helper.h
-    vk_struct_size_helper.h
-    vk_struct_size_helper.c
-    vk_safe_struct.h
-    vk_safe_struct.cpp
-    vk_object_types.h
-    vk_layer_dispatch_table.h
-    vk_dispatch_table_helper.h
-    vk_extension_helper.h
-    vk_typemap_helper.h
-    spirv_tools_commit_id.h
-    )
+#add_custom_target(generate_helper_files DEPENDS
+#    vk_enum_string_helper.h
+#    vk_struct_size_helper.h
+#    vk_struct_size_helper.c
+#    vk_safe_struct.h
+#    vk_safe_struct.cpp
+#    vk_object_types.h
+#    vk_layer_dispatch_table.h
+#    vk_dispatch_table_helper.h
+#    vk_extension_helper.h
+#    vk_typemap_helper.h
+#    spirv_tools_commit_id.h
+#    )
 
 # Rules to build generated helper files
 run_vk_xml_generate(loader_extension_generator.py vk_layer_dispatch_table.h)
@@ -416,6 +415,8 @@ run_vk_xml_generate(helper_file_generator.py vk_object_types.h)
 run_vk_xml_generate(helper_file_generator.py vk_extension_helper.h)
 run_vk_xml_generate(helper_file_generator.py vk_typemap_helper.h)
 run_external_revision_generate(${EXTERNAL_SOURCE_ROOT}/glslang/External/spirv-tools SPIRV_TOOLS_COMMIT_ID spirv_tools_commit_id.h)
+
+
 
 if(NOT WIN32)
     include(GNUInstallDirs)
@@ -432,8 +433,8 @@ endif()
 
 if(UNIX)
     if(INSTALL_LVL_FILES)
-        install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vk_layer_dispatch_table.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vulkan")
+        install(DIRECTORY "${V_LVL_ROOT_DIR}/include/vulkan" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+        install(FILES "${PROJECT_BINARY_DIR}/vk_layer_dispatch_table.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vulkan")
     endif()
 
 # uninstall target
@@ -448,18 +449,7 @@ endif()
 
 add_definitions(-DAPI_NAME="${API_NAME}")
 
-# loader: Generic VULKAN ICD loader
-# tests: VULKAN tests
-if(BUILD_LOADER)
-    add_subdirectory(loader)
-endif()
-
-if(BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
-
 if(BUILD_LAYERS)
-    add_subdirectory(layers)
     add_subdirectory(layer_factory)
 endif()
 
@@ -467,25 +457,10 @@ if(BUILD_LAYERSVT)
     add_subdirectory(layersvt)
 endif()
 
-if(BUILD_DEMOS)
-    add_subdirectory(demos)
-endif()
-
 if(BUILD_VKTRACE)
     add_subdirectory(vktrace)
-endif()
-
-if(BUILD_VKJSON)
-    add_subdirectory(libs/vkjson)
 endif()
 
 if(BUILD_VIA)
     add_subdirectory(via)
 endif()
-
-if(BUILD_ICD)
-    add_subdirectory(icd)
-endif()
-
-
-]]
