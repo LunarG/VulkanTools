@@ -608,10 +608,6 @@ void vkReplay::manually_replay_vkDestroyImage(packet_vkDestroyImage *pPacket) {
     }
     m_vkDeviceFuncs.DestroyImage(remappedDevice, remappedImage, pPacket->pAllocator);
     m_objMapper.rm_from_images_map(pPacket->image);
-    if (traceImageToImageIndex.find(pPacket->image) != traceImageToImageIndex.end()) {
-        traceImageIndexToImage.erase(traceImageToImageIndex[pPacket->image]);
-        traceImageToImageIndex.erase(pPacket->image);
-    }
     if (replayGetImageMemoryRequirements.find(remappedImage) != replayGetImageMemoryRequirements.end())
         replayGetImageMemoryRequirements.erase(remappedImage);
     return;
@@ -1586,10 +1582,6 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents *pPacket) 
     VkImage *saveImg = VKTRACE_NEW_ARRAY(VkImage, pPacket->imageMemoryBarrierCount);
     for (idx = 0; idx < pPacket->imageMemoryBarrierCount; idx++) {
         VkImageMemoryBarrier *pNextImg = (VkImageMemoryBarrier *)&(pPacket->pImageMemoryBarriers[idx]);
-        if (traceImageToImageIndex.find(pNextImg->image) != traceImageToImageIndex.end() &&
-            traceImageIndexToImage.find(m_imageIndex) != traceImageIndexToImage.end() && m_imageIndex != UINT32_MAX) {
-            pNextImg->image = traceImageIndexToImage[m_imageIndex];
-        }
         saveImg[numRemapImg++] = pNextImg->image;
         traceDevice = traceImageToDevice[pNextImg->image];
         pNextImg->image = m_objMapper.remap_images(pNextImg->image);
@@ -1676,10 +1668,6 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier 
     }
     for (idx = 0; idx < pPacket->imageMemoryBarrierCount; idx++) {
         VkImageMemoryBarrier *pNextImg = (VkImageMemoryBarrier *)&(pPacket->pImageMemoryBarriers[idx]);
-        if (traceImageToImageIndex.find(pNextImg->image) != traceImageToImageIndex.end() &&
-            traceImageIndexToImage.find(m_imageIndex) != traceImageIndexToImage.end() && m_imageIndex != UINT32_MAX) {
-            pNextImg->image = traceImageIndexToImage[m_imageIndex];
-        }
         saveImg[numRemapImg++] = pNextImg->image;
         traceDevice = traceImageToDevice[pNextImg->image];
         if (traceDevice == NULL) vktrace_LogError("DEBUG: traceDevice is NULL");
@@ -1736,10 +1724,6 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
         pAttachments = VKTRACE_NEW_ARRAY(VkImageView, pInfo->attachmentCount);
         memcpy(pAttachments, pSavedAttachments, sizeof(VkImageView) * pInfo->attachmentCount);
         for (uint32_t i = 0; i < pInfo->attachmentCount; i++) {
-            if (traceImageViewToImageIndex.find(pInfo->pAttachments[i]) != traceImageViewToImageIndex.end()) {
-                traceFramebufferToImageIndex[*(pPacket->pFramebuffer)] = traceImageViewToImageIndex[pInfo->pAttachments[i]];
-                traceImageIndexToFramebuffer[traceImageViewToImageIndex[pInfo->pAttachments[i]]] = *(pPacket->pFramebuffer);
-            }
             pAttachments[i] = m_objMapper.remap_imageviews(pInfo->pAttachments[i]);
             if (pAttachments[i] == VK_NULL_HANDLE && pInfo->pAttachments[i] != VK_NULL_HANDLE) {
                 vktrace_LogError("Skipping vkCreateFramebuffer() due to invalid remapped VkImageView.");
@@ -1799,13 +1783,7 @@ void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass 
     VkRenderPassBeginInfo local_renderPassBeginInfo;
     memcpy((void *)&local_renderPassBeginInfo, (void *)pPacket->pRenderPassBegin, sizeof(VkRenderPassBeginInfo));
     local_renderPassBeginInfo.pClearValues = (const VkClearValue *)pPacket->pRenderPassBegin->pClearValues;
-    if (traceFramebufferToImageIndex.find(pPacket->pRenderPassBegin->framebuffer) != traceFramebufferToImageIndex.end() &&
-        traceImageIndexToFramebuffer.find(m_imageIndex) != traceImageIndexToFramebuffer.end() && m_imageIndex != UINT32_MAX) {
-        // Use Framebuffer mapped to the image index returned by vkAcquireNextImage()
-        local_renderPassBeginInfo.framebuffer = m_objMapper.remap_framebuffers(traceImageIndexToFramebuffer[m_imageIndex]);
-    } else {
-        local_renderPassBeginInfo.framebuffer = m_objMapper.remap_framebuffers(pPacket->pRenderPassBegin->framebuffer);
-    }
+    local_renderPassBeginInfo.framebuffer = m_objMapper.remap_framebuffers(pPacket->pRenderPassBegin->framebuffer);
     if (local_renderPassBeginInfo.framebuffer == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCmdBeginRenderPass() due to invalid remapped VkFramebuffer.");
         return;
@@ -1838,13 +1816,7 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
         pRP = &(pHinfo->renderPass);
         pFB = &(pHinfo->framebuffer);
         *pRP = m_objMapper.remap_renderpasss(savedRP);
-        if (traceFramebufferToImageIndex.find(savedFB) != traceFramebufferToImageIndex.end() &&
-            traceImageIndexToFramebuffer.find(m_imageIndex) != traceImageIndexToFramebuffer.end() && m_imageIndex != UINT32_MAX) {
-            // Use Framebuffer mapped to the image index returned by vkAcquireNextImage()
-            *pFB = m_objMapper.remap_framebuffers(traceImageIndexToFramebuffer[m_imageIndex]);
-        } else {
-            *pFB = m_objMapper.remap_framebuffers(savedFB);
-        }
+        *pFB = m_objMapper.remap_framebuffers(savedFB);
     }
     replayResult = m_vkDeviceFuncs.BeginCommandBuffer(remappedCommandBuffer, pPacket->pBeginInfo);
     if (pInfo != NULL && pHinfo != NULL) {
@@ -3040,14 +3012,6 @@ void vkReplay::manually_replay_vkDestroySwapchainKHR(packet_vkDestroySwapchainKH
 
     m_vkDeviceFuncs.DestroySwapchainKHR(remappeddevice, remappedswapchain, pPacket->pAllocator);
     m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);
-
-    traceImageIndexToImage.clear();
-    traceImageToImageIndex.clear();
-    traceImageIndexToImageView.clear();
-    traceImageViewToImageIndex.clear();
-    traceImageIndexToFramebuffer.clear();
-    traceFramebufferToImageIndex.clear();
-    m_imageIndex = UINT32_MAX;
 }
 
 VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchainImagesKHR *pPacket) {
@@ -3073,8 +3037,6 @@ VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchain
         numImages = *(pPacket->pSwapchainImageCount);
         for (uint32_t i = 0; i < numImages; i++) {
             packetImage[i] = pPacketImages[i];
-            traceImageIndexToImage[i] = packetImage[i];
-            traceImageToImageIndex[packetImage[i]] = i;
             traceImageToDevice[packetImage[i]] = pPacket->device;
         }
     }
