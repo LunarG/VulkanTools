@@ -6,8 +6,11 @@ if (NOT WIN32)
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vktracereplay.py
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_layer_test.sh
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in.json
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in_ArrayOfVkFormatProperties.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in1.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in2.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in3.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in4.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_in5.json
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test1_gold.json
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vlf_test.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/apidump_test.sh
@@ -32,4 +35,3 @@ else()
             )
     endif()
 endif()
-
