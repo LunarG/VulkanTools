@@ -93,6 +93,7 @@ class vkReplay {
     vktrace_trace_file_header* m_pFileHeader;
     struct_gpuinfo* m_pGpuinfo;
     uint32_t m_imageIndex = UINT32_MAX;
+    VkPresentModeKHR m_presentMode;
 
     // Replay platform description
     uint64_t m_replay_endianess;

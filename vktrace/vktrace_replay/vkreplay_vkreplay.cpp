@@ -1586,7 +1586,7 @@ void vkReplay::manually_replay_vkCmdWaitEvents(packet_vkCmdWaitEvents *pPacket) 
     VkImage *saveImg = VKTRACE_NEW_ARRAY(VkImage, pPacket->imageMemoryBarrierCount);
     for (idx = 0; idx < pPacket->imageMemoryBarrierCount; idx++) {
         VkImageMemoryBarrier *pNextImg = (VkImageMemoryBarrier *)&(pPacket->pImageMemoryBarriers[idx]);
-        if (traceImageToImageIndex.find(pNextImg->image) != traceImageToImageIndex.end() &&
+        if (m_presentMode == VK_PRESENT_MODE_MAILBOX_KHR && traceImageToImageIndex.find(pNextImg->image) != traceImageToImageIndex.end() &&
             traceImageIndexToImage.find(m_imageIndex) != traceImageIndexToImage.end() && m_imageIndex != UINT32_MAX) {
             pNextImg->image = traceImageIndexToImage[m_imageIndex];
         }
@@ -1676,7 +1676,7 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier 
     }
     for (idx = 0; idx < pPacket->imageMemoryBarrierCount; idx++) {
         VkImageMemoryBarrier *pNextImg = (VkImageMemoryBarrier *)&(pPacket->pImageMemoryBarriers[idx]);
-        if (traceImageToImageIndex.find(pNextImg->image) != traceImageToImageIndex.end() &&
+        if (m_presentMode == VK_PRESENT_MODE_MAILBOX_KHR && traceImageToImageIndex.find(pNextImg->image) != traceImageToImageIndex.end() &&
             traceImageIndexToImage.find(m_imageIndex) != traceImageIndexToImage.end() && m_imageIndex != UINT32_MAX) {
             pNextImg->image = traceImageIndexToImage[m_imageIndex];
         }
@@ -1799,7 +1799,7 @@ void vkReplay::manually_replay_vkCmdBeginRenderPass(packet_vkCmdBeginRenderPass 
     VkRenderPassBeginInfo local_renderPassBeginInfo;
     memcpy((void *)&local_renderPassBeginInfo, (void *)pPacket->pRenderPassBegin, sizeof(VkRenderPassBeginInfo));
     local_renderPassBeginInfo.pClearValues = (const VkClearValue *)pPacket->pRenderPassBegin->pClearValues;
-    if (traceFramebufferToImageIndex.find(pPacket->pRenderPassBegin->framebuffer) != traceFramebufferToImageIndex.end() &&
+    if (m_presentMode == VK_PRESENT_MODE_MAILBOX_KHR && traceFramebufferToImageIndex.find(pPacket->pRenderPassBegin->framebuffer) != traceFramebufferToImageIndex.end() &&
         traceImageIndexToFramebuffer.find(m_imageIndex) != traceImageIndexToFramebuffer.end() && m_imageIndex != UINT32_MAX) {
         // Use Framebuffer mapped to the image index returned by vkAcquireNextImage()
         local_renderPassBeginInfo.framebuffer = m_objMapper.remap_framebuffers(traceImageIndexToFramebuffer[m_imageIndex]);
@@ -1838,7 +1838,7 @@ VkResult vkReplay::manually_replay_vkBeginCommandBuffer(packet_vkBeginCommandBuf
         pRP = &(pHinfo->renderPass);
         pFB = &(pHinfo->framebuffer);
         *pRP = m_objMapper.remap_renderpasss(savedRP);
-        if (traceFramebufferToImageIndex.find(savedFB) != traceFramebufferToImageIndex.end() &&
+        if (m_presentMode == VK_PRESENT_MODE_MAILBOX_KHR && traceFramebufferToImageIndex.find(savedFB) != traceFramebufferToImageIndex.end() &&
             traceImageIndexToFramebuffer.find(m_imageIndex) != traceImageIndexToFramebuffer.end() && m_imageIndex != UINT32_MAX) {
             // Use Framebuffer mapped to the image index returned by vkAcquireNextImage()
             *pFB = m_objMapper.remap_framebuffers(traceImageIndexToFramebuffer[m_imageIndex]);
@@ -3011,6 +3011,7 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     replayResult = m_vkDeviceFuncs.CreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_swapchainkhrs_map(*(pPacket->pSwapchain), local_pSwapchain);
+        m_presentMode = pPacket->pCreateInfo->presentMode;
     }
 
     (*pSC) = save_oldSwapchain;
