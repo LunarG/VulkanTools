@@ -58,6 +58,7 @@ include_directories(
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
     ${CMAKE_BINARY_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )
