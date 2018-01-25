@@ -90,7 +90,7 @@ include_directories(${V_LVL_ROOT_DIR}/include)
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
-    # These are unchanged from upstream file
+    option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
     option(BUILD_VKTRACE "Build VkTrace" ON)
     option(BUILD_VIA "Build via" ON)
@@ -155,6 +155,10 @@ macro(run_vk_xml_generate dependency output)
 endmacro()
 
 add_definitions(-DAPI_NAME="${API_NAME}")
+
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
 
 if(BUILD_LAYERS)
     add_subdirectory(layer_factory)
