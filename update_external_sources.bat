@@ -26,5 +26,5 @@ git submodule update --init --recursive
     echo.
     echo Setting Up %V_LVL_DIR%
     cd "%V_LVL_DIR%"
-    call .\update_external_sources.bat
+    call .\update_external_sources.bat %1 %2 %3 %4 %5 %6 %7 %8 %9
 
