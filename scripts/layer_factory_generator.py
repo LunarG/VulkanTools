@@ -304,7 +304,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
-    instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    dispatch_key key = get_dispatch_key(instance);
+    instance_layer_data *instance_data = GetLayerDataPtr(key, instance_layer_data_map);
     for (auto intercept : global_interceptor_list) {
         intercept->PreCallDestroyInstance(instance, pAllocator);
     }
@@ -322,7 +323,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
         instance_data->logging_callback.pop_back();
     }
     layer_debug_report_destroy_instance(instance_data->report_data);
-    FreeLayerDataPtr(get_dispatch_key(instance), instance_layer_data_map);
+    FreeLayerDataPtr(key, instance_layer_data_map);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
@@ -360,7 +361,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
-    device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
+    dispatch_key key = get_dispatch_key(device);
+    device_layer_data *device_data = GetLayerDataPtr(key, device_layer_data_map);
 
     unique_lock_t lock(global_lock);
     for (auto intercept : global_interceptor_list) {
@@ -376,7 +378,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
         intercept->PostCallDestroyDevice(device, pAllocator);
     }
 
-    FreeLayerDataPtr(get_dispatch_key(device), device_layer_data_map);
+    FreeLayerDataPtr(key, device_layer_data_map);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
