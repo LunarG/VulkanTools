@@ -42,6 +42,8 @@ before_install:
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       sudo apt-get -qq update
       sudo apt-get -y install libxkbcommon-dev libwayland-dev libmirclient-dev libxrandr-dev libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev
+      # Needed for devsim test
+      sudo apt-get -y install jq
     fi
   # Install the Android NDK.
   - |
@@ -75,11 +77,13 @@ script:
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       # Run Tests
-      export LVL_BUILD=dbuild/submodules/Vulkan-LoaderAndValidationLayers
-      export LVL_PROFILES=submodules/Vulkan-LoaderAndValidationLayers/tests/device_profiles
+      LVL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-LoaderAndValidationLayers
+      LVL_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-LoaderAndValidationLayers/tests/device_profiles
       export LD_LIBRARY_PATH=$LVL_BUILD/loader:$LD_LIBRARY_PATH
-      export VK_LAYER_PATH=$LVL_BUILD/layers:dbuild/layersvt
+      export VK_LAYER_PATH=$LVL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
       export VK_ICD_FILENAMES=$LVL_BUILD/icd/VkICD_mock_icd.json
+      # Run devsim tests with mock ICD to ensure devsim is working
+      dbuild/tests/devsim_layer_test.sh
       # Run validation layer tests with mock ICD, some with devsim.
       # These tests are redundant with LVL testing, but there is still some value with running them again here.
       $LVL_BUILD/tests/vk_layer_validation_tests
