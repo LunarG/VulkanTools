@@ -2491,6 +2491,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
                     if ('(pPacket->pSurfaceInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
                         trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pSurfaceInfo, (void *)pSurfaceInfo);\n'
+                    if ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
+                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
+                    if ('(pPacket->pMemoryRequirements)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
+                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryRequirements, (void *)pMemoryRequirements);\n'
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    pPacket->result = result;\n'
                 for pp_dict in ptr_packet_update_list:
