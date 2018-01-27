@@ -170,7 +170,9 @@ class vkReplay {
     void manually_replay_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
         packet_vkGetPhysicalDeviceSparseImageFormatProperties2KHR* pPacket);
     void manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMemoryRequirements* pPacket);
+    void manually_replay_vkGetImageMemoryRequirements2KHR(packet_vkGetImageMemoryRequirements2KHR* pPacket);
     void manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferMemoryRequirements* pPacket);
+    void manually_replay_vkGetBufferMemoryRequirements2KHR(packet_vkGetBufferMemoryRequirements2KHR* pPacket);
     void manually_replay_vkGetPhysicalDeviceProperties(packet_vkGetPhysicalDeviceProperties* pPacket);
     void manually_replay_vkGetPhysicalDeviceProperties2KHR(packet_vkGetPhysicalDeviceProperties2KHR* pPacket);
     VkResult manually_replay_vkGetPhysicalDeviceSurfaceSupportKHR(packet_vkGetPhysicalDeviceSurfaceSupportKHR* pPacket);

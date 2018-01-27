@@ -2769,6 +2769,31 @@ void vkReplay::manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMem
     return;
 }
 
+void vkReplay::manually_replay_vkGetImageMemoryRequirements2KHR(packet_vkGetImageMemoryRequirements2KHR *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    VkImage remappedimage = VK_NULL_HANDLE;
+
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in GetImageMemoryRequirements2KHR() due to invalid remapped VkDevice.");
+        return;
+    }
+
+    if (pPacket->pInfo != nullptr) {
+        remappedimage = m_objMapper.remap_images(pPacket->pInfo->image);
+
+        if ((pPacket->pInfo->image != VK_NULL_HANDLE) && (remappedimage == VK_NULL_HANDLE)) {
+            vktrace_LogError("Error detected in GetImageMemoryRequirements2KHR() due to invalid remapped VkImage.");
+            return;
+        }
+
+        ((VkImageMemoryRequirementsInfo2KHR *)pPacket->pInfo)->image = remappedimage;
+    }
+
+    m_vkDeviceFuncs.GetImageMemoryRequirements2KHR(remappeddevice, pPacket->pInfo, pPacket->pMemoryRequirements);
+
+    replayGetImageMemoryRequirements[remappedimage] = pPacket->pMemoryRequirements->memoryRequirements;
+}
+
 void vkReplay::manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferMemoryRequirements *pPacket) {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
@@ -2785,6 +2810,31 @@ void vkReplay::manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferM
     m_vkDeviceFuncs.GetBufferMemoryRequirements(remappedDevice, remappedBuffer, pPacket->pMemoryRequirements);
     replayGetBufferMemoryRequirements[remappedBuffer] = *(pPacket->pMemoryRequirements);
     return;
+}
+
+void vkReplay::manually_replay_vkGetBufferMemoryRequirements2KHR(packet_vkGetBufferMemoryRequirements2KHR *pPacket) {
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    VkBuffer remappedbuffer = VK_NULL_HANDLE;
+
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in GetBufferMemoryRequirements2KHR() due to invalid remapped VkDevice.");
+        return;
+    }
+
+    if (pPacket->pInfo != nullptr) {
+        remappedbuffer = m_objMapper.remap_buffers(pPacket->pInfo->buffer);
+
+        if ((pPacket->pInfo->buffer != VK_NULL_HANDLE) && (remappedbuffer == VK_NULL_HANDLE)) {
+            vktrace_LogError("Error detected in GetBufferMemoryRequirements2KHR() due to invalid remapped VkBuffer.");
+            return;
+        }
+
+        ((VkBufferMemoryRequirementsInfo2KHR *)pPacket->pInfo)->buffer = remappedbuffer;
+    }
+
+    m_vkDeviceFuncs.GetBufferMemoryRequirements2KHR(remappeddevice, pPacket->pInfo, pPacket->pMemoryRequirements);
+
+    replayGetBufferMemoryRequirements[remappedbuffer] = pPacket->pMemoryRequirements->memoryRequirements;
 }
 
 VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
