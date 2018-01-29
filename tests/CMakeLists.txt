@@ -17,9 +17,11 @@ else()
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/_vktracereplay.ps1 VKTRACEREPLAY)
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/trace_positive_validation.ps1 VKTRACEPOSITIVE)
+        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/vlf_test.ps1 VKVLFTEST)
         add_custom_target(vt_test-dir-symlinks ALL
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKTRACEREPLAY} _vktracereplay.ps1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKTRACEPOSITIVE} trace_positive_validation.ps1
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VKVLFTEST} vlf_test.ps1
             VERBATIM
             )
     endif()
