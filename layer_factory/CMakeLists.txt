@@ -30,7 +30,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 
-
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../layers
@@ -56,11 +55,29 @@ else()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
 endif()
 
-# Code-generate Vulkan Layer Factory files
-run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
-run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
+# Code-generate the layer_factory source files, and add a dependency target for them
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.h
+    COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml layer_factory.h
+    DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/layer_factory_generator.py ${SCRIPTS_DIR}/lvl_genvk.py ${SCRIPTS_DIR}/reg.py
+    )
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp
+    COMMAND ${PYTHON_CMD} ${SCRIPTS_DIR}/lvl_genvk.py -registry ${SCRIPTS_DIR}/vk.xml layer_factory.cpp
+    DEPENDS ${SCRIPTS_DIR}/vk.xml ${SCRIPTS_DIR}/generator.py ${SCRIPTS_DIR}/layer_factory_generator.py ${SCRIPTS_DIR}/lvl_genvk.py ${SCRIPTS_DIR}/reg.py
+    )
+add_custom_target(generate_vlf DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.h)
 
-add_dependencies(VkLayer_utils generate_helper_files)
+# Layer Utils Library
+# For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
+# path that can't be easily modified to point it to the same directory that contains the layers.
+if (WIN32)
+    add_library(VkLayer_utils_vlf STATIC ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp ../layers/vk_format_utils.cpp)
+else()
+    add_library(VkLayer_utils_vlf SHARED ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp ../layers/vk_format_utils.cpp)
+    if(INSTALL_LVL_FILES)
+        install(TARGETS VkLayer_utils_vlf DESTINATION $CMAKE_INSTALL_LIBDIR})
+    endif()
+endif()
+add_dependencies(VkLayer_utils_vlf generate_helper_files)
 
 # Generates a list of subdirectories in a directory.  Used to pick up factory layers and interceptors
 MACRO(SUBDIRLIST result curdir)
@@ -86,11 +103,11 @@ endif()
 
 if (WIN32)
     macro(add_factory_layer target subdir)
-    FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_layer_factory.def DEF_FILE)
     # Read in def file template, update with new layer name and write to destination
     file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_layer_factory.def def_file_template)
     string(REPLACE "layer_factory" ${target} target_def_file ${def_file_template})
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/VkLayer_${target}.def ${target_def_file})
+    add_library(VkLayer_${target} SHARED ${ARGN} ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp ../layers/vk_layer_table.cpp VkLayer_${target}.def)
     # Edit json template and copy to build\layers dir at cmake time
     file(READ "${JSON_TEMPLATE_PATH}" json_file_template)
     string(REPLACE "layer_factory" "${target}" target_json_file "${json_file_template}")
@@ -102,10 +119,10 @@ if (WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy ${dst_json} ${decorated_dst_json}
         VERBATIM
         )
-    add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} VkLayer_utils_vlf)
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
-    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
+    add_dependencies(VkLayer_${target} generate_vlf generate_helper_files VkLayer_utils_vlf)
+    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils_vlf)
     endmacro()
 else()
     macro(add_factory_layer target subdir)
@@ -114,11 +131,11 @@ else()
     string(REPLACE "layer_factory" "${target}" target_json_file "${json_file_template}")
     file(TO_NATIVE_PATH ${JSON_DEST_PATH}/VkLayer_${target}.json dst_json)
     file(WRITE ${dst_json} ${target_json_file})
-    add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+    add_library(VkLayer_${target} SHARED ${ARGN} ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp ../layers/vk_layer_table.cpp)
+    target_link_Libraries(VkLayer_${target} VkLayer_utils_vlf)
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
-    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
-    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
+    add_dependencies(VkLayer_${target} generate_vlf generate_helper_files VkLayer_utils_vlf)
+    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     if(INSTALL_LVL_FILES)
         install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
@@ -128,10 +145,14 @@ endif()
 set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 SUBDIRLIST(ST_SUBDIRS ${CMAKE_LAYER_FACTORY_SOURCE_DIR})
 
-# Loop through all subdirectories, creating a factory-based layer for each
+# Loop through all subdirectories, creating a factory-based layer for each. For each factory layer, create a dependency link on
+# the previous layer in order to serialize their builds.
+set(dep_chain generate_vlf)
 FOREACH(subdir ${ST_SUBDIRS})
     file(GLOB INTERCEPTOR_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir}/*.cpp)
-    add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ../layers/vk_layer_table.cpp ${INTERCEPTOR_SOURCES})
+    add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} ${INTERCEPTOR_SOURCES})
+    add_dependencies(VkLayer_${subdir} ${dep_chain})
+    set(dep_chain VkLayer_${subdir})
 ENDFOREACH()
 
 # Add targets for JSON file install on Linux.
