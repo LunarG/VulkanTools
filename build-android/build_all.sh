@@ -57,6 +57,11 @@ function create_APK() {
 }
 
 #
+# Init base submodules
+#
+(pushd ..; git submodule update --init --recursive; popd)
+
+#
 # build layers
 #
 ./update_external_sources_android.sh --no-build
