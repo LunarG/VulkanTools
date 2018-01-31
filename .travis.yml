@@ -42,6 +42,8 @@ before_install:
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       sudo apt-get -qq update
       sudo apt-get -y install libxkbcommon-dev libwayland-dev libmirclient-dev libxrandr-dev libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev
+      # Needed for devsim test
+      sudo apt-get -y install jq
     fi
   # Install the Android NDK.
   - |
@@ -67,21 +69,31 @@ script:
   - set -e
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      # Build VulkanTools
       ./update_external_sources.sh
       cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
       make -C dbuild -j $core_count
-      (cd dbuild/tests; ./vkvalidatelayerdoc.sh)
-      export LD_LIBRARY_PATH=dbuild/loader:$LD_LIBRARY_PATH
-      export VK_LAYER_PATH=dbuild/layers
-      export VK_ICD_FILENAMES=dbuild/icd/VkICD_mock_icd.json
-      dbuild/tests/vk_layer_validation_tests
-      VK_DEVSIM_FILENAME=tests/device_profiles/adreno_540.json dbuild/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=tests/device_profiles/amd_radv_polaris10.json dbuild/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=tests/device_profiles/geforce_940m.json dbuild/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=tests/device_profiles/intel_hd_graphics_520_skylake_gt2.json dbuild/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=tests/device_profiles/mali-t760.json dbuild/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=tests/device_profiles/nvidia_tegra_x1.json dbuild/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=tests/device_profiles/powervr_rogue_ge8300.json dbuild/tests/vk_layer_validation_tests --devsim
+    fi
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      # Run Tests
+      LVL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-LoaderAndValidationLayers
+      LVL_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-LoaderAndValidationLayers/tests/device_profiles
+      export LD_LIBRARY_PATH=$LVL_BUILD/loader:$LD_LIBRARY_PATH
+      export VK_LAYER_PATH=$LVL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
+      export VK_ICD_FILENAMES=$LVL_BUILD/icd/VkICD_mock_icd.json
+      # Run devsim tests with mock ICD to ensure devsim is working
+      dbuild/tests/devsim_layer_test.sh
+      # Run validation layer tests with mock ICD, some with devsim.
+      # These tests are redundant with LVL testing, but there is still some value with running them again here.
+      $LVL_BUILD/tests/vk_layer_validation_tests
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/adreno_540.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/amd_radv_polaris10.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/geforce_940m.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/intel_hd_graphics_520_skylake_gt2.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/mali-t760.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/nvidia_tegra_x1.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/powervr_rogue_ge8300.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
     fi
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then
@@ -97,7 +109,7 @@ script:
     if [[ "$CHECK_FORMAT" == "ON" ]]; then
       if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
         echo "Checking clang-format between TRAVIS_BRANCH=$TRAVIS_BRANCH and TRAVIS_PULL_REQUEST_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH"
-        ./scripts/check_code_format.sh
+        ./submodules/Vulkan-LoaderAndValidationLayers/scripts/check_code_format.sh
       else
         echo "Skipping clang-format check since this is not a pull request."
       fi
@@ -108,7 +120,6 @@ notifications:
   email:
     recipients:
       - karl@lunarg.com
-      - arda@lunarg.com
       - cnorthrop@google.com
     on_success: change
     on_failure: always

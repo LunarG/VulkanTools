@@ -21,40 +21,47 @@ cd $dir
 rm -rf generated
 mkdir -p generated/include generated/common
 
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml layer_factory.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml layer_factory.cpp )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_safe_struct.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_safe_struct.cpp )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_struct_size_helper.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_struct_size_helper.c )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_enum_string_helper.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_object_types.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_dispatch_table_helper.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml thread_check.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.cpp )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_loader_extensions.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_loader_extensions.c )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_layer_dispatch_table.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_extension_helper.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml object_tracker.cpp )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_typemap_helper.h )
-( cd generated/include; python3 ../../../scripts/external_revision_generator.py ../../third_party/shaderc/third_party/spirv-tools SPIRV_TOOLS_COMMIT_ID spirv_tools_commit_id.h )
-( cd generated/include; python3 ../../../scripts/vlf_makefile_generator.py ../../../layer_factory )
+LVL_SCRIPTS=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts
+VT_SCRIPTS=../../../scripts
+REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump.cpp )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_text.h )
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml api_dump_html.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.cpp )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_struct_size_helper.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_struct_size_helper.c )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_enum_string_helper.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_object_types.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_dispatch_table_helper.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} thread_check.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} parameter_validation.cpp )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} unique_objects_wrappers.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_loader_extensions.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_loader_extensions.c )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_layer_dispatch_table.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_extension_helper.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} object_tracker.cpp )
+( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_typemap_helper.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/external_revision_generator.py ../../third_party/shaderc/third_party/spirv-tools SPIRV_TOOLS_COMMIT_ID spirv_tools_commit_id.h )
+
+# layer factory
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} layer_factory.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} layer_factory.cpp )
+( cd generated/include; python3 ${VT_SCRIPTS}/vlf_makefile_generator.py ../../../layer_factory )
+
+# apidump
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} api_dump.cpp )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} api_dump_text.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} api_dump_html.h )
 
 # vktrace
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk.h)
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk.cpp)
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_vk_packets.h)
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vktrace_vk_packet_id.h)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk.h)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk.cpp)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk_packets.h)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_packet_id.h)
 
 # vkreplay
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_func_ptrs.h)
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_replay_gen.cpp)
-( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vkreplay_vk_objmapper.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_func_ptrs.h)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_replay_gen.cpp)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_objmapper.h )
 
 exit 0
