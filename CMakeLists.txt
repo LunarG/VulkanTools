@@ -92,6 +92,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
 
     option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
+    option(BUILD_VLF "Build layer_factory" ON)
     option(BUILD_VKTRACE "Build VkTrace" ON)
     option(BUILD_VIA "Build via" ON)
 
@@ -109,6 +110,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_TESTS OFF)
     option(BUILD_LAYERS OFF)
     option(BUILD_LAYERSVT OFF)
+    option(BUILD_VLF OFF)
     option(BUILD_VKTRACEVIEWER OFF)
     option(BUILD_DEMOS OFF)
     option(BUILD_VKJSON OFF)
@@ -160,7 +162,7 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-if(BUILD_LAYERS)
+if(BUILD_VLF)
     add_subdirectory(layer_factory)
 endif()
 
