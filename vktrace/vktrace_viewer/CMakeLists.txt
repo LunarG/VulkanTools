@@ -229,6 +229,7 @@ if (MSVC)
                       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_BINS}/icuuc54.dll" "${COPY_DEST}"
                       COMMENT "Copying vktraceviewer Qt5 dependencies to ${COPY_DEST}"
                       VERBATIM)
+    set_target_properties(copy_deps_qt5 PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
   else()
     add_custom_target(copy_deps_qt5 ALL
                       ${CMAKE_COMMAND} -E make_directory "${COPY_DEST}/platforms"
@@ -249,6 +250,7 @@ if (MSVC)
                       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QT_INSTALL_PLUGINS}/platforms/qwindowsd.dll"  "${COPY_DEST}/platforms"
                       COMMENT "Copying vktraceviewer Qt5 dependencies to ${COPY_DEST}"
                       VERBATIM)
+    set_target_properties(copy_deps_qt5 PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
   endif()
 
 endif()

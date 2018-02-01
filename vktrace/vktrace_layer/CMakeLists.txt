@@ -116,6 +116,7 @@ else()
             VERBATIM
             )
         add_dependencies(vktrace_layer-json VkLayer_vktrace_layer)
+        set_target_properties(vktrace_layer-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endif()
 endif()
 
