@@ -75,6 +75,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp
     DEPENDS ${VLF_BASE_DEPENDENCIES}
     )
 add_custom_target(generate_vlf DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.h)
+set_target_properties(generate_vlf PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
 # Layer Utils Library
 # For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
@@ -130,6 +131,7 @@ if (WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy ${dst_json} ${decorated_dst_json}
         VERBATIM
         )
+    set_target_properties(${target}json-copy PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     target_link_Libraries(VkLayer_${target} VkLayer_utils_vlf)
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
     add_dependencies(VkLayer_${target} generate_vlf generate_helper_files VkLayer_utils_vlf)

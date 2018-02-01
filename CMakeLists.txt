@@ -17,6 +17,10 @@ find_package(PythonInterp 3 REQUIRED)
 
 set (PYTHON_CMD ${PYTHON_EXECUTABLE})
 
+# Enable cmake folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(VULKANTOOLS_TARGET_FOLDER vt_cmake_targets)
+
 option(USE_CCACHE "Use ccache" OFF)
 if (USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
