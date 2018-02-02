@@ -74,7 +74,7 @@ if (WIN32)
                     VERBATIM
                     )
                 add_dependencies(${config_file}-json ${config_file})
-                set_target_properties(${config-file}-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+                set_target_properties(${config_file}-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
             endforeach(config_file)
         endif()
     endif()
