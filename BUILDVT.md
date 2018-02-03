@@ -1,8 +1,8 @@
 # Build Instructions
 This document contains the instructions for building this repository on Linux and Windows.
 
-This repository contains additional layers and the VkTrace trace/replay tools, supplementing the
-loader and validation layer core components found at https://github.com/KhronosGroup.
+This repository contains Vulkan development tools, such as additional layers and VkTrace trace/replay utilities,
+supplementing the loader and validation layer core components found at https://github.com/KhronosGroup.
 
 ## Git the Bits
 
@@ -17,11 +17,11 @@ Ubuntu 14.04.3 LTS, 14.10, 15.04,15.10, and 16.04 LTS have been tested with this
 
 These additional packages are needed for building the components in this repo.
 ```
-# Dependencies from the LoaderAndValidationLayers repo:
+# Dependencies from included submodule components
 sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libmirclient-dev libwayland-dev libxrandr-dev
 # Additional dependencies for this repo:
 sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev
-# If performing 32-bit builds, you'll also need:
+# If performing 32-bit builds, you will also need:
 sudo apt-get install libc6-dev-i386 g++-multilib
 ```
 
@@ -32,30 +32,30 @@ Note that the Vulkan-LoaderAndValidationLayers repo content is included within t
 To create your local git repository of VulkanTools:
 ```
 cd YOUR_DEV_DIRECTORY
-git clone git@github.com:LunarG/VulkanTools.git
+git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
 cd VulkanTools
-# This will fetch and build glslang and spriv-tools
-./update_external_sources.sh         # linux
-./update_external_sources.bat --all  # windows
+# This will perform some initialization and ensure the subcomponents are built:
+./update_external_sources.sh    # linux
+./update_external_sources.bat   # windows
 ```
 
 ## Linux Build
 
-This build process builds vktrace and the LVL tests.
+This build process builds all items in the VulkanTools repository
 
 Example debug build:
 ```
 cd YOUR_DEV_DIRECTORY/VulkanTools  # cd to the root of the VulkanTools git repository
 cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
 cd dbuild
-make
+make -j8
 ```
 
 ## Windows System Requirements
 
 Windows 7+ with additional required software packages:
 
-- Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but that has not been tested.
+- Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but not guaranteed.
 - CMake (from http://www.cmake.org/download/).  Notes:
   - In order to build the VkTrace tools, you need at least version 3.0.
   - Tell the installer to "Add CMake to the system PATH" environment variable.
@@ -63,25 +63,21 @@ Windows 7+ with additional required software packages:
   - Select to install the optional sub-package to add Python to the system PATH environment variable.
   - Need python3.3 or later to get the Windows py.exe launcher that is used to get python3 rather than python2 if both are installed on Windows
 - Git (from http://git-scm.com/download/win).
-  - Note: If you use Cygwin, you can normally use Cygwin's "git.exe".  However, in order to use the "update_external_sources.bat" script, you must have this version.
   - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
   - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
-- glslang is required for tests.
-  - You can download and configure it (in a peer directory) here: https://github.com/KhronosGroup/glslang/blob/master/README.md
-  - A windows batch file has been included that will pull and build the correct version.  Run it from Developer Command Prompt for VS2015 (or VS2017) like so:
-    - update_external_sources.bat --build-glslang
 
 Optional software packages:
 
 - Cygwin (from https://www.cygwin.com/).  Notes:
   - Cygwin provides some Linux-like tools, which are valuable for obtaining the source code, and running CMake.
     Especially valuable are the BASH shell and git packages.
-  - If you don't want to use Cygwin, there are other shells and environments that can be used.
-    You can also use a Git package that doesn't come from Cygwin.
+  - If you do not wish to use Cygwin, there are other shells and environments that can be used.
+    You can also use a Git package that does not come from Cygwin.
 
 ## Windows Build
 
-Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.  Visual Studio is used to build the software, and will re-run CMake as appropriate.
+Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.
+Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
 To build all Windows targets (e.g. in a "Developer Command Prompt for VS2015" window):
 ```
@@ -91,11 +87,11 @@ cd build
 cmake -G "Visual Studio 14 Win64" ..
 ```
 
-At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.  
-Once Visual Studio comes up, you can select "Debug" or "Release" from a drop-down list.  
+At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.
+Once Visual Studio comes up, you can select "Debug" or "Release" from a drop-down list.
 You can start a build with either the menu (Build->Build Solution), or a keyboard shortcut (Ctrl+Shift+B).
 As part of the build process, Python scripts will create additional Visual Studio files and projects,
-along with additional source files.  
+along with additional source files.
 All of these auto-generated files are under the "build" folder.
 
 Vulkan programs must be able to find and use the Vulkan-1.dll library.
@@ -103,7 +99,8 @@ Make sure it is either installed in the C:\Windows\System32 folder,
 or the PATH environment variable includes the folder that it is located in.
 
 ### Windows 64-bit Installation Notes
-If you plan on creating a Windows Install file (done in the windowsRuntimeInstaller sub-directory) you will need to build for both 32-bit and 64-bit Windows since both versions of EXEs and DLLs exist simultaneously on Windows 64.
+If you plan on creating a Windows Install file (done in the windowsRuntimeInstaller sub-directory) you will need to build for both 32-bit
+and 64-bit Windows since both versions of EXEs and DLLs exist simultaneously on Windows 64.
 
 To do this, simply create and build the release versions of each target:
 ```
@@ -278,6 +275,7 @@ To use, simply push it to the device and run it.  The resulting json file will b
 /sdcard/Android/<output>.json
 ```
 A working example can be found in [devsim_layer_test_anroid.sh](https://github.com/LunarG/VulkanTools/blob/master/build-android/devsim_layer_test_android.sh)
+
 ### vktrace
 To record a trace on Android, enable port forwarding from the device to the host:
 ```
