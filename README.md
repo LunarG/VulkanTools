@@ -1,6 +1,6 @@
 # Vulkan Ecosystem Components
 
-This project provides vktrace capture/replay tool and other layer tools and driver tests.
+This project provides vktrace capture/replay tool, the Layer Factory, and other layer tools and driver tests.
 
 ## CI Build Status
 | Platform | Build Status |
@@ -16,6 +16,7 @@ These pieces are required to enable this repository to be built standalone; that
 
 The following components are available in this repository over and above what is mirrored from Vulkan-LoaderAndValidationLayers repository
 - Api_dump, screenshot, device_simulation, and example layers (layersvt/)
+- Assistant_layer, starter_layer, and demo_layer (layer_factory/)
 - tests for the vktrace and vkreplay (tests/)
 - vktrace and vkreplay, API capture and replay  (vktrace/)
 
@@ -27,14 +28,11 @@ Please see the [CONTRIBUTING](CONTRIBUTING.md) file in this repository for more 
 
 ## How to Build and Run
 
-[BUILDVT.md](BUILDVT.md)
+[BUILD.md](BUILD.md)
 includes directions for building all the components, running the tests and running the demo applications.
 
 Information on how to enable the various layers is in
 [layers/README.md](layers/README.md).
-
-Architecture and interface information for the loader is in
-[loader/LoaderAndLayerInterface.md](loader/LoaderAndLayerInterface.md).
 
 ## License
 This work is released as open source under a Apache-style license from Khronos including a Khronos copyright.
