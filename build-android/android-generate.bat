@@ -38,7 +38,7 @@ py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_layer_dispatch_table.h
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_extension_helper.h
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% object_tracker.cpp
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_typemap_helper.h
-py -3 %LVL_SCRIPTS%/external_revision_generator.py ../../third_party/shaderc/third_party/spirv-tools SPIRV_TOOLS_COMMIT_ID spirv_tools_commit_id.h
+py -3 %LVL_SCRIPTS%/external_revision_generator.py --git_dir ../../third_party/shaderc/third_party/spirv-tools -s SPIRV_TOOLS_COMMIT_ID -o spirv_tools_commit_id.h
 
 REM layer factory
 py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% layer_factory.h

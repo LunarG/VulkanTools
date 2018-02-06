@@ -41,7 +41,7 @@ REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_extension_helper.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} object_tracker.cpp )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_typemap_helper.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/external_revision_generator.py ../../third_party/shaderc/third_party/spirv-tools SPIRV_TOOLS_COMMIT_ID spirv_tools_commit_id.h )
+( cd generated/include; python3 ${LVL_SCRIPTS}/external_revision_generator.py --git_dir ../../third_party/shaderc/third_party/spirv-tools -s SPIRV_TOOLS_COMMIT_ID -o spirv_tools_commit_id.h )
 
 # layer factory
 ( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} layer_factory.h )
