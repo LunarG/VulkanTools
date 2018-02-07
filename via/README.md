@@ -20,7 +20,7 @@ skip down to the "Running" section below.
 
 #### Building VIA in VulkanTools
 Because it is part of a group of tools, you build it from the top folder by
-following the instructions in the [BuilidVT.md](https://github.com/LunarG/VulkanTools/blob/master/BUILDVT.md)
+following the instructions in the [BuilidVT.md](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md)
 file at the top of the source tree.
 
 #### Building VIA in the Linux Vulkan SDK
