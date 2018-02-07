@@ -72,7 +72,9 @@ char *android_exec(const char *cmd) {
         // Do a right strip of " ", "\n", "\r", "\t" for the android_env string
         string android_env_str(android_env);
         android_env_str.erase(android_env_str.find_last_not_of(" \n\r\t") + 1);
-        return (char *)android_env_str.c_str();
+        snprintf(android_env, sizeof(android_env), "%s", android_env_str.c_str());
+        return android_env;
+
     }
 
     return nullptr;
