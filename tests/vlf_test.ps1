@@ -30,15 +30,14 @@ write-host "vlf_test.ps1: Vulkan Layer Factory Sanity Test"
 # Save current directory
 $current_directory = $pwd
 
-cd "..\demos"
-
 # Set up some modified env vars
 $Env:VK_LAYER_PATH = "$pwd\..\layers\$dPath"
-$Env:VK_ICD_FILENAMES = "$pwd\..\submodules\Vulkan-LoaderAndValidationLayers\icd\$dPath\VkICD_mock_icd.json"
+cd "..\submodules\Vulkan-LoaderAndValidationLayers\demos\$dPath"
+$Env:VK_ICD_FILENAMES = "..\..\icd\$dPath\VkICD_mock_icd.json"
 $Env:VK_INSTANCE_LAYERS = "VK_LAYER_LUNARG_demo_layer"
 
 # Run vulkaninfo with mock ICD and demo layer, capturing output
-& vulkaninfo > temp_output_file
+& .\vulkaninfo.exe > temp_output_file
 
 # Fail if temp file is not present, or if results do not match expectations
 if (!(Test-Path temp_output_file)) {
