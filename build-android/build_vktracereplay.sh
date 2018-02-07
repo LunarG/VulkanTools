@@ -45,7 +45,7 @@ findtool jarsigner
 set -ev
 
 LAYER_BUILD_DIR=$PWD
-DEMO_BUILD_DIR=$PWD/../demos/android
+DEMO_BUILD_DIR=$PWD/../submodules/Vulkan-LoaderAndValidationLayers/demos/android
 echo LAYER_BUILD_DIR="${LAYER_BUILD_DIR}"
 echo DEMO_BUILD_DIR="${DEMO_BUILD_DIR}"
 
