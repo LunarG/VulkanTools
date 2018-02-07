@@ -2,6 +2,7 @@
  *
  * Copyright (C) 2015-2016 Valve Corporation
  * Copyright (C) 2015-2016 LunarG, Inc.
+ * Modifications Copyright (C) 2017-2018 Advanced Micro Devices, Inc.
  * All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2985,10 +2986,15 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
+    if (pPacket->pCreateInfo->surface == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid traced VkSurfaceKHR (VK_NULL_HANDLE).");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
     save_surface = pPacket->pCreateInfo->surface;
     VkSurfaceKHR *pSurf = (VkSurfaceKHR *)&(pPacket->pCreateInfo->surface);
     *pSurf = m_objMapper.remap_surfacekhrs(*pSurf);
-    if (*pSurf == VK_NULL_HANDLE && pPacket->pCreateInfo->surface != VK_NULL_HANDLE) {
+    if (*pSurf == VK_NULL_HANDLE && save_surface != VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid remapped VkSurfaceKHR.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
