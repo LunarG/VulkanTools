@@ -3939,7 +3939,7 @@ int RunTestInDirectory(std::string path, std::string test, std::string cmd_line)
             // Path doesn't exist at all
             err_code = 1;
         }
-        chdir(orig_dir);
+        err = chdir(orig_dir);
     }
     return err_code;
 }
