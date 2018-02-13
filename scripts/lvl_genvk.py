@@ -276,8 +276,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vkreplay_objmapper_header',
-            expandEnumerants  = False,
-            helper_file_type  = 'struct_size_source')
+            expandEnumerants  = False)
         ]
 
     # VkTrace file generator options for vkreplay_vk_func_ptrs.h
@@ -300,8 +299,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vkreplay_funcptr_header',
-            expandEnumerants  = False,
-            helper_file_type  = 'safe_struct_header')
+            expandEnumerants  = False)
         ]
 
     # VkTrace file generator options for vkreplay_vk_replay_gen.cpp
@@ -324,8 +322,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vkreplay_replay_gen_source',
-            expandEnumerants  = False,
-            helper_file_type  = 'safe_struct_source')
+            expandEnumerants  = False)
         ]
 
     # VkTrace file generator options for vktrace_vk_packet_id.h
@@ -348,8 +345,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vktrace_packet_id_header',
-            expandEnumerants  = False,
-            helper_file_type  = 'object_types_header')
+            expandEnumerants  = False)
         ]
 
     # VkTrace file generator options for vktrace_vk_vk.h
@@ -372,8 +368,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vktrace_vk_header',
-            expandEnumerants  = False,
-            helper_file_type  = 'extension_helper_header')
+            expandEnumerants  = False)
         ]
 
     # VkTrace file generator options for vktrace_vk_vk.cpp
@@ -397,8 +392,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vktrace_vk_source',
-            expandEnumerants  = False,
-            helper_file_type  = 'mock_icd_header')
+            expandEnumerants  = False)
         ]
 
     # VkTrace file generator options for vktrace_vk_vk_packets.h
@@ -423,8 +417,7 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vktrace_vk_packets_header',
-            expandEnumerants  = False,
-            helper_file_type  = 'mock_icd_source')
+            expandEnumerants  = False)
         ]
 
     # Helper file generator options for vk_struct_size_helper.h

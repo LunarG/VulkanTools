@@ -70,6 +70,7 @@ class LayerFactoryGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
@@ -83,10 +84,11 @@ class LayerFactoryGeneratorOptions(GeneratorOptions):
                  indentFuncProto = True,
                  indentFuncPointer = False,
                  alignFuncParam = 0,
-                 helper_file_type = ''):
+                 helper_file_type = '',
+                 expandEnumerants = True):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
         self.protectFile     = protectFile
@@ -636,7 +638,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.sections[section].append(text)
     #
     # Type generation
-    def genType(self, typeinfo, name):
+    def genType(self, typeinfo, name, alias):
         pass
     #
     # Struct (e.g. C "struct" type) generation. This is a special case of the <type> tag where the contents are
@@ -654,11 +656,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.appendSection('struct', body)
     #
     # Group (e.g. C "enum" type) generation. These are concatenated together with other types.
-    def genGroup(self, groupinfo, groupName):
+    def genGroup(self, groupinfo, groupName, alias):
         pass
     # Enumerant generation
     # <enum> tags may specify their values in several ways, but are usually just integers.
-    def genEnum(self, enuminfo, name):
+    def genEnum(self, enuminfo, name, alias):
         pass
     #
     # Customize Cdecl for layer factory base class
@@ -687,7 +689,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         return '        %s\n        %s\n' % (pre_call, post_call)
     #
     # Command generation
-    def genCmd(self, cmdinfo, name):
+    def genCmd(self, cmdinfo, name, alias):
         if self.header: # In the header declare all intercepts
             self.appendSection('command', '')
             self.appendSection('command', self.makeCDecls(cmdinfo.elem)[0])
@@ -732,7 +734,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
         if (self.featureExtraProtect != None):
             self.intercepts += [ '#endif' ]
-        OutputGenerator.genCmd(self, cmdinfo, name)
+        OutputGenerator.genCmd(self, cmdinfo, name, alias)
         #
         decls = self.makeCDecls(cmdinfo.elem)
         self.appendSection('command', '')
