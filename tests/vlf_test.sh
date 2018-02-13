@@ -16,19 +16,20 @@ else
     NC=''
 fi
 
-pushd ../submodules/Vulkan-LoaderAndValidationLayers/demos
+cd $(dirname "${BASH_SOURCE[0]}")
+cd ../submodules/Vulkan-LoaderAndValidationLayers/demos
 
 VK_ICD_FILENAMES=../icd/VkICD_mock_icd.json VK_LAYER_PATH=../../../layers VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_demo_layer ./vulkaninfo > file.tmp
 
-printf "$GREEN[ RUNNING VLF TEST ]$NC $0\n"
+printf "$GREEN[ RUN      ]$NC $0\n"
 if [ -f file.tmp ]
 then
     count=$(grep vkGetPhysicalDeviceFormatProperties file.tmp | wc -l)
     if [ $count -gt 100 ]
     then
-        printf "$GREEN[ PASS             ]$NC $0\n"
+        printf "$GREEN[  PASSED  ]$NC $0\n"
     else
-        printf "$RED[ FAIL             ]$NC $0\n"
+        printf "$RED[  FAILED  ]$NC $0\n"
         rm file.tmp
         popd
         exit 1
@@ -36,6 +37,5 @@ then
 fi
 
 rm file.tmp
-popd
 
 exit 0

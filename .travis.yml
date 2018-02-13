@@ -82,6 +82,8 @@ script:
       export LD_LIBRARY_PATH=$LVL_BUILD/loader:$LD_LIBRARY_PATH
       export VK_LAYER_PATH=$LVL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
       export VK_ICD_FILENAMES=$LVL_BUILD/icd/VkICD_mock_icd.json
+      # Run vlf_test with mock ICD to ensure layer factory is working
+      dbuild/tests/vlf_test.sh
       # Run devsim tests with mock ICD to ensure devsim is working
       dbuild/tests/devsim_layer_test.sh
       # Run validation layer tests with mock ICD, some with devsim.
