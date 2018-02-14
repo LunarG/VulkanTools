@@ -2202,7 +2202,10 @@ wrapItUp:
         if (local_mem.pGpuMem) local_mem.pGpuMem->setAllocInfo(pPacket->pAllocateInfo, m_objMapper.m_adjustForGPU);
         m_objMapper.add_to_devicememorys_map(*(pPacket->pMemory), local_mem);
     } else {
-        vktrace_LogError("Allocate Memory 0x%lX failed with result = 0x%X\n", *(pPacket->pMemory), replayResult);
+        if (replayResult != pPacket->result) {
+            vktrace_LogError("Allocate Memory 0x%lx, size=%d failed with result %d, expected %d\n", *(pPacket->pMemory),
+                             pPacket->pAllocateInfo->allocationSize, replayResult, pPacket->result);
+        }
     }
     return replayResult;
 }
