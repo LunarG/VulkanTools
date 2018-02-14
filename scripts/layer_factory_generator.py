@@ -173,6 +173,7 @@ struct instance_layer_data {
     VkInstance instance = VK_NULL_HANDLE;
     debug_report_data *report_data = nullptr;
     std::vector<VkDebugReportCallbackEXT> logging_callback;
+    std::vector<VkDebugUtilsMessengerEXT> logging_messenger;
     InstanceExtensions extensions;
 };
 
@@ -183,6 +184,7 @@ struct device_layer_data {
     VkDevice device = VK_NULL_HANDLE;
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     instance_layer_data *instance_data = nullptr;
+    VkPhysicalDeviceProperties *phys_dev_properties = nullptr;
 };
 
 static std::unordered_map<void *, device_layer_data *> device_layer_data_map;
@@ -289,10 +291,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(*pInstance), instance_layer_data_map);
     instance_data->instance = *pInstance;
     layer_init_instance_dispatch_table(*pInstance, &instance_data->dispatch_table, fpGetInstanceProcAddr);
-    instance_data->report_data = debug_report_create_instance(
+    instance_data->report_data = debug_utils_create_instance(
         &instance_data->dispatch_table, *pInstance, pCreateInfo->enabledExtensionCount, pCreateInfo->ppEnabledExtensionNames);
-    instance_data->extensions.InitFromInstanceCreateInfo(pCreateInfo);
-    layer_debug_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
+    instance_data->extensions.InitFromInstanceCreateInfo((pCreateInfo->pApplicationInfo ? pCreateInfo->pApplicationInfo->apiVersion : VK_API_VERSION_1_0), pCreateInfo);
+    layer_debug_report_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
+    layer_debug_messenger_actions(instance_data->report_data, instance_data->logging_messenger, pAllocator, "lunarg_layer_factory");
     vlf_report_data = instance_data->report_data;
 
     for (auto intercept : global_interceptor_list) {
@@ -316,12 +319,17 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
         intercept->PostCallDestroyInstance(instance, pAllocator);
     }
     // Clean up logging callback, if any
+    while (instance_data->logging_messenger.size() > 0) {
+        VkDebugUtilsMessengerEXT messenger = instance_data->logging_messenger.back();
+        layer_destroy_messenger_callback(instance_data->report_data, messenger, pAllocator);
+        instance_data->logging_messenger.pop_back();
+    }
     while (instance_data->logging_callback.size() > 0) {
         VkDebugReportCallbackEXT callback = instance_data->logging_callback.back();
-        layer_destroy_msg_callback(instance_data->report_data, callback, pAllocator);
+        layer_destroy_report_callback(instance_data->report_data, callback, pAllocator);
         instance_data->logging_callback.pop_back();
     }
-    layer_debug_report_destroy_instance(instance_data->report_data);
+    layer_debug_utils_destroy_instance(instance_data->report_data);
     FreeLayerDataPtr(key, instance_layer_data_map);
 }
 
@@ -352,8 +360,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     layer_init_device_dispatch_table(*pDevice, &device_data->dispatch_table, fpGetDeviceProcAddr);
     device_data->device = *pDevice;
     device_data->physical_device = gpu;
-    device_data->report_data = layer_debug_report_create_device(instance_data->report_data, *pDevice);
-    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, pCreateInfo);
+    device_data->report_data = layer_debug_utils_create_device(instance_data->report_data, *pDevice);
+    instance_data->dispatch_table.GetPhysicalDeviceProperties(gpu, device_data->phys_dev_properties);
+    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, device_data->phys_dev_properties->apiVersion, pCreateInfo);
     lock.unlock();
 
     return result;
@@ -367,7 +376,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     for (auto intercept : global_interceptor_list) {
         intercept->PreCallDestroyDevice(device, pAllocator);
     }
-    layer_debug_report_destroy_device(device);
+    layer_debug_utils_destroy_device(device);
     lock.unlock();
 
     device_data->dispatch_table.DestroyDevice(device, pAllocator);
@@ -389,7 +398,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
         intercept->PreCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     }
     VkResult result = instance_data->dispatch_table.CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
-    result = layer_create_msg_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
+    result = layer_create_report_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     }
@@ -403,7 +412,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, Vk
         intercept->PreCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
     instance_data->dispatch_table.DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
-    layer_destroy_msg_callback(instance_data->report_data, callback, pAllocator);
+    layer_destroy_report_callback(instance_data->report_data, callback, pAllocator);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
