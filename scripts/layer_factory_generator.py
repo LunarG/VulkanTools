@@ -25,6 +25,7 @@
 
 import os,re,sys
 from generator import *
+from common_codegen import *
 
 # LayerFactoryGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -76,8 +77,6 @@ class LayerFactoryGeneratorOptions(GeneratorOptions):
                  genFuncPointers = True,
                  protectFile = True,
                  protectFeature = True,
-                 protectProto = None,
-                 protectProtoStr = None,
                  apicall = '',
                  apientry = '',
                  apientryp = '',
@@ -93,8 +92,6 @@ class LayerFactoryGeneratorOptions(GeneratorOptions):
         self.genFuncPointers = genFuncPointers
         self.protectFile     = protectFile
         self.protectFeature  = protectFeature
-        self.protectProto    = protectProto
-        self.protectProtoStr = protectProtoStr
         self.apicall         = apicall
         self.apientry        = apientry
         self.apientryp       = apientryp
@@ -514,11 +511,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         OutputGenerator.beginFile(self, genOpts)
         # Multiple inclusion protection & C++ namespace.
         self.header = False
-        if (genOpts.protectFile and self.genOpts.filename and 'h' == self.genOpts.filename[-1]):
+        if (self.genOpts.filename and 'h' == self.genOpts.filename[-1]):
             self.header = True
-            headerSym = '__' + re.sub('\.h', '_h_', os.path.basename(self.genOpts.filename))
-            write('#ifndef', headerSym, file=self.outFile)
-            write('#define', headerSym, '1', file=self.outFile)
+            write('#pragma once', file=self.outFile)
             self.newline()
         # User-supplied prefix text, if any (list of strings)
         if self.header:
@@ -594,8 +589,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             # Output Layer Factory Class Definitions
             self.layer_factory += '};\n'
             write(self.layer_factory, file=self.outFile)
-
-            write('#endif', file=self.outFile)
         else:
             write(self.inline_custom_source_postamble, file=self.outFile)
         # Finish processing in superclass
@@ -604,6 +597,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
     def beginFeature(self, interface, emit):
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
+        # Get feature extra protect
+        self.featureExtraProtect = GetFeatureProtect(interface)
         # Accumulate includes, defines, types, enums, function pointer typedefs, end function prototypes separately for this
         # feature. They're only printed in endFeature().
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
@@ -612,8 +607,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         # Actually write the interface to the output file.
         if (self.emit):
             self.newline()
-            if (self.genOpts.protectFeature):
-                write('#ifndef', self.featureName, file=self.outFile)
             # If type declarations are needed by other features based on this one, it may be necessary to suppress the ExtraProtect,
             # or move it below the 'for section...' loop.
             if (self.featureExtraProtect != None):
@@ -628,8 +621,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
                 self.newline()
             if (self.featureExtraProtect != None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
-            if (self.genOpts.protectFeature):
-                write('#endif /*', self.featureName, '*/', file=self.outFile)
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
     #
