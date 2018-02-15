@@ -2873,27 +2873,6 @@ void vkReplay::manually_replay_vkGetBufferMemoryRequirements(packet_vkGetBufferM
     return;
 }
 
-// TODO: implement vkGetImageMemoryRequirements2 in trace and replay ====================
-
-void vkReplay::manually_replay_vkGetImageMemoryRequirements2KHR(packet_vkGetImageMemoryRequirements2KHR *pPacket) {
-    VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
-    if (remappedDevice == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in vkGetImageMemoryRequirements2() due to invalid remapped VkDevice.");
-        return;
-    }
-
-    VkImage remappedImage = m_objMapper.remap_images(pPacket->pInfo->image);
-    if (pPacket->pInfo->image != VK_NULL_HANDLE && remappedImage == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in GetImageMemoryRequirements2() due to invalid remapped VkImage.");
-        return;
-    }
-    *((VkImage *)(&pPacket->pInfo->image)) = remappedImage;
-
-    m_vkDeviceFuncs.GetImageMemoryRequirements2KHR(remappedDevice, pPacket->pInfo, pPacket->pMemoryRequirements);
-    replayGetImageMemoryRequirements[pPacket->pInfo->image] = pPacket->pMemoryRequirements->memoryRequirements;
-    return;
-}
-
 void vkReplay::manually_replay_vkGetBufferMemoryRequirements2KHR(packet_vkGetBufferMemoryRequirements2KHR *pPacket) {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
@@ -2919,86 +2898,6 @@ void vkReplay::manually_replay_vkGetImageMemoryRequirements2(packet_vkGetImageMe
 
 void vkReplay::manually_replay_vkGetBufferMemoryRequirements2(packet_vkGetBufferMemoryRequirements2 *pPacket) {
     manually_replay_vkGetBufferMemoryRequirements2KHR((packet_vkGetBufferMemoryRequirements2KHR *)pPacket);
-}
-
-VkResult vkReplay::manually_replay_vkBindBufferMemory2KHR(packet_vkBindBufferMemory2KHR *pPacket) {
-    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in BindBufferMemory2KHR() due to invalid remapped VkDevice.");
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
-
-    for (size_t i = 0; i < pPacket->bindInfoCount; i++) {
-        VkBuffer traceBuffer = pPacket->pBindInfos[i].buffer;
-        VkBuffer remappedBuffer = m_objMapper.remap_buffers(pPacket->pBindInfos[i].buffer);
-        if (traceBuffer != VK_NULL_HANDLE && remappedBuffer == VK_NULL_HANDLE) {
-            vktrace_LogError("Error detected in BindBufferMemory2KHR() due to invalid remapped VkBuffer.");
-            return VK_ERROR_VALIDATION_FAILED_EXT;
-        }
-        *((VkBuffer *)&pPacket->pBindInfos[i].buffer) = remappedBuffer;
-        *((VkDeviceMemory *)&pPacket->pBindInfos[i].memory) = m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
-        if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
-            size_t memOffsetTemp;
-            if (replayGetBufferMemoryRequirements.find(remappedBuffer) == replayGetBufferMemoryRequirements.end()) {
-                // vkBindBufferMemory2KHR is being called with a buffer for which vkGetBufferMemoryRequirements
-                // was not called. This might be violation of the spec on the part of the app, but seems to
-                // be done in many apps.  Call vkGetBufferMemoryRequirements for this buffer and add result to
-                // replayGetBufferMemoryRequirements map.
-                VkMemoryRequirements mem_reqs;
-                m_vkDeviceFuncs.GetBufferMemoryRequirements(remappeddevice, remappedBuffer, &mem_reqs);
-                replayGetBufferMemoryRequirements[remappedBuffer] = mem_reqs;
-            }
-
-            assert(replayGetBufferMemoryRequirements[remappedBuffer].alignment);
-            memOffsetTemp = pPacket->pBindInfos[i].memoryOffset + replayGetBufferMemoryRequirements[remappedBuffer].alignment - 1;
-            memOffsetTemp = memOffsetTemp / replayGetBufferMemoryRequirements[remappedBuffer].alignment;
-            memOffsetTemp = memOffsetTemp * replayGetBufferMemoryRequirements[remappedBuffer].alignment;
-            *((VkDeviceSize *)&pPacket->pBindInfos[i].memoryOffset) = memOffsetTemp;
-        }
-    }
-    replayResult = m_vkDeviceFuncs.BindBufferMemory2KHR(remappeddevice, pPacket->bindInfoCount, pPacket->pBindInfos);
-    return replayResult;
-}
-
-VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemory2KHR *pPacket) {
-    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
-    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in BindImageMemory2KHR() due to invalid remapped VkDevice.");
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
-
-    for (size_t i = 0; i < pPacket->bindInfoCount; i++) {
-        VkImage traceImage = pPacket->pBindInfos[i].image;
-        VkImage remappedImage = m_objMapper.remap_images(pPacket->pBindInfos[i].image);
-        if (traceImage != VK_NULL_HANDLE && remappedImage == VK_NULL_HANDLE) {
-            vktrace_LogError("Error detected in BindImageMemory2KHR() due to invalid remapped VkImage.");
-            return VK_ERROR_VALIDATION_FAILED_EXT;
-        }
-        *((VkImage *)&pPacket->pBindInfos[i].image) = remappedImage;
-        *((VkDeviceMemory *)&pPacket->pBindInfos[i].memory) = m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
-        if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
-            size_t memOffsetTemp;
-            if (replayGetImageMemoryRequirements.find(remappedImage) == replayGetImageMemoryRequirements.end()) {
-                // vkBindImageMemory2KHR is being called with an image for which vkGetImageMemoryRequirements
-                // was not called. This might be violation of the spec on the part of the app, but seems to
-                // be done in many apps.  Call vkGetImageMemoryRequirements for this image and add result to
-                // replayGetImageMemoryRequirements map.
-                VkMemoryRequirements mem_reqs;
-                m_vkDeviceFuncs.GetImageMemoryRequirements(remappeddevice, remappedImage, &mem_reqs);
-                replayGetImageMemoryRequirements[remappedImage] = mem_reqs;
-            }
-
-            assert(replayGetImageMemoryRequirements[remappedImage].alignment);
-            memOffsetTemp = pPacket->pBindInfos[i].memoryOffset + replayGetImageMemoryRequirements[remappedImage].alignment - 1;
-            memOffsetTemp = memOffsetTemp / replayGetImageMemoryRequirements[remappedImage].alignment;
-            memOffsetTemp = memOffsetTemp * replayGetImageMemoryRequirements[remappedImage].alignment;
-            *((VkDeviceSize *)&pPacket->pBindInfos[i].memoryOffset) = memOffsetTemp;
-        }
-    }
-    replayResult = m_vkDeviceFuncs.BindImageMemory2KHR(remappeddevice, pPacket->bindInfoCount, pPacket->pBindInfos);
-    return replayResult;
 }
 
 VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
