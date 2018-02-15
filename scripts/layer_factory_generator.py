@@ -720,6 +720,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             'vkEnumerateInstanceExtensionProperties',
             'vkEnumerateDeviceLayerProperties',
             'vkEnumerateDeviceExtensionProperties',
+            'vkEnumerateInstanceVersion'
         ]
         if name in manual_functions:
             ####decls = self.makeCDecls(cmdinfo.elem)
