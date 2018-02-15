@@ -690,6 +690,13 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
     #
     # Command generation
     def genCmd(self, cmdinfo, name, alias):
+        ignore_functions = [
+        'vkEnumerateInstanceVersion'
+		]
+
+        if name in ignore_functions:
+            return
+
         if self.header: # In the header declare all intercepts
             self.appendSection('command', '')
             self.appendSection('command', self.makeCDecls(cmdinfo.elem)[0])
@@ -720,7 +727,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             'vkEnumerateInstanceExtensionProperties',
             'vkEnumerateDeviceLayerProperties',
             'vkEnumerateDeviceExtensionProperties',
-            'vkEnumerateInstanceVersion'
         ]
         if name in manual_functions:
             ####decls = self.makeCDecls(cmdinfo.elem)
