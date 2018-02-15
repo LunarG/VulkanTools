@@ -280,8 +280,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         OutputGenerator.endFile(self)
     #
     # Called for each type -- if the type is a struct/union, grab the metadata
-    def genType(self, typeinfo, name):
-        OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        OutputGenerator.genType(self, typeinfo, name, alias)
         typeElem = typeinfo.elem
         # If the type is a struct type, traverse the imbedded <member> tags generating a structure.
         # Otherwise, emit the tag text.
@@ -290,7 +290,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             self.object_types.append(name)
         elif (category == 'struct' or category == 'union'):
             self.structNames.append(name)
-            self.genStruct(typeinfo, name)
+            self.genStruct(typeinfo, name, alias) # TODO: This is bad. Might confuse parent class
     #
     # Check if the parameter passed in is a pointer
     def paramIsPointer(self, param):
@@ -385,11 +385,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         return False
     #
     # Capture command parameter info needed
-    def genCmd(self, cmdinfo, cmdname):
+    def genCmd(self, cmdinfo, cmdname, alias):
         if "GetPhysicalDeviceSurfacePresentModes" in cmdname:
            stop="here"
         # Add struct-member type information to command parameter information
-        OutputGenerator.genCmd(self, cmdinfo, cmdname)
+        OutputGenerator.genCmd(self, cmdinfo, cmdname, alias)
         members = cmdinfo.elem.findall('.//param')
         # Iterate over members once to get length parameters for arrays
         lens = set()
@@ -429,8 +429,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         self.cmd_feature_protect.append(self.CmdExtraProtect(name=cmdname, extra_protect=self.featureExtraProtect))
     #
     # Generate local ready-access data describing Vulkan structures and unions from the XML metadata
-    def genStruct(self, typeinfo, typeName):
-        OutputGenerator.genStruct(self, typeinfo, typeName)
+    def genStruct(self, typeinfo, typeName, alias):
+        OutputGenerator.genStruct(self, typeinfo, typeName, alias)
         members = typeinfo.elem.findall('.//member')
         # Iterate over members once to get length parameters for arrays
         lens = set()
@@ -1143,10 +1143,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_id_hdr += '        }\n'
         cmd_extension_dict = dict(self.cmd_extension_names)
         for api in self.cmdMembers:
-            extension = cmd_extension_dict[api.name]
-            if 'VK_VERSION_' not in extension and extension not in approved_ext:
-                continue
-            if api.name[2:] in api_exclusions:
+            if not isSupportedCmd(api, cmd_extension_dict):
                 continue
             trace_pkt_id_hdr += '        case VKTRACE_TPI_VK_%s: {\n' % api.name
             trace_pkt_id_hdr += '            return "%s";\n' % api.name
@@ -2430,30 +2427,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # Just declare function for manually written entrypoints. Declaration needed for proc mapping
                 trace_vk_src += ';\n';
             else:
-                raw_packet_update_list = [] # Non-ptr elements placed directly into packet
-                ptr_packet_update_list = [] # Ptr elements to be updated into packet
-                return_txt = ''
-                packet_size = []
-                in_data_size = False # Flag when we need to capture local input size variable for in/out size
-                resulttype = cmdinfo.elem.find('proto/type')
-                resulttype = resulttype.text if not None else ''
-
-                trace_vk_src += 'VKTRACER_EXPORT VKAPI_ATTR %s VKAPI_CALL __HOOKED_%s(\n' % (resulttype, proto.name)
-                for p in proto.members: # TODO : For all of the ptr types, check them for NULL and return 0 if NULL
-                    if p.name == '':
-                        continue
-                    trace_vk_src += '%s,\n' % p.cdecl
-                    if p.ispointer and p.name not in ['pSysMem', 'pReserved']:
-                        if 'pDataSize' in p.name:
-                            in_data_size = True;
-                    elif 'pfnMsgCallback' == p.name:
-                        raw_packet_update_list.append('    PFN_vkDebugReportCallbackEXT* pNonConstCallback = (PFN_vkDebugReportCallbackEXT*)&pPacket->pfnMsgCallback;')
-                        raw_packet_update_list.append('    *pNonConstCallback = pfnMsgCallback;')
-                    elif p.isstaticarray:
-                        raw_packet_update_list.append('    memcpy((void *) pPacket->%s, %s, sizeof(pPacket->%s));' % (p.name, p.name, p.name))
-                    else:
-                        raw_packet_update_list.append('    pPacket->%s = %s;' % (p.name, p.name))
-                trace_vk_src = trace_vk_src[:-2] + ')\n'
                 # Get list of packet size modifiers due to ptr params
                 packet_size = self.GetPacketSize(proto.members)
                 ptr_packet_update_list = self.GetPacketPtrParamList(proto.members)
