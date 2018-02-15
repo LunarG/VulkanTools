@@ -1093,7 +1093,7 @@ class ApiDumpGeneratorOptions(GeneratorOptions):
                  ):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
             versions, emitversions, defaultExtensions,
-            addExtensions, removeExtensions, sortProcedure)
+            addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.input           = input
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
@@ -1137,6 +1137,9 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.unions = set()
 
         self.registryFile = registryFile
+
+        # Used to track duplications (thanks 1.1 spec)
+        self.trackedTypes = []
 
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
@@ -1268,25 +1271,44 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         gen.OutputGenerator.endFile(self)
 
-    def genCmd(self, cmd, name):
-        gen.OutputGenerator.genCmd(self, cmd, name)
+    def genCmd(self, cmd, name, alias):
+        gen.OutputGenerator.genCmd(self, cmd, name, alias)
+
+        if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
+
         self.functions.add(VulkanFunction(cmd.elem, self.constants))
 
     # These are actually constants
-    def genEnum(self, enuminfo, name):
-        gen.OutputGenerator.genEnum(self, enuminfo, name)
+    def genEnum(self, enuminfo, name, alias):
+        gen.OutputGenerator.genEnum(self, enuminfo, name, alias)
 
     # These are actually enums
-    def genGroup(self, groupinfo, groupName):
-        gen.OutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        gen.OutputGenerator.genGroup(self, groupinfo, groupName, alias)
+
+        if alias is not None:
+            trackedName = alias
+        else:
+            trackedName = groupName
+        if trackedName in self.trackedTypes:
+            return
+        self.trackedTypes.append(trackedName)
 
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks.add(VulkanBitmask(groupinfo.elem, self.extensions))
         elif groupinfo.elem.get('type') == 'enum':
             self.enums.add(VulkanEnum(groupinfo.elem, self.extensions))
 
-    def genType(self, typeinfo, name):
-        gen.OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        gen.OutputGenerator.genType(self, typeinfo, name, alias)
+
+        if alias is not None:
+            trackedName = alias
+        else:
+            trackedName = name
+        if trackedName in self.trackedTypes:
+            return
+        self.trackedTypes.append(trackedName)
 
         if typeinfo.elem.get('category') == 'struct':
             self.structs.add(VulkanStruct(typeinfo.elem, self.constants))
@@ -1589,7 +1611,7 @@ class VulkanExtension:
         self.number = int(rootNode.get('number'))
         self.type = rootNode.get('type')
         self.dependency = rootNode.get('requires')
-        self.guard = rootNode.get('protect')
+        self.guard = GetFeatureProtect(rootNode)
         self.supported = rootNode.get('supported')
 
         self.vktypes = []
