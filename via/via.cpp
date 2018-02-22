@@ -5438,7 +5438,8 @@ void PrintCleanupInfo(void) {
     PrintBeginTableRow();
 
     if (VK_NULL_HANDLE != global_items.max_vulkan_info.instance &&
-        global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0)) {
+        global_items.max_vulkan_info.api_version >= VK_MAKE_VERSION(1, 1, 0) &&
+        0 < global_items.max_vulkan_info.phys_devices.size()) {
         uint32_t max_inst_api_version = global_items.max_vulkan_info.max_supported_api_version;
         dev_count = static_cast<uint32_t>(global_items.max_vulkan_info.log_devices.size());
         if (0 < dev_count) {
