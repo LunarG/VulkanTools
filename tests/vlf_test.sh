@@ -25,7 +25,7 @@ printf "$GREEN[ RUN      ]$NC $0\n"
 if [ -f file.tmp ]
 then
     count=$(grep vkGetPhysicalDeviceFormatProperties file.tmp | wc -l)
-    if [ $count -gt 100 ]
+    if [ $count -gt 50 ]
     then
         printf "$GREEN[  PASSED  ]$NC $0\n"
     else

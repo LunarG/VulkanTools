@@ -47,7 +47,7 @@ if (!(Test-Path temp_output_file)) {
 } else {
     # Look for sensible results in output file
     $count = (Select-String -Path .\temp_output_file -Pattern "vkGetPhysicalDeviceFormatProperties").length
-    if ($count -lt 200) {
+    if ($count -lt 50) {
         $exitstatus = 1
     }
 }
