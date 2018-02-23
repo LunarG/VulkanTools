@@ -78,8 +78,26 @@ rename-item -path 1.ppm -newname 3-smokereplay.ppm
 
 # Replay old trace if specified.
 if ($Replay) {
-    & vkreplay -s 1 -o "$Replay.vktrace" > replayold.sout 2> replayold.serr
-    rename-item -path 1.ppm -newname 1-replayold.ppm
+    if (Test-Path $Replay/cubeold.vktrace) {
+        & vkreplay -s 1 -o "$Replay/cubeold.vktrace" > replayold.sout 2> replayold.serr
+        rename-item -path 1.ppm -newname 1-replayold.ppm
+    }
+
+    # Restore PATH
+    $Env:PATH = $oldpath
+    # Run trace/replay test on any .vktrace in this folder
+    $tracedir = Join-Path -Path $PWD -ChildPath '..\vktracereplay.py'
+    & python $tracedir $Replay $PWD\vktrace.exe $PWD $PWD\vkreplay.exe
+
+    if (!($LastExitCode -eq 0)) {
+        echo 'Trace/replay regression tests failed.'
+        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+        $exitstatus = 1
+    }
+}
+else {
+    # Restore PATH
+    $Env:PATH = $oldpath
 }
 
 # Force a failure - for testing this script
@@ -87,14 +105,11 @@ if ($Replay) {
 #rm 1-cubetrace.ppm
 #rm 1-cubereplay.ppm
 
-# Restore PATH
-$Env:PATH = $oldpath
-
 if ($exitstatus -eq 0) {
    # Check that two screenshots were created, and the third if replaying an old trace
    if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or
        #!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or
-        ($Replay -and !(Test-Path 1-replayold.ppm))) {
+        ($Replay -and (Test-Path $Replay/cubeold.vktrace) -and !(Test-Path 1-replayold.ppm))) {
            echo 'Trace file does not exist'
            write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
            $exitstatus = 1
@@ -115,7 +130,7 @@ if ($exitstatus -eq 0) {
         write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
         $exitstatus = 1
     }
-    if ($Replay) {
+    if ($Replay -and (Test-Path $Replay/cubeold.vktrace)) {
         # check old trace
         fc.exe /b "$Replay.ppm" 1-replayold.ppm > $null
         if (!(Test-Path "$Replay.ppm") -or !(Test-Path 1-replayold.ppm) -or $LastExitCode -eq 1) {
