@@ -9,10 +9,9 @@
 
 import os, sys, subprocess, time, argparse
 
-def HandleErrors(out):
-    file = open('vktracereplay.stdout', 'w')
-    file.write(out)
-    file.close()
+def GetErrorMessage(out):
+    matched_lines = [line for line in out.split('\n') if 'error' in line]
+    return '\n'.join(matched_lines)
 
 def Replay(testname, traceFile, args):
     replayEnv = os.environ.copy()
@@ -31,8 +30,9 @@ def TraceReplayTest(testname, filename, args):
     out = Replay(testname, filename, args)
 
     if 'error' in out:
-        HandleErrors(out)
-        print ('Error while replaying original trace. Check vktracereplay.stdout for more information.\n')
+        err = GetErrorMessage(out)
+        print ('Errors while replaying original trace:\n')
+        print ('%s\n' % err)
         p.kill()
         sys.exit(1)
 
@@ -44,15 +44,17 @@ def TraceReplayTest(testname, filename, args):
 
     # Check stdout for errors
     if 'error' in out:
-        HandleErrors(out)
-        print ('Error while tracing. Check vktracereplay.stdout for more information.\n')
+        err = GetErrorMessage(out)
+        print ('Error while tracing:\n')
+        print ('%s\n' % err)
         sys.exit(1)
 
     out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname]).decode('utf-8')
 
     if 'error' in out:
-        HandleErrors(out)
-        print ('Error while replaying. Check vktracereplay.stdout for more information.\n')
+        err = GetErrorMessage(out)
+        print ('Error while replaying:\n')
+        print ('%s\n' % err)
         sys.exit(1)
 
     # Remove trace file
