@@ -166,6 +166,12 @@ That index includes URLs to download the specific device records in DevSim-compa
 As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.
 Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
 
+### Device configuration data from the local system
+Vulkaninfo can write its output in a format compatible the DevSim JSON schema,
+so the configuration of the local system can be captured.
+Use `vulkaninfo -j` to generate output in JSON format and redirect to a file, which can be consumed directly by DevSim.
+See the vulkaninfo documentation for further details.
+
 ### JSON validation
 The DevSim layer itself does very little sanity checking of the configuration file, so those files should be validated to the schema using a separate tool, such as the following web-based validators.
 1. http://www.jsonschemavalidator.net/
