@@ -20,11 +20,7 @@ def Replay(testname, traceFile, args):
     replayEnv['VK_LAYER_PATH'] = args.VkLayerPath
 
     out = subprocess.check_output([args.VkReplayPath, '-o', traceFile], env=replayEnv).decode('utf-8')
-
-    if 'error' in out:
-        HandleErrors(out)
-        print ('Error while replaying. Check vktracereplay.stdout for more information.\n')
-        sys.exit(1)
+    return out
 
 def TraceReplayTest(testname, filename, args):
     print ('Beginning Test: %s\n' % testname)
@@ -32,7 +28,13 @@ def TraceReplayTest(testname, filename, args):
     p = subprocess.Popen([args.VkTracePath, '-o', '%s.vktrace' % testname], stdout=subprocess.PIPE)
     time.sleep(1)
 
-    Replay(testname, filename, args)
+    out = Replay(testname, filename, args)
+
+    if 'error' in out:
+        HandleErrors(out)
+        print ('Error while replaying original trace. Check vktracereplay.stdout for more information.\n')
+        p.kill()
+        sys.exit(1)
 
     # Wait for vktrace to process and finish it
     time.sleep(3)
