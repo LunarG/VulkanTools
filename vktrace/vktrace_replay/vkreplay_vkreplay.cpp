@@ -4143,3 +4143,38 @@ VkResult vkReplay::manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_
 
     return result;
 }
+
+VkResult vkReplay::manually_replay_vkEnumerateDeviceExtensionProperties(packet_vkEnumerateDeviceExtensionProperties *pPacket) {
+    VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in EnumerateDeviceExtensionProperties() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    uint32_t propertyCount = *pPacket->pPropertyCount;
+    auto pProperties = pPacket->pProperties;
+    // Get mapped pPropertyCount and alloc new array if querying for pProperties
+    if (pProperties != nullptr) {
+        if (replayDeviceExtensionPropertyCount.find(pPacket->physicalDevice) == replayDeviceExtensionPropertyCount.end()) {
+            vktrace_LogError("Error detected in EnumerateDeviceExtensionProperties() due to invalid remapped pPropertyCount.");
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+        propertyCount = replayDeviceExtensionPropertyCount[pPacket->physicalDevice];
+        pProperties = VKTRACE_NEW_ARRAY(VkExtensionProperties, propertyCount);
+    }
+
+    auto result =
+        m_vkFuncs.EnumerateDeviceExtensionProperties(remappedphysicalDevice, pPacket->pLayerName, &propertyCount, pProperties);
+
+    // Map physical device to property count
+    if (result == VK_SUCCESS && pPacket->pProperties == nullptr) {
+        replayDeviceExtensionPropertyCount[pPacket->physicalDevice] = propertyCount;
+    }
+
+    // Clean up properties array. For portability, we will want to compare this to what is in the packet.
+    if (pProperties != nullptr) {
+        VKTRACE_DELETE(pProperties);
+    }
+
+    return result;
+}
