@@ -886,7 +886,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # Insert the real_*(..) call
                 replay_gen_source += '%s\n' % rr_string
                 # Handle return values or anything that needs to happen after the real_*(..) call
-                get_ext_layers_proto = ['EnumerateInstanceExtensionProperties', 'EnumerateDeviceExtensionProperties','EnumerateInstanceLayerProperties', 'EnumerateDeviceLayerProperties']
                 if 'DestroyDevice' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     replay_gen_source += '                m_pCBDump = NULL;\n'
@@ -895,10 +894,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     #replay_gen_source += '                m_pVktraceSnapshotPrint = NULL;\n'
                     replay_gen_source += '                m_objMapper.rm_from_devices_map(pPacket->device);\n'
                     replay_gen_source += '                m_display->m_initedVK = false;\n'
-                    replay_gen_source += '            }\n'
-                elif cmdname in get_ext_layers_proto:
-                    replay_gen_source += '            if (replayResult == VK_ERROR_LAYER_NOT_PRESENT || replayResult == VK_INCOMPLETE) {\n'
-                    replay_gen_source += '                replayResult = VK_SUCCESS;\n'
                     replay_gen_source += '            }\n'
                 elif 'DestroySwapchainKHR' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
