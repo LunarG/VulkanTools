@@ -33,7 +33,6 @@ def TraceReplayTest(testname, traceFile, args):
     out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', args.VkReplayPath, '-a', '-o %s' % traceFile, '-s', frame, '-w', '.'], env=traceEnv).decode('utf-8')
 
     if 'error' in out:
-        p.kill()
         err = GetErrorMessage(out)
         HandleError('Errors while tracing replay of original trace:\n%s' % err)
 
