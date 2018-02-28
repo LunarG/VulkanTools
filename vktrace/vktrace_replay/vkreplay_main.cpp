@@ -364,18 +364,16 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             // Set env var that communicates list to ScreenShot layer
             vktrace_set_global_var("VK_SCREENSHOT_FRAMES", replaySettings.screenshotList);
         }
-    } else {
-        vktrace_set_global_var("VK_SCREENSHOT_FRAMES", "");
-    }
 
-    // Set up environment for screenshot color space format
-    if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList != NULL) {
-        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", replaySettings.screenshotColorFormat);
-    }else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
-        vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
-        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
-    } else {
-        vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+        // Set up environment for screenshot color space format
+        if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList != NULL) {
+            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", replaySettings.screenshotColorFormat);
+        } else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
+            vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
+            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+        } else {
+            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+        }
     }
 
     // open the trace file
