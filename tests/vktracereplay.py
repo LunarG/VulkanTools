@@ -7,61 +7,57 @@
 #
 #    <old-trace-directory> example: "C:\traces\" would result in the script testing against "C:\traces\trace1.vktrace", "C:\traces\trace2.vktrace", etc.
 
-import os, sys, subprocess, time, argparse
+import os, sys, subprocess, time, argparse, filecmp
+
+def HandleError(msg):
+    print (msg)
+    sys.exit(1)
 
 def GetErrorMessage(out):
     matched_lines = [line for line in out.split('\n') if 'error' in line]
     return '\n'.join(matched_lines)
 
-def Replay(testname, traceFile, args):
-    replayEnv = os.environ.copy()
-    replayEnv['VK_INSTANCE_LAYERS'] = 'VK_LAYER_LUNARG_vktrace'
-    replayEnv['VK_LAYER_PATH'] = args.VkLayerPath
-
-    out = subprocess.check_output([args.VkReplayPath, '-o', traceFile], env=replayEnv).decode('utf-8')
-    return out
-
-def TraceReplayTest(testname, filename, args):
+def TraceReplayTest(testname, traceFile, args):
     print ('Beginning Test: %s\n' % testname)
+
+    # Parse frame
+    if not os.path.exists('%s.config' % traceFile):
+        frame = '1'
+    else:
+        with open('%s.config' % traceFile) as configFile:
+            frame = configFile.read().strip()
     
-    p = subprocess.Popen([args.VkTracePath, '-o', '%s.vktrace' % testname], stdout=subprocess.PIPE)
-    time.sleep(1)
-
-    out = Replay(testname, filename, args)
+    # Trace replay of <traceFile>
+    traceEnv = os.environ.copy()
+    traceEnv['VK_LAYER_PATH'] = args.VkLayerPath
+    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', args.VkReplayPath, '-a', '-o %s' % traceFile, '-s', frame, '-w', '.'], env=traceEnv).decode('utf-8')
 
     if 'error' in out:
-        err = GetErrorMessage(out)
-        print ('Errors while replaying original trace:\n')
-        print ('%s\n' % err)
         p.kill()
-        sys.exit(1)
-
-    # Wait for vktrace to process and finish it
-    time.sleep(3)
-    p.kill()
-    out = p.communicate()[0].decode('utf-8')
-    time.sleep(1)
-
-    # Check stdout for errors
-    if 'error' in out:
         err = GetErrorMessage(out)
-        print ('Error while tracing:\n')
-        print ('%s\n' % err)
-        sys.exit(1)
+        HandleError('Errors while tracing replay of original trace:\n%s' % err)
 
-    out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname]).decode('utf-8')
+    # Rename 1.ppm to <testname>.trace.ppm
+    if os.path.exists('%s.ppm' % frame):
+        os.rename('%s.ppm' % frame, '%s.trace.ppm' % testname)
+    else:
+        HandleError('Error: Screenshot not taken while tracing.')
+
+    out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', frame]).decode('utf-8')
 
     if 'error' in out:
         err = GetErrorMessage(out)
-        print ('Error while replaying:\n')
-        print ('%s\n' % err)
-        sys.exit(1)
+        HandleError('Error while replaying:\n%s' % err)
 
-    # Remove trace file
-    try:
-        os.remove('./%s.vktrace' % testname)
-    except OSError:
-        pass
+    # Rename 1.ppm to <testname>.replay.ppm
+    if os.path.exists('%s.ppm' % frame):
+        os.rename('%s.ppm' % frame, '%s.replay.ppm' % testname)
+    else:
+        HandleError ('Error: Screenshot not taken while replaying.')
+
+    # Compare screenshots
+    if not filecmp.cmp('%s.trace.ppm' % testname, '%s.replay.ppm' % testname):
+        HandleError ('Error: Trace/replay screenshots do not match.')
 
     print ('Success\n')
 
