@@ -631,6 +631,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'UpdateDescriptorSetWithTemplateKHR',
                                  'CmdPushDescriptorSetWithTemplateKHR',
                                  'BindBufferMemory',
+                                 'BindImageMemory',
                                  # VK_EXT_display_control
                                  'RegisterDeviceEventEXT',
                                  'RegisterDisplayEventEXT',
