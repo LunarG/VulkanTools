@@ -75,6 +75,7 @@ struct VulkanInfo {
 struct GlobalItems {
     std::ofstream html_file_stream;
     bool sdk_found;
+    bool tests_ran;
     std::string sdk_path;
     VulkanInfo min_vulkan_info;
     VulkanInfo max_vulkan_info;
@@ -296,6 +297,9 @@ out:
             if (!global_items.sdk_found) {
                 std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
                           << " instance/devices - However, No SDK Detected" << std::endl;
+            } else if (!global_items.tests_ran) {
+                std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                          << " instance/devices, SDK was found, but failed to run external tests" << std::endl;
             } else {
                 std::cout << "SUCCESS: Vulkan analysis completed properly using " << vulkan_version_string << std::endl;
             }
@@ -986,11 +990,13 @@ int RunTestInDirectory(std::string path, std::string test, std::string cmd_line)
         } else {
             // Path to specific exe doesn't exist
             err_code = 1;
+            std::cout << "    Warning: " << test << " not found.  Skipping." << std::endl;
         }
         SetCurrentDirectoryA(orig_dir);
     } else {
         // Path to test doesn't exist.
         err_code = 1;
+        std::cout << "    Warning: " << test << " not found.  Skipping." << std::endl;
     }
     return err_code;
 }
@@ -3927,8 +3933,8 @@ ErrorResults PrintLayerInfo(void) {
 // Returns 0 on no error, 1 if test file wasn't found, and -1
 // on any other errors.
 int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) {
-    char orig_dir[MAX_STRING_LENGTH];
     int err_code = -1;
+    char orig_dir[MAX_STRING_LENGTH];
     orig_dir[0] = '\0';
 
     std::cout << "SDK Found! - Will attempt to run " << test << " using the command-line: " << cmd_line << std::endl;
@@ -3942,10 +3948,12 @@ int RunTestInDirectory(std::string path, std::string test, std::string cmd_line)
                 // Can't run because it's either not there or an actual
                 // exe.  So, just return a separate error code.
                 err_code = 1;
+                std::cout << "    Warning: " << test << " not found.  Skipping." << std::endl;
             }
         } else {
             // Path doesn't exist at all
             err_code = 1;
+            std::cout << "    Warning: " << test << " not found.  Skipping." << std::endl;
         }
         err = chdir(orig_dir);
     }
@@ -5508,6 +5516,7 @@ ErrorResults PrintTestResults(void) {
         int test_result = RunTestInDirectory(path, cube_exe, full_cmd);
         if (test_result == 0) {
             PrintTableElement("SUCCESSFUL");
+            global_items.tests_ran = true;
         } else if (test_result == 1) {
             PrintTableElement("Not Found");
         } else {
@@ -5523,6 +5532,7 @@ ErrorResults PrintTestResults(void) {
         test_result = RunTestInDirectory(path, cube_exe, full_cmd);
         if (test_result == 0) {
             PrintTableElement("SUCCESSFUL");
+            global_items.tests_ran = true;
         } else if (test_result == 1) {
             PrintTableElement("Not Found");
         } else {
