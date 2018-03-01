@@ -2764,6 +2764,47 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
     return replayResult;
 }
 
+VkResult vkReplay::manually_replay_vkBindImageMemory(packet_vkBindImageMemory *pPacket) {
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in BindImageMemory() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    VkImage remappedimage = m_objMapper.remap_images(pPacket->image);
+    if (pPacket->image != VK_NULL_HANDLE && remappedimage == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in BindImageMemory() due to invalid remapped VkImage.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    VkDeviceMemory remappedmemory = m_objMapper.remap_devicememorys(pPacket->memory);
+    if (pPacket->memory != VK_NULL_HANDLE && remappedmemory == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in BindImageMemory() due to invalid remapped VkDeviceMemory.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
+        uint64_t memOffsetTemp;
+        if (replayGetImageMemoryRequirements.find(remappedimage) == replayGetImageMemoryRequirements.end()) {
+            // vkBindImageMemory is being called with an image for which vkGetImageMemoryRequirements
+            // was not called. This might be violation of the spec on the part of the app, but seems to
+            // be done in many apps.  Call vkGetImageMemoryRequirements for this image and add result to
+            // replayGetImageMemoryRequirements map.
+            VkMemoryRequirements mem_reqs;
+            m_vkDeviceFuncs.GetImageMemoryRequirements(remappeddevice, remappedimage, &mem_reqs);
+            replayGetImageMemoryRequirements[remappedimage] = mem_reqs;
+        }
+
+        assert(replayGetImageMemoryRequirements[remappedimage].alignment);
+        memOffsetTemp = pPacket->memoryOffset + replayGetImageMemoryRequirements[remappedimage].alignment - 1;
+        memOffsetTemp = memOffsetTemp / replayGetImageMemoryRequirements[remappedimage].alignment;
+        memOffsetTemp = memOffsetTemp * replayGetImageMemoryRequirements[remappedimage].alignment;
+        replayResult = m_vkDeviceFuncs.BindImageMemory(remappeddevice, remappedimage, remappedmemory, memOffsetTemp);
+    } else {
+        replayResult = m_vkDeviceFuncs.BindImageMemory(remappeddevice, remappedimage, remappedmemory, pPacket->memoryOffset);
+    }
+    return replayResult;
+}
+
 void vkReplay::manually_replay_vkGetImageMemoryRequirements(packet_vkGetImageMemoryRequirements *pPacket) {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
