@@ -203,7 +203,7 @@ class vkReplay {
     void manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpdateDescriptorSetWithTemplateKHR* pPacket);
     void manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCmdPushDescriptorSetWithTemplateKHR* pPacket);
     VkResult manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory* pPacket);
-    VkResult manually_replay_vkBindImageMemory(packet_vkBindImageMemory *pPacket);
+    VkResult manually_replay_vkBindImageMemory(packet_vkBindImageMemory* pPacket);
     VkResult manually_replay_vkRegisterDeviceEventEXT(packet_vkRegisterDeviceEventEXT *pPacket);
     VkResult manually_replay_vkRegisterDisplayEventEXT(packet_vkRegisterDisplayEventEXT *pPacket);
     VkResult manually_replay_vkCreateObjectTableNVX(packet_vkCreateObjectTableNVX *pPacket);
