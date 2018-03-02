@@ -864,11 +864,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     pPacket = interpret_body_as_vkCreateDevice(pHeader);
     pPacket->physicalDevice = physicalDevice;
     add_VkDeviceCreateInfo_to_packet(pHeader, (VkDeviceCreateInfo**)&(pPacket->pCreateInfo), &localCreateInfo);
-    //    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)&pPacket->pCreateInfo, (void *)&localCreateInfo);
-    //    for (uint32_t iter = 0; iter < localCreateInfo.queueCreateInfoCount; iter++) {
-    //        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[iter],
-    //                                                  (void *)&localCreateInfo.pQueueCreateInfos[iter]);
-    //    }
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDevice), sizeof(VkDevice), pDevice);
     pPacket->result = result;
@@ -1145,10 +1140,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
     pHeader->entrypoint_begin_time = startTime;
     pHeader->entrypoint_end_time = endTime;
     pPacket = interpret_body_as_vkCreateInstance(pHeader);
-
     add_VkInstanceCreateInfo_to_packet(pHeader, (VkInstanceCreateInfo**)&(pPacket->pCreateInfo),
                                        (VkInstanceCreateInfo*)&localCreateInfo);
-    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)&pPacket->pCreateInfo, (void*)&localCreateInfo);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pInstance), sizeof(VkInstance), pInstance);
     pPacket->result = result;

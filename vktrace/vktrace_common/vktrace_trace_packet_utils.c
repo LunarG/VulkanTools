@@ -472,7 +472,7 @@ void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApp
 void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkInstanceCreateInfo** ppStruct,
                                         VkInstanceCreateInfo* pInStruct) {
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkInstanceCreateInfo), pInStruct);
-    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)*ppStruct, (void*)pInStruct);
     if (pInStruct->pApplicationInfo)
         add_VkApplicationInfo_to_packet(pHeader, (VkApplicationInfo**)&((*ppStruct)->pApplicationInfo),
                                         pInStruct->pApplicationInfo);
@@ -506,7 +506,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                       const VkDeviceCreateInfo* pInStruct) {
     uint32_t i, siz = 0;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkDeviceCreateInfo), pInStruct);
-    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)*ppStruct, (void*)pInStruct);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(*ppStruct)->pQueueCreateInfos,
                                        pInStruct->queueCreateInfoCount * sizeof(VkDeviceQueueCreateInfo),
                                        pInStruct->pQueueCreateInfos);
