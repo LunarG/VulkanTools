@@ -299,10 +299,12 @@ static bool readPortabilityTable() {
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(uint64_t))) return false;
     if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(uint64_t))) return false;
-    if (tableSize == 0) return true;
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t)))) return false;
-    portabilityTable.resize((size_t)tableSize);
-    if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
+    if (tableSize != 0) {
+        if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t))))
+            return false;
+        portabilityTable.resize((size_t)tableSize);
+        if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
+    }
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
     vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
     return true;
