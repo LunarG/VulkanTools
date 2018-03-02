@@ -704,14 +704,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_gen_source += '    vktrace_replay::VKTRACE_REPLAY_RESULT returnValue = vktrace_replay::VKTRACE_REPLAY_SUCCESS;\n'
         replay_gen_source += '    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;\n'
         replay_gen_source += '    switch (packet->packet_id) {\n'
-        replay_gen_source += '        case VKTRACE_TPI_VK_vkApiVersion: {\n'
-        replay_gen_source += '            packet_vkApiVersion* pPacket = (packet_vkApiVersion*)(packet->pBody);\n'
-        replay_gen_source += '            if (VK_VERSION_MAJOR(pPacket->version) != 1 || VK_VERSION_MINOR (pPacket->version) != 0) {\n'
-        replay_gen_source += '                vktrace_LogError("Trace file is from Vulkan version 0x%x (%u.%u.%u), but the vktrace plugin only supports version 0x%x (%u.%u.%u).", pPacket->version, (pPacket->version & 0xFFC00000) >> 22, (pPacket->version & 0x003FF000) >> 12, (pPacket->version & 0x00000FFF), VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0xFFC00000) >> 22, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x003FF000) >> 12, ((VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION)) & 0x00000FFF));\n'
-        replay_gen_source += '                returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;\n'
-        replay_gen_source += '            }\n'
+        replay_gen_source += '        case VKTRACE_TPI_VK_vkApiVersion:\n'
+        replay_gen_source += '            // Ignore api version packets\n'
         replay_gen_source += '            break;\n'
-        replay_gen_source += '        }\n'
 
         for api in self.cmdMembers:
             if not isSupportedCmd(api, cmd_extension_dict):
