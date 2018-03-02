@@ -1046,7 +1046,7 @@ static void send_vk_api_version_packet() {
     vktrace_trace_packet_header* pHeader;
     pHeader = vktrace_create_trace_packet(VKTRACE_TID_VULKAN, VKTRACE_TPI_VK_vkApiVersion, sizeof(packet_vkApiVersion), 0);
     pPacket = interpret_body_as_vkApiVersion(pHeader);
-    pPacket->version = VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION);
+    pPacket->version = VK_MAKE_VERSION(1, 1, VK_HEADER_VERSION);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     FINISH_TRACE_PACKET();
 }
