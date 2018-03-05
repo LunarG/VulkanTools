@@ -24,5 +24,6 @@ LIBRARY VkLayer_device_simulation
 EXPORTS
 vkGetInstanceProcAddr
 vkCreateInstance
-vkEnumerateInstanceLayerProperties
 vkNegotiateLoaderLayerInterfaceVersion
+devsimEnumerateInstanceLayerProperties
+devsimEnumerateInstanceExtensionProperties

@@ -5,6 +5,10 @@
 set -o nounset
 set -o physical
 
+# clean up any leftover implicit_layer filesystem
+IMPLICIT_LAYER_DIR=$HOME/.local/share/vulkan/implicit_layer.d
+rm -rf $IMPLICIT_LAYER_DIR
+
 cd $(dirname "${BASH_SOURCE[0]}")
 LVL_BUILD_DIR="$PWD/../submodules/Vulkan-LoaderAndValidationLayers"
 
@@ -69,6 +73,41 @@ jq -S $JSON_SECTIONS $FILENAME_02_TEMP1 > $FILENAME_02_TEMP2
 
 jq --slurp  --exit-status '.[0] == .[1]' devsim_test2_gold.json $FILENAME_02_TEMP2 > /dev/null
 [ $? -eq 0 ] || fail_msg "test2 jq comparison"
+
+#############################################################################
+# Test 3: Exercise pre-instance functions.
+
+unset VK_LAYER_PATH
+unset VK_INSTANCE_LAYERS
+
+rm -rf $IMPLICIT_LAYER_DIR
+mkdir -p $IMPLICIT_LAYER_DIR
+ln -s $PWD/../../layersvt/linux/VkLayer_device_simulation_IMPLICIT.json $IMPLICIT_LAYER_DIR
+ln -s $PWD/../layersvt/libVkLayer_device_simulation.so $IMPLICIT_LAYER_DIR
+
+export VK_DEVSIM_130_LAYER_ENABLE=1
+
+FILENAME_03_TEMP1="devsim_test3_temp1.json"
+FILENAME_03_TEMP2="devsim_test3_temp2.json"
+rm -f $FILENAME_03_TEMP1 $FILENAME_03_TEMP2
+
+#export VK_DEVSIM_DEBUG_ENABLE="1"
+#export VK_DEVSIM_EXIT_ON_ERROR="1"
+#export VK_LOADER_DEBUG="all"
+
+export VK_DEVSIM_FILENAME="devsim_test3_in1.json"
+"$LVL_BUILD_DIR/demos/vulkaninfo" -j > $FILENAME_03_TEMP1 2> /dev/null
+[ $? -eq 0 ] || fail_msg "test3 vulkaninfo"
+
+# Use jq to extract, reformat, and sort the output.
+JSON_SECTIONS='{VkPhysicalDeviceProperties,VkPhysicalDeviceFeatures,VkPhysicalDeviceMemoryProperties,ArrayOfVkExtensionProperties,ArrayOfVkLayerProperties,ArrayOfVkQueueFamilyProperties,ArrayOfVkFormatProperties}'
+jq -S $JSON_SECTIONS $FILENAME_03_TEMP1 > $FILENAME_03_TEMP2
+[ $? -eq 0 ] || fail_msg "test3 jq extraction"
+
+jq --slurp  --exit-status '.[0] == .[1]' devsim_test3_gold.json $FILENAME_03_TEMP2 > /dev/null
+[ $? -eq 0 ] || fail_msg "test3 jq comparison"
+
+rm -rf $IMPLICIT_LAYER_DIR
 
 #############################################################################
 

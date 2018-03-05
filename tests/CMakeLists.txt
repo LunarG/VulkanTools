@@ -15,6 +15,8 @@ if (NOT WIN32)
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in3.json
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in4.json
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test2_in5.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test3_gold.json
+            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/devsim_test3_in1.json
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/vlf_test.sh
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/apidump_test.sh
             VERBATIM
