@@ -7,7 +7,7 @@
 #
 #    <old-trace-directory> example: "C:\traces\" would result in the script testing against "C:\traces\trace1.vktrace", "C:\traces\trace2.vktrace", etc.
 
-import os, sys, subprocess, time, argparse, filecmp
+import os, sys, subprocess, time, argparse, filecmp, time
 
 def HandleError(msg):
     print (msg)
@@ -19,6 +19,8 @@ def GetErrorMessage(out):
 
 def TraceReplayTest(testname, traceFile, args):
     print ('Beginning Test: %s\n' % testname)
+
+    startTime = time.time()
 
     # Parse frame
     if not os.path.exists('%s.config' % traceFile):
@@ -58,7 +60,10 @@ def TraceReplayTest(testname, traceFile, args):
     if not filecmp.cmp('%s.trace.ppm' % testname, '%s.replay.ppm' % testname):
         HandleError ('Error: Trace/replay screenshots do not match.')
 
-    print ('Success\n')
+    elapsed = time.time() - startTime
+
+    print ('Success')
+    print ('Elapsed seconds: %s\n' % elapsed)
 
 # Load settings from command-line
 parser = argparse.ArgumentParser(description='Test vktrace and vkreplay.')
