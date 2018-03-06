@@ -9,13 +9,23 @@
 
 import os, sys, subprocess, time, argparse, filecmp, time
 
+def findnth(haystack, needle, n):
+    parts= haystack.split(needle, n+1)
+    if len(parts)<=n+1:
+        return -1
+    return len(haystack)-len(parts[-1])-len(needle)
+
 def HandleError(msg):
+    # If msg is greater than 10 lines,
+    # Replace 11th line and beyond with ellipses
+    if msg.count('\n') > 10:
+        msg[findnth(msg, '\n', 10):] = '...\n'
     print (msg)
     sys.exit(1)
 
 def GetErrorMessage(out):
     matched_lines = [line for line in out.split('\n') if 'error' in line]
-    return '\n'.join(matched_lines)
+    return ''.join(matched_lines)
 
 def TraceReplayTest(testname, traceFile, args):
     print ('Beginning Test: %s\n' % testname)
