@@ -25,6 +25,7 @@
 
 import os,re,sys
 from generator import *
+from common_codegen import *
 
 # LayerFactoryGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -70,29 +71,27 @@ class LayerFactoryGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
                  protectFile = True,
                  protectFeature = True,
-                 protectProto = None,
-                 protectProtoStr = None,
                  apicall = '',
                  apientry = '',
                  apientryp = '',
                  indentFuncProto = True,
                  indentFuncPointer = False,
                  alignFuncParam = 0,
-                 helper_file_type = ''):
+                 helper_file_type = '',
+                 expandEnumerants = True):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
         self.protectFile     = protectFile
         self.protectFeature  = protectFeature
-        self.protectProto    = protectProto
-        self.protectProtoStr = protectProtoStr
         self.apicall         = apicall
         self.apientry        = apientry
         self.apientryp       = apientryp
@@ -174,6 +173,7 @@ struct instance_layer_data {
     VkInstance instance = VK_NULL_HANDLE;
     debug_report_data *report_data = nullptr;
     std::vector<VkDebugReportCallbackEXT> logging_callback;
+    std::vector<VkDebugUtilsMessengerEXT> logging_messenger;
     InstanceExtensions extensions;
 };
 
@@ -184,6 +184,7 @@ struct device_layer_data {
     VkDevice device = VK_NULL_HANDLE;
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     instance_layer_data *instance_data = nullptr;
+    VkPhysicalDeviceProperties *phys_dev_properties = nullptr;
 };
 
 static std::unordered_map<void *, device_layer_data *> device_layer_data_map;
@@ -290,10 +291,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     instance_layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(*pInstance), instance_layer_data_map);
     instance_data->instance = *pInstance;
     layer_init_instance_dispatch_table(*pInstance, &instance_data->dispatch_table, fpGetInstanceProcAddr);
-    instance_data->report_data = debug_report_create_instance(
+    instance_data->report_data = debug_utils_create_instance(
         &instance_data->dispatch_table, *pInstance, pCreateInfo->enabledExtensionCount, pCreateInfo->ppEnabledExtensionNames);
-    instance_data->extensions.InitFromInstanceCreateInfo(pCreateInfo);
-    layer_debug_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
+    instance_data->extensions.InitFromInstanceCreateInfo((pCreateInfo->pApplicationInfo ? pCreateInfo->pApplicationInfo->apiVersion : VK_API_VERSION_1_0), pCreateInfo);
+    layer_debug_report_actions(instance_data->report_data, instance_data->logging_callback, pAllocator, "lunarg_layer_factory");
+    layer_debug_messenger_actions(instance_data->report_data, instance_data->logging_messenger, pAllocator, "lunarg_layer_factory");
     vlf_report_data = instance_data->report_data;
 
     for (auto intercept : global_interceptor_list) {
@@ -317,12 +319,17 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
         intercept->PostCallDestroyInstance(instance, pAllocator);
     }
     // Clean up logging callback, if any
+    while (instance_data->logging_messenger.size() > 0) {
+        VkDebugUtilsMessengerEXT messenger = instance_data->logging_messenger.back();
+        layer_destroy_messenger_callback(instance_data->report_data, messenger, pAllocator);
+        instance_data->logging_messenger.pop_back();
+    }
     while (instance_data->logging_callback.size() > 0) {
         VkDebugReportCallbackEXT callback = instance_data->logging_callback.back();
-        layer_destroy_msg_callback(instance_data->report_data, callback, pAllocator);
+        layer_destroy_report_callback(instance_data->report_data, callback, pAllocator);
         instance_data->logging_callback.pop_back();
     }
-    layer_debug_report_destroy_instance(instance_data->report_data);
+    layer_debug_utils_destroy_instance(instance_data->report_data);
     FreeLayerDataPtr(key, instance_layer_data_map);
 }
 
@@ -353,8 +360,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     layer_init_device_dispatch_table(*pDevice, &device_data->dispatch_table, fpGetDeviceProcAddr);
     device_data->device = *pDevice;
     device_data->physical_device = gpu;
-    device_data->report_data = layer_debug_report_create_device(instance_data->report_data, *pDevice);
-    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, pCreateInfo);
+    device_data->report_data = layer_debug_utils_create_device(instance_data->report_data, *pDevice);
+    instance_data->dispatch_table.GetPhysicalDeviceProperties(gpu, device_data->phys_dev_properties);
+    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, device_data->phys_dev_properties->apiVersion, pCreateInfo);
     lock.unlock();
 
     return result;
@@ -368,7 +376,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     for (auto intercept : global_interceptor_list) {
         intercept->PreCallDestroyDevice(device, pAllocator);
     }
-    layer_debug_report_destroy_device(device);
+    layer_debug_utils_destroy_device(device);
     lock.unlock();
 
     device_data->dispatch_table.DestroyDevice(device, pAllocator);
@@ -390,7 +398,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
         intercept->PreCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     }
     VkResult result = instance_data->dispatch_table.CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
-    result = layer_create_msg_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
+    result = layer_create_report_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     }
@@ -404,7 +412,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, Vk
         intercept->PreCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
     instance_data->dispatch_table.DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
-    layer_destroy_msg_callback(instance_data->report_data, callback, pAllocator);
+    layer_destroy_report_callback(instance_data->report_data, callback, pAllocator);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
@@ -512,11 +520,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         OutputGenerator.beginFile(self, genOpts)
         # Multiple inclusion protection & C++ namespace.
         self.header = False
-        if (genOpts.protectFile and self.genOpts.filename and 'h' == self.genOpts.filename[-1]):
+        if (self.genOpts.filename and 'h' == self.genOpts.filename[-1]):
             self.header = True
-            headerSym = '__' + re.sub('\.h', '_h_', os.path.basename(self.genOpts.filename))
-            write('#ifndef', headerSym, file=self.outFile)
-            write('#define', headerSym, '1', file=self.outFile)
+            write('#pragma once', file=self.outFile)
             self.newline()
         # User-supplied prefix text, if any (list of strings)
         if self.header:
@@ -592,8 +598,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             # Output Layer Factory Class Definitions
             self.layer_factory += '};\n'
             write(self.layer_factory, file=self.outFile)
-
-            write('#endif', file=self.outFile)
         else:
             write(self.inline_custom_source_postamble, file=self.outFile)
         # Finish processing in superclass
@@ -602,6 +606,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
     def beginFeature(self, interface, emit):
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
+        # Get feature extra protect
+        self.featureExtraProtect = GetFeatureProtect(interface)
         # Accumulate includes, defines, types, enums, function pointer typedefs, end function prototypes separately for this
         # feature. They're only printed in endFeature().
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
@@ -610,8 +616,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         # Actually write the interface to the output file.
         if (self.emit):
             self.newline()
-            if (self.genOpts.protectFeature):
-                write('#ifndef', self.featureName, file=self.outFile)
             # If type declarations are needed by other features based on this one, it may be necessary to suppress the ExtraProtect,
             # or move it below the 'for section...' loop.
             if (self.featureExtraProtect != None):
@@ -626,8 +630,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
                 self.newline()
             if (self.featureExtraProtect != None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
-            if (self.genOpts.protectFeature):
-                write('#endif /*', self.featureName, '*/', file=self.outFile)
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
     #
@@ -636,7 +638,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.sections[section].append(text)
     #
     # Type generation
-    def genType(self, typeinfo, name):
+    def genType(self, typeinfo, name, alias):
         pass
     #
     # Struct (e.g. C "struct" type) generation. This is a special case of the <type> tag where the contents are
@@ -654,11 +656,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.appendSection('struct', body)
     #
     # Group (e.g. C "enum" type) generation. These are concatenated together with other types.
-    def genGroup(self, groupinfo, groupName):
+    def genGroup(self, groupinfo, groupName, alias):
         pass
     # Enumerant generation
     # <enum> tags may specify their values in several ways, but are usually just integers.
-    def genEnum(self, enuminfo, name):
+    def genEnum(self, enuminfo, name, alias):
         pass
     #
     # Customize Cdecl for layer factory base class
@@ -687,7 +689,14 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         return '        %s\n        %s\n' % (pre_call, post_call)
     #
     # Command generation
-    def genCmd(self, cmdinfo, name):
+    def genCmd(self, cmdinfo, name, alias):
+        ignore_functions = [
+        'vkEnumerateInstanceVersion'
+		]
+
+        if name in ignore_functions:
+            return
+
         if self.header: # In the header declare all intercepts
             self.appendSection('command', '')
             self.appendSection('command', self.makeCDecls(cmdinfo.elem)[0])
@@ -732,7 +741,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
         if (self.featureExtraProtect != None):
             self.intercepts += [ '#endif' ]
-        OutputGenerator.genCmd(self, cmdinfo, name)
+        OutputGenerator.genCmd(self, cmdinfo, name, alias)
         #
         decls = self.makeCDecls(cmdinfo.elem)
         self.appendSection('command', '')

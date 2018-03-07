@@ -37,10 +37,12 @@
 #   * api_dump_text.h: TEXT_CODEGEN - Provides the back end for dumping to a text file
 #
 
+import os,re,sys,string
+import xml.etree.ElementTree as etree
 import generator as gen
-import re
-import sys
-import xml.etree;
+from collections import namedtuple
+from vuid_mapping import *
+from common_codegen import *
 
 COMMON_CODEGEN = """
 /* Copyright (c) 2015-2016 Valve Corporation
@@ -1060,7 +1062,7 @@ VALIDITY_CHECKS = {
     },
 }
 
-class ApiDumpGeneratorOptions(gen.GeneratorOptions):
+class ApiDumpGeneratorOptions(GeneratorOptions):
 
     def __init__(self,
                  input = None,
@@ -1073,6 +1075,7 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = None,
                  prefixText = "",
                  genFuncPointers = True,
@@ -1085,10 +1088,12 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
                  apientryp = '',
                  indentFuncProto = True,
                  indentFuncPointer = False,
-                 alignFuncParam = 0):
-        gen.GeneratorOptions.__init__(self, filename, directory, apiname, profile,
+                 alignFuncParam = 0,
+                 expandEnumerants = True,
+                 ):
+        GeneratorOptions.__init__(self, filename, directory, apiname, profile,
             versions, emitversions, defaultExtensions,
-            addExtensions, removeExtensions, sortProcedure)
+            addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.input           = input
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
@@ -1104,7 +1109,7 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
         self.alignFuncParam  = alignFuncParam
 
 
-class ApiDumpOutputGenerator(gen.OutputGenerator):
+class ApiDumpOutputGenerator(OutputGenerator):
 
     def __init__(self,
                  errFile = sys.stderr,
@@ -1132,6 +1137,9 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
         self.unions = set()
 
         self.registryFile = registryFile
+
+        # Used to track duplications (thanks 1.1 spec)
+        self.trackedTypes = []
 
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
@@ -1263,25 +1271,44 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
 
         gen.OutputGenerator.endFile(self)
 
-    def genCmd(self, cmd, name):
-        gen.OutputGenerator.genCmd(self, cmd, name)
+    def genCmd(self, cmd, name, alias):
+        gen.OutputGenerator.genCmd(self, cmd, name, alias)
+
+        if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
+
         self.functions.add(VulkanFunction(cmd.elem, self.constants))
 
     # These are actually constants
-    def genEnum(self, enuminfo, name):
-        gen.OutputGenerator.genEnum(self, enuminfo, name)
+    def genEnum(self, enuminfo, name, alias):
+        gen.OutputGenerator.genEnum(self, enuminfo, name, alias)
 
     # These are actually enums
-    def genGroup(self, groupinfo, groupName):
-        gen.OutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        gen.OutputGenerator.genGroup(self, groupinfo, groupName, alias)
+
+        if alias is not None:
+            trackedName = alias
+        else:
+            trackedName = groupName
+        if trackedName in self.trackedTypes:
+            return
+        self.trackedTypes.append(trackedName)
 
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks.add(VulkanBitmask(groupinfo.elem, self.extensions))
         elif groupinfo.elem.get('type') == 'enum':
             self.enums.add(VulkanEnum(groupinfo.elem, self.extensions))
 
-    def genType(self, typeinfo, name):
-        gen.OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        gen.OutputGenerator.genType(self, typeinfo, name, alias)
+
+        if alias is not None:
+            trackedName = alias
+        else:
+            trackedName = name
+        if trackedName in self.trackedTypes:
+            return
+        self.trackedTypes.append(trackedName)
 
         if typeinfo.elem.get('category') == 'struct':
             self.structs.add(VulkanStruct(typeinfo.elem, self.constants))
@@ -1556,6 +1583,13 @@ class VulkanEnum:
             childComment = child.get('comment')
             if childName == None or (childValue == None and childBitpos == None):
                 continue
+            # Check for duplicates, TODO: Maybe solve up a level
+            duplicate = False
+            for o in self.options:
+                if o.values()['optName'] == childName:
+                    duplicate = True
+            if duplicate:
+                continue
 
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
 
@@ -1577,37 +1611,41 @@ class VulkanExtension:
         self.number = int(rootNode.get('number'))
         self.type = rootNode.get('type')
         self.dependency = rootNode.get('requires')
-        self.guard = rootNode.get('protect')
+        self.guard = GetFeatureProtect(rootNode)
         self.supported = rootNode.get('supported')
 
         self.vktypes = []
-        for ty in rootNode.find('require').findall('type'):
-            self.vktypes.append(ty.get('name'))
         self.vkfuncs = []
-        for func in rootNode.find('require').findall('command'):
-            self.vkfuncs.append(func.get('name'))
-
         self.constants = {}
         self.enumValues = {}
-        for enum in rootNode.find('require').findall('enum'):
-            base = enum.get('extends')
-            name = enum.get('name')
-            value = enum.get('value')
-            bitpos = enum.get('bitpos')
-            offset = enum.get('offset')
 
-            if value == None and bitpos != None:
-                value = 1 << int(bitpos)
+        req = rootNode.find('require') # TODO: Figure out why this is None sometimes
+        if req:
+            for ty in rootNode.find('require').findall('type'):
+                self.vktypes.append(ty.get('name'))
 
-            if offset != None:
-                offset = int(offset)
-            if base != None and offset != None:
-                enumValue = 1000000000 + 1000*(self.number - 1) + offset
-                if enum.get('dir') == '-':
-                    enumValue = -enumValue;
-                self.enumValues[base] = (name, enumValue)
-            else:
-                self.constants[name] = value
+            for func in rootNode.find('require').findall('command'):
+                self.vkfuncs.append(func.get('name'))
+
+            for enum in rootNode.find('require').findall('enum'):
+                base = enum.get('extends')
+                name = enum.get('name')
+                value = enum.get('value')
+                bitpos = enum.get('bitpos')
+                offset = enum.get('offset')
+
+                if value == None and bitpos != None:
+                    value = 1 << int(bitpos)
+
+                if offset != None:
+                    offset = int(offset)
+                if base != None and offset != None:
+                    enumValue = 1000000000 + 1000*(self.number - 1) + offset
+                    if enum.get('dir') == '-':
+                        enumValue = -enumValue;
+                    self.enumValues[base] = (name, enumValue)
+                else:
+                    self.constants[name] = value
 
     def values(self):
         return {

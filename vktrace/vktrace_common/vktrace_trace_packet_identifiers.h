@@ -28,7 +28,10 @@
 #define VKTRACE_TRACE_FILE_VERSION_4 0x0004
 #define VKTRACE_TRACE_FILE_VERSION_5 0x0005
 #define VKTRACE_TRACE_FILE_VERSION_6 0x0006
-#define VKTRACE_TRACE_FILE_VERSION VKTRACE_TRACE_FILE_VERSION_6
+#define VKTRACE_TRACE_FILE_VERSION_7 0x0007  // Vulkan 1.1
+#define VKTRACE_TRACE_FILE_VERSION VKTRACE_TRACE_FILE_VERSION_7
+
+// vkreplay can replay version 6 (the last Vulkan 1.0 format)
 #define VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE VKTRACE_TRACE_FILE_VERSION_6
 
 #define VKTRACE_FILE_MAGIC 0xABADD068ADEAFD0C
@@ -317,21 +320,53 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceMultisamplePropertiesEXT = 242,
     VKTRACE_TPI_VK_vkCreateSamplerYcbcrConversionKHR = 243,
     VKTRACE_TPI_VK_vkDestroySamplerYcbcrConversionKHR = 244,
-    VKTRACE_TPI_VK_vkGetDisplayPlaneSupportedDisplaysKHR = 255,
-    VKTRACE_TPI_VK_vkImportFenceFdKHR = 256,
-    VKTRACE_TPI_VK_vkGetFenceFdKHR = 257,
-    VKTRACE_TPI_VK_vkImportFenceWin32HandleKHR = 258,
-    VKTRACE_TPI_VK_vkGetFenceWin32HandleKHR = 259,
-    VKTRACE_TPI_VK_vkGetMemoryWin32HandleKHR = 260,
-    VKTRACE_TPI_VK_vkGetMemoryWin32HandlePropertiesKHR = 261,
-    VKTRACE_TPI_VK_vkImportSemaphoreWin32HandleKHR = 262,
-    VKTRACE_TPI_VK_vkGetSemaphoreWin32HandleKHR = 263,
-    VKTRACE_TPI_VK_vkGetMemoryHostPointerPropertiesEXT = 264,
-    VKTRACE_TPI_VK_vkCreateValidationCacheEXT = 265,
-    VKTRACE_TPI_VK_vkDestroyValidationCacheEXT = 266,
-    VKTRACE_TPI_VK_vkMergeValidationCachesEXT = 267,
-    VKTRACE_TPI_VK_vkGetValidationCacheDataEXT = 268,
-    VKTRACE_TPI_VK_vkGetShaderInfoAMD = 269,
+    VKTRACE_TPI_VK_vkGetDisplayPlaneSupportedDisplaysKHR = 245,
+    VKTRACE_TPI_VK_vkImportFenceFdKHR = 246,
+    VKTRACE_TPI_VK_vkGetFenceFdKHR = 247,
+    VKTRACE_TPI_VK_vkImportFenceWin32HandleKHR = 248,
+    VKTRACE_TPI_VK_vkGetFenceWin32HandleKHR = 249,
+    VKTRACE_TPI_VK_vkGetMemoryWin32HandleKHR = 250,
+    VKTRACE_TPI_VK_vkGetMemoryWin32HandlePropertiesKHR = 251,
+    VKTRACE_TPI_VK_vkImportSemaphoreWin32HandleKHR = 252,
+    VKTRACE_TPI_VK_vkGetSemaphoreWin32HandleKHR = 253,
+    VKTRACE_TPI_VK_vkGetMemoryHostPointerPropertiesEXT = 254,
+    VKTRACE_TPI_VK_vkCreateValidationCacheEXT = 255,
+    VKTRACE_TPI_VK_vkDestroyValidationCacheEXT = 256,
+    VKTRACE_TPI_VK_vkMergeValidationCachesEXT = 257,
+    VKTRACE_TPI_VK_vkGetValidationCacheDataEXT = 258,
+    VKTRACE_TPI_VK_vkGetShaderInfoAMD = 259,
+    VKTRACE_TPI_VK_vkGetDeviceQueue2 = 260,
+    VKTRACE_TPI_VK_vkEnumerateInstanceVersion = 261,
+    VKTRACE_TPI_VK_vkGetDescriptorSetLayoutSupport = 262,
+    VKTRACE_TPI_VK_vkGetDeviceGroupPresentCapabilitiesKHR = 263,
+    VKTRACE_TPI_VK_vkGetDeviceGroupSurfacePresentModesKHR = 264,
+    VKTRACE_TPI_VK_vkGetPhysicalDevicePresentRectanglesKHR = 265,
+    VKTRACE_TPI_VK_vkAcquireNextImage2KHR = 266,
+    VKTRACE_TPI_VK_vkBindBufferMemory2 = 267,
+    VKTRACE_TPI_VK_vkBindImageMemory2 = 268,
+    VKTRACE_TPI_VK_vkGetDeviceGroupPeerMemoryFeatures = 269,
+    VKTRACE_TPI_VK_vkCmdSetDeviceMask = 270,
+    VKTRACE_TPI_VK_vkCmdDispatchBase = 271,
+    VKTRACE_TPI_VK_vkEnumeratePhysicalDeviceGroups = 272,
+    VKTRACE_TPI_VK_vkGetImageMemoryRequirements2 = 273,
+    VKTRACE_TPI_VK_vkGetBufferMemoryRequirements2 = 274,
+    VKTRACE_TPI_VK_vkGetImageSparseMemoryRequirements2 = 275,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceFeatures2 = 276,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceProperties2 = 277,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceFormatProperties2 = 278,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceImageFormatProperties2 = 279,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceQueueFamilyProperties2 = 280,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceMemoryProperties2 = 281,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceSparseImageFormatProperties2 = 282,
+    VKTRACE_TPI_VK_vkTrimCommandPool = 283,
+    VKTRACE_TPI_VK_vkCreateSamplerYcbcrConversion = 284,
+    VKTRACE_TPI_VK_vkDestroySamplerYcbcrConversion = 285,
+    VKTRACE_TPI_VK_vkCreateDescriptorUpdateTemplate = 286,
+    VKTRACE_TPI_VK_vkDestroyDescriptorUpdateTemplate = 287,
+    VKTRACE_TPI_VK_vkUpdateDescriptorSetWithTemplate = 288,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceExternalBufferProperties = 289,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceExternalFenceProperties = 290,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceExternalSemaphoreProperties = 291,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1

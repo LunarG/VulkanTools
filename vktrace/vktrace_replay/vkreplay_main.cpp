@@ -299,10 +299,12 @@ static bool readPortabilityTable() {
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(uint64_t))) return false;
     if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(uint64_t))) return false;
-    if (tableSize == 0) return true;
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t)))) return false;
-    portabilityTable.resize((size_t)tableSize);
-    if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
+    if (tableSize != 0) {
+        if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t))))
+            return false;
+        portabilityTable.resize((size_t)tableSize);
+        if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
+    }
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
     vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
     return true;
@@ -419,11 +421,15 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     // set global version num
     vktrace_set_trace_version(fileHeader.trace_file_version);
 
-    // Make sure trace file version is supported
-    if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE) {
+    // Make sure trace file version is supported.
+    // We can't play trace files with a version prior to the minimum compatible version.
+    // We also won't attempt to play trace files that are newer than this replayer.
+    if (fileHeader.trace_file_version < VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE ||
+        fileHeader.trace_file_version > VKTRACE_TRACE_FILE_VERSION) {
         vktrace_LogError(
-            "Trace file version %u is older than minimum compatible version (%u).\nYou'll need to make a new trace file, or use an "
-            "older replayer.",
+            "Trace file version %u is not compatible with this replayer version (%u).\nYou'll need to make a new trace file, or "
+            "use "
+            "the appropriate replayer.",
             fileHeader.trace_file_version, VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE);
         fclose(tracefp);
         vktrace_free(pTraceFile);
