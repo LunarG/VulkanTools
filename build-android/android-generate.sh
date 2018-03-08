@@ -27,8 +27,6 @@ REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.cpp )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_struct_size_helper.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_struct_size_helper.c )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_enum_string_helper.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_object_types.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_dispatch_table_helper.h )
@@ -54,14 +52,16 @@ REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 ( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} api_dump_html.h )
 
 # vktrace
-( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk.h)
-( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk.cpp)
-( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk_packets.h)
-( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_packet_id.h)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk.cpp )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_vk_packets.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vktrace_vk_packet_id.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_struct_size_helper.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_struct_size_helper.c )
 
 # vkreplay
-( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_func_ptrs.h)
-( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_replay_gen.cpp)
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_func_ptrs.h )
+( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_replay_gen.cpp )
 ( cd generated/include; python3 ${VT_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vkreplay_vk_objmapper.h )
 
 exit 0
