@@ -26,8 +26,6 @@ set REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 cd generated/include
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_safe_struct.h
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_safe_struct.cpp
-py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_struct_size_helper.h
-py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_struct_size_helper.c
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_enum_string_helper.h
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_object_types.h
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_dispatch_table_helper.h
@@ -55,6 +53,8 @@ py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_vk.h
 py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_vk.cpp
 py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_vk_packets.h
 py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_packet_id.h
+py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_struct_size_helper.h
+py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_struct_size_helper.c
 
 REM vkreplay
 py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vkreplay_vk_func_ptrs.h
