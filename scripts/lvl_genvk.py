@@ -22,6 +22,7 @@ from generator import write
 from cgenerator import CGeneratorOptions, COutputGenerator
 
 # VulkanTools generator additions
+from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
 from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN
 from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
 from mock_icd_generator import MockICDGeneratorOptions, MockICDOutputGenerator
@@ -192,7 +193,7 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48)
     ]
-    
+
      # API dump generator options for api_dump_html.h
     genOpts['api_dump_html.h'] = [
         ApiDumpOutputGenerator,
@@ -370,6 +371,50 @@ def makeGenOpts(extensions = [], removeExtensions = [], protect = True, director
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             vktrace_file_type  = 'vktrace_vk_packets_header')
+        ]
+
+    # Helper file generator options for vk_struct_size_helper.h
+    genOpts['vk_struct_size_helper.h'] = [
+          ToolHelperFileOutputGenerator,
+          ToolHelperFileOutputGeneratorOptions(
+            filename          = 'vk_struct_size_helper.h',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'struct_size_header')
+        ]
+
+    # Helper file generator options for vk_struct_size_helper.c
+    genOpts['vk_struct_size_helper.c'] = [
+          ToolHelperFileOutputGenerator,
+          ToolHelperFileOutputGeneratorOptions(
+            filename          = 'vk_struct_size_helper.c',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = allVersions,
+            emitversions      = allVersions,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensions,
+            removeExtensions  = removeExtensions,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            helper_file_type  = 'struct_size_source')
         ]
 
 # Generate a target based on the options in the matching genOpts{} object.
