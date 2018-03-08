@@ -184,7 +184,6 @@ struct device_layer_data {
     VkDevice device = VK_NULL_HANDLE;
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
     instance_layer_data *instance_data = nullptr;
-    VkPhysicalDeviceProperties *phys_dev_properties = nullptr;
 };
 
 static std::unordered_map<void *, device_layer_data *> device_layer_data_map;
@@ -361,8 +360,9 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     device_data->device = *pDevice;
     device_data->physical_device = gpu;
     device_data->report_data = layer_debug_utils_create_device(instance_data->report_data, *pDevice);
-    instance_data->dispatch_table.GetPhysicalDeviceProperties(gpu, device_data->phys_dev_properties);
-    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, device_data->phys_dev_properties->apiVersion, pCreateInfo);
+    VkPhysicalDeviceProperties physical_device_properties{};
+    instance_data->dispatch_table.GetPhysicalDeviceProperties(gpu, &physical_device_properties);
+    device_data->extensions.InitFromDeviceCreateInfo(&instance_data->extensions, physical_device_properties.apiVersion, pCreateInfo);
     lock.unlock();
 
     return result;
