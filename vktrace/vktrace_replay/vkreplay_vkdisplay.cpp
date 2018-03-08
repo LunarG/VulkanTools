@@ -205,12 +205,33 @@ int vkDisplay::init(const unsigned int gpu_idx) {
 #if defined(WIN32)
 LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
+        case WM_KEYUP: {
+            auto *const display = (vkDisplay *)GetWindowLongPtr(window, GWLP_USERDATA);
+            assert(display != nullptr);
+            switch (wp) {
+                case VK_SPACE:
+                    display->set_pause_status(!display->get_pause_status());
+                    break;
+                case VK_ESCAPE:
+                    DestroyWindow(window);
+                    PostQuitMessage(0);
+                    break;
+                default:
+                    break;
+            }
+            return S_OK;
+        }
+        case WM_NCCREATE:
+            // Changes made with SetWindowLongPtr will not take effect until SetWindowPos is called.
+            SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT *)lp)->lpCreateParams);
+            SetWindowPos(window, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+            return DefWindowProc(window, msg, wp, lp);
         case WM_CLOSE:
             DestroyWindow(window);
         // fall-thru
         case WM_DESTROY:
             PostQuitMessage(0);
-            return 0L;
+            return S_OK;
         default:
             return DefWindowProc(window, msg, wp, lp);
     }
@@ -315,7 +336,7 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
     RECT wr = {0, 0, (LONG)width, (LONG)height};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
     m_windowHandle = CreateWindow(APP_NAME, APP_NAME, WS_OVERLAPPEDWINDOW, 0, 0, wr.right - wr.left, wr.bottom - wr.top, NULL, NULL,
-                                  wcex.hInstance, NULL);
+                                  wcex.hInstance, this);
 
     if (m_windowHandle) {
         m_windowWidth = width;
