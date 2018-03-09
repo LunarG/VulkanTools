@@ -24,6 +24,7 @@ import os,re,sys
 import xml.etree.ElementTree as etree
 from generator import *
 from collections import namedtuple
+from common_codegen import *
 
 #
 # ToolHelperFileOutputGeneratorOptions - subclass of GeneratorOptions.
@@ -38,6 +39,7 @@ class ToolHelperFileOutputGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
@@ -53,7 +55,7 @@ class ToolHelperFileOutputGeneratorOptions(GeneratorOptions):
                  helper_file_type = ''):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.prefixText       = prefixText
         self.genFuncPointers  = genFuncPointers
         self.protectFile      = protectFile
@@ -158,7 +160,8 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
     def beginFeature(self, interface, emit):
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
-        if self.featureName == 'VK_VERSION_1_0':
+        self.featureExtraProtect = GetFeatureProtect(interface)
+        if 'VK_VERSION_1' in self.featureName:
             return
         nameElem = interface[0][1]
         name = nameElem.get('name')
@@ -175,8 +178,8 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         OutputGenerator.endFeature(self)
     #
     # Grab group (e.g. C "enum" type) info to output for enum-string conversion helper
-    def genGroup(self, groupinfo, groupName):
-        OutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        OutputGenerator.genGroup(self, groupinfo, groupName, alias)
         groupElem = groupinfo.elem
         # For enum_string_header
         if self.helper_file_type == 'enum_string_header':
@@ -199,8 +202,8 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
 
     #
     # Called for each type -- if the type is a struct/union, grab the metadata
-    def genType(self, typeinfo, name):
-        OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        OutputGenerator.genType(self, typeinfo, name, alias)
         typeElem = typeinfo.elem
         # If the type is a struct type, traverse the imbedded <member> tags generating a structure.
         # Otherwise, emit the tag text.
@@ -209,7 +212,7 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
             self.object_types.append(name)
         elif (category == 'struct' or category == 'union'):
             self.structNames.append(name)
-            self.genStruct(typeinfo, name)
+            self.genStruct(typeinfo, name, alias)
     #
     # Generate a VkStructureType based on a structure typename
     def genVkStructureType(self, typename):
@@ -293,8 +296,8 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         return result
     #
     # Generate local ready-access data describing Vulkan structures and unions from the XML metadata
-    def genStruct(self, typeinfo, typeName):
-        OutputGenerator.genStruct(self, typeinfo, typeName)
+    def genStruct(self, typeinfo, typeName, alias):
+        OutputGenerator.genStruct(self, typeinfo, typeName, alias)
         members = typeinfo.elem.findall('.//member')
         # Iterate over members once to get length parameters for arrays
         lens = set()
