@@ -59,6 +59,16 @@ class ZeroCounts : public layer_factory {
             Warning("Warning: You are calling vkCmdDrawIndexedIndirect with a drawCount of Zero.");
         }
     };
+
+    // Intercept CmdDispatch call and check groupCounts
+    void PreCallCmdDispatch(VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) {
+        if ((groupCountX == 0) || (groupCountY == 0) || (groupCountZ == 0)) {
+            std::stringstream message;
+            message << "Warning: You are calling vkCmdDispatch while one or more groupCounts are zero ( groupCountX = "
+                    << groupCountX << ", groupCountY = " << groupCountY << ", groupCountZ = " << groupCountZ << " ).";
+            Warning(message.str());
+        }
+    };
 };
 
 ZeroCounts warn_for_zero_counts;
