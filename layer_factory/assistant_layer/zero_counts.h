@@ -53,8 +53,8 @@ class ZeroCounts : public layer_factory {
     };
 
     // Intercept CmdDrawIndexedIndirect calls and check drawCount
-    void CmdDrawIndexedIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount,
-                                uint32_t stride) {
+    void PreCallCmdDrawIndexedIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount,
+                                       uint32_t stride) {
         if (drawCount == 0) {
             Warning("Warning: You are calling vkCmdDrawIndexedIndirect with a drawCount of Zero.");
         }
