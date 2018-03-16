@@ -155,8 +155,8 @@ endif()
 # Define macro used for building vkxml generated files
 macro(run_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} ${VT_SCRIPTS_DIR}/lvl_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml ${output}
-    DEPENDS ${LVL_SCRIPTS_DIR}/vk.xml ${LVL_SCRIPTS_DIR}/generator.py ${VT_SCRIPTS_DIR}/${dependency} ${VT_SCRIPTS_DIR}/lvl_genvk.py ${LVL_SCRIPTS_DIR}/reg.py
+    COMMAND ${PYTHON_CMD} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml ${output}
+    DEPENDS ${LVL_SCRIPTS_DIR}/vk.xml ${LVL_SCRIPTS_DIR}/generator.py ${VT_SCRIPTS_DIR}/${dependency} ${VT_SCRIPTS_DIR}/vt_genvk.py ${LVL_SCRIPTS_DIR}/reg.py
     )
 endmacro()
 
