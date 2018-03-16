@@ -39,26 +39,26 @@ py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_typemap_helper.h
 py -3 %LVL_SCRIPTS%/external_revision_generator.py --git_dir ../../third_party/shaderc/third_party/spirv-tools -s SPIRV_TOOLS_COMMIT_ID -o spirv_tools_commit_id.h
 
 REM layer factory
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% layer_factory.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% layer_factory.cpp
-py -3 %VT_SCRIPTS%/vlf_makefile_generator.py ../../../layer_factory
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% layer_factory.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% layer_factory.cpp
+py -3 %VT_SCRIPTS%/vt_genvk.py ../../../layer_factory
 
 REM apidump
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% api_dump.cpp
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% api_dump_text.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% api_dump_html.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% api_dump.cpp
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% api_dump_text.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% api_dump_html.h
 
 REM vktrace
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_vk.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_vk.cpp
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_vk_packets.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vktrace_vk_packet_id.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_struct_size_helper.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_struct_size_helper.c
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vktrace_vk_vk.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vktrace_vk_vk.cpp
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vktrace_vk_vk_packets.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vktrace_vk_packet_id.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vk_struct_size_helper.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vk_struct_size_helper.c
 
 REM vkreplay
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vkreplay_vk_func_ptrs.h
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vkreplay_vk_replay_gen.cpp
-py -3 %VT_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vkreplay_vk_objmapper.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vkreplay_vk_func_ptrs.h
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vkreplay_vk_replay_gen.cpp
+py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vkreplay_vk_objmapper.h
 
 cd ../..
