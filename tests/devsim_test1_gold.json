@@ -1,5 +1,63 @@
 {
-  "features": {
+  "ArrayOfVkFormatProperties": [
+    {
+      "bufferFeatures": 0,
+      "formatID": 1,
+      "linearTilingFeatures": 900005001,
+      "optimalTilingFeatures": 0
+    },
+    {
+      "bufferFeatures": 0,
+      "formatID": 2,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 900005002
+    },
+    {
+      "bufferFeatures": 900005003,
+      "formatID": 3,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 0
+    },
+    {
+      "bufferFeatures": 900005006,
+      "formatID": 100,
+      "linearTilingFeatures": 900005004,
+      "optimalTilingFeatures": 900005005
+    }
+  ],
+  "ArrayOfVkQueueFamilyProperties": [
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004001,
+        "height": 900004002,
+        "width": 900004003
+      },
+      "queueCount": 1,
+      "queueFlags": 900004005,
+      "timestampValidBits": 900004006
+    },
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004007,
+        "height": 900004008,
+        "width": 900004009
+      },
+      "queueCount": 1,
+      "queueFlags": 900004011,
+      "timestampValidBits": 900004012
+    },
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004013,
+        "height": 900004014,
+        "width": 900004015
+      },
+      "queueCount": 1,
+      "queueFlags": 900004017,
+      "timestampValidBits": 900004018
+    }
+  ],
+  "VkPhysicalDeviceFeatures": {
     "alphaToOne": 118,
     "depthBiasClamp": 113,
     "depthBounds": 115,
@@ -56,57 +114,21 @@
     "vertexPipelineStoresAndAtomics": 126,
     "wideLines": 116
   },
-  "formats": [
-    [
-      1,
-      {
-        "bufferFeatures": 0,
-        "linearTilingFeatures": 900005001,
-        "optimalTilingFeatures": 0
-      }
-    ],
-    [
-      2,
-      {
-        "bufferFeatures": 0,
-        "linearTilingFeatures": 0,
-        "optimalTilingFeatures": 900005002
-      }
-    ],
-    [
-      3,
-      {
-        "bufferFeatures": 900005003,
-        "linearTilingFeatures": 0,
-        "optimalTilingFeatures": 0
-      }
-    ],
-    [
-      100,
-      {
-        "bufferFeatures": 900005006,
-        "linearTilingFeatures": 900005004,
-        "optimalTilingFeatures": 900005005
-      }
-    ]
-  ],
-  "memory": {
-    "memoryHeapCount": 3,
+  "VkPhysicalDeviceMemoryProperties": {
     "memoryHeaps": [
       {
         "flags": 900002000,
-        "size": "0x00000012a05f27d1"
+        "size": 80000002001
       },
       {
         "flags": 900002002,
-        "size": "0x00000012a05f27d3"
+        "size": 80000002003
       },
       {
         "flags": 900002004,
-        "size": "0x00000012a05f27d5"
+        "size": 80000002005
       }
     ],
-    "memoryTypeCount": 5,
     "memoryTypes": [
       {
         "heapIndex": 900003001,
@@ -130,14 +152,14 @@
       }
     ]
   },
-  "properties": {
+  "VkPhysicalDeviceProperties": {
     "apiVersion": 1,
     "deviceID": 0,
     "deviceName": "device_simulation_layer_test_1",
     "deviceType": 0,
     "driverVersion": 2,
     "limits": {
-      "bufferImageGranularity": "0x00000012a05f23f3",
+      "bufferImageGranularity": 80000001011,
       "discreteQueuePriorities": 900001100,
       "framebufferColorSampleCounts": 900001084,
       "framebufferDepthSampleCounts": 900001085,
@@ -204,8 +226,8 @@
       "maxPushConstantsSize": 900001008,
       "maxSampleMaskWords": 900001094,
       "maxSamplerAllocationCount": 900001010,
-      "maxSamplerAnisotropy": 900001088,
-      "maxSamplerLodBias": 900001088,
+      "maxSamplerAnisotropy": 900001000,
+      "maxSamplerLodBias": 900001000,
       "maxStorageBufferRange": 900001007,
       "maxTessellationControlPerPatchOutputComponents": 900001038,
       "maxTessellationControlPerVertexInputComponents": 900001036,
@@ -230,16 +252,16 @@
       ],
       "maxViewports": 900001066,
       "minInterpolationOffset": 201.5,
-      "minMemoryMapAlignment": "0x0000000035a4ed30",
-      "minStorageBufferOffsetAlignment": "0x00000012a05f2433",
-      "minTexelBufferOffsetAlignment": "0x00000012a05f2431",
+      "minMemoryMapAlignment": 900001072,
+      "minStorageBufferOffsetAlignment": 80000001075,
+      "minTexelBufferOffsetAlignment": 80000001073,
       "minTexelGatherOffset": -900001078,
       "minTexelOffset": -900001076,
-      "minUniformBufferOffsetAlignment": "0x00000012a05f2432",
+      "minUniformBufferOffsetAlignment": 80000001074,
       "mipmapPrecisionBits": 900001061,
-      "nonCoherentAtomSize": "0x00000012a05f2451",
-      "optimalBufferCopyOffsetAlignment": "0x00000001dcd6544f",
-      "optimalBufferCopyRowPitchAlignment": "0x00000012a05f2450",
+      "nonCoherentAtomSize": 80000001105,
+      "optimalBufferCopyOffsetAlignment": 8000001103,
+      "optimalBufferCopyRowPitchAlignment": 80000001104,
       "pointSizeGranularity": -207.5,
       "pointSizeRange": [
         -203.5,
@@ -249,7 +271,7 @@
       "sampledImageDepthSampleCounts": 900001091,
       "sampledImageIntegerSampleCounts": 900001090,
       "sampledImageStencilSampleCounts": 900001092,
-      "sparseAddressSpaceSize": "0x00000012a05f23f4",
+      "sparseAddressSpaceSize": 80000001012,
       "standardSampleLocations": 900001102,
       "storageImageSampleCounts": 900001093,
       "strictLines": 900001101,
@@ -257,10 +279,10 @@
       "subPixelPrecisionBits": 900001059,
       "subTexelPrecisionBits": 900001060,
       "timestampComputeAndGraphics": 900001095,
-      "timestampPeriod": 900001088,
+      "timestampPeriod": 900001000,
       "viewportBoundsRange": [
-        -900001088,
-        900001088
+        -900001000,
+        900001000
       ],
       "viewportSubPixelBits": 900001071
     },
@@ -290,37 +312,5 @@
       "residencyStandard3DBlockShape": 900001108
     },
     "vendorID": 0
-  },
-  "queues": [
-    {
-      "minImageTransferGranularity": {
-        "depth": 900004001,
-        "height": 900004002,
-        "width": 900004003
-      },
-      "queueCount": 900004004,
-      "queueFlags": 900004005,
-      "timestampValidBits": 900004006
-    },
-    {
-      "minImageTransferGranularity": {
-        "depth": 900004007,
-        "height": 900004008,
-        "width": 900004009
-      },
-      "queueCount": 900004010,
-      "queueFlags": 900004011,
-      "timestampValidBits": 900004012
-    },
-    {
-      "minImageTransferGranularity": {
-        "depth": 900004013,
-        "height": 900004014,
-        "width": 900004015
-      },
-      "queueCount": 900004016,
-      "queueFlags": 900004017,
-      "timestampValidBits": 900004018
-    }
-  ]
+  }
 }
