@@ -1172,7 +1172,8 @@ class ApiDumpOutputGenerator(OutputGenerator):
         # Find all of the extensions that use the system types
         self.sysTypes = set()
         for node in self.registry.reg.find('types').findall('type'):
-            if node.get('category') == None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform':
+            if node.get('category') == None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform' or \
+                (node.find('name') is not None and node.find('name').text == 'ANativeWindow'): #TODO: Handle 'define' system types
                 for extension in self.extTypes:
                     for structName in self.extTypes[extension].vktypes:
                         for struct in self.structs:
