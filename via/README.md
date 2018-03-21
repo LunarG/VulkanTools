@@ -118,7 +118,6 @@ example, if the user runs `via --output_path /home/me/Documents`, then the outpu
 
 ## Common Command-Line Outputs
 
-<<<<<<< HEAD
 
 #### "SUCCESS: Vulkan analysis completed properly using Vulkan X.Y"
 
