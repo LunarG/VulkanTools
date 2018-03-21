@@ -294,13 +294,12 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                                                      signalSemaphoreCount);
                     break;
                 case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
-                    AddPointerWithCountToTracebuffer(VkBindBufferMemoryDeviceGroupInfo, uint32_t, pDeviceIndices,
-                                                     deviceIndexCount);
+                    AddPointerWithCountToTracebuffer(VkBindBufferMemoryDeviceGroupInfo, uint32_t, pDeviceIndices, deviceIndexCount);
                     break;
                 case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
-                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices,
-                                                     deviceIndexCount);
-                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions, splitInstanceBindRegionCount);
+                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices, deviceIndexCount);
+                    AddPointerWithCountToTracebuffer(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions,
+                                                     splitInstanceBindRegionCount);
                     break;
                 case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                     AddPointerWithCountToTracebuffer(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks,
@@ -638,7 +637,7 @@ void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHea
 }
 
 VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfo(vktrace_trace_packet_header* pHeader,
-                                                                             intptr_t ptr_variable) {
+                                                                       intptr_t ptr_variable) {
     VkDeviceGroupDeviceCreateInfo* pCreateInfo =
         (VkDeviceGroupDeviceCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)ptr_variable);
     uint32_t i;

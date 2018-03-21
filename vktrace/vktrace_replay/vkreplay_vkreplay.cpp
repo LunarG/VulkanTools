@@ -3811,7 +3811,7 @@ static std::unordered_map<VkDescriptorUpdateTemplateKHR, VkDescriptorUpdateTempl
     descriptorUpdateTemplateCreateInfo;
 
 VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplate(packet_vkCreateDescriptorUpdateTemplate *pPacket) {
-    return manually_replay_vkCreateDescriptorUpdateTemplateKHR((packet_vkCreateDescriptorUpdateTemplateKHR*)pPacket);
+    return manually_replay_vkCreateDescriptorUpdateTemplateKHR((packet_vkCreateDescriptorUpdateTemplateKHR *)pPacket);
 }
 
 VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vkCreateDescriptorUpdateTemplateKHR *pPacket) {
@@ -3849,7 +3849,7 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplateKHR(packet_vk
 }
 
 void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplate(packet_vkDestroyDescriptorUpdateTemplate *pPacket) {
-    manually_replay_vkDestroyDescriptorUpdateTemplateKHR((packet_vkDestroyDescriptorUpdateTemplateKHR*)pPacket);
+    manually_replay_vkDestroyDescriptorUpdateTemplateKHR((packet_vkDestroyDescriptorUpdateTemplateKHR *)pPacket);
 }
 
 void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDestroyDescriptorUpdateTemplateKHR *pPacket) {
@@ -3931,7 +3931,7 @@ void vkReplay::remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTem
 }
 
 void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplate(packet_vkUpdateDescriptorSetWithTemplate *pPacket) {
-    manually_replay_vkUpdateDescriptorSetWithTemplateKHR((packet_vkUpdateDescriptorSetWithTemplateKHR*)pPacket);
+    manually_replay_vkUpdateDescriptorSetWithTemplateKHR((packet_vkUpdateDescriptorSetWithTemplateKHR *)pPacket);
 }
 
 void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpdateDescriptorSetWithTemplateKHR *pPacket) {
