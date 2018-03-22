@@ -5,7 +5,7 @@
         "type": "GLOBAL",
         "library_path": "./libVkLayer_device_simulation.so",
         "api_version": "1.1.70",
-        "implementation_version": "1.2.2",
+        "implementation_version": "1.2.3",
         "description": "LunarG device simulation layer"
     }
 }

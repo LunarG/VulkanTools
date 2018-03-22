@@ -63,7 +63,7 @@ namespace {
 // When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 2;
-const uint32_t kVersionDevsimPatch = 2;
+const uint32_t kVersionDevsimPatch = 3;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 const VkLayerProperties kLayerProperties[] = {{
@@ -1279,13 +1279,29 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice physicalDevice,
                                                                       uint32_t *pQueueFamilyPropertyCount,
-                                                                      VkQueueFamilyProperties2KHR *pQueueFamilyProperties) {
-    if (pQueueFamilyPropertyCount && pQueueFamilyProperties) {
-        GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount,
-                                               &pQueueFamilyProperties->queueFamilyProperties);
-    } else {
-        GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, nullptr);
+                                                                      VkQueueFamilyProperties2KHR *pQueueFamilyProperties2) {
+    std::lock_guard<std::mutex> lock(global_lock);
+    const auto dt = instance_dispatch_table(physicalDevice);
+
+    PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
+    if (!pdd || (pdd->arrayof_queue_family_properties_.size() == 0)) {
+        dt->GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties2);
+        return;
     }
+
+    const uint32_t src_count = static_cast<uint32_t>(pdd->arrayof_queue_family_properties_.size());
+    if (!pQueueFamilyProperties2) {
+        *pQueueFamilyPropertyCount = src_count;
+        return;
+    }
+
+    // Careful: cannot use EnumerateProperties() here! (because src and dst structs are not the same type)
+    const uint32_t copy_count = (*pQueueFamilyPropertyCount < src_count) ? *pQueueFamilyPropertyCount : src_count;
+    const VkQueueFamilyProperties *src_props = pdd->arrayof_queue_family_properties_.data();
+    for (uint32_t i = 0; i < copy_count; ++i) {
+        pQueueFamilyProperties2[i].queueFamilyProperties = src_props[i];
+    }
+    *pQueueFamilyPropertyCount = copy_count;
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format,

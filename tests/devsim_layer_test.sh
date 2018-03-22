@@ -63,7 +63,7 @@ export VK_DEVSIM_FILENAME="devsim_test2_in1.json:devsim_test2_in2.json:devsim_te
 [ $? -eq 0 ] || fail_msg "test2 vulkaninfo"
 
 # Use jq to extract, reformat, and sort the output.
-JSON_SECTIONS='{VkPhysicalDeviceProperties,VkPhysicalDeviceFeatures,VkPhysicalDeviceMemoryProperties,ArrayOfVkFormatProperties}'
+JSON_SECTIONS='{VkPhysicalDeviceProperties,VkPhysicalDeviceFeatures,VkPhysicalDeviceMemoryProperties,ArrayOfVkQueueFamilyProperties,ArrayOfVkFormatProperties}'
 jq -S $JSON_SECTIONS $FILENAME_02_TEMP1 > $FILENAME_02_TEMP2
 [ $? -eq 0 ] || fail_msg "test2 jq extraction"
 
