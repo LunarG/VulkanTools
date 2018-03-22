@@ -174,7 +174,7 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
                                                          uint64_t additional_buffers_size) {
     // Always allocate at least enough space for the packet header
     uint64_t total_packet_size =
-        ROUNDUP_TO_4(sizeof(vktrace_trace_packet_header) + ROUNDUP_TO_8(packet_size) + additional_buffers_size);
+        ROUNDUP_TO_8(sizeof(vktrace_trace_packet_header) + ROUNDUP_TO_8(packet_size) + additional_buffers_size);
     void* pMemory = vktrace_malloc((size_t)total_packet_size);
     memset(pMemory, 0, (size_t)total_packet_size);
 
