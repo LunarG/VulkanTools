@@ -20,6 +20,19 @@ The role of DevSim is to "simulate" a less-capable Vulkan implementation by cons
 ### Using DevSim
 DevSim supports a flexible configuration file format using JSON syntax. The configuration file format is defined by a formal JSON schema available on the Khronos website, so any configuration file may be verified to be correct using freely-available JSON validators. Browsing through the schema file, you can see the extent of parameters that are available for your configuration. As a convenience, DevSim supports loading multiple JSON files, so your configuration data can be split among separate files for modularity as desired.
 
+### Android
+To enable, use a setting with the path of configuration file to load:
+```
+adb shell settings put global debug.vulkan.devsim.filepath <path/to/DevSim/JSON/configuration/file>
+```
+Example of a DevSim JSON configuration file: [tiny1.json](https://github.com/LunarG/VulkanTools/blob/master/layersvt/device_simulation_examples/tiny1.json)
+
+Optional: use settings to enable debugging output and exit-on-error:
+```
+adb shell settings put global debug.vulkan.devsim.debugenable 1
+adb shell settings put global debug.vulkan.devsim.exitonerror 1
+```
+
 ### How DevSim Works
 DevSim builds its internal data tables by querying the capabilities of the underlying actual device, then applying each of the configuration files “on top of” those tables. Therefore you only need to specify the features you wish to modify from the actual device; tweaking a single feature is easy. Here’s an example of  a valid configuration file for changing only the maximum permitted viewport size:
 
