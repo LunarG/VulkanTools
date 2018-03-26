@@ -1941,7 +1941,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     bool rval = false;
     uint32_t replayMemTypeIndex;
     vktrace_trace_packet_header packetHeader1;
-    VkDeviceMemory traceAllocateMemoryRval;
+    VkDeviceMemory traceAllocateMemoryRval = VK_NULL_HANDLE;
     bool foundBindMem;
     VkDeviceSize bimMemoryOffset;
     packet_vkFreeMemory freeMemoryPacket;
@@ -1953,7 +1953,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     static size_t amSearchPos = 0;
     VkImage remappedImage = VK_NULL_HANDLE;
     size_t bindMemIdx;
-    VkImage bindMemImage;
+    VkImage bindMemImage = VK_NULL_HANDLE;
 
     // Should only be here if we have a valid portability table and the replay platform does not match the trace platform
     assert(m_pFileHeader->portability_table_valid && m_platformMatch == 0);
