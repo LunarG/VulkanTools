@@ -35,10 +35,12 @@ typedef struct MessageStream MessageStream;
 struct FileLike;
 typedef struct FileLike FileLike;
 typedef struct FileLike {
-    enum { File, Socket } mMode;
+    enum { File, Socket, Memory } mMode;
     FILE* mFile;
     uint64_t mFileLen;
     MessageStream* mMessageStream;
+    char* mMemAddr;
+    char* mMemCurrAddr;
 } FileLike;
 
 // For creating checkpoints (consistency checks) in the various streams we're interacting with.
@@ -60,10 +62,13 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in);
 // reads and writes.
 
 // create a filelike interface for file streaming
-FileLike* vktrace_FileLike_create_file(FILE* fp);
+FileLike* vktrace_FileLike_create_file(FILE* fp, BOOL preload);
 
 // create a filelike interface for network streaming
 FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream);
+
+// free filelike interface
+void vktrace_FileLike_free(FileLike* pFileLike);
 
 // read a size and then a buffer of that size
 uint64_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, uint64_t _len);

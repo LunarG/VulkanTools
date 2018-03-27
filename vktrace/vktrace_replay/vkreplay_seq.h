@@ -50,7 +50,9 @@ class Sequencer : public AbstractSequencer {
 
     void clean_up() {
         if (m_lastPacket) {
-            free(m_lastPacket);
+            if (m_pFile->mMode != FileLike::Memory) {
+                free(m_lastPacket);
+            }
             m_lastPacket = NULL;
         }
     }

@@ -268,6 +268,17 @@ The `vkreplay` options are:
 
 <tr>
 
+<td>-pltf &lt;bool&gt;<br/>
+‑‑PreloadTraceFile &lt;bool&gt;</td>
+
+<td>Preload tracefile to memory before replay (NumLoops need to be 1)</td>
+
+<td>off</td>
+
+</tr>
+
+<tr>
+
 <td>-s &lt;string&gt;<br/>
 ‑‑Screenshot &lt;string&gt;</td>
 
