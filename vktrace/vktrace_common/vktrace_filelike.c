@@ -69,7 +69,7 @@ uint64_t vktrace_FileLike_GetFileLength(FILE* fp) {
     // Get file length
     int64_t length = 0;
     if (Fseek(fp, 0, SEEK_END) != 0) {
-        vktrace_LogError("Failed to Fseek to the end of tracefile for replaying.");
+        vktrace_LogError("Failed to fseek to the end of tracefile for replaying.");
     } else {
         length = Ftell(fp);
         if (length == -1L) {
@@ -99,12 +99,12 @@ FileLike* vktrace_FileLike_create_file(FILE* fp, BOOL preload) {
         pFile->mMemCurrAddr = NULL;
 
         if (pFile->mFileLen == 0) {
-            vktrace_LogError("Failed to create FileLike, file length is 0!");
+            vktrace_LogError("Failed to read trace file, file length is 0!");
             return pFile;
         }
 
         if (preload) {
-            vktrace_LogDebug("Preload trace file to memory.");
+            vktrace_LogAlways("Preloading trace file...");
             pFile->mMode = Memory;
             char* addr = NULL;
 
@@ -124,18 +124,19 @@ FileLike* vktrace_FileLike_create_file(FILE* fp, BOOL preload) {
                 if (1 != fread(addr, (size_t)pFile->mFileLen, 1, fp)) {
                     if (ferror(fp) != 0) {
                         perror("fread error");
-                    } else if (feof(fp) != 0) {
-                        vktrace_LogVerbose("Reached end of file.");
                     }
+                    vktrace_LogError("Failed to read trace file!");
                     VKTRACE_DELETE(addr);
                     addr = NULL;
                 }
             }
 #endif
+            if (addr != NULL) {
+                vktrace_LogAlways("Preloading trace file completed.");
+            }
             pFile->mMemAddr = addr;
             pFile->mMemCurrAddr = addr;
         } else {
-            vktrace_LogDebug("Do not preload trace file.");
             pFile->mMode = File;
             pFile->mFile = fp;
         }
