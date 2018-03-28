@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <algorithm>
 #if defined(ANDROID)
 #include <sstream>
 #include <android/log.h>
