@@ -134,6 +134,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     seq.get_bookmark(startingPacket);
     unsigned int totalLoops = settings.numLoops;
     while (settings.numLoops > 0) {
+        uint64_t start_time = vktrace_get_time();
         while (trace_running) {
             display.process_event();
             if (display.get_quit_status()) {
@@ -199,6 +200,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
+                                start_time = vktrace_get_time();
                             }
 
                             if (frameNumber == settings.loopEndFrame) {
@@ -213,6 +215,18 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                     }
                 }
             }
+        }
+        uint64_t end_time = vktrace_get_time();
+        if (end_time > start_time) {
+            int start_frame = settings.loopStartFrame == -1 ? 0 : settings.loopStartFrame;
+            int end_frame = settings.loopEndFrame == -1 ? replayer->GetFrameNumber()
+                                                        : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
+            int frame_number = end_frame - start_frame;
+            double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
+            vktrace_LogAlways("fps %f (loop duration(ns) %llu, frame number %d (%d , %d))", fps, end_time - start_time,
+                              frame_number, start_frame, end_frame - 1);
+        } else {
+            vktrace_LogError("fps error!");
         }
         settings.numLoops--;
         if (settings.numLoops)
