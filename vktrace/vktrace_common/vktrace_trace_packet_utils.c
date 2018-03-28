@@ -428,19 +428,33 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
     }
 
     // allocate space
-    vktrace_trace_packet_header* pHeader = (vktrace_trace_packet_header*)vktrace_malloc((size_t)total_packet_size);
+    vktrace_trace_packet_header* pHeader = NULL;
 
-    if (pHeader != NULL) {
-        pHeader->size = total_packet_size;
-        if (vktrace_FileLike_ReadRaw(pFile, (char*)pHeader + sizeof(uint64_t), (size_t)total_packet_size - sizeof(uint64_t)) ==
-            FALSE) {
-            vktrace_LogError("Failed to read trace packet with size of %u.", total_packet_size);
-            return NULL;
+    if (pFile->mMode != Memory) {
+        pHeader = (vktrace_trace_packet_header*)vktrace_malloc((size_t)total_packet_size);
+
+        if (pHeader != NULL) {
+            pHeader->size = total_packet_size;
+            if (vktrace_FileLike_ReadRaw(pFile, (char*)pHeader + sizeof(uint64_t), (size_t)total_packet_size - sizeof(uint64_t)) ==
+                FALSE) {
+                vktrace_LogError("Failed to read trace packet with size of %llu.", total_packet_size);
+                return NULL;
+            }
+
+            pHeader->pBody = (uintptr_t)pHeader + sizeof(vktrace_trace_packet_header);
+        } else {
+            vktrace_LogError("Malloc failed in vktrace_read_trace_packet of size %llu.", total_packet_size);
         }
-
-        pHeader->pBody = (uintptr_t)pHeader + sizeof(vktrace_trace_packet_header);
     } else {
-        vktrace_LogError("Malloc failed in vktrace_read_trace_packet of size %u.", total_packet_size);
+        if (pFile->mMemAddr == NULL) {
+            vktrace_LogError("Failed to read trace packet with size of %llu.", total_packet_size);
+        } else if (pFile->mMemCurrAddr + ((size_t)total_packet_size - sizeof(uint64_t)) > pFile->mMemAddr + pFile->mFileLen) {
+            vktrace_LogVerbose("Reached end of file.");
+        } else {
+            pHeader = (vktrace_trace_packet_header*)(pFile->mMemCurrAddr - sizeof(uint64_t));
+            pFile->mMemCurrAddr += ((size_t)total_packet_size - sizeof(uint64_t));
+            pHeader->pBody = (uintptr_t)pHeader + sizeof(vktrace_trace_packet_header);
+        }
     }
 
     return pHeader;

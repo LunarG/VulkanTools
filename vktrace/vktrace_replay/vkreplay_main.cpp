@@ -38,7 +38,7 @@
 #include "vkreplay_window.h"
 #include "screenshot_parsing.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL, FALSE};
 
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
@@ -55,6 +55,13 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.pTraceFilePath},
      TRUE,
      "The trace file to open and replay. (Deprecated)"},
+    {"pltf",
+     "PreloadTraceFile",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.preloadTraceFile},
+     {&replaySettings.preloadTraceFile},
+     TRUE,
+     "Preload tracefile to memory before replay. (NumLoops need to be 1.)"},
     {"l",
      "NumLoops",
      VKTRACE_SETTING_UINT,
@@ -297,6 +304,7 @@ static bool readPortabilityTable() {
     uint64_t originalFilePos;
 
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
+    if (UINT64_MAX == originalFilePos) return false;
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(uint64_t))) return false;
     if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(uint64_t))) return false;
     if (tableSize != 0) {
@@ -306,7 +314,7 @@ static bool readPortabilityTable() {
         if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
     }
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
-    vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
+    vktrace_LogDebug("portabilityTable size=%llu\n", tableSize);
     return true;
 }
 
@@ -330,6 +338,14 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
 
     // merge settings so that new settings will get written into the settings file
     vktrace_SettingGroup_merge(&g_replaySettingGroup, &pAllSettings, &numAllSettings);
+
+    // Force NumLoops option to 1 if pre-load is enabled, because the trace file loaded into memory may be overwritten during replay
+    // which will cause error in the second or later loops.
+    if (replaySettings.preloadTraceFile && replaySettings.numLoops != 1) {
+        vktrace_LogError("PreloadTraceFile is enabled.  Force NumLoops to 1!");
+        vktrace_LogError("Please don't enable PreloadTraceFile if you want to replay the trace file multiple times!");
+        replaySettings.numLoops = 1;
+    }
 
     // Set verbosity level
     if (replaySettings.verbosity == NULL || !strcmp(replaySettings.verbosity, "errors"))
@@ -406,7 +422,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     }
 
     // read the header
-    traceFile = vktrace_FileLike_create_file(tracefp);
+    traceFile = vktrace_FileLike_create_file(tracefp, replaySettings.preloadTraceFile);
     if (vktrace_FileLike_ReadRaw(traceFile, &fileHeader, sizeof(fileHeader)) == false) {
         vktrace_LogError("Unable to read header from file.");
         if (pAllSettings != NULL) {
@@ -414,7 +430,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         }
         fclose(tracefp);
         vktrace_free(pTraceFile);
-        vktrace_free(traceFile);
+        vktrace_FileLike_free(traceFile);
         return -1;
     }
 
@@ -433,7 +449,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             fileHeader.trace_file_version, VKTRACE_TRACE_FILE_VERSION_MINIMUM_COMPATIBLE);
         fclose(tracefp);
         vktrace_free(pTraceFile);
-        vktrace_free(traceFile);
+        vktrace_FileLike_free(traceFile);
         return -1;
     }
 
@@ -442,7 +458,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_LogError("%s does not appear to be a valid Vulkan trace file.", pTraceFile);
         fclose(tracefp);
         vktrace_free(pTraceFile);
-        vktrace_free(traceFile);
+        vktrace_FileLike_free(traceFile);
         return -1;
     }
 
@@ -455,7 +471,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         }
         fclose(tracefp);
         vktrace_free(pTraceFile);
-        vktrace_free(traceFile);
+        vktrace_FileLike_free(traceFile);
         return -1;
     }
 
@@ -468,7 +484,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         }
         fclose(tracefp);
         vktrace_free(pTraceFile);
-        vktrace_free(traceFile);
+        vktrace_FileLike_free(traceFile);
         return -1;
     }
 
@@ -521,7 +537,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
                 }
                 fclose(tracefp);
                 vktrace_free(pTraceFile);
-                vktrace_free(traceFile);
+                vktrace_FileLike_free(traceFile);
                 return -1;
             }
 
@@ -541,7 +557,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
                 }
                 fclose(tracefp);
                 vktrace_free(pTraceFile);
-                vktrace_free(traceFile);
+                vktrace_FileLike_free(traceFile);
                 return err;
             }
         }
@@ -554,7 +570,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         }
         fclose(tracefp);
         vktrace_free(pTraceFile);
-        vktrace_free(traceFile);
+        vktrace_FileLike_free(traceFile);
         return -1;
     }
 
@@ -575,7 +591,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
 
     fclose(tracefp);
     vktrace_free(pTraceFile);
-    vktrace_free(traceFile);
+    vktrace_FileLike_free(traceFile);
 
     return err;
 }

@@ -88,14 +88,58 @@ uint64_t vktrace_FileLike_GetFileLength(FILE* fp) {
 }
 
 // ------------------------------------------------------------------------------------------------
-FileLike* vktrace_FileLike_create_file(FILE* fp) {
+FileLike* vktrace_FileLike_create_file(FILE* fp, BOOL preload) {
     FileLike* pFile = NULL;
     if (fp != NULL) {
         pFile = VKTRACE_NEW(FileLike);
-        pFile->mMode = File;
-        pFile->mFile = fp;
-        pFile->mMessageStream = NULL;
+        pFile->mFile = NULL;
         pFile->mFileLen = vktrace_FileLike_GetFileLength(fp);
+        pFile->mMessageStream = NULL;
+        pFile->mMemAddr = NULL;
+        pFile->mMemCurrAddr = NULL;
+
+        if (pFile->mFileLen == 0) {
+            vktrace_LogError("Failed to read trace file, file length is 0!");
+            return pFile;
+        }
+
+        if (preload) {
+            vktrace_LogAlways("Preloading trace file...");
+            pFile->mMode = Memory;
+            char* addr = NULL;
+
+#if !defined(WIN32)
+            // mmap does not work on Windows
+            addr = (char*)mmap(NULL, pFile->mFileLen, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_POPULATE, fileno(fp), 0);
+            if (addr == MAP_FAILED) {
+                vktrace_LogError("Failed to mmap tracefile for replaying.");
+                addr = NULL;
+            }
+#else
+            // TODO: Find a better solution to make it work with a large trace file
+            addr = VKTRACE_NEW_ARRAY(char, pFile->mFileLen);
+            if (addr == NULL) {
+                vktrace_LogError("Failed to malloc memory to load tracefile for replaying.");
+            } else {
+                if (1 != fread(addr, (size_t)pFile->mFileLen, 1, fp)) {
+                    if (ferror(fp) != 0) {
+                        perror("fread error");
+                    }
+                    vktrace_LogError("Failed to read trace file!");
+                    VKTRACE_DELETE(addr);
+                    addr = NULL;
+                }
+            }
+#endif
+            if (addr != NULL) {
+                vktrace_LogAlways("Preloading trace file completed.");
+            }
+            pFile->mMemAddr = addr;
+            pFile->mMemCurrAddr = addr;
+        } else {
+            pFile->mMode = File;
+            pFile->mFile = fp;
+        }
     }
     return pFile;
 }
@@ -109,8 +153,22 @@ FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream) {
         pFile->mFile = NULL;
         pFile->mMessageStream = _msgStream;
         pFile->mFileLen = 0;
+        pFile->mMemAddr = NULL;
+        pFile->mMemCurrAddr = NULL;
     }
     return pFile;
+}
+
+// ------------------------------------------------------------------------------------------------
+void vktrace_FileLike_free(FileLike* pFileLike) {
+    if (pFileLike->mMemAddr) {
+#if !defined(WIN32)
+        munmap(pFileLike->mMemAddr, pFileLike->mFileLen);
+#else
+        vktrace_free(pFileLike->mMemAddr);
+#endif
+    }
+    vktrace_free(pFileLike);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -131,22 +189,38 @@ uint64_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, uint64_t _len)
 // ------------------------------------------------------------------------------------------------
 BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, uint64_t _len) {
     BOOL result = TRUE;
-    assert((pFileLike->mFile != 0) ^ (pFileLike->mMessageStream != 0));
+    assert((pFileLike->mFile != 0) ^ (pFileLike->mMessageStream != 0) ^ (pFileLike->mMemAddr != NULL));
 
     switch (pFileLike->mMode) {
         case File: {
-            if (1 != fread(_bytes, (size_t)_len, 1, pFileLike->mFile)) {
-                if (ferror(pFileLike->mFile) != 0) {
-                    perror("fread error");
-                } else if (feof(pFileLike->mFile) != 0) {
-                    vktrace_LogVerbose("Reached end of file.");
+            if (pFileLike->mFile != NULL) {
+                if (1 != fread(_bytes, (size_t)_len, 1, pFileLike->mFile)) {
+                    if (ferror(pFileLike->mFile) != 0) {
+                        perror("fread error");
+                    } else if (feof(pFileLike->mFile) != 0) {
+                        vktrace_LogVerbose("Reached end of file.");
+                    }
+                    result = FALSE;
                 }
+            } else {
                 result = FALSE;
             }
             break;
         }
         case Socket: {
             result = vktrace_MessageStream_BlockingRecv(pFileLike->mMessageStream, _bytes, _len);
+            break;
+        }
+        case Memory: {
+            if (pFileLike->mMemAddr == NULL) {
+                result = FALSE;
+            } else if (pFileLike->mMemCurrAddr + _len > pFileLike->mMemAddr + pFileLike->mFileLen) {
+                vktrace_LogVerbose("Reached end of file.");
+                result = FALSE;
+            } else {
+                memcpy(_bytes, pFileLike->mMemCurrAddr, _len);
+                pFileLike->mMemCurrAddr += _len;
+            }
             break;
         }
 
@@ -188,11 +262,15 @@ BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, uint64_t _le
 // ------------------------------------------------------------------------------------------------
 uint64_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
     uint64_t offset = 0;
-    assert((pFileLike->mFile != 0));
+    assert((pFileLike->mFile != 0) ^ (pFileLike->mMemAddr != NULL));
 
     switch (pFileLike->mMode) {
         case File: {
             offset = Ftell(pFileLike->mFile);
+            break;
+        }
+        case Memory: {
+            offset = pFileLike->mMemCurrAddr - pFileLike->mMemAddr;
             break;
         }
 
@@ -205,11 +283,18 @@ uint64_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
 // ------------------------------------------------------------------------------------------------
 BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, uint64_t offset) {
     BOOL ret = FALSE;
-    assert((pFileLike->mFile != 0));
+    assert((pFileLike->mFile != 0) ^ (pFileLike->mMemAddr != NULL));
 
     switch (pFileLike->mMode) {
         case File: {
             if (Fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
+                ret = TRUE;
+            }
+            break;
+        }
+        case Memory: {
+            pFileLike->mMemCurrAddr = pFileLike->mMemAddr + offset;
+            if (pFileLike->mMemCurrAddr <= (pFileLike->mMemAddr + pFileLike->mFileLen)) {
                 ret = TRUE;
             }
             break;
