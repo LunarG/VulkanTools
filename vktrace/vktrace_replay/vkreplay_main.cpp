@@ -130,6 +130,13 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     bool trace_running = true;
     int prevFrameNumber = -1;
 
+    if (settings.loopEndFrame != -1) {
+        // Increase by 1 because it is comparing with the frame number which is increased right after vkQueuePresentKHR being
+        // called.
+        // e.g. when frame number is 3, maybe frame 2 is just finished replaying and frame 3 is not started yet.
+        settings.loopEndFrame += 1;
+    }
+
     // record the location of looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
@@ -224,8 +231,8 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                                                         : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
             int frame_number = end_frame - start_frame;
             double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
-            vktrace_LogAlways("fps %f (loop duration(ns) %llu, frame number %d (%d , %d))", fps, end_time - start_time,
-                              frame_number, start_frame, end_frame - 1);
+            vktrace_LogAlways("fps %f (loop duration(seconds) %f, frame number %d (%d , %d))", fps,
+                              static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame, end_frame - 1);
         } else {
             vktrace_LogError("fps error!");
         }
