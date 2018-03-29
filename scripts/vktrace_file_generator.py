@@ -140,13 +140,14 @@ approved_ext = [
                 ]
 
 api_exclusions = [
+                'EnumerateInstanceVersion'
                 ]
 
 # Helper functions
 
 def isSupportedCmd(cmd, cmd_extension_dict):
     extension = cmd_extension_dict[cmd.name]
-    if extension != 'VK_VERSION_1_0' and extension not in approved_ext:
+    if 'VK_VERSION_1_' not in extension and extension not in approved_ext:
         return False
 
     cmdname = cmd.name[2:]
@@ -2318,7 +2319,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkInvalidateMappedMemoryRanges',
                                          'vkGetDeviceProcAddr',
                                          'vkGetInstanceProcAddr',
-                                         'vkEnumerateInstanceVersion',
                                          'vkEnumerateInstanceExtensionProperties',
                                          'vkEnumerateDeviceExtensionProperties',
                                          'vkEnumerateInstanceLayerProperties',
