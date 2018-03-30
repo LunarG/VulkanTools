@@ -230,9 +230,15 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
             int end_frame = settings.loopEndFrame == -1 ? replayer->GetFrameNumber()
                                                         : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
             int frame_number = end_frame - start_frame;
-            double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
-            vktrace_LogAlways("%f fps, %f seconds, %d frames, framerange %d-%d", fps,
-                              static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame, end_frame - 1);
+            if (frame_number <= 0) {
+                vktrace_LogError("Loop start frame is greater than loop end frame!");
+                err = -1;
+                goto out;
+            } else {
+                double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
+                vktrace_LogAlways("%f fps, %f seconds, %d frames, framerange %d-%d", fps,
+                                  static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame, end_frame - 1);
+            }
         } else {
             vktrace_LogError("fps error!");
         }
