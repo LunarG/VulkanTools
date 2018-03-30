@@ -237,7 +237,8 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
             } else {
                 double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
                 vktrace_LogAlways("%f fps, %f seconds, %d frames, framerange %d-%d", fps,
-                                  static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame, end_frame - 1);
+                                  static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame,
+                                  end_frame - 1);
             }
         } else {
             vktrace_LogError("fps error!");
