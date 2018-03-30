@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <algorithm>
 #if defined(ANDROID)
 #include <sstream>
 #include <android/log.h>
@@ -129,11 +130,19 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     bool trace_running = true;
     int prevFrameNumber = -1;
 
+    if (settings.loopEndFrame != -1) {
+        // Increase by 1 because it is comparing with the frame number which is increased right after vkQueuePresentKHR being
+        // called.
+        // e.g. when frame number is 3, maybe frame 2 is just finished replaying and frame 3 is not started yet.
+        settings.loopEndFrame += 1;
+    }
+
     // record the location of looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
     unsigned int totalLoops = settings.numLoops;
     while (settings.numLoops > 0) {
+        uint64_t start_time = vktrace_get_time();
         while (trace_running) {
             display.process_event();
             if (display.get_quit_status()) {
@@ -199,6 +208,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
+                                start_time = vktrace_get_time();
                             }
 
                             if (frameNumber == settings.loopEndFrame) {
@@ -213,6 +223,24 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                     }
                 }
             }
+        }
+        uint64_t end_time = vktrace_get_time();
+        if (end_time > start_time) {
+            int start_frame = settings.loopStartFrame == -1 ? 0 : settings.loopStartFrame;
+            int end_frame = settings.loopEndFrame == -1 ? replayer->GetFrameNumber()
+                                                        : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
+            int frame_number = end_frame - start_frame;
+            if (frame_number <= 0) {
+                vktrace_LogError("Loop start frame is greater than loop end frame!");
+                err = -1;
+                goto out;
+            } else {
+                double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
+                vktrace_LogAlways("%f fps, %f seconds, %d frames, framerange %d-%d", fps,
+                                  static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame, end_frame - 1);
+            }
+        } else {
+            vktrace_LogError("fps error!");
         }
         settings.numLoops--;
         if (settings.numLoops)
