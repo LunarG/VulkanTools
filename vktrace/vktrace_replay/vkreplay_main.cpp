@@ -231,7 +231,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                                                         : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
             int frame_number = end_frame - start_frame;
             double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
-            vktrace_LogAlways("fps %f (loop duration(seconds) %f, frame number %d (%d , %d))", fps,
+            vktrace_LogAlways("%f fps, %f seconds, %d frames, framerange %d-%d", fps,
                               static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame, end_frame - 1);
         } else {
             vktrace_LogError("fps error!");
