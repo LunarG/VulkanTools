@@ -140,9 +140,13 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     // record the location of looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
-    unsigned int totalLoops = settings.numLoops;
+    uint64_t totalLoops = settings.numLoops;
+    uint64_t totalLoopFrames = 0;
+    uint64_t start_time = vktrace_get_time();
+    uint64_t end_time;
+    int64_t start_frame = settings.loopStartFrame == -1 ? 0 : settings.loopStartFrame;
+    int64_t end_frame = -1;
     while (settings.numLoops > 0) {
-        uint64_t start_time = vktrace_get_time();
         while (trace_running) {
             display.process_event();
             if (display.get_quit_status()) {
@@ -208,7 +212,6 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
-                                start_time = vktrace_get_time();
                             }
 
                             if (frameNumber == settings.loopEndFrame) {
@@ -224,28 +227,13 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                 }
             }
         }
-        uint64_t end_time = vktrace_get_time();
-        if (end_time > start_time) {
-            int start_frame = settings.loopStartFrame == -1 ? 0 : settings.loopStartFrame;
-            int end_frame = settings.loopEndFrame == -1 ? replayer->GetFrameNumber()
-                                                        : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
-            int frame_number = end_frame - start_frame;
-            if (frame_number <= 0) {
-                vktrace_LogError("Loop start frame is greater than loop end frame!");
-                err = -1;
-                goto out;
-            } else {
-                double fps = static_cast<double>(frame_number) / (end_time - start_time) * 1000000000;
-                vktrace_LogAlways("%f fps, %f seconds, %d frames, framerange %d-%d", fps,
-                                  static_cast<double>(end_time - start_time) / 1000000000, frame_number, start_frame,
-                                  end_frame - 1);
-            }
-        } else {
-            vktrace_LogError("fps error!");
-        }
         settings.numLoops--;
-        if (settings.numLoops)
-            vktrace_LogAlways("Loop number %d completed. Remaining loops:%d", settings.numLoops + 1, settings.numLoops);
+        vktrace_LogVerbose("Loop number %d completed. Remaining loops:%d", settings.numLoops + 1, settings.numLoops);
+
+        if (end_frame == -1)
+            end_frame = settings.loopEndFrame == -1 ? replayer->GetFrameNumber()
+                                                    : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
+        totalLoopFrames += end_frame - start_frame;
 
         // if screenshot is enabled run it for one cycle only
         // as all consecutive cycles must generate same screen
@@ -258,6 +246,15 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
         if (replayer != NULL) {
             replayer->ResetFrameNumber(settings.loopStartFrame);
         }
+    }
+    end_time = vktrace_get_time();
+    if (end_time > start_time) {
+        double fps = static_cast<double>(totalLoopFrames) / (end_time - start_time) * 1000000000;
+        vktrace_LogAlways("%f fps, %f seconds, %ld frame%s, %d loop%s, framerange %ld-%ld", fps,
+                          static_cast<double>(end_time - start_time) / 1000000000, totalLoopFrames, totalLoopFrames > 1 ? "s" : "",
+                          totalLoops, totalLoops > 1 ? "s" : "", start_frame, end_frame - 1);
+    } else {
+        vktrace_LogError("fps error!");
     }
 
 out:
