@@ -3929,6 +3929,130 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
     }
 }
 
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetKHR(VkCommandBuffer commandBuffer,
+                                                                              VkPipelineBindPoint pipelineBindPoint,
+                                                                              VkPipelineLayout layout, uint32_t set,
+                                                                              uint32_t descriptorWriteCount,
+                                                                              const VkWriteDescriptorSet* pDescriptorWrites) {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdPushDescriptorSetKHR* pPacket = NULL;
+
+    CREATE_TRACE_PACKET(vkCmdPushDescriptorSetKHR, descriptorWriteCount * sizeof(VkWriteDescriptorSet));
+    mdd(commandBuffer)
+        ->devTable.CmdPushDescriptorSetKHR(commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkCmdPushDescriptorSetKHR(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->pipelineBindPoint = pipelineBindPoint;
+    pPacket->layout = layout;
+    pPacket->set = set;
+    pPacket->descriptorWriteCount = descriptorWriteCount;
+
+    if (pPacket->pDescriptorWrites != NULL) {
+        vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites),
+                                           descriptorWriteCount * sizeof(VkWriteDescriptorSet), pDescriptorWrites);
+        for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+            switch (pPacket->pDescriptorWrites[i].descriptorType) {
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo),
+                                                       pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo),
+                                                       pDescriptorWrites[i].pImageInfo);
+                    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pImageInfo));
+                } break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView),
+                                                       pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView),
+                                                       pDescriptorWrites[i].pTexelBufferView);
+                    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pTexelBufferView));
+                } break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo),
+                                                       pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo),
+                                                       pDescriptorWrites[i].pBufferInfo);
+                    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites[i].pBufferInfo));
+                } break;
+                default:
+                    break;
+            }
+            vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)(pPacket->pDescriptorWrites + i), pDescriptorWrites + i);
+        }
+        vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
+    }
+
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDescriptorWrites));
+
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
+            if (pInfo != NULL) {
+                // find existing writeDescriptorSet info to update.
+                VkWriteDescriptorSet* pWriteDescriptorSet = NULL;
+                for (uint32_t w = 0; w < pInfo->ObjectInfo.DescriptorSet.numBindings; w++) {
+                    uint32_t bindingDescriptorInfoArrayWriteIndex;
+                    uint32_t bindingDescriptorInfoArrayWriteLength;
+                    uint32_t DescriptorWritesIndex;
+                    if (isUpdateDescriptorSetBindingNeeded(pDescriptorWrites, i, w, &bindingDescriptorInfoArrayWriteIndex,
+                                                           &bindingDescriptorInfoArrayWriteLength, &DescriptorWritesIndex)) {
+                        pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[w];
+                        if (w >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+                            // this is to track the latest data in this call and also cover previous calls.
+                            // writeDescriptorCount is used to indicate so far how many bindings of this
+                            // descriptorset has been updated, this include this call and all previous
+                            // calls, from all these calls, we record the max bindingindex. its value must
+                            // be <= numBindings.
+                            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = w + 1;
+                        }
+
+                        pWriteDescriptorSet->dstArrayElement = 0;
+                        if (pDescriptorWrites[i].pImageInfo != nullptr && pWriteDescriptorSet->pImageInfo != nullptr) {
+                            memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo +
+                                                                      bindingDescriptorInfoArrayWriteIndex),
+                                   pDescriptorWrites[i].pImageInfo + DescriptorWritesIndex,
+                                   sizeof(VkDescriptorImageInfo) * bindingDescriptorInfoArrayWriteLength);
+                            pWriteDescriptorSet->pBufferInfo = nullptr;
+                            pWriteDescriptorSet->pTexelBufferView = nullptr;
+                        }
+                        if (pDescriptorWrites[i].pBufferInfo != nullptr && pWriteDescriptorSet->pBufferInfo != nullptr) {
+                            memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo +
+                                                                       bindingDescriptorInfoArrayWriteIndex),
+                                   pDescriptorWrites[i].pBufferInfo + DescriptorWritesIndex,
+                                   sizeof(VkDescriptorBufferInfo) * bindingDescriptorInfoArrayWriteLength);
+                            pWriteDescriptorSet->pImageInfo = nullptr;
+                            pWriteDescriptorSet->pTexelBufferView = nullptr;
+                        }
+                        if (pDescriptorWrites[i].pTexelBufferView != nullptr && pWriteDescriptorSet->pTexelBufferView != nullptr) {
+                            memcpy(const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView +
+                                                             bindingDescriptorInfoArrayWriteIndex),
+                                   pDescriptorWrites[i].pTexelBufferView + DescriptorWritesIndex,
+                                   sizeof(VkBufferView) * bindingDescriptorInfoArrayWriteLength);
+                            pWriteDescriptorSet->pImageInfo = nullptr;
+                            pWriteDescriptorSet->pBufferInfo = nullptr;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetWithTemplateKHR(
     VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set,
     const void* pData) {
