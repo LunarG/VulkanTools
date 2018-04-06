@@ -1083,7 +1083,9 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
                 pPacket->header, (intptr_t)pInfo->pBindings);
             for (unsigned int i = 0; i < pInfo->bindingCount; i++) {
                 VkDescriptorSetLayoutBinding *pBindings = (VkDescriptorSetLayoutBinding *)&pInfo->pBindings[i];
-                if (pBindings->pImmutableSamplers != NULL) {
+                if (pBindings->pImmutableSamplers != NULL &&
+                    (pBindings->descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER ||
+                     pBindings->descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)) {
                     pBindings->pImmutableSamplers = (const VkSampler *)vktrace_trace_packet_interpret_buffer_pointer(
                         pPacket->header, (intptr_t)pBindings->pImmutableSamplers);
                     for (unsigned int j = 0; j < pBindings->descriptorCount; j++) {
