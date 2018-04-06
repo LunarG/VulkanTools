@@ -4009,6 +4009,194 @@ void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpd
                                                        pPacket->pData);
 }
 
+void vkReplay::manually_replay_vkCmdPushDescriptorSetKHR(packet_vkCmdPushDescriptorSetKHR *pPacket) {
+    VkCommandBuffer remappedcommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
+    if (pPacket->commandBuffer != VK_NULL_HANDLE && remappedcommandBuffer == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in CmdPushDescriptorSetKHR() due to invalid remapped VkCommandBuffer.");
+        return;
+    }
+
+    // allocate a new array for the writes and clear the memory, we'll update the contents further down
+    VkWriteDescriptorSet *pRemappedWrites = NULL;
+    if (pPacket->pDescriptorWrites != NULL && pPacket->descriptorWriteCount > 0) {
+        pRemappedWrites = VKTRACE_NEW_ARRAY(VkWriteDescriptorSet, pPacket->descriptorWriteCount);
+        memset(pRemappedWrites, 0, pPacket->descriptorWriteCount * sizeof(VkWriteDescriptorSet));
+    }
+
+    // No need to remap pipelineBindPoint
+
+    VkPipelineLayout remappedlayout = m_objMapper.remap_pipelinelayouts(pPacket->layout);
+    if (pPacket->layout != VK_NULL_HANDLE && remappedlayout == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in CmdPushDescriptorSetKHR() due to invalid remapped VkPipelineLayout.");
+        return;
+    }
+
+    bool errorBadRemap = false;
+
+    if (pPacket->pDescriptorWrites != NULL) {
+        for (uint32_t i = 0; i < pPacket->descriptorWriteCount && !errorBadRemap; i++) {
+            VkDescriptorSet dstSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorWrites[i].dstSet);
+            if (dstSet == VK_NULL_HANDLE) {
+                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped write VkDescriptorSet.");
+                errorBadRemap = true;
+                break;
+            }
+
+            pRemappedWrites[i] = pPacket->pDescriptorWrites[i];
+            pRemappedWrites[i].dstSet = dstSet;
+            pRemappedWrites[i].pBufferInfo = nullptr;
+            pRemappedWrites[i].pImageInfo = nullptr;
+            pRemappedWrites[i].pTexelBufferView = nullptr;
+
+            switch (pPacket->pDescriptorWrites[i].descriptorType) {
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    pRemappedWrites[i].pImageInfo =
+                        VKTRACE_NEW_ARRAY(VkDescriptorImageInfo, pPacket->pDescriptorWrites[i].descriptorCount);
+                    memcpy((void *)pRemappedWrites[i].pImageInfo, pPacket->pDescriptorWrites[i].pImageInfo,
+                           pPacket->pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo));
+                    for (uint32_t j = 0; j < pPacket->pDescriptorWrites[i].descriptorCount; j++) {
+                        if (pPacket->pDescriptorWrites[i].pImageInfo[j].sampler != VK_NULL_HANDLE) {
+                            const_cast<VkDescriptorImageInfo *>(pRemappedWrites[i].pImageInfo)[j].sampler =
+                                m_objMapper.remap_samplers(pPacket->pDescriptorWrites[i].pImageInfo[j].sampler);
+                            if (pRemappedWrites[i].pImageInfo[j].sampler == VK_NULL_HANDLE) {
+                                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped VkSampler.");
+                                errorBadRemap = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    pRemappedWrites[i].pImageInfo =
+                        VKTRACE_NEW_ARRAY(VkDescriptorImageInfo, pPacket->pDescriptorWrites[i].descriptorCount);
+                    memcpy((void *)pRemappedWrites[i].pImageInfo, pPacket->pDescriptorWrites[i].pImageInfo,
+                           pPacket->pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo));
+                    for (uint32_t j = 0; j < pPacket->pDescriptorWrites[i].descriptorCount; j++) {
+                        if (pPacket->pDescriptorWrites[i].pImageInfo[j].imageView != VK_NULL_HANDLE) {
+                            const_cast<VkDescriptorImageInfo *>(pRemappedWrites[i].pImageInfo)[j].imageView =
+                                m_objMapper.remap_imageviews(pPacket->pDescriptorWrites[i].pImageInfo[j].imageView);
+                            if (pRemappedWrites[i].pImageInfo[j].imageView == VK_NULL_HANDLE) {
+                                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped VkImageView.");
+                                errorBadRemap = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    pRemappedWrites[i].pImageInfo =
+                        VKTRACE_NEW_ARRAY(VkDescriptorImageInfo, pPacket->pDescriptorWrites[i].descriptorCount);
+                    memcpy((void *)pRemappedWrites[i].pImageInfo, pPacket->pDescriptorWrites[i].pImageInfo,
+                           pPacket->pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorImageInfo));
+                    for (uint32_t j = 0; j < pPacket->pDescriptorWrites[i].descriptorCount; j++) {
+                        if (pPacket->pDescriptorWrites[i].pImageInfo[j].sampler != VK_NULL_HANDLE) {
+                            const_cast<VkDescriptorImageInfo *>(pRemappedWrites[i].pImageInfo)[j].sampler =
+                                m_objMapper.remap_samplers(pPacket->pDescriptorWrites[i].pImageInfo[j].sampler);
+                            if (pRemappedWrites[i].pImageInfo[j].sampler == VK_NULL_HANDLE) {
+                                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped VkSampler.");
+                                errorBadRemap = true;
+                                break;
+                            }
+                        }
+                        if (pPacket->pDescriptorWrites[i].pImageInfo[j].imageView != VK_NULL_HANDLE) {
+                            const_cast<VkDescriptorImageInfo *>(pRemappedWrites[i].pImageInfo)[j].imageView =
+                                m_objMapper.remap_imageviews(pPacket->pDescriptorWrites[i].pImageInfo[j].imageView);
+                            if (pRemappedWrites[i].pImageInfo[j].imageView == VK_NULL_HANDLE) {
+                                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped VkImageView.");
+                                errorBadRemap = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    pRemappedWrites[i].pTexelBufferView =
+                        VKTRACE_NEW_ARRAY(VkBufferView, pPacket->pDescriptorWrites[i].descriptorCount);
+                    memcpy((void *)pRemappedWrites[i].pTexelBufferView, pPacket->pDescriptorWrites[i].pTexelBufferView,
+                           pPacket->pDescriptorWrites[i].descriptorCount * sizeof(VkBufferView));
+                    for (uint32_t j = 0; j < pPacket->pDescriptorWrites[i].descriptorCount; j++) {
+                        if (pPacket->pDescriptorWrites[i].pTexelBufferView[j] != VK_NULL_HANDLE) {
+                            const_cast<VkBufferView *>(pRemappedWrites[i].pTexelBufferView)[j] =
+                                m_objMapper.remap_bufferviews(pPacket->pDescriptorWrites[i].pTexelBufferView[j]);
+                            if (pRemappedWrites[i].pTexelBufferView[j] == VK_NULL_HANDLE) {
+                                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped VkBufferView.");
+                                errorBadRemap = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    pRemappedWrites[i].pBufferInfo =
+                        VKTRACE_NEW_ARRAY(VkDescriptorBufferInfo, pPacket->pDescriptorWrites[i].descriptorCount);
+                    memcpy((void *)pRemappedWrites[i].pBufferInfo, pPacket->pDescriptorWrites[i].pBufferInfo,
+                           pPacket->pDescriptorWrites[i].descriptorCount * sizeof(VkDescriptorBufferInfo));
+                    for (uint32_t j = 0; j < pPacket->pDescriptorWrites[i].descriptorCount; j++) {
+                        if (pPacket->pDescriptorWrites[i].pBufferInfo[j].buffer != VK_NULL_HANDLE) {
+                            const_cast<VkDescriptorBufferInfo *>(pRemappedWrites[i].pBufferInfo)[j].buffer =
+                                m_objMapper.remap_buffers(pPacket->pDescriptorWrites[i].pBufferInfo[j].buffer);
+                            if (pRemappedWrites[i].pBufferInfo[j].buffer == VK_NULL_HANDLE) {
+                                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped VkBufferView.");
+                                errorBadRemap = true;
+                                break;
+                            }
+                        }
+                    }
+                /* Nothing to do, already copied the constant values into the new descriptor info */
+                default:
+                    break;
+            }
+        }
+    }
+
+    if (!errorBadRemap) {
+        // If an error occurred, don't call the real function, but skip ahead so that memory is cleaned up!
+        m_vkDeviceFuncs.CmdPushDescriptorSetKHR(remappedcommandBuffer, pPacket->pipelineBindPoint, remappedlayout, pPacket->set,
+                                                pPacket->descriptorWriteCount, pRemappedWrites);
+    }
+
+    if (pPacket->pDescriptorWrites != NULL) {
+        for (uint32_t d = 0; d < pPacket->descriptorWriteCount; d++) {
+            switch (pPacket->pDescriptorWrites[d].descriptorType) {
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    if (pRemappedWrites[d].pImageInfo != NULL) {
+                        VKTRACE_DELETE((void *)pRemappedWrites[d].pImageInfo);
+                        pRemappedWrites[d].pImageInfo = NULL;
+                    }
+                    break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    if (pRemappedWrites[d].pTexelBufferView != NULL) {
+                        VKTRACE_DELETE((void *)pRemappedWrites[d].pTexelBufferView);
+                        pRemappedWrites[d].pTexelBufferView = NULL;
+                    }
+                    break;
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    if (pRemappedWrites[d].pBufferInfo != NULL) {
+                        VKTRACE_DELETE((void *)pRemappedWrites[d].pBufferInfo);
+                        pRemappedWrites[d].pBufferInfo = NULL;
+                    }
+                default:
+                    break;
+            }
+        }
+        VKTRACE_DELETE(pRemappedWrites);
+    }
+}
+
 void vkReplay::manually_replay_vkCmdPushDescriptorSetWithTemplateKHR(packet_vkCmdPushDescriptorSetWithTemplateKHR *pPacket) {
     VkCommandBuffer remappedcommandBuffer = m_objMapper.remap_commandbuffers(pPacket->commandBuffer);
     if (pPacket->commandBuffer != VK_NULL_HANDLE && remappedcommandBuffer == VK_NULL_HANDLE) {
