@@ -142,7 +142,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     if (pInfo->pProcessInfo->pTraceFile == NULL) {
         // open of trace file generated an error, no sense in continuing.
         vktrace_LogError("Error cannot create trace file.");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
@@ -160,7 +159,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         file_header.first_packet_offset != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
         // Trace file header we received is the wrong size
         vktrace_LogError("Error creating trace file header. Are vktrace and trace layer the same version?");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
@@ -180,7 +178,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
     if (bytes_written != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
         vktrace_LogError("Unable to write trace file header - fwrite failed.");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
     fileOffset = file_header.first_packet_offset;
