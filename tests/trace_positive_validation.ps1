@@ -14,7 +14,8 @@ trap {
     exit 1
 }
 
-$skip = @( "LongFenceChain)" )
+$skip = @( "LongFenceChain)", "CreatePipelineCheckShaderCapabilityExtension1of2",
+    "CreatePipelineCheckShaderCapabilityExtension2of2", "ExternalFence", "ExternalMemory" )
 $lvlbinpath = "$toolsroot\build\submodules\Vulkan-LoaderAndValidationLayers"
 $lvlcodepath = "$toolsroot\submodules\Vulkan-LoaderAndValidationLayers"
 
