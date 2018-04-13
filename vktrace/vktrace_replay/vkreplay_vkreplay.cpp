@@ -1956,6 +1956,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     VkImage remappedImage = VK_NULL_HANDLE;
     size_t bindMemIdx;
     VkImage bindMemImage = VK_NULL_HANDLE;
+    bool doDestroyImage = false;
 
     // Should only be here if we have a valid portability table and the replay platform does not match the trace platform
     assert(m_pFileHeader->portability_table_valid && m_platformMatch == 0);
@@ -2112,6 +2113,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
                         remappedImage = m_objMapper.remap_images(bindMemImage);
                     else
                         remappedImage = (VkImage)m_objMapper.remap_buffers((VkBuffer)bindMemImage);
+                    doDestroyImage = true;
                     break;
                 }
                 vktrace_free(pCreatePacketFull);
@@ -2168,6 +2170,20 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     }
 
 out:
+    if (doDestroyImage) {
+        if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory) {
+            m_vkDeviceFuncs.DestroyImage(remappedDevice, remappedImage, NULL);
+            m_objMapper.rm_from_images_map(bindMemImage);
+            if (replayGetImageMemoryRequirements.find(remappedImage) != replayGetImageMemoryRequirements.end())
+                replayGetImageMemoryRequirements.erase(remappedImage);
+        } else {
+            m_vkDeviceFuncs.DestroyBuffer(remappedDevice, (VkBuffer)remappedImage, NULL);
+            m_objMapper.rm_from_buffers_map((VkBuffer)bindMemImage);
+            if (replayGetBufferMemoryRequirements.find((VkBuffer)remappedImage) != replayGetBufferMemoryRequirements.end())
+                replayGetBufferMemoryRequirements.erase((VkBuffer)remappedImage);
+        }
+    }
+
     vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
     return rval;
 }
