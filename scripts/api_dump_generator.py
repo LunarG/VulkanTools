@@ -1007,7 +1007,9 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 @end function
 """
 
-POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow']
+POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer']
+
+DEFINE_TYPES = ['ANativeWindow', 'AHardwareBuffer']
 
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
@@ -1216,7 +1218,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.sysTypes = set()
         for node in self.registry.reg.find('types').findall('type'):
             if node.get('category') == None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform' or \
-                (node.find('name') is not None and node.find('name').text == 'ANativeWindow'): #TODO: Handle 'define' system types
+                (node.find('name') is not None and node.find('name').text in DEFINE_TYPES): #Handle system types that are '#define'd in spec
                 for extension in self.extTypes:
                     for structName in self.extTypes[extension].vktypes:
                         for struct in self.structs:
