@@ -57,9 +57,8 @@ VkResult MemDemo::PreCallQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *
         MemDemo::Information(message.str());
 
         // Call log_msg() directly
-        log_msg(vlf_report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT, 0, __LINE__,
-                12345, "MEM", "Memory Allocation Count: %d\nTotal Memory Allocation Size: 0x%" PRIx64 ".\n", number_mem_objects_,
-                total_memory_);
+        log_msg(vlf_report_data, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT, 0, 12345,
+                "Memory Allocation Count: %d\nTotal Memory Allocation Size: 0x%" PRIx64 ".\n", number_mem_objects_, total_memory_);
 
 #ifdef _WIN32
         // On Windows, call OutputDebugString to send output to the MSVC output window or debug out
