@@ -452,9 +452,6 @@ VkResult vkReplay::manually_replay_vkCreateBuffer(packet_vkCreateBuffer *pPacket
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    // Check to see if buffer has already been created
-    if (VK_NULL_HANDLE != m_objMapper.remap_buffers(*(pPacket->pBuffer))) return VK_SUCCESS;
-
     // Convert queueFamilyIndices
     if (pPacket->pCreateInfo) {
         for (uint32_t i = 0; i < pPacket->pCreateInfo->queueFamilyIndexCount; i++) {
@@ -485,9 +482,6 @@ VkResult vkReplay::manually_replay_vkCreateImage(packet_vkCreateImage *pPacket) 
     if (remappedDevice == VK_NULL_HANDLE) {
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
-
-    // Check to see if image has already been created
-    if (VK_NULL_HANDLE != m_objMapper.remap_images(*(pPacket->pImage))) return VK_SUCCESS;
 
     // Convert queueFamilyIndices
     if (pPacket->pCreateInfo) {
@@ -2068,6 +2062,13 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
         // The CreateImage/Buffer command after the AllocMem command, so the image/buffer hasn't
         // been created yet. Search backwards from the bindMem cmd for the CreateImage/Buffer
         // command and execute it
+        // The newly created image/buffer needs to be destroyed after getting image/buffer memory requirements to keep the sequence
+        // of API calls in the trace file.
+        // The destroy will prevent from creating a buffer too early which may be used unexpectedly in a later call since two
+        // buffers may have the same handle if one of them is created after another one being destroyed.
+        // e.g. Without destroy, a dstBuffer may be used as srcBuffer unexpectedly in vkCmdCopyBuffer if the dstBuffer's memory is
+        // allocated before the creation of the expected srcBuffer with the same buffer handle. (The srcBuffer is created and
+        // destroyed before the dstBuffer being created.)
         for (size_t i = bindMemIdx - 1; true; i--) {
             vktrace_trace_packet_header createPacketHeaderHeader;
             vktrace_trace_packet_header *pCreatePacketFull;
@@ -2171,6 +2172,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
 
 out:
     if (doDestroyImage) {
+        // Destroy temporarily created image/buffer and clean up obj map.
         if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory) {
             m_vkDeviceFuncs.DestroyImage(remappedDevice, remappedImage, NULL);
             m_objMapper.rm_from_images_map(bindMemImage);
