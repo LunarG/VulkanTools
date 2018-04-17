@@ -184,7 +184,7 @@ if ($exitstatus -eq 0) {
     rm -recurse -force vktracereplay_tmp  > $null 2> $null
 }
 
-if ($exitstatus -eq 0 -and -not $Debug) {
+if ($exitstatus -eq 0) {
     $scriptpath = (Split-Path -parent $PSCommandPath)
     $toolsroot = (Get-Item $scriptpath).parent.parent.FullName
     $command = ".\trace_positive_validation.ps1 -toolsroot $toolsroot $tplarg"
