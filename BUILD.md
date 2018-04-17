@@ -27,17 +27,63 @@ sudo apt-get install libc6-dev-i386 g++-multilib
 
 ## Clone the Repository
 
-Note that the Vulkan-LoaderAndValidationLayers repo content is included within the VulkanTools repo.
+Note that the [Vulkan-LoaderAndValidationLayers repo](https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers) content is included within the VulkanTools repo via a Git Submodule.
 
 To create your local git repository of VulkanTools:
 ```
 cd YOUR_DEV_DIRECTORY
+
+# Clone the VulkanTools repo
 git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
+
+# Enter the folder containing the cloned source
 cd VulkanTools
+
+# Update the submodules that are a part of the tree:
+git submodule update --init --recursive
+
 # This will perform some initialization and ensure the subcomponents are built:
 ./update_external_sources.sh    # linux
 ./update_external_sources.bat   # windows
 ```
+
+## Updating the Repository After a Pull
+
+Since the VulkanTools repo now contains Git Submodules, you may occasionally have
+to update the source in those submodules.
+You will know this needs to be performed when you perform a pull, and you check the
+status of your tree with `git status` and something similar to the following shows:
+
+```
+(master *)] $ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   submodules/Vulkan-LoaderAndValidationLayers (new commits)
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+To resolve this, simply update the sub-module using:
+
+```
+git submodule update --recursive
+```
+
+Then, update the external sources as before:
+
+```
+# This will perform some initialization and ensure the subcomponents are built:
+./update_external_sources.sh    # linux
+./update_external_sources.bat   # windows
+```
+
+Now, you should be able to continue building as normal.
+
 
 ## Linux Build
 
