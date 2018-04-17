@@ -44,7 +44,7 @@ REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 # layer factory
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} layer_factory.h )
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} layer_factory.cpp )
-( cd generated/include; python3 ${VT_SCRIPTS}/vt_makefile_generator.py ../../../layer_factory )
+( cd generated/include; python3 ${VT_SCRIPTS}/vlf_makefile_generator.py ../../../layer_factory )
 
 # apidump
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} api_dump.cpp )
