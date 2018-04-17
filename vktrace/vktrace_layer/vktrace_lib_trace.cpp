@@ -2883,6 +2883,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
         info.ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;
         info.ObjectInfo.Image.arrayLayers = pCreateInfo->arrayLayers;
         info.ObjectInfo.Image.sharingMode = pCreateInfo->sharingMode;
+        info.ObjectInfo.Image.needsStagingBuffer = (pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL);
         info.ObjectInfo.Image.queueFamilyIndex =
             (pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT && pCreateInfo->pQueueFamilyIndices != NULL &&
              pCreateInfo->queueFamilyIndexCount != 0)
