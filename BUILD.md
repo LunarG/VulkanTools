@@ -160,11 +160,13 @@ cd build32
 cmake -G "Visual Studio 14" ..
 msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release
 ```
+
 ## Android Build
 Install the required tools for Linux and Windows covered above, then add the
 following.
+
 ### Android Studio
-- Install 2.1 or later verion of [Android Studio](http://tools.android.com/download/studio/stable)
+- Install 2.1 or later version of [Android Studio](http://tools.android.com/download/studio/stable)
 - From the "Welcome to Android Studio" splash screen, add the following components using Configure > SDK Manager:
   - SDK Tools > Android NDK
 
@@ -172,7 +174,7 @@ following.
 
 On Linux:
 ```
-export PATH=$HOME/Android/sdk/ndk-bundle:$PATH
+export PATH=$HOME/Android/Sdk/ndk-bundle:$PATH
 ```
 On Windows:
 ```
@@ -198,6 +200,7 @@ export PATH=/usr/local/bin:$PATH
 ```
 brew install cmake python python3 git
 ```
+
 ### Build steps for Android
 Use the following to ensure the Android build works.
 #### Linux
