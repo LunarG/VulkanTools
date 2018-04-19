@@ -77,6 +77,15 @@ BOOL vktrace_SettingInfo_parse_value(vktrace_SettingInfo* pSetting, const char* 
             if (sscanf(arg, "%u", pSetting->Data.pUint) != 1) {
                 vktrace_LogWarning("Invalid unsigned int setting: '%s'. Resetting to default value instead.", arg);
                 *(pSetting->Data.pUint) = *(pSetting->Default.pUint);
+            } else {
+                // sscanf() happily parses negative numbers into unsigned ints without any indication.
+                // Look for a leading '-' to detect a negative number.
+                // Using sscanf() with a %d and signed int allows an easy way to check for negative values,
+                // but misses the range between INT_MAX and UINT_MAX.
+                if (arg[0] == '-') {
+                    vktrace_LogError("Invalid unsigned int setting: '%s'.", arg);
+                    return FALSE;
+                }
             }
         } break;
         case VKTRACE_SETTING_INT: {
