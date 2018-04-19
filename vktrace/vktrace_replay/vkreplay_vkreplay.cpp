@@ -546,10 +546,18 @@ VkResult vkReplay::manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumerate
             vktrace_LogError("Skipping vkEnumeratePhysicalDevices() due to invalid remapped VkInstance.");
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
-        if (pPacket->pPhysicalDevices != NULL) pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
+        if (pPacket->pPhysicalDevices != NULL) {
+            // If we are querying for the list instead of the count, use a previously acquired count
+            deviceCount = m_gpu_count;
+            pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
+        }
         replayResult = m_vkFuncs.EnumeratePhysicalDevices(remappedInstance, &deviceCount, pDevices);
 
-        // TODO handle different number of physical devices in trace versus replay
+        if (pDevices == NULL) {
+            // If we are querying for the count, store it for later
+            m_gpu_count = deviceCount;
+        }
+
         if (deviceCount != *(pPacket->pPhysicalDeviceCount)) {
             vktrace_LogWarning("Number of physical devices mismatched in replay %u versus trace %u.", deviceCount,
                                *(pPacket->pPhysicalDeviceCount));
@@ -558,11 +566,48 @@ VkResult vkReplay::manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumerate
         } else if (pDevices != NULL) {
             vktrace_LogVerbose("Enumerated %d physical devices in the system.", deviceCount);
         }
-        // TODO handle enumeration results in a different order from trace to replay
-        for (uint32_t i = 0; i < deviceCount; i++) {
-            if (pDevices != NULL) {
-                m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
+
+        if (pDevices != NULL) {
+            const uint32_t replay_device_count = deviceCount;
+            uint64_t *replay_device_id = VKTRACE_NEW_ARRAY(uint64_t, replay_device_count);
+            for (uint32_t i = 0; i < replay_device_count; ++i) {
+                VkPhysicalDeviceProperties props;
+                m_vkFuncs.GetPhysicalDeviceProperties(pDevices[i], &props);
+                replay_device_id[i] = ((uint64_t)props.vendorID << 32) | (uint64_t)props.deviceID;
             }
+
+            const uint32_t trace_device_count = *pPacket->pPhysicalDeviceCount;
+
+            for (uint32_t i = 0; i < trace_device_count; i++) {
+                // TODO: Pick a device based on matching properties. Might have to move this logic
+                // First, check if device on the same index has matching vendor and device ID
+                if (i < replay_device_count && m_pGpuinfo[i].gpu_id == replay_device_id[i]) {
+                    m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
+                } else {
+                    // Search the list for a matching device
+                    bool found = false;
+                    for (uint32_t j = 0; j < replay_device_count; ++j) {
+                        if (j == i) {
+                            continue;  // Already checked this
+                        }
+                        if (m_pGpuinfo[i].gpu_id == replay_device_id[j]) {
+                            m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[j]);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        // If all else fails, just map the indices.
+                        if (i >= replay_device_count) {
+                            m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[0]);
+                        } else {
+                            m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
+                        }
+                    }
+                }
+            }
+
+            VKTRACE_DELETE(replay_device_id);
         }
         VKTRACE_DELETE(pDevices);
     }
