@@ -25,8 +25,8 @@
 typedef struct vkreplayer_settings {
     char* pTraceFilePath;
     unsigned int numLoops;
-    int loopStartFrame;
-    int loopEndFrame;
+    unsigned int loopStartFrame;
+    unsigned int loopEndFrame;
     const char* screenshotList;
     const char* screenshotColorFormat;
     const char* verbosity;

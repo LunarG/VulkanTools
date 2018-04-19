@@ -40,7 +40,7 @@
 #include "vkreplay_window.h"
 #include "screenshot_parsing.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
@@ -66,14 +66,14 @@ vktrace_SettingInfo g_settings_info[] = {
      "The number of times to replay the trace file or loop range."},
     {"lsf",
      "LoopStartFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&replaySettings.loopStartFrame},
      {&replaySettings.loopStartFrame},
      TRUE,
      "The start frame number of the loop range."},
     {"lef",
      "LoopEndFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&replaySettings.loopEndFrame},
      {&replaySettings.loopEndFrame},
      TRUE,
@@ -129,9 +129,9 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     struct seqBookmark startingPacket;
 
     bool trace_running = true;
-    int prevFrameNumber = -1;
+    unsigned int prevFrameNumber = UINT_MAX;
 
-    if (settings.loopEndFrame != -1) {
+    if (settings.loopEndFrame != UINT_MAX) {
         // Increase by 1 because it is comparing with the frame number which is increased right after vkQueuePresentKHR being
         // called.
         // e.g. when frame number is 3, maybe frame 2 is just finished replaying and frame 3 is not started yet.
@@ -145,8 +145,8 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     uint64_t totalLoopFrames = 0;
     uint64_t start_time = vktrace_get_time();
     uint64_t end_time;
-    int64_t start_frame = settings.loopStartFrame == -1 ? 0 : settings.loopStartFrame;
-    int64_t end_frame = -1;
+    uint64_t start_frame = settings.loopStartFrame == UINT_MAX ? 0 : settings.loopStartFrame;
+    uint64_t end_frame = UINT_MAX;
     while (settings.numLoops > 0) {
         while (trace_running) {
             display.process_event();
@@ -203,13 +203,12 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         }
 
                         // frame control logic
-                        int frameNumber = replayer->GetFrameNumber();
+                        unsigned int frameNumber = replayer->GetFrameNumber();
                         if (prevFrameNumber != frameNumber) {
                             prevFrameNumber = frameNumber;
 
                             // Only set the loop start location in the first loop when loopStartFrame is not 0
-                            if (frameNumber == settings.loopStartFrame && settings.loopStartFrame > 0 &&
-                                settings.numLoops == totalLoops) {
+                            if (frameNumber == start_frame && start_frame > 0 && settings.numLoops == totalLoops) {
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
@@ -231,9 +230,10 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
         settings.numLoops--;
         vktrace_LogVerbose("Loop number %d completed. Remaining loops:%d", settings.numLoops + 1, settings.numLoops);
 
-        if (end_frame == -1)
-            end_frame = settings.loopEndFrame == -1 ? replayer->GetFrameNumber()
-                                                    : std::min(replayer->GetFrameNumber(), settings.loopEndFrame);
+        if (end_frame == UINT_MAX)
+            end_frame = settings.loopEndFrame == UINT_MAX
+                            ? replayer->GetFrameNumber()
+                            : std::min((unsigned int)replayer->GetFrameNumber(), settings.loopEndFrame);
         totalLoopFrames += end_frame - start_frame;
 
         // if screenshot is enabled run it for one cycle only
