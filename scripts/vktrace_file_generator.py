@@ -365,7 +365,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             result = str(result).replace('::', '->')
         return result
     #
-    # Check if a structure is or contains a dispatchable (dispatchable = True) or 
+    # Check if a structure is or contains a dispatchable (dispatchable = True) or
     # non-dispatchable (dispatchable = False) handle
     def TypeContainsObjectHandle(self, handle_type, dispatchable):
         if dispatchable:
@@ -901,26 +901,22 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '%s\n' % rr_string
                 # Handle return values or anything that needs to happen after the real_*(..) call
                 if 'DestroyDevice' in cmdname:
-                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
-                    replay_gen_source += '                m_pCBDump = NULL;\n'
-                    replay_gen_source += '                m_pDSDump = NULL;\n'
+                    replay_gen_source += '            m_pCBDump = NULL;\n'
+                    replay_gen_source += '            m_pDSDump = NULL;\n'
                     #TODO138 : disabling snapshot
-                    #replay_gen_source += '                m_pVktraceSnapshotPrint = NULL;\n'
-                    replay_gen_source += '                m_objMapper.rm_from_devices_map(pPacket->device);\n'
-                    replay_gen_source += '                m_display->m_initedVK = false;\n'
-                    replay_gen_source += '            }\n'
+                    #replay_gen_source += '            m_pVktraceSnapshotPrint = NULL;\n'
+                    replay_gen_source += '            m_objMapper.rm_from_devices_map(pPacket->device);\n'
+                    replay_gen_source += '            m_display->m_initedVK = false;\n'
                 elif 'DestroySwapchainKHR' in cmdname:
-                    replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
-                    replay_gen_source += '                m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
-                    replay_gen_source += '            }\n'
+                    replay_gen_source += '            m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
                 elif 'AcquireNextImage' in cmdname:
-                    replay_gen_source += '            m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
-                elif 'DestroyInstance' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
-                    replay_gen_source += '                // TODO need to handle multiple instances and only clearing maps within an instance.\n'
-                    replay_gen_source += '                // TODO this only works with a single instance used at any given time.\n'
-                    replay_gen_source += '                m_objMapper.clear_all_map_handles();\n'
+                    replay_gen_source += '                m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
                     replay_gen_source += '            }\n'
+                elif 'DestroyInstance' in cmdname:
+                    replay_gen_source += '            // TODO need to handle multiple instances and only clearing maps within an instance.\n'
+                    replay_gen_source += '            // TODO this only works with a single instance used at any given time.\n'
+                    replay_gen_source += '            m_objMapper.clear_all_map_handles();\n'
                 elif 'MergePipelineCaches' in cmdname:
                     replay_gen_source += '            delete[] remappedpSrcCaches;\n'
                 elif 'FreeCommandBuffers' in cmdname:
@@ -1168,7 +1164,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if api.name[2:] in api_exclusions:
                 continue
             trace_pkt_id_hdr += '    case VKTRACE_TPI_VK_%s: {\n' % api.name
-            func_str = 'vk%s(' % api.name
+            func_str = '%s(' % api.name
             print_vals = ''
             create_func = True if True in [create_txt in api.name for create_txt in ['Create', 'Allocate', 'MapMemory', 'GetSwapchainImages']] else False
             params = cmd_member_dict[api.name]
@@ -1282,7 +1278,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return ("%\" PRIu64 \"", "(uint64_t)%s" % name, deref)
         if "VkBool32" in vk_type:
             if param.ispointer:
-                return ("%s",  "(*%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name), "*")
+                return ("%s",  "(%s && *%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" % (name, name), "*")
             return ("%s", "(%s == VK_TRUE) ? \"VK_TRUE\" : \"VK_FALSE\"" %(name), deref)
         if "VkFence" == vk_type:
             if param.ispointer:
@@ -2288,7 +2284,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         # Assign packet values
         # FINISH packet
         # return result if needed
-       
+
         manually_written_hooked_funcs = ['vkAllocateCommandBuffers',
                                          'vkAllocateMemory',
                                          'vkAllocateDescriptorSets',
@@ -2518,7 +2514,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    if (!g_trimEnabled) {\n'
                 # All buffers should be finalized by now, and the trace packet can be finished (which sends it over the socket)
                 trace_vk_src += '        FINISH_TRACE_PACKET();\n'
-       
+
                 # Else half of g_trimEnabled conditional
                 # Since packet wasn't sent to trace file, it either needs to be associated with an object, or deleted.
                 trace_vk_src += '    } else {\n'
@@ -2537,13 +2533,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     trace_vk_src += '            vktrace_delete_trace_packet(&pHeader);\n'
                     trace_vk_src += '        }\n'
                 trace_vk_src += '    }\n'
-       
+
                 # Clean up instance or device data if needed
                 if proto.name == "vkDestroyInstance":
                     trace_vk_src += '    g_instanceDataMap.erase(key);\n'
                 elif proto.name == "vkDestroyDevice":
                     trace_vk_src += '    g_deviceDataMap.erase(key);\n'
-       
+
                 # Return result if needed
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    return result;\n'
