@@ -143,7 +143,7 @@ Tracking of changes to PMB using the above techniques is enabled by default. If 
 
 ## Trace Tools Enviroment Variables
 
-Several enviroment variables can be set to change the behavior of vktrace/vkrepay:
+Several environment variables can be set to change the behavior of vktrace/vkrepay:
 
  - VKTRACE_PMB_ENABLE
 
