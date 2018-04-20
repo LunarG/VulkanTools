@@ -5,7 +5,7 @@ VIA is a tool that can:
  2. Validate that your Vulkan Loader and drivers are installed properly
  3. Capture your system state in a form that can be used as an attachment when submitting bugs
 
- This document describes where to find the source for VIA, building it, runnning it, and how to understand the resulting command line output that is generated.
+ This document describes where to find the source for VIA, building it, running it, and how to understand the resulting command line output that is generated.
 
 <BR />
 
@@ -88,7 +88,7 @@ After the first time, you just need to go into the folder and re-run "via.exe".
 VIA outputs two things:
  - A command-line output indicating the overall status
  - An HTML file (called via.html) containing the details which will be output to one of two locations:
-  1. If the current directory is writeable, the HTML will be placed in that location.
+  1. If the current directory is writable, the HTML will be placed in that location.
   2. Otherwise, it will be saved to your home folder, except for the Windows Start Menu short-cut which writes the file to your desktop.
 
 Your home folder is the following location (based on your OS):
@@ -379,7 +379,7 @@ If the problem is possibly related to your Graphics Driver, it could be for seve
  1. The hardware you have doesn't support Vulkan.
  2. Your hardware supports Vulkan, but you haven't yet installed a driver with Vulkan support.
  3. There is no Vulkan driver with support for the OS on which you are currently running.
-    - Sometimes, the company may provide Vulkan support for some devices on one Operatings System (say Windows), while still waiting to complete Vulkan on other systems.
+    - Sometimes, the company may provide Vulkan support for some devices on one Operating System (say Windows), while still waiting to complete Vulkan on other systems.
  4. Everything supports Vulkan, but the driver failed to install properly.
 
 Before approaching your Graphics driver vendor, it would help if you verified that your current driver for your current hardware on your current
