@@ -132,7 +132,7 @@ if ($exitstatus -eq 0) {
     }
     if ($Replay -and (Test-Path $Replay/cubeold.vktrace)) {
         # check old trace
-        fc.exe /b "$Replay/cubeold.ppm" 1-replayold.ppm > $null
+        fc.exe /b "$Replay\cubeold.ppm" 1-replayold.ppm > $null
         if (!(Test-Path "$Replay/cubeold.ppm") -or !(Test-Path 1-replayold.ppm) -or $LastExitCode -eq 1) {
             echo 'Old trace does not match'
             write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
