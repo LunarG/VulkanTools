@@ -19,9 +19,10 @@ if exist generated (
 )
 mkdir generated\include generated\common
 
-set LVL_SCRIPTS=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts
-set VT_SCRIPTS=../../../scripts
-set REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
+LVL_BASE=../submodules/Vulkan-LoaderAndValidationLayers
+LVL_SCRIPTS=../../${LVL_BASE}/scripts
+VT_SCRIPTS=../../../scripts
+REGISTRY=../../${LVL_BASE}/scripts/vk.xml
 
 cd generated/include
 py -3 %LVL_SCRIPTS%/lvl_genvk.py -registry %REGISTRY% vk_safe_struct.h
@@ -60,5 +61,14 @@ REM vkreplay
 py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vkreplay_vk_func_ptrs.h
 py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vkreplay_vk_replay_gen.cpp
 py -3 %VT_SCRIPTS%/vt_genvk.py -registry %REGISTRY% vkreplay_vk_objmapper.h
+
+REM Copy over the built source files to the LVL submodule.  Otherwise,
+REM cube won't build.
+pushd ${LVL_BASE}/build-android
+RMDIR /S /Q generated
+MKDIR /S generated/include
+MKDIR /S generated/common
+popd
+XCOPY /S /Y /R /Q * ../../${LVL_BASE}/build-android/generated/include
 
 cd ../..

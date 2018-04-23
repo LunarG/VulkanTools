@@ -21,9 +21,10 @@ cd $dir
 rm -rf generated
 mkdir -p generated/include generated/common
 
-LVL_SCRIPTS=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts
+LVL_BASE=../submodules/Vulkan-LoaderAndValidationLayers
+LVL_SCRIPTS=../../${LVL_BASE}/scripts
 VT_SCRIPTS=../../../scripts
-REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
+REGISTRY=../../${LVL_BASE}/scripts/vk.xml
 
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.cpp )
@@ -63,5 +64,8 @@ REGISTRY=../../../submodules/Vulkan-LoaderAndValidationLayers/scripts/vk.xml
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} vkreplay_vk_func_ptrs.h )
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} vkreplay_vk_replay_gen.cpp )
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} vkreplay_vk_objmapper.h )
+
+( pushd ${LVL_BASE}/build-android; rm -rf generated; mkdir -p generated/include generated/common; popd )
+( cd generated/include; cp -rf * ../../${LVL_BASE}/build-android/generated/include )
 
 exit 0
