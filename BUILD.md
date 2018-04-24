@@ -372,7 +372,7 @@ Two additional scripts have been added to facilitate tracing and replaying any A
 
 ```
 ./create_trace.sh --serial 0123456789 --abi armeabi-v7a --package com.example.CubeWithLayers  --activity android.app.NativeActivity
-adb install --abi armeabi-v7a
+adb install --abi armeabi-v7a vkreplay/bin/vkreplay.apk
 ./replay_trace.sh --serial 0123456789 --tracefile com.example.CubeWithLayers0.vktrace
 ```
 
