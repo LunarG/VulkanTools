@@ -1033,11 +1033,11 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 
-VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueNodeIndex, uint32_t queueIndex, VkQueue *pQueue) {
+VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue *pQueue) {
     DeviceMapStruct *devMap = get_dev_info(device);
     assert(devMap);
     VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    pDisp->GetDeviceQueue(device, queueNodeIndex, queueIndex, pQueue);
+    pDisp->GetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
 
     // Save the device queue in a map if we are taking screenshots.
     loader_platform_thread_lock_mutex(&globalLock);
@@ -1047,11 +1047,28 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueNodeInd
         return;
     }
 
-    VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
-    deviceMap.emplace(que, devMap);
+    // Make sure this queue can take graphics commands
+    uint32_t count;
+    bool graphicsCapable = false;
+    VkLayerInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physDeviceMap[devMap->physicalDevice]->instance);
+    pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, NULL);
 
-    // Create a mapping from a device to a queue
-    devMap->queue = *pQueue;
+    VkQueueFamilyProperties *queueProps = (VkQueueFamilyProperties *)malloc(count * sizeof(VkQueueFamilyProperties));
+    if (queueProps) {
+        pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, queueProps);
+        graphicsCapable = ((queueProps[queueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
+        free(queueProps);
+    } else {
+        graphicsCapable = true;
+    }
+
+    if (graphicsCapable) {
+        VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
+        deviceMap.emplace(que, devMap);
+
+        // Create a mapping from a device to a queue
+        devMap->queue = *pQueue;
+    }
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 
