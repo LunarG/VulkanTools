@@ -2645,7 +2645,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                             'pNonConst->pViewportState = (const VkPipelineViewportStateCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pViewportState);\n',
                             '// Raster State\n',
                             'pNonConst->pRasterizationState = (const VkPipelineRasterizationStateCreateInfo*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pCreateInfos[i].pRasterizationState);\n',
-                            'vktrace_interpret_pnext_pointers(pHeader, (void *)pNonConst->pRasterizationState);\n',
 
 
                             '// MultiSample State\n',
