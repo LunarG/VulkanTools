@@ -1697,7 +1697,7 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier 
         if (getQueueFamilyIdx(traceDevice, replayDevice, pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex, &srcReplayIdx) &&
             getQueueFamilyIdx(traceDevice, replayDevice, pPacket->pBufferMemoryBarriers[idx].dstQueueFamilyIndex, &dstReplayIdx)) {
             *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex) = srcReplayIdx;
-            *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
+            *((uint32_t *)&pPacket->pBufferMemoryBarriers[idx].dstQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkCmdPipelineBarrier failed, bad srcQueueFamilyIndex");
             VKTRACE_DELETE(saveBuf);
@@ -1721,7 +1721,7 @@ void vkReplay::manually_replay_vkCmdPipelineBarrier(packet_vkCmdPipelineBarrier 
         if (getQueueFamilyIdx(traceDevice, replayDevice, pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex, &srcReplayIdx) &&
             getQueueFamilyIdx(traceDevice, replayDevice, pPacket->pImageMemoryBarriers[idx].dstQueueFamilyIndex, &dstReplayIdx)) {
             *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex) = srcReplayIdx;
-            *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].srcQueueFamilyIndex) = dstReplayIdx;
+            *((uint32_t *)&pPacket->pImageMemoryBarriers[idx].dstQueueFamilyIndex) = dstReplayIdx;
         } else {
             vktrace_LogError("vkPipelineBarrier failed, bad srcQueueFamilyIndex");
             VKTRACE_DELETE(saveBuf);
