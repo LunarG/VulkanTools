@@ -3210,7 +3210,7 @@ VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchain
     VkSwapchainKHR remappedswapchain;
     remappedswapchain = m_objMapper.remap_swapchainkhrs(pPacket->swapchain);
     if (remappedswapchain == VK_NULL_HANDLE && pPacket->swapchain != VK_NULL_HANDLE) {
-        vktrace_LogError("Skipping vkCreateSwapchainKHR() due to invalid remapped VkSwapchainKHR.");
+        vktrace_LogError("Skipping vkGetSwapchainImagesKHR() due to invalid remapped VkSwapchainKHR.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
