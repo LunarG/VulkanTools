@@ -2993,6 +2993,9 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
 
     replayResult = m_vkFuncs.GetPhysicalDeviceSurfaceCapabilitiesKHR(remappedphysicalDevice, remappedSurfaceKHR,
                                                                      pPacket->pSurfaceCapabilities);
+
+    replaySurfaceCapabilities[remappedSurfaceKHR] = *(pPacket->pSurfaceCapabilities);
+
     return replayResult;
 }
 
@@ -3164,6 +3167,20 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
         }
     }
     free(surfFormats);
+
+    if (replaySurfaceCapabilities.find(pPacket->pCreateInfo->surface) != replaySurfaceCapabilities.end()) {
+        VkSurfaceCapabilitiesKHR surfaceCapabilities = replaySurfaceCapabilities[pPacket->pCreateInfo->surface];
+        // Check if the content's landscape/portrait mode is consistent with surface, otherwise rotate content 90 degrees
+        if ((pPacket->pCreateInfo->imageExtent.width > pPacket->pCreateInfo->imageExtent.height) !=
+            (surfaceCapabilities.currentExtent.width > surfaceCapabilities.currentExtent.height)) {
+            if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR) {
+                // Rotate content 90 degrees clockwise to make the content being shown in expected mode (landscape/portrait)
+                VkSurfaceTransformFlagsKHR *overwritePreTransform =
+                    (VkSurfaceTransformFlagsKHR *)&pPacket->pCreateInfo->preTransform;
+                *overwritePreTransform = VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR;
+            }
+        }
+    }
 
     replayResult = m_vkDeviceFuncs.CreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS) {
