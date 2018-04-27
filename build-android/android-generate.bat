@@ -58,7 +58,7 @@ echo Generating VT layer factory header/source files
 echo ********
 py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% layer_factory.h
 py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% layer_factory.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py ..\..\..\layer_factory
+py -3 %VT_SCRIPTS%\vlf_makefile_generator.py ..\..\..\layer_factory
 
 REM apidump
 echo Generating VT apidump header/source files
