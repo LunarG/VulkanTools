@@ -27,7 +27,7 @@ extern "C" {
 #if defined(PLATFORM_LINUX) || defined(XCB_NVIDIA)
 #if defined(ANDROID)
 #include <android_native_app_glue.h>
-typedef ANativeWindow* vktrace_window_handle;
+typedef struct android_app* vktrace_window_handle;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
 #include <xcb/xcb.h>
