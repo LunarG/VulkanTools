@@ -726,7 +726,7 @@ void android_main(struct android_app* app) {
             // sleep(10);
 
             // Call into common code
-            int err = vkreplay_main(argc, argv, app->window);
+            int err = vkreplay_main(argc, argv, app);
             __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
 
             ANativeActivity_finish(app->activity);

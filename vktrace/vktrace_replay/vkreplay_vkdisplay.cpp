@@ -37,6 +37,8 @@ vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0),
 #if defined(ANDROID)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceAndroid));
     m_window = 0;
+    m_jni_vm = nullptr;
+    m_jni_activity = 0;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     memset(&m_surface, 0, sizeof(VkIcdSurfaceXcb));
@@ -241,8 +243,10 @@ LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
 int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
-    m_window = hWindow;
-    m_surface.window = hWindow;
+    m_window = hWindow->window;
+    m_surface.window = hWindow->window;
+    m_jni_vm = hWindow->activity->vm;
+    m_jni_activity = hWindow->activity->clazz;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     m_XcbWindow = hWindow;
@@ -357,7 +361,32 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
     if (width != m_windowWidth || height != m_windowHeight) {
         m_windowWidth = width;
         m_windowHeight = height;
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+#if defined(PLATFORM_LINUX)
+#if defined(ANDROID)
+        // For Android, we adjust the screen orientation based on requested width and height.
+        int32_t pixel_width = ANativeWindow_getWidth(m_window);
+        int32_t pixel_height = ANativeWindow_getHeight(m_window);
+
+        // We don't change the current orientation if width == height or if the requested orientation matches the current
+        // orientation.
+        if ((width != height) && ((width < height) != (pixel_width < pixel_height))) {
+            JNIEnv *env = nullptr;
+            if ((m_jni_vm != nullptr) && (m_jni_activity != 0) && (m_jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK)) {
+                jclass object_class = env->GetObjectClass(m_jni_activity);
+                jmethodID set_orientation = env->GetMethodID(object_class, "setRequestedOrientation", "(I)V");
+
+                if (width > height) {
+                    const int SCREEN_ORIENTATION_LANDSCAPE = 0;
+                    env->CallVoidMethod(m_jni_activity, set_orientation, SCREEN_ORIENTATION_LANDSCAPE);
+                } else {
+                    const int SCREEN_ORIENTATION_PORTRAIT = 1;
+                    env->CallVoidMethod(m_jni_activity, set_orientation, SCREEN_ORIENTATION_PORTRAIT);
+                }
+
+                m_jni_vm->DetachCurrentThread();
+            }
+        }
+#else
 #if defined VKREPLAY_USE_WSI_XCB
         uint32_t values[2];
         values[0] = width;
@@ -377,6 +406,7 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 // TODO
 #elif defined VKREPLAY_USE_WSI_WAYLAND
 // In Wayland, the shell_surface should resize based on the Vulkan surface automagically
+#endif
 #endif
 #elif defined(WIN32)
         RECT wr = {0, 0, (LONG)width, (LONG)height};
