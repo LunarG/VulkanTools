@@ -795,6 +795,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
     pPacket->physicalDevice = physicalDevice;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProperties), sizeof(VkPhysicalDeviceProperties2KHR),
                                        pProperties);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pProperties, pProperties);
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pProperties));
     if (!g_trimEnabled) {
         FINISH_TRACE_PACKET();
