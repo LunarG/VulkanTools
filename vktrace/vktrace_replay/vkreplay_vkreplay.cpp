@@ -2510,6 +2510,7 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceProperties2KHR(packet_vkGetPhy
         vktrace_LogError("Error detected in GetPhysicalDeviceProperties2KHR() due to invalid remapped VkPhysicalDevice.");
         return;
     }
+    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pProperties);
     // No need to remap pProperties
     m_vkFuncs.GetPhysicalDeviceProperties2KHR(remappedphysicalDevice, pPacket->pProperties);
     m_replay_gpu =
