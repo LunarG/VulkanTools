@@ -386,6 +386,8 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
                 m_jni_vm->DetachCurrentThread();
             }
         }
+
+        ANativeWindow_setBuffersGeometry(m_window, width, height, ANativeWindow_getFormat(m_window));
 #else
 #if defined VKREPLAY_USE_WSI_XCB
         uint32_t values[2];
