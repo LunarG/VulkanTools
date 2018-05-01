@@ -31,10 +31,6 @@
 #include "vktrace_multiplatform.h"
 #include "vkreplay_window.h"
 
-#if defined(PLATFORM_LINUX) && defined(ANDROID)
-#include <jni.h>
-#endif
-
 class vkDisplay : public vktrace_replay::ReplayDisplayImp {
     friend class vkReplay;
 
@@ -77,8 +73,7 @@ class vkDisplay : public vktrace_replay::ReplayDisplayImp {
 #if defined(ANDROID)
     VkIcdSurfaceAndroid m_surface;
     ANativeWindow* m_window;
-    JavaVM* m_jni_vm;
-    jobject m_jni_activity;
+    struct android_app* m_android_app;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     VkIcdSurfaceXcb m_surface;

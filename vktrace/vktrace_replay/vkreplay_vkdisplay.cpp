@@ -29,6 +29,10 @@
 #include <linux/input.h>
 #endif
 
+#if defined PLATFORM_LINUX && defined ANDROID
+#include <jni.h>
+#endif
+
 #define APP_NAME "vkreplay_vk"
 #define IDI_ICON 101
 
@@ -37,8 +41,7 @@ vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0),
 #if defined(ANDROID)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceAndroid));
     m_window = 0;
-    m_jni_vm = nullptr;
-    m_jni_activity = 0;
+    m_android_app = nullptr;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     memset(&m_surface, 0, sizeof(VkIcdSurfaceXcb));
@@ -245,8 +248,7 @@ int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, uns
 #if defined(ANDROID)
     m_window = hWindow->window;
     m_surface.window = hWindow->window;
-    m_jni_vm = hWindow->activity->vm;
-    m_jni_activity = hWindow->activity->clazz;
+    m_android_app = hWindow;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     m_XcbWindow = hWindow;
@@ -370,20 +372,28 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
         // We don't change the current orientation if width == height or if the requested orientation matches the current
         // orientation.
         if ((width != height) && ((width < height) != (pixel_width < pixel_height))) {
+            JavaVM *jni_vm = nullptr;
+            jobject jni_activity = nullptr;
             JNIEnv *env = nullptr;
-            if ((m_jni_vm != nullptr) && (m_jni_activity != 0) && (m_jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK)) {
-                jclass object_class = env->GetObjectClass(m_jni_activity);
+
+            if ((m_android_app != nullptr) && (m_android_app->activity != nullptr)) {
+                jni_vm = m_android_app->activity->vm;
+                jni_activity = m_android_app->activity->clazz;
+            }
+
+            if ((jni_vm != nullptr) && (jni_activity != 0) && (jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK)) {
+                jclass object_class = env->GetObjectClass(jni_activity);
                 jmethodID set_orientation = env->GetMethodID(object_class, "setRequestedOrientation", "(I)V");
 
                 if (width > height) {
                     const int SCREEN_ORIENTATION_LANDSCAPE = 0;
-                    env->CallVoidMethod(m_jni_activity, set_orientation, SCREEN_ORIENTATION_LANDSCAPE);
+                    env->CallVoidMethod(jni_activity, set_orientation, SCREEN_ORIENTATION_LANDSCAPE);
                 } else {
                     const int SCREEN_ORIENTATION_PORTRAIT = 1;
-                    env->CallVoidMethod(m_jni_activity, set_orientation, SCREEN_ORIENTATION_PORTRAIT);
+                    env->CallVoidMethod(jni_activity, set_orientation, SCREEN_ORIENTATION_PORTRAIT);
                 }
 
-                m_jni_vm->DetachCurrentThread();
+                jni_vm->DetachCurrentThread();
             }
         }
 
@@ -424,7 +434,17 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 void vkDisplay::process_event() {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
-// TODO
+    int events;
+    struct android_poll_source *source;
+    if (ALooper_pollAll(0, NULL, &events, (void **)&source) >= 0) {
+        if (source) {
+            source->process(m_android_app, source);
+        }
+
+        if (m_android_app->destroyRequested != 0) {
+            this->set_quit_status(true);
+        }
+    }
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     xcb_connection_t *xcb_conn = this->get_connection_handle();
