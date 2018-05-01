@@ -16,6 +16,7 @@
  * limitations under the License.
  *
  * Author: Lenny Komow <lenny@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 #pragma once
@@ -423,14 +424,21 @@ class ApiDumpInstance {
             loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
 
             const auto cmd_buffers_iter = cmd_buffer_pools.find(std::make_pair(device, cmd_pool));
-            assert(cmd_buffers_iter != cmd_buffer_pools.end());
-            cmd_buffers_iter->second.clear();
+            if (cmd_buffers_iter != cmd_buffer_pools.end()) {
+                for (const auto cmd_buffer : cmd_buffers_iter->second) {
+                    assert(cmd_buffer_level.count(cmd_buffer) > 0);
+                    cmd_buffer_level.erase(cmd_buffer);
+                }
+                cmd_buffers_iter->second.clear();
+            }
 
             loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
         }
     }
 
     static inline ApiDumpInstance &current() { return current_instance; }
+
+    std::unordered_map<uint64_t, std::string> object_name_map;
 
    private:
     static ApiDumpInstance current_instance;

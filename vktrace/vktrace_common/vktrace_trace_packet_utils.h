@@ -87,6 +87,9 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer);
 
+// adds pNext structures to a trace packet
+void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHeader, void* pOut, const void* pIn);
+
 // converts buffer pointers into byte offset so that pointer can be interpretted after being read into memory
 void vktrace_finalize_buffer_address(vktrace_trace_packet_header* pHeader, void** ptr_address);
 
@@ -109,6 +112,23 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile);
 
 // converts a pointer variable that is currently byte offset into a pointer to the actual offset location
 void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
+
+// Adding to packets TODO: Move to codegen
+void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApplicationInfo** ppStruct,
+                                     const VkApplicationInfo* pInStruct);
+void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkInstanceCreateInfo** ppStruct,
+                                        VkInstanceCreateInfo* pInStruct);
+void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDeviceCreateInfo** ppStruct,
+                                      const VkDeviceCreateInfo* pInStruct);
+
+// Interpreting packets TODO: Move to codegen
+VkInstanceCreateInfo* interpret_VkInstanceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
+VkDeviceCreateInfo* interpret_VkDeviceCreateInfo(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
+void interpret_VkPipelineShaderStageCreateInfo(vktrace_trace_packet_header* pHeader, VkPipelineShaderStageCreateInfo* pShader);
+VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfoKHX(vktrace_trace_packet_header* pHeader,
+                                                                          intptr_t ptr_variable);
+// converts the Vulkan struct pnext chain that is currently byte offsets into pointers
+void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr);
 
 //=============================================================================
 // trace packet message

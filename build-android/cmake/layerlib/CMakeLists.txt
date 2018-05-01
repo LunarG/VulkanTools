@@ -32,9 +32,9 @@ else ()
     #   ${SRC_DIR}
     #   ${SRC_DIR}/build-android/external (for glslang, spirv-tools & shaderc )
     get_filename_component(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.."  ABSOLUTE)
-    set(EXTERNAL_DIR "${SRC_DIR}/build-android/external")
+    set(EXTERNAL_DIR "${SRC_DIR}/build-android/third_party/shaderc/third_party")
     set(SPIRV_LIB
-        "${EXTERNAL_DIR}/shaderc/android_test/obj/local/${ANDROID_ABI}/libSPIRV-Tools.a")
+        "${SRC_DIR}/build-android/third_party/shaderc/android_test/obj/local/${ANDROID_ABI}/libSPIRV-Tools.a")
 endif()
 set(COMMON_DIR "${SRC_DIR}/build-android/generated")
 
@@ -65,7 +65,8 @@ add_library(VkLayer_core_validation SHARED
         ${SRC_DIR}/layers/descriptor_sets.cpp
         ${SRC_DIR}/layers/buffer_validation.cpp
         ${SRC_DIR}/layers/shader_validation.cpp
-        ${SRC_DIR}/layers/vk_layer_table.cpp)
+        ${SRC_DIR}/layers/vk_layer_table.cpp
+	${SRC_DIR}/layers/xxhash.c)
 target_include_directories(VkLayer_core_validation PRIVATE
         ${SRC_DIR}/include
         ${SRC_DIR}/layers
@@ -77,7 +78,8 @@ target_link_libraries(VkLayer_core_validation PRIVATE
         log layer_utils SPIRV-Tools-prebuilt)
 
 add_library(VkLayer_parameter_validation SHARED
-        ${SRC_DIR}/layers/parameter_validation.cpp
+        ${COMMON_DIR}/include/parameter_validation.cpp
+        ${SRC_DIR}/layers/parameter_validation_utils.cpp
         ${SRC_DIR}/layers/vk_layer_table.cpp)
 target_include_directories(VkLayer_parameter_validation PRIVATE
         ${SRC_DIR}/include
@@ -88,6 +90,7 @@ target_link_libraries(VkLayer_parameter_validation PRIVATE log layer_utils)
 
 add_library(VkLayer_object_tracker SHARED
         ${COMMON_DIR}/include/object_tracker.cpp
+        ${SRC_DIR}/layers/object_tracker_utils.cpp
         ${SRC_DIR}/layers/vk_layer_table.cpp)
 target_include_directories(VkLayer_object_tracker PRIVATE
         ${SRC_DIR}/include

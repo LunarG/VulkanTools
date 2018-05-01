@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 2.8)
 
 # if Vktrace is being built as part of a vulkan driver build, then use that target instead of the locally-commited binary.
     set(VKTRACE_VULKAN_DRIVER_DIR ${CMAKE_SOURCE_DIR})
-    set(VKTRACE_VULKAN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/vulkan)
-    set(VKTRACE_VULKAN_HEADER ${CMAKE_SOURCE_DIR}/include/vulkan/vulkan.h)
+    set(VKTRACE_VULKAN_INCLUDE_DIR ${V_LVL_ROOT_DIR}/include/vulkan)
+    set(VKTRACE_VULKAN_HEADER ${V_LVL_ROOT_DIR}/include/vulkan/vulkan.h)
     #set(VKTRACE_VULKAN_LUNARG_DEBUG_MARKER_HEADER ${VKTRACE_VULKAN_INCLUDE_DIR}/vk_lunarg_debug_marker.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")

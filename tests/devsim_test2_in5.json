@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
+  "comments": {
+    "url": "https://github.com/LunarG/VulkanTools/tree/master/tests",
+    "desc": "A configuration file fragment for the Device Simulation layer test."
+  },
+  "ArrayOfVkFormatProperties": [
+    {
+      "formatID": 100,
+      "linearTilingFeatures": 900005004,
+      "optimalTilingFeatures": 900005005,
+      "bufferFeatures": 900005006
+    },
+    {
+      "formatID": 4,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 0
+    },
+    {
+      "formatID": 3,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 900005003
+    },
+    {
+      "formatID": 2,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 900005002,
+      "bufferFeatures": 0
+    },
+    {
+      "formatID": 1,
+      "linearTilingFeatures": 900005001,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 0
+    }
+  ]
+}

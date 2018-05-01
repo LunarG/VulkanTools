@@ -12,7 +12,8 @@ fi
 
 printf "$GREEN[ RUN      ]$NC $0\n"
 
-export LD_LIBRARY_PATH=${PWD}/../loader:${LD_LIBRARY_PATH}
+LVL_BUILD=${PWD}/../submodules/Vulkan-LoaderAndValidationLayers
+export LD_LIBRARY_PATH=${LVL_BUILD}/loader:${LD_LIBRARY_PATH}
 export VK_LAYER_PATH=${PWD}/../layersvt
 
 function trace_replay {
@@ -21,7 +22,7 @@ function trace_replay {
 	TARGS=$3
 	VKTRACE=${PWD}/../vktrace/vktrace
 	VKREPLAY=${PWD}/../vktrace/vkreplay
-	APPDIR=${PWD}/../demos
+	APPDIR=${LVL_BUILD}/demos
 	printf "$GREEN[ TRACE    ]$NC ${PGM}\n"
 	${VKTRACE}	--Program ${APPDIR}/${PGM} \
 			--Arguments "--c 100 ${PARGS}" \

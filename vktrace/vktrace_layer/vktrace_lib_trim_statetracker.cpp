@@ -29,9 +29,9 @@ vktrace_trace_packet_header *copy_packet(vktrace_trace_packet_header *pHeader) {
     }
 
     uint64_t packetSize = pHeader->size;
-    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc(packetSize));
+    vktrace_trace_packet_header *pCopy = static_cast<vktrace_trace_packet_header *>(malloc((size_t)packetSize));
     if (pCopy != nullptr) {
-        memcpy(pCopy, pHeader, packetSize);
+        memcpy(pCopy, pHeader, (size_t)packetSize);
     }
     return pCopy;
 }
@@ -399,9 +399,12 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
     createdPhysicalDevices = other.createdPhysicalDevices;
     for (auto obj = createdPhysicalDevices.begin(); obj != createdPhysicalDevices.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDevicePropertiesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceProperties2KHRPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRCountPacket);
+        COPY_PACKET(obj->second.ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRPacket);
     }
 
     createdDevices = other.createdDevices;
@@ -473,10 +476,19 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
         // note: Using the same memory as both the destination and the source.
         // We're copying what is currently there, which will properly result in
         // new copies of any pointed-to objects and arrays.
-        copy_VkGraphicsPipelineCreateInfo(pCreateInfo, obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo);
-        copy_VkComputePipelineCreateInfo(
-            const_cast<VkComputePipelineCreateInfo *>(&obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo),
-            obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo);
+        if (obj->second.ObjectInfo.Pipeline.isGraphicsPipeline) {
+            // here we keep the original value of source to a copy, so we can
+            // change the destination value in pCreateInfo and make it a
+            // deepcopy of the source. note: src parameter in the define of
+            // copy_VkGraphicsPipelineCreateInfo function is a reference.
+            VkGraphicsPipelineCreateInfo createInfoCopy = obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo;
+            copy_VkGraphicsPipelineCreateInfo(pCreateInfo, createInfoCopy);
+        } else {
+            VkComputePipelineCreateInfo createInfoCopy = obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo;
+            copy_VkComputePipelineCreateInfo(
+                const_cast<VkComputePipelineCreateInfo *>(&obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo),
+                createInfoCopy);
+        }
     }
 
     createdQueues = other.createdQueues;
@@ -600,7 +612,7 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
             memcpy(tmp, obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets, numBindings * sizeof(VkWriteDescriptorSet));
             obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets = tmp;
 
-            for (uint32_t s = 0; s < obj->second.ObjectInfo.DescriptorSet.writeDescriptorCount; s++) {
+            for (uint32_t s = 0; s < numBindings; s++) {
                 uint32_t count = obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].descriptorCount;
 
                 if (obj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets[s].pImageInfo != nullptr) {
@@ -787,6 +799,29 @@ void StateTracker::copy_VkGraphicsPipelineCreateInfo(VkGraphicsPipelineCreateInf
         VkPipelineRasterizationStateCreateInfo *pRS = new VkPipelineRasterizationStateCreateInfo();
         *pRS = *(src.pRasterizationState);
         pDst->pRasterizationState = pRS;
+        if (pDst->pRasterizationState->pNext != nullptr) {
+            // there's an extension struct here, we need to do a deep copy for it.
+
+            // we first use sType to detect the type of extension that pNext
+            // struct belong to.
+            const VkApplicationInfo *pNextStruct =
+                reinterpret_cast<const VkApplicationInfo *>(pDst->pRasterizationState->pNext);
+            if (pNextStruct->sType ==
+                VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD) {  // it's an AMD extension.
+
+                // cast to a reference so we can change pDst->pRasterizationState->pNext,
+                void*& pNext = const_cast<void*&>(pDst->pRasterizationState->pNext);
+                // then make pNext point to the newly created extension struct.
+                pNext = reinterpret_cast<void *>(new VkPipelineRasterizationStateRasterizationOrderAMD());
+                //make a copy of extension struct which is used by target app.
+                memcpy(pNext, src.pRasterizationState->pNext,sizeof(VkPipelineRasterizationStateRasterizationOrderAMD));
+            }
+            else {
+                // so far we only handle this extension, more extension
+                // handling can be added here;
+                assert(false);
+            }
+        }
     }
 
     if (src.pMultisampleState != nullptr) {
@@ -1294,6 +1329,8 @@ void StateTracker::remove_PhysicalDevice(const VkPhysicalDevice var) {
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceMemoryPropertiesPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesCountPacket);
         vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyPropertiesPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRCountPacket);
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.PhysicalDevice.pGetPhysicalDeviceQueueFamilyProperties2KHRPacket);
     }
     createdPhysicalDevices.erase(var);
 }

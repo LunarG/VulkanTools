@@ -78,7 +78,7 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
         args[0] = pInfo->exeName;
         args[127] = NULL;
         idx = 1;
-        args[idx] = strtok(pInfo->processArgs, delim);
+        args[idx] = pInfo->processArgs ? strtok(pInfo->processArgs, delim) : NULL;
         while (args[idx] != NULL && idx < 128) {
             idx++;
             args[idx] = strtok(NULL, delim);

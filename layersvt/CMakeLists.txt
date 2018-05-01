@@ -40,6 +40,7 @@ endif()
 add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
 add_custom_target( generate_api_h DEPENDS api_dump_text.h )
 add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
+set_target_properties(generate_api_cpp generate_api_h generate_api_html_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
 set(LAYER_JSON_FILES
     VkLayer_api_dump
@@ -62,6 +63,7 @@ if (WIN32)
                     VERBATIM
                     )
                 add_dependencies(${config_file}-json ${config_file})
+                set_target_properties(${config_file}-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
             endforeach(config_file)
         else()
             foreach (config_file ${LAYER_JSON_FILES})
@@ -72,6 +74,7 @@ if (WIN32)
                     VERBATIM
                     )
                 add_dependencies(${config_file}-json ${config_file})
+                set_target_properties(${config_file}-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
             endforeach(config_file)
         endif()
     endif()
@@ -98,7 +101,6 @@ else()
             )
         install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
     endforeach(config_file)
-    
 endif()
 
 if (WIN32)
@@ -110,14 +112,15 @@ if (WIN32)
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
     add_dependencies(VkLayer_${target} generate_helper_files)
-    target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utilsvt)
+    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utils)
+    set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} VkLayer_utilsvt)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utilsvt)
+    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utils)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
@@ -125,11 +128,12 @@ endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../loader
-    ${CMAKE_CURRENT_SOURCE_DIR}/../layers
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
+    ${V_LVL_ROOT_DIR}/loader
+    ${V_LVL_ROOT_DIR}/layers
+    ${V_LVL_ROOT_DIR}/include/vulkan
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
     ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
     ${JSONCPP_INCLUDE_DIR}
 )
@@ -161,21 +165,8 @@ run_vk_xml_generate(api_dump_generator.py api_dump.cpp)
 run_vk_xml_generate(api_dump_generator.py api_dump_text.h)
 run_vk_xml_generate(api_dump_generator.py api_dump_html.h)
 
-# Layer Utils Library
-# For Windows, we use a static lib because the Windows loader has a fairly restrictive loader search
-# path that can't be easily modified to point it to the same directory that contains the layers.
-if (WIN32)
-    add_library(VkLayer_utilsvt STATIC ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp ../layers/vk_format_utils.cpp)
-else()
-    add_library(VkLayer_utilsvt SHARED ../layers/vk_layer_config.cpp ../layers/vk_layer_extension_utils.cpp ../layers/vk_layer_utils.cpp ../layers/vk_format_utils.cpp)
-    install(TARGETS VkLayer_utilsvt DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
-add_dependencies(VkLayer_utilsvt generate_helper_files)
-
-# VulkanTools layers
-add_vk_layer(monitor monitor.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp ../layers/vk_layer_table.cpp)
-add_vk_layer(device_simulation device_simulation.cpp ../layers/vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
-# generated
-add_vk_layer(api_dump api_dump.cpp ../layers/vk_layer_table.cpp)
+add_vk_layer(monitor monitor.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp)
+add_vk_layer(device_simulation device_simulation.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+add_vk_layer(api_dump api_dump.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp)
 

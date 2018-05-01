@@ -4,10 +4,9 @@
 
 script_start_time=$(date +%s)
 
-default_vkreplay_apk=./vkreplay/bin/NativeActivity-debug.apk
+default_vkreplay_apk=./vkreplay/bin/vkreplay.apk
 default_vktrace_exe=../build/vktrace/vktrace
 default_vktrace32_exe=../build32/vktrace/vktrace32
-default_target_abi=$(adb shell getprop ro.product.cpu.abi)
 default_activity=android.app.NativeActivity
 default_frame=1
 
@@ -35,7 +34,7 @@ function printUsage {
    echo "i.e. ${0##*/} --serial 01234567 \\"
    echo "              --abi arm64-v8a \\"
    echo "              --vktrace ../build/vktrace/vktrace \\"
-   echo "              --vkreplay ./vkreplay/bin/NativeActivity-debug.apk \\"
+   echo "              --vkreplay ./vkreplay/bin/vkreplay.apk \\"
    echo "              --apk ~/Downloads/foo.apk.apk \\"
    echo "              --package com.example.foo \\"
    echo "              --actvity android.app.NativeActivity \\"
@@ -117,6 +116,7 @@ then
     exit 1
 fi
 
+default_target_abi=$(adb $serialFlag shell getprop ro.product.cpu.abi)
 if [[ -z $target_abi ]];
 then
     echo Using default target_abi
@@ -192,9 +192,7 @@ function printLayerBuild() {
 
 function printvkreplayBuild() {
     echo "To build vkreplay apk"
-    echo "android update project -s -p . -t \"android-23\""
-    echo "ndk-build -j"
-    echo "ant -buildfile vkreplay debug"
+    echo "./build_vktracereplay.sh"
 }
 
 function printvktraceBuild() {

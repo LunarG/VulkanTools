@@ -21,7 +21,6 @@ set vktrace32_exe=..\build32\vktrace\Debug\vktrace.exe
 set vkreplay_apk=.\vkreplay\bin\NativeActivity-debug.apk
 set activity=android.app.NativeActivity
 set frame=1
-for /f "delims=" %%i in ('adb shell getprop ro.product.cpu.abi') do set target_abi=%%i
 
 REM // ======== Parameter parsing ======== //
 
@@ -122,6 +121,11 @@ REM // ======== Parameter parsing ======== //
    :parameterContinue
 
 REM // ======== end Parameter parsing ======== //
+
+REM TODO: Add more parameter checking to ensure things are sane
+if "%target_abi%" == "" (
+    for /f "delims=" %%i in ('adb -s %serial% shell getprop ro.product.cpu.abi') do set target_abi=%%i
+)
 
 REM Match 32-bit and 64-bit ABIs between host and target
 if "%target_abi%" == "armeabi-v7a" ( set vktrace_exe=%vktrace32_exe% )

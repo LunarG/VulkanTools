@@ -31,18 +31,6 @@
 PageGuardCapture::PageGuardCapture() {
     EmptyChangedInfoArray.offset = 0;
     EmptyChangedInfoArray.length = 0;
-
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    // Open the /proc/self/clear_refs file. We'll write to that file
-    // when we want to clear all the page dirty bits in /proc/self/pagemap.
-    clearRefsFd = open("/proc/self/clear_refs", O_WRONLY);
-    if (clearRefsFd < 0) VKTRACE_FATAL_ERROR("Open of /proc/self/clear_refs failed.");
-
-    // Clear the dirty bits, i.e. write a '4' to clear_refs. Some older
-    // kernels may require that '4' be written to it in order
-    // for /proc/self/pagemap to work as we we expect it to.
-    pageRefsDirtyClear();
-#endif
 }
 
 std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>& PageGuardCapture::getMapMemory() { return MapMemory; }
@@ -117,7 +105,7 @@ bool PageGuardCapture::vkFlushMappedMemoryRangesPageGuardHandle(VkDevice device,
             pInfoTemp[0].length = (DWORD)RealRangeSize;
             pInfoTemp[0].reserve0 = 0;
             pInfoTemp[0].reserve1 = 0;
-            pInfoTemp[1].offset = pRange->offset - getMappedMemoryOffset(device, pRange->memory);
+            pInfoTemp[1].offset = (uint32_t)pRange->offset - (uint32_t)getMappedMemoryOffset(device, pRange->memory);
             pInfoTemp[1].length = (DWORD)RealRangeSize;
             pInfoTemp[1].reserve0 = 0;
             pInfoTemp[1].reserve1 = 0;
@@ -318,13 +306,3 @@ bool PageGuardCapture::isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkP
     }
     return isReady;
 }
-
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-void PageGuardCapture::pageRefsDirtyClear() {
-    char four = '4';
-    if (clearRefsFd >= 0) {
-        lseek(clearRefsFd, 0, SEEK_SET);
-        if (1 != write(clearRefsFd, &four, 1)) VKTRACE_FATAL_ERROR("Write to /proc/self/clear_refs failed.");
-    }
-}
-#endif

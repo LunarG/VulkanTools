@@ -63,6 +63,31 @@ BOOL vktrace_Checkpoint_read(Checkpoint* pCheckpoint, FileLike* _in) {
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
+uint64_t vktrace_FileLike_GetFileLength(FILE* fp) {
+    uint64_t byte_length = 0;
+
+    // Get file length
+    int64_t length = 0;
+    if (Fseek(fp, 0, SEEK_END) != 0) {
+        vktrace_LogError("Failed to fseek to the end of tracefile for replaying.");
+    } else {
+        length = Ftell(fp);
+        if (length == -1L) {
+            vktrace_LogError("Failed to get the length of tracefile for replaying.");
+            length = 0;
+        }
+    }
+
+    // WARNING: Reset file position to the beginning of the file
+    // Because this function is only called from vktrace_FileLike_create_file,
+    // the file position should always be the beginning of the file before getting file length.
+    rewind(fp);
+
+    byte_length = length;
+    return byte_length;
+}
+
+// ------------------------------------------------------------------------------------------------
 FileLike* vktrace_FileLike_create_file(FILE* fp) {
     FileLike* pFile = NULL;
     if (fp != NULL) {
@@ -70,6 +95,7 @@ FileLike* vktrace_FileLike_create_file(FILE* fp) {
         pFile->mMode = File;
         pFile->mFile = fp;
         pFile->mMessageStream = NULL;
+        pFile->mFileLen = vktrace_FileLike_GetFileLength(fp);
     }
     return pFile;
 }
@@ -82,14 +108,15 @@ FileLike* vktrace_FileLike_create_msg(MessageStream* _msgStream) {
         pFile->mMode = Socket;
         pFile->mFile = NULL;
         pFile->mMessageStream = _msgStream;
+        pFile->mFileLen = 0;
     }
     return pFile;
 }
 
 // ------------------------------------------------------------------------------------------------
-size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len) {
-    size_t minSize = 0;
-    size_t bytesInStream = 0;
+uint64_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, uint64_t _len) {
+    uint64_t minSize = 0;
+    uint64_t bytesInStream = 0;
     if (vktrace_FileLike_ReadRaw(pFileLike, &bytesInStream, sizeof(bytesInStream)) == FALSE) return 0;
 
     minSize = (_len < bytesInStream) ? _len : bytesInStream;
@@ -102,13 +129,13 @@ size_t vktrace_FileLike_Read(FileLike* pFileLike, void* _bytes, size_t _len) {
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len) {
+BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, uint64_t _len) {
     BOOL result = TRUE;
     assert((pFileLike->mFile != 0) ^ (pFileLike->mMessageStream != 0));
 
     switch (pFileLike->mMode) {
         case File: {
-            if (1 != fread(_bytes, _len, 1, pFileLike->mFile)) {
+            if (1 != fread(_bytes, (size_t)_len, 1, pFileLike->mFile)) {
                 if (ferror(pFileLike->mFile) != 0) {
                     perror("fread error");
                 } else if (feof(pFileLike->mFile) != 0) {
@@ -130,7 +157,7 @@ BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, size_t _len) {
     return result;
 }
 
-void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len) {
+void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, uint64_t _len) {
     vktrace_FileLike_WriteRaw(pFileLike, &_len, sizeof(_len));
     if (_len) {
         vktrace_FileLike_WriteRaw(pFileLike, _bytes, _len);
@@ -138,12 +165,12 @@ void vktrace_FileLike_Write(FileLike* pFileLike, const void* _bytes, size_t _len
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len) {
+BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, uint64_t _len) {
     BOOL result = TRUE;
     assert((pFile->mFile != 0) ^ (pFile->mMessageStream != 0));
     switch (pFile->mMode) {
         case File:
-            if (1 != fwrite(_bytes, _len, 1, pFile->mFile)) {
+            if (1 != fwrite(_bytes, (size_t)_len, 1, pFile->mFile)) {
                 result = FALSE;
             }
             break;
@@ -156,4 +183,40 @@ BOOL vktrace_FileLike_WriteRaw(FileLike* pFile, const void* _bytes, size_t _len)
             break;
     }
     return result;
+}
+
+// ------------------------------------------------------------------------------------------------
+uint64_t vktrace_FileLike_GetCurrentPosition(FileLike* pFileLike) {
+    uint64_t offset = 0;
+    assert((pFileLike->mFile != 0));
+
+    switch (pFileLike->mMode) {
+        case File: {
+            offset = Ftell(pFileLike->mFile);
+            break;
+        }
+
+        default:
+            assert(!"Invalid mode in vktrace_FileLike_GetCurrentPosition");
+    }
+    return offset;
+}
+
+// ------------------------------------------------------------------------------------------------
+BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFileLike, uint64_t offset) {
+    BOOL ret = FALSE;
+    assert((pFileLike->mFile != 0));
+
+    switch (pFileLike->mMode) {
+        case File: {
+            if (Fseek(pFileLike->mFile, offset, SEEK_SET) == 0) {
+                ret = TRUE;
+            }
+            break;
+        }
+
+        default:
+            assert(!"Invalid mode in vktrace_FileLike_SetCurrentPosition");
+    }
+    return ret;
 }

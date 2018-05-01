@@ -1,12 +1,18 @@
 # Windows Build Configuration for AppVeyor
 # http://www.appveyor.com/docs/appveyor-yml
+#
+
+# This version starts a separte job for each platform config
+# in order to get around the AppVeyor limit of 60 mins per job.
 
 # build version format
 version: "{build}"
 
+# Free accounts have a max of 1, but ask anyway.
+max_jobs: 4
+
 os:
   - Visual Studio 2013
-  - Visual Studio 2015
 
 environment:
   PYTHON_PATH: "C:/Python35"
@@ -16,9 +22,40 @@ branches:
   only:
     - master
 
-# This replaces "automatic building" that would be defined under build:
-build_script:
+before_build:
   - "SET PATH=C:\\Python35;C:\\Python35\\Scripts;%PATH%"
-  - update_external_sources.bat --all
-  - build_windows_targets.bat
+  - echo.
+  - echo Starting build for %APPVEYOR_REPO_NAME%
+  - echo Update external sources
+  - if %PLATFORM% == Win32 (if %CONFIGURATION% == Debug (update_external_sources.bat --32 --debug))
+  - if %PLATFORM% == Win32 (if %CONFIGURATION% == Release (update_external_sources.bat --32 --release))
+  - if %PLATFORM% == x64 (if %CONFIGURATION% == Debug (update_external_sources.bat --64 --debug))
+  - if %PLATFORM% == x64 (if %CONFIGURATION% == Release (update_external_sources.bat --64 --release))
+  # Determine the appropriate CMake generator for the current version of Visual Studio
+  - echo Determining VS version
+  - python .\submodules\Vulkan-LoaderAndValidationLayers\scripts\determine_vs_version.py > vsversion.tmp
+  - set /p VS_VERSION=< vsversion.tmp
+  - echo Detected Visual Studio Version as %VS_VERSION%
+  - del /Q /F vsversion.tmp
+  - if %PLATFORM% == Win32 (set GENERATOR="Visual Studio %VS_VERSION%")
+  - if %PLATFORM% == x64 (set GENERATOR="Visual Studio %VS_VERSION% Win64")
+  # Generate build files using CMake for the build step.
+  - echo Generating CMake files for %GENERATOR%
+  - cd %TOP_DIR%
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% ..
+  - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
 
+platform:
+  - Win32
+  - x64
+
+configuration:
+  - Release
+  - Debug
+
+build:
+  parallel: true                  # enable MSBuild parallel builds
+  project: build/VULKAN_TOOLS.sln # path to Visual Studio solution or project
+  verbosity: quiet                # quiet|minimal|normal|detailed

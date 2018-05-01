@@ -150,7 +150,7 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, replayWindowWidth, replayWindowHeight);
     }
 
-    for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
+    for (uint64_t i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         m_pReplayers[i] = NULL;
     }
 
@@ -349,7 +349,7 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
         if (m_bPauseReplay || m_pauseAtPacketIndex == pCurPacket->pHeader->global_packet_index) {
             if (m_pauseAtPacketIndex == pCurPacket->pHeader->global_packet_index) {
                 // reset
-                m_pauseAtPacketIndex = -1;
+                m_pauseAtPacketIndex = (uint64_t)-1;
             }
 
             m_bReplayInProgress = false;
@@ -466,7 +466,11 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
                 disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
             }
 
+#if PLATFORM_LINUX
+            int err __attribute__((unused)) = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
+#else
             int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
+#endif
             assert(err == 0);
         }
     }

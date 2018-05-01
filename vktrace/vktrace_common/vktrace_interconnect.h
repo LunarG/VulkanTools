@@ -76,11 +76,11 @@ extern "C" {
 MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char* _address, const char* _port);
 MessageStream* vktrace_MessageStream_create(BOOL _isHost, const char* _address, unsigned int _port);
 void vktrace_MessageStream_destroy(MessageStream** ppStream);
-BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional);
-BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, size_t _len);
+BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, uint64_t _size, BOOL _optional);
+BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, uint64_t _len);
 
-BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len);
-BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, size_t _len);
+BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, uint64_t _len);
+BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, uint64_t _len);
 
 extern MessageStream* gMessageStream;
 #ifdef __cplusplus
@@ -97,7 +97,7 @@ typedef struct SimpleBuffer {
 
 SimpleBuffer* vktrace_SimpleBuffer_create(size_t _bufferSize);
 void vktrace_SimpleBuffer_destroy(SimpleBuffer** ppBuffer);
-BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, size_t _size);
+BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, uint64_t _size);
 void vktrace_SimpleBuffer_EmptyBuffer(SimpleBuffer* pBuffer);
-BOOL vktrace_SimpleBuffer_WouldOverflow(SimpleBuffer* pBuffer, size_t _requestedSize);
-const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, size_t* _outByteCount);
+BOOL vktrace_SimpleBuffer_WouldOverflow(SimpleBuffer* pBuffer, uint64_t _requestedSize);
+const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, uint64_t* _outByteCount);

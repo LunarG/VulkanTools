@@ -120,14 +120,14 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     uint64_t fileHeaderSize;
     vktrace_trace_file_header file_header;
     vktrace_trace_packet_header* pHeader = NULL;
-    size_t bytes_written;
-    size_t fileOffset;
+    uint64_t bytes_written;
+    uint64_t fileOffset;
 #if defined(WIN32)
     BOOL rval;
 #elif defined(PLATFORM_LINUX)
-    sighandler_t rval;
+    sighandler_t rval __attribute__((unused));
 #elif defined(PLATFORM_OSX)
-    sig_t rval;
+    sig_t rval __attribute__((unused));
 #endif
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
@@ -142,7 +142,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     if (pInfo->pProcessInfo->pTraceFile == NULL) {
         // open of trace file generated an error, no sense in continuing.
         vktrace_LogError("Error cannot create trace file.");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
@@ -160,7 +159,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         file_header.first_packet_offset != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
         // Trace file header we received is the wrong size
         vktrace_LogError("Error creating trace file header. Are vktrace and trace layer the same version?");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
 
@@ -180,7 +178,6 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
     if (bytes_written != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
         vktrace_LogError("Unable to write trace file header - fwrite failed.");
-        vktrace_process_info_delete(pInfo->pProcessInfo);
         return 1;
     }
     fileOffset = file_header.first_packet_offset;
@@ -247,11 +244,13 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                 // If the packet is one we need to track, add it to the table
                 if (pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory ||
-                    pHeader->packet_id == VKTRACE_TPI_VK_vkGetImageMemoryRequirements ||
-                    pHeader->packet_id == VKTRACE_TPI_VK_vkGetBufferMemoryRequirements ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindImageMemory2KHR ||
+                    pHeader->packet_id == VKTRACE_TPI_VK_vkBindBufferMemory2KHR ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkAllocateMemory || pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyImage ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkDestroyBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkFreeMemory ||
                     pHeader->packet_id == VKTRACE_TPI_VK_vkCreateBuffer || pHeader->packet_id == VKTRACE_TPI_VK_vkCreateImage) {
+                    vktrace_LogDebug("Add packet to portability table: %s",
+                                     vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)pHeader->packet_id));
                     portabilityTable.push_back(fileOffset);
                 }
                 lastPacketIndex = pHeader->global_packet_index;

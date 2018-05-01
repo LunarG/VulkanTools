@@ -13,6 +13,10 @@ matrix:
     - os: linux
       compiler: gcc
       env: VULKAN_BUILD_TARGET=ANDROID ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
+    # Android 64-bit build.
+    - os: linux
+      compiler: gcc
+      env: VULKAN_BUILD_TARGET=ANDROID ANDROID_TARGET=android-23 ANDROID_ABI=arm64-v8a
     # Linux GCC debug build.
     - os: linux
       compiler: gcc
@@ -21,46 +25,105 @@ matrix:
     - os: linux
       compiler: clang
       env: VULKAN_BUILD_TARGET=LINUX
+    # Check for proper clang formatting in the pull request.
+    - env: CHECK_FORMAT=ON
 
-android:
-  components:
-    - tools
-    - platform-tools
-    - build-tools-23.0.2
-    - android-23
+cache: ccache
 
-cache:
-  directories:
-    - external
-    - build-android/external
+# Use set -e so that the build fails when a command fails.
+# The default action for Travis-CI is to continue running even if a command fails.
+# See https://github.com/travis-ci/travis-ci/issues/1066.
+# Use the YAML block scalar header (|) to allow easier multiline script coding.
 
 before_install:
+  - set -e
   # Install the appropriate Linux packages.
-  - if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then sudo apt-get -y install libxkbcommon-dev libwayland-dev libmirclient-dev libxrandr-dev libxcb-keysyms1 libxcb-keysyms1-dev libx11-xcb-dev; fi
-
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      sudo apt-get -qq update
+      sudo apt-get -y install libxkbcommon-dev libwayland-dev libmirclient-dev libxrandr-dev libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev
+      # Needed for devsim test
+      sudo apt-get -y install jq
+    fi
   # Install the Android NDK.
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then export ARCH=`uname -m`; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then wget http://dl.google.com/android/repository/android-ndk-r13b-linux-${ARCH}.zip; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then unzip -u -q android-ndk-r13b-linux-${ARCH}.zip; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then export ANDROID_NDK_HOME=`pwd`/android-ndk-r13b; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then export JAVA_HOME="/usr/lib/jvm/java-8-oracle"; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then export PATH="$ANDROID_NDK_HOME:$PATH"; fi
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then
+      export ARCH=`uname -m`
+      wget http://dl.google.com/android/repository/android-ndk-r15c-linux-${ARCH}.zip
+      unzip -u -q android-ndk-r15c-linux-${ARCH}.zip
+      export ANDROID_NDK_HOME=`pwd`/android-ndk-r15c
+      export JAVA_HOME="/usr/lib/jvm/java-8-oracle"
+      export PATH="$ANDROID_NDK_HOME:$PATH"
+    fi
+  # Install the clang format diff tool, but only for pull requests.
+  - |
+    if [[ "$CHECK_FORMAT" == "ON" && "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+      curl -L http://llvm.org/svn/llvm-project/cfe/trunk/tools/clang-format/clang-format-diff.py -o scripts/clang-format-diff.py;
+    fi
+  # Misc setup
+  - |
+  - export core_count=$(nproc || echo 4) && echo core_count = $core_count
+  - set +e
 
 script:
-  - if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then ./update_external_sources.sh; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then make -C dbuild; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then pushd build-android; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then ./update_external_sources_android.sh; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then ./android-generate.sh; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then ndk-build APP_ABI=$ANDROID_ABI; fi
-  - if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then popd; fi
+  - set -e
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      # Build VulkanTools
+      ./update_external_sources.sh
+      cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
+      make -C dbuild -j $core_count
+    fi
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      # Run Tests
+      LVL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-LoaderAndValidationLayers
+      LVL_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-LoaderAndValidationLayers/tests/device_profiles
+      export LD_LIBRARY_PATH=$LVL_BUILD/loader:$LD_LIBRARY_PATH
+      export VK_LAYER_PATH=$LVL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
+      export VK_ICD_FILENAMES=$LVL_BUILD/icd/VkICD_mock_icd.json
+      # Run vlf_test with mock ICD to ensure layer factory is working
+      dbuild/tests/vlf_test.sh
+      # Run apidump_test with mock ICD to ensure apidump layer is working
+      dbuild/tests/apidump_test.sh
+      # Run devsim tests with mock ICD to ensure devsim is working
+      dbuild/tests/devsim_layer_test.sh
+      # Run validation layer tests with mock ICD, some with devsim.
+      # These tests are redundant with LVL testing, but there is still some value with running them again here.
+      $LVL_BUILD/tests/vk_layer_validation_tests
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/adreno_540.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/amd_radv_polaris10.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/geforce_940m.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/intel_hd_graphics_520_skylake_gt2.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/mali-t760.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/nvidia_tegra_x1.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      VK_DEVSIM_FILENAME=$LVL_PROFILES/powervr_rogue_ge8300.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+    fi
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then
+      pushd build-android
+      ./update_external_sources_android.sh --abi $ANDROID_ABI --no-build
+      ./android-generate.sh
+      USE_CCACHE=1 NDK_CCACHE=ccache ndk-build APP_ABI=$ANDROID_ABI -j $core_count
+      popd
+    fi
+  # Run the clang format check only for pull request builds because the
+  # master branch is needed to do the git diff.
+  - |
+    if [[ "$CHECK_FORMAT" == "ON" ]]; then
+      if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+        echo "Checking clang-format between TRAVIS_BRANCH=$TRAVIS_BRANCH and TRAVIS_PULL_REQUEST_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH"
+        ./submodules/Vulkan-LoaderAndValidationLayers/scripts/check_code_format.sh
+      else
+        echo "Skipping clang-format check since this is not a pull request."
+      fi
+    fi
+  - set +e
 
 notifications:
   email:
     recipients:
       - karl@lunarg.com
-      - arda@lunarg.com
       - cnorthrop@google.com
     on_success: change
     on_failure: always

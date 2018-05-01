@@ -28,16 +28,18 @@ if (Test-Path .\vktracereplay_tmp) {
 }
 new-item vktracereplay_tmp -itemtype directory > $null 2> $null
 
+$LVL_DIR = "submodules\Vulkan-LoaderAndValidationLayers\"
+
 # Copy everything we need into the temp directory, so we
 # can make sure we are using the correct dll and exe files
 cd vktracereplay_tmp
 cp ..\..\vktrace\$dPath\vkreplay.exe .
 cp ..\..\vktrace\$dPath\vktrace.exe .
-cp ..\..\demos\$dPath\cube.exe .
-cp ..\..\demos\$dPath\smoketest.exe .
-cp ..\..\demos\*.ppm .
-cp ..\..\demos\*.spv .
-cp ..\..\loader\$dPath\vulkan-1.dll .
+cp ..\..\$LVL_DIR\demos\$dPath\cube.exe .
+cp ..\..\$LVL_DIR\demos\$dPath\smoketest.exe .
+cp ..\..\$LVL_DIR\demos\*.ppm .
+cp ..\..\$LVL_DIR\demos\*.spv .
+cp ..\..\$LVL_DIR\loader\$dPath\vulkan-1.dll .
 cp ..\..\layersvt\$dPath\VkLayer_screenshot.dll .
 cp ..\..\layersvt\$dPath\VkLayer_screenshot.json .
 cp ..\..\layersvt\$dPath\VkLayer_vktrace_layer.dll .
@@ -76,8 +78,26 @@ rename-item -path 1.ppm -newname 3-smokereplay.ppm
 
 # Replay old trace if specified.
 if ($Replay) {
-    & vkreplay -s 1 -o "$Replay.vktrace" > replayold.sout 2> replayold.serr
-    rename-item -path 1.ppm -newname 1-replayold.ppm
+    if (Test-Path $Replay/cubeold.vktrace) {
+        & vkreplay -s 1 -o "$Replay/cubeold.vktrace" > replayold.sout 2> replayold.serr
+        rename-item -path 1.ppm -newname 1-replayold.ppm
+    }
+
+    # Restore PATH
+    $Env:PATH = $oldpath
+    # Run trace/replay test on any .vktrace in this folder
+    $tracedir = Join-Path -Path $PWD -ChildPath '..\vktracereplay.py'
+    & python $tracedir $Replay $PWD\vktrace.exe $PWD $PWD\vkreplay.exe
+
+    if (!($LastExitCode -eq 0)) {
+        echo 'Trace/replay regression tests failed.'
+        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
+        $exitstatus = 1
+    }
+}
+else {
+    # Restore PATH
+    $Env:PATH = $oldpath
 }
 
 # Force a failure - for testing this script
@@ -85,14 +105,11 @@ if ($Replay) {
 #rm 1-cubetrace.ppm
 #rm 1-cubereplay.ppm
 
-# Restore PATH
-$Env:PATH = $oldpath
-
 if ($exitstatus -eq 0) {
    # Check that two screenshots were created, and the third if replaying an old trace
    if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or
        #!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or
-        ($Replay -and !(Test-Path 1-replayold.ppm))) {
+        ($Replay -and (Test-Path $Replay/cubeold.vktrace) -and !(Test-Path 1-replayold.ppm))) {
            echo 'Trace file does not exist'
            write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
            $exitstatus = 1
@@ -113,10 +130,10 @@ if ($exitstatus -eq 0) {
         write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
         $exitstatus = 1
     }
-    if ($Replay) {
+    if ($Replay -and (Test-Path $Replay/cubeold.vktrace)) {
         # check old trace
-        fc.exe /b "$Replay.ppm" 1-replayold.ppm > $null
-        if (!(Test-Path "$Replay.ppm") -or !(Test-Path 1-replayold.ppm) -or $LastExitCode -eq 1) {
+        fc.exe /b "$Replay\cubeold.ppm" 1-replayold.ppm > $null
+        if (!(Test-Path "$Replay/cubeold.ppm") -or !(Test-Path 1-replayold.ppm) -or $LastExitCode -eq 1) {
             echo 'Old trace does not match'
             write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
             $exitstatus = 1
@@ -167,7 +184,7 @@ if ($exitstatus -eq 0) {
     rm -recurse -force vktracereplay_tmp  > $null 2> $null
 }
 
-if ($exitstatus -eq 0 -and -not $Debug) {
+if ($exitstatus -eq 0) {
     $scriptpath = (Split-Path -parent $PSCommandPath)
     $toolsroot = (Get-Item $scriptpath).parent.parent.FullName
     $command = ".\trace_positive_validation.ps1 -toolsroot $toolsroot $tplarg"

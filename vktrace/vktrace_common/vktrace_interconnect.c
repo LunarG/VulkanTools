@@ -40,7 +40,7 @@ BOOL vktrace_MessageStream_SetupSocket(MessageStream* pStream);
 BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream);
 BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream);
 BOOL vktrace_MessageStream_Handshake(MessageStream* pStream);
-BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional);
+BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, uint64_t _size, BOOL _optional);
 void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optional);
 
 // public functions
@@ -315,7 +315,7 @@ BOOL vktrace_MessageStream_Handshake(MessageStream* pStream) {
 
 // ------------------------------------------------------------------------------------------------
 void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optional) {
-    size_t bufferedByteSize = 0;
+    uint64_t bufferedByteSize = 0;
     const void* bufferBytes = vktrace_SimpleBuffer_GetBytes(pStream->mSendBuffer, &bufferedByteSize);
     if (bufferedByteSize > 0) {
         // TODO use return value from ReallySend
@@ -325,7 +325,7 @@ void vktrace_MessageStream_FlushSendBuffer(MessageStream* pStream, BOOL _optiona
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional) {
+BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, uint64_t _size, BOOL _optional) {
     BOOL result = TRUE;
     if (pStream->mSendBuffer == NULL) {
         result = vktrace_MessageStream_ReallySend(pStream, _bytes, _size, _optional);
@@ -348,12 +348,12 @@ BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _byt
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, size_t _len) {
+BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, uint64_t _len) {
     return vktrace_MessageStream_BufferedSend(pStream, _bytes, _len, FALSE);
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, size_t _size, BOOL _optional) {
+BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, uint64_t _size, BOOL _optional) {
     size_t bytesSent = 0;
     assert(_size > 0);
 
@@ -389,7 +389,7 @@ BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len) {
+BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, uint64_t _len) {
     unsigned int totalDataRead = 0;
     unsigned int attempts = 0;
     do {
@@ -438,7 +438,7 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, size_t _len)
 }
 
 // ------------------------------------------------------------------------------------------------
-BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, size_t _len) {
+BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, uint64_t _len) {
     while (!vktrace_MessageStream_Recv(pStream, _outBuffer, _len)) {
         if (pStream->mErrorNum == WSAECONNRESET) {
             return FALSE;
@@ -472,24 +472,24 @@ void vktrace_SimpleBuffer_destroy(SimpleBuffer** ppBuffer) {
     VKTRACE_DELETE(*ppBuffer);
 }
 
-BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, size_t _size) {
+BOOL vktrace_SimpleBuffer_AddBytes(SimpleBuffer* pBuffer, const void* _bytes, uint64_t _size) {
     if (vktrace_SimpleBuffer_WouldOverflow(pBuffer, _size)) {
         return FALSE;
     }
 
-    memcpy((unsigned char*)pBuffer->mBuffer + pBuffer->mEnd, _bytes, _size);
-    pBuffer->mEnd += _size;
+    memcpy((unsigned char*)pBuffer->mBuffer + pBuffer->mEnd, _bytes, (size_t)_size);
+    pBuffer->mEnd += (size_t)_size;
 
     return TRUE;
 }
 
 void vktrace_SimpleBuffer_EmptyBuffer(SimpleBuffer* pBuffer) { pBuffer->mEnd = 0; }
 
-BOOL vktrace_SimpleBuffer_WouldOverflow(SimpleBuffer* pBuffer, size_t _requestedSize) {
+BOOL vktrace_SimpleBuffer_WouldOverflow(SimpleBuffer* pBuffer, uint64_t _requestedSize) {
     return pBuffer->mEnd + _requestedSize > pBuffer->mSize;
 }
 
-const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, size_t* _outByteCount) {
+const void* vktrace_SimpleBuffer_GetBytes(SimpleBuffer* pBuffer, uint64_t* _outByteCount) {
     (*_outByteCount) = pBuffer->mEnd;
     return pBuffer->mBuffer;
 }

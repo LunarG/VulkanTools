@@ -26,7 +26,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, -1, -1, NULL, NULL, NULL, false};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, NULL, NULL, NULL, false};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -52,14 +52,14 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      "The number of times to replay the trace file or loop range."},
     {"lsf",
      "LoopStartFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&g_vkReplaySettings.loopStartFrame},
      {&s_defaultVkReplaySettings.loopStartFrame},
      TRUE,
      "The start frame number of the loop range."},
     {"lef",
      "LoopEndFrame",
-     VKTRACE_SETTING_INT,
+     VKTRACE_SETTING_UINT,
      {&g_vkReplaySettings.loopEndFrame},
      {&s_defaultVkReplaySettings.loopEndFrame},
      TRUE,

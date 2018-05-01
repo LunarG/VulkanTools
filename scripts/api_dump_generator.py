@@ -37,10 +37,12 @@
 #   * api_dump_text.h: TEXT_CODEGEN - Provides the back end for dumping to a text file
 #
 
+import os,re,sys,string
+import xml.etree.ElementTree as etree
 import generator as gen
-import re
-import sys
-import xml.etree;
+from collections import namedtuple
+from vuid_mapping import *
+from common_codegen import *
 
 COMMON_CODEGEN = """
 /* Copyright (c) 2015-2016 Valve Corporation
@@ -60,6 +62,7 @@ COMMON_CODEGEN = """
  * limitations under the License.
  *
  * Author: Lenny Komow <lenny@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 /*
@@ -71,10 +74,37 @@ COMMON_CODEGEN = """
 
 //============================= Dump Functions ==============================//
 
-@foreach function where('{funcReturn}' != 'void')
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT'])
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    switch(dump_inst.settings().format())
+    {{
+    case ApiDumpFormat::Text:
+        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+        break;
+    case ApiDumpFormat::Html:
+        dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+        break;
+    }}
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+}}
+@end function
+
+@foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT' and '{funcReturn}' != 'void')
+inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+{{
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+
+    if (pNameInfo->pObjectName)
+    {{
+        dump_inst.object_name_map.insert(std::make_pair<uint64_t, std::string>((uint64_t &&)pNameInfo->object, pNameInfo->pObjectName));
+    }}
+    else
+    {{
+        dump_inst.object_name_map.erase(pNameInfo->object);
+    }}
+
     switch(dump_inst.settings().format())
     {{
     case ApiDumpFormat::Text:
@@ -330,6 +360,7 @@ TEXT_CODEGEN = """
  * limitations under the License.
  *
  * Author: Lenny Komow <lenny@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 /*
@@ -384,10 +415,18 @@ inline std::ostream& dump_text_{sysName}(const {sysType} object, const ApiDumpSe
 @foreach handle
 inline std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
-    if(settings.showAddress())
-        return settings.stream() << object;
-    else
-        return settings.stream() << "address";
+    if(settings.showAddress()) {{
+        settings.stream() << object;
+
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << " [" << it->second << "]";
+        }}
+    }} else {{
+        settings.stream() << "address";
+    }}
+
+    return settings.stream();
 }}
 @end handle
 
@@ -560,14 +599,13 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 //========================= Function Implementations ========================//
 
-@foreach function where('{funcReturn}' != 'void')
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-
     if(settings.showParams())
     {{
         @foreach parameter
@@ -639,6 +677,7 @@ HTML_CODEGEN = """
  *
  * Author: Lenny Komow <lenny@lunarg.com>
  * Author: Joey Bzdek <joey@lunarg.com>
+ * Author: Shannon McPherson <shannon@lunarg.com>
  */
 
 /*
@@ -696,10 +735,16 @@ inline std::ostream& dump_html_{sysName}(const {sysType} object, const ApiDumpSe
 inline std::ostream& dump_html_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
-    if(settings.showAddress())
+    if(settings.showAddress()) {{
         settings.stream() << object;
-    else
+
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << "</div><div class='val'>[" << it->second << "]";
+        }}
+    }} else {{
         settings.stream() << "address";
+    }}
     return settings.stream() << "</div></summary>";
 }}
 @end handle
@@ -886,7 +931,7 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 uint64_t next_frame = 0;
 
-@foreach function where('{funcReturn}' != 'void')
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -962,21 +1007,23 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 @end function
 """
 
-POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow']
+POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer']
+
+DEFINE_TYPES = ['ANativeWindow', 'AHardwareBuffer']
 
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
         'if(result == VK_SUCCESS)\n' +
             'ApiDumpInstance::current().addCmdBuffers(\n' +
                 'device,\n' +
-                'pAllocateInfo->commandPool,\n' + 
+                'pAllocateInfo->commandPool,\n' +
                 'std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + pAllocateInfo->commandBufferCount),\n' +
                 'pAllocateInfo->level\n'
             ');',
-    'vkDestroyCommandPool': 
+    'vkDestroyCommandPool':
         'ApiDumpInstance::current().eraseCmdBufferPool(device, commandPool);'
     ,
-    'vkFreeCommandBuffers': 
+    'vkFreeCommandBuffers':
         'ApiDumpInstance::current().eraseCmdBuffers(device, commandPool, std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + commandBufferCount));'
     ,
 }
@@ -1047,7 +1094,8 @@ VALIDITY_CHECKS = {
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || ' +
-            '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE)',
+            '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) || ' +
+            '(object.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT)',
         'pBufferInfo':
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || ' +
@@ -1059,7 +1107,7 @@ VALIDITY_CHECKS = {
     },
 }
 
-class ApiDumpGeneratorOptions(gen.GeneratorOptions):
+class ApiDumpGeneratorOptions(GeneratorOptions):
 
     def __init__(self,
                  input = None,
@@ -1072,6 +1120,7 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = None,
                  prefixText = "",
                  genFuncPointers = True,
@@ -1084,10 +1133,12 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
                  apientryp = '',
                  indentFuncProto = True,
                  indentFuncPointer = False,
-                 alignFuncParam = 0):
-        gen.GeneratorOptions.__init__(self, filename, directory, apiname, profile,
+                 alignFuncParam = 0,
+                 expandEnumerants = True,
+                 ):
+        GeneratorOptions.__init__(self, filename, directory, apiname, profile,
             versions, emitversions, defaultExtensions,
-            addExtensions, removeExtensions, sortProcedure)
+            addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.input           = input
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
@@ -1103,7 +1154,7 @@ class ApiDumpGeneratorOptions(gen.GeneratorOptions):
         self.alignFuncParam  = alignFuncParam
 
 
-class ApiDumpOutputGenerator(gen.OutputGenerator):
+class ApiDumpOutputGenerator(OutputGenerator):
 
     def __init__(self,
                  errFile = sys.stderr,
@@ -1131,6 +1182,9 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
         self.unions = set()
 
         self.registryFile = registryFile
+
+        # Used to track duplications (thanks 1.1 spec)
+        self.trackedTypes = []
 
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
@@ -1163,7 +1217,8 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
         # Find all of the extensions that use the system types
         self.sysTypes = set()
         for node in self.registry.reg.find('types').findall('type'):
-            if node.get('category') == None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform':
+            if node.get('category') == None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform' or \
+                (node.find('name') is not None and node.find('name').text in DEFINE_TYPES): #Handle system types that are '#define'd in spec
                 for extension in self.extTypes:
                     for structName in self.extTypes[extension].vktypes:
                         for struct in self.structs:
@@ -1262,25 +1317,44 @@ class ApiDumpOutputGenerator(gen.OutputGenerator):
 
         gen.OutputGenerator.endFile(self)
 
-    def genCmd(self, cmd, name):
-        gen.OutputGenerator.genCmd(self, cmd, name)
+    def genCmd(self, cmd, name, alias):
+        gen.OutputGenerator.genCmd(self, cmd, name, alias)
+
+        if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
+
         self.functions.add(VulkanFunction(cmd.elem, self.constants))
 
     # These are actually constants
-    def genEnum(self, enuminfo, name):
-        gen.OutputGenerator.genEnum(self, enuminfo, name)
+    def genEnum(self, enuminfo, name, alias):
+        gen.OutputGenerator.genEnum(self, enuminfo, name, alias)
 
     # These are actually enums
-    def genGroup(self, groupinfo, groupName):
-        gen.OutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        gen.OutputGenerator.genGroup(self, groupinfo, groupName, alias)
+
+        if alias is not None:
+            trackedName = alias
+        else:
+            trackedName = groupName
+        if trackedName in self.trackedTypes:
+            return
+        self.trackedTypes.append(trackedName)
 
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks.add(VulkanBitmask(groupinfo.elem, self.extensions))
         elif groupinfo.elem.get('type') == 'enum':
             self.enums.add(VulkanEnum(groupinfo.elem, self.extensions))
 
-    def genType(self, typeinfo, name):
-        gen.OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        gen.OutputGenerator.genType(self, typeinfo, name, alias)
+
+        if alias is not None:
+            trackedName = alias
+        else:
+            trackedName = name
+        if trackedName in self.trackedTypes:
+            return
+        self.trackedTypes.append(trackedName)
 
         if typeinfo.elem.get('category') == 'struct':
             self.structs.add(VulkanStruct(typeinfo.elem, self.constants))
@@ -1555,6 +1629,13 @@ class VulkanEnum:
             childComment = child.get('comment')
             if childName == None or (childValue == None and childBitpos == None):
                 continue
+            # Check for duplicates, TODO: Maybe solve up a level
+            duplicate = False
+            for o in self.options:
+                if o.values()['optName'] == childName:
+                    duplicate = True
+            if duplicate:
+                continue
 
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
 
@@ -1576,37 +1657,41 @@ class VulkanExtension:
         self.number = int(rootNode.get('number'))
         self.type = rootNode.get('type')
         self.dependency = rootNode.get('requires')
-        self.guard = rootNode.get('protect')
+        self.guard = GetFeatureProtect(rootNode)
         self.supported = rootNode.get('supported')
 
         self.vktypes = []
-        for ty in rootNode.find('require').findall('type'):
-            self.vktypes.append(ty.get('name'))
         self.vkfuncs = []
-        for func in rootNode.find('require').findall('command'):
-            self.vkfuncs.append(func.get('name'))
-
         self.constants = {}
         self.enumValues = {}
-        for enum in rootNode.find('require').findall('enum'):
-            base = enum.get('extends')
-            name = enum.get('name')
-            value = enum.get('value')
-            bitpos = enum.get('bitpos')
-            offset = enum.get('offset')
 
-            if value == None and bitpos != None:
-                value = 1 << int(bitpos)
+        req = rootNode.find('require') # TODO: Figure out why this is None sometimes
+        if req:
+            for ty in rootNode.find('require').findall('type'):
+                self.vktypes.append(ty.get('name'))
 
-            if offset != None:
-                offset = int(offset)
-            if base != None and offset != None:
-                enumValue = 1000000000 + 1000*(self.number - 1) + offset
-                if enum.get('dir') == '-':
-                    enumValue = -enumValue;
-                self.enumValues[base] = (name, enumValue)
-            else:
-                self.constants[name] = value
+            for func in rootNode.find('require').findall('command'):
+                self.vkfuncs.append(func.get('name'))
+
+            for enum in rootNode.find('require').findall('enum'):
+                base = enum.get('extends')
+                name = enum.get('name')
+                value = enum.get('value')
+                bitpos = enum.get('bitpos')
+                offset = enum.get('offset')
+
+                if value == None and bitpos != None:
+                    value = 1 << int(bitpos)
+
+                if offset != None:
+                    offset = int(offset)
+                if base != None and offset != None:
+                    enumValue = 1000000000 + 1000*(self.number - 1) + offset
+                    if enum.get('dir') == '-':
+                        enumValue = -enumValue;
+                    self.enumValues[base] = (name, enumValue)
+                else:
+                    self.constants[name] = value
 
     def values(self):
         return {

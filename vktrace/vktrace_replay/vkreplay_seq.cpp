@@ -35,8 +35,8 @@ vktrace_trace_packet_header *Sequencer::get_next_packet() {
 
 void Sequencer::get_bookmark(seqBookmark &bookmark) { bookmark.file_offset = m_bookmark.file_offset; }
 
-void Sequencer::set_bookmark(const seqBookmark &bookmark) { fseek(m_pFile->mFile, m_bookmark.file_offset, SEEK_SET); }
+void Sequencer::set_bookmark(const seqBookmark &bookmark) { vktrace_FileLike_SetCurrentPosition(m_pFile, m_bookmark.file_offset); }
 
-void Sequencer::record_bookmark() { m_bookmark.file_offset = ftell(m_pFile->mFile); }
+void Sequencer::record_bookmark() { m_bookmark.file_offset = vktrace_FileLike_GetCurrentPosition(m_pFile); }
 
 } /* namespace vktrace_replay */

@@ -29,6 +29,8 @@ if(WIN32)
 
 else()
 
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
     if(UNIX)
         set (LIBRARIES "${API_LOWERCASE}")
     endif()
@@ -64,7 +66,7 @@ add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
 target_link_libraries(via ${LIBRARIES})
 if(WIN32)
-    target_link_libraries(via version)
+    target_link_libraries(via version shlwapi Cfgmgr32)
 endif()
 if(UNIX)
     install(TARGETS via DESTINATION ${CMAKE_INSTALL_BINDIR})
