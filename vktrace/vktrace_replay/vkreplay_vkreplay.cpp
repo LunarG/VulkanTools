@@ -4099,15 +4099,8 @@ void vkReplay::manually_replay_vkCmdPushDescriptorSetKHR(packet_vkCmdPushDescrip
 
     if (pPacket->pDescriptorWrites != NULL) {
         for (uint32_t i = 0; i < pPacket->descriptorWriteCount && !errorBadRemap; i++) {
-            VkDescriptorSet dstSet = m_objMapper.remap_descriptorsets(pPacket->pDescriptorWrites[i].dstSet);
-            if (dstSet == VK_NULL_HANDLE) {
-                vktrace_LogError("Skipping vkCmdPushDescriptorSet() due to invalid remapped write VkDescriptorSet.");
-                errorBadRemap = true;
-                break;
-            }
-
             pRemappedWrites[i] = pPacket->pDescriptorWrites[i];
-            pRemappedWrites[i].dstSet = dstSet;
+            pRemappedWrites[i].dstSet = 0;  // Ignored
             pRemappedWrites[i].pBufferInfo = nullptr;
             pRemappedWrites[i].pImageInfo = nullptr;
             pRemappedWrites[i].pTexelBufferView = nullptr;
