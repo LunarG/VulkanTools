@@ -270,6 +270,12 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
             layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
             // Not handled by codegen
             m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
+        } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
+            vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_EXTENSION_NOT_PRESENT");
+            vktrace_LogVerbose("List of requested extensions:");
+            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
+            }
         }
     }
     return replayResult;
@@ -439,6 +445,12 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
 
             // Build device dispatch table
             layer_init_device_dispatch_table(device, &m_vkDeviceFuncs, m_vkDeviceFuncs.GetDeviceProcAddr);
+        } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
+            vktrace_LogVerbose("vkCreateDevice failed with VK_ERROR_EXTENSION_NOT_PRESENT");
+            vktrace_LogVerbose("List of requested extensions:");
+            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
+            }
         }
     }
     return replayResult;
