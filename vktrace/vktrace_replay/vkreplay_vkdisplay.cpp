@@ -249,6 +249,7 @@ int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, uns
     m_window = hWindow->window;
     m_surface.window = hWindow->window;
     m_android_app = hWindow;
+    m_android_app->userData = this;
 #else
 #if defined VKREPLAY_USE_WSI_XCB
     m_XcbWindow = hWindow;

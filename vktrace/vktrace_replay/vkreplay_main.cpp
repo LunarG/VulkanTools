@@ -29,6 +29,7 @@
 #include <sstream>
 #include <android/log.h>
 #include <android_native_app_glue.h>
+#include "vkreplay_vkdisplay.h"
 #endif
 #include "vktrace_common.h"
 #include "vktrace_tracelog.h"
@@ -658,7 +659,20 @@ std::vector<std::string> get_args(android_app& app, const char* intent_extra_dat
     return args;
 }
 
-static int32_t processInput(struct android_app* app, AInputEvent* event) { return 0; }
+static int32_t processInput(struct android_app* app, AInputEvent* event) {
+    if ((app->userData != nullptr) && (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)) {
+        vkDisplay* display = reinterpret_cast<vkDisplay*>(app->userData);
+
+        // TODO: Distinguish between tap and swipe actions; swipe to advance to next frame when paused.
+        int32_t action = AMotionEvent_getAction(event);
+        if (action == AMOTION_EVENT_ACTION_UP) {
+            display->set_pause_status(!display->get_pause_status());
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 static void processCommand(struct android_app* app, int32_t cmd) {
     switch (cmd) {
@@ -682,6 +696,9 @@ static void processCommand(struct android_app* app, int32_t cmd) {
 // Start with carbon copy of main() and convert it to support Android, then diff them and move common code to helpers.
 void android_main(struct android_app* app) {
     const char* appTag = "vkreplay";
+
+    // This will be set by the vkDisplay object.
+    app->userData = nullptr;
 
     int vulkanSupport = InitVulkan();
     if (vulkanSupport == 0) {
