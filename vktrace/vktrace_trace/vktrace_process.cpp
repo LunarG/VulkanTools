@@ -34,6 +34,12 @@
 #include <sys/wait.h>
 #endif
 
+#include <vector>
+
+#if defined(WIN32)
+#include <TlHelp32.h>
+#endif
+
 extern "C" {
 #include "vktrace_filelike.h"
 #include "vktrace_interconnect.h"
@@ -56,24 +62,66 @@ void SafeCloseHandle(HANDLE& _handle) {
 // Needs to be static because Process_RunWatchdogThread passes the address of rval to pthread_exit
 static int rval;
 #endif
-
 // ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr) {
     vktrace_process_info* pProcInfo = (vktrace_process_info*)_procInfoPtr;
 
 #if defined(WIN32)
 
-    DWORD rv;
-    while (WaitForSingleObject(pProcInfo->hProcess, kWatchDogPollTime) == WAIT_TIMEOUT) {
+    DWORD processExitCode = 0;
+    DWORD waitingResult = WAIT_FAILED;
+    while (WAIT_TIMEOUT == (waitingResult = WaitForSingleObject(pProcInfo->hProcess, kWatchDogPollTime))) {
         if (pProcInfo->serverRequestsTermination) {
             vktrace_LogVerbose("Vktrace has requested exit.");
             return 0;
         }
     }
+    if (WAIT_OBJECT_0 == waitingResult) {
+        std::vector<vktrace_process_id> childProcesses;
 
+        // The process is finished, now we need to check all its child proess
+        // also be finished. When capturing steam game and that game cannot
+        // run without steam client, if launch the game binary directly, the
+        // binary will just start steam client and quit, then steam client
+        // launch the game binary.
+
+        HANDLE processSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (processSnapShot != INVALID_HANDLE_VALUE) {
+            PROCESSENTRY32 processEntry;
+            memset(&processEntry, 0, sizeof(processEntry));
+            processEntry.dwSize = sizeof(PROCESSENTRY32);
+            bool queryProcess = (TRUE == Process32First(processSnapShot, &processEntry));
+            while (queryProcess) {
+                if (processEntry.th32ParentProcessID == pProcInfo->processId) {
+                    childProcesses.push_back(processEntry.th32ProcessID);
+                }
+                queryProcess = (TRUE == Process32Next(processSnapShot, &processEntry));
+            }
+            CloseHandle(processSnapShot);
+            if (childProcesses.size() != 0) {
+                HANDLE childProcessHandle;
+                // The target process has one or more child processes, we're
+                // going to get their handles and wait them all signaled.
+                std::vector<HANDLE> childProcessHandles;
+                childProcessHandles.reserve(childProcesses.size());
+                for (vktrace_process_id childProcessId : childProcesses) {
+                    childProcessHandle = OpenProcess(SYNCHRONIZE, false, childProcessId);
+                    if (childProcessHandle != nullptr) {
+                        childProcessHandles.push_back(childProcessHandle);
+                    }
+                }
+
+                WaitForMultipleObjects(childProcessHandles.size(), childProcessHandles.data(), TRUE, INFINITE);
+
+                for (HANDLE finishedProcessHandle : childProcessHandles) {
+                    CloseHandle(finishedProcessHandle);
+                }
+            }
+        }
+    }
     vktrace_LogVerbose("Child process has terminated.");
-    GetExitCodeProcess(pProcInfo->hProcess, &rv);
-    PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, rv, 0);
+    GetExitCodeProcess(pProcInfo->hProcess, &processExitCode);
+    PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, processExitCode, 0);
     pProcInfo->serverRequestsTermination = TRUE;
     return 0;
 
