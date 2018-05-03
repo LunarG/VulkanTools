@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (C) 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright (C) 2015-2018 Valve Corporation
+ * Copyright (C) 2015-2018 LunarG, Inc.
  * All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2009,8 +2009,9 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     VkImage bindMemImage = VK_NULL_HANDLE;
     bool doDestroyImage = false;
 
-    // Should only be here if we have a valid portability table and the replay platform does not match the trace platform
-    assert(m_pFileHeader->portability_table_valid && m_platformMatch == 0);
+    // Should only be here if we are in compatibility mode, have a valid portability table,  and the replay platform
+    // does not match the trace platform
+    assert(g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && m_platformMatch == 0);
 
     // Save current file position so we can restore it
     saveFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
@@ -2285,7 +2286,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
 
     // Map memory type index from trace platform to memory type index on replay platform
     bool doAllocate = true;
-    if (m_pFileHeader->portability_table_valid && !m_platformMatch)
+    if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !m_platformMatch)
         doAllocate = modifyMemoryTypeIndexInAllocateMemoryPacket(remappedDevice, pPacket);
 
     if (doAllocate)
@@ -2834,7 +2835,7 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory(packet_vkBindBufferMemory 
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
+    if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
         uint64_t memOffsetTemp;
         if (replayGetBufferMemoryRequirements.find(remappedbuffer) == replayGetBufferMemoryRequirements.end()) {
             // vkBindBufferMemory is being called on a buffer for which vkGetBufferMemoryRequirements
@@ -2874,7 +2875,7 @@ VkResult vkReplay::manually_replay_vkBindImageMemory(packet_vkBindImageMemory *p
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
+    if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
         size_t memOffsetTemp;
         if (replayGetImageMemoryRequirements.find(remappedimage) == replayGetImageMemoryRequirements.end()) {
             // vkBindImageMemory is being called on a image for which vkGetImageMemoryRequirements
@@ -4421,7 +4422,7 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory2KHR(packet_vkBindBufferMem
         }
         *((VkBuffer *)&pPacket->pBindInfos[i].buffer) = remappedBuffer;
         *((VkDeviceMemory *)&pPacket->pBindInfos[i].memory) = m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
-        if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
+        if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
             uint64_t memOffsetTemp;
             if (replayGetBufferMemoryRequirements.find(remappedBuffer) == replayGetBufferMemoryRequirements.end()) {
                 // vkBindBufferMemory2KHR is being called with a buffer for which vkGetBufferMemoryRequirements
@@ -4461,7 +4462,7 @@ VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemor
         }
         *((VkImage *)&pPacket->pBindInfos[i].image) = remappedImage;
         *((VkDeviceMemory *)&pPacket->pBindInfos[i].memory) = m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
-        if (m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
+        if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && m_platformMatch != 1) {
             uint64_t memOffsetTemp;
             if (replayGetImageMemoryRequirements.find(remappedImage) == replayGetImageMemoryRequirements.end()) {
                 // vkBindImageMemory2KHR is being called with an image for which vkGetImageMemoryRequirements
