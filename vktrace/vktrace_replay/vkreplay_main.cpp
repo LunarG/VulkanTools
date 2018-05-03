@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright 2015-2018 Valve Corporation
+ * Copyright (C) 2015-2018 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@
 #include "vkreplay_window.h"
 #include "screenshot_parsing.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
@@ -78,6 +78,13 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.loopEndFrame},
      TRUE,
      "The end frame number of the loop range."},
+    {"c",
+     "CompatibilityMode",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.compatibilityMode},
+     {&replaySettings.compatibilityMode},
+     TRUE,
+     "Use compatibiltiy mode, i.e. convert memory indices to replay device indices, default is TRUE."},
     {"s",
      "Screenshot",
      VKTRACE_SETTING_STRING,

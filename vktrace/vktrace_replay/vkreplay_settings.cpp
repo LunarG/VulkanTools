@@ -1,7 +1,7 @@
 /**************************************************************************
  *
- * Copyright 2014-2016 Valve Corporation, Inc.
- * Copyright (C) 2014-2016 LunarG, Inc.
+ * Copyright 2014-2018 Valve Corporation, Inc.
+ * Copyright (C) 2014-2018 LunarG, Inc.
  * All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
+ * Author: David Pinedo <david@lunarg.com>
  **************************************************************************/
 #include "vulkan/vk_layer.h"
 
@@ -26,7 +27,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, NULL, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -64,6 +65,13 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.loopEndFrame},
      TRUE,
      "The end frame number of the loop range."},
+    {"c",
+     "CompatibilityMode",
+     VKTRACE_SETTING_BOOL,
+     {&g_vkReplaySettings.compatibilityMode},
+     {&s_defaultVkReplaySettings.compatibilityMode},
+     TRUE,
+     "Use compatibiltiy mode, i.e. convert memory indices to replay device indices, default is TRUE."},
     {"s",
      "Screenshot",
      VKTRACE_SETTING_STRING,
