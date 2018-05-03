@@ -317,8 +317,7 @@ adb $serialFlag install --abi $target_abi $apk
 adb $serialFlag install --abi $target_abi $vkreplay_apk
 
 # trace and screenshot
-adb $serialFlag shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_vktrace
-adb $serialFlag shell setprop debug.vulkan.layer.2 VK_LAYER_LUNARG_screenshot
+adb $serialFlag shell setprop debug.vulkan.layers VK_LAYER_LUNARG_vktrace:VK_LAYER_LUNARG_screenshot
 adb $serialFlag shell pm grant $package android.permission.READ_EXTERNAL_STORAGE
 adb $serialFlag shell pm grant $package android.permission.WRITE_EXTERNAL_STORAGE
 adb $serialFlag shell setprop debug.vulkan.screenshot $frame
@@ -372,8 +371,7 @@ adb $serialFlag pull /sdcard/Android/$frame.ppm $package.$frame.vktrace.ppm
 adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$frame.vktrace.ppm
 
 # replay and screenshot
-adb $serialFlag shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_screenshot
-adb $serialFlag shell setprop debug.vulkan.layer.2 '""'
+adb $serialFlag shell setprop debug.vulkan.layers VK_LAYER_LUNARG_screenshot
 adb $serialFlag shell setprop debug.vulkan.screenshot $frame
 adb $serialFlag shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE
 adb $serialFlag shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE
