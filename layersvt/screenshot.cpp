@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (C) 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright (C) 2015-2018 Valve Corporation
+ * Copyright (C) 2015-2018 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * Author: Cody Northrop <cody@lunarg.com>
  * Author: David Pinedo <david@lunarg.com>
  * Author: Jon Ashburn <jon@lunarg.com>
+ * Author: Tony Barbour <tony@lunarg.com>
  */
 
 #include <inttypes.h>
@@ -164,11 +165,11 @@ typedef struct {
     VkLayerDispatchTable *device_dispatch_table;
     bool wsi_enabled;
     VkQueue queue;
-    std::list<VkCommandPool> commandPools;
     VkPhysicalDevice physicalDevice;
     PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DeviceMapStruct;
 static unordered_map<VkDevice, DeviceMapStruct *> deviceMap;
+static unordered_map<VkQueue, uint32_t> queueIndexMap;
 
 // unordered map: associates a physical device with an instance
 typedef struct { VkInstance instance; } PhysDeviceMapStruct;
@@ -375,6 +376,7 @@ WritePPMCleanupData::~WritePPMCleanupData() {
     if (image3) pTableDevice->DestroyImage(device, image3, NULL);
 
     if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
 }
 
 // Save an image to a PPM image file.
@@ -681,18 +683,21 @@ static void writePPM(const char *filename, VkImage image1) {
         if (VK_SUCCESS != err) return;
     }
 
-    // Set up the command buffer.  We get a command buffer from a pool we saved
-    // in a hooked function, which would be the application's pool.
-    if (deviceMap[device]->commandPools.empty()) {
-        assert(!deviceMap[device]->commandPools.empty());
-        return;
-    }
+    // We want to create our own command pool to be sure we can use it from this thread
+    VkCommandPoolCreateInfo cmd_pool_info = {};
+    cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    cmd_pool_info.pNext = NULL;
+    auto it = queueIndexMap.find(queue);
+    assert(it != queueIndexMap.end());
+    cmd_pool_info.queueFamilyIndex = it->second;
+    cmd_pool_info.flags = 0;
 
-    VkCommandPool commandPool = deviceMap[device]->commandPools.front();
+    err = pTableDevice->CreateCommandPool(device, &cmd_pool_info, NULL, &data.commandPool);
+    assert(!err);
 
+    // Set up the command buffer.
     const VkCommandBufferAllocateInfo allocCommandBufferInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
-        commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
-    data.commandPool = commandPool;
+                                                                data.commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
     err = pTableDevice->AllocateCommandBuffers(device, &allocCommandBufferInfo, &data.commandBuffer);
     assert(!err);
     if (VK_SUCCESS != err) return;
@@ -1063,56 +1068,14 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
     }
 
     if (graphicsCapable) {
+        // Create a mapping from a device to a queue
         VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
         deviceMap.emplace(que, devMap);
-
-        // Create a mapping from a device to a queue
         devMap->queue = *pQueue;
+        queueIndexMap.emplace(*pQueue, queueFamilyIndex);
     }
     loader_platform_thread_unlock_mutex(&globalLock);
 }
-
-VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
-                                                 const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    VkResult result = pDisp->CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
-
-    // Save the command pool on a map if we are taking screenshots.
-    loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
-        // No screenshots in the list to take
-        loader_platform_thread_unlock_mutex(&globalLock);
-        return result;
-    }
-
-    // Create a mapping from a device to a commandPool
-    devMap->commandPools.push_front(*pCommandPool);
-    loader_platform_thread_unlock_mutex(&globalLock);
-    return result;
-}
-
-VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks *pAllocator) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    pDisp->DestroyCommandPool(device, commandPool, pAllocator);
-
-    // Remove the command pool from the map if we are taking screenshots.
-    loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
-        // No screenshots in the list to take
-        loader_platform_thread_unlock_mutex(&globalLock);
-        return;
-    }
-
-    // Remove the commandPool from the device mapping
-    devMap->commandPools.remove(commandPool);
-    loader_platform_thread_unlock_mutex(&globalLock);
-    return;
-}
-
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
                                                   const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
@@ -1386,8 +1349,6 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
     } core_device_commands[] = {
         {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
         {"vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
-        {"vkCreateCommandPool", reinterpret_cast<PFN_vkVoidFunction>(CreateCommandPool)},
-        {"vkDestroyCommandPool", reinterpret_cast<PFN_vkVoidFunction>(DestroyCommandPool)},
         {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
     };
 
