@@ -3522,6 +3522,7 @@ void write_all_referenced_object_calls() {
 
         VkFenceCreateInfo createInfo;
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        createInfo.pNext = nullptr;
         createInfo.flags = (obj->second.ObjectInfo.Fence.signaled) ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
 
         vktrace_trace_packet_header *pCreateFence = generate::vkCreateFence(false, device, &createInfo, pAllocator, &fence);
