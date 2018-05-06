@@ -48,6 +48,7 @@
 #include <vector>
 #include <fstream>
 #include <mutex>
+#include <sstream>
 
 #include <json/json.h>  // https://github.com/open-source-parsers/jsoncpp
 
