@@ -1,8 +1,7 @@
 {
   "$schema": "https://schema.khronos.org/vulkan/devsim_1_0_0.json#",
   "comments": {
-    "url": "https://github.com/LunarG/VulkanTools/tree/master/tests",
-    "desc": "A configuration file fragment for the Device Simulation layer test."
+    "url": "https://github.com/LunarG/VulkanTools/tree/master/tests"
   },
   "VkPhysicalDeviceProperties": {
     "apiVersion": 1,
@@ -10,7 +9,7 @@
     "vendorID": 0,
     "deviceID": 0,
     "deviceType": 0,
-    "deviceName": "devsim test2",
+    "deviceName": "devsim test3",
     "pipelineCacheUUID": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
     "limits": {
       "maxImageDimension1D": 900001000,
@@ -127,5 +126,190 @@
       "residencyAlignedMipSize": 900001109,
       "residencyNonResidentStrict": 900001110
     }
-  }
+  },
+  "VkPhysicalDeviceFeatures": {
+    "robustBufferAccess": 101,
+    "fullDrawIndexUint32": 102,
+    "imageCubeArray": 103,
+    "independentBlend": 104,
+    "geometryShader": 105,
+    "tessellationShader": 106,
+    "sampleRateShading": 107,
+    "dualSrcBlend": 108,
+    "logicOp": 109,
+    "multiDrawIndirect": 110,
+    "drawIndirectFirstInstance": 111,
+    "depthClamp": 112,
+    "depthBiasClamp": 113,
+    "fillModeNonSolid": 114,
+    "depthBounds": 115,
+    "wideLines": 116,
+    "largePoints": 117,
+    "alphaToOne": 118,
+    "multiViewport": 119,
+    "samplerAnisotropy": 120,
+    "textureCompressionETC2": 121,
+    "textureCompressionASTC_LDR": 122,
+    "textureCompressionBC": 123,
+    "occlusionQueryPrecise": 124,
+    "pipelineStatisticsQuery": 125,
+    "vertexPipelineStoresAndAtomics": 126,
+    "fragmentStoresAndAtomics": 127,
+    "shaderTessellationAndGeometryPointSize": 128,
+    "shaderImageGatherExtended": 129,
+    "shaderStorageImageExtendedFormats": 130,
+    "shaderStorageImageMultisample": 131,
+    "shaderStorageImageReadWithoutFormat": 132,
+    "shaderStorageImageWriteWithoutFormat": 133,
+    "shaderUniformBufferArrayDynamicIndexing": 134,
+    "shaderSampledImageArrayDynamicIndexing": 135,
+    "shaderStorageBufferArrayDynamicIndexing": 136,
+    "shaderStorageImageArrayDynamicIndexing": 137,
+    "shaderClipDistance": 138,
+    "shaderCullDistance": 139,
+    "shaderFloat64": 140,
+    "shaderInt64": 141,
+    "shaderInt16": 142,
+    "shaderResourceResidency": 143,
+    "shaderResourceMinLod": 144,
+    "sparseBinding": 145,
+    "sparseResidencyBuffer": 146,
+    "sparseResidencyImage2D": 147,
+    "sparseResidencyImage3D": 148,
+    "sparseResidency2Samples": 149,
+    "sparseResidency4Samples": 150,
+    "sparseResidency8Samples": 151,
+    "sparseResidency16Samples": 152,
+    "sparseResidencyAliased": 153,
+    "variableMultisampleRate": 154,
+    "inheritedQueries": 155
+  },
+  "VkPhysicalDeviceMemoryProperties": {
+    "memoryHeaps": [
+      {
+        "flags": 900002000,
+        "size": 80000002001
+      },
+      {
+        "flags": 900002002,
+        "size": 80000002003
+      },
+      {
+        "flags": 900002004,
+        "size": 80000002005
+      }
+    ],
+    "memoryTypes": [
+      {
+        "heapIndex": 900003001,
+        "propertyFlags": 900003002
+      },
+      {
+        "heapIndex": 900003003,
+        "propertyFlags": 900003004
+      },
+      {
+        "heapIndex": 900003005,
+        "propertyFlags": 900003006
+      },
+      {
+        "heapIndex": 900003007,
+        "propertyFlags": 900003008
+      },
+      {
+        "heapIndex": 900003009,
+        "propertyFlags": 900003010
+      }
+    ]
+  },
+  "ArrayOfVkQueueFamilyProperties": [
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004001,
+        "height": 900004002,
+        "width": 900004003
+      },
+      "queueCount": 1,
+      "queueFlags": 900004005,
+      "timestampValidBits": 900004006
+    },
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004007,
+        "height": 900004008,
+        "width": 900004009
+      },
+      "queueCount": 1,
+      "queueFlags": 900004011,
+      "timestampValidBits": 900004012
+    },
+    {
+      "minImageTransferGranularity": {
+        "depth": 900004013,
+        "height": 900004014,
+        "width": 900004015
+      },
+      "queueCount": 1,
+      "queueFlags": 900004017,
+      "timestampValidBits": 900004018
+    }
+  ],
+  "ArrayOfVkFormatProperties": [
+    {
+      "formatID": 100,
+      "linearTilingFeatures": 900005004,
+      "optimalTilingFeatures": 900005005,
+      "bufferFeatures": 900005006
+    },
+    {
+      "formatID": 4,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 0
+    },
+    {
+      "formatID": 3,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 900005003
+    },
+    {
+      "formatID": 2,
+      "linearTilingFeatures": 0,
+      "optimalTilingFeatures": 900005002,
+      "bufferFeatures": 0
+    },
+    {
+      "formatID": 1,
+      "linearTilingFeatures": 900005001,
+      "optimalTilingFeatures": 0,
+      "bufferFeatures": 0
+    }
+  ],
+  "ArrayOfVkLayerProperties": [
+    {
+      "layerName": "$$$_alfa",
+      "specVersion": 900006001,
+      "implementationVersion": 900006002,
+      "description": "test3 layer A"
+    },
+    {
+      "layerName": "###_bravo",
+      "specVersion": 900006003,
+      "implementationVersion": 900006004,
+      "description": "test3 layer C"
+    },
+    {
+      "layerName": "@@@_charlie",
+      "specVersion": 900006005,
+      "implementationVersion": 900006006,
+      "description": "test3 layer B"
+    },
+    {
+      "layerName": "!!!_delta",
+      "specVersion": 900006007,
+      "implementationVersion": 900006008,
+      "description": "test3 layer D"
+    }
+  ]
 }

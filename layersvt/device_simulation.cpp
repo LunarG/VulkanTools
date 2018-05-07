@@ -33,7 +33,7 @@
  * Misc notes:
  * This code generally follows the spirit of the Google C++ styleguide, while accommodating conventions of the Vulkan styleguide.
  * https://google.github.io/styleguide/cppguide.html
- * https://www.khronos.org/registry/vulkan/specs/1.0/styleguide.html
+ * https://www.khronos.org/registry/vulkan/specs/1.1/styleguide.html
  */
 
 #include <assert.h>
@@ -60,13 +60,16 @@ namespace {
 // Global constants //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // For new features/functionality, increment the minor level and reset patch level to zero.
-// For any changes, at least increment the patch level.
-// When making ANY changes to the version, be sure to also update layersvt/{linux|windows}/VkLayer_device_simulation.json
+// For any changes, at least increment the patch level.  See https://semver.org/
+// When updating the version, be sure to make corresponding changes to the layer manifest files at
+// layersvt/{linux,windows}/VkLayer_device_simulation*.json
+
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 2;
-const uint32_t kVersionDevsimPatch = 3;
+const uint32_t kVersionDevsimMinor = 3;
+const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
+// Properties of this layer:
 const VkLayerProperties kLayerProperties[] = {{
     "VK_LAYER_LUNARG_device_simulation",       // layerName
     VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),  // specVersion
@@ -76,6 +79,7 @@ const VkLayerProperties kLayerProperties[] = {{
 const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayerProperties[0]));
 const char *kOurLayerName = kLayerProperties[0].layerName;
 
+// Extensions that this layer provides:
 const VkExtensionProperties *kExtensionProperties = nullptr;
 const uint32_t kExtensionPropertiesCount = 0;
 
@@ -426,10 +430,11 @@ uint32_t loader_layer_iface_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
 
 typedef std::vector<VkQueueFamilyProperties> ArrayOfVkQueueFamilyProperties;
 typedef std::unordered_map<uint32_t /*VkFormat*/, VkFormatProperties> ArrayOfVkFormatProperties;
+typedef std::vector<VkLayerProperties> ArrayOfVkLayerProperties;
 
 // FormatProperties utilities ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// This is the structure of format property data used in JSON, as defined by the Devsim schema.
+// This is the structure of VkFormat property data used in JSON, as defined by the Devsim schema.
 // It will be split to create a VkFormat value and a VkFormatProperties structure after reading from JSON.
 struct DevsimFormatProperties {
     VkFormat formatID;
@@ -448,15 +453,17 @@ bool IsFormatSupported(const VkFormatProperties &props) {
 
 class PhysicalDeviceData {
    public:
-    // Create a new PDD element, allocated from our map.
+    // Create a new PDD element during vkCreateInstance(), and preserve in map, indexed by physical_device.
     static PhysicalDeviceData &Create(VkPhysicalDevice pd, VkInstance instance) {
+        assert(pd != VK_NULL_HANDLE);
+        assert(instance != VK_NULL_HANDLE);
         assert(!Find(pd));  // Verify this instance does not already exist.
         const auto result = map_.emplace(pd, PhysicalDeviceData(pd, instance));
         assert(result.second);  // true=insertion, false=replacement
         auto iter = result.first;
         PhysicalDeviceData *pdd = &iter->second;
         assert(Find(pd) == pdd);  // Verify we get the same instance we just inserted.
-        DebugPrintf("PDD Create() physical_device %p pdd %p ==================================\n", pd, pdd);
+        DebugPrintf("PhysicalDeviceData::Create()\n");
         return *pdd;
     }
 
@@ -466,6 +473,9 @@ class PhysicalDeviceData {
         return (iter != map_.end()) ? &iter->second : nullptr;
     }
 
+    // For internal use only by pre-instance functions, to create a temporary PDD.
+    PhysicalDeviceData() : PhysicalDeviceData(VK_NULL_HANDLE, VK_NULL_HANDLE) {}
+
     VkInstance instance() const { return instance_; }
 
     VkPhysicalDeviceProperties physical_device_properties_;
@@ -473,9 +483,9 @@ class PhysicalDeviceData {
     VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
     ArrayOfVkQueueFamilyProperties arrayof_queue_family_properties_;
     ArrayOfVkFormatProperties arrayof_format_properties_;
+    ArrayOfVkLayerProperties arrayof_layer_properties_;
 
    private:
-    PhysicalDeviceData() = delete;
     PhysicalDeviceData &operator=(const PhysicalDeviceData &) = delete;
     PhysicalDeviceData(VkPhysicalDevice pd, VkInstance instance) : physical_device_(pd), instance_(instance) {
         physical_device_properties_ = {};
@@ -501,6 +511,7 @@ class JsonLoader {
     JsonLoader(const JsonLoader &) = delete;
     JsonLoader &operator=(const JsonLoader &) = delete;
 
+    bool LoadFiles();
     bool LoadFiles(const char *filename_list);
     bool LoadFile(const char *filename);
 
@@ -521,6 +532,7 @@ class JsonLoader {
     void GetValue(const Json::Value &parent, const char *name, VkExtent3D *dest);
     void GetValue(const Json::Value &parent, int index, VkQueueFamilyProperties *dest);
     void GetValue(const Json::Value &parent, int index, DevsimFormatProperties *dest);
+    void GetValue(const Json::Value &parent, int index, VkLayerProperties *dest);
 
     // For use as warn_func in GET_VALUE_WARN().  Return true if warning occurred.
     static bool WarnIfGreater(const char *name, const uint64_t new_value, const uint64_t old_value) {
@@ -714,8 +726,43 @@ class JsonLoader {
         return static_cast<int>(dest->size());
     }
 
+    int GetArray(const Json::Value &parent, const char *name, ArrayOfVkLayerProperties *dest) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::arrayValue) {
+            return -1;
+        }
+        DebugPrintf("\t\tJsonLoader::GetArray(ArrayOfVkLayerProperties)\n");
+        dest->clear();
+        const int count = static_cast<int>(value.size());
+        for (int i = 0; i < count; ++i) {
+            VkLayerProperties layer_properties = {};
+            GetValue(value, i, &layer_properties);
+            dest->push_back(layer_properties);
+        }
+        return static_cast<int>(dest->size());
+    }
+
+    void WarnDeprecated(const Json::Value &parent, const char *name) {
+        const Json::Value value = parent[name];
+        if (value.type() != Json::nullValue) {
+            DebugPrintf("WARN JSON section %s is deprecated and ignored.\n", name);
+        }
+    }
+
     PhysicalDeviceData &pdd_;
 };
+
+bool JsonLoader::LoadFiles() {
+    std::string value = GetEnvarValue(kEnvarDevsimFilename);
+    if (value.empty()) {
+        ErrorPrintf("envar %s is unset\n", kEnvarDevsimFilename);
+        return false;
+    }
+
+    const char *filename_list = value.c_str();
+    DebugPrintf("envar %s = \"%s\"\n", kEnvarDevsimFilename, filename_list);
+    return LoadFiles(filename_list);
+}
 
 bool JsonLoader::LoadFiles(const char *filename_list) {
 #if defined(_WIN32)
@@ -737,13 +784,13 @@ bool JsonLoader::LoadFiles(const char *filename_list) {
 }
 
 bool JsonLoader::LoadFile(const char *filename) {
-    DebugPrintf("JsonLoader::LoadFile(\"%s\")\n", filename);
     std::ifstream json_file(filename);
     if (!json_file) {
         ErrorPrintf("JsonLoader failed to open file \"%s\"\n", filename);
         return false;
     }
 
+    DebugPrintf("JsonLoader::LoadFile(\"%s\")\n", filename);
     Json::Reader reader;
     Json::Value root = Json::nullValue;
     bool success = reader.parse(json_file, root, false);
@@ -758,6 +805,8 @@ bool JsonLoader::LoadFile(const char *filename) {
         return false;
     }
 
+    DebugPrintf("{\n");
+    bool result = false;
     const Json::Value schema_value = root["$schema"];
     const SchemaId schema_id = IdentifySchema(schema_value);
     switch (schema_id) {
@@ -767,13 +816,18 @@ bool JsonLoader::LoadFile(const char *filename) {
             GetValue(root, "VkPhysicalDeviceMemoryProperties", &pdd_.physical_device_memory_properties_);
             GetArray(root, "ArrayOfVkQueueFamilyProperties", &pdd_.arrayof_queue_family_properties_);
             GetArray(root, "ArrayOfVkFormatProperties", &pdd_.arrayof_format_properties_);
+            GetArray(root, "ArrayOfVkLayerProperties", &pdd_.arrayof_layer_properties_);
+            WarnDeprecated(root, "ArrayOfVkExtensionProperties");
+            result = true;
             break;
+
         case SchemaId::kUnknown:
         default:
-            return false;
+            break;
     }
+    DebugPrintf("}\n");
 
-    return true;
+    return result;
 }
 
 JsonLoader::SchemaId JsonLoader::IdentifySchema(const Json::Value &value) {
@@ -1072,11 +1126,21 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, DevsimFormatProp
     if (value.type() != Json::objectValue) {
         return;
     }
-    DebugPrintf("\t\tJsonLoader::GetValue(VkFormatProperties %d)\n", index);
     GET_VALUE(formatID);
     GET_VALUE(linearTilingFeatures);
     GET_VALUE(optimalTilingFeatures);
     GET_VALUE(bufferFeatures);
+}
+
+void JsonLoader::GetValue(const Json::Value &parent, int index, VkLayerProperties *dest) {
+    const Json::Value value = parent[index];
+    if (value.type() != Json::objectValue) {
+        return;
+    }
+    GET_ARRAY(layerName);  // size < VK_MAX_EXTENSION_NAME_SIZE
+    GET_VALUE(specVersion);
+    GET_VALUE(implementationVersion);
+    GET_ARRAY(description);  // size < VK_MAX_DESCRIPTION_SIZE
 }
 
 #undef GET_VALUE
@@ -1085,8 +1149,8 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, DevsimFormatProp
 // Layer-specific wrappers for Vulkan functions, accessed via vkGet*ProcAddr() ///////////////////////////////////////////////////
 
 // Generic layer dispatch table setup, see [LALI].
-VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
-                                  VkInstance *pInstance) {
+static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                         VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo);
 
@@ -1106,7 +1170,7 @@ VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                               VkInstance *pInstance) {
-    DebugPrintf("CreateInstance START {\n");
+    DebugPrintf("CreateInstance ========================================\n");
     DebugPrintf("%s version %d.%d.%d\n", kOurLayerName, kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
     DebugPrintf("JsonCpp version %s\n", JSONCPP_VERSION_STRING);
 
@@ -1125,13 +1189,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     // Our layer-specific initialization...
 
-    // Get the name(s) of our configuration file(s).
-    std::string filename = GetEnvarValue(kEnvarDevsimFilename);
-    DebugPrintf("envar %s = \"%s\"\n", kEnvarDevsimFilename, filename.c_str());
-    if (filename.empty()) {
-        ErrorPrintf("envar %s is unset\n", kEnvarDevsimFilename);
-    }
-
     const auto dt = instance_dispatch_table(*pInstance);
 
     std::vector<VkPhysicalDevice> physical_devices;
@@ -1148,21 +1205,20 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
         // Initialize PDD members to the actual Vulkan implementation's defaults.
         dt->GetPhysicalDeviceProperties(physical_device, &pdd.physical_device_properties_);
-        DebugPrintf("\tphysical_device %p deviceName \"%s\"\n", physical_device, pdd.physical_device_properties_.deviceName);
+        DebugPrintf("\tdeviceName \"%s\"\n", pdd.physical_device_properties_.deviceName);
         dt->GetPhysicalDeviceFeatures(physical_device, &pdd.physical_device_features_);
         dt->GetPhysicalDeviceMemoryProperties(physical_device, &pdd.physical_device_memory_properties_);
 
         // Override PDD members with values from configuration file(s).
         JsonLoader json_loader(pdd);
-        json_loader.LoadFiles(filename.c_str());
+        json_loader.LoadFiles();
     }
 
-    DebugPrintf("CreateInstance END instance %p }\n", *pInstance);
     return result;
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
-    DebugPrintf("DestroyInstance instance %p\n", instance);
+    DebugPrintf("DestroyInstance\n");
 
     std::lock_guard<std::mutex> lock(global_lock);
 
@@ -1220,29 +1276,18 @@ VkResult EnumerateProperties(uint32_t src_count, const T *src_props, uint32_t *d
     return (copy_count == src_count) ? VK_SUCCESS : VK_INCOMPLETE;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
-    return EnumerateProperties(kLayerPropertiesCount, kLayerProperties, pCount, pProperties);
-}
-
-// Per [LALI], EnumerateDeviceLayerProperties() is deprecated and may be omitted.
-
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *pLayerName, uint32_t *pCount,
-                                                                    VkExtensionProperties *pProperties) {
-    if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
-        return EnumerateProperties(kExtensionPropertiesCount, kExtensionProperties, pCount, pProperties);
-    }
-    return VK_ERROR_LAYER_NOT_PRESENT;
-}
-
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char *pLayerName,
                                                                   uint32_t *pCount, VkExtensionProperties *pProperties) {
+    VkResult result = VK_SUCCESS;
     std::lock_guard<std::mutex> lock(global_lock);
     const auto dt = instance_dispatch_table(physicalDevice);
 
     if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
-        return EnumerateProperties(kExtensionPropertiesCount, kExtensionProperties, pCount, pProperties);
+        result = EnumerateProperties(kExtensionPropertiesCount, kExtensionProperties, pCount, pProperties);
+    } else {
+        result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
     }
-    return dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
+    return result;
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice,
@@ -1270,11 +1315,12 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevi
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
-    if (pdd && (pdd->arrayof_queue_family_properties_.size() > 0)) {
-        EnumerateProperties(static_cast<uint32_t>(pdd->arrayof_queue_family_properties_.size()),
-                            pdd->arrayof_queue_family_properties_.data(), pQueueFamilyPropertyCount, pQueueFamilyProperties);
-    } else {
+    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_queue_family_properties_.size()) : 0;
+    if (src_count == 0) {
         dt->GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+    } else {
+        EnumerateProperties(src_count, pdd->arrayof_queue_family_properties_.data(), pQueueFamilyPropertyCount,
+                            pQueueFamilyProperties);
     }
 }
 
@@ -1285,12 +1331,12 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysical
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
-    if (!pdd || (pdd->arrayof_queue_family_properties_.size() == 0)) {
+    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_queue_family_properties_.size()) : 0;
+    if (src_count == 0) {
         dt->GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties2);
         return;
     }
 
-    const uint32_t src_count = static_cast<uint32_t>(pdd->arrayof_queue_family_properties_.size());
     if (!pQueueFamilyProperties2) {
         *pQueueFamilyPropertyCount = src_count;
         return;
@@ -1311,11 +1357,12 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(VkPhysicalDevice ph
     const auto dt = instance_dispatch_table(physicalDevice);
 
     PhysicalDeviceData *pdd = PhysicalDeviceData::Find(physicalDevice);
-    if (pdd && (pdd->arrayof_format_properties_.size() > 0)) {
+    const uint32_t src_count = (pdd) ? static_cast<uint32_t>(pdd->arrayof_format_properties_.size()) : 0;
+    if (src_count == 0) {
+        dt->GetPhysicalDeviceFormatProperties(physicalDevice, format, pFormatProperties);
+    } else {
         const auto iter = pdd->arrayof_format_properties_.find(format);
         *pFormatProperties = (iter != pdd->arrayof_format_properties_.end()) ? iter->second : VkFormatProperties{};
-    } else {
-        dt->GetPhysicalDeviceFormatProperties(physicalDevice, format, pFormatProperties);
     }
 }
 
@@ -1330,8 +1377,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     if (strcmp("vk" #func, pName) == 0) return reinterpret_cast<PFN_vkVoidFunction>(func);
     GET_PROC_ADDR(GetInstanceProcAddr);
     GET_PROC_ADDR(CreateInstance);
+#if defined(__ANDROID__)
     GET_PROC_ADDR(EnumerateInstanceLayerProperties);
     GET_PROC_ADDR(EnumerateInstanceExtensionProperties);
+#endif
     GET_PROC_ADDR(EnumerateDeviceExtensionProperties);
     GET_PROC_ADDR(DestroyInstance);
     GET_PROC_ADDR(GetPhysicalDeviceProperties);
@@ -1361,6 +1410,57 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 
 }  // anonymous namespace
 
+// Pre-Instance Functions (see [LALI]) ///////////////////////////////////////////////////////////////////////////////////////////
+// The Vulkan loader does not guarantee that layer state is preserved across calls before vkCreateInstance(),
+// so every pre-instance invocation must create a new throw-away PDD and populate by re-loading the JSON configuraton.
+
+extern "C" VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL devsimEnumerateInstanceLayerProperties(
+    VkEnumerateInstanceLayerPropertiesChain *pChain, uint32_t *pPropertyCount, VkLayerProperties *pProperties) {
+    DebugPrintf("EnumerateInstanceLayerProperties %s ========================================\n",
+                (pProperties ? "VALUES" : "COUNT"));
+    std::lock_guard<std::mutex> lock(global_lock);
+    VkResult result = VK_SUCCESS;
+
+    PhysicalDeviceData pdd;
+    JsonLoader json_loader(pdd);
+    json_loader.LoadFiles();
+
+    const uint32_t src_count = static_cast<uint32_t>(pdd.arrayof_layer_properties_.size());
+    if (src_count == 0) {
+        result = pChain->CallDown(pPropertyCount, pProperties);
+    } else {
+        result = EnumerateProperties(src_count, pdd.arrayof_layer_properties_.data(), pPropertyCount, pProperties);
+    }
+
+    return result;
+}
+
+extern "C" VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+devsimEnumerateInstanceExtensionProperties(VkEnumerateInstanceExtensionPropertiesChain *pChain, const char *pLayerName,
+                                           uint32_t *pPropertyCount, VkExtensionProperties *pProperties) {
+    DebugPrintf("EnumerateInstanceExtensionProperties \"%s\" %s ========================================\n",
+                (pLayerName ? pLayerName : ""), (pProperties ? "VALUES" : "COUNT"));
+    std::lock_guard<std::mutex> lock(global_lock);
+    VkResult result = VK_SUCCESS;
+
+    PhysicalDeviceData pdd;
+    JsonLoader json_loader(pdd);
+    json_loader.LoadFiles();
+
+    // Workaround for the devsim_1_0_0 schema, which can not properly support overriding Vulkan extensions in JSON.
+    const uint32_t src_count = static_cast<uint32_t>(pdd.arrayof_layer_properties_.size());
+    if ((src_count == 0) || (pLayerName == nullptr)) {
+        result = pChain->CallDown(pLayerName, pPropertyCount, pProperties);
+    } else {
+        // If a devsim_1_0_0 configuration defines layers, a query of those layers will return zero extensions.
+        DebugPrintf("WARN Returning zero extensions for JSON-defined layer \"%s\"\n", pLayerName);
+        *pPropertyCount = 0;
+        result = VK_SUCCESS;
+    }
+
+    return result;
+}
+
 // Function symbols directly exported by the layer's library /////////////////////////////////////////////////////////////////////
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *pName) {
@@ -1372,6 +1472,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstance
     return CreateInstance(pCreateInfo, pAllocator, pInstance);
 }
 
+#if defined(__ANDROID__)
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pCount,
                                                                                   VkLayerProperties *pProperties) {
     return EnumerateInstanceLayerProperties(pCount, pProperties);
@@ -1381,6 +1482,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
                                                                                       VkExtensionProperties *pProperties) {
     return EnumerateInstanceExtensionProperties(pLayerName, pCount, pProperties);
 }
+#endif
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct) {
     assert(pVersionStruct != NULL);

@@ -1,4 +1,5 @@
 {
+  "ArrayOfVkExtensionProperties": null,
   "ArrayOfVkFormatProperties": [
     {
       "bufferFeatures": 0,
@@ -23,6 +24,32 @@
       "formatID": 100,
       "linearTilingFeatures": 900005004,
       "optimalTilingFeatures": 900005005
+    }
+  ],
+  "ArrayOfVkLayerProperties": [
+    {
+      "description": "test3 layer A",
+      "implementationVersion": 900006002,
+      "layerName": "$$$_alfa",
+      "specVersion": 900006001
+    },
+    {
+      "description": "test3 layer C",
+      "implementationVersion": 900006004,
+      "layerName": "###_bravo",
+      "specVersion": 900006003
+    },
+    {
+      "description": "test3 layer B",
+      "implementationVersion": 900006006,
+      "layerName": "@@@_charlie",
+      "specVersion": 900006005
+    },
+    {
+      "description": "test3 layer D",
+      "implementationVersion": 900006008,
+      "layerName": "!!!_delta",
+      "specVersion": 900006007
     }
   ],
   "ArrayOfVkQueueFamilyProperties": [
@@ -155,7 +182,7 @@
   "VkPhysicalDeviceProperties": {
     "apiVersion": 1,
     "deviceID": 0,
-    "deviceName": "devsim test2",
+    "deviceName": "devsim test3",
     "deviceType": 0,
     "driverVersion": 2,
     "limits": {
