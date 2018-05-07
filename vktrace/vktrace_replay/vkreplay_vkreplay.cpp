@@ -3179,6 +3179,35 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     }
     free(surfFormats);
 
+    // If the present mode is not FIFO and the present mode requested is not supported by the
+    // replay device, then change the present mode to FIFO
+    if (pPacket->pCreateInfo->presentMode != VK_PRESENT_MODE_FIFO_KHR &&
+        replayPhysicalDevices.find(remappeddevice) != replayPhysicalDevices.end()) {
+        // Call GetPhysicalDeviceSurfacePresentModesKHR to get the list of supported present modes
+        uint32_t presentModeCount;
+        VkPresentModeKHR *pPresentModes;
+        VkResult result;
+        uint32_t i;
+        result = m_vkFuncs.GetPhysicalDeviceSurfacePresentModesKHR(replayPhysicalDevices[remappeddevice],
+                                                                   pPacket->pCreateInfo->surface, &presentModeCount, NULL);
+        if (result == VK_SUCCESS) {
+            pPresentModes = VKTRACE_NEW_ARRAY(VkPresentModeKHR, presentModeCount);
+            result = m_vkFuncs.GetPhysicalDeviceSurfacePresentModesKHR(
+                replayPhysicalDevices[remappeddevice], pPacket->pCreateInfo->surface, &presentModeCount, pPresentModes);
+            if (result == VK_SUCCESS && presentModeCount) {
+                for (i = 0; i < presentModeCount; i++) {
+                    if (pPacket->pCreateInfo->presentMode == pPresentModes[i])
+                        // Found matching present mode
+                        break;
+                }
+                if (i == presentModeCount)
+                    // Didn't find a matching present mode, so use FIFO instead.
+                    *((VkPresentModeKHR *)(&pPacket->pCreateInfo->presentMode)) = VK_PRESENT_MODE_FIFO_KHR;
+            }
+            VKTRACE_DELETE(pPresentModes);
+        }
+    }
+
     replayResult = m_vkDeviceFuncs.CreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_swapchainkhrs_map(*(pPacket->pSwapchain), local_pSwapchain);
