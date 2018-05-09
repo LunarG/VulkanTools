@@ -704,7 +704,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_gen_source += '}\n\n'
         replay_gen_source += 'vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet) { \n'
         replay_gen_source += '    vktrace_replay::VKTRACE_REPLAY_RESULT returnValue = vktrace_replay::VKTRACE_REPLAY_SUCCESS;\n'
-        replay_gen_source += '    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;\n'
+        replay_gen_source += '    VkResult replayResult = VK_SUCCESS;\n'
         replay_gen_source += '    switch (packet->packet_id) {\n'
         replay_gen_source += '        case VKTRACE_TPI_VK_vkApiVersion:\n'
         replay_gen_source += '            // Ignore api version packets\n'
