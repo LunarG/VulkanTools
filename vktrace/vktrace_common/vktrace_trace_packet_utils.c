@@ -235,12 +235,10 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     return pBufferStart;
 }
 
-// size is the buffer size pointed by pBuffer, it should be 4 byte aligned.
-// if size is not 4 byte aligned (some title is not 4 byte aligned when call
-// vkMapMemory), it will be ROUNDUP_TO_4 when get new buffer address in the
-// function.
-// as input parameter, size must be size of pBuffer because we also memcpy
-// pBuffer in the function.
+// size is the size of the buffer pointed to by pBuffer.
+// If size is not 4 byte aligned, when computing dest buffer addresses, round up
+// the size so it is 4 byte aligned. We use the unrounded size when doing the
+// actual copy -- this is so that we don't access memory past the end of the buffer.
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer) {
     // Make sure we have a valid pointer.
@@ -471,12 +469,11 @@ void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApp
                                      const VkApplicationInfo* pInStruct) {
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkApplicationInfo), pInStruct);
     vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
-    vktrace_add_buffer_to_trace_packet(
-        pHeader, (void**)&((*ppStruct)->pApplicationName),
-        (pInStruct->pApplicationName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pApplicationName) + 1) : 0,
-        pInStruct->pApplicationName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName),
+                                       (pInStruct->pApplicationName != NULL) ? strlen(pInStruct->pApplicationName) + 1 : 0,
+                                       pInStruct->pApplicationName);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName),
-                                       (pInStruct->pEngineName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pEngineName) + 1) : 0,
+                                       (pInStruct->pEngineName != NULL) ? strlen(pInStruct->pEngineName) + 1 : 0,
                                        pInStruct->pEngineName);
     vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pApplicationName));
     vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pEngineName));
@@ -495,7 +492,7 @@ void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, Vk
                                        pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
     if (pInStruct->enabledLayerCount > 0) {
         for (i = 0; i < pInStruct->enabledLayerCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
                                                pInStruct->ppEnabledLayerNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
@@ -506,7 +503,7 @@ void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, Vk
                                        pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
     if (pInStruct->enabledExtensionCount > 0) {
         for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
                                                pInStruct->ppEnabledExtensionNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
@@ -537,7 +534,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                        pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
     if (pInStruct->enabledLayerCount > 0) {
         for (i = 0; i < pInStruct->enabledLayerCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
                                                pInStruct->ppEnabledLayerNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
@@ -548,7 +545,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                        pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
     if (pInStruct->enabledExtensionCount > 0) {
         for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
                                                pInStruct->ppEnabledExtensionNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);

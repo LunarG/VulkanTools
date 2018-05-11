@@ -538,19 +538,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
             VkDeviceSize OPTPackageSizeTemp = 0;
             if (pOPTMemoryTemp) {
                 PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(OPTPackageSizeTemp),
-                                                   pOPTDataTemp);
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                 pOPTMemoryTemp->clearChangedDataPackage();
                 pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
             } else {
                 PBYTE pOPTDataTemp =
                     getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
-                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(OPTPackageSizeTemp),
-                                                   pOPTDataTemp);
+                vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                 getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
             }
 #else
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), ROUNDUP_TO_4(rangeSize),
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), rangeSize,
                                                pEntry->pData + pRange->offset);
 #endif
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
@@ -1332,8 +1330,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
     pHeader->entrypoint_end_time = endTime;
     pPacket = interpret_body_as_vkEnumerateDeviceExtensionProperties(pHeader);
     pPacket->physicalDevice = physicalDevice;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pLayerName),
-                                       ((pLayerName != NULL) ? ROUNDUP_TO_4(strlen(pLayerName) + 1) : 0), pLayerName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pLayerName), ((pLayerName != NULL) ? strlen(pLayerName) + 1 : 0),
+                                       pLayerName);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPropertyCount), sizeof(uint32_t), pPropertyCount);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pProperties), *pPropertyCount * sizeof(VkExtensionProperties),
                                        pProperties);
@@ -2488,7 +2486,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
     pPacket->device = device;
     pPacket->pipelineCache = pipelineCache;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pDataSize), sizeof(size_t), pDataSize);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), ROUNDUP_TO_4(*pDataSize), pData);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), *pDataSize, pData);
     pPacket->result = result;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pDataSize));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
@@ -2712,7 +2710,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo), sizeof(VkPipelineCacheCreateInfo), pCreateInfo);
     if (pCreateInfo) vktrace_add_pnext_structs_to_trace_packet(pHeader, (void*)pPacket->pCreateInfo, pCreateInfo);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCreateInfo->pInitialData),
-                                       ROUNDUP_TO_4(pPacket->pCreateInfo->initialDataSize), pCreateInfo->pInitialData);
+                                       pPacket->pCreateInfo->initialDataSize, pCreateInfo->pInitialData);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pPipelineCache), sizeof(VkPipelineCache), pPipelineCache);
     pPacket->result = result;
@@ -4303,8 +4301,8 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAdd
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkGetDeviceProcAddr(pHeader);
     pPacket->device = device;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName),
-                                       ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0), funcName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((funcName != NULL) ? strlen(funcName) + 1 : 0),
+                                       funcName);
     pPacket->result = addr;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (!g_trimEnabled) {
@@ -4368,8 +4366,8 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkGetInstanceProcAddr(pHeader);
     pPacket->instance = instance;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName),
-                                       ((funcName != NULL) ? ROUNDUP_TO_4(strlen(funcName) + 1) : 0), funcName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pName), ((funcName != NULL) ? strlen(funcName) + 1 : 0),
+                                       funcName);
     pPacket->result = addr;
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pName));
     if (!g_trimEnabled) {

@@ -84,7 +84,7 @@ void loggingCallback(VktraceLogLevel level, const char *pMessage) {
         pPacket->type = level;
         pPacket->length = requiredLength;
 
-        vktrace_add_buffer_to_trace_packet(pHeader, (void **)&pPacket->message, requiredLength, pMessage);
+        vktrace_add_buffer_to_trace_packet(pHeader, (void **)&pPacket->message, strlen(pMessage) + 1, pMessage);
         vktrace_finalize_buffer_address(pHeader, (void **)&pPacket->message);
         vktrace_set_packet_entrypoint_end_time(pHeader);
         vktrace_finalize_trace_packet(pHeader);
