@@ -66,7 +66,7 @@ namespace {
 
 const uint32_t kVersionDevsimMajor = 1;
 const uint32_t kVersionDevsimMinor = 2;
-const uint32_t kVersionDevsimPatch = 5;
+const uint32_t kVersionDevsimPatch = 6;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 // Properties of this layer:
@@ -1245,9 +1245,19 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(VkPhysicalDevice physical
     }
 }
 
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(VkPhysicalDevice physicalDevice,
+                                                        VkPhysicalDeviceProperties2KHR *pProperties) {
+    {
+        std::lock_guard<std::mutex> lock(global_lock);
+        const auto dt = instance_dispatch_table(physicalDevice);
+        dt->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
+    }
+    GetPhysicalDeviceProperties(physicalDevice, &pProperties->properties);
+}
+
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice,
                                                            VkPhysicalDeviceProperties2KHR *pProperties) {
-    GetPhysicalDeviceProperties(physicalDevice, &pProperties->properties);
+    GetPhysicalDeviceProperties2(physicalDevice, pProperties);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures *pFeatures) {
@@ -1416,6 +1426,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     GET_PROC_ADDR(EnumerateDeviceExtensionProperties);
     GET_PROC_ADDR(DestroyInstance);
     GET_PROC_ADDR(GetPhysicalDeviceProperties);
+    GET_PROC_ADDR(GetPhysicalDeviceProperties2);
     GET_PROC_ADDR(GetPhysicalDeviceProperties2KHR);
     GET_PROC_ADDR(GetPhysicalDeviceFeatures);
     GET_PROC_ADDR(GetPhysicalDeviceFeatures2);
