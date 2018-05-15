@@ -390,6 +390,18 @@ int main(int argc, char* argv[]) {
             fflush(stdout);
             g_settings.arguments = NULL;
         } else {
+            // We are not in server mode.
+
+            // Verify trace layer is available.
+            void* traceLayerLibHandle;
+            traceLayerLibHandle = vktrace_platform_open_library(VKTRACE_LIBRARY_NAME(VkLayer_vktrace_layer));
+            if (!traceLayerLibHandle) {
+                vktrace_LogError("Cannot find trace layer %s", VKTRACE_LIBRARY_NAME(VkLayer_vktrace_layer));
+                return -1;
+            }
+            vktrace_platform_close_library(traceLayerLibHandle);
+
+            // Give warning if working directory is not specified
             if (g_settings.working_dir == NULL || strlen(g_settings.working_dir) == 0) {
                 CHAR* buf = VKTRACE_NEW_ARRAY(CHAR, 4096);
                 vktrace_LogVerbose("No working directory (-w) parameter found: Assuming executable's path as working directory.");

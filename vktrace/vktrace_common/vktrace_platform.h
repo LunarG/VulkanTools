@@ -165,10 +165,10 @@ void vktrace_leave_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
-#define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4) ? "lib" #projname "32.so" : "lib" #projname ".so"
+#define VKTRACE_LIBRARY_NAME(projname) "lib" #projname ".so"
 #endif
 #if defined(WIN32)
-#define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4) ? #projname "32.dll" : #projname ".dll"
+#define VKTRACE_LIBRARY_NAME(projname) #projname ".dll"
 #endif
 
 BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle, const char* dllPath,
