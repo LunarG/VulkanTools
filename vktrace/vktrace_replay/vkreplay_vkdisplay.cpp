@@ -277,9 +277,7 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 
     value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     value_list[0] = m_pXcbScreen->black_pixel;
-    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE |
-                    XCB_EVENT_MASK_EXPOSURE |
-                    XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     xcb_create_window(m_pXcbConnection, XCB_COPY_FROM_PARENT, m_XcbWindow, m_pXcbScreen->root, 0, 0, width, height, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, m_pXcbScreen->root_visual, value_mask, value_list);
@@ -487,11 +485,11 @@ void vkDisplay::process_event() {
                     set_quit_status(true);
                 }
             } break;
-            case XCB_MAP_NOTIFY:
-            // If we were waiting for a MapWindow request to be processed,
-            // we can now continue
-            set_pause_status(false);
-            break;
+            case XCB_MAP_NOTIFY: {
+                // If we were waiting for a MapWindow request to be processed,
+                // we can now continue
+                set_pause_status(false);
+            } break;
         }
         free(event);
         event = xcb_poll_for_event(xcb_conn);
