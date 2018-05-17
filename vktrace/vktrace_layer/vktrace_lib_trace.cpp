@@ -1052,6 +1052,8 @@ static void send_vk_api_version_packet() {
     FINISH_TRACE_PACKET();
 }
 
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkNullProc() { return VK_SUCCESS; }
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkInstance* pInstance) {
@@ -4390,6 +4392,18 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceProcAddr(VkInstance instance, const char* funcName) {
     PFN_vkVoidFunction addr;
     layer_instance_data* instData;
+    static int32_t __vktrace_layer_use_stubs = -1;
+
+    // vktrace program checks to see if vktrace layer is available and loadable. It sets the env var
+    // __VKTRACE_LAYER_USE_STUBS when doing this check so that we don't start trying to trace api calls.
+    // Return a function that does nothing for all entry points.
+    if (__vktrace_layer_use_stubs != 0) {
+        if (__vktrace_layer_use_stubs == -1) {
+            char* envVal = vktrace_get_global_var("__VKTRACE_LAYER_USE_STUBS");
+            __vktrace_layer_use_stubs = (envVal && *envVal);
+        }
+        if (__vktrace_layer_use_stubs) return (PFN_vkVoidFunction)__HOOKED_vkNullProc;
+    }
 
     vktrace_platform_thread_once((void*)&gInitOnce, InitTracer);
     if (!strcmp("vkGetInstanceProcAddr", funcName)) {

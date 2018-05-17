@@ -392,14 +392,44 @@ int main(int argc, char* argv[]) {
         } else {
             // We are not in server mode.
 
-            // Verify trace layer is available.
-            void* traceLayerLibHandle;
-            traceLayerLibHandle = vktrace_platform_open_library(VKTRACE_LIBRARY_NAME(VkLayer_vktrace_layer));
-            if (!traceLayerLibHandle) {
-                vktrace_LogError("Cannot find trace layer %s", VKTRACE_LIBRARY_NAME(VkLayer_vktrace_layer));
-                return -1;
+            // Verify the loader and trace layer are available.  We do this by
+            // creating a Vulkan instance with the trace layer enabled. We set
+            // the env var __VKTRACE_LAYER_USE_STUBS to tell the trace layer
+            // that we really aren't tracing, just checking to see if the trace
+            // layer is loadable.
+            VkResult (*createInstance)(const VkInstanceCreateInfo*, const VkAllocationCallbacks*, VkInstance*);
+            void (*destroyInstance)(VkInstance, const VkAllocationCallbacks*);
+            const char* traceLayerName = "VK_LAYER_LUNARG_vktrace";
+            VkInstanceCreateInfo icI = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, NULL, 0, NULL, 1, &traceLayerName, 0, NULL};
+            VkInstance instance = NULL;
+            VkResult result;
+            void* loaderLibraryHandle;
+
+            vktrace_set_global_var("__VKTRACE_LAYER_USE_STUBS", "1");
+#if defined(WIN32)
+            loaderLibraryHandle = vktrace_platform_open_library(VKTRACE_LIBRARY_NAME(vulkan-1));
+#else
+            loaderLibraryHandle = vktrace_platform_open_library(VKTRACE_LIBRARY_NAME(vulkan));
+#endif
+            if (!loaderLibraryHandle) {
+                vktrace_LogError("Cannot open Vulkan loader");
             }
-            vktrace_platform_close_library(traceLayerLibHandle);
+            *(void**)(&createInstance) = vktrace_platform_get_library_entrypoint(loaderLibraryHandle, "vkCreateInstance");
+            if (!createInstance) {
+                vktrace_LogError("Cannot find symbol vkCreateInstance in Vulkan loader");
+            }
+            *(void**)(&destroyInstance) = vktrace_platform_get_library_entrypoint(loaderLibraryHandle, "vkDestroyInstance");
+            if (!destroyInstance) {
+                vktrace_LogError("Cannot find symbol vkCreateInstance in Vulkan loader");
+            }
+            result = createInstance(&icI, NULL, &instance);
+            if (result == VK_SUCCESS && instance) {
+                destroyInstance(instance, NULL);
+            } else {
+                vktrace_LogError("Cannot find Vulkan loader and/or trace layer, continuing anyway");
+            }
+            vktrace_platform_close_library(loaderLibraryHandle);
+            vktrace_set_global_var("__VKTRACE_LAYER_USE_STUBS", "");
 
             // Give warning if working directory is not specified
             if (g_settings.working_dir == NULL || strlen(g_settings.working_dir) == 0) {
