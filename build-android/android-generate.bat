@@ -28,7 +28,7 @@ MKDIR generated\common
 
 echo Setting some environment variables
 echo ********
-set LVL_BASE=..\submodules\Vulkan-LoaderAndValidationLayers
+set LVL_BASE=..\submodules\Vulkan-ValidationLayers
 set LVL_SCRIPTS=..\..\%LVL_BASE%\scripts
 set VT_SCRIPTS=..\..\..\scripts
 set REGISTRY=..\..\%LVL_BASE%\scripts\vk.xml
@@ -86,23 +86,23 @@ py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% vkreplay_vk_objmapper.h
 
 REM Copy over the built source files to the LVL submodule.  Otherwise,
 REM cube won't build.
-echo Entering submodules\Vulkan-LoaderAndValidationLayers\build-android
+echo Entering submodules\Vulkan-ValidationLayers\build-android
 echo ********
 pushd ..\..\%LVL_BASE%\build-android
-REM Removing old generated directory in submodules\Vulkan-LoaderAndValidationLayers\build-android
+REM Removing old generated directory in submodules\Vulkan-ValidationLayers\build-android
 if exist generated (
     RMDIR /S /Q generated
 )
-REM Creating new empty generated directories in submodules\Vulkan-LoaderAndValidationLayers\build-android
+REM Creating new empty generated directories in submodules\Vulkan-ValidationLayers\build-android
 MKDIR generated
 MKDIR generated\include
 MKDIR generated\common
 
-echo Leaving submodules\Vulkan-LoaderAndValidationLayers\build-android
+echo Leaving submodules\Vulkan-ValidationLayers\build-android
 echo ********
 popd
 
-echo Copying generated headers/source into submodules\Vulkan-LoaderAndValidationLayers\build-android
+echo Copying generated headers/source into submodules\Vulkan-ValidationLayers\build-android
 echo ********
 COPY /Y * ..\..\%LVL_BASE%\build-android\generated\include
 

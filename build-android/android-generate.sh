@@ -21,7 +21,7 @@ cd $dir
 rm -rf generated
 mkdir -p generated/include generated/common
 
-LVL_BASE=../submodules/Vulkan-LoaderAndValidationLayers
+LVL_BASE=../submodules/Vulkan-ValidationLayers
 LVL_SCRIPTS=../../${LVL_BASE}/scripts
 VT_SCRIPTS=../../../scripts
 REGISTRY=../../${LVL_BASE}/scripts/vk.xml

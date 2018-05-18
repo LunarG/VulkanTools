@@ -28,7 +28,7 @@
  * References (several documents are also included in the LunarG Vulkan SDK, see [SDK]):
  * [SPEC]   https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html
  * [SDK]    https://vulkan.lunarg.com/sdk/home
- * [LALI]   https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/blob/master/loader/LoaderAndLayerInterface.md
+ * [LALI]   https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md
  *
  * Misc notes:
  * This code generally follows the spirit of the Google C++ styleguide, while accommodating conventions of the Vulkan styleguide.
