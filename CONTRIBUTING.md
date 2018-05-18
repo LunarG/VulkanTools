@@ -2,8 +2,8 @@
 
 ### **The Repository**
 
-The source code for The Vulkan-LoaderAndValidationLayer components is sponsored by Khronos and LunarG.
-* [Khronos Vulkan-LoaderAndValidationLayers](https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers)
+The source code for The Vulkan-ValidationLayer components is sponsored by Khronos and LunarG.
+* [Khronos Vulkan-ValidationLayers](https://github.com/KhronosGroup/Vulkan-ValidationLayers)
 
 
 ### **The Vulkan Ecosystem Needs Your Help**
@@ -14,7 +14,7 @@ there are always opportunities for anyone to help by contributing additional val
 and tests for these validation checks.
 
 There are a couple of methods to identify areas of need:
-* Examine the [issues list](https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues)
+* Examine the [issues list](https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues)
 in this repository and look for issues that are of interest
 * Alternatively, examine the [vk_validation_error_database.txt](layers/vk_validation_error_database.txt) file -- unimplemented validation checks are marked
 with an 'N' in the 'check_implemented' column and each of these needs coverage in the validation layers.
@@ -129,7 +129,7 @@ or other contribution to GitHub.
 
 ### **License and Copyrights**
 
-All contributions made to the Vulkan-LoaderAndValidationLayers repository are Khronos branded and as such,
+All contributions made to the Vulkan-ValidationLayers repository are Khronos branded and as such,
 any new files need to have the Khronos license (Apache 2.0 style) and copyright included.
 Please see an existing file in this repository for an example.
 
