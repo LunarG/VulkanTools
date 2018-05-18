@@ -4,18 +4,34 @@ project(vkreplay)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-if(WIN32)
-  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
-elseif(UNIX)
-  set (LIBRARIES "${API_LOWERCASE}")
+if(DEFINED LOADER_REPO_ROOT AND NOT LOADER_REPO_ROOT STREQUAL "NOT_DEFINED")
+    message(STATUS "Using user-supplied path to locate Vulkan")
+    if(WIN32)
+        set (LOADER_SEARCH_PATHS
+            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${DEBUG_DECORATION}"
+            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${RELEASE_DECORATION}"
+            )
+    elseif(UNIX)
+        set (LOADER_SEARCH_PATHS
+            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader"
+            )
+    endif()
+    find_library(LIBVK NAMES vulkan vulkan-1
+        HINTS ${LOADER_SEARCH_PATHS}
+        )
+    message(STATUS "Found Vulkan: ${LIBVK}")
 else()
+    message(STATUS "Using find_package to locate Vulkan")
+    find_package(Vulkan)
+    set (LIBVK "Vulkan::Vulkan")
 endif()
 
+
 # Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -64,27 +80,23 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
+    ${CMAKE_CURRENT_SOURCE_DIR}/../VULKAN_HEADERS/include/vulkan
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
     ${GENERATED_FILES_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
+    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
 )
 
-
+message(" replay include dirs is ${SRC_DIR}/vktrace_common ${SRC_DIR}/thirdparty ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../VULKAN_HEADERS/include/vulkan ${VULKAN_TOOLS_SOURCE_DIR}/layersvt ${GENERATED_FILES_DIR} ${VKTRACE_VULKAN_INCLUDE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers")
 add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 
-if(WIN32)
-    add_dependencies(${PROJECT_NAME} generate_helper_files "${API_LOWERCASE}-${MAJOR}")
-else()
-    add_dependencies(${PROJECT_NAME} generate_helper_files "${API_LOWERCASE}")
-endif()
+add_dependencies(${PROJECT_NAME} generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     ${OS_REPLAYER_LIBS}
-    ${VKTRACE_VULKAN_LIB}
+    ${LIBVK}
     vktrace_common
 )
 

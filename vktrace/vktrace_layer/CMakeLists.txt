@@ -20,14 +20,14 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
 # Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp)
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c)
 
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
@@ -78,9 +78,9 @@ include_directories(
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
     ${GENERATED_FILES_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
-    ${V_LVL_ROOT_DIR}/include
-    ${V_LVL_ROOT_DIR}/include/vulkan
+    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
+    ${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include
+    ${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include/vulkan
 )
 
 # copy/link layer json file into build/layersvt directory

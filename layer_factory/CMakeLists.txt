@@ -32,10 +32,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${V_LVL_ROOT_DIR}/loader
-    ${V_LVL_ROOT_DIR}/layers
+    ${VALIDATION_LAYERS_ROOT_DIR}/loader
+    ${VALIDATION_LAYERS_ROOT_DIR}/layers
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
+    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}
 
 )
 
@@ -132,7 +132,7 @@ SUBDIRLIST(ST_SUBDIRS ${CMAKE_LAYER_FACTORY_SOURCE_DIR})
 set(dep_chain generate_vlf)
 FOREACH(subdir ${ST_SUBDIRS})
     file(GLOB INTERCEPTOR_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir}/*.cpp)
-    add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp ${INTERCEPTOR_SOURCES})
+    add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ${VALIDATION_LAYERS_ROOT_DIR}/layers/vk_layer_table.cpp ${INTERCEPTOR_SOURCES})
     add_dependencies(VkLayer_${subdir} ${dep_chain})
     set(dep_chain VkLayer_${subdir})
 ENDFOREACH()

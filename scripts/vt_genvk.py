@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import argparse, cProfile, pdb, string, sys, time, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../submodules/Vulkan-LoaderAndValidationLayers/scripts'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../submodules/Vulkan-ValidationLayers/scripts'))
 
 from reg import *
 from generator import write

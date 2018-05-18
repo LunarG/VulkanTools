@@ -27,11 +27,11 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${SRC_DIR}/cmake/Modules/")
 set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
 
 # Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_func_ptrs.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_func_ptrs.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
 
 # we want cmake to link the Qt libs into the binary
 # This policy was introduced in 2.8.11, so on newer versions, use the OLD policy to maintain consistent behavior
@@ -58,7 +58,7 @@ include_directories(
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
+    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}
     ${CMAKE_BINARY_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )

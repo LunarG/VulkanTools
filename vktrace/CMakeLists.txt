@@ -579,7 +579,7 @@ if(BUILD_VKTRACEVIEWER)
 endif()
 
 include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
+	${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include/vulkan
 )
 
 message("")
@@ -625,12 +625,6 @@ MACRO(SUBDIRLIST result curdir)
   SET(${result} ${dirlist})
 ENDMACRO()
 
-# now generate the list and add each of the subdirectories
-SUBDIRLIST(SUBDIRS ${SRC_DIR}/vktrace_extensions)
-message("Adding extensions: '${SUBDIRS}'")
-FOREACH(subdir ${SUBDIRS})
-    add_subdirectory(${SRC_DIR}/vktrace_extensions/${subdir})
-ENDFOREACH()
 
 
 
