@@ -4,13 +4,26 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
-
-if(WIN32)
-  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
-elseif(UNIX)
-  set (LIBRARIES "${API_LOWERCASE}")
+if(DEFINED LOADER_REPO_ROOT AND NOT LOADER_REPO_ROOT STREQUAL "NOT_DEFINED")
+    message(STATUS "Using user-supplied path to locate Vulkan")
+    if(WIN32)
+        set (LOADER_SEARCH_PATHS
+            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${DEBUG_DECORATION}"
+            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${RELEASE_DECORATION}"
+            )
+    elseif(UNIX)
+        set (LOADER_SEARCH_PATHS
+            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader"
+            )
+    endif()
+    find_library(LIBVK NAMES vulkan vulkan-1
+        HINTS ${LOADER_SEARCH_PATHS}
+        )
+    message(STATUS "Found Vulkan: ${LIBVK}")
 else()
+    message(STATUS "Using find_package to locate Vulkan")
+    find_package(Vulkan)
+    set (LIBVK "Vulkan::Vulkan")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -58,7 +71,7 @@ include_directories(
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}
+    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
     ${CMAKE_BINARY_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )
@@ -189,7 +202,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Core
     Qt5::Svg
-    ${VKTRACE_VULKAN_LIB}
+    ${LIBVK}
     ${OS_REPLAYER_LIBS}
     vktrace_common
     ${CMAKE_DL_LIBS}

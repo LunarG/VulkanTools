@@ -288,7 +288,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/vktrace/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DAPI_LOWERCASE=\"vulkan\" --include=$(LVL_DIR)/common/vulkan_wrapper.h -fexceptions
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR --include=$(LVL_DIR)/common/vulkan_wrapper.h -fexceptions
 LOCAL_CPPFLAGS += -DPLATFORM_LINUX=1
 LOCAL_CPPFLAGS += -DPAGEGUARD_MEMCPY_USE_PPL_LIB
 LOCAL_CFLAGS += -DPLATFORM_LINUX=1

@@ -26,6 +26,8 @@ else()
     set (LIBVK "Vulkan::Vulkan")
 endif()
 
+message("libvk from VIA is this ${LIBVK}")
+
 if(WIN32)
     # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
     # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
@@ -74,15 +76,15 @@ else()
     # the environment setup by the user
     SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
 
-    link_libraries(${API_LOWERCASE} m)
-
 endif()
 
 add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(via ${LIBVK} ${LIBRARIES})
+target_link_libraries(via ${LIBVK})
 if(WIN32)
     target_link_libraries(via version shlwapi Cfgmgr32)
+else()
+    target_link_libraries(via dl)
 endif()
 if(UNIX)
     install(TARGETS via DESTINATION ${CMAKE_INSTALL_BINDIR})

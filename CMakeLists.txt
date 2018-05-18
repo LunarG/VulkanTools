@@ -3,14 +3,9 @@
 # to the root binary directory of the project as ${VULKAN_BINARY_DIR}.
 cmake_minimum_required(VERSION 2.8.11)
 project (VULKAN_TOOLS)
-# set (CMAKE_VERBOSE_MAKEFILE 1)
 
-# The API_NAME allows renaming builds to avoid conflicts with installed SDKs
-# The MAJOR number of the version we're building, used in naming
-# <api-name>-<major>.dll (and other files).
-set(API_NAME "Vulkan" CACHE STRING "API name to use when building")
-set(MAJOR "1")
-string(TOLOWER ${API_NAME} API_LOWERCASE)
+set(API_NAME "Vulkan" CACHE STRING "API name")
+add_definitions(-DAPI_NAME="${API_NAME}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(PythonInterp 3 REQUIRED)
@@ -145,11 +140,9 @@ endif()
 macro(run_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
     COMMAND ${PYTHON_CMD} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml ${output}
-    DEPENDS ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml ${VALIDATION_LAYERS_SCRIPTS_DIR}/generator.py ${VALIDATION_LAYERS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VALIDATION_LAYERS_SCRIPTS_DIR}/reg.py
+    DEPENDS ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml ${VALIDATION_LAYERS_SCRIPTS_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VALIDATION_LAYERS_SCRIPTS_DIR}/reg.py
     )
 endmacro()
-
-add_definitions(-DAPI_NAME="${API_NAME}")
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
