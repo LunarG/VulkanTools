@@ -17,7 +17,7 @@ else
 fi
 
 cd $(dirname "${BASH_SOURCE[0]}")
-cd ../submodules/Vulkan-LoaderAndValidationLayers/demos
+cd ../submodules/Vulkan-ValidationLayers/demos
 
 VK_ICD_FILENAMES=../icd/VkICD_mock_icd.json VK_LAYER_PATH=../../../layers VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_demo_layer ./vulkaninfo > file.tmp
 

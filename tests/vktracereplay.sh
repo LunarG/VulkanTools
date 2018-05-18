@@ -12,7 +12,7 @@ fi
 
 printf "$GREEN[ RUN      ]$NC $0\n"
 
-LVL_BUILD=${PWD}/../submodules/Vulkan-LoaderAndValidationLayers
+LVL_BUILD=${PWD}/../submodules/Vulkan-ValidationLayers
 export LD_LIBRARY_PATH=${LVL_BUILD}/loader:${LD_LIBRARY_PATH}
 export VK_LAYER_PATH=${PWD}/../layersvt
 

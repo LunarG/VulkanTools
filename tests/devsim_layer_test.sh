@@ -6,7 +6,7 @@ set -o nounset
 set -o physical
 
 cd $(dirname "${BASH_SOURCE[0]}")
-LVL_BUILD_DIR="$PWD/../submodules/Vulkan-LoaderAndValidationLayers"
+LVL_BUILD_DIR="$PWD/../submodules/Vulkan-ValidationLayers"
 
 if [ -t 1 ] ; then
     RED='\033[0;31m'

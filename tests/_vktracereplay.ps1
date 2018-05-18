@@ -1,7 +1,7 @@
 # Powershell script for running the vktrace trace/replay auto test
 # To run this test:
 #    cd <this-dir>
-#    powershell C:\src\LoaderAndValidationLayers\vktracereplay.ps1 [-Replay <tracepath>] [-Debug]
+#    powershell C:\src\ValidationLayers\vktracereplay.ps1 [-Replay <tracepath>] [-Debug]
 #
 #    <tracepath> example: "C:\trace" would result in the script testing against "C:\trace.vktrace" and "C:\trace.ppm"
 param (
@@ -28,7 +28,7 @@ if (Test-Path .\vktracereplay_tmp) {
 }
 new-item vktracereplay_tmp -itemtype directory > $null 2> $null
 
-$LVL_DIR = "submodules\Vulkan-LoaderAndValidationLayers\"
+$LVL_DIR = "submodules\Vulkan-ValidationLayers\"
 
 # Copy everything we need into the temp directory, so we
 # can make sure we are using the correct dll and exe files

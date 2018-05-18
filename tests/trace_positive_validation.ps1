@@ -16,8 +16,8 @@ trap {
 
 $skip = @( "LongFenceChain)", "CreatePipelineCheckShaderCapabilityExtension1of2",
     "CreatePipelineCheckShaderCapabilityExtension2of2", "ExternalFence", "ExternalMemory" )
-$lvlbinpath = "$toolsroot\build\submodules\Vulkan-LoaderAndValidationLayers"
-$lvlcodepath = "$toolsroot\submodules\Vulkan-LoaderAndValidationLayers"
+$lvlbinpath = "$toolsroot\build\submodules\Vulkan-ValidationLayers"
+$lvlcodepath = "$toolsroot\submodules\Vulkan-ValidationLayers"
 
 if ( -not($toolsroot) ) { Throw "You must supply a path to a VulkanTools build via -toolsroot" }
 

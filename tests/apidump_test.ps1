@@ -31,7 +31,7 @@ $current_directory = $pwd
 
 # Set up some modified env vars
 $Env:VK_LAYER_PATH = "$pwd\..\layersvt\$dPath"
-cd "..\submodules\Vulkan-LoaderAndValidationLayers\demos\$dPath"
+cd "..\submodules\Vulkan-ValidationLayers\demos\$dPath"
 $Env:VK_ICD_FILENAMES = "..\..\icd\$dPath\VkICD_mock_icd.json"
 $Env:VK_INSTANCE_LAYERS = "VK_LAYER_LUNARG_api_dump"
 

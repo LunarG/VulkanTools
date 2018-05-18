@@ -77,8 +77,8 @@ script:
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       # Run Tests
-      LVL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-LoaderAndValidationLayers
-      LVL_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-LoaderAndValidationLayers/tests/device_profiles
+      LVL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-ValidationLayers
+      LVL_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-ValidationLayers/tests/device_profiles
       export LD_LIBRARY_PATH=$LVL_BUILD/loader:$LD_LIBRARY_PATH
       export VK_LAYER_PATH=$LVL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
       export VK_ICD_FILENAMES=$LVL_BUILD/icd/VkICD_mock_icd.json
@@ -113,7 +113,7 @@ script:
     if [[ "$CHECK_FORMAT" == "ON" ]]; then
       if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
         echo "Checking clang-format between TRAVIS_BRANCH=$TRAVIS_BRANCH and TRAVIS_PULL_REQUEST_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH"
-        ./submodules/Vulkan-LoaderAndValidationLayers/scripts/check_code_format.sh
+        ./submodules/Vulkan-ValidationLayers/scripts/check_code_format.sh
       else
         echo "Skipping clang-format check since this is not a pull request."
       fi
