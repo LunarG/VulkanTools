@@ -5,7 +5,7 @@ set BUILD_DIR=%~dp0
 
 set BASE_DIR=%BUILD_DIR%submodules
 set JSONCPP_DIR=%BASE_DIR%\jsoncpp
-set V_LVL_DIR=%BASE_DIR%\Vulkan-LoaderAndValidationLayers
+set V_LVL_DIR=%BASE_DIR%\Vulkan-ValidationLayers
 
 
 git submodule update --init --recursive
