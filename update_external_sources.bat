@@ -21,10 +21,3 @@ git submodule update --init --recursive
       echo JsonCPP Amalgamation failed to generate %JSONCPP_DIR%\dist\json\json.h
       set errorCode=1
    )
-
-:build_lvl
-    echo.
-    echo Setting Up %V_LVL_DIR%
-    cd "%V_LVL_DIR%"
-    call .\update_external_sources.bat %1 %2 %3 %4 %5 %6 %7 %8 %9
-

@@ -1,5 +1,4 @@
 #!/bin/bash
-# Update source for glslang
 
 set -e
 
@@ -22,6 +21,3 @@ echo "Building ${BASEDIR}/jsoncpp"
 cd ${BASEDIR}/jsoncpp
 python amalgamate.py
 
-echo "Running LVL update external sources"
-cd ${BASEDIR}/Vulkan-LoaderAndValidationLayers
-./update_external_sources.sh "$@"
