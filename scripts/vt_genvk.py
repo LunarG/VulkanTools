@@ -25,7 +25,6 @@ from cgenerator import CGeneratorOptions, COutputGenerator
 from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
 from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN
 from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
-from mock_icd_generator import MockICDGeneratorOptions, MockICDOutputGenerator
 from layer_factory_generator import LayerFactoryGeneratorOptions, LayerFactoryOutputGenerator
 
 # Simple timer functions
