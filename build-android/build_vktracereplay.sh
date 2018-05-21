@@ -45,9 +45,7 @@ findtool jarsigner
 set -ev
 
 LAYER_BUILD_DIR=$PWD
-DEMO_BUILD_DIR=$PWD/../submodules/Vulkan-LoaderAndValidationLayers/demos/android
 echo LAYER_BUILD_DIR="${LAYER_BUILD_DIR}"
-echo DEMO_BUILD_DIR="${DEMO_BUILD_DIR}"
 
 function create_APK() {
     aapt package -f -M AndroidManifest.xml -I "$ANDROID_SDK_HOME/platforms/android-23/android.jar" -S res -F bin/$1-unaligned.apk bin/libs

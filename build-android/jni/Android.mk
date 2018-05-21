@@ -15,7 +15,7 @@
 
 LOCAL_PATH := $(call my-dir)
 SRC_DIR := ../..
-LVL_DIR := ../../submodules/Vulkan-LoaderAndValidationLayers
+LVL_DIR := ../../submodules/Vulkan-ValidationLayers
 LAYER_DIR := ../generated
 ANDROID_DIR := $(SRC_DIR)/build-android
 
