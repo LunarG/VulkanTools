@@ -137,7 +137,7 @@ if (WIN32)
 endif()
 
 # Define macro used for building vkxml generated files
-macro(run_vk_xml_generate dependency output)
+macro(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
     COMMAND ${PYTHON_CMD} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml ${output}
     DEPENDS ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml ${VALIDATION_LAYERS_SCRIPTS_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VALIDATION_LAYERS_SCRIPTS_DIR}/reg.py
@@ -146,6 +146,7 @@ endmacro()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
+    add_subdirectory(${SUBPROJECTS_DIR}/Vulkan-Tools)
 endif()
 
 if(BUILD_VLF)
