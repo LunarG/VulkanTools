@@ -28,17 +28,17 @@ if (Test-Path .\vktracereplay_tmp) {
 }
 new-item vktracereplay_tmp -itemtype directory > $null 2> $null
 
-$LVL_DIR = "submodules\Vulkan-ValidationLayers\"
+$LVL_DIR = "submodules\Vulkan-Tools\"
 
 # Copy everything we need into the temp directory, so we
 # can make sure we are using the correct dll and exe files
 cd vktracereplay_tmp
 cp ..\..\vktrace\$dPath\vkreplay.exe .
 cp ..\..\vktrace\$dPath\vktrace.exe .
-cp ..\..\$LVL_DIR\demos\$dPath\cube.exe .
-cp ..\..\$LVL_DIR\demos\$dPath\smoketest.exe .
-cp ..\..\$LVL_DIR\demos\*.ppm .
-cp ..\..\$LVL_DIR\demos\*.spv .
+cp ..\..\$LVL_DIR\cube\$dPath\cube.exe .
+cp ..\..\$LVL_DIR\cube\$dPath\smoketest.exe .
+cp ..\..\$LVL_DIR\cube\*.ppm .
+cp ..\..\$LVL_DIR\cube\*.spv .
 cp ..\..\$LVL_DIR\loader\$dPath\vulkan-1.dll .
 cp ..\..\layersvt\$dPath\VkLayer_screenshot.dll .
 cp ..\..\layersvt\$dPath\VkLayer_screenshot.json .
