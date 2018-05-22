@@ -582,13 +582,6 @@ include_directories(
 	${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include/vulkan
 )
 
-message("")
-message("cmake options:")
-message("  -DCMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}': Build debug or release. (Debug|Release)")
-message("  -DCMAKE_VERBOSE='${CMAKE_VERBOSE}': Spew cmake project options. (On|Off)")
-message("  -DBUILD_X64='${BUILD_X64}': Build 32 or 64-bit. (On|Off)")
-message("")
-
 #
 #  Components to build
 #

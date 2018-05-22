@@ -88,7 +88,6 @@ include_directories(
     ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
 )
 
-message(" replay include dirs is ${SRC_DIR}/vktrace_common ${SRC_DIR}/thirdparty ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../VULKAN_HEADERS/include/vulkan ${VULKAN_TOOLS_SOURCE_DIR}/layersvt ${GENERATED_FILES_DIR} ${VKTRACE_VULKAN_INCLUDE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers")
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 
 add_dependencies(${PROJECT_NAME} generate_helper_files)

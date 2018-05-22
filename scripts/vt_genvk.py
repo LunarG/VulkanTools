@@ -484,14 +484,14 @@ def genTarget(args):
         createGenerator = genOpts[args.target][0]
         options = genOpts[args.target][1]
 
-        if not args.quiet:
-            write('* Building', options.filename, file=sys.stderr)
-            write('* options.versions          =', options.versions, file=sys.stderr)
-            write('* options.emitversions      =', options.emitversions, file=sys.stderr)
-            write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
-            write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
-            write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
-            write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
+        #if not args.quiet:
+           # write('* Building', options.filename, file=sys.stderr)
+           # write('* options.versions          =', options.versions, file=sys.stderr)
+           # write('* options.emitversions      =', options.emitversions, file=sys.stderr)
+           # write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
+           # write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
+           # write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
+           # write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
 
         startTimer(args.time)
         gen = createGenerator(errFile=errWarn,

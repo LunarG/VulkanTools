@@ -26,8 +26,6 @@ else()
     set (LIBVK "Vulkan::Vulkan")
 endif()
 
-message("libvk from VIA is this ${LIBVK}")
-
 if(WIN32)
     # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
     # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
