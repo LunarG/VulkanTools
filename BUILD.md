@@ -23,6 +23,7 @@ sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon
 sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev
 # If performing 32-bit builds, you will also need:
 sudo apt-get install libc6-dev-i386 g++-multilib
+```
 
 
 # [Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader.git)
@@ -38,12 +39,11 @@ sudo apt-get install libc6-dev-i386 g++-multilib
 
 # [glslang](https://github.com/KhronosGroup/glslang)
   - Ensure that the 'update_glslang_sources.py' script has been run, and the repository successfully built.
-  - Follow the build instructions in the glslang repository, including INSTALL_PREFIX and 'make install', noting the install dir location
+  - Follow the build instructions in the glslang repository, including INSTALL_PREFIX and 'make install', noting the install dir location.
       Indicate the location of the glslang components by using the following cmake option:
              cmake -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\location_of\install ....
 
 
-```
 
 ## Clone the Repository
 
