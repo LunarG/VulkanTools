@@ -3,8 +3,10 @@ file(GLOB TEXTURES
 )
 file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/via/images)
 
+# Predefine loader root as a cmake cache variable for cmake-gui
+set(LOADER_REPO_ROOT "LOADER-NOTFOUND" CACHE PATH "Absolute path to the root of the loader repository")
 
-if(DEFINED LOADER_REPO_ROOT AND NOT LOADER_REPO_ROOT STREQUAL "NOT_DEFINED")
+if(LOADER_REPO_ROOT)
     message(STATUS "Using user-supplied path to locate Vulkan")
     if(WIN32)
         set (LOADER_SEARCH_PATHS

@@ -64,6 +64,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endif()
 endif()
 
+set (VULKAN_SDK $ENV{VULKAN_SDK})
 set (VALIDATION_LAYERS_RELATIVE_LOCATION submodules/Vulkan-ValidationLayers)
 set (SUBPROJECTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 

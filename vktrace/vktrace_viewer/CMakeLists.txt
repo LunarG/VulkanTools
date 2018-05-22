@@ -4,7 +4,10 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-if(DEFINED LOADER_REPO_ROOT AND NOT LOADER_REPO_ROOT STREQUAL "NOT_DEFINED")
+# Predefine loader root as a cmake cache variable for cmake-gui
+set(LOADER_REPO_ROOT "LOADER-NOTFOUND" CACHE PATH "Absolute path to the root of the loader repository")
+
+if(LOADER_REPO_ROOT)
     message(STATUS "Using user-supplied path to locate Vulkan")
     if(WIN32)
         set (LOADER_SEARCH_PATHS
