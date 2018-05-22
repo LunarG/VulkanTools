@@ -126,9 +126,66 @@ vktrace_thread_id vktrace_platform_get_thread_id() {
 #endif
 }
 
+#if defined(ANDROID)
+const uint32_t MAX_BUFFER_SIZE = 255;
+static char android_env[MAX_BUFFER_SIZE] = {};
+char* AndroidGetEnv(const char* key) {
+    const char* command = "getprop ";
+    const size_t len_command = strlen(command);
+    const size_t len_key = strlen(key);
+    char* full_command = malloc(len_command + len_key + 1);
+    memcpy(full_command, command, len_command);
+    memcpy(full_command + len_command, key, len_key + 1);
+
+    FILE* pipe = NULL;
+    pipe = popen(full_command, "r");
+    if (pipe != NULL) {
+        fgets(android_env, MAX_BUFFER_SIZE, pipe);
+        pclose(pipe);
+    }
+
+    if (strlen(android_env) > 0) {
+        android_env[strcspn(android_env, "\r\n")] = '\0';
+        vktrace_LogAlways("%s: %s", full_command, android_env);
+        free(full_command);
+        return android_env;
+    }
+
+    free(full_command);
+    return NULL;
+}
+
+void AndroidSetEnv(const char* key, const char* val) {
+    const char* command = "setprop ";
+    const char* space = " ";
+    const size_t len_command = strlen(command);
+    const size_t len_key = strlen(key);
+    const size_t len_space = strlen(space);
+    const size_t len_val = strlen(val);
+    char* full_command = malloc(len_command + len_key + len_space + len_val + 1);
+    memcpy(full_command, command, len_command);
+    memcpy(full_command + len_command, key, len_key);
+    memcpy(full_command + len_command + len_key, space, len_space);
+    memcpy(full_command + len_command + len_key + len_space, val, len_val + 1);
+
+    FILE* pipe = NULL;
+    pipe = popen(full_command, "r");
+    if (pipe != NULL) {
+        vktrace_LogAlways("%s", full_command);
+        pclose(pipe);
+    }
+
+    free(full_command);
+}
+#endif
+
 char* vktrace_get_global_var(const char* name) {
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(ANDROID)
+    return AndroidGetEnv(name);
+#else
     return getenv(name);
+#endif
 #else
     // TODO: add code for reading from Windows registry
     // For now we just return the result from getenv
@@ -138,7 +195,11 @@ char* vktrace_get_global_var(const char* name) {
 
 void vktrace_set_global_var(const char* name, const char* val) {
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(ANDROID)
+    AndroidSetEnv(name, val);
+#else
     setenv(name, val, 1);
+#endif
 #else
     // TODO add code for writing to Windows registry
     // For now we just do _putenv_s
