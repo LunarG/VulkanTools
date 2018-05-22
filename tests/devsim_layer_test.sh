@@ -7,6 +7,7 @@ set -o physical
 
 cd $(dirname "${BASH_SOURCE[0]}")
 VULKAN_TOOLS_BUILD_DIR="$PWD/../submodules/Vulkan-Tools"
+VULKANINFO="$VULKAN_TOOLS_BUILD_DIR/vulkaninfo/vulkaninfo"
 
 if [ -t 1 ] ; then
     RED='\033[0;31m'
@@ -34,6 +35,7 @@ export VK_INSTANCE_LAYERS="VK_LAYER_LUNARG_device_simulation"
 
 #############################################################################
 # Test 1: Verify devsim results using vkjson_info.
+# NOTE: vkjson test disabled following github repo reorganization (May 2018)
 #
 #FILENAME_01_RESULT="device_simulation_layer_test_1.json"
 #FILENAME_01_STDOUT="device_simulation_layer_test_1.txt"
@@ -60,7 +62,7 @@ FILENAME_02_TEMP2="devsim_test2_temp2.json"
 rm -f $FILENAME_02_TEMP1 $FILENAME_02_TEMP2
 
 export VK_DEVSIM_FILENAME="devsim_test2_in1.json:devsim_test2_in2.json:devsim_test2_in3.json:devsim_test2_in4.json:devsim_test2_in5.json"
-"$VULKAN_TOOLS_BUILD_DIR/vulkaninfo" -j > $FILENAME_02_TEMP1 2> /dev/null
+"$VULKANINFO" -j > $FILENAME_02_TEMP1 2> /dev/null
 [ $? -eq 0 ] || fail_msg "test2 vulkaninfo"
 
 # Use jq to extract, reformat, and sort the output.
