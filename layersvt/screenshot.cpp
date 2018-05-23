@@ -53,6 +53,7 @@ using namespace std;
 static char android_env[64] = {};
 const char *env_var = "debug.vulkan.screenshot";
 const char *env_var_old = env_var;
+const char *env_var_format = "debug.vulkan.screenshot.format";
 #else  //Linux or Windows
 const char *env_var_old = "_VK_SCREENSHOT";
 const char *env_var = "VK_SCREENSHOT_FRAMES";
@@ -229,9 +230,7 @@ static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, b
 
 //Get users request is specific color space format required
 void readScreenShotFormatENV(void) {
-#ifndef ANDROID
     vk_screenshot_format = local_getenv(env_var_format);
-#endif
     if (vk_screenshot_format && *vk_screenshot_format) {
         if (!strcmp(vk_screenshot_format, "UNORM")) {
             userColorSpaceFormat = UNORM;
@@ -249,6 +248,10 @@ void readScreenShotFormatENV(void) {
             userColorSpaceFormat = SINT;
         } else {
 #ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "screenshot",
+                                "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
+                                "SRGB\nSwapchain Colorspace will be used instead\n",
+                                vk_screenshot_format);
 #else
             fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                             "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
@@ -529,14 +532,16 @@ static void writePPM(const char *filename, VkImage image1) {
     //Still could not find the right format then we use UNORM
     if (destformat == VK_FORMAT_UNDEFINED)
     {
-#ifdef ANDROID
-#else
         if (printFormatWarning) {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "screenshot",
+                                "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n");
+#else
             fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                             "UNORM colorspace will be used instead\n");
+#endif
             printFormatWarning = false;
         }
-#endif
         if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
         else
@@ -1203,6 +1208,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             snprintf(buffer, sizeof(buffer), "/sdcard/Android/%d", frameNumber);
             std::string base(buffer);
             fileName = base + ".ppm";
+            __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
 #else
             fileName = to_string(frameNumber) + ".ppm";
             printf("Screen Capture file is: %s \n", fileName.c_str());
