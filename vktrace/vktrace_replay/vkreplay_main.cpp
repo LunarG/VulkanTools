@@ -43,6 +43,14 @@
 
 vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL};
 
+#ifdef ANDROID
+const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
+const char* env_var_screenshot_format = "debug.vulkan.screenshot.format";
+#else
+const char* env_var_screenshot_frames = "VK_SCREENSHOT_FRAMES";
+const char* env_var_screenshot_format = "VK_SCREENSHOT_FORMAT";
+#endif
+
 vktrace_SettingInfo g_settings_info[] = {
     {"o",
      "Open",
@@ -399,17 +407,17 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
             return -1;
         } else {
             // Set env var that communicates list to ScreenShot layer
-            vktrace_set_global_var("VK_SCREENSHOT_FRAMES", replaySettings.screenshotList);
+            vktrace_set_global_var(env_var_screenshot_frames, replaySettings.screenshotList);
         }
 
         // Set up environment for screenshot color space format
         if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList != NULL) {
-            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", replaySettings.screenshotColorFormat);
+            vktrace_set_global_var(env_var_screenshot_format, replaySettings.screenshotColorFormat);
         } else if (replaySettings.screenshotColorFormat != NULL && replaySettings.screenshotList == NULL) {
             vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
-            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+            vktrace_set_global_var(env_var_screenshot_format, "");
         } else {
-            vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
+            vktrace_set_global_var(env_var_screenshot_format, "");
         }
     }
 
