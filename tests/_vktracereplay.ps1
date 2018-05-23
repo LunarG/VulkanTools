@@ -36,7 +36,6 @@ cd vktracereplay_tmp
 cp ..\..\vktrace\$dPath\vkreplay.exe .
 cp ..\..\vktrace\$dPath\vktrace.exe .
 cp ..\..\$LVL_DIR\cube\$dPath\cube.exe .
-cp ..\..\$LVL_DIR\cube\$dPath\smoketest.exe .
 cp ..\..\$LVL_DIR\cube\*.ppm .
 cp ..\..\$LVL_DIR\cube\*.spv .
 cp ..\..\$LVL_DIR\loader\$dPath\vulkan-1.dll .
@@ -57,24 +56,6 @@ $Env:VK_LAYER_PATH = $pwd
 rename-item -path 1.ppm -newname 1-cubetrace.ppm
 & vkreplay  -s 1 -o  c01.vktrace > replay.sout 2> replay.serr
 rename-item -path 1.ppm -newname 1-cubereplay.ppm
-
-# Do a trace and replay for smoketest
-& vktrace -o s01.vktrace -s 1 -p smoketest -a "--c 10" --PMB true > trace.sout 2> trace.serr
-rename-item -path 1.ppm -newname 1-smoketrace.ppm
-& vkreplay  -s 1 -o  s01.vktrace > replay.sout 2> replay.serr
-rename-item -path 1.ppm -newname 1-smokereplay.ppm
-
-# Do a trace and replay for smoketest with flush
-& vktrace -o s02.vktrace -s 1 -p smoketest -a "--c 10 --flush" --PMB false > trace.sout 2> trace.serr
-rename-item -path 1.ppm -newname 2-smoketrace.ppm
-& vkreplay  -s 1 -o  s02.vktrace > replay.sout 2> replay.serr
-rename-item -path 1.ppm -newname 2-smokereplay.ppm
-
-# Do a trace and replay for smoketest with push constants
-& vktrace -o s03.vktrace -s 1 -p smoketest -a "--c 10 -p" --PMB false > trace.sout 2> trace.serr
-rename-item -path 1.ppm -newname 3-smoketrace.ppm
-& vkreplay  -s 1 -o  s03.vktrace > replay.sout 2> replay.serr
-rename-item -path 1.ppm -newname 3-smokereplay.ppm
 
 # Replay old trace if specified.
 if ($Replay) {
@@ -121,12 +102,6 @@ if ($exitstatus -eq 0) {
     fc.exe /b 1-cubetrace.ppm 1-cubereplay.ppm > $null
     if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or $LastExitCode -eq 1) {
         echo 'Cube trace files do not match'
-        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-        $exitstatus = 1
-    }
-    fc.exe /b 1-smoketrace.ppm 1-smokereplay.ppm > $null
-    if (!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or $LastExitCode -eq 1) {
-        echo 'Smoke trace files do not match'
         write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
         $exitstatus = 1
     }
