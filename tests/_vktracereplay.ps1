@@ -38,7 +38,6 @@ cp ..\..\vktrace\$dPath\vktrace.exe .
 cp ..\..\$LVL_DIR\cube\$dPath\cube.exe .
 cp ..\..\$LVL_DIR\cube\*.ppm .
 cp ..\..\$LVL_DIR\cube\*.spv .
-cp ..\..\$LVL_DIR\loader\$dPath\vulkan-1.dll .
 cp ..\..\layersvt\$dPath\VkLayer_screenshot.dll .
 cp ..\..\layersvt\$dPath\VkLayer_screenshot.json .
 cp ..\..\layersvt\$dPath\VkLayer_vktrace_layer.dll .
