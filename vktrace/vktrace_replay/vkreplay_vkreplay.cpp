@@ -2297,7 +2297,11 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         if (local_mem.pGpuMem) local_mem.pGpuMem->setAllocInfo(pPacket->pAllocateInfo, false);
         m_objMapper.add_to_devicememorys_map(*(pPacket->pMemory), local_mem);
     } else {
-        vktrace_LogError("Allocate Memory 0x%lX failed with result = 0x%X\n", *(pPacket->pMemory), replayResult);
+        if (doAllocate) {
+            vktrace_LogError("Allocate Memory 0x%lX failed with result = 0x%X\n", *(pPacket->pMemory), replayResult);
+        } else {
+            vktrace_LogWarning("Skipping Allocate Memory 0x%lX, it is not bound to any image/buffer\n", *(pPacket->pMemory));
+        }
     }
     return replayResult;
 }
@@ -2310,6 +2314,11 @@ void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory *pPacket) {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkFreeMemory() due to invalid remapped VkDevice.");
+        return;
+    }
+
+    if (m_objMapper.m_devicememorys.find(pPacket->memory) == m_objMapper.m_devicememorys.end()) {
+        vktrace_LogError("Skipping vkFreeMemory() due to invalid remapped VkDeviceMemory.");
         return;
     }
 
@@ -2327,6 +2336,11 @@ VkResult vkReplay::manually_replay_vkMapMemory(packet_vkMapMemory *pPacket) {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkMapMemory() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    if (m_objMapper.m_devicememorys.find(pPacket->memory) == m_objMapper.m_devicememorys.end()) {
+        vktrace_LogError("Skipping vkMapMemory() due to invalid remapped VkDeviceMemory.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
@@ -2352,6 +2366,11 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory *pPacket) {
     VkDevice remappedDevice = m_objMapper.remap_devices(pPacket->device);
     if (remappedDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkUnmapMemory() due to invalid remapped VkDevice.");
+        return;
+    }
+
+    if (m_objMapper.m_devicememorys.find(pPacket->memory) == m_objMapper.m_devicememorys.end()) {
+        vktrace_LogError("Skipping vkUnmapMemory() due to invalid remapped VkDeviceMemory.");
         return;
     }
 
@@ -2401,7 +2420,9 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
 
     devicememoryObj *pLocalMems = VKTRACE_NEW_ARRAY(devicememoryObj, pPacket->memoryRangeCount);
     for (uint32_t i = 0; i < pPacket->memoryRangeCount; i++) {
-        pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
+        if (m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory) != m_objMapper.m_devicememorys.end()) {
+            pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
+        }
         localRanges[i].memory = m_objMapper.remap_devicememorys(pPacket->pMemoryRanges[i].memory);
         if (localRanges[i].memory == VK_NULL_HANDLE || pLocalMems[i].pGpuMem == NULL) {
             vktrace_LogError("Skipping vkFlushMappedMemoryRanges() due to invalid remapped VkDeviceMemory.");
@@ -2473,7 +2494,9 @@ VkResult vkReplay::manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInval
 
     devicememoryObj *pLocalMems = VKTRACE_NEW_ARRAY(devicememoryObj, pPacket->memoryRangeCount);
     for (uint32_t i = 0; i < pPacket->memoryRangeCount; i++) {
-        pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
+        if (m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory) != m_objMapper.m_devicememorys.end()) {
+            pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
+        }
         localRanges[i].memory = m_objMapper.remap_devicememorys(pPacket->pMemoryRanges[i].memory);
         if (localRanges[i].memory == VK_NULL_HANDLE || pLocalMems[i].pGpuMem == NULL) {
             vktrace_LogError("Skipping vkInvalidsateMappedMemoryRanges() due to invalid remapped VkDeviceMemory.");
