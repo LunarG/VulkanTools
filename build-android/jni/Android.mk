@@ -297,33 +297,6 @@ LOCAL_LDLIBS    := -llog -landroid
 LOCAL_LDFLAGS   := -u ANativeActivity_onCreate
 include $(BUILD_SHARED_LIBRARY)
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := vkjson
-LOCAL_SRC_FILES += $(LVL_DIR)/libs/vkjson/vkjson.cc \
-                   $(LVL_DIR)/libs/vkjson/vkjson_instance.cc \
-                   $(LVL_DIR)/common/vulkan_wrapper.cpp \
-                   $(LVL_DIR)/loader/cJSON.c
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/Vulkan-Headers/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
-
-LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden --include=$(LVL_DIR)/common/vulkan_wrapper.h
-include $(BUILD_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := vkjson_info
-LOCAL_SRC_FILES += $(LVL_DIR)/libs/vkjson/vkjson_info.cc \
-                   $(LVL_DIR)/common/vulkan_wrapper.cpp
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/loader \
-                    $(LOCAL_PATH)/$(LVL_DIR)/Vulkan-Headers/include
-
-LOCAL_STATIC_LIBRARIES += vkjson
-LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -Wno-sign-compare -DVK_USE_PLATFORM_ANDROID_KHR --include=$(LVL_DIR)/common/vulkan_wrapper.h
-LOCAL_LDLIBS := -llog
-LOCAL_LDFLAGS += -Wl,--exclude-libs,ALL
-include $(BUILD_EXECUTABLE)
-
 $(call import-module,android/native_app_glue)
 $(call import-module,third_party/googletest)
 $(call import-module,third_party/shaderc)
