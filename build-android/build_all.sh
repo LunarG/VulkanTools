@@ -45,7 +45,7 @@ findtool jarsigner
 set -ev
 
 LAYER_BUILD_DIR=$PWD
-CUBE_BUILD_DIR=$PWD/../submodules/Vulkan-LoaderAndValidationLayers/demos/android
+CUBE_BUILD_DIR=$PWD/../submodules/Vulkan-Tools/cube/android
 echo LAYER_BUILD_DIR="${LAYER_BUILD_DIR}"
 echo CUBE_BUILD_DIR="${CUBE_BUILD_DIR}"
 

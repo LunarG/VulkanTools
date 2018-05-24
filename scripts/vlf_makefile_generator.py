@@ -80,7 +80,7 @@ if __name__ == '__main__':
                 for file in files:
                     if '.cpp' in file:
                         contents += 'LOCAL_SRC_FILES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s/%s\n' & (factory_layer, file)
-            contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/include\n'
+            contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/Vulkan-Headers/include\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LAYER_DIR)/include\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/layers\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s\n' % factory_layer
