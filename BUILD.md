@@ -47,7 +47,7 @@ sudo apt-get install libc6-dev-i386 g++-multilib
 
 ## Clone the Repository
 
-Note that the [Vulkan-AndValidationLayers repo](https://github.com/KhronosGroup/Vulkan-ValidationLayers) content is included within the VulkanTools repo via a Git Submodule.
+Note that the [Vulkan-ValidationLayers repo](https://github.com/KhronosGroup/Vulkan-ValidationLayers) content is included within the VulkanTools repo via a Git Submodule.
 
 To create your local git repository of VulkanTools:
 ```
