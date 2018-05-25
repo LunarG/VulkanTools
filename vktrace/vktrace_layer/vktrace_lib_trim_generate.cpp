@@ -1125,6 +1125,7 @@ vktrace_trace_packet_header *vkCreateGraphicsPipelines(bool makeCall, VkDevice d
     pPacket->createInfoCount = createInfoCount;
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfos),
                                        createInfoCount * sizeof(VkGraphicsPipelineCreateInfo), pCreateInfos);
+    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void **)&(pPacket->pCreateInfos), pCreateInfos);
     add_VkGraphicsPipelineCreateInfos_to_trace_packet(pHeader, (VkGraphicsPipelineCreateInfo *)pPacket->pCreateInfos, pCreateInfos,
                                                       createInfoCount);
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
