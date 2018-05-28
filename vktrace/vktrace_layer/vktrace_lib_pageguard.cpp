@@ -494,15 +494,14 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
     if (!g_trimEnabled) {
         // trim not enabled, send packet as usual
         FINISH_TRACE_PACKET();
-    } else if (g_trimIsPreTrim) {
+    } else {
         vktrace_finalize_trace_packet(pHeader);
-    } else if (g_trimIsInTrim) {
-        // Currently tracing the frame, so need to track references & store packet to write post-tracing.
-        vktrace_finalize_trace_packet(pHeader);
-        trim::write_packet(pHeader);
-    } else  // g_trimIsPostTrim
-    {
-        vktrace_delete_trace_packet(&pHeader);
+        if (g_trimIsInTrim) {
+            // Currently tracing the frame, so need to track references & store packet to write post-tracing.
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
     }
     return result;
 }
