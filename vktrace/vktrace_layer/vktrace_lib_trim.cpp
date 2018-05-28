@@ -854,7 +854,8 @@ void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, Vk
         // unmap for it.
         vktrace_delete_trace_packet(&pMapMemory);
     } else {
-        *ppMapMemoryPacket = pMapMemory;
+        *ppMapMemoryPacket = trim::copy_packet(pMapMemory);
+        vktrace_delete_trace_packet(&pMapMemory);
 
         // By creating the packet for UnmapMemory, we'll be adding the pData
         // buffer to it, which inherently copies it.
@@ -873,7 +874,9 @@ void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, Vk
 
         // Actually unmap the memory if it wasn't already mapped by the
         // application
-        *ppUnmapMemoryPacket = generate::vkUnmapMemory(makeCalls, size, bufferAddress, device, memory);
+        vktrace_trace_packet_header *pUnmapMemory = generate::vkUnmapMemory(makeCalls, size, bufferAddress, device, memory);
+        *ppUnmapMemoryPacket = trim::copy_packet(pUnmapMemory);
+        vktrace_delete_trace_packet(&pUnmapMemory);
     }
 }
 
@@ -1476,7 +1479,8 @@ void snapshot_state_tracker() {
             if (size != 0) {
                 vktrace_trace_packet_header *pPersistentlyMapMemory =
                     generate::vkMapMemory(false, device, deviceMemory, offset, size, flags, &pData);
-                iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = pPersistentlyMapMemory;
+                iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = trim::copy_packet(pPersistentlyMapMemory);
+                vktrace_delete_trace_packet(&pPersistentlyMapMemory);
             }
         }
     }
