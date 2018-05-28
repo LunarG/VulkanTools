@@ -76,7 +76,7 @@ static FILE* vktrace_open_trace_file(vktrace_process_info* pProcInfo) {
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size);
 
-// deletes a trace packet and sets pointer to NULL
+// deletes a trace packet and sets pointer to NULL, this function should be used on a packet created to write to trace file
 void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader);
 
 // gets the next address available to write a buffer into the packet
@@ -109,6 +109,9 @@ void vktrace_write_trace_packet(const vktrace_trace_packet_header* pHeader, File
 
 // Reads in the trace packet header, the body of the packet, and additional buffers
 vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile);
+
+// deletes a trace packet and sets pointer to NULL, this function should be used on a packet read from trace file
+void vktrace_delete_trace_packet_no_lock(vktrace_trace_packet_header** ppHeader);
 
 // converts a pointer variable that is currently byte offset into a pointer to the actual offset location
 void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable);
