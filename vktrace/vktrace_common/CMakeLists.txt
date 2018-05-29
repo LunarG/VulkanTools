@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VALIDATION_LAYERS_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c)
 
 include_directories(
     ${PROJECT_BINARY_DIR}/../..

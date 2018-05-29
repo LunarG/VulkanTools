@@ -214,15 +214,6 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
             self.structNames.append(name)
             self.genStruct(typeinfo, name, alias)
     #
-    # Generate a VkStructureType based on a structure typename
-    def genVkStructureType(self, typename):
-        # Add underscore between lowercase then uppercase
-        value = re.sub('([a-z0-9])([A-Z])', r'\1_\2', typename)
-        # Change to uppercase
-        value = value.upper()
-        # Add STRUCTURE_TYPE_
-        return re.sub('VK_', 'VK_STRUCTURE_TYPE_', value)
-    #
     # Check if the parameter passed in is a pointer
     def paramIsPointer(self, param):
         ispointer = False
@@ -321,10 +312,8 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
                 result = re.search(r'VK_STRUCTURE_TYPE_\w+', rawXml)
                 if result:
                     value = result.group(0)
-                else:
-                    value = self.genVkStructureType(typeName)
-                # Store the required type value
-                self.structTypes[typeName] = self.StructType(name=name, value=value)
+                    # Store the required type value
+                    self.structTypes[typeName] = self.StructType(name=name, value=value)
             # Store pointer/array/string info
             isstaticarray = self.paramIsStaticArray(member)
             membersInfo.append(self.CommandParam(type=type,

@@ -154,6 +154,8 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 #include <string.h>
 #include <mutex>
 
+#define VALIDATION_ERROR_MAP_IMPL
+
 #include "vk_loader_platform.h"
 #include "vk_dispatch_table_helper.h"
 #include "vk_layer_data.h"

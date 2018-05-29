@@ -24,7 +24,7 @@ mkdir -p generated/include generated/common
 LVL_BASE=../submodules/Vulkan-ValidationLayers
 LVL_SCRIPTS=../../${LVL_BASE}/scripts
 VT_SCRIPTS=../../../scripts
-REGISTRY=../../${LVL_BASE}/scripts/vk.xml
+REGISTRY=../../${LVL_BASE}/Vulkan-Headers/registry/vk.xml
 
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} vk_safe_struct.cpp )
