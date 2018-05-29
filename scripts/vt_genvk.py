@@ -15,7 +15,9 @@
 # limitations under the License.
 
 import argparse, cProfile, pdb, string, sys, time, os
+registry_headers_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../submodules/Vulkan-ValidationLayers/Vulkan-Headers/registry')
 sys.path.append(os.path.join(os.path.dirname(__file__), '../submodules/Vulkan-ValidationLayers/scripts'))
+sys.path.insert(0, registry_headers_path)
 
 from reg import *
 from generator import write

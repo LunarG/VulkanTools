@@ -31,7 +31,7 @@ echo ********
 set LVL_BASE=..\submodules\Vulkan-ValidationLayers
 set LVL_SCRIPTS=..\..\%LVL_BASE%\scripts
 set VT_SCRIPTS=..\..\..\scripts
-set REGISTRY=..\..\%LVL_BASE%\scripts\vk.xml
+set REGISTRY=..\..\%LVL_BASE%\Vulkan-Headers\registry\vk.xml
 
 echo Entering Generated/Include Folder
 echo ********
