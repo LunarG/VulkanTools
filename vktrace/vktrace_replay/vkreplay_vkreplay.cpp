@@ -2318,7 +2318,7 @@ void vkReplay::manually_replay_vkFreeMemory(packet_vkFreeMemory *pPacket) {
     }
 
     if (m_objMapper.m_devicememorys.find(pPacket->memory) == m_objMapper.m_devicememorys.end()) {
-        vktrace_LogError("Skipping vkFreeMemory() due to invalid remapped VkDeviceMemory.");
+        vktrace_LogWarning("Skipping vkFreeMemory() due to invalid remapped VkDeviceMemory.");
         return;
     }
 
