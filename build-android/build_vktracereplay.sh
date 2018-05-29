@@ -69,18 +69,18 @@ done
 create_APK vkreplay
 )
 
-#
-# build vktrace
-#
-(
-pushd ..
-./update_external_sources.sh -g -s
 if test -z "$VULKAN_SDK" ; then
     glslang=""
 else
     glslang=-DGLSLANG_REPO_ROOT=${VULKAN_SDK}/../source/glslang
 fi
 
+#
+# build vktrace
+#
+(
+pushd ..
+./update_external_sources.sh -g -s
 mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Debug $glslang -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_VKTRACE=On ..
