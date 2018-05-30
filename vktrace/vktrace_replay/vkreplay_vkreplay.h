@@ -125,6 +125,24 @@ class vkReplay {
     // -1: Not initialized. 0: No match. 1: Match.
     int m_platformMatch;
 
+    bool platformMatch() {
+        if (m_platformMatch == -1 && m_replay_gpu != 0 && m_replay_drv_vers != 0) {
+            // Compare trace file platform to replay platform.
+            // If a value is null/zero, it is unknown, and we'll consider the platform to not match.
+            // If m_replay_gpu and/or m_replay_drv_vers is 0, we don't yet have replay device gpu and driver version info because
+            // vkGetPhysicalDeviceProperties has not yet been called. We'll consider it a non-match, but will keep checking for
+            // non-zero on subsequent calls.
+            // We save the result of the compare so we don't have to keep doing this complex compare.
+            m_platformMatch = (m_replay_endianess == m_pFileHeader->endianess) & (m_replay_ptrsize == m_pFileHeader->ptrsize) &
+                              (m_replay_arch == m_pFileHeader->arch) & (m_replay_os == m_pFileHeader->os) &
+                              (m_replay_gpu == m_pGpuinfo->gpu_id) & (m_replay_drv_vers == m_pGpuinfo->gpu_drv_vers) &
+                              (m_pGpuinfo->gpu_id != 0) & (m_pGpuinfo->gpu_drv_vers != 0) & (strlen((char*)&m_replay_arch) != 0) &
+                              (strlen((char*)&m_replay_os) != 0) & (strlen((char*)&m_pFileHeader->arch) != 0) &
+                              (strlen((char*)&m_pFileHeader->os) != 0);
+        }
+        return (m_platformMatch == 1);
+    }
+
     struct ValidationMsg {
         VkFlags msgFlags;
         VkDebugReportObjectTypeEXT objType;
