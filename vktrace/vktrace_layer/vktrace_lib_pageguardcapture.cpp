@@ -66,6 +66,13 @@ void PageGuardCapture::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMem
     MapMemorySize.erase(memory);
 }
 
+void PageGuardCapture::SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory) {
+    LPPageGuardMappedMemory lpOPTMemoryTemp = findMappedMemoryObject(device, memory);
+    if (lpOPTMemoryTemp) {
+        lpOPTMemoryTemp->SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+    }
+}
+
 void* PageGuardCapture::getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory) { return MapMemoryPtr[memory]; }
 
 VkDeviceSize PageGuardCapture::getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory) { return MapMemoryOffset[memory]; }

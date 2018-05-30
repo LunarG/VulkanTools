@@ -352,6 +352,15 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
     }
 }
 
+void PageGuardMappedMemory::SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory) {
+    if ((memory == MappedMemory) && (device == MappedDevice) && isUseCopyForRealMappedMemory()) {
+        bool isBlockChanged = !isNoMappedBlockChanged();
+        setAllPageGuardAndFlag(false, isBlockChanged);
+        vktrace_pageguard_memcpy(pMappedData, pRealMappedData, MappedSize);
+        setAllPageGuardAndFlag(true, isBlockChanged);
+    }
+}
+
 void PageGuardMappedMemory::backupBlockChangedArraySnapshot() { pPageStatus->backupChangedArray(); }
 
 void PageGuardMappedMemory::backupBlockReadArraySnapshot() { pPageStatus->backupReadArray(); }
