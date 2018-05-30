@@ -64,6 +64,8 @@ typedef class PageGuardCapture {
     void vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void** MappedData,
                                       vkFlushMappedMemoryRangesFunc pFunc);
 
+    void SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory);
+
     void* getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory);
 
     VkDeviceSize getMappedMemoryOffset(VkDevice device, VkDeviceMemory memory);
