@@ -46,16 +46,13 @@
 #include "vktrace_pageguard_memorycopy.h"
 
 static VKTRACE_CRITICAL_SECTION s_packet_index_lock;
-static VKTRACE_CRITICAL_SECTION s_trace_lock;
 
 void vktrace_initialize_trace_packet_utils() {
     vktrace_create_critical_section(&s_packet_index_lock);
-    vktrace_create_critical_section(&s_trace_lock);
 }
 
 void vktrace_deinitialize_trace_packet_utils() {
     vktrace_delete_critical_section(&s_packet_index_lock);
-    vktrace_delete_critical_section(&s_trace_lock);
 }
 
 uint64_t vktrace_get_unique_packet_index() {
@@ -179,7 +176,6 @@ uint64_t get_os() {
 
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size) {
-    vktrace_enter_critical_section(&s_trace_lock);
     // Always allocate at least enough space for the packet header
     uint64_t total_packet_size =
         ROUNDUP_TO_8(sizeof(vktrace_trace_packet_header) + ROUNDUP_TO_8(packet_size) + additional_buffers_size);
@@ -213,7 +209,6 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
 void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader) {
     vktrace_delete_trace_packet_no_lock(ppHeader);
 
-    vktrace_leave_critical_section(&s_trace_lock);
 }
 
 void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* pHeader, uint64_t byteCount) {
