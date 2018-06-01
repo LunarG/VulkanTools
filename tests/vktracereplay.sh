@@ -1,3 +1,5 @@
+# Note: For this script to run successfully, cube must be in PATH.
+
 #!/bin/bash
 #set -x
 if [ -t 1 ] ; then
@@ -12,31 +14,29 @@ fi
 
 printf "$GREEN[ RUN      ]$NC $0\n"
 
-LVL_BUILD=${PWD}/../submodules/Vulkan-ValidationLayers
-export LD_LIBRARY_PATH=${LVL_BUILD}/loader:${LD_LIBRARY_PATH}
 export VK_LAYER_PATH=${PWD}/../layersvt
 
 function trace_replay {
-	PGM=$1
+	PGM=`which $1`
 	PARGS=$2
 	TARGS=$3
 	VKTRACE=${PWD}/../vktrace/vktrace
 	VKREPLAY=${PWD}/../vktrace/vkreplay
-	APPDIR=${LVL_BUILD}/demos
 	printf "$GREEN[ TRACE    ]$NC ${PGM}\n"
-	${VKTRACE}	--Program ${APPDIR}/${PGM} \
+	${VKTRACE}	--Program ${PGM} \
 			--Arguments "--c 100 ${PARGS}" \
-			--WorkingDir ${APPDIR} \
+			--WorkingDir ${PWD} \
 			--OutputTrace ${PGM}.vktrace \
 			${TARGS} \
 			-s 1
+	mv 1.ppm 1-trace.ppm
 	printf "$GREEN[ REPLAY   ]$NC ${PGM}\n"
 	${VKREPLAY}	--Open ${PGM}.vktrace \
 			-s 1
 	rm -f ${PGM}.vktrace
-	cmp -s 1.ppm ${APPDIR}/1.ppm
+	cmp -s 1.ppm 1-trace.ppm
 	RES=$?
-	rm 1.ppm ${APPDIR}/1.ppm
+	rm 1.ppm 1-trace.ppm
 	if [ $RES -eq 0 ] ; then
 	   printf "$GREEN[  PASSED  ]$NC ${PGM}\n"
 	else
@@ -48,12 +48,6 @@ function trace_replay {
 }
 
 trace_replay cube "" "--PMB false"
-# Test smoketest with pageguard
-trace_replay smoketest "" "--PMB true"
-# Test smoketest without pageguard, using push constants
-trace_replay smoketest "-p" "--PMB false"
-# Test smoketest without pageguard, using flush call
-trace_replay smoketest "--flush" "--PMB false"
 
 exit 0
 
