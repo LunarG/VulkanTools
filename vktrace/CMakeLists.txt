@@ -625,7 +625,7 @@ add_custom_command(
     OUTPUT ${GENERATED_FILES_DIR}/vk_struct_size_helper.h ${GENERATED_FILES_DIR}/vk_struct_size_helper.c ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
            ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
            ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
-    DEPENDS ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY_DIR}/vk.xml
+    DEPENDS ${VULKANTOOLS_SCRIPTS_DIR}/vktrace_file_generator.py ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY_DIR}/vk.xml
     COMMENT Generating vktrace helper files
     COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h
     COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c
@@ -638,7 +638,7 @@ add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_func_ptrs.h
     )
 add_custom_target(vktrace_generate_helper_files
-    DEPENDS ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY_DIR}/vk.xml
+    DEPENDS ${VULKANTOOLS_SCRIPTS_DIR}/vktrace_file_generator.py ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY_DIR}/vk.xml
             ${GENERATED_FILES_DIR}/vk_struct_size_helper.h ${GENERATED_FILES_DIR}/vk_struct_size_helper.c ${GENERATED_FILES_DIR}/vktrace_vk_packet_id.h
             ${GENERATED_FILES_DIR}/vktrace_vk_vk_packets.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.h ${GENERATED_FILES_DIR}/vktrace_vk_vk.cpp
             ${GENERATED_FILES_DIR}/vkreplay_vk_replay_gen.cpp ${GENERATED_FILES_DIR}/vkreplay_vk_objmapper.h ${GENERATED_FILES_DIR}/vkreplay_vk_func_ptrs.h
