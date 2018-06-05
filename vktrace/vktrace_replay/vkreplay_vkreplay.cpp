@@ -168,6 +168,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkInstanceCreateInfo *pCreateInfo;
     char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
+    uint32_t savedLayerCount = 0;
     if (!m_display->m_initedVK) {
         VkInstance inst;
 
@@ -197,6 +198,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
                 }
                 if (found_ss) {
                     // screenshot layer is available so enable it
+                    savedLayerCount = pCreateInfo->enabledLayerCount;
                     ppEnabledLayerNames = (char **)vktrace_malloc((pCreateInfo->enabledLayerCount + 1) * sizeof(char *));
                     for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount && ppEnabledLayerNames; i++) {
                         ppEnabledLayerNames[i] = (char *)pCreateInfo->ppEnabledLayerNames[i];
@@ -211,7 +213,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
         }
 
         char **saved_ppExtensions = (char **)pCreateInfo->ppEnabledExtensionNames;
-        int savedExtensionCount = pCreateInfo->enabledExtensionCount;
+        uint32_t savedExtensionCount = pCreateInfo->enabledExtensionCount;
         vector<const char *> extension_names;
         vector<string> outlist;
 
@@ -253,6 +255,27 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
 
         replayResult = vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
 
+        if (replayResult == VK_SUCCESS) {
+            m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
+
+            // Build instance dispatch table
+            layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
+            // Not handled by codegen
+            m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
+        } else if (replayResult == VK_ERROR_LAYER_NOT_PRESENT) {
+            vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_LAYER_NOT_PRESENT");
+            vktrace_LogVerbose("List of requested layers:");
+            for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
+                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledLayerNames[i]);
+            }
+        } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
+            vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_EXTENSION_NOT_PRESENT");
+            vktrace_LogVerbose("List of requested extensions:");
+            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
+            }
+        }
+
         pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
         pCreateInfo->enabledExtensionCount = savedExtensionCount;
 
@@ -261,21 +284,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
             vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
             vktrace_free(ppEnabledLayerNames);
             pCreateInfo->ppEnabledLayerNames = saved_ppLayers;
-        }
-
-        if (replayResult == VK_SUCCESS) {
-            m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
-
-            // Build instance dispatch table
-            layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
-            // Not handled by codegen
-            m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
-        } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
-            vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_EXTENSION_NOT_PRESENT");
-            vktrace_LogVerbose("List of requested extensions:");
-            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
-            }
+            pCreateInfo->enabledLayerCount = savedLayerCount;
         }
     }
     return replayResult;
