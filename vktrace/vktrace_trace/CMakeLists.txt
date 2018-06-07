@@ -19,7 +19,7 @@ include_directories(
     ${SRC_DIR}/vktrace_trace
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
     ${GENERATED_FILES_DIR}
 )
 

@@ -25,27 +25,7 @@ sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev
 sudo apt-get install libc6-dev-i386 g++-multilib
 ```
 
-
-# [Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader.git)
-  - Building the VulkanTools repository requires linking to the Vulkan Loader Library (vulkan-1.dll).
-    Locating the library for this repo can be done in two different ways:
-      -  The Vulkan SDK can be installed. In this case, cmake should be able to locate the loader repo through the VulkanSDK
-         environment variable
-      -  The library can be built from the [Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader.git) repository. This
-         can be done by setting 'CMAKE_INSTALL_PREFIX' and building 'install' target from within the Vulkan-Loader repo, noting the install location.
-         In this case, the following option should be used on the cmake command line:
-
-             cmake -DVULKAN_LOADER_INSTALL_DIR=c:\absolute_path_to\Vulkan-Loader\install
-
-# [glslang](https://github.com/KhronosGroup/glslang)
-  - Ensure that the 'update_glslang_sources.py' script has been run, and the repository successfully built.
-  - Follow the build instructions in the glslang repository, including INSTALL_PREFIX and 'make install', noting the install dir location.
-      Indicate the location of the glslang components by using the following cmake option:
-             cmake -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\location_of\install ....
-
-## Clone the Repository
-
-Note that the [Vulkan-ValidationLayers repo](https://github.com/KhronosGroup/Vulkan-ValidationLayers) content is included within the VulkanTools repo via a Git Submodule.
+## Download the repository
 
 To create your local git repository of VulkanTools:
 ```
@@ -67,10 +47,8 @@ git submodule update --init --recursive
 
 ## Updating the Repository After a Pull
 
-Since the VulkanTools repo now contains Git Submodules, you may occasionally have
-to update the source in those submodules.
-You will know this needs to be performed when you perform a pull, and you check the
-status of your tree with `git status` and something similar to the following shows:
+The VulkanTools repository contains a submodules named jsoncpp. You may occasionally have to update the source in those submodules.
+You will know this needs to be performed when you perform a pull, and you check the status of your tree with `git status` and something similar to the following shows:
 
 ```
 (master *)] $ git status
@@ -81,7 +59,7 @@ Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
   (use "git checkout -- <file>..." to discard changes in working directory)
 
-	modified:   submodules/Vulkan-ValidationLayers (new commits)
+	modified:   submodules/jsoncpp (new commits)
 
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
@@ -103,17 +81,86 @@ Then, update the external sources as before:
 Now, you should be able to continue building as normal.
 
 
+## Repository Dependencies
+This repository attempts to resolve some of its dependencies by using
+components found from the following places, in this order:
+
+1. CMake or Environment variable overrides (e.g., -DVULKAN_HEADERS_INSTALL_DIR)
+1. LunarG Vulkan SDK, located by the `VULKAN_SDK` environment variable
+1. System-installed packages, mostly applicable on Linux
+
+Dependencies that cannot be resolved by the SDK or installed packages must be
+resolved with the "install directory" override and are listed below. The
+"install directory" override can also be used to force the use of a specific
+version of that dependency.
+
+### Vulkan-Headers
+
+This repository has a required dependency on the
+[Vulkan Headers repository](https://github.com/KhronosGroup/Vulkan-Headers).
+You must clone the headers repository and build its `install` target before
+building this repository. The Vulkan-Headers repository is required because it
+contains the Vulkan API definition files (registry) that are required to build
+the validation layers. You must also take note of the headers' install
+directory and pass it on the CMake command line for building this repository,
+as described below.
+
+### Vulkan-Loader
+
+The tools in this repository depend on the Vulkan loader.
+
+A loader can be used from an installed LunarG SDK, an installed Linux package,
+or from a driver installation on Windows.
+
+If a loader is not available from any of these methods and/or it is important
+to use a loader built from a repository, then you must build the
+[Vulkan-Loader repository](https://github.com/KhronosGroup/Vulkan-Loader.git)
+with its install target. Take note of its install directory location and pass
+it on the CMake command line for building this repository, as described below.
+
+### Vulkan-ValidationLayers
+The tools in this repository depend on the Vulkan validation layers.
+
+Validation layers can be used from an installed LunarG SDK, an installed Linux
+package, or from a driver installation on Windows.
+
+If the validation layers are not available from any of these methods and/or
+it is important to use the validation layers built from a repository, then you
+must build the
+[Vulkan-Loader repository](https://github.com/KhronosGroup/Vulkan-Loader.git)
+with its install target. Take note of its install directory location and pass
+it on the CMake command line for building this repository, as described below.
+
+### Vulkan-Tools
+
+The tests in this repository depend on the Vulkan-Tools repository, which is
+hosted under Khronos' GitHub account and differentiated in name by a hyphen.
+The tests use vulkaninfo and the mock ICD from Vulkan-Tools.
+
+You may build the
+[Vulkan-Tools repository](https://github.com/KhronosGroup/Vulkan-Tools.git)
+with its install target. Take note of its build directory location and set
+the VULKAN\_TOOLS\_BUILD\_DIR environment variable to the appropriate path.
+
+If you do not intend to run the tests, you do not need Vulkan-Tools.
+
+### Build and Install Directories
+
+A common convention is to place the build directory in the top directory of
+the repository with a name of `build` and place the install directory as a
+child of the build directory with the name `install`. The remainder of these
+instructions follow this convention, although you can use any name for these
+directories and place them in any location.
+
+
 ## Linux Build
 
 This build process builds all items in the VulkanTools repository
 
 Example debug build:
 ```
-cd YOUR_DEV_DIRECTORY/VulkanTools  # cd to the root of the VulkanTools git repository
-if the SDK is installed and the accompanying setup-env.sh script has been run (setting up the VULKAN_SDK environment variable),
-    cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\location_of\install
-or, if a specific Vulkan Loader library is desired, point to it like so:
-    cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVULKAN_HEADERS_INSTALL_DIR=/absolute_path_to/Vulkan-Headers/install -DVULKAN_LOADER_INSTALL_DIR=/absolute_path_to/Vulkan-Loader/install -DGLSLANG_INSTALL_DIR=/absolute_path_to_/glslang/location_of/install
+cd VulkanTools  # cd to the root of the VulkanTools git repository
+cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=build/install -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER=absolute_path_to_install_directory -DVULKAN_VALIDATION_LAYERS=absolute_path_to_install_directory
 cd dbuild
 make -j8
 ```
@@ -149,12 +196,8 @@ Visual Studio is used to build the software, and will re-run CMake as appropriat
 To build all Windows targets (e.g. in a "Developer Command Prompt for VS2015" window):
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
-mkdir build
-cd build
-If the SDK is installed,
-    cmake -DGLSLANG_INSTALL_DIR=/absolute_path_to/glslang/location_of/install -G "Visual Studio 14 Win64" ..
-or, if a specific Vulkan Loader library is desired, point to it like so:
-    cmake -DVULKAN_HEADERS_INSTALL_DIR=c:\absolute_path_to\Vulkan-Headers\install -DVULKAN_LOADER_INSTALL_DIR=c:\absolute_path_to\VULKAN_LOADER\install -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\install -G "Visual Studio 15 2017 Win64" ..
+cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=build/install -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER=absolute_path_to_install_directory -DVULKAN_VALIDATION_LAYERS=absolute_path_to_install_directory
+cmake --build dbuild --config Debug --target install
 ```
 
 At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.

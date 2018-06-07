@@ -21,8 +21,8 @@ cd $dir
 rm -rf generated
 mkdir -p generated/include generated/common
 
-LVL_BASE=../submodules/Vulkan-ValidationLayers
-LVL_SCRIPTS=../../${LVL_BASE}/scripts
+LVL_BASE=$dir/third_party/Vulkan-ValidationLayers
+LVL_SCRIPTS=${LVL_BASE}/scripts
 VT_SCRIPTS=../../../scripts
 REGISTRY_PATH=$dir/third_party/Vulkan-Headers/registry
 REGISTRY=${REGISTRY_PATH}/vk.xml
@@ -36,8 +36,6 @@ REGISTRY=${REGISTRY_PATH}/vk.xml
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} thread_check.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} parameter_validation.cpp )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} unique_objects_wrappers.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_loader_extensions.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_loader_extensions.c )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_layer_dispatch_table.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_extension_helper.h )
 ( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} object_tracker.cpp )

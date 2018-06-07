@@ -68,7 +68,7 @@ include_directories(
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
     ${GENERATED_FILES_DIR}
-    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
 # copy/link layer json file into build/layersvt directory

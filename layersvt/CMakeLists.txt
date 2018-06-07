@@ -111,16 +111,15 @@ if (WIN32)
         VERBATIM
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    add_dependencies(VkLayer_${target} generate_helper_files)
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
     set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
@@ -128,10 +127,9 @@ endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${VALIDATION_LAYERS_ROOT_DIR}/layers
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
     ${JSONCPP_INCLUDE_DIR}
 )
@@ -167,4 +165,3 @@ add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
 add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
-

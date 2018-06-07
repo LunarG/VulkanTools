@@ -9,7 +9,7 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
     ${CMAKE_BINARY_DIR}/vktrace
-    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
