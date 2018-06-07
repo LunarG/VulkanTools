@@ -2311,6 +2311,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkCmdPushConstants',
                                          'vkCmdExecuteCommands',
                                          'vkCmdCopyImageToBuffer',
+                                         'vkDestroyBuffer',
                                          'vkDestroyInstance',
                                          'vkEnumeratePhysicalDevices',
                                          'vkFreeMemory',
