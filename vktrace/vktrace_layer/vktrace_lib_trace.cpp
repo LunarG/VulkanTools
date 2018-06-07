@@ -4245,17 +4245,39 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
     result = mdd(device)->devTable.WaitForFences(device, fenceCount, pFences, waitAll, timeout);
     vktrace_set_packet_entrypoint_end_time(pHeader);
 #if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    // Sync real mapped memory back to the copy of that memory after vkCmdCopyImageToBuffer being executed.
+    // * The real mapped memory is bound with the destination buffer in vkCmdCopyImageToBuffer.
+    // * Do the sync when a fence from vkQueueSubmit is signaled and the command buffer submitted contains vkCmdCopyImageToBuffer
+    // command.
+    //
+    // It workarounds a known issue of pageguard on Linux and Android:
+    //      The default configuration of vktrace is not able to know there's a read to a mapped memory on Linux and Android
+    //      platforms. Which means it is not going to sync data back from the real mapped memory mapped via vkMapMemory to the copy
+    //      of that memory for Vulkan application to read.
+    //      This is the default behavior when PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY is disabled in
+    //      vktrace/vktrace_layer/vktrace_lib_pageguardcapture.h.
+    //      And it will cause problem when tracing an app which needs to read back rendering results for environment probes.
+    //
+    // TODO:
+    // Find a way to fully resolve the memory read not detectable issue in pageguard on Linux and Android.
+    // Because current solution won't solve memory read problem when a linear image's memory is mapped to CPU memory and application
+    // wants to read from that CPU memory. It only works for applications which always read from buffers instead of images.
     for (uint32_t i = 0; i < fenceCount; ++i) {
         if (g_fenceToCommandBuffers.find(pFences[i]) != g_fenceToCommandBuffers.end()) {
+            // Iterate command buffers related to a fence (from the mapping created in __HOOKED_vkQueueSubmit)
             for (auto iterPrim = g_fenceToCommandBuffers[pFences[i]].begin(); iterPrim != g_fenceToCommandBuffers[pFences[i]].end();
                  ++iterPrim) {
                 VkCommandBuffer primaryCmdBuffer = *iterPrim;
                 if (g_commandBufferToCommandBuffers.find(primaryCmdBuffer) != g_commandBufferToCommandBuffers.end()) {
+                    // Iterate secondary command buffers and their primary command buffer (from the mapping created in
+                    // __HOOKED_vkCmdExecuteCommands)
                     for (auto iter = g_commandBufferToCommandBuffers[primaryCmdBuffer].begin();
                          iter != g_commandBufferToCommandBuffers[primaryCmdBuffer].end(); ++iter) {
                         VkCommandBuffer cmdBuffer = *iter;
                         if (g_cmdBufferToBuffer.find(cmdBuffer) != g_cmdBufferToBuffer.end() &&
                             g_bufferToDeviceMemory.find(g_cmdBufferToBuffer[cmdBuffer]) != g_bufferToDeviceMemory.end()) {
+                            // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer (recorded in
+                            // __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
                             VkDevice device = g_bufferToDeviceMemory[g_cmdBufferToBuffer[cmdBuffer]].device;
                             VkDeviceMemory memory = g_bufferToDeviceMemory[g_cmdBufferToBuffer[cmdBuffer]].memory;
                             getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
@@ -4267,6 +4289,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
                     g_commandBufferToCommandBuffers.erase(primaryCmdBuffer);
                 } else {
                     if (g_cmdBufferToBuffer.find(primaryCmdBuffer) != g_cmdBufferToBuffer.end() &&
+                        // There's no secondary command buffer so no need to iterate.
+                        // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer (recorded in
+                        // __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
                         g_bufferToDeviceMemory.find(g_cmdBufferToBuffer[primaryCmdBuffer]) != g_bufferToDeviceMemory.end()) {
                         VkDevice device = g_bufferToDeviceMemory[g_cmdBufferToBuffer[primaryCmdBuffer]].device;
                         VkDeviceMemory memory = g_bufferToDeviceMemory[g_cmdBufferToBuffer[primaryCmdBuffer]].memory;
