@@ -74,6 +74,18 @@ VKTRACER_LEAVE _Unload(void) {
 PFN_vkVoidFunction layer_intercept_instance_proc(const char* name);
 PFN_vkVoidFunction layer_intercept_proc(const char* name);
 
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+typedef struct _DeviceMemory {
+    VkDevice device;
+    VkDeviceMemory memory;
+} DeviceMemory;
+
+std::unordered_map<VkCommandBuffer, std::list<VkBuffer>> g_cmdBufferToBuffers;
+std::unordered_map<VkBuffer, DeviceMemory> g_bufferToDeviceMemory;
+std::unordered_map<VkFence, std::list<VkCommandBuffer>> g_fenceToCommandBuffers;
+std::unordered_map<VkCommandBuffer, std::list<VkCommandBuffer>> g_commandBufferToCommandBuffers;
+#endif
+
 // declared as extern in vktrace_lib_helpers.h
 VKTRACE_CRITICAL_SECTION g_memInfoLock;
 VKMemInfo g_memInfo = {0, NULL, NULL, 0};
@@ -2082,6 +2094,19 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     CREATE_TRACE_PACKET(vkQueueSubmit, arrayByteCount);
     result = mdd(queue)->devTable.QueueSubmit(queue, submitCount, pSubmits, fence);
     vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (fence != VK_NULL_HANDLE) {
+        if (g_fenceToCommandBuffers.find(fence) != g_fenceToCommandBuffers.end()) {
+            g_fenceToCommandBuffers[fence].clear();
+        }
+
+        for (uint32_t i = 0; i < submitCount; ++i) {
+            for (uint32_t j = 0; j < pSubmits[i].commandBufferCount; ++j) {
+                g_fenceToCommandBuffers[fence].push_back(pSubmits[i].pCommandBuffers[j]);
+            }
+        }
+    }
+#endif
     pPacket = interpret_body_as_vkQueueSubmit(pHeader);
     pPacket->queue = queue;
     pPacket->submitCount = submitCount;
@@ -2465,6 +2490,46 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(VkCommand
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBufferCount,
+                                                                         const VkCommandBuffer* pCommandBuffers) {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdExecuteCommands* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCmdExecuteCommands, commandBufferCount * sizeof(VkCommandBuffer));
+    mdd(commandBuffer)->devTable.CmdExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (g_commandBufferToCommandBuffers.find(commandBuffer) != g_commandBufferToCommandBuffers.end()) {
+        g_commandBufferToCommandBuffers[commandBuffer].clear();
+    }
+    g_commandBufferToCommandBuffers[commandBuffer].push_back(commandBuffer);
+    for (uint32_t i = 0; i < commandBufferCount; ++i) {
+        g_commandBufferToCommandBuffers[commandBuffer].push_back(pCommandBuffers[i]);
+    }
+#endif
+    pPacket = interpret_body_as_vkCmdExecuteCommands(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->commandBufferCount = commandBufferCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pCommandBuffers), commandBufferCount * sizeof(VkCommandBuffer),
+                                       pCommandBuffers);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pCommandBuffers));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+            trim::mark_CommandBuffer_reference(commandBuffer);
+            if (pCommandBuffers != nullptr && commandBufferCount > 0) {
+                for (uint32_t i = 0; i < commandBufferCount; i++) {
+                    trim::mark_CommandBuffer_reference(pCommandBuffers[i]);
+                }
+            }
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }
@@ -2961,6 +3026,76 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateBuffer(VkDevice 
         } else {
             vktrace_delete_trace_packet(&pHeader);
         }    }
+    return result;
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyBuffer(VkDevice device, VkBuffer buffer,
+                                                                    const VkAllocationCallbacks* pAllocator) {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkDestroyBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkDestroyBuffer, sizeof(VkAllocationCallbacks));
+    mdd(device)->devTable.DestroyBuffer(device, buffer, pAllocator);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end() && g_bufferToDeviceMemory[buffer].device == device) {
+        g_bufferToDeviceMemory.erase(buffer);
+    }
+#endif
+    pPacket = interpret_body_as_vkDestroyBuffer(pHeader);
+    pPacket->device = device;
+    pPacket->buffer = buffer;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pAllocator), sizeof(VkAllocationCallbacks), NULL);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pAllocator));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::remove_Buffer_object(buffer);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory,
+                                                                           VkDeviceSize memoryOffset) {
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkBindBufferMemory* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkBindBufferMemory, 0);
+    result = mdd(device)->devTable.BindBufferMemory(device, buffer, memory, memoryOffset);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    DeviceMemory deviceMemory = {};
+    deviceMemory.device = device;
+    deviceMemory.memory = memory;
+    g_bufferToDeviceMemory[buffer] = deviceMemory;
+#endif
+    pPacket = interpret_body_as_vkBindBufferMemory(pHeader);
+    pPacket->device = device;
+    pPacket->buffer = buffer;
+    pPacket->memory = memory;
+    pPacket->memoryOffset = memoryOffset;
+    pPacket->result = result;
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);
+        if (pInfo != NULL) {
+            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = trim::copy_packet(pHeader);
+            pInfo->ObjectInfo.Buffer.memory = memory;
+            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;
+            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(memory);
+        }
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
     return result;
 }
 
@@ -4092,6 +4227,155 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetWithTe
             vktrace_delete_trace_packet(&pHeader);
         }
     }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdCopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage srcImage,
+                                                                           VkImageLayout srcImageLayout, VkBuffer dstBuffer,
+                                                                           uint32_t regionCount,
+                                                                           const VkBufferImageCopy* pRegions) {
+    vktrace_trace_packet_header* pHeader;
+    packet_vkCmdCopyImageToBuffer* pPacket = NULL;
+    CREATE_TRACE_PACKET(vkCmdCopyImageToBuffer, regionCount * sizeof(VkBufferImageCopy));
+    mdd(commandBuffer)->devTable.CmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    g_cmdBufferToBuffers[commandBuffer].push_back(dstBuffer);
+#endif
+    pPacket = interpret_body_as_vkCmdCopyImageToBuffer(pHeader);
+    pPacket->commandBuffer = commandBuffer;
+    pPacket->srcImage = srcImage;
+    pPacket->srcImageLayout = srcImageLayout;
+    pPacket->dstBuffer = dstBuffer;
+    pPacket->regionCount = regionCount;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pRegions), regionCount * sizeof(VkBufferImageCopy), pRegions);
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pRegions));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+}
+
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice device, uint32_t fenceCount,
+                                                                        const VkFence* pFences, VkBool32 waitAll,
+                                                                        uint64_t timeout) {
+    VkResult result;
+    vktrace_trace_packet_header* pHeader;
+    packet_vkWaitForFences* pPacket = NULL;
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    pageguardEnter();
+#endif
+    CREATE_TRACE_PACKET(vkWaitForFences, fenceCount * sizeof(VkFence));
+    result = mdd(device)->devTable.WaitForFences(device, fenceCount, pFences, waitAll, timeout);
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    // Sync real mapped memory back to the copy of that memory after vkCmdCopyImageToBuffer being executed.
+    // * The real mapped memory is bound with the destination buffer in vkCmdCopyImageToBuffer.
+    // * Do the sync when a fence from vkQueueSubmit is signaled and the command buffer submitted contains vkCmdCopyImageToBuffer
+    // command.
+    //
+    // It workarounds a known issue of pageguard on Linux and Android:
+    //      The default configuration of vktrace is not able to know there's a read to a mapped memory on Linux and Android
+    //      platforms. Which means it is not going to sync data back from the real mapped memory mapped via vkMapMemory to the copy
+    //      of that memory for Vulkan application to read.
+    //      This is the default behavior when PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY is disabled in
+    //      vktrace/vktrace_layer/vktrace_lib_pageguardcapture.h.
+    //      And it will cause problem when tracing an app which needs to read back rendering results for environment probes.
+    //
+    // TODO:
+    // Find a way to fully resolve the memory read not detectable issue in pageguard on Linux and Android.
+    // Because current solution won't solve memory read problem when a linear image's memory is mapped to CPU memory and application
+    // wants to read from that CPU memory. It only works for applications which always read from buffers instead of images.
+    for (uint32_t i = 0; i < fenceCount; ++i) {
+        if (g_fenceToCommandBuffers.find(pFences[i]) != g_fenceToCommandBuffers.end()) {
+            // Iterate command buffers related to a fence (from the mapping created in __HOOKED_vkQueueSubmit)
+            for (auto iterPrim = g_fenceToCommandBuffers[pFences[i]].begin(); iterPrim != g_fenceToCommandBuffers[pFences[i]].end();
+                 ++iterPrim) {
+                VkCommandBuffer primaryCmdBuffer = *iterPrim;
+                if (g_commandBufferToCommandBuffers.find(primaryCmdBuffer) != g_commandBufferToCommandBuffers.end()) {
+                    // Iterate secondary command buffers and their primary command buffer (from the mapping created in
+                    // __HOOKED_vkCmdExecuteCommands)
+                    for (auto iter = g_commandBufferToCommandBuffers[primaryCmdBuffer].begin();
+                         iter != g_commandBufferToCommandBuffers[primaryCmdBuffer].end(); ++iter) {
+                        VkCommandBuffer cmdBuffer = *iter;
+                        if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+                            // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
+                            for (auto iterBuffer = g_cmdBufferToBuffers[cmdBuffer].begin();
+                                 iterBuffer != g_cmdBufferToBuffers[cmdBuffer].end(); ++iterBuffer) {
+                                VkBuffer buffer = *iterBuffer;
+                                if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
+                                    // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer
+                                    // (recorded in __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
+                                    VkDevice device = g_bufferToDeviceMemory[buffer].device;
+                                    VkDeviceMemory memory = g_bufferToDeviceMemory[buffer].memory;
+                                    getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+                                }
+                            }
+                            // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
+                            if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                g_cmdBufferToBuffers[cmdBuffer].clear();
+                            }
+                            g_cmdBufferToBuffers.erase(cmdBuffer);
+                        }
+                    }
+                    g_commandBufferToCommandBuffers[primaryCmdBuffer].clear();
+                    g_commandBufferToCommandBuffers.erase(primaryCmdBuffer);
+                } else {
+                    // There's no secondary command buffer so no need to iterate.
+                    if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
+                        // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
+                        for (auto iterBuffer = g_cmdBufferToBuffers[primaryCmdBuffer].begin();
+                             iterBuffer != g_cmdBufferToBuffers[primaryCmdBuffer].end(); ++iterBuffer) {
+                            VkBuffer buffer = *iterBuffer;
+                            if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
+                                // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer (recorded
+                                // in __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
+                                VkDevice device = g_bufferToDeviceMemory[buffer].device;
+                                VkDeviceMemory memory = g_bufferToDeviceMemory[buffer].memory;
+                                getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+                            }
+                        }
+                        // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
+                        if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
+                            g_cmdBufferToBuffers[primaryCmdBuffer].clear();
+                        }
+                        g_cmdBufferToBuffers.erase(primaryCmdBuffer);
+                    }
+                }
+            }
+            g_fenceToCommandBuffers[pFences[i]].clear();
+            g_fenceToCommandBuffers.erase(pFences[i]);
+        }
+    }
+#endif
+    pPacket = interpret_body_as_vkWaitForFences(pHeader);
+    pPacket->device = device;
+    pPacket->fenceCount = fenceCount;
+    pPacket->waitAll = waitAll;
+    pPacket->timeout = timeout;
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pFences), fenceCount * sizeof(VkFence), pFences);
+    pPacket->result = result;
+    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pFences));
+    if (!g_trimEnabled) {
+        FINISH_TRACE_PACKET();
+    } else {
+        vktrace_finalize_trace_packet(pHeader);
+        if (g_trimIsInTrim) {
+            trim::write_packet(pHeader);
+        } else {
+            vktrace_delete_trace_packet(&pHeader);
+        }
+    }
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+    pageguardExit();
+#endif
+    return result;
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(
