@@ -24,8 +24,8 @@ if ( !(Test-Path $toolsroot\$bits_build) ) {
 
 $skip = @( "LongFenceChain)", "CreatePipelineCheckShaderCapabilityExtension1of2",
     "CreatePipelineCheckShaderCapabilityExtension2of2", "ExternalFence", "ExternalMemory" )
-$lvlbinpath = "$toolsroot\$bits_build\submodules\Vulkan-ValidationLayers"
-$lvlcodepath = "$toolsroot\submodules\Vulkan-ValidationLayers"
+$lvlbinpath = "$toolsroot\$bits_build\Vulkan-ValidationLayers"
+$lvlcodepath = "$toolsroot\Vulkan-ValidationLayers"
 
 if ( -not($toolsroot) ) { Throw "You must supply a path to a VulkanTools build via -toolsroot" }
 

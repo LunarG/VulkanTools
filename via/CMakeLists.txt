@@ -47,7 +47,7 @@ endif()
 
 add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(via ${LIBVK})
+target_link_libraries(via Vulkan::Vulkan)
 if(WIN32)
     target_link_libraries(via version shlwapi Cfgmgr32)
 else()

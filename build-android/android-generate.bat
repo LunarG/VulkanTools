@@ -28,8 +28,8 @@ MKDIR generated\common
 
 echo Setting some environment variables
 echo ********
-set LVL_BASE=..\submodules\Vulkan-ValidationLayers
-set LVL_SCRIPTS=..\..\%LVL_BASE%\scripts
+set LVL_BASE=%~dp0\third_party\Vulkan-ValidationLayers
+set LVL_SCRIPTS=%LVL_BASE%\scripts
 set VT_SCRIPTS=..\..\..\scripts
 set REGISTRY_PATH=%~dp0\third_party\Vulkan-Headers\registry
 set REGISTRY=%REGISTRY_PATH%\vk.xml
@@ -57,55 +57,55 @@ py -3 %LVL_SCRIPTS%\external_revision_generator.py --git_dir ..\..\third_party\s
 REM layer factory
 echo Generating VT layer factory header/source files
 echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% layer_factory.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% layer_factory.cpp
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_factory.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_factory.cpp
 py -3 %VT_SCRIPTS%\vlf_makefile_generator.py ..\..\..\layer_factory %REGISTRY_PATH%\..\include
 
 REM apidump
 echo Generating VT apidump header/source files
 echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% api_dump.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% api_dump_text.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% api_dump_html.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump.cpp
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump_text.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% api_dump_html.h
  
 REM vktrace
 echo Generating VT vktrace header/source files
 echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vktrace_vk_vk.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vktrace_vk_vk.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vktrace_vk_vk_packets.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vktrace_vk_packet_id.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vk_struct_size_helper.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vk_struct_size_helper.c
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk.cpp
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_vk_packets.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vktrace_vk_packet_id.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_struct_size_helper.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_struct_size_helper.c
 
 REM vkreplay
 echo Generating VT vkreplay header/source files
 echo ********
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vkreplay_vk_func_ptrs.h
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vkreplay_vk_replay_gen.cpp
-py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% %REGISTRY_PATH% vkreplay_vk_objmapper.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_func_ptrs.h
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_replay_gen.cpp
+py -3 %VT_SCRIPTS%\vt_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vkreplay_vk_objmapper.h
 
-REM Copy over the built source files to the LVL submodule.  Otherwise,
+REM Copy over the built source files to LVL.  Otherwise,
 REM cube won't build.
-echo Entering submodules\Vulkan-ValidationLayers\build-android
+echo Entering third_party\Vulkan-ValidationLayers\build-android
 echo ********
-pushd ..\..\%LVL_BASE%\build-android
-REM Removing old generated directory in submodules\Vulkan-ValidationLayers\build-android
+pushd %LVL_BASE%\build-android
+REM Removing old generated directory in third_party\Vulkan-ValidationLayers\build-android
 if exist generated (
     RMDIR /S /Q generated
 )
-REM Creating new empty generated directories in submodules\Vulkan-ValidationLayers\build-android
+REM Creating new empty generated directories in third_party\Vulkan-ValidationLayers\build-android
 MKDIR generated
 MKDIR generated\include
 MKDIR generated\common
 
-echo Leaving submodules\Vulkan-ValidationLayers\build-android
+echo Leaving third_party\Vulkan-ValidationLayers\build-android
 echo ********
 popd
 
-echo Copying generated headers/source into submodules\Vulkan-ValidationLayers\build-android
+echo Copying generated headers/source into third_party\Vulkan-ValidationLayers\build-android
 echo ********
-COPY /Y * ..\..\%LVL_BASE%\build-android\generated\include
+COPY /Y * %LVL_BASE%\build-android\generated\include
 
 echo leaving Generated/Include Folder
 echo ********

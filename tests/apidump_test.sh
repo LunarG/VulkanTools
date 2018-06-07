@@ -3,7 +3,44 @@
 # apidump_test.sh
 # This script will run the demo vulkaninfo with the api_dump layer and capture the output.
 # The script will search the output for a certain APIs that should appear in the output.
-# If the threshold is met, the test will indicate PASS, else FAILURE.
+# If the threshold is met, the test will indicate PASS, else FAILURE. This
+# script requires a path to the Vulkan-Tools build directory so that it can locate
+# vulkaninfo and the mock ICD. The path can be defined using the environment variable
+# VULKAN_TOOLS_BUILD_DIR or using the command-line argument -t or --tools.
+
+# Track unrecognized arguments.
+UNRECOGNIZED=()
+
+# Parse the command-line arguments.
+while [[ $# -gt 0 ]]
+do
+   KEY="$1"
+   case $KEY in
+      -t|--tools)
+      VULKAN_TOOLS_BUILD_DIR="$2"
+      shift
+      shift
+      ;;
+      *)
+      UNRECOGNIZED+=("$1")
+      shift
+      ;;
+   esac
+done
+
+# Reject unrecognized arguments.
+if [[ ${#UNRECOGNIZED[@]} -ne 0 ]]; then
+   echo "ERROR: $0:$LINENO"
+   ehco "Unrecognized command-line arguments: ${UNRECOGNIZED[*]}"
+   exit 1
+fi
+
+if [ -z ${VULKAN_TOOLS_BUILD_DIR+x} ]; then
+   echo "ERROR: $0:$LINENO"
+   echo "Vulkan-Tools build directory is undefined."
+   echo "Please set VULKAN_TOOLS_BUILD_DIR or use the -t|--tools <path> command line option."
+   exit 1
+fi
 
 if [ -t 1 ] ; then
     RED='\033[0;31m'
@@ -16,9 +53,11 @@ else
 fi
 
 pushd $(dirname "${BASH_SOURCE[0]}")
-cd ../submodules/Vulkan-Tools/vulkaninfo
 
-VK_ICD_FILENAMES=../icd/VkICD_mock_icd.json VK_LAYER_PATH=../../../layersvt VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_api_dump ./vulkaninfo > apidump_file.tmp
+VULKANINFO="$VULKAN_TOOLS_BUILD_DIR/install/bin/vulkaninfo"
+VK_ICD_FILENAMES="$VULKAN_TOOLS_BUILD_DIR/icd/VkICD_mock_icd.json" \
+    VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_api_dump \
+    "$VULKANINFO" > apidump_file.tmp
 
 printf "$GREEN[ RUN      ]$NC $0\n"
 if [ -f apidump_file.tmp ]

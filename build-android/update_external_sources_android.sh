@@ -29,6 +29,7 @@ SHADERC_REVISION=$(cat $ANDROIDBUILDDIR/shaderc_revision_android)
 JSONCPP_REVISION=$(cat $ANDROIDBUILDDIR/jsoncpp_revision_android)
 VULKAN_TOOLS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-tools_revision_android)
 VULKAN_HEADERS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-headers_revision_android)
+VULKAN_VALIDATIONLAYERS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-validationlayers_revision_android)
 
 echo "GLSLANG_REVISION=$GLSLANG_REVISION"
 echo "SPIRV_TOOLS_REVISION=$SPIRV_TOOLS_REVISION"
@@ -37,6 +38,7 @@ echo "SHADERC_REVISION=$SHADERC_REVISION"
 echo "JSONCPP_REVISION=$JSONCPP_REVISION"
 echo "VULKAN_TOOLS_REVISION=$VULKAN_TOOLS_REVISION"
 echo "VULKAN_HEADERS_REVISION=$VULKAN_HEADERS_REVISION"
+echo "VULKAN_VALIDATIONLAYERS_REVISION=$VULKAN_VALIDATIONLAYERS_REVISION"
 
 GLSLANG_URL=$(cat $ANDROIDBUILDDIR/glslang_url_android)
 SPIRV_TOOLS_URL=$(cat $ANDROIDBUILDDIR/spirv-tools_url_android)
@@ -45,6 +47,7 @@ SHADERC_URL=$(cat $ANDROIDBUILDDIR/shaderc_url_android)
 JSONCPP_URL=$(cat $ANDROIDBUILDDIR/jsoncpp_url_android)
 VULKAN_TOOLS_URL=$(cat $ANDROIDBUILDDIR/vulkan-tools_url_android)
 VULKAN_HEADERS_URL=$(cat $ANDROIDBUILDDIR/vulkan-headers_url_android)
+VULKAN_VALIDATIONLAYERS_URL=$(cat $ANDROIDBUILDDIR/vulkan-validationlayers_url_android)
 
 echo "GLSLANG_URL=$GLSLANG_URL"
 echo "SPIRV_TOOL_URLS_=$SPIRV_TOOLS_URL"
@@ -268,6 +271,31 @@ function update_vulkan-tools () {
    ./update_external_sources_android.sh --no-build
 }
 
+function create_vulkan-validationlayers () {
+   rm -rf $BASEDIR/Vulkan-ValidationLayers
+   echo "Creating local Vulkan-ValidationLayers repository ($BASEDIR/Vulkan-ValidationLayers)."
+   mkdir -p $BASEDIR/Vulkan-ValidationLayers
+   cd $BASEDIR/Vulkan-ValidationLayers
+   git clone $VULKAN_VALIDATIONLAYERS_URL .
+   git checkout $VULKAN_VALIDATIONLAYERS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
+}
+
+function update_vulkan-validationlayers () {
+   echo "Updating $BASEDIR/Vulkan-ValidationLayers"
+   cd $BASEDIR/Vulkan-ValidationLayers
+   if [[ $(git config --get remote.origin.url) != $VULKAN_VALIDATIONLAYERS_URL ]]; then
+      echo "Vulkan-ValidationLayers URL mismatch, recreating local repo"
+      create_vulkan-tools
+      return
+   fi
+   git fetch --all
+   git checkout $VULKAN_VALIDATIONLAYERS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
+}
+
 # Always init the submodules, which includes vulkan headers
 echo "Initializing submodules"
 git submodule update --init --recursive
@@ -301,6 +329,11 @@ if [ ! -d "$BASEDIR/Vulkan-Tools" -o ! -d "$BASEDIR/Vulkan-Tools/.git" ]; then
    create_vulkan-tools
 fi
 update_vulkan-tools
+
+if [ ! -d "$BASEDIR/Vulkan-ValidationLayers" -o ! -d "$BASEDIR/Vulkan-ValidationLayers/.git" ]; then
+   create_vulkan-validationlayers
+fi
+update_vulkan-validationlayers
 
 if [[ -z $nobuild ]]
 then

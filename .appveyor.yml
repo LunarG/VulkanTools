@@ -65,12 +65,28 @@ before_build:
   - cd build
   - cmake -G %GENERATOR% -DCMAKE_INSTALL_PREFIX=install ..
   - cmake --build . --config %CONFIGURATION% --target install
+  # Vulkan-ValidationLayers
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/Vulkan-ValidationLayers.git
+  - cd Vulkan-ValidationLayers
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DCMAKE_INSTALL_PREFIX=install -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install -DGLSLANG_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\glslang\build\install ..
+  - cmake --build . --config %CONFIGURATION% --target install
+  # Vulkan-Tools
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/Vulkan-Tools.git
+  - cd Vulkan-Tools
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DCMAKE_INSTALL_PREFIX=install -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install ..
+  - cmake --build . --config %CONFIGURATION% --target install
   # Generate build files using CMake for the build step.
   - echo Generating CMake files for %GENERATOR%
   - cd %APPVEYOR_BUILD_FOLDER%
   - mkdir build
   - cd build
-  - cmake -G %GENERATOR% -DGLSLANG_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\glslang\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install ..
+  - cmake -G %GENERATOR% -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-ValidationLayers\build\install ..
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
 
 platform:

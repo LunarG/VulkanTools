@@ -82,7 +82,7 @@ include_directories(
     ${GENERATED_FILES_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
@@ -91,7 +91,7 @@ add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     ${LIBRARIES}
-    ${LIBVK}
+    Vulkan::Vulkan
     vktrace_common
 )
 
