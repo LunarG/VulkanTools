@@ -49,7 +49,26 @@ extern "C" {
 
 #include "vulkan/vulkan.h"
 
+#if defined(PLATFORM_LINUX)
+#define VK_USE_PLATFORM_WIN32_KHR
+#endif
+#if defined(PLATFORM_WINDOWS)
+#define VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_XCB_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
 #include "vk_layer_dispatch_table.h"
+
+#if defined(PLATFORM_LINUX)
+#undef VK_USE_PLATFORM_WIN32_KHR
+#endif
+#if defined(PLATFORM_WINDOWS)
+#undef VK_USE_PLATFORM_XLIB_KHR
+#undef VK_USE_PLATFORM_XCB_KHR
+#undef VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
 #include "vk_dispatch_table_helper.h"
 
 #include "vkreplay_vkdisplay.h"

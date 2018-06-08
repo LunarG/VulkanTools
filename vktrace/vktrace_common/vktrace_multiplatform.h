@@ -144,10 +144,6 @@ typedef struct VkWin32SurfaceCreateInfoKHR {
     HINSTANCE hinstance;
     HWND window;
 } VkWin32SurfaceCreateInfoKHR;
-typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
-                                                         const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
-                                                                                uint32_t queueFamilyIndex);
 
 typedef struct VkMemoryWin32HandlePropertiesKHR {
     VkStructureType sType;
@@ -195,6 +191,28 @@ typedef struct VkFenceGetWin32HandleInfoKHR {
     VkFence fence;
     VkExternalFenceHandleTypeFlagBitsKHR handleType;
 } VkFenceGetWin32HandleInfoKHR;
+
+typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+                                                         const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                                uint32_t queueFamilyIndex);
+typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleKHR)(VkDevice device,
+                                                           const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                           HANDLE* pHandle);
+typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandlePropertiesKHR)(
+    VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, HANDLE handle,
+    VkMemoryWin32HandlePropertiesKHR* pMemoryWin32HandleProperties);
+typedef VkResult(VKAPI_PTR* PFN_vkImportSemaphoreWin32HandleKHR)(
+    VkDevice device, const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo);
+typedef VkResult(VKAPI_PTR* PFN_vkGetSemaphoreWin32HandleKHR)(VkDevice device,
+                                                              const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                              HANDLE* pHandle);
+typedef VkResult(VKAPI_PTR* PFN_vkImportFenceWin32HandleKHR)(VkDevice device,
+                                                             const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
+typedef VkResult(VKAPI_PTR* PFN_vkGetFenceWin32HandleKHR)(VkDevice device, const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                          HANDLE* pHandle);
+typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleNV)(VkDevice device, VkDeviceMemory memory,
+                                                          VkExternalMemoryHandleTypeFlagsNV handleType, HANDLE* pHandle);
 
 #endif
 
