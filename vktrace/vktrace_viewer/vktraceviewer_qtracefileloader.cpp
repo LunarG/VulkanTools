@@ -226,7 +226,7 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
         pTraceFileInfo->packetCount++;
         fileOffset += packetSize;
 
-        seekResult = fseek(pTraceFileInfo->pFile, packetSize - sizeof(uint64_t), SEEK_CUR);
+        seekResult = Fseek(pTraceFileInfo->pFile, packetSize - sizeof(uint64_t), SEEK_CUR);
         if (seekResult != 0) {
             emit OutputMessage(VKTRACE_LOG_ERROR, "Error while seeking through trace file.");
             break;
@@ -252,7 +252,7 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
         pTraceFileInfo->pPacketOffsets = VKTRACE_NEW_ARRAY(vktraceviewer_trace_file_packet_offsets, pTraceFileInfo->packetCount);
 
         // rewind to first packet and this time, populate the packet offsets
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
+        if (Fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktrace_free(pTraceFileInfo->pHeader);
             emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to rewind trace file to gather packet offsets.");
             return false;
@@ -266,7 +266,7 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
             pTraceFileInfo->pPacketOffsets[packetIndex].fileOffset = fileOffset;
 
             // rewind slightly
-            seekResult = fseek(pTraceFileInfo->pFile, -1 * (long)sizeof(uint64_t), SEEK_CUR);
+            seekResult = Fseek(pTraceFileInfo->pFile, -1 * (long)sizeof(uint64_t), SEEK_CUR);
 
             if (seekResult != 0) {
                 emit OutputMessage(VKTRACE_LOG_ERROR, "Error while seeking between packets.");
@@ -296,7 +296,7 @@ bool vktraceviewer_QTraceFileLoader::populate_trace_file_info(vktraceviewer_trac
             pTraceFileInfo->packetCount--;
         }
 
-        if (fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
+        if (Fseek(pTraceFileInfo->pFile, first_offset, SEEK_SET) != 0) {
             vktrace_free(pTraceFileInfo->pHeader);
             emit OutputMessage(VKTRACE_LOG_ERROR, "Unable to rewind trace file to restore position.");
             return false;
