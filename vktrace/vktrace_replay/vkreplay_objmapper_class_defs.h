@@ -170,7 +170,7 @@ class vkReplayObjMapper {
     void init_objMemCount(const uint64_t handle, const VkDebugReportObjectTypeEXT objectType, const uint32_t &num) {
         switch (objectType) {
             case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT: {
-                std::map<VkBuffer, bufferObj>::iterator it = m_buffers.find((VkBuffer)handle);
+                std::unordered_map<VkBuffer, bufferObj>::iterator it = m_buffers.find((VkBuffer)handle);
                 if (it != m_buffers.end()) {
                     objMemory obj = it->second.bufferMem;
                     obj.setCount(num);
@@ -179,7 +179,7 @@ class vkReplayObjMapper {
                 break;
             }
             case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT: {
-                std::map<VkImage, imageObj>::iterator it = m_images.find((VkImage)handle);
+                std::unordered_map<VkImage, imageObj>::iterator it = m_images.find((VkImage)handle);
                 if (it != m_images.end()) {
                     objMemory obj = it->second.imageMem;
                     obj.setCount(num);
@@ -197,7 +197,7 @@ class vkReplayObjMapper {
                          const unsigned int num) {
         switch (objectType) {
             case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT: {
-                std::map<VkBuffer, bufferObj>::iterator it = m_buffers.find((VkBuffer)handle);
+                std::unordered_map<VkBuffer, bufferObj>::iterator it = m_buffers.find((VkBuffer)handle);
                 if (it != m_buffers.end()) {
                     objMemory obj = it->second.bufferMem;
                     obj.setReqs(pMemReqs, num);
@@ -206,7 +206,7 @@ class vkReplayObjMapper {
                 break;
             }
             case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT: {
-                std::map<VkImage, imageObj>::iterator it = m_images.find((VkImage)handle);
+                std::unordered_map<VkImage, imageObj>::iterator it = m_images.find((VkImage)handle);
                 if (it != m_images.end()) {
                     objMemory obj = it->second.imageMem;
                     obj.setReqs(pMemReqs, num);
