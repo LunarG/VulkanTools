@@ -111,7 +111,6 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
-#if _DEBUG
     {"v",
      "Verbosity",
      VKTRACE_SETTING_STRING,
@@ -120,16 +119,6 @@ vktrace_SettingInfo g_settings_info[] = {
      TRUE,
      "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", "
      "\"debug\"."},
-#else
-    {"v",
-     "Verbosity",
-     VKTRACE_SETTING_STRING,
-     {&replaySettings.verbosity},
-     {&replaySettings.verbosity},
-     TRUE,
-     "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", "
-     "\"full\"."},
-#endif
 };
 
 vktrace_SettingGroup g_replaySettingGroup = {"vkreplay", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
@@ -383,10 +372,8 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
     else if (!strcmp(replaySettings.verbosity, "full"))
         vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#if _DEBUG
     else if (!strcmp(replaySettings.verbosity, "debug"))
         vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
-#endif
     else {
         vktrace_SettingGroup_print(&g_replaySettingGroup);
         // invalid options specified

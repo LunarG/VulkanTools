@@ -142,14 +142,12 @@ void vktrace_LogAlways(const char* format, ...) {
 }
 
 void vktrace_LogDebug(const char* format, ...) {
-#if defined(_DEBUG)
     if (vktrace_LogIsLogging(VKTRACE_LOG_DEBUG)) {
         va_list args;
         va_start(args, format);
         LogGuts(VKTRACE_LOG_DEBUG, format, args);
         va_end(args);
     }
-#endif
 }
 
 void vktrace_LogError(const char* format, ...) {

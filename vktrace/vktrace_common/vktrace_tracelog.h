@@ -64,8 +64,7 @@ BOOL vktrace_LogIsLogging(VktraceLogLevel level);
 // Always log the message, no matter what the ReportingLevel is.
 void vktrace_LogAlways(const char* format, ...);
 
-// Log debug information that is primarily helpful for Vktrace developers
-// and will only appear in _DEBUG builds.
+// Log debug information that is primarily helpful for Vktrace developers.
 // This will also always be logged, no matter what the ReportingLevel is.
 void vktrace_LogDebug(const char* format, ...);
 

@@ -133,10 +133,8 @@ extern VKTRACER_ENTRY _Load(void) {
             vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
         else if (verbosity && !strcmp(verbosity, "full"))
             vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#ifdef _DEBUG
         else if (verbosity && !strcmp(verbosity, "debug"))
             vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
-#endif
         else
             // Either verbosity=="errors", or it wasn't specified
             vktrace_LogSetLevel(VKTRACE_LOG_ERROR);
