@@ -507,6 +507,56 @@ inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &s
 }
 
 template <typename T, typename... Args>
+inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                                const char *child_type, const char *name, int indents,
+                                std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
+    settings.formatNameType(settings.stream(), indents, name, type_string);
+    if (array == NULL) {
+        settings.stream() << "NULL\n";
+        return;
+    }
+    if (settings.showAddress())
+        settings.stream() << (void *)array << "\n";
+    else
+        settings.stream() << "address\n";
+
+    std::stringstream stream;
+    const uint8_t *arraybyte = reinterpret_cast<const uint8_t *>(array);
+    for (size_t i = 0; i < (len * 4) && array != NULL; ++i) {
+        stream << std::hex << std::setw(2) << std::setfill('0') << (int)arraybyte[i] << " ";
+        if (i % 32 == 31) {
+            stream << "\n";
+        }
+    }
+    settings.stream() << stream.str() << "\n";
+}
+
+template <typename T, typename... Args>
+inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                                const char *child_type, const char *name, int indents,
+                                std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
+    settings.formatNameType(settings.stream(), indents, name, type_string);
+    if (array == NULL) {
+        settings.stream() << "NULL\n";
+        return;
+    }
+    if (settings.showAddress())
+        settings.stream() << (void *)array << "\n";
+    else
+        settings.stream() << "address\n";
+
+    std::stringstream stream;
+    const uint8_t *arraybyte = reinterpret_cast<const uint8_t *>(array);
+    for (size_t i = 0; i < (len * 4) && array != NULL; ++i) {
+        stream << std::hex << std::setw(2) << std::setfill('0') << (int)arraybyte[i] << " ";
+        if (i % 32 == 31) {
+            stream << "\n";
+        }
+    }
+    settings.stream() << stream.str() << "\n";
+}
+
+template <typename T, typename... Args>
 inline void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
                               Args... args) {
