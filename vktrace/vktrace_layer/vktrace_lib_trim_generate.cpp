@@ -18,7 +18,7 @@
 #include "vktrace_lib_helpers.h"
 #include "vktrace_vk_vk_packets.h"
 #include "vktrace_vk_packet_id.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 // defined in vktrace_lib_trace.cpp
 extern layer_device_data *mdd(void *object);

@@ -20,7 +20,7 @@
 
 #include "vktrace_lib_trim_generate.h"
 #include "vktrace_lib_trim_statetracker.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 #ifdef PLATFORM_LINUX  // VK_USE_PLATFORM_XCB_KHR
 #if defined(ANDROID)
