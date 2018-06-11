@@ -3,40 +3,7 @@ file(GLOB TEXTURES
 )
 file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/via/images)
 
-# Predefine loader root as a cmake cache variable for cmake-gui
-set(LOADER_REPO_ROOT "LOADER-NOTFOUND" CACHE PATH "Absolute path to the root of the loader repository")
-
-if(LOADER_REPO_ROOT)
-    message(STATUS "Using user-supplied path to locate Vulkan")
-    if(WIN32)
-        set (LOADER_SEARCH_PATHS
-            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${DEBUG_DECORATION}"
-            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${RELEASE_DECORATION}"
-            )
-    elseif(UNIX)
-        set (LOADER_SEARCH_PATHS
-            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader"
-            )
-    endif()
-    find_library(LIBVK NAMES vulkan vulkan-1
-        HINTS ${LOADER_SEARCH_PATHS}
-        )
-    message(STATUS "Found Vulkan: ${LIBVK}")
-else()
-    message(STATUS "Using find_package to locate Vulkan")
-    find_package(Vulkan)
-    set (LIBVK "Vulkan::Vulkan")
-endif()
-
 if(WIN32)
-    # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
-    # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
-    # appropriate data at build time.
-    if (CMAKE_CL_64)
-        set (BUILDTGT_DIR build)
-    else ()
-        set (BUILDTGT_DIR build32)
-    endif()
 
     # Use static MSVCRT libraries
     foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO

@@ -69,8 +69,6 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${GENERATED_FILES_DIR}
     ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
-    ${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include
-    ${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include/vulkan
 )
 
 # copy/link layer json file into build/layersvt directory

@@ -19,7 +19,7 @@
 #include "vktrace_vk_vk_packets.h"
 #include "vktrace_vk_packet_id.h"
 #include "vk_struct_size_helper.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 // defined in vktrace_lib_trace.cpp
 extern layer_device_data *mdd(void *object);

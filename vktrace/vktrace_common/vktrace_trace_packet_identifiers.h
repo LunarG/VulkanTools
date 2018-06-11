@@ -367,6 +367,10 @@ typedef enum _VKTRACE_TRACE_PACKET_ID_VK {
     VKTRACE_TPI_VK_vkGetPhysicalDeviceExternalBufferProperties = 289,
     VKTRACE_TPI_VK_vkGetPhysicalDeviceExternalFenceProperties = 290,
     VKTRACE_TPI_VK_vkGetPhysicalDeviceExternalSemaphoreProperties = 291,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceDisplayProperties2KHR = 292,
+    VKTRACE_TPI_VK_vkGetPhysicalDeviceDisplayPlaneProperties2KHR = 293,
+    VKTRACE_TPI_VK_vkGetDisplayModeProperties2KHR = 294,
+    VKTRACE_TPI_VK_vkGetDisplayPlaneCapabilities2KHR = 295,
 } VKTRACE_TRACE_PACKET_ID_VK;
 
 #define VKTRACE_BIG_ENDIAN 1
