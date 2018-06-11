@@ -328,7 +328,7 @@ const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
 
 class ApiDumpInstance {
    public:
-    inline ApiDumpInstance() : dump_settings(NULL), frame_count(0), thread_count(0) {
+    inline ApiDumpInstance() : dump_settings(NULL), frame_count(0), thread_count(0), draw_call_count(0) {
         loader_platform_thread_create_mutex(&output_mutex);
         loader_platform_thread_create_mutex(&frame_mutex);
         loader_platform_thread_create_mutex(&thread_mutex);
@@ -364,6 +364,8 @@ class ApiDumpInstance {
 
         return *dump_settings;
     }
+
+    uint32_t nextDrawcall() { return draw_call_count++; }
 
     // Only used in vktracedump to print thread id in trace file
     void setThreadID(uint64_t trace_thread_id) { thread_id = trace_thread_id; }
@@ -467,6 +469,7 @@ class ApiDumpInstance {
     loader_platform_thread_id thread_map[MAX_THREADS];
     uint32_t thread_count;
     uint64_t thread_id = UINT64_MAX;
+    uint32_t draw_call_count;
 
     loader_platform_thread_mutex cmd_buffer_state_mutex;
     std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;

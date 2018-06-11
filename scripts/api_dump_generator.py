@@ -630,8 +630,11 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
+    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
+    @if('{funcName}' in ['vkCmdDraw', 'vkCmdDrawIndexed', 'vkCmdDrawIndirect', 'vkCmdDrawIndexedIndirect'])
+    settings.stream() << ", Drawcall " << dump_inst.nextDrawcall();
+    @end if
+    settings.stream() << ":\\n{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
 
     if(settings.showParams())
     {{
@@ -981,7 +984,11 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         settings.stream() << "<details class='frm'><summary>Frame " << current_frame << "</summary>";
         next_frame++;
     }}
-    settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
+    settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID();
+    @if('{funcName}' in ['vkCmdDraw', 'vkCmdDrawIndexed', 'vkCmdDrawIndirect', 'vkCmdDrawIndexedIndirect'])
+    settings.stream() << ", Drawcall " << dump_inst.nextDrawcall();
+    @end if
+    settings.stream() << ":</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
     settings.stream() << "</summary>";
