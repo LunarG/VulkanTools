@@ -10,12 +10,6 @@ VKConfig.h
 _out64
 out32/*
 out64/*
-demos/Debug/*
-demos/Win32/Debug/*
-demos/xcb_nvidia.dir/*
-demos/smoke/HelpersDispatchTable.cpp
-demos/smoke/HelpersDispatchTable.h
-libs/Win32/Debug/*
 *.pyc
 *.vcproj
 *.sln
