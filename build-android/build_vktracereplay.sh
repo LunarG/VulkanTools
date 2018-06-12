@@ -72,7 +72,7 @@ create_APK vkreplay
 if test -z "$VULKAN_SDK" ; then
     glslang=""
 else
-    glslang=-DGLSLANG_REPO_ROOT=${VULKAN_SDK}/../source/glslang
+    glslang=-DGLSLANG_INSTALL_DIR=${VULKAN_SDK}/../source/glslang/build/install
 fi
 
 #

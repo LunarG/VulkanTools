@@ -29,6 +29,7 @@ set SPIRV_HEADERS_DIR=%BASE_DIR%\shaderc\third_party\spirv-tools\external\spirv-
 set SHADERC_DIR=%BASE_DIR%\shaderc
 set JSONCPP_DIR=%BASE_DIR%\jsoncpp
 set VULKAN_TOOLS_DIR=%BASE_DIR%\Vulkan-Tools
+set VULKAN_HEADERS_DIR=%BASE_DIR%\Vulkan-Headers
 
 for %%X in (where.exe) do (set FOUND=%%~$PATH:X)
 if not defined FOUND (
@@ -115,12 +116,14 @@ set /p SPIRV_HEADERS_REVISION= < spirv-headers_revision_android
 set /p SHADERC_REVISION= < shaderc_revision_android
 set /p JSONCPP_REVISION= < jsoncpp_revision_android
 set /p VULKAN_TOOLS_REVISION= < vulkan-tools_revision_android
+set /p VULKAN_HEADERS_REVISION= < vulkan-headers_revision_android
 echo GLSLANG_REVISION=%GLSLANG_REVISION%
 echo SPIRV_TOOLS_REVISION=%SPIRV_TOOLS_REVISION%
 echo SPIRV_HEADERS_REVISION=%SPIRV_HEADERS_REVISION%
 echo SHADERC_REVISION=%SHADERC_REVISION%
 echo JSONCPP_REVISION=%JSONCPP_REVISION%
 echo VULKAN_TOOLS_REVISION=%VULKAN_TOOLS_REVISION%
+echo VULKAN_HEADERS_REVISION=%VULKAN_HEADERS_REVISION%
 
 echo Creating and/or updating glslang, spirv-tools, spirv-headers, shaderc, vulkan-tools in %BASE_DIR%
 
@@ -172,6 +175,16 @@ if %sync-spirv-headers% equ 1 (
    )
    if %errorCode% neq 0 (goto:error)
    call:update_spirv-headers
+   if %errorCode% neq 0 (goto:error)
+)
+
+if %sync-vulkan-headers% equ 1 (
+   if %ERRORLEVEL% neq 0 (goto:error)
+   if not exist %VULKAN_HEADERS_DIR% (
+      call:create_vulkan-headers
+   )
+   if %errorCode% neq 0 (goto:error)
+   call:update_vulkan-headers
    if %errorCode% neq 0 (goto:error)
 )
 
@@ -343,6 +356,31 @@ goto:eof
    )
 goto:eof
 
+:create_vulkan-headers
+    echo.
+    echo Creating local vulkan-headers repository %VULKAN_HEADERS_DIR%
+    if not exist "%VULKAN_HEADERS_DIR%\" mkdir %VULKAN_HEADERS_DIR%
+    cd %VULKAN_HEADERS_DIR%
+    git clone https://github.com/KhronosGroup/Vulkan-Headers.git .
+    git checkout %VULKAN_HEADERS_REVISION%
+    if not exist %VULKAN_HEADERS_DIR%\registry (
+       echo vulkan-headers source download failed!
+       set errorCode=1
+    )
+goto:eof
+ 
+:update_vulkan-headers
+    echo.
+    echo Updating %VULKAN_HEADERS_DIR%
+    cd %VULKAN_HEADERS_DIR%
+    git fetch --all
+    git checkout %VULKAN_HEADERS_REVISION%
+    if not exist %VULKAN_HEADERS_DIR%\registry (
+       echo vulkan-headers source update failed!
+       set errorCode=1
+    )
+goto:eof
+ 
 :create_jsoncpp
    echo.
    echo Creating local jsoncpp repository %JSONCPP_DIR%)
