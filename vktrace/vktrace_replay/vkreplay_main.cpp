@@ -371,6 +371,11 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    if (replaySettings.loopStartFrame > replaySettings.loopEndFrame) {
+        vktrace_LogError("Bad loop frame range");
+        return -1;
+    }
+
     // merge settings so that new settings will get written into the settings file
     vktrace_SettingGroup_merge(&g_replaySettingGroup, &pAllSettings, &numAllSettings);
 
