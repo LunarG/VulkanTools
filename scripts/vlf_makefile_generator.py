@@ -23,8 +23,8 @@ import sys
 from glob import glob
 
 if __name__ == '__main__':
-    if (len(sys.argv) != 2):
-        print("Usage: %s <VLLF_DIR>" % sys.argv[0])
+    if (len(sys.argv) != 3):
+        print("Usage: %s <VLLF_DIR> <VULKAN_HEADERS_INCLUDE_DIR" % sys.argv[0])
         sys.exit(os.EX_USAGE)
 
     # Write commit ID to output header file
@@ -60,6 +60,8 @@ if __name__ == '__main__':
 
         # Destination directory is first (and only) arg
         vlf_dir = sys.argv[1]
+        include_dir = sys.argv[2]
+        include_dir = os.path.normpath(include_dir)
 
         # Get list of subdirectories in layer_factory (dest) dir
         layer_factory_path = "%s/*/" % vlf_dir
@@ -80,7 +82,7 @@ if __name__ == '__main__':
                 for file in files:
                     if '.cpp' in file:
                         contents += 'LOCAL_SRC_FILES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s/%s\n' & (factory_layer, file)
-            contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/Vulkan-Headers/include\n'
+            contents += 'LOCAL_C_INCLUDES += %s\n' % include_dir
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LAYER_DIR)/include\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(LVL_DIR)/layers\n'
             contents += 'LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/layer_factory/%s\n' % factory_layer
