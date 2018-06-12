@@ -202,11 +202,12 @@ if __name__ == '__main__':
     # Run trim test on cube
     TrimTest('cube-trim', cubePath, '--c 250', args)
 
-    # Run Trace/Replay on old trace files
+    # Run Trace/Replay on old trace files if directory specified
     directory = args.OldTracesPath
-    for filename in os.listdir(directory):
-        if filename.endswith(".vktrace"):
-            TraceReplayTraceTest(filename, os.path.join(directory, filename), args)
+    if os.path.isdir(directory):
+        for filename in os.listdir(directory):
+            if filename.endswith(".vktrace"):
+                TraceReplayTraceTest(filename, os.path.join(directory, filename), args)
 
 
     sys.exit(0)
