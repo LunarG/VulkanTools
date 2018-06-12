@@ -43,28 +43,8 @@ cp ..\..\layersvt\$dPath\VkLayer_screenshot.json .
 cp ..\..\layersvt\$dPath\VkLayer_vktrace_layer.dll .
 cp ..\..\layersvt\$dPath\VkLayer_vktrace_layer.json .
 
-# Change PATH to the temp directory
-$oldpath = $Env:PATH
-$Env:PATH = $pwd
-
-# Set up some modified env vars
-$Env:VK_LAYER_PATH = $pwd
-
-# Do a trace and replay for cube
-& vktrace -o c01.vktrace -s 1 -p cube -a "--c 10" --PMB true > trace.sout 2> trace.serr
-rename-item -path 1.ppm -newname 1-cubetrace.ppm
-& vkreplay  -s 1 -o  c01.vktrace > replay.sout 2> replay.serr
-rename-item -path 1.ppm -newname 1-cubereplay.ppm
-
 # Replay old trace if specified.
 if ($Replay) {
-    if (Test-Path $Replay/cubeold.vktrace) {
-        & vkreplay -s 1 -o "$Replay/cubeold.vktrace" > replayold.sout 2> replayold.serr
-        rename-item -path 1.ppm -newname 1-replayold.ppm
-    }
-
-    # Restore PATH
-    $Env:PATH = $oldpath
     # Run trace/replay test on any .vktrace in this folder
     $tracedir = Join-Path -Path $PWD -ChildPath '..\vktracereplay.py'
     & python $tracedir $Replay $PWD\vktrace.exe $PWD $PWD\vkreplay.exe
@@ -75,79 +55,6 @@ if ($Replay) {
         $exitstatus = 1
     }
 }
-else {
-    # Restore PATH
-    $Env:PATH = $oldpath
-}
-
-# Force a failure - for testing this script
-#cp vulkan.dll 1-cubereplay.ppm
-#rm 1-cubetrace.ppm
-#rm 1-cubereplay.ppm
-
-if ($exitstatus -eq 0) {
-   # Check that two screenshots were created, and the third if replaying an old trace
-   if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or
-       #!(Test-Path 1-smoketrace.ppm) -or !(Test-Path 1-smokereplay.ppm) -or
-        ($Replay -and (Test-Path $Replay/cubeold.vktrace) -and !(Test-Path 1-replayold.ppm))) {
-           echo 'Trace file does not exist'
-           write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-           $exitstatus = 1
-   }
-}
-
-if ($exitstatus -eq 0) {
-    # ensure the trace and replay snapshots are identical
-    fc.exe /b 1-cubetrace.ppm 1-cubereplay.ppm > $null
-    if (!(Test-Path 1-cubetrace.ppm) -or !(Test-Path 1-cubereplay.ppm) -or $LastExitCode -eq 1) {
-        echo 'Cube trace files do not match'
-        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-        $exitstatus = 1
-    }
-    if ($Replay -and (Test-Path $Replay/cubeold.vktrace)) {
-        # check old trace
-        fc.exe /b "$Replay\cubeold.ppm" 1-replayold.ppm > $null
-        if (!(Test-Path "$Replay/cubeold.ppm") -or !(Test-Path 1-replayold.ppm) -or $LastExitCode -eq 1) {
-            echo 'Old trace does not match'
-            write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-            $exitstatus = 1
-        }
-    }
-}
-
-# check the average pixel value of each screenshot to ensure something plausible was written
-#if ($exitstatus -eq 0) {
-#    $trace_mean = (convert 1-cubetrace.ppm -format "%[mean]" info:)
-#    $replay_mean = (convert 1-cubereplay.ppm -format "%[mean]" info:)
-#    $version = (identify -version)
-#
-#    # normalize the values so we can support Q8 and Q16 imagemagick installations
-#    if ($version -match "Q8") {
-#        $trace_mean = $trace_mean   / 255 # 2^8-1
-#        $replay_mean = $replay_mean / 255 # 2^8-1
-#    } else {
-#        $trace_mean = $trace_mean   / 65535 # 2^16-1
-#        $replay_mean = $replay_mean / 65535 # 2^16-1
-#    }
-#
-#    # if either screenshot is too bright or too dark, it either failed, or is a bad test
-#    if (($trace_mean -lt 0.10) -or ($trace_mean -gt 0.90)){
-#        echo ''
-#        echo 'Trace screenshot failed mean check, must be in range [0.1, 0.9]'
-#        write-host 'Detected mean:' $trace_mean
-#        echo ''
-#        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-#        $exitstatus = 1
-#    }
-#    if (($replay_mean -lt 0.10) -or ($replay_mean -gt 0.90)){
-#        echo ''
-#        echo 'Replay screenshot failed mean check, must be in range [0.1, 0.9]'
-#        write-host 'Detected mean:' $replay_mean
-#        echo ''
-#        write-host -background black -foreground red "[  FAILED  ] "  -nonewline;
-#        $exitstatus = 1
-#    }
-#}
 
 # if we passed all the checks, the test is good
 if ($exitstatus -eq 0) {
