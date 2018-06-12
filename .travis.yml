@@ -97,13 +97,13 @@ script:
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       # Build VulkanTools
       ./update_external_sources.sh
+      git clone https://github.com/google/googletest.git submodules/Vulkan-ValidationLayers/external/googletest
       mkdir dbuild
       pushd dbuild
       cmake -DCMAKE_BUILD_TYPE=Debug \
           -DGLSLANG_INSTALL_DIR=$TRAVIS_BUILD_DIR/glslang/build/install \
           -DVULKAN_HEADERS_INSTALL_DIR=$TRAVIS_BUILD_DIR/Vulkan-Headers/build/install \
           -DVULKAN_LOADER_INSTALL_DIR=$TRAVIS_BUILD_DIR/Vulkan-Loader/build/install \
-          -DLOADER_REPO_ROOT=$TRAVIS_BUILD_DIR/Vulkan-Loader \
           ..
       cmake --build . -- -j $core_count
       popd
