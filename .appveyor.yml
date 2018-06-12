@@ -52,11 +52,8 @@ before_build:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git clone https://github.com/KhronosGroup/Vulkan-Loader.git
   - cd Vulkan-Loader
-    # This special build dir naming needed only for usage of LOADER_REPO_ROOT that is still in VulkanTools.
-  - if %CONFIGURATION% == Debug (set BUILD_DIR=dbuild)
-  - if %CONFIGURATION% == Release (set BUILD_DIR=build)
-  - mkdir %BUILD_DIR%
-  - cd %BUILD_DIR%
+  - mkdir build
+  - cd build
   - cmake -G %GENERATOR% -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DCMAKE_INSTALL_PREFIX=install ..
   - cmake --build . --config %CONFIGURATION% --target install
   # glslang
@@ -73,7 +70,7 @@ before_build:
   - cd %APPVEYOR_BUILD_FOLDER%
   - mkdir build
   - cd build
-  - cmake -G %GENERATOR% -DGLSLANG_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\glslang\build\install -DLOADER_REPO_ROOT=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader ..
+  - cmake -G %GENERATOR% -DGLSLANG_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\glslang\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install ..
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
 
 platform:
