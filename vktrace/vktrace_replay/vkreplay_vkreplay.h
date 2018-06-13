@@ -49,24 +49,51 @@ extern "C" {
 
 #include "vulkan/vulkan.h"
 
-#if defined(PLATFORM_LINUX)
+#if !defined(VK_USE_PLATFORM_WIN32_KHR)
 #define VK_USE_PLATFORM_WIN32_KHR
+#define undef_VK_USE_PLATFORM_WIN32_KHR
 #endif
-#if defined(PLATFORM_WINDOWS)
+
+#if !defined(VK_USE_PLATFORM_XLIB_KHR)
 #define VK_USE_PLATFORM_XLIB_KHR
+#define undef_VK_USE_PLATFORM_XLIB_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_XCB_KHR)
 #define VK_USE_PLATFORM_XCB_KHR
+#define undef_VK_USE_PLATFORM_XCB_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
 #define VK_USE_PLATFORM_WAYLAND_KHR
+#define undef_VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
+#define VK_USE_PLATFORM_ANDROID_KHR
+#define undef_VK_USE_PLATFORM_ANDROID_KHR
 #endif
 
 #include "vk_layer_dispatch_table.h"
 
-#if defined(PLATFORM_LINUX)
+#if defined(undef_VK_USE_PLATFORM_WIN32_KHR)
 #undef VK_USE_PLATFORM_WIN32_KHR
 #endif
-#if defined(PLATFORM_WINDOWS)
+
+#if defined(undef_VK_USE_PLATFORM_XLIB_KHR)
 #undef VK_USE_PLATFORM_XLIB_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_XCB_KHR)
 #undef VK_USE_PLATFORM_XCB_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_WAYLAND_KHR)
 #undef VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_ANDROID_KHR)
+#undef VK_USE_PLATFORM_ANDROID_KHR
 #endif
 
 #include "vk_dispatch_table_helper.h"
