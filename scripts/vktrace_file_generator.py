@@ -688,9 +688,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if cmdname in temp_exclude: # TODO verify this needs to be here
                 continue
             protect = cmd_protect_dict[api.name]
-            do_protect = (protect != None and protect != "VK_USE_PLATFORM_XLIB_KHR" and protect != "VK_USE_PLATFORM_XCB" and protect != "VK_USE_PLATFORM_WAYLAND_KHR" and protect != "VK_USE_PLATFORM_WIN32_KHR")
-            do_protect = protect != None
-            if do_protect:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#ifdef %s\n' % protect
             disp_table = ""
             if isInstanceCmd(api):
@@ -701,7 +699,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '    %s.%s = (PFN_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));\n' % (disp_table, cmdname, cmdname, cmdname)
             else: # These func ptrs get assigned at GetProcAddr time
                 replay_gen_source += '    %s.%s = (PFN_vk%s)NULL;\n' % (disp_table, cmdname, cmdname)
-            if do_protect:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '}\n\n'
         replay_gen_source += 'vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet) { \n'
@@ -722,8 +720,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
             cmdinfo = cmd_info_dict[vk_cmdname]
             protect = cmd_protect_dict[vk_cmdname]
-            do_protect = (protect != None and protect != "VK_USE_PLATFORM_XLIB_KHR" and protect != "VK_USE_PLATFORM_XCB" and protect != "VK_USE_PLATFORM_WAYLAND_KHR" and protect != "VK_USE_PLATFORM_WIN32_KHR")
-            if do_protect:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#ifdef %s\n' % protect
             # TODO : How to handle void* return of GetProcAddr?
             # TODO : Make sure vkDestroy object functions really do clean up the object maps
@@ -987,7 +984,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '            CHECK_RETURN_VALUE(vk%s);\n' % cmdname
             replay_gen_source += '            break;\n'
             replay_gen_source += '        }\n'
-            if do_protect:
+            if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '        default:\n'
         replay_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'

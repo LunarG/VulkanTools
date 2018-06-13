@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 // Define types needed for cross-platform vkreplay.
-// Unfortunately, some of these are duplicated from vulkan.h
+// Unfortunately, some of these are duplicated from Vulkan
 // and platform-specific header files. Haven't figured out how
 // to avoid this.
 #if !defined(VK_USE_PLATFORM_XCB_KHR)
@@ -92,10 +92,6 @@ typedef struct {
 typedef XID RROutput;
 #endif
 
-#if !defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-typedef XID RROutput;
-#endif
-
 #if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
 typedef VkFlags VkWaylandSurfaceCreateFlagsKHR;
 typedef struct VkWaylandSurfaceCreateInfoKHR {
@@ -128,7 +124,24 @@ typedef struct VkAndroidSurfaceCreateInfoKHR {
 } VkAndroidSurfaceCreateInfoKHR;
 typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance instance, const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
                                                            const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
-typedef struct { ANativeWindow* window; } VkIcdSurfaceAndroid;
+typedef struct VkIcdSurfaceAndroid {
+    ANativeWindow* window;
+} VkIcdSurfaceAndroid;
+typedef struct AHardwareBuffer {
+    int notYetImplemented;
+} AHardwareBuffer;
+typedef struct VkAndroidHardwareBufferPropertiesANDROID {
+    int notYetImplemented;
+} VkAndroidHardwareBufferPropertiesANDROID;
+typedef struct VkMemoryGetAndroidHardwareBufferInfoANDROID {
+    int notYetImplemented;
+} VkMemoryGetAndroidHardwareBufferInfoANDROID;
+
+typedef VkResult(VKAPI_PTR* PFN_vkGetAndroidHardwareBufferPropertiesANDROID)(VkDevice device, const struct AHardwareBuffer* buffer,
+                                                                             VkAndroidHardwareBufferPropertiesANDROID* pProperties);
+typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryAndroidHardwareBufferANDROID)(VkDevice device,
+                                                                         const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo,
+                                                                         struct AHardwareBuffer** pBuffer);
 #endif
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
