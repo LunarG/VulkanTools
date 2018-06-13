@@ -689,6 +689,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 continue
             protect = cmd_protect_dict[api.name]
             do_protect = (protect != None and protect != "VK_USE_PLATFORM_XLIB_KHR" and protect != "VK_USE_PLATFORM_XCB" and protect != "VK_USE_PLATFORM_WAYLAND_KHR" and protect != "VK_USE_PLATFORM_WIN32_KHR")
+            do_protect = protect != None
             if do_protect:
                 replay_gen_source += '#ifdef %s\n' % protect
             disp_table = ""
