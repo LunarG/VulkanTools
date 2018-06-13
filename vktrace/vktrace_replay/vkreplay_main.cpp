@@ -29,7 +29,6 @@
 #include <sstream>
 #include <android/log.h>
 #include <android_native_app_glue.h>
-#include "vkreplay_vkdisplay.h"
 #endif
 #include "vktrace_common.h"
 #include "vktrace_tracelog.h"
@@ -38,10 +37,10 @@
 #include "vkreplay_main.h"
 #include "vkreplay_factory.h"
 #include "vkreplay_seq.h"
-#include "vkreplay_window.h"
+#include "vkreplay_vkdisplay.h"
 #include "screenshot_parsing.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL};
 
 #if defined(ANDROID)
 const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
@@ -111,6 +110,15 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
+#if defined(PLATFORM_LINUX)
+    {"ds",
+     "DisplayServer",
+     VKTRACE_SETTING_STRING,
+     {&replaySettings.displayServer},
+     {&replaySettings.displayServer},
+     TRUE,
+     "Display server used for replay. Options are \"xcb\", \"wayland\"."},
+#endif
 #if defined(_DEBUG)
     {"v",
      "Verbosity",
@@ -356,7 +364,7 @@ static bool readPortabilityTable() {
     return true;
 }
 
-int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
+int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp = nullptr) {
     int err = 0;
     vktrace_SettingGroup* pAllSettings = NULL;
     unsigned int numAllSettings = 0;
@@ -533,13 +541,37 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     vktrace_trace_packet_replay_library* replayer[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];
     ReplayFactory makeReplayer;
 
-// Create window. Initial size is 100x100. It will later get resized to the size
-// used by the traced app. The resize will happen  during playback of swapchain functions.
-#if defined(ANDROID)
-    vktrace_replay::ReplayDisplay disp(window, 100, 100);
-#else
-    vktrace_replay::ReplayDisplay disp(100, 100, 0, false);
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    // Choose default display server if unset
+    if (replaySettings.displayServer == NULL) {
+        auto session = getenv("XDG_SESSION_TYPE");
+        if (strcmp(session, "x11") == 0) {
+            replaySettings.displayServer = "xcb";
+        } else if (strcmp(session, "wayland") == 0) {
+            replaySettings.displayServer = "wayland";
+        }
+    }
 #endif
+
+    // Create window. Initial size is 100x100. It will later get resized to the size
+    // used by the traced app. The resize will happen  during playback of swapchain functions.
+    vktrace_replay::ReplayDisplay disp(100, 100, false);
+
+// Create display
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    // On linux, the option -ds will choose a display server
+    if (strcasecmp(replaySettings.displayServer, "xcb") == 0) {
+        pDisp = new vkDisplayXcb();
+    } else if (strcasecmp(replaySettings.displayServer, "wayland") == 0) {
+        pDisp = new vkDisplayWayland();
+    }
+#elif defined(PLATFORM_LINUX) && defined(ANDROID)
+    // Will be received from android_main
+#elif defined(WIN32)
+    pDisp = new vkDisplayWin32();
+#endif
+
+    disp.set_implementation(pDisp);
 //**********************************************************
 #if defined(_DEBUG)
     static BOOL debugStartup = FALSE;  // TRUE
@@ -677,7 +709,7 @@ std::vector<std::string> get_args(android_app& app, const char* intent_extra_dat
 
 static int32_t processInput(struct android_app* app, AInputEvent* event) {
     if ((app->userData != nullptr) && (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)) {
-        vkDisplay* display = reinterpret_cast<vkDisplay*>(app->userData);
+        vkDisplayAndroid* display = reinterpret_cast<vkDisplayAndroid*>(app->userData);
 
         // TODO: Distinguish between tap and swipe actions; swipe to advance to next frame when paused.
         int32_t action = AMotionEvent_getAction(event);
@@ -758,8 +790,10 @@ void android_main(struct android_app* app) {
             // sleep to allow attaching debugger
             // sleep(10);
 
+            auto pDisp = new vkDisplayAndroid(app);
+
             // Call into common code
-            int err = vkreplay_main(argc, argv, app);
+            int err = vkreplay_main(argc, argv, pDisp);
             __android_log_print(ANDROID_LOG_DEBUG, appTag, "vkreplay_main returned %i", err);
 
             ANativeActivity_finish(app->activity);

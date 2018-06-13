@@ -39,13 +39,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(DEMOS_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for demos (XCB, XLIB, WAYLAND, MIR, DISPLAY)")
     set(VKREPLAY_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
 
-    # Need to turn WSI_SELECTION into boolean definitions for preprocessor directives
-    if (VKREPLAY_WSI_SELECTION STREQUAL "XCB")
-        add_definitions(-DVKREPLAY_USE_WSI_XCB)
-    elseif (VKREPLAY_WSI_SELECTION STREQUAL "WAYLAND")
-        add_definitions(-DVKREPLAY_USE_WSI_WAYLAND)
-    endif()
-
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
     endif()

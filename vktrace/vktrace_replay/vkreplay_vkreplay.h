@@ -108,10 +108,11 @@ extern vkreplayer_settings* g_pReplaySettings;
 class vkReplay {
    public:
     ~vkReplay();
-    vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader);
+    vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader,
+             vktrace_replay::ReplayDisplayImp* display);
 
     int init(vktrace_replay::ReplayDisplay& disp);
-    vkDisplay* get_display() { return m_display; }
+    vktrace_replay::ReplayDisplayImp* get_display() { return m_display; }
     vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header* packet);
     vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall,
                                                                const VkResult resTrace,
@@ -133,12 +134,14 @@ class vkReplay {
     void (*m_pDSDump)(char*);
     void (*m_pCBDump)(char*);
     // VKTRACESNAPSHOT_PRINT_OBJECTS m_pVktraceSnapshotPrint;
-    vkDisplay* m_display;
+    vktrace_replay::ReplayDisplayImp* m_display;
 
     int m_frameNumber;
     vktrace_trace_file_header* m_pFileHeader;
     struct_gpuinfo* m_pGpuinfo;
     uint32_t m_gpu_count = 0;
+
+    const char* m_displayServer;
 
     // Replay platform description
     uint64_t m_replay_endianess;
