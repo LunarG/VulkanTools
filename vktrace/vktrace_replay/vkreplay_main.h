@@ -32,6 +32,7 @@ typedef struct vkreplayer_settings {
     const char* screenshotList;
     const char* screenshotColorFormat;
     const char* verbosity;
+    const char* displayServer;
 } vkreplayer_settings;
 
 #include <vector>
