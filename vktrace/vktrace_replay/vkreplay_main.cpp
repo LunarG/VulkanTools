@@ -591,6 +591,15 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         auto CreateVkDisplayWayland =
             reinterpret_cast<vkDisplayWayland*(*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
         pDisp = CreateVkDisplayWayland();
+    } else {
+        vktrace_LogError("Invalid display server. Valid options are: xcb, wayland");
+        if (pAllSettings != NULL) {
+            vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+        }
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
     }
 #elif defined(PLATFORM_LINUX) && defined(ANDROID)
     // Will be received from android_main
