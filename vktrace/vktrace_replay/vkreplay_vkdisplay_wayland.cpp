@@ -86,6 +86,10 @@ void vkDisplayWayland::process_event() {
     wl_display_dispatch_pending(m_display);
 }
 
+void vkDisplayWayland::set_window_handle(void* pHandle) {
+    m_display = *((wl_display**)pHandle);
+}
+
 // Wayland callbacks, needed to handle events from the display manager.
 // Some stubs here that could be potentially removed
 void vkDisplayWayland::handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial) {

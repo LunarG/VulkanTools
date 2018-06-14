@@ -52,6 +52,7 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
+    void set_window_handle(void* pHandle) override;
 
     xcb_window_t get_window_handle() { return m_XcbWindow; }
     xcb_connection_t* get_connection_handle() { return m_pXcbConnection; }
@@ -101,6 +102,7 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
+    void set_window_handle(void* pHandle) override;
 
     wl_display *get_display_handle() { return m_display; }
 
@@ -219,6 +221,7 @@ class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
+    void set_window_handle(void* pHandle) override;
 
     HWND get_window_handle() { return m_windowHandle; }
     HINSTANCE get_connection_handle() { return m_connection; }

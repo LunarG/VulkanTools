@@ -59,12 +59,18 @@ class ReplayDisplayImp {
     virtual bool get_quit_status() = 0;
     virtual void set_quit_status(bool quit) = 0;
     virtual VkSurfaceKHR get_surface() = 0;
+    virtual void set_window_handle(void* pHandle) = 0;
 
     bool m_initedVK;
 };
 
 class ReplayDisplay {
    public:
+    ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0), m_fullscreen(false) {}
+
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen)
+        : m_imp(NULL), m_width(width), m_height(height), m_gpu(gpu), m_fullscreen(fullscreen) {}
+
     ReplayDisplay(const unsigned int width, const unsigned int height, const bool fullscreen)
         : m_imp(NULL), m_width(width), m_height(height), m_gpu(-1), m_fullscreen(fullscreen) {}
 
@@ -78,6 +84,13 @@ class ReplayDisplay {
         else
             return -1;
     }
+
+    void set_window_handle(void* pHandle) {
+        if (m_imp) {
+            m_imp->set_window_handle(pHandle);
+        }
+    }
+
     void process_event() {
         if (m_imp) m_imp->process_event();
     }
