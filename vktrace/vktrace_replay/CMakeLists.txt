@@ -6,12 +6,49 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+    set(XCB_DISPLAY_LIB vkdisplay_xcb)
+
+    set(XCB_SRC_LIST
+        vkreplay_vkdisplay_xcb.cpp
+    )
+
+    set (XCB_HDR_LIST
+        vkreplay_vkdisplay.h
+    )
+
+    add_library(${XCB_DISPLAY_LIB} SHARED ${XCB_SRC_LIST} ${XCB_HDR_LIST})
+
+    target_link_libraries(${XCB_DISPLAY_LIB}
+        xcb
+        vktrace_common
+    )
+
+    set(WAYLAND_DISPLAY_LIB vkdisplay_wayland)
+
+    set(WAYLAND_SRC_LIST
+        vkreplay_vkdisplay_wayland.cpp
+    )
+
+    set (WAYLAND_HDR_LIST
+        vkreplay_vkdisplay.h
+    )
+
+    add_library(${WAYLAND_DISPLAY_LIB} SHARED ${WAYLAND_SRC_LIST} ${WAYLAND_HDR_LIST})
+
+    target_link_libraries(${WAYLAND_DISPLAY_LIB}
+        ${WAYLAND_CLIENT_LIBRARIES}
+        vktrace_common
+    )
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
     ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(OS_REPLAYER_LIBS ${LIBRARIES})
 endif()
+
+
+
 set(SRC_LIST
     ${SRC_LIST}
     vkreplay.cpp
