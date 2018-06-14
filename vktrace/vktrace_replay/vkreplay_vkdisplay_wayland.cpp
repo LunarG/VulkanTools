@@ -28,24 +28,25 @@ int vkDisplayWayland::init(const unsigned int gpu_idx) {
     // m_gpuIdx = gpu_idx;
     try {
         m_display = wl_display_connect(NULL);
-        if (!m_display) throw std::runtime_error("failed to connect to the display server");
+        if (!m_display) throw std::runtime_error("Wayland failed to connect to the display server");
 
         m_registry = wl_display_get_registry(m_display);
-        if (!m_registry) throw std::runtime_error("failed to get registry");
+        if (!m_registry) throw std::runtime_error("Wayland failed to get registry");
 
         wl_registry_add_listener(m_registry, &vkDisplayWayland::registry_listener, this);
         wl_display_roundtrip(m_display);
 
-        if (!m_compositor) throw std::runtime_error("failed to bind compositor");
+        if (!m_compositor) throw std::runtime_error("Wayland failed to bind compositor");
 
-        if (!m_shell) throw std::runtime_error("failed to bind shell");
-    } catch (...) {
+        if (!m_shell) throw std::runtime_error("Wayland failed to bind shell");
+    } catch (const std::runtime_error& ex) {
         if (m_shell) wl_shell_destroy(m_shell);
         if (m_compositor) wl_compositor_destroy(m_compositor);
         if (m_registry) wl_registry_destroy(m_registry);
         if (m_display) wl_display_disconnect(m_display);
 
-        throw;
+        vktrace_LogError(ex.what());
+        return -1;
     }
 
     set_pause_status(false);
