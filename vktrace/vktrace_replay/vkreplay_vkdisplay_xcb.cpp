@@ -136,3 +136,7 @@ void vkDisplayXcb::process_event() {
         event = xcb_poll_for_event(xcb_conn);
     }
 }
+
+void vkDisplayXcb::set_window_handle(void* pHandle) {
+    m_XcbWindow = *((xcb_window_t*)pHandle);
+}
