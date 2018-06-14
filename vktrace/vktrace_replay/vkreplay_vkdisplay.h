@@ -30,13 +30,17 @@
 
 #include "vkreplay_window.h"
 
+enum VkDisplayType {
+    VK_DISPLAY_XCB,
+    VK_DISPLAY_XLIB,
+    VK_DISPLAY_WAYLAND,
+};
+
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_XCB_KHR)
 
 class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
 
    public:
-    static const char *NAME;
-
     vkDisplayXcb();
     ~vkDisplayXcb();
     int init(const unsigned int gpu_idx) override;
@@ -86,8 +90,6 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
 class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
 
    public:
-    static const char *NAME;
-
     vkDisplayWayland();
     ~vkDisplayWayland();
     int init(const unsigned int gpu_idx) override;

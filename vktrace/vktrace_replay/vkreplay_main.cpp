@@ -561,9 +561,36 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
     // On linux, the option -ds will choose a display server
     if (strcasecmp(replaySettings.displayServer, "xcb") == 0) {
-        pDisp = new vkDisplayXcb();
+        // Attempt to load libvkdisplay_xcb and constructor
+        auto xcb_handle = dlopen("libvkdisplay_xcb.so", RTLD_NOW);
+        if (dlerror()) {
+            vktrace_LogError("Unable to load xcb library.");
+            if (pAllSettings != NULL) {
+                vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+            }
+            fclose(tracefp);
+            vktrace_free(pTraceFile);
+            vktrace_free(traceFile);
+            return -1;
+        }
+        auto CreateVkDisplayXcb = reinterpret_cast<vkDisplayXcb*(*)()>(dlsym(xcb_handle, "CreateVkDisplayXcb"));
+        pDisp = CreateVkDisplayXcb();
     } else if (strcasecmp(replaySettings.displayServer, "wayland") == 0) {
-        pDisp = new vkDisplayWayland();
+        // Attempt to load libvkdisplay_wayland and constructor
+        auto wayland_handle = dlopen("libvkdisplay_wayland.so", RTLD_NOW);
+        if (dlerror()) {
+            vktrace_LogError("Unable to load wayland library.");
+            if (pAllSettings != NULL) {
+                vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
+            }
+            fclose(tracefp);
+            vktrace_free(pTraceFile);
+            vktrace_free(traceFile);
+            return -1;
+        }
+        auto CreateVkDisplayWayland =
+            reinterpret_cast<vkDisplayWayland*(*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
+        pDisp = CreateVkDisplayWayland();
     }
 #elif defined(PLATFORM_LINUX) && defined(ANDROID)
     // Will be received from android_main

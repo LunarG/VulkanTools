@@ -141,7 +141,7 @@ class vkReplay {
     struct_gpuinfo* m_pGpuinfo;
     uint32_t m_gpu_count = 0;
 
-    const char* m_displayServer;
+    VkDisplayType m_displayServer;
 
     // Replay platform description
     uint64_t m_replay_endianess;
