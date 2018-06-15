@@ -250,6 +250,8 @@ function create_vulkan-tools () {
    cd $BASEDIR/Vulkan-Tools
    git clone $VULKAN_TOOLS_URL .
    git checkout $VULKAN_TOOLS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
 }
 
 function update_vulkan-tools () {
@@ -262,6 +264,8 @@ function update_vulkan-tools () {
    fi
    git fetch --all
    git checkout $VULKAN_TOOLS_REVISION
+   cd build-android
+   ./update_external_sources_android.sh --no-build
 }
 
 # Always init the submodules, which includes vulkan headers
