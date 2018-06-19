@@ -69,12 +69,6 @@ done
 create_APK vkreplay
 )
 
-if test -z "$VULKAN_SDK" ; then
-    glslang=""
-else
-    glslang=-DGLSLANG_INSTALL_DIR=${VULKAN_SDK}/../source/glslang/build/install
-fi
-
 #
 # build vktrace
 #
@@ -83,8 +77,8 @@ pushd ..
 ./update_external_sources.sh -g -s
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug $glslang -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_VKTRACE=On ..
-make -j $cores vktrace
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_LAYERS=Off -DBUILD_LAYER_SUPPORT_FILES=On -DBUILD_VKTRACE=On ..
+make -j $cores
 popd
 )
 
@@ -95,8 +89,8 @@ popd
 pushd ..
 mkdir -p build32
 cd build32
-cmake -DCMAKE_BUILD_TYPE=Debug $glslang -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_X64=Off -DBUILD_VKTRACE=On ..
-make -j $cores vktrace
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_LAYERS=Off -DBUILD_LAYER_SUPPORT_FILES=On -DBUILD_X64=Off -DBUILD_VKTRACE=On ..
+make -j $cores
 popd
 )
 
