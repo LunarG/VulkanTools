@@ -226,7 +226,12 @@ int main(int argc, char **argv) {
         }
         snprintf(full_file, MAX_STRING_LENGTH - 1, "%s%s\\%s", home_drive, temp, html_file_name);
 #else
-        snprintf(full_file, MAX_STRING_LENGTH - 1, "~/%s", html_file_name);
+        if (strlen(html_file_name) > MAX_STRING_LENGTH - 3) {
+            std::cerr << "Error HTML file name too long!" << std::endl;
+            goto out;
+        } else {
+            snprintf(full_file, MAX_STRING_LENGTH - 1, "~/%s", html_file_name);
+        }
 #endif
         global_items.html_file_stream.open(full_file);
         if (global_items.html_file_stream.fail()) {
@@ -2582,7 +2587,7 @@ ErrorResults PrintLayerInfo(void) {
         do {
             if (keep_looping) {
                 PrintBeginTableRow();
-                sprintf(generic_string, "Path %d", path++);
+                snprintf(generic_string, MAX_STRING_LENGTH - 1, "Path %d", path++);
                 PrintTableElement("");
                 PrintTableElement(generic_string, ALIGN_CENTER);
                 PrintTableElement(cur_layer_path);
@@ -2915,7 +2920,7 @@ ErrorResults PrintSystemInfo(void) {
     }
 
     // Print current directory disk space info
-    sprintf(generic_string, "df -h \'%s\' | awk \'{ print $4 } \' | tail -n 1", cur_directory.c_str());
+    snprintf(generic_string, MAX_STRING_LENGTH - 1, "df -h \'%s\' | awk \'{ print $4 } \' | tail -n 1", cur_directory.c_str());
     fp = popen(generic_string, "r");
     if (fp == NULL) {
         PrintBeginTableRow();
@@ -3004,7 +3009,7 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
     Json::Value dev_exts = Json::nullValue;
     Json::Reader reader;
     char full_driver_path[MAX_STRING_LENGTH];
-    char generic_string[MAX_STRING_LENGTH];
+    char generic_string[MAX_STRING_LENGTH * 2];
     uint32_t j = 0;
 
     stream = new std::ifstream(cur_driver_json.c_str(), std::ifstream::in);
@@ -3082,7 +3087,8 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
         }
         if (!found_lib) {
             FILE *fp;
-            sprintf(generic_string, "/sbin/ldconfig -v -N -p | grep %s | awk \'{ print $4 }\'", driver_name.c_str());
+            snprintf(generic_string, MAX_STRING_LENGTH - 1, "/sbin/ldconfig -v -N -p | grep %s | awk \'{ print $4 }\'",
+                     driver_name.c_str());
             fp = popen(generic_string, "r");
             if (fp == NULL) {
                 snprintf(generic_string, MAX_STRING_LENGTH - 1,
@@ -3099,7 +3105,7 @@ bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
 
                 // Read the output a line at a time - output it.
                 if (fgets(query_res, sizeof(query_res) - 1, fp) != NULL) {
-                    sprintf(generic_string, "Found at %s", query_res);
+                    snprintf(generic_string, MAX_STRING_LENGTH - 1, "Found at %s", query_res);
                     PrintBeginTableRow();
                     PrintTableElement("");
                     PrintTableElement("");
@@ -3462,7 +3468,7 @@ ErrorResults PrintRunTimeInfo(void) {
     ErrorResults res = SUCCESSFUL;
     const char vulkan_so_prefix[] = "libvulkan.so.";
     char path[1035];
-    char generic_string[MAX_STRING_LENGTH];
+    char generic_string[MAX_STRING_LENGTH * 2];
     char buff[PATH_MAX];
     std::string runtime_dir_name;
     std::string location;
@@ -4324,6 +4330,8 @@ void PrintExplicitLayerJsonInfo(const char *layer_json_filename, Json::Value roo
                 PrintTableElement(generic_string);
                 PrintEndTableRow();
             }
+#else
+            (void)layer_json_filename;
 #endif
 
             char count_str[MAX_STRING_LENGTH];
