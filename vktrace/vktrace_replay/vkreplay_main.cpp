@@ -41,7 +41,7 @@
 #include "vkreplay_window.h"
 #include "screenshot_parsing.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL};
 
 #ifdef ANDROID
 const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
@@ -94,6 +94,13 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.compatibilityMode},
      TRUE,
      "Use compatibiltiy mode, i.e. convert memory indices to replay device indices, default is TRUE."},
+    {"p",
+     "Pause",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.pause},
+     {&replaySettings.pause},
+     TRUE,
+     "Pause at the start of the replay."},
     {"s",
      "Screenshot",
      VKTRACE_SETTING_STRING,
@@ -165,7 +172,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     uint64_t end_frame = UINT_MAX;
     while (settings.numLoops > 0) {
         while (trace_running) {
-            display.process_event();
+            display.process_event(replayer == nullptr ? -1 : replayer->GetFrameNumber());
             if (display.get_quit_status()) {
                 goto out;
             }
@@ -174,6 +181,13 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
             } else {
                 packet = seq.get_next_packet();
                 if (!packet) break;
+            }
+
+            // Pause on first frame if option specified
+            if (replayer && replayer->GetFrameNumber() == 1 && settings.pause) {
+                display.set_pause_status(true);
+                settings.pause = false;
+                continue;
             }
 
             switch (packet->packet_id) {

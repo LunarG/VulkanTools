@@ -55,7 +55,7 @@ class ReplayDisplayImp {
     virtual int init(const unsigned int gpu_idx) = 0;
     virtual int set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height) = 0;
     virtual int create_window(const unsigned int width, const unsigned int height) = 0;
-    virtual void process_event() = 0;
+    virtual void process_event(int frame_number) = 0;
     virtual bool get_pause_status() = 0;
     virtual void set_pause_status(bool pause) = 0;
     virtual bool get_quit_status() = 0;
@@ -82,8 +82,8 @@ class ReplayDisplay {
         else
             return -1;
     }
-    void process_event() {
-        if (m_imp) m_imp->process_event();
+    void process_event(int frame_number) {
+        if (m_imp) m_imp->process_event(frame_number);
     }
     unsigned int get_gpu() { return m_gpu; }
     unsigned int get_width() { return m_width; }

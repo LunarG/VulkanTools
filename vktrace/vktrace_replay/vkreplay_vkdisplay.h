@@ -41,11 +41,13 @@ class vkDisplay : public vktrace_replay::ReplayDisplayImp {
     int set_window(vktrace_window_handle hWindow, unsigned int width, unsigned int height);
     int create_window(const unsigned int width, const unsigned int height);
     void resize_window(const unsigned int width, const unsigned int height);
-    void process_event();
+    void process_event(int frame_number);
     bool get_pause_status() { return m_pause; }
     void set_pause_status(bool pause) { m_pause = pause; }
     bool get_quit_status() { return m_quit; }
     void set_quit_status(bool quit) { m_quit = quit; }
+    void set_skipping(bool skipping) { m_skipping = skipping; }
+    bool get_skipping() { return m_skipping; }
     VkSurfaceKHR get_surface() { return (VkSurfaceKHR)&m_surface; };
 // VK_DEVICE get_device() { return m_dev[m_gpuIdx];}
 #if defined(PLATFORM_LINUX)
@@ -131,7 +133,6 @@ class vkDisplay : public vktrace_replay::ReplayDisplayImp {
 #endif
     unsigned int m_windowWidth;
     unsigned int m_windowHeight;
-    unsigned int m_frameNumber;
     std::vector<VkExtent2D> imageExtents;
     std::vector<VkImage> imageHandles;
     std::vector<VkDeviceMemory> imageMemory;
@@ -146,4 +147,6 @@ class vkDisplay : public vktrace_replay::ReplayDisplayImp {
     std::vector<char*> m_extensions;
     bool m_pause = false;
     bool m_quit = false;
+    bool m_skipping = false;
+    int m_frame_number = -1;
 };

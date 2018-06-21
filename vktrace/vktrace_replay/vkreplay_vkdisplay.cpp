@@ -36,7 +36,7 @@
 #define APP_NAME "vkreplay_vk"
 #define IDI_ICON 101
 
-vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0), m_frameNumber(0) {
+vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0) {
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceAndroid));
@@ -216,10 +216,15 @@ LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
             switch (wp) {
                 case VK_SPACE:
                     display->set_pause_status(!display->get_pause_status());
+                    display->set_skipping(false);
                     break;
                 case VK_ESCAPE:
                     DestroyWindow(window);
                     PostQuitMessage(0);
+                    break;
+                case VK_RIGHT:
+                    display->set_skipping(true);
+                    display->set_pause_status(false);
                     break;
                 default:
                     break;
@@ -432,7 +437,11 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
     }
 }
 
-void vkDisplay::process_event() {
+void vkDisplay::process_event(int frame_number) {
+    if (m_skipping && frame_number > m_frame_number) {
+        set_pause_status(true);
+    }
+    m_frame_number = frame_number;
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
     int events;
@@ -473,6 +482,11 @@ void vkDisplay::process_event() {
                         break;
                     case 0x41:  // Space
                         this->set_pause_status(!(this->get_pause_status()));
+                        set_skipping(false);
+                        break;
+                    case 0x72:  // right arrow key
+                        set_skipping(true);
+                        set_pause_status(false);
                         break;
                 }
             } break;
@@ -571,6 +585,11 @@ void vkDisplay::keyboard_handle_key(void *data, struct wl_keyboard *keyboard, ui
             break;
         case KEY_SPACE:
             display->set_pause_status(true);
+            display->set_skipping(false);
+            break;
+        case KEY_RIGHT:
+            display->set_skipping(true);
+            display->set_pause_status(false);
             break;
     }
 }

@@ -108,6 +108,7 @@ The  `vkreplay` command-line  options are:
 | -lsf&nbsp;&lt;int&gt;<br>&#x2011;&#x2011;LoopStartFrame&nbsp;&lt;int&gt; | The start frame number of the loop range | 0 |
 | -lef&nbsp;&lt;int&gt;<br>&#x2011;&#x2011;LoopEndFrame&nbsp;&lt;int&gt; | The end frame number of the loop range | the last frame in the tracefile |
 | -c&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;CompatibilityMode&nbsp;&lt;bool&gt; | Enable compatibility mode - modify api calls as needed when replaying trace file created on different platform than replay platform. For example: Convert trace file memory indices to replay device memory indices. | true |
+| -p&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;Pause&nbsp;&lt;bool&gt; | Pause on the first frame of the replay. | false |
 | -s&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Screenshot&nbsp;&lt;string&gt; | Comma-separated list of frame numbers of which to take screen shots  | no screenshots |
 | -sf&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;ScreenshotFormat&nbsp;&lt;string&gt; | Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB  | Format of swapchain image |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
@@ -122,6 +123,8 @@ $ vkreplay -o cubetrace.vktrace -l 5
 If the trace is rather short, the replay may finish quickly.  Specify the `-l` or `--NumLoops` option to replay the trace `NumLoops` option value times.
 
 Output messages from the replay operation are written to `stdout`.
+
+On desktop, playback can be paused with spacebar and frames can be rendered individually with the right arrow key. Press spacebar again to resume.
 
 
 ## Replayer Interaction with Layers
