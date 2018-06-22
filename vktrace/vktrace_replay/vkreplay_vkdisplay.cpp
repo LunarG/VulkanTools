@@ -109,7 +109,7 @@ void vkDisplayAndroid::process_event() {
 }
 
 void vkDisplayAndroid::set_window_handle(void* pHandle) {
-    // Unused
+    m_window = *((ANativeWindow**)pHandle);
 }
 
 #endif  // defined(PLATFORM_LINUX) && defined(ANDROID)
