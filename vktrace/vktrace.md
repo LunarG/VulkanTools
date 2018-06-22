@@ -111,6 +111,8 @@ The  `vkreplay` command-line  options are:
 | -s&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Screenshot&nbsp;&lt;string&gt; | Comma-separated list of frame numbers of which to take screen shots  | no screenshots |
 | -sf&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;ScreenshotFormat&nbsp;&lt;string&gt; | Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB  | Format of swapchain image |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
+| Linux Only |  |  |
+| -ds&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;DisplayServer&nbsp;&lt;string&gt; | Display server - "xcb", or "wayland" | xcb |
 
 To replay the cube application trace captured in the example above:
 
@@ -122,6 +124,15 @@ $ vkreplay -o cubetrace.vktrace -l 5
 If the trace is rather short, the replay may finish quickly.  Specify the `-l` or `--NumLoops` option to replay the trace `NumLoops` option value times.
 
 Output messages from the replay operation are written to `stdout`.
+
+#### Linux Display Server Support
+
+To run vkreplay with a different display server implementation than XCB, the command-line option --DisplayServer (-ds) can be set. Currently, the available options are XCB and WAYLAND.
+
+Example for running on Wayland:
+```
+vkreplay -o <tracefile> -ds wayland
+```
 
 
 ## Replayer Interaction with Layers
@@ -191,14 +202,3 @@ And start the native activity
 ```
 adb shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/cube.vktrace"
 ```
-
-#### Linux Display Server Support
-
-To build vkreplay to use a different display server implementation than XCB, the CMake variable VKREPLAY_WSI_SELECTION can be set. Currently, the available options are XCB and WAYLAND.
-
-Example for buiding for Wayland: (see 'Linux Build')
-```
-cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVKREPLAY_WSI_SELECTION=WAYLAND
-```
-
-Note: In the future, vkreplay will choose a display server based on a command-line argument.
