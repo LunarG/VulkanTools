@@ -158,15 +158,19 @@ char* AndroidGetEnv(const char* key) {
 void AndroidSetEnv(const char* key, const char* val) {
     const char* command = "setprop ";
     const char* space = " ";
+    const char* quote = "\"";
     const size_t len_command = strlen(command);
     const size_t len_key = strlen(key);
     const size_t len_space = strlen(space);
+    const size_t len_quote = strlen(quote);
     const size_t len_val = strlen(val);
     char* full_command = malloc(len_command + len_key + len_space + len_val + 1);
     memcpy(full_command, command, len_command);
     memcpy(full_command + len_command, key, len_key);
     memcpy(full_command + len_command + len_key, space, len_space);
-    memcpy(full_command + len_command + len_key + len_space, val, len_val + 1);
+    memcpy(full_command + len_command + len_key + len_space, quote, len_quote);
+    memcpy(full_command + len_command + len_key + len_space + len_quote, val, len_val);
+    memcpy(full_command + len_command + len_key + len_space + len_quote + len_val, quote, len_quote + 1);
 
     FILE* pipe = NULL;
     pipe = popen(full_command, "r");
