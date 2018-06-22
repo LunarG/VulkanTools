@@ -10,6 +10,27 @@ extern "C" {
 
 vkDisplayWayland::vkDisplayWayland() : m_windowWidth(0), m_windowHeight(0) {
     memset(&m_surface, 0, sizeof(VkIcdSurfaceWayland));
+
+    shell_surface_listener.ping = handle_ping;
+    shell_surface_listener.configure = handle_configure;
+    shell_surface_listener.popup_done = handle_popup_done;
+
+    pointer_listener.enter = pointer_handle_enter;
+    pointer_listener.leave = pointer_handle_leave;
+    pointer_listener.motion = pointer_handle_motion;
+    pointer_listener.button = pointer_handle_button;
+    pointer_listener.axis = pointer_handle_axis;
+
+    keyboard_listener.keymap = keyboard_handle_keymap;
+    keyboard_listener.enter = keyboard_handle_enter;
+    keyboard_listener.leave = keyboard_handle_leave;
+    keyboard_listener.key = keyboard_handle_key;
+    keyboard_listener.modifiers = keyboard_handle_modifiers;
+
+    seat_listener.capabilities = seat_handle_capabilities;
+
+    registry_listener.global = registry_handle_global;
+    registry_listener.global_remove = registry_handle_global_remove;
 }
 
 vkDisplayWayland::~vkDisplayWayland() {
@@ -101,8 +122,7 @@ void vkDisplayWayland::handle_configure(void *data, wl_shell_surface *shell_surf
 
 void vkDisplayWayland::handle_popup_done(void *data, wl_shell_surface *shell_surface) {}
 
-const struct wl_shell_surface_listener vkDisplayWayland::shell_surface_listener = {
-    vkDisplayWayland::handle_ping, vkDisplayWayland::handle_configure, vkDisplayWayland::handle_popup_done};
+struct wl_shell_surface_listener vkDisplayWayland::shell_surface_listener;
 
 void vkDisplayWayland::pointer_handle_enter(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface,
                                             wl_fixed_t sx, wl_fixed_t sy) {}
@@ -122,15 +142,7 @@ void vkDisplayWayland::pointer_handle_button(void *data, struct wl_pointer *wl_p
 void vkDisplayWayland::pointer_handle_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis,
                                            wl_fixed_t value) {}
 
-const struct wl_pointer_listener vkDisplayWayland::pointer_listener = {vkDisplayWayland::pointer_handle_enter,
-                                                                       vkDisplayWayland::pointer_handle_leave,
-                                                                       vkDisplayWayland::pointer_handle_motion,
-                                                                       vkDisplayWayland::pointer_handle_button,
-                                                                       vkDisplayWayland::pointer_handle_axis,
-                                                                       nullptr,
-                                                                       nullptr,
-                                                                       nullptr,
-                                                                       nullptr};
+struct wl_pointer_listener vkDisplayWayland::pointer_listener;
 
 void vkDisplayWayland::keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard, uint32_t format, int fd, uint32_t size) {}
 
@@ -157,9 +169,7 @@ void vkDisplayWayland::keyboard_handle_key(void *data, struct wl_keyboard *keybo
 void vkDisplayWayland::keyboard_handle_modifiers(void *data, wl_keyboard *keyboard, uint32_t serial, uint32_t mods_depressed,
                                                  uint32_t mods_latched, uint32_t mods_locked, uint32_t group) {}
 
-const struct wl_keyboard_listener vkDisplayWayland::keyboard_listener = {
-    vkDisplayWayland::keyboard_handle_keymap, vkDisplayWayland::keyboard_handle_enter,     vkDisplayWayland::keyboard_handle_leave,
-    vkDisplayWayland::keyboard_handle_key,    vkDisplayWayland::keyboard_handle_modifiers, nullptr};
+struct wl_keyboard_listener vkDisplayWayland::keyboard_listener;
 
 void vkDisplayWayland::seat_handle_capabilities(void *data, wl_seat *seat, uint32_t caps) {
     // Subscribe to pointer events
@@ -181,7 +191,7 @@ void vkDisplayWayland::seat_handle_capabilities(void *data, wl_seat *seat, uint3
     }
 }
 
-const struct wl_seat_listener vkDisplayWayland::seat_listener = {vkDisplayWayland::seat_handle_capabilities, nullptr};
+struct wl_seat_listener vkDisplayWayland::seat_listener;
 
 void vkDisplayWayland::registry_handle_global(void *data, wl_registry *registry, uint32_t id, const char *interface,
                                               uint32_t version) {
@@ -199,5 +209,4 @@ void vkDisplayWayland::registry_handle_global(void *data, wl_registry *registry,
 
 void vkDisplayWayland::registry_handle_global_remove(void *data, wl_registry *registry, uint32_t name) {}
 
-const struct wl_registry_listener vkDisplayWayland::registry_listener = {vkDisplayWayland::registry_handle_global,
-                                                                         vkDisplayWayland::registry_handle_global_remove};
+struct wl_registry_listener vkDisplayWayland::registry_listener;
