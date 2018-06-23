@@ -234,6 +234,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
     }
 
 #if defined(USE_PAGEGUARD_SPEEDUP)
+    // Pageguard handling will change real mapped memory pointer to a pointer
+    // of shadow memory, but trim need to use real mapped pointer to keep
+    // the pageguard status no change.
+    //
+    // So here, we save the real mapped memory pointer before page guard
+    // handling replace it with shadow memory pointer.
+    void* pRealMappedData = *ppData;
     getPageGuardControlInstance().vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
 #endif
     pPacket = interpret_body_as_vkMapMemory(pHeader);
@@ -259,7 +266,23 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
         if (pInfo != NULL) {
             pInfo->ObjectInfo.DeviceMemory.mappedOffset = offset;
             pInfo->ObjectInfo.DeviceMemory.mappedSize = size;
-            pInfo->ObjectInfo.DeviceMemory.mappedAddress = *ppData;
+
+            // Page guard handling create a shadow memory for every mapped
+            // memory object and add page guard to capture the access of
+            // write and read, so the page guard handling can keep dual
+            // direction of sync between real mapped memory and the shadow
+            // memory.
+            //
+            // When starting trim, trim process need to read and save all image
+            // and buffer data to trace file, that will trigger all page guard
+            // on those memory if trim access shadow memory, and the status of
+            // page guard for those memory will be different with capture
+            // without trim. It causes corruption for some title if trim at
+            // some locations.
+            //
+            // So here we make trim to use real memory pointer to avoid change
+            // the pageguard status when PMB enabled.
+            pInfo->ObjectInfo.DeviceMemory.mappedAddress = pRealMappedData;
         }
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
