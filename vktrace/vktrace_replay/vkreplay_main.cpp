@@ -573,7 +573,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
             vktrace_free(traceFile);
             return -1;
         }
-        auto CreateVkDisplayXcb = reinterpret_cast<vkDisplayXcb*(*)()>(dlsym(xcb_handle, "CreateVkDisplayXcb"));
+        auto CreateVkDisplayXcb = reinterpret_cast<vkDisplayXcb* (*)()>(dlsym(xcb_handle, "CreateVkDisplayXcb"));
         pDisp = CreateVkDisplayXcb();
     } else if (strcasecmp(replaySettings.displayServer, "wayland") == 0) {
         // Attempt to load libvkdisplay_wayland and constructor
@@ -588,8 +588,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
             vktrace_free(traceFile);
             return -1;
         }
-        auto CreateVkDisplayWayland =
-            reinterpret_cast<vkDisplayWayland*(*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
+        auto CreateVkDisplayWayland = reinterpret_cast<vkDisplayWayland* (*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
         pDisp = CreateVkDisplayWayland();
     } else {
         vktrace_LogError("Invalid display server. Valid options are: xcb, wayland");

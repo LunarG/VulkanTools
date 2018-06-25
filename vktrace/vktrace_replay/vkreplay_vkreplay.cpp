@@ -3631,7 +3631,8 @@ VkResult vkReplay::manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWayl
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
     replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedinstance, &createInfo, pPacket->pAllocator, &local_pSurface);
-#else vktrace_LogError("manually_replay_vkCreateWaylandSurfaceKHR not implemented on this playback platform");
+#else
+    vktrace_LogError("manually_replay_vkCreateWaylandSurfaceKHR not implemented on this playback platform");
     replayResult = VK_ERROR_FEATURE_NOT_PRESENT;
 #endif
     if (replayResult == VK_SUCCESS) {

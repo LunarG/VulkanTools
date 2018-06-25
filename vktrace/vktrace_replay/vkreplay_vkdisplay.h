@@ -39,7 +39,6 @@ enum VkDisplayType {
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_XCB_KHR)
 
 class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
-
    public:
     vkDisplayXcb();
     ~vkDisplayXcb();
@@ -52,7 +51,7 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
-    void set_window_handle(void* pHandle) override;
+    void set_window_handle(void *pHandle) override;
 
     xcb_window_t get_window_handle() { return m_XcbWindow; }
     xcb_connection_t* get_connection_handle() { return m_pXcbConnection; }
@@ -89,7 +88,6 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_WAYLAND_KHR)
 
 class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
-
    public:
     vkDisplayWayland();
     ~vkDisplayWayland();
@@ -102,7 +100,7 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
-    void set_window_handle(void* pHandle) override;
+    void set_window_handle(void *pHandle) override;
 
     wl_display *get_display_handle() { return m_display; }
 
@@ -166,7 +164,6 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
 
 #if defined(PLATFORM_LINUX) && defined(ANDROID)
 class vkDisplayAndroid : public vktrace_replay::ReplayDisplayImp {
-
    public:
     vkDisplayAndroid(struct android_app *app);
     ~vkDisplayAndroid();
@@ -179,7 +176,7 @@ class vkDisplayAndroid : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
-    void set_window_handle(void* pHandle) override;
+    void set_window_handle(void *pHandle) override;
 
     ANativeWindow *get_window_handle() { return m_window; }
 
@@ -209,7 +206,6 @@ class vkDisplayAndroid : public vktrace_replay::ReplayDisplayImp {
 
 #if defined(WIN32)
 class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
-
    public:
     vkDisplayWin32();
     ~vkDisplayWin32();
@@ -222,7 +218,7 @@ class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
     bool get_quit_status() override { return m_quit; }
     void set_quit_status(bool quit) override { m_quit = quit; }
     VkSurfaceKHR get_surface() override { return (VkSurfaceKHR)&m_surface; };
-    void set_window_handle(void* pHandle) override;
+    void set_window_handle(void *pHandle) override;
 
     HWND get_window_handle() { return m_windowHandle; }
     HINSTANCE get_connection_handle() { return m_connection; }

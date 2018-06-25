@@ -1,10 +1,7 @@
 #include "vkreplay_vkdisplay.h"
 
 extern "C" {
-    __attribute__ ((visibility("default"))) vkDisplayXcb* CreateVkDisplayXcb()
-    {
-        return new vkDisplayXcb();
-    }
+__attribute__((visibility("default"))) vkDisplayXcb *CreateVkDisplayXcb() { return new vkDisplayXcb(); }
 }
 
 vkDisplayXcb::vkDisplayXcb() : m_windowWidth(0), m_windowHeight(0) {
@@ -137,6 +134,4 @@ void vkDisplayXcb::process_event() {
     }
 }
 
-void vkDisplayXcb::set_window_handle(void* pHandle) {
-    m_XcbWindow = *((xcb_window_t*)pHandle);
-}
+void vkDisplayXcb::set_window_handle(void *pHandle) { m_XcbWindow = *((xcb_window_t *)pHandle); }
