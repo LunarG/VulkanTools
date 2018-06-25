@@ -2,10 +2,7 @@
 #include <linux/input.h>
 
 extern "C" {
-    __attribute__ ((visibility("default"))) vkDisplayWayland* CreateVkDisplayWayland()
-    {
-        return new vkDisplayWayland();
-    }
+__attribute__((visibility("default"))) vkDisplayWayland *CreateVkDisplayWayland() { return new vkDisplayWayland(); }
 }
 
 vkDisplayWayland::vkDisplayWayland() : m_windowWidth(0), m_windowHeight(0) {
@@ -60,7 +57,7 @@ int vkDisplayWayland::init(const unsigned int gpu_idx) {
         if (!m_compositor) throw std::runtime_error("Wayland failed to bind compositor");
 
         if (!m_shell) throw std::runtime_error("Wayland failed to bind shell");
-    } catch (const std::runtime_error& ex) {
+    } catch (const std::runtime_error &ex) {
         if (m_shell) wl_shell_destroy(m_shell);
         if (m_compositor) wl_compositor_destroy(m_compositor);
         if (m_registry) wl_registry_destroy(m_registry);
@@ -107,9 +104,7 @@ void vkDisplayWayland::process_event() {
     wl_display_dispatch_pending(m_display);
 }
 
-void vkDisplayWayland::set_window_handle(void* pHandle) {
-    m_display = *((wl_display**)pHandle);
-}
+void vkDisplayWayland::set_window_handle(void *pHandle) { m_display = *((wl_display **)pHandle); }
 
 // Wayland callbacks, needed to handle events from the display manager.
 // Some stubs here that could be potentially removed

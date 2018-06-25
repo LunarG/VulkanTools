@@ -108,9 +108,7 @@ void vkDisplayAndroid::process_event() {
     }
 }
 
-void vkDisplayAndroid::set_window_handle(void* pHandle) {
-    m_window = *((ANativeWindow**)pHandle);
-}
+void vkDisplayAndroid::set_window_handle(void *pHandle) { m_window = *((ANativeWindow **)pHandle); }
 
 #endif  // defined(PLATFORM_LINUX) && defined(ANDROID)
 
@@ -232,8 +230,6 @@ void vkDisplayWin32::process_event() {
     }
 }
 
-void vkDisplayWin32::set_window_handle(void* pHandle) {
-    m_windowHandle = *((HWND*)pHandle);
-}
+void vkDisplayWin32::set_window_handle(void *pHandle) { m_windowHandle = *((HWND *)pHandle); }
 
 #endif  // defined(WIN32)
