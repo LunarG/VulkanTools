@@ -259,7 +259,7 @@ void* vktrace_platform_get_library_entrypoint(void* libHandle, const char* name)
 // we don't find the entrypoint, because cross-platform support
 // causes vkreplay to query the address of all api entrypoints,
 // even the wsi-specific ones.
-#ifdef WIN32
+#if defined(WIN32)
     FARPROC proc = GetProcAddress((HMODULE)libHandle, name);
 #else
     void* proc = dlsym(libHandle, name);

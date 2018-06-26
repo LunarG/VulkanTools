@@ -27,7 +27,7 @@
 #include <stdbool.h>
 #include "vulkan/vk_icd.h"
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -216,6 +216,6 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleNV)(VkDevice device, VkDev
 
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif

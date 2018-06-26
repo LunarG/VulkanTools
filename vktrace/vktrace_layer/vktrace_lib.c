@@ -26,7 +26,7 @@
 #include "vktrace_lib_trim.h"
 #include "vktrace_lib_helpers.h"
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -94,7 +94,7 @@ void loggingCallback(VktraceLogLevel level, const char *pMessage) {
     }
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -133,7 +133,7 @@ extern VKTRACER_ENTRY _Load(void) {
             vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
         else if (verbosity && !strcmp(verbosity, "full"))
             vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#ifdef _DEBUG
+#if defined(_DEBUG)
         else if (verbosity && !strcmp(verbosity, "debug"))
             vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif
@@ -147,7 +147,7 @@ extern VKTRACER_ENTRY _Load(void) {
         atexit(TrapExit);
 
 // If you need to debug startup, build with this set to true, then attach and change it to false.
-#ifdef _DEBUG
+#if defined(_DEBUG)
         {
             bool debugStartup = false;
             while (debugStartup)
@@ -177,6 +177,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 #endif
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif

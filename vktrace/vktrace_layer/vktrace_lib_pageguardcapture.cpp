@@ -39,7 +39,7 @@ void PageGuardCapture::vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemor
                                                   VkFlags flags, void** ppData) {
     PageGuardMappedMemory OPTmappedmem;
     if (getPageGuardEnableFlag()) {
-#ifdef PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
+#if defined(PAGEGUARD_TARGET_RANGE_SIZE_CONTROL)
         if (size >= ref_target_range_size())
 #endif
         {

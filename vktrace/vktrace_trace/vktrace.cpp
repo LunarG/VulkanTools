@@ -93,7 +93,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.enable_pmb},
      TRUE,
      "Enable tracking of persistently mapped buffers, default is TRUE."},
-#if _DEBUG
+#if defined(_DEBUG)
     {"v",
      "Verbosity",
      VKTRACE_SETTING_STRING,
@@ -205,7 +205,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
     fflush(stdout);
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -214,7 +214,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 // ------------------------------------------------------------------------------------------------
 char* append_index_to_filename(const char* base, uint32_t index, const char* extension) {
     char num[17];
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX)
     snprintf(num, 17, "-%u", index);
 #elif defined(WIN32)
     _snprintf_s(num, 17, _TRUNCATE, "-%u", index);
@@ -347,7 +347,7 @@ int main(int argc, char* argv[]) {
             vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
         else if (strcmp(g_settings.verbosity, "full") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#if _DEBUG
+#if defined(_DEBUG)
         else if (strcmp(g_settings.verbosity, "debug") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif

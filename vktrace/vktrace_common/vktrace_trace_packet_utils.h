@@ -27,7 +27,7 @@
 #include "vktrace_memory.h"
 #include "vktrace_process.h"
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -148,6 +148,6 @@ static vktrace_trace_packet_message* vktrace_interpret_body_as_trace_packet_mess
     return pPacket;
 }
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif

@@ -32,7 +32,7 @@
 #include "vktrace_memory.h"
 #include "vktrace_tracelog.h"
 
-#ifndef STRINGIFY
+#if !defined(STRINGIFY)
 #define STRINGIFY(x) #x
 #endif
 

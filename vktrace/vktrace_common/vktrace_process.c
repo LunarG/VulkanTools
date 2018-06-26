@@ -114,7 +114,7 @@ void vktrace_process_info_delete(vktrace_process_info* pInfo) {
         VKTRACE_DELETE(pInfo->pCaptureThreads);
     }
 
-#ifdef WIN32
+#if defined(WIN32)
     vktrace_platform_delete_thread(&(pInfo->watchdogThread));
 #endif
 

@@ -306,7 +306,7 @@ void resetAllReadFlagAndPageGuard() {
     }
 }
 
-#ifdef WIN32
+#if defined(WIN32)
 LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     LONG resultCode = EXCEPTION_CONTINUE_SEARCH;
     pageguardEnter();
@@ -337,7 +337,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
 
                     pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
                 } else {
-#ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
+#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
                     if ((!pMappedMem->isMappedBlockLoaded(index)) && (getEnablePageGuardLazyCopyFlag())) {
                         // Target app read the page which is never accessed since the
                         // shadow memory creation in map process.
@@ -410,7 +410,7 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
     uint32_t iter;
     packet_vkFlushMappedMemoryRanges* pPacket = nullptr;
 
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     PBYTE* ppPackageData = new PBYTE[memoryRangeCount];
     getPageGuardControlInstance().vkFlushMappedMemoryRangesPageGuardHandle(
         device, memoryRangeCount, pMemoryRanges, ppPackageData);  // the packet is not needed if no any change on data of all ranges
@@ -422,7 +422,7 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
         dataSize += (size_t)pRange->size;
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     dataSize = getPageGuardControlInstance().getALLChangedPackageSizeInMappedMemory(device, memoryRangeCount, pMemoryRanges,
                                                                                     ppPackageData);
 #endif
@@ -448,7 +448,7 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
             assert(pEntry->handle == pRange->memory);
             assert(pEntry->totalSize >= (pRange->size + pRange->offset));
             assert(pEntry->totalSize >= pRange->size);
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
             if (dataSize > 0) {
                 LPPageGuardMappedMemory pOPTMemoryTemp = getPageGuardControlInstance().findMappedMemoryObject(device, pRange);
                 VkDeviceSize OPTPackageSizeTemp = 0;
@@ -477,7 +477,7 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
                              pHeader->global_packet_index);
         }
     }
-#ifdef USE_PAGEGUARD_SPEEDUP
+#if defined(USE_PAGEGUARD_SPEEDUP)
     delete[] ppPackageData;
 #endif
     vktrace_leave_critical_section(&g_memInfoLock);
