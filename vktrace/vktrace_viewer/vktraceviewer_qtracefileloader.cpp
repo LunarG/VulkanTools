@@ -58,7 +58,7 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename) {
                 bOpened = false;
             }
 
-#ifdef USE_STATIC_CONTROLLER_LIBRARY
+#if defined(USE_STATIC_CONTROLLER_LIBRARY)
             m_pController = vtvCreateQController();
             if (bOpened)
 #else
@@ -113,7 +113,7 @@ void vktraceviewer_QTraceFileLoader::loadTraceFile(const QString& filename) {
                     }
                 }
 
-#ifdef USE_STATIC_CONTROLLER_LIBRARY
+#if defined(USE_STATIC_CONTROLLER_LIBRARY)
                 vtvDeleteQController(&m_pController);
 #else
                 m_controllerFactory.Unload(&m_pController);

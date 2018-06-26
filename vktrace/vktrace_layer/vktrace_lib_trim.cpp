@@ -2820,14 +2820,14 @@ void write_all_referenced_object_calls() {
         }
     }
 
-#ifdef TRIM_USE_ORDERED_IMAGE_CREATION
+#if defined(TRIM_USE_ORDERED_IMAGE_CREATION)
     for (auto iter = stateTracker.m_image_calls.begin(); iter != stateTracker.m_image_calls.end(); ++iter) {
         vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(*iter));
     }
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
-#ifndef TRIM_USE_ORDERED_IMAGE_CREATION
+#if !defined(TRIM_USE_ORDERED_IMAGE_CREATION)
         // CreateImage
         if (obj->second.ObjectInfo.Image.pCreatePacket != NULL) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pCreatePacket, vktrace_trace_get_trace_file());

@@ -122,7 +122,7 @@ void LogGuts(VktraceLogLevel level, const char* fmt, va_list args) {
     if (s_reportFunc != NULL) {
         s_reportFunc(level, message);
     } else {
-#ifdef ANDROID
+#if defined(ANDROID)
 #include <android/log.h>
         __android_log_print(ANDROID_LOG_INFO, "vktrace", "%s: %s\n", vktrace_LogLevelToString(level), message);
 #else

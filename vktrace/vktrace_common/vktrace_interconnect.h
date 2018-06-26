@@ -70,7 +70,7 @@ typedef struct MessageStream {
     int mErrorNum;
 } MessageStream;
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char* _address, const char* _port);
@@ -83,7 +83,7 @@ BOOL vktrace_MessageStream_Recv(MessageStream* pStream, void* _out, uint64_t _le
 BOOL vktrace_MessageStream_BlockingRecv(MessageStream* pStream, void* _outBuffer, uint64_t _len);
 
 extern MessageStream* gMessageStream;
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 // ------------------------------------------------------------------------------------------------

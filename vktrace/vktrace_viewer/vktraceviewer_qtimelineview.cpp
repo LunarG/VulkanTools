@@ -23,7 +23,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QToolTip>
-#ifdef _WIN32
+#if defined(_WIN32)
 // The following line allows Visual Studio to provide the M_PI_2 constant:
 #define _USE_MATH_DEFINES
 #endif

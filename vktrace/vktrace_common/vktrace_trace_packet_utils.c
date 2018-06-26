@@ -26,7 +26,7 @@
 #include "vktrace_filelike.h"
 #include "vktrace_pageguard_memorycopy.h"
 
-#ifdef WIN32
+#if defined(WIN32)
 #include <rpc.h>
 #pragma comment(lib, "Rpcrt4.lib")
 #endif
@@ -360,7 +360,7 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                     AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks,
                                                      correlationMaskCount);
                     break;
-#ifdef WIN32
+#if defined(WIN32)
                 case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                     AddPointerWithCountToTracebuffer(VkWin32KeyedMutexAcquireReleaseInfoKHR, VkDeviceMemory, pAcquireSyncs,
                                                      acquireCount);
@@ -760,7 +760,7 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
                 InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, int32_t, pViewOffsets);
                 InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks);
                 break;
-#ifdef WIN32
+#if defined(WIN32)
             case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoKHR, VkDeviceMemory, pAcquireSyncs);
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoKHR, uint64_t, pAcquireKeys);

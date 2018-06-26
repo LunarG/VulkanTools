@@ -33,7 +33,7 @@ typedef enum {
     VKTRACE_LOG_DEBUG
 } VktraceLogLevel;
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -78,6 +78,6 @@ void vktrace_LogWarning(const char* format, ...);
 // Log any misc information that might help a user understand what is going on.
 void vktrace_LogVerbose(const char* format, ...);
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
