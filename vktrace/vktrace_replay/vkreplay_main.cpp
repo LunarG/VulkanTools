@@ -163,7 +163,16 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     uint64_t end_time;
     uint64_t start_frame = settings.loopStartFrame == UINT_MAX ? 0 : settings.loopStartFrame;
     uint64_t end_frame = UINT_MAX;
+    const char* screenshot_list = replaySettings.screenshotList;
     while (settings.numLoops > 0) {
+        if (settings.numLoops > 1 && replaySettings.screenshotList != NULL) {
+            // Don't take screenshots until the last loop
+            replaySettings.screenshotList = NULL;
+        } else if (settings.numLoops == 1 && replaySettings.screenshotList != screenshot_list) {
+            // Re-enable screenshots on last loop if they have been disabled
+            replaySettings.screenshotList = screenshot_list;
+        }
+
         while (trace_running) {
             display.process_event();
             if (display.get_quit_status()) {
@@ -252,12 +261,6 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                             : std::min((unsigned int)replayer->GetFrameNumber(), settings.loopEndFrame);
         totalLoopFrames += end_frame - start_frame;
 
-        // if screenshot is enabled run it for one cycle only
-        // as all consecutive cycles must generate same screen
-        if (replaySettings.screenshotList != NULL) {
-            vktrace_free((char*)replaySettings.screenshotList);
-            replaySettings.screenshotList = NULL;
-        }
         seq.set_bookmark(startingPacket);
         trace_running = true;
         if (replayer != NULL) {
