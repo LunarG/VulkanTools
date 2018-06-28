@@ -94,7 +94,7 @@ def TrimTest(testname, program, programArgs, args):
     # Trace with trim frames 100-200. Screenshot frame 101
     layerEnv = os.environ.copy()
     layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
-    out = subprocess.check_output([args.VkTracePath, '-o', '%s-trim.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-tr', 'frames-100-200', '-s', '101', '-w', '.'], env=layerEnv).decode('utf-8')
+    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-tr', 'frames-100-200', '-s', '101', '-w', '.'], env=layerEnv).decode('utf-8')
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -107,7 +107,7 @@ def TrimTest(testname, program, programArgs, args):
         HandleError('Error: Screenshot not taken while tracing.')
 
     # Replay
-    out = subprocess.check_output([args.VkReplayPath, '-o', '%s-trim.vktrace' % testname, '-s', '2'], env=layerEnv).decode('utf-8')
+    out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '2'], env=layerEnv).decode('utf-8')
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -122,6 +122,55 @@ def TrimTest(testname, program, programArgs, args):
     # Compare screenshots
     if not filecmp.cmp('%s.trace.ppm' % testname, '%s.replay.ppm' % testname):
         HandleError ('Error: Trim Trace/replay screenshots do not match.')
+
+    elapsed = time.time() - startTime
+
+    print ('Success')
+    print ('Elapsed seconds: %s\n' % elapsed)
+
+
+
+
+def LoopTest(testname, program, programArgs, args):
+    """ Runs a test on replay loop functionality """
+
+    print ('Beginning Loop Test: %s\n' % program)
+
+    startTime = time.time()
+
+    # Trace and screenshot frame 1
+    layerEnv = os.environ.copy()
+    layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
+    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-s', '1', '-w', '.'], env=layerEnv).decode('utf-8')
+
+    if 'error' in out:
+        err = GetErrorMessage(out)
+        HandleError('Errors while tracing:\n%s' % err)
+
+    # Rename 1.ppm to <testname>.trace.ppm
+    if os.path.exists('1.ppm'):
+        os.rename('1.ppm', '%s.trace.ppm' % testname)
+    else:
+        HandleError('Error: Screenshot not taken while tracing.')
+
+    # Test against 2nd loop and 3rd loop. Screenshot will always be from the last loop
+    for loopCount in [2, 3]:
+        # Replay
+        out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '1', '-l', str(loopCount)], env=layerEnv).decode('utf-8')
+
+        if 'error' in out:
+            err = GetErrorMessage(out)
+            HandleError('Error while replaying:\n%s' % err)
+
+        # Rename 1.ppm to <testname>.replay.ppm
+        if os.path.exists('1.ppm'):
+            os.rename('1.ppm', '%s.replay.ppm' % testname)
+        else:
+            HandleError ('Error: Screenshot not taken while replaying.')
+
+        # Compare screenshots
+        if not filecmp.cmp('%s.trace.ppm' % testname, '%s.replay.ppm' % testname):
+            HandleError ('Error: Loop Trace/replay screenshots do not match.')
 
     elapsed = time.time() - startTime
 
@@ -201,6 +250,9 @@ if __name__ == '__main__':
 
     # Run trim test on cube
     TrimTest('cube-trim', cubePath, '--c 250', args)
+
+    # Run loop test on cube
+    LoopTest('cube-loop', cubePath, '--c 50', args)
 
     # Run Trace/Replay on old trace files if directory specified
     directory = args.OldTracesPath
