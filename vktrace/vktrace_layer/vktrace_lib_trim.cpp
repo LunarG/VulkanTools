@@ -2804,7 +2804,7 @@ void write_all_referenced_object_calls() {
         }
     }
 
-#ifdef TRIM_USE_ORDERED_IMAGE_CREATION
+#if TRIM_USE_ORDERED_IMAGE_CREATION
     for (auto iter = stateTracker.m_image_calls.begin(); iter != stateTracker.m_image_calls.end(); ++iter) {
         vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(*iter));
@@ -2812,7 +2812,7 @@ void write_all_referenced_object_calls() {
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
     // The location of following code block which is used to recreate
-    // Swapchain must be put before ordered image creation if
+    // Swapchain must be put after ordered image creation if
     // TRIM_USE_ORDERED_IMAGE_CREATION is enabled. the reason:
     // Let's consider the following calls during capture a title:
     //
@@ -2854,7 +2854,7 @@ void write_all_referenced_object_calls() {
     }
 
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
-#ifndef TRIM_USE_ORDERED_IMAGE_CREATION
+#if !TRIM_USE_ORDERED_IMAGE_CREATION
         // CreateImage
         if (obj->second.ObjectInfo.Image.pCreatePacket != NULL) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pCreatePacket, vktrace_trace_get_trace_file());
