@@ -1,6 +1,6 @@
 # Overview
 
-## [Extend your Vulkan test coverage with free LunarG tool](https://www.lunarg.com/extend-your-vulkan-test-coverage-with-free-lunarg-tool/)
+## Extend your Vulkan test coverage with free LunarG tool
 
 Do you have a test lab with examples of all the GPUs you hope your application will support?
 
@@ -11,9 +11,7 @@ If either answer is "no," LunarG offers a free tool that could extend your test 
 ### Introducing the LunarG Device Simulation Layer
 The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully-automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
 
-LunarG announced DevSim at
-[SIGGRAPH in the summer of 2017](https://www.khronos.org/assets/uploads/developers/library/2017-siggraph/06_3D-BOF-SIGGRAPH_Aug17.pdf)
-(pp 81-83), and the layer library is available pre-built in the LunarG Vulkan SDK. Since that announcement, DevSim has continued to evolve, and now supports even more features. The DevSim layer works for all Vulkan platforms (Linux, Windows, and Android). It is open-source software on GitHub, and the code strives to be clear and well-documented to serve as an example for writing Vulkan layers.
+The DevSim layer library is available pre-built in the LunarG Vulkan SDK, and continues to evolve. DevSim works for all Vulkan platforms (Linux, Windows, and Android), and is open-source software hosted on GitHub.
 
 The role of DevSim is to "simulate" a less-capable Vulkan implementation by constraining the features and resources of a more-capable implementation. Note that the actual device in your machine should be more capable than that which you are simulating. DevSim does not add capabilities to your existing Vulkan implementation by "emulating" additional capabilities with software; e.g. DevSim cannot add geometry shader capability to an actual device that doesn’t already provide it. Also, DevSim does not "enforce" the features being simulated. For enforcement, you would continue to use the Validation Layers as usual, in conjunction with DevSim.
 
@@ -47,9 +45,6 @@ DevSim builds its internal data tables by querying the capabilities of the under
 
 ### Simulating Entire Real-World Devices
 If you instead wish to simulate entire real-world devices, LunarG has collaborated with the Vulkan Hardware Database to make their data compatible with the DevSim schema. You can download device configurations from the website in JSON format, and use those configuration files directly with DevSim.
-
-
-
 
 # Technical Details
 

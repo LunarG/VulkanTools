@@ -25,11 +25,11 @@
 
 #include "vkreplay_vkdisplay.h"
 
-#if defined PLATFORM_LINUX && !defined ANDROID && defined VKREPLAY_USE_WSI_WAYLAND
+#if defined(PLATFORM_LINUX) && !defined(ANDROID) && defined(VKREPLAY_USE_WSI_WAYLAND)
 #include <linux/input.h>
 #endif
 
-#if defined PLATFORM_LINUX && defined ANDROID
+#if defined(PLATFORM_LINUX) && defined(ANDROID)
 #include <jni.h>
 #endif
 
@@ -43,14 +43,14 @@ vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0),
     m_window = 0;
     m_android_app = nullptr;
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceXcb));
     m_pXcbConnection = NULL;
     m_pXcbScreen = NULL;
     m_XcbWindow = 0;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceXlib));
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     memset(&m_surface, 0, sizeof(VkIcdSurfaceWayland));
 #endif
 #endif
@@ -63,16 +63,16 @@ vkDisplay::vkDisplay() : m_initedVK(false), m_windowWidth(0), m_windowHeight(0),
 
 vkDisplay::~vkDisplay() {
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     if (m_XcbWindow != 0) {
         xcb_destroy_window(m_pXcbConnection, m_XcbWindow);
     }
     if (m_pXcbConnection != NULL) {
         xcb_disconnect(m_pXcbConnection);
     }
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     if (m_keyboard) wl_keyboard_destroy(m_keyboard);
     if (m_pointer) wl_pointer_destroy(m_pointer);
     if (m_seat) wl_seat_destroy(m_seat);
@@ -167,7 +167,7 @@ int vkDisplay::init(const unsigned int gpu_idx) {
     }
 #endif
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     const xcb_setup_t *setup;
     xcb_screen_iterator_t iter;
     int scr;
@@ -176,9 +176,9 @@ int vkDisplay::init(const unsigned int gpu_idx) {
     iter = xcb_setup_roots_iterator(setup);
     while (scr-- > 0) xcb_screen_next(&iter);
     m_pXcbScreen = iter.data;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     try {
         m_display = wl_display_connect(NULL);
         if (!m_display) throw std::runtime_error("failed to connect to the display server");
@@ -251,11 +251,11 @@ int vkDisplay::set_window(vktrace_window_handle hWindow, unsigned int width, uns
     m_android_app = hWindow;
     m_android_app->userData = this;
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     m_XcbWindow = hWindow;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     m_display = hWindow;
 #endif
 #endif
@@ -271,13 +271,13 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
 #if defined(PLATFORM_LINUX)
 #if defined(ANDROID)
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     uint32_t value_mask, value_list[32];
     m_XcbWindow = xcb_generate_id(m_pXcbConnection);
 
     value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     value_list[0] = m_pXcbScreen->black_pixel;
-    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE;
 
     xcb_create_window(m_pXcbConnection, XCB_COPY_FROM_PARENT, m_XcbWindow, m_pXcbScreen->root, 0, 0, width, height, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, m_pXcbScreen->root_visual, value_mask, value_list);
@@ -299,9 +299,9 @@ int vkDisplay::create_window(const unsigned int width, const unsigned int height
     m_surface.base.platform = VK_ICD_WSI_PLATFORM_XCB;
     m_surface.connection = m_pXcbConnection;
     m_surface.window = m_XcbWindow;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     m_wl_surface = wl_compositor_create_surface(m_compositor);
     if (!m_wl_surface) throw std::runtime_error("failed to create surface");
 
@@ -400,7 +400,7 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
 
         ANativeWindow_setBuffersGeometry(m_window, width, height, ANativeWindow_getFormat(m_window));
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
         uint32_t values[2];
         values[0] = width;
         values[1] = height;
@@ -408,16 +408,16 @@ void vkDisplay::resize_window(const unsigned int width, const unsigned int heigh
         xcb_flush(m_pXcbConnection);
 
         // Make sure window is visible.
+        // xcb doesn't have the equivalent of XSync, so we need to sleep
+        // for a while to make sure the X server received and processed
+        // the map window request. This is a kludge, but without the sleep,
+        // the window doesn't get mapped for a long time.
         xcb_map_window(m_pXcbConnection, m_XcbWindow);
         xcb_flush(m_pXcbConnection);
-
-        // Pause the replay until we receive a MapNotify event from the
-        // server indicating that our request has been processed
-        set_pause_status(true);
-
-#elif defined VKREPLAY_USE_WSI_XLIB
+        usleep(50000);  // 0.05 seconds
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
 // In Wayland, the shell_surface should resize based on the Vulkan surface automagically
 #endif
 #endif
@@ -447,7 +447,7 @@ void vkDisplay::process_event() {
         }
     }
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     xcb_connection_t *xcb_conn = this->get_connection_handle();
     xcb_generic_event_t *event = xcb_poll_for_event(xcb_conn);
     xcb_flush(xcb_conn);
@@ -477,26 +477,15 @@ void vkDisplay::process_event() {
                 }
             } break;
             case XCB_CONFIGURE_NOTIFY: {
-                xcb_configure_notify_event_t *cne = (xcb_configure_notify_event_t *)event;
-                if (cne->width != m_windowWidth || cne->height != m_windowHeight) {
-                    // Our window has been resized, probably by the window manager.
-                    // There's not really anything we can do here other than abort.
-                    vktrace_LogError("bad window size, aborting!");
-                    set_quit_status(true);
-                }
-            } break;
-            case XCB_MAP_NOTIFY: {
-                // If we were waiting for a MapWindow request to be processed,
-                // we can now continue
-                set_pause_status(false);
+                // TODO resize here too
             } break;
         }
         free(event);
         event = xcb_poll_for_event(xcb_conn);
     }
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     // Interaction is handled in the callbacks
     wl_display_dispatch_pending(m_display);
 #endif
@@ -513,7 +502,7 @@ void vkDisplay::process_event() {
 #endif
 }
 
-#if defined(PLATFORM_LINUX) && !defined(ANDROID) && defined VKREPLAY_USE_WSI_WAYLAND
+#if defined(PLATFORM_LINUX) && !defined(ANDROID) && defined(VKREPLAY_USE_WSI_WAYLAND)
 // Wayland callbacks, needed to handle events from the display manager.
 // Some stubs here that could be potentially removed
 void vkDisplay::handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial) {

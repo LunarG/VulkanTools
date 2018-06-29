@@ -40,8 +40,8 @@
 import os,re,sys,string
 import xml.etree.ElementTree as etree
 import generator as gen
+from generator import *
 from collections import namedtuple
-from vuid_mapping import *
 from common_codegen import *
 
 COMMON_CODEGEN = """

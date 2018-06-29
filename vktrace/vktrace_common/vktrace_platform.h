@@ -102,7 +102,7 @@ typedef pthread_mutex_t VKTRACE_CRITICAL_SECTION;
 #include "vktrace_common.h"
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 // return the process ID of current process
@@ -174,6 +174,6 @@ void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle, const char* dllPath,
                                           vktrace_thread* pTracingThread, char** ldPreload);
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif

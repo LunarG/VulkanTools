@@ -4,38 +4,6 @@ project(vkreplay)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-# Predefine loader root as a cmake cache variable for cmake-gui
-set(LOADER_REPO_ROOT "LOADER-NOTFOUND" CACHE PATH "Absolute path to the root of the loader repository")
-
-if(LOADER_REPO_ROOT)
-    message(STATUS "Using user-supplied path to locate Vulkan")
-    if(WIN32)
-        set (LOADER_SEARCH_PATHS
-            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${DEBUG_DECORATION}"
-            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader/${RELEASE_DECORATION}"
-            )
-    elseif(UNIX)
-        set (LOADER_SEARCH_PATHS
-            "${LOADER_REPO_ROOT}/${BUILDTGT_DIR}/loader"
-            )
-    endif()
-    find_library(LIBVK NAMES vulkan vulkan-1
-        HINTS ${LOADER_SEARCH_PATHS}
-        )
-    message(STATUS "Found Vulkan: ${LIBVK}")
-else()
-    message(STATUS "Using find_package to locate Vulkan")
-    find_package(Vulkan)
-    set (LIBVK "Vulkan::Vulkan")
-endif()
-
-
-# Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -44,7 +12,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     elseif(BUILD_WSI_WAYLAND_SUPPORT AND VKREPLAY_WSI_SELECTION STREQUAL WAYLAND)
         set(OS_REPLAYER_LIBS ${WAYLAND_CLIENT_LIBRARIES} ${LIBRARIES})
     endif()
-    
     # TODO Add Mir Support
 endif()
 
@@ -83,7 +50,6 @@ include_directories(
     ${SRC_DIR}/vktrace_common
     ${SRC_DIR}/thirdparty
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../VULKAN_HEADERS/include/vulkan
     ${VULKAN_TOOLS_SOURCE_DIR}/layersvt
     ${GENERATED_FILES_DIR}
     ${VKTRACE_VULKAN_INCLUDE_DIR}
@@ -93,7 +59,7 @@ include_directories(
 
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 
-add_dependencies(${PROJECT_NAME} generate_helper_files)
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     ${OS_REPLAYER_LIBS}

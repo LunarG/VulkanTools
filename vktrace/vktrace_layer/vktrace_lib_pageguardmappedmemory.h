@@ -103,6 +103,8 @@ typedef class PageGuardMappedMemory {
 
     void vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void **MappedData);
 
+    void SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory);
+
     void backupBlockChangedArraySnapshot();
 
     void backupBlockReadArraySnapshot();

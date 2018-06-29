@@ -59,7 +59,7 @@ static char* vktrace_allocate_and_copy(const char* _src) {
         size_t bufferSize = 1 + strlen(_src);
 
         char* retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
-#ifdef WIN32
+#if defined(WIN32)
         strcpy_s(retVal, bufferSize, _src);
 #else  // linux
         strncpy(retVal, _src, bufferSize);
@@ -74,7 +74,7 @@ static char* vktrace_allocate_and_copy_n(const char* _src, int _count) {
 
     char* retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
 
-#ifdef WIN32
+#if defined(WIN32)
     strncpy_s(retVal, bufferSize, _src, _count);
 #else  // linux
     strncpy(retVal, _src, _count);
@@ -91,7 +91,7 @@ static char* vktrace_copy_and_append(const char* pBaseString, const char* pSepar
     size_t bufferSize = baseSize + separatorSize + appendSize + 1;
     char* retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
     if (retVal != NULL) {
-#ifdef WIN32
+#if defined(WIN32)
         strncpy_s(retVal, bufferSize, pBaseString, baseSize);
         strncpy_s(&retVal[baseSize], bufferSize - baseSize, pSeparator, separatorSize);
         strncpy_s(&retVal[baseSize + separatorSize], bufferSize - baseSize - separatorSize, pAppendString, appendSize);
@@ -125,7 +125,7 @@ static char* vktrace_copy_and_append_args(const char* pBaseString, const char* p
     bufferSize = baseSize + separatorSize + appendSize + 1;
     retVal = VKTRACE_NEW_ARRAY(char, bufferSize);
     if (retVal != NULL) {
-#ifdef WIN32
+#if defined(WIN32)
         strncpy_s(retVal, bufferSize, pBaseString, baseSize);
         strncpy_s(&retVal[baseSize], bufferSize - baseSize, pSeparator, separatorSize);
         _vsnprintf_s(&retVal[baseSize + separatorSize], bufferSize - baseSize - separatorSize, appendSize, pAppendFormat, args);

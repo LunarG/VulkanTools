@@ -43,7 +43,7 @@
 
 vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL};
 
-#ifdef ANDROID
+#if defined(ANDROID)
 const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
 const char* env_var_screenshot_format = "debug.vulkan.screenshot.format";
 #else
@@ -111,7 +111,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
-#if _DEBUG
+#if defined(_DEBUG)
     {"v",
      "Verbosity",
      VKTRACE_SETTING_STRING,
@@ -371,6 +371,11 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         return -1;
     }
 
+    if (replaySettings.loopStartFrame > replaySettings.loopEndFrame) {
+        vktrace_LogError("Bad loop frame range");
+        return -1;
+    }
+
     // merge settings so that new settings will get written into the settings file
     vktrace_SettingGroup_merge(&g_replaySettingGroup, &pAllSettings, &numAllSettings);
 
@@ -383,7 +388,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
         vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
     else if (!strcmp(replaySettings.verbosity, "full"))
         vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#if _DEBUG
+#if defined(_DEBUG)
     else if (!strcmp(replaySettings.verbosity, "debug"))
         vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif
@@ -533,7 +538,7 @@ int vkreplay_main(int argc, char** argv, vktrace_window_handle window = 0) {
     vktrace_replay::ReplayDisplay disp(100, 100, 0, false);
 #endif
 //**********************************************************
-#if _DEBUG
+#if defined(_DEBUG)
     static BOOL debugStartup = FALSE;  // TRUE
     while (debugStartup)
         ;

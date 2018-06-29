@@ -65,7 +65,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
     }
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -575,7 +575,7 @@ void vktraceviewer::onTraceFileLoaded(bool bSuccess, const vktraceviewer_trace_f
         g_settings.trace_file_to_open = vktrace_allocate_and_copy(m_traceFileInfo.filename);
         vktraceviewer_settings_updated();
 
-#ifndef USE_STATIC_CONTROLLER_LIBRARY
+#if !defined(USE_STATIC_CONTROLLER_LIBRARY)
         if (!controllerFilename.isEmpty()) {
             m_pController = m_controllerFactory.Load(controllerFilename.toStdString().c_str());
         }
@@ -632,7 +632,7 @@ void vktraceviewer::close_trace_file() {
     if (m_pController != NULL) {
         ui->bottomTabWidget->removeTab(ui->bottomTabWidget->indexOf(m_pTraceStatsTab));
         m_pController->UnloadTraceFile();
-#ifndef USE_STATIC_CONTROLLER_LIBRARY
+#if !defined(USE_STATIC_CONTROLLER_LIBRARY)
         m_controllerFactory.Unload(&m_pController);
 #else
         vtvDeleteQController(&m_pController);

@@ -52,13 +52,13 @@ class vkDisplay : public vktrace_replay::ReplayDisplayImp {
 #if defined(ANDROID)
     ANativeWindow* get_window_handle() { return m_window; }
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     xcb_window_t get_window_handle() { return m_XcbWindow; }
     xcb_connection_t* get_connection_handle() { return m_pXcbConnection; }
     xcb_screen_t* get_screen_handle() { return m_pXcbScreen; }
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     wl_display* get_window_handle() { return m_display; }
 #endif
 #endif
@@ -75,16 +75,16 @@ class vkDisplay : public vktrace_replay::ReplayDisplayImp {
     ANativeWindow* m_window;
     struct android_app* m_android_app;
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
     VkIcdSurfaceXcb m_surface;
     xcb_connection_t *m_pXcbConnection;
     xcb_screen_t *m_pXcbScreen;
     xcb_window_t m_XcbWindow;
     xcb_intern_atom_reply_t *atom_wm_delete_window;
 // VkPlatformHandleXcbKHR m_XcbPlatformHandle;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
     VkIcdSurfaceXlib m_surface;
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
     VkIcdSurfaceWayland m_surface;
     struct wl_display *m_display;
     struct wl_registry *m_registry;

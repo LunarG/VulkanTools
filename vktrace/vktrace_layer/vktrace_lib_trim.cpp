@@ -19,7 +19,7 @@
 #include "vktrace_vk_vk_packets.h"
 #include "vktrace_vk_packet_id.h"
 #include "vk_struct_size_helper.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 // defined in vktrace_lib_trace.cpp
 extern layer_device_data *mdd(void *object);
@@ -854,7 +854,8 @@ void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, Vk
         // unmap for it.
         vktrace_delete_trace_packet(&pMapMemory);
     } else {
-        *ppMapMemoryPacket = pMapMemory;
+        *ppMapMemoryPacket = trim::copy_packet(pMapMemory);
+        vktrace_delete_trace_packet(&pMapMemory);
 
         // By creating the packet for UnmapMemory, we'll be adding the pData
         // buffer to it, which inherently copies it.
@@ -873,7 +874,9 @@ void generateMapUnmap(bool makeCalls, VkDevice device, VkDeviceMemory memory, Vk
 
         // Actually unmap the memory if it wasn't already mapped by the
         // application
-        *ppUnmapMemoryPacket = generate::vkUnmapMemory(makeCalls, size, bufferAddress, device, memory);
+        vktrace_trace_packet_header *pUnmapMemory = generate::vkUnmapMemory(makeCalls, size, bufferAddress, device, memory);
+        *ppUnmapMemoryPacket = trim::copy_packet(pUnmapMemory);
+        vktrace_delete_trace_packet(&pUnmapMemory);
     }
 }
 
@@ -1476,7 +1479,8 @@ void snapshot_state_tracker() {
             if (size != 0) {
                 vktrace_trace_packet_header *pPersistentlyMapMemory =
                     generate::vkMapMemory(false, device, deviceMemory, offset, size, flags, &pData);
-                iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = pPersistentlyMapMemory;
+                iter->second.ObjectInfo.DeviceMemory.pPersistentlyMapMemoryPacket = trim::copy_packet(pPersistentlyMapMemory);
+                vktrace_delete_trace_packet(&pPersistentlyMapMemory);
             }
         }
     }
@@ -2816,14 +2820,14 @@ void write_all_referenced_object_calls() {
         }
     }
 
-#ifdef TRIM_USE_ORDERED_IMAGE_CREATION
+#if defined(TRIM_USE_ORDERED_IMAGE_CREATION)
     for (auto iter = stateTracker.m_image_calls.begin(); iter != stateTracker.m_image_calls.end(); ++iter) {
         vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(*iter));
     }
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
-#ifndef TRIM_USE_ORDERED_IMAGE_CREATION
+#if !defined(TRIM_USE_ORDERED_IMAGE_CREATION)
         // CreateImage
         if (obj->second.ObjectInfo.Image.pCreatePacket != NULL) {
             vktrace_write_trace_packet(obj->second.ObjectInfo.Image.pCreatePacket, vktrace_trace_get_trace_file());

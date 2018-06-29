@@ -489,7 +489,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         replay_objmapper_header  = '\n'
         replay_objmapper_header += '#pragma once\n\n'
         replay_objmapper_header += '#include <set>\n'
-        replay_objmapper_header += '#include <map>\n'
+        replay_objmapper_header += '#include <unordered_map>\n'
         replay_objmapper_header += '#include <list>\n'
         replay_objmapper_header += '#include <vector>\n'
         replay_objmapper_header += '#include <string>\n'
@@ -519,7 +519,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 obj_name = item[2:].lower() + 'Obj'
             else:
                 obj_name = item
-            replay_objmapper_header += '    std::map<%s, %s> %s;\n' % (item, obj_name, mangled_name)
+            replay_objmapper_header += '    std::unordered_map<%s, %s> %s;\n' % (item, obj_name, mangled_name)
             replay_objmapper_header += '    void add_to_%s_map(%s pTraceVal, %s pReplayVal) {\n' % (map_name, item, obj_name)
             replay_objmapper_header += '        %s[pTraceVal] = pReplayVal;\n' % mangled_name
             replay_objmapper_header += '    }\n\n'
@@ -531,14 +531,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             replay_objmapper_header += '    %s remap_%s(const %s& value) {\n' % (item, map_name, item)
             replay_objmapper_header += '        if (value == 0) { return 0; }\n'
             if item in remapped_objects:
-                replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
+                replay_objmapper_header += '        std::unordered_map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                 if item == 'VkDeviceMemory':
                     replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
                 else:
                     replay_objmapper_header += '        if (q == %s.end()) return VK_NULL_HANDLE;\n' % mangled_name
                 replay_objmapper_header += '        return q->second.replay%s;\n' % item[2:]
             else:
-                replay_objmapper_header += '        std::map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
+                replay_objmapper_header += '        std::unordered_map<%s, %s>::const_iterator q = %s.find(value);\n' % (item, obj_name, mangled_name)
                 replay_objmapper_header += '        if (q == %s.end()) { vktrace_LogError("Failed to remap %s."); return VK_NULL_HANDLE; }\n' % (mangled_name, item)
                 replay_objmapper_header += '        return q->second;\n'
             replay_objmapper_header += '    }\n\n'
@@ -688,7 +688,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if cmdname in temp_exclude: # TODO verify this needs to be here
                 continue
             protect = cmd_protect_dict[api.name]
-            if protect is not None:
+            do_protect = (protect != None and protect != "VK_USE_PLATFORM_XLIB_KHR" and protect != "VK_USE_PLATFORM_XCB" and protect != "VK_USE_PLATFORM_WAYLAND_KHR" and protect != "VK_USE_PLATFORM_WIN32_KHR")
+            do_protect = protect != None
+            if do_protect:
                 replay_gen_source += '#ifdef %s\n' % protect
             disp_table = ""
             if isInstanceCmd(api):
@@ -699,7 +701,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '    %s.%s = (PFN_vk%s)(vktrace_platform_get_library_entrypoint(handle, "vk%s"));\n' % (disp_table, cmdname, cmdname, cmdname)
             else: # These func ptrs get assigned at GetProcAddr time
                 replay_gen_source += '    %s.%s = (PFN_vk%s)NULL;\n' % (disp_table, cmdname, cmdname)
-            if protect is not None:
+            if do_protect:
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '}\n\n'
         replay_gen_source += 'vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet) { \n'
@@ -720,7 +722,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
             cmdinfo = cmd_info_dict[vk_cmdname]
             protect = cmd_protect_dict[vk_cmdname]
-            if protect is not None:
+            do_protect = (protect != None and protect != "VK_USE_PLATFORM_XLIB_KHR" and protect != "VK_USE_PLATFORM_XCB" and protect != "VK_USE_PLATFORM_WAYLAND_KHR" and protect != "VK_USE_PLATFORM_WIN32_KHR")
+            if do_protect:
                 replay_gen_source += '#ifdef %s\n' % protect
             # TODO : How to handle void* return of GetProcAddr?
             # TODO : Make sure vkDestroy object functions really do clean up the object maps
@@ -959,7 +962,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 replay_gen_source += '            CHECK_RETURN_VALUE(vk%s);\n' % cmdname
             replay_gen_source += '            break;\n'
             replay_gen_source += '        }\n'
-            if protect is not None:
+            if do_protect:
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '        default:\n'
         replay_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'
@@ -2309,6 +2312,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkCmdWaitEvents',
                                          'vkCmdBeginRenderPass',
                                          'vkCmdPushConstants',
+                                         'vkCmdExecuteCommands',
+                                         'vkCmdCopyImageToBuffer',
+                                         'vkDestroyBuffer',
                                          'vkDestroyInstance',
                                          'vkEnumeratePhysicalDevices',
                                          'vkFreeMemory',
@@ -2328,7 +2334,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkGetQueryPoolResults',
                                          'vkMapMemory',
                                          'vkUnmapMemory',
+                                         'vkBindBufferMemory',
                                          'vkUpdateDescriptorSets',
+                                         'vkWaitForFences',
                                          'vkGetPhysicalDeviceSurfaceCapabilitiesKHR',
                                          'vkGetPhysicalDeviceSurfaceFormatsKHR',
                                          'vkGetPhysicalDeviceSurfacePresentModesKHR',

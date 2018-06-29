@@ -19,16 +19,6 @@ project(VkLayer_vktrace_layer)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-# Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk.cpp)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vk_struct_size_helper.c)
-
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
     # so that vktrace.exe can find VkLayer_vktrace_layer.dll.
@@ -79,8 +69,6 @@ include_directories(
     ${CMAKE_BINARY_DIR}
     ${GENERATED_FILES_DIR}
     ${CMAKE_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION}/layers
-    ${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include
-    ${VALIDATION_LAYERS_ROOT_DIR}/Vulkan-Headers/include/vulkan
 )
 
 # copy/link layer json file into build/layersvt directory
@@ -125,7 +113,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${HDR_LIST})
 
-add_dependencies(${PROJECT_NAME} generate_helper_files)
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 # Set Compiler Flags, Libraries
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

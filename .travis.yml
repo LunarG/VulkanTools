@@ -69,19 +69,53 @@ script:
   - set -e
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      # Build VulkanTools deps
+      git clone https://github.com/KhronosGroup/Vulkan-Headers.git
+      pushd Vulkan-Headers
+      mkdir build
+      cd build
+      cmake -DCMAKE_INSTALL_PREFIX=install ..
+      cmake --build . --target install
+      popd
+      git clone https://github.com/KhronosGroup/Vulkan-Loader.git
+      pushd Vulkan-Loader
+      mkdir build
+      cd build
+      cmake -DCMAKE_BUILD_TYPE=Debug -DVULKAN_HEADERS_INSTALL_DIR=$TRAVIS_BUILD_DIR/Vulkan-Headers/build/install -DCMAKE_INSTALL_PREFIX=install ..
+      cmake --build . --target install
+      popd
+      git clone https://github.com/KhronosGroup/glslang.git
+      pushd glslang
+      ./update_glslang_sources.py
+      mkdir build
+      cd build
+      cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=install ..
+      cmake --build . --target install -- -j $core_count
+      popd
+    fi
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       # Build VulkanTools
       ./update_external_sources.sh
-      cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug
-      make -C dbuild -j $core_count
+      git clone https://github.com/google/googletest.git submodules/Vulkan-ValidationLayers/external/googletest
+      mkdir dbuild
+      pushd dbuild
+      cmake -DCMAKE_BUILD_TYPE=Debug \
+          -DGLSLANG_INSTALL_DIR=$TRAVIS_BUILD_DIR/glslang/build/install \
+          -DVULKAN_HEADERS_INSTALL_DIR=$TRAVIS_BUILD_DIR/Vulkan-Headers/build/install \
+          -DVULKAN_LOADER_INSTALL_DIR=$TRAVIS_BUILD_DIR/Vulkan-Loader/build/install \
+          ..
+      cmake --build . -- -j $core_count
+      popd
     fi
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       # Run Tests
-      LVL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-ValidationLayers
-      LVL_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-ValidationLayers/tests/device_profiles
-      export LD_LIBRARY_PATH=$LVL_BUILD/loader:$LD_LIBRARY_PATH
-      export VK_LAYER_PATH=$LVL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
-      export VK_ICD_FILENAMES=$LVL_BUILD/icd/VkICD_mock_icd.json
+      VL_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-ValidationLayers
+      VT_BUILD=$TRAVIS_BUILD_DIR/dbuild/submodules/Vulkan-Tools
+      DEVSIM_PROFILES=$TRAVIS_BUILD_DIR/submodules/Vulkan-ValidationLayers/tests/device_profiles
+      export VK_LAYER_PATH=$VL_BUILD/layers:$TRAVIS_BUILD_DIR/dbuild/layersvt
+      export VK_ICD_FILENAMES=$VT_BUILD/icd/VkICD_mock_icd.json
       # Run vlf_test with mock ICD to ensure layer factory is working
       dbuild/tests/vlf_test.sh
       # Run apidump_test with mock ICD to ensure apidump layer is working
@@ -89,15 +123,14 @@ script:
       # Run devsim tests with mock ICD to ensure devsim is working
       dbuild/tests/devsim_layer_test.sh
       # Run validation layer tests with mock ICD, some with devsim.
-      # These tests are redundant with LVL testing, but there is still some value with running them again here.
-      $LVL_BUILD/tests/vk_layer_validation_tests
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/adreno_540.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/amd_radv_polaris10.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/geforce_940m.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/intel_hd_graphics_520_skylake_gt2.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/mali-t760.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/nvidia_tegra_x1.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
-      VK_DEVSIM_FILENAME=$LVL_PROFILES/powervr_rogue_ge8300.json $LVL_BUILD/tests/vk_layer_validation_tests --devsim
+      # These tests are redundant with Vulkan-ValidationLayer testing,
+      # but there is still some value with running them again here.
+      echo "Running validation layer tests with mock ICD and no devsim."
+      $VL_BUILD/tests/vk_layer_validation_tests
+      for filename in $DEVSIM_PROFILES/*.json; do
+        echo "Running validation layer test with mock ICD and devsim profile $(basename "$filename" .json)."
+        VK_DEVSIM_FILENAME=$filename $VL_BUILD/tests/vk_layer_validation_tests --devsim
+      done
     fi
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "ANDROID" ]]; then

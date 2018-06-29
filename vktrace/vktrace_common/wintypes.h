@@ -46,18 +46,18 @@ typedef int64_t LONG64;
 typedef uint64_t ULONG64;
 typedef const char *PCSTR;
 typedef const wchar_t *PCWSTR;
-#ifndef MAX_PATH
+#if !defined(MAX_PATH)
 #include <limits.h>
-#ifndef PATH_MAX
+#if !defined(PATH_MAX)
 #define MAX_PATH 4096
 #else
 #define MAX_PATH PATH_MAX
 #endif
 #endif
-#ifndef TRUE
+#if !defined(TRUE)
 #define TRUE 1
 #endif
-#ifndef FALSE
+#if !defined(FALSE)
 #define FALSE 0
 #endif
 

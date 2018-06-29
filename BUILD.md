@@ -4,7 +4,7 @@ This document contains the instructions for building this repository on Linux an
 This repository contains Vulkan development tools, such as additional layers and VkTrace trace/replay utilities,
 supplementing the loader and validation layer core components found at https://github.com/KhronosGroup.
 
-## Git the Bits
+## Get Additional Components
 
 The public repository for the the LunarG VulkanTools is hosted at https://github.com/LunarG.
 
@@ -31,19 +31,17 @@ sudo apt-get install libc6-dev-i386 g++-multilib
     Locating the library for this repo can be done in two different ways:
       -  The Vulkan SDK can be installed. In this case, cmake should be able to locate the loader repo through the VulkanSDK
          environment variable
-      -  The library can be built from the [Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader.git) repository.
+      -  The library can be built from the [Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader.git) repository. This
+         can be done by setting 'CMAKE_INSTALL_PREFIX' and building 'install' target from within the Vulkan-Loader repo, noting the install location.
          In this case, the following option should be used on the cmake command line:
-             LOADER_REPO_ROOT=c:\developement\Vulkan-Loader
-         and use absolute (not relative) paths, like so:
-             cmake -DLOADER_REPO_ROOT=c:\absolute_path_to\Vulkan-Loader ....
+
+             cmake -DVULKAN_LOADER_INSTALL_DIR=c:\absolute_path_to\Vulkan-Loader\install
 
 # [glslang](https://github.com/KhronosGroup/glslang)
   - Ensure that the 'update_glslang_sources.py' script has been run, and the repository successfully built.
   - Follow the build instructions in the glslang repository, including INSTALL_PREFIX and 'make install', noting the install dir location.
       Indicate the location of the glslang components by using the following cmake option:
              cmake -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\location_of\install ....
-
-
 
 ## Clone the Repository
 
@@ -115,8 +113,7 @@ cd YOUR_DEV_DIRECTORY/VulkanTools  # cd to the root of the VulkanTools git repos
 if the SDK is installed and the accompanying setup-env.sh script has been run (setting up the VULKAN_SDK environment variable),
     cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\location_of\install
 or, if a specific Vulkan Loader library is desired, point to it like so:
-    cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\location_of\install -DLOADER_REPO_ROOT=c:\absolute_path_to\loader
-
+    cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVULKAN_HEADERS_INSTALL_DIR=/absolute_path_to/Vulkan-Headers/install -DVULKAN_LOADER_INSTALL_DIR=/absolute_path_to/Vulkan-Loader/install -DGLSLANG_INSTALL_DIR=/absolute_path_to_/glslang/location_of/install
 cd dbuild
 make -j8
 ```
@@ -157,7 +154,7 @@ cd build
 If the SDK is installed,
     cmake -DGLSLANG_INSTALL_DIR=/absolute_path_to/glslang/location_of/install -G "Visual Studio 14 Win64" ..
 or, if a specific Vulkan Loader library is desired, point to it like so:
-    cmake -DGLSLANG_INSTALL_DIR=/absolute_path_to/glslang/location_of/install -DLOADER_REPO_ROOT=/absolute_path_to/loader -G "Visual Studio 14 Win64" ..
+    cmake -DVULKAN_HEADERS_INSTALL_DIR=c:\absolute_path_to\Vulkan-Headers\install -DVULKAN_LOADER_INSTALL_DIR=c:\absolute_path_to\VULKAN_LOADER\install -DGLSLANG_INSTALL_DIR=c:\absolute_path_to\glslang\install -G "Visual Studio 15 2017 Win64" ..
 ```
 
 At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.

@@ -29,12 +29,12 @@ extern "C" {
 #include <android_native_app_glue.h>
 typedef struct android_app* vktrace_window_handle;
 #else
-#if defined VKREPLAY_USE_WSI_XCB
+#if defined(VKREPLAY_USE_WSI_XCB)
 #include <xcb/xcb.h>
 typedef xcb_window_t vktrace_window_handle;
-#elif defined VKREPLAY_USE_WSI_XLIB
+#elif defined(VKREPLAY_USE_WSI_XLIB)
 // TODO
-#elif defined VKREPLAY_USE_WSI_WAYLAND
+#elif defined(VKREPLAY_USE_WSI_WAYLAND)
 #include <wayland-client.h>
 typedef wl_display* vktrace_window_handle;
 #endif

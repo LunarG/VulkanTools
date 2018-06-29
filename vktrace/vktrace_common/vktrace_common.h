@@ -32,7 +32,7 @@
 #include "vktrace_memory.h"
 #include "vktrace_tracelog.h"
 
-#ifndef STRINGIFY
+#if !defined(STRINGIFY)
 #define STRINGIFY(x) #x
 #endif
 
@@ -69,7 +69,7 @@
 
 static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // Windows needs 64 bit versions of fseek and ftell
-#if defined (WIN32)
+#if defined(WIN32)
 #define Ftell _ftelli64
 #define Fseek _fseeki64
 #else

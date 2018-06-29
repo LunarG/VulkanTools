@@ -60,7 +60,7 @@ typedef pthread_t vktrace_pageguard_thread_id;
 typedef sem_t* vktrace_sem_id;
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 bool vktrace_sem_create(vktrace_sem_id *sem_id, uint32_t initvalue);
 void vktrace_sem_delete(vktrace_sem_id sid);
 void vktrace_sem_wait(vktrace_sem_id sid);
