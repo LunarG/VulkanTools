@@ -164,12 +164,12 @@ def LoopTest(testname, program, programArgs, args):
 
         # Rename 1.ppm to <testname>.replay.ppm
         if os.path.exists('1.ppm'):
-            os.rename('1.ppm', '%s.replay.ppm' % testname)
+            os.rename('1.ppm', '%s.%s.replay.ppm' % (testname, str(loopCount)))
         else:
             HandleError ('Error: Screenshot not taken while replaying.')
 
         # Compare screenshots
-        if not filecmp.cmp('%s.trace.ppm' % testname, '%s.replay.ppm' % testname):
+        if not filecmp.cmp('%s.trace.ppm' % testname, '%s.%s.replay.ppm' % (testname, str(loopCount))):
             HandleError ('Error: Loop Trace/replay screenshots do not match.')
 
     elapsed = time.time() - startTime
