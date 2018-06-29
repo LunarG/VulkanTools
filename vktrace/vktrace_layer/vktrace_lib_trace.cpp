@@ -233,6 +233,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
         size = entry->totalSize - offset;
     }
 
+    // Pageguard handling will change real mapped memory pointer to a pointer
+    // of shadow memory, but trim need to use real mapped pointer to keep
+    // the pageguard status no change.
+    //
+    // So here, we save the real mapped memory pointer before page guard
+    // handling replace it with shadow memory pointer.
+    void* pRealMappedData = *ppData;
 #if defined(USE_PAGEGUARD_SPEEDUP)
     // Pageguard handling will change real mapped memory pointer to a pointer
     // of shadow memory, but trim need to use real mapped pointer to keep
