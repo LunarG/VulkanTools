@@ -40,7 +40,6 @@ LOCAL_SRC_FILES += $(LVL_DIR)/layers/core_validation.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/descriptor_sets.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/buffer_validation.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/shader_validation.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/xxhash.c
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
@@ -58,7 +57,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_parameter_validation
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/parameter_validation.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/parameter_validation_utils.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
@@ -75,7 +73,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_object_tracker
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/object_tracker.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/object_tracker_utils.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
@@ -91,7 +88,6 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_threading
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/threading.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
@@ -107,7 +103,6 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_unique_objects
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/unique_objects.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
@@ -126,7 +121,7 @@ include $(LOCAL_PATH)/$(LAYER_DIR)/include/Android.mk
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_api_dump
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/api_dump.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
@@ -142,7 +137,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_screenshot
 LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot.cpp
 LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/screenshot_parsing.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
@@ -157,7 +152,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_device_simulation
 LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/device_simulation.cpp
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_SRC_FILES += $(ANDROID_DIR)/third_party/jsoncpp/dist/jsoncpp.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(ANDROID_DIR)/third_party/jsoncpp/dist \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \

@@ -69,7 +69,6 @@ set (VALIDATION_LAYERS_RELATIVE_LOCATION submodules/Vulkan-ValidationLayers)
 set (SUBPROJECTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 
 add_subdirectory(${VALIDATION_LAYERS_RELATIVE_LOCATION})
-
 set (VALIDATION_LAYERS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION})
 
 set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
@@ -77,7 +76,7 @@ set(VALIDATION_LAYERS_SCRIPTS_DIR ${VALIDATION_LAYERS_ROOT_DIR}/scripts)
 
 # Header file for CMake settings
 find_package(VulkanHeaders)
-include_directories(${VulkanHeaders_INCLUDE_DIR})
+include_directories(${VulkanHeaders_INCLUDE_DIR} ${PROJECT_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION})
 
 # The vulkan loader search is:
 #     User-supplied setting of CMAKE_PREFIX_PATH
