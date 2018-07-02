@@ -1009,7 +1009,7 @@ void snapshot_state_tracker() {
                         // buffer memory size.
 
                         copyRegion.bufferOffset = layout.offset;
-                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.depth = imageIter->second.ObjectInfo.Image.extent.depth;
                         copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
                         copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
                         copyRegion.imageOffset.x = 0;
@@ -1036,7 +1036,7 @@ void snapshot_state_tracker() {
                         // copy to be tightly packed according to the imageExtent.
 
                         copyRegion.bufferOffset = layout.offset;
-                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.depth = imageIter->second.ObjectInfo.Image.extent.depth;
                         copyRegion.imageExtent.width = imageIter->second.ObjectInfo.Image.extent.width;
                         copyRegion.imageExtent.height = imageIter->second.ObjectInfo.Image.extent.height;
                         copyRegion.imageOffset.x = 0;
@@ -1066,7 +1066,7 @@ void snapshot_state_tracker() {
                         copyRegion.bufferRowLength = 0;    //< tightly packed texels
                         copyRegion.bufferImageHeight = 0;  //< tightly packed texels
                         copyRegion.bufferOffset = lay.offset;
-                        copyRegion.imageExtent.depth = 1;
+                        copyRegion.imageExtent.depth = imageIter->second.ObjectInfo.Image.extent.depth >> i;
                         copyRegion.imageExtent.width = (imageIter->second.ObjectInfo.Image.extent.width >> i);
                         copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
                         copyRegion.imageOffset.x = 0;
