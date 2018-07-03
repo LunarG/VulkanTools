@@ -2275,7 +2275,8 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
     if (pPacket->pAllocateInfo->pNext) {
         VkDedicatedAllocationMemoryAllocateInfoNV *x = (VkDedicatedAllocationMemoryAllocateInfoNV *)(pPacket->pAllocateInfo->pNext);
 
-        if (x->sType == VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV) {
+        if (x->sType == VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV ||
+            x->sType == VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO) {
             x->image = m_objMapper.remap_images(x->image);
             x->buffer = m_objMapper.remap_buffers(x->buffer);
             if (!(x->image == VK_NULL_HANDLE || x->buffer == VK_NULL_HANDLE))
