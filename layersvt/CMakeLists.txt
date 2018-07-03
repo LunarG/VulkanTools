@@ -163,8 +163,8 @@ run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
 run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
 run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
 
-add_vk_layer(monitor monitor.cpp ${VALIDATION_LAYERS_ROOT_DIR}/layers/vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp ${VALIDATION_LAYERS_ROOT_DIR}/layers/vk_layer_table.cpp)
-add_vk_layer(device_simulation device_simulation.cpp ${VALIDATION_LAYERS_ROOT_DIR}/layers/vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
-add_vk_layer(api_dump api_dump.cpp ${VALIDATION_LAYERS_ROOT_DIR}/layers/vk_layer_table.cpp)
+add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
+add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
 
