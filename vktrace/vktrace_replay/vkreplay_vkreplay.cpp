@@ -2961,6 +2961,7 @@ void vkReplay::manually_replay_vkGetImageMemoryRequirements2KHR(packet_vkGetImag
         ((VkImageMemoryRequirementsInfo2KHR *)pPacket->pInfo)->image = remappedimage;
     }
     vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pInfo);
+    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pMemoryRequirements);
     m_vkDeviceFuncs.GetImageMemoryRequirements2KHR(remappeddevice, pPacket->pInfo, pPacket->pMemoryRequirements);
 
     replayGetImageMemoryRequirements[remappedimage] = pPacket->pMemoryRequirements->memoryRequirements;
@@ -2999,6 +3000,7 @@ void vkReplay::manually_replay_vkGetBufferMemoryRequirements2KHR(packet_vkGetBuf
     *((VkBuffer *)(&pPacket->pInfo->buffer)) = remappedBuffer;
 
     vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pInfo);
+    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pMemoryRequirements);
     m_vkDeviceFuncs.GetBufferMemoryRequirements2KHR(remappedDevice, pPacket->pInfo, pPacket->pMemoryRequirements);
     replayGetBufferMemoryRequirements[pPacket->pInfo->buffer] = pPacket->pMemoryRequirements->memoryRequirements;
     return;
