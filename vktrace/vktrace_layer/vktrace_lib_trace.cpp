@@ -2598,6 +2598,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
     return result;
 }
 
+// This function returns the size of VkGraphicsPipelineCreateInfo struct to be used when creating a packet.
 static size_t get_VkGraphicsPipelineCreateInfo_size(const VkGraphicsPipelineCreateInfo* pCreateInfos) {
     size_t entryPointNameLength = 0;
     size_t struct_size = get_struct_chain_size(pCreateInfos);
@@ -2613,7 +2614,6 @@ static size_t get_VkGraphicsPipelineCreateInfo_size(const VkGraphicsPipelineCrea
             ++pStage;
         }
     }
-    struct_size += get_struct_chain_size(pCreateInfos->pVertexInputState);
     struct_size += get_struct_chain_size(pCreateInfos->pVertexInputState);
     struct_size += get_struct_chain_size(pCreateInfos->pInputAssemblyState);
     struct_size += get_struct_chain_size(pCreateInfos->pTessellationState);
