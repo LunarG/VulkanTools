@@ -2100,6 +2100,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue queue, uint32_t submitCount,
                                                                       const VkSubmitInfo* pSubmits, VkFence fence) {
+    if ((g_trimEnabled) && (pSubmits != NULL)) {
+        vktrace_enter_critical_section(&trim::trimTransitionMapLock);
+    }
 #if defined(USE_PAGEGUARD_SPEEDUP)
     pageguardEnter();
     flushAllChangedMappedMemory(&vkFlushMappedMemoryRangesWithoutAPICall);
@@ -2234,6 +2237,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
             vktrace_delete_trace_packet(&pHeader);
         }
     }
+
+    if ((g_trimEnabled) && (pSubmits != NULL)) {
+        vktrace_leave_critical_section(&trim::trimTransitionMapLock);
+    }
+
     return result;
 }
 
