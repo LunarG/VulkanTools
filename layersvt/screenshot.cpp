@@ -1109,6 +1109,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
         swapchainMapElem->device = device;
         swapchainMapElem->imageExtent = pCreateInfo->imageExtent;
         swapchainMapElem->format = pCreateInfo->imageFormat;
+        // If there's a (destroyed) swapchain with the same handle, remove it from the swapchainMap
+        if (swapchainMap.find(*pSwapchain) != swapchainMap.end()) {
+            delete swapchainMap[*pSwapchain];
+            swapchainMap.erase(*pSwapchain);
+        }
         swapchainMap.insert(make_pair(*pSwapchain, swapchainMapElem));
 
         // Create a mapping for the swapchain object into the dispatch table
