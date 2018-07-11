@@ -1066,9 +1066,21 @@ void snapshot_state_tracker() {
                         copyRegion.bufferRowLength = 0;    //< tightly packed texels
                         copyRegion.bufferImageHeight = 0;  //< tightly packed texels
                         copyRegion.bufferOffset = lay.offset;
-                        copyRegion.imageExtent.depth = imageIter->second.ObjectInfo.Image.extent.depth >> i;
+
+                        if (imageIter->second.ObjectInfo.Image.imageType == VK_IMAGE_TYPE_3D) {
+                            copyRegion.imageExtent.depth = imageIter->second.ObjectInfo.Image.extent.depth >> i;
+                        } else {
+                            copyRegion.imageExtent.depth = 1;
+                        }
+
                         copyRegion.imageExtent.width = (imageIter->second.ObjectInfo.Image.extent.width >> i);
-                        copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
+
+                        if (imageIter->second.ObjectInfo.Image.imageType != VK_IMAGE_TYPE_1D) {
+                            copyRegion.imageExtent.height = (imageIter->second.ObjectInfo.Image.extent.height >> i);
+                        } else {
+                            copyRegion.imageExtent.height = 1;
+                        }
+
                         copyRegion.imageOffset.x = 0;
                         copyRegion.imageOffset.y = 0;
                         copyRegion.imageOffset.z = 0;
