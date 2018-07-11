@@ -2997,6 +2997,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
 #endif  //! TRIM_USE_ORDERED_IMAGE_CREATION
         info.ObjectInfo.Image.bIsSwapchainImage = false;
         info.ObjectInfo.Image.format = pCreateInfo->format;
+        info.ObjectInfo.Image.imageType = pCreateInfo->imageType;
         info.ObjectInfo.Image.aspectMask = trim::getImageAspectFromFormat(pCreateInfo->format);
         info.ObjectInfo.Image.extent = pCreateInfo->extent;
         info.ObjectInfo.Image.mipLevels = pCreateInfo->mipLevels;

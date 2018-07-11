@@ -151,6 +151,7 @@ typedef struct _Trim_ObjectInfo {
             VkDeviceSize memoryOffset;
             VkDeviceSize memorySize;
             VkFormat format;
+            VkImageType imageType;
             VkExtent3D extent;
             uint32_t mipLevels;
             uint32_t arrayLayers;
