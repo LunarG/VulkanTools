@@ -172,6 +172,10 @@ int vkDisplay::init(const unsigned int gpu_idx) {
     xcb_screen_iterator_t iter;
     int scr;
     m_pXcbConnection = xcb_connect(NULL, &scr);
+    if (xcb_connection_has_error(m_pXcbConnection)) {
+        vktrace_LogError("failed to connect to X11 server");
+        return -1;
+    }
     setup = xcb_get_setup(m_pXcbConnection);
     iter = xcb_setup_roots_iterator(setup);
     while (scr-- > 0) xcb_screen_next(&iter);
