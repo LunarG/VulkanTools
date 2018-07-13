@@ -42,12 +42,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
-    ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(OS_REPLAYER_LIBS ${LIBRARIES})
-endif()
-
-
 
 set(SRC_LIST
     ${SRC_LIST}
@@ -92,7 +86,7 @@ add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
-    ${OS_REPLAYER_LIBS}
+    ${LIBRARIES}
     ${LIBVK}
     vktrace_common
 )
