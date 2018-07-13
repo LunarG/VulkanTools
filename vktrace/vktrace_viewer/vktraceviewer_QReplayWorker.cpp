@@ -19,9 +19,11 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com> <plohrmann@gmail.com>
  **************************************************************************/
 
-#include "vktraceviewer_QReplayWorker.h"
 #include <QAction>
 #include <QCoreApplication>
+
+#include "vktraceviewer_QReplayWorker.h"
+
 #include "vktraceviewer_trace_file_utils.h"
 
 vktraceviewer_QReplayWorker* g_pWorker;
