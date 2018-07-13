@@ -21,8 +21,8 @@
 
 #include <QApplication>
 
-#include "vktraceviewer.h"
 #include "vktraceviewer_settings.h"
+#include "vktraceviewer.h"
 
 #if defined(WIN32)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
