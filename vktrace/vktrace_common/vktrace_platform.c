@@ -498,3 +498,29 @@ BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle,
 
     return TRUE;
 }
+
+#if defined(ANDROID)
+int vktrace_fseek(FILE* stream, int64_t offset, int whence) {
+    if (sizeof(void*) == 8) {
+        // use native fseek on 64 bit Android
+        return fseek(stream, offset, whence);
+    } else {
+        // disable buffering
+        setbuf(stream, NULL);
+        if (lseek64(fileno(stream), offset, whence) == -1) {
+            return -1;
+        }
+        return 0;
+    }
+}
+int64_t vktrace_ftell(FILE* stream) {
+    if (sizeof(void*) == 8) {
+        // use native ftell on 64 bit Android
+        return ftell(stream);
+    } else {
+        // disable buffering
+        setbuf(stream, NULL);
+        return lseek64(fileno(stream), 0L, SEEK_CUR);
+    }
+}
+#endif

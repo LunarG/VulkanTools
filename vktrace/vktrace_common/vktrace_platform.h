@@ -174,6 +174,12 @@ void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection)
 BOOL vktrace_platform_remote_load_library(vktrace_process_handle pProcessHandle, const char* dllPath,
                                           vktrace_thread* pTracingThread, char** ldPreload);
 
+#if defined(ANDROID)
+#include <stdio.h>
+int vktrace_fseek(FILE* stream, int64_t offset, int whence);
+int64_t vktrace_ftell(FILE* stream);
+#endif
+
 #if defined(__cplusplus)
 }
 #endif
