@@ -225,30 +225,35 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
 
 #if defined(PLATFORM_LINUX)
 #if !defined(ANDROID)
+        // LINUX
+        if (m_displayServer == VK_DISPLAY_XCB) {
+            extension_names.push_back("VK_KHR_xcb_surface");
+            outlist.push_back("VK_KHR_wayland_surface");
+        } else if (m_displayServer == VK_DISPLAY_WAYLAND) {
+            extension_names.push_back("VK_KHR_wayland_surface");
+            outlist.push_back("VK_KHR_xcb_surface");
+        }
         outlist.push_back("VK_KHR_android_surface");
-#if defined(VK_KHR_XCB_SURFACE_EXTENSION_NAME)
-        extension_names.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-#endif
-#if defined(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
-        extension_names.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
-#endif
         outlist.push_back("VK_KHR_xlib_surface");
-        outlist.push_back("VK_KHR_wayland_surface");
         outlist.push_back("VK_KHR_win32_surface");
+        outlist.push_back("VK_KHR_mir_surface");
 #else
-        extension_names.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+        // ANDROID
+        extension_names.push_back("VK_KHR_android_surface");
         outlist.push_back("VK_KHR_win32_surface");
         outlist.push_back("VK_KHR_xlib_surface");
         outlist.push_back("VK_KHR_xcb_surface");
         outlist.push_back("VK_KHR_wayland_surface");
         outlist.push_back("VK_KHR_mir_surface");
-#endif  // ANDROID
+#endif
 #else
-        extension_names.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        // WIN32
+        extension_names.push_back("VK_KHR_win32_surface");
         outlist.push_back("VK_KHR_xlib_surface");
         outlist.push_back("VK_KHR_xcb_surface");
         outlist.push_back("VK_KHR_wayland_surface");
         outlist.push_back("VK_KHR_mir_surface");
+        outlist.push_back("VK_KHR_android_surface");
 #endif
 
         // Add any extensions that are both replayable and in the packet
