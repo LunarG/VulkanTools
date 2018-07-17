@@ -63,7 +63,7 @@ int vkDisplayXcb::create_window(const unsigned int width, const unsigned int hei
 
     value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     value_list[0] = m_pXcbScreen->black_pixel;
-    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE;
 
     xcb_create_window(m_pXcbConnection, XCB_COPY_FROM_PARENT, m_XcbWindow, m_pXcbScreen->root, 0, 0, width, height, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, m_pXcbScreen->root_visual, value_mask, value_list);
@@ -136,18 +136,7 @@ void vkDisplayXcb::process_event() {
                 }
             } break;
             case XCB_CONFIGURE_NOTIFY: {
-                xcb_configure_notify_event_t *cne = (xcb_configure_notify_event_t *)event;
-                if (cne->width != m_windowWidth || cne->height != m_windowHeight) {
-                    // Our window has been resized, probably by the window manager.
-                    // There's not really anything we can do here other than abort.
-                    vktrace_LogError("bad window size, aborting!");
-                    set_quit_status(true);
-                }
-            } break;
-            case XCB_MAP_NOTIFY: {
-                // If we were waiting for a MapWindow request to be processed,
-                // we can now continue
-                set_pause_status(false);
+                // TODO resize here too
             } break;
         }
         free(event);
