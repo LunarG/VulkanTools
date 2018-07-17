@@ -26,9 +26,6 @@
 #include <QString>
 #include <QThread>
 
-#include "vkreplay_seq.h"
-#include "vkreplay_factory.h"
-
 #include "vktraceviewer_view.h"
 #include "vktraceviewer_trace_file_utils.h"
 #include "vktraceviewer_qtimelineview.h"
@@ -38,6 +35,11 @@
 #include "vktraceviewer_qgeneratetracedialog.h"
 #include "vktraceviewer_qsettingsdialog.h"
 #include "vktraceviewer_settings.h"
+
+#include "vkreplay_seq.h"
+#include "vkreplay_factory.h"
+
+#undef Bool  // Xlib defines this, will not be compatible with QT
 
 namespace Ui {
 class vktraceviewer;

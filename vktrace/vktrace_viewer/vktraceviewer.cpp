@@ -33,9 +33,9 @@
 #include <QAbstractProxyModel>
 #include <qwindow.h>
 
+#include "vktraceviewer_settings.h"
 #include "ui_vktraceviewer.h"
 #include "vktraceviewer.h"
-#include "vktraceviewer_settings.h"
 #include "vktraceviewer_output.h"
 
 #include "vktraceviewer_controller_factory.h"
