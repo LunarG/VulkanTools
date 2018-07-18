@@ -72,9 +72,12 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 #if defined(WIN32)
 #define Ftell _ftelli64
 #define Fseek _fseeki64
+#elif defined(ANDROID)
+#define Ftell vktrace_ftell
+#define Fseek vktrace_fseek
 #else
-#define Ftell ftell
-#define Fseek fseek
+#define Ftell ftello
+#define Fseek fseeko
 #endif
 
 // Enviroment variables used by vktrace/replay
