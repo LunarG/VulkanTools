@@ -49,7 +49,10 @@ def TraceReplayProgramTest(testname, program, programArgs, args):
     # Trace. Screenshot frame 1
     layerEnv = os.environ.copy()
     layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
-    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-s', '1', '-w', '.'], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-s', '1', '-w', '.'], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while tracing, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -62,7 +65,10 @@ def TraceReplayProgramTest(testname, program, programArgs, args):
         HandleError('Error: Screenshot not taken while tracing.')
 
     # Replay
-    out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '1'], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '1'], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while replaying, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -94,7 +100,10 @@ def TrimTest(testname, program, programArgs, args):
     # Trace with trim frames 100-200. Screenshot frame 101
     layerEnv = os.environ.copy()
     layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
-    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-tr', 'frames-100-200', '-s', '101', '-w', '.'], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-tr', 'frames-100-200', '-s', '101', '-w', '.'], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while tracing with trim, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -107,7 +116,10 @@ def TrimTest(testname, program, programArgs, args):
         HandleError('Error: Screenshot not taken while tracing.')
 
     # Replay
-    out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '2'], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '2'], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while replaying, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -141,7 +153,10 @@ def LoopTest(testname, program, programArgs, args):
     # Trace and screenshot frame 1
     layerEnv = os.environ.copy()
     layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
-    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-s', '1', '-w', '.'], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', program, '-a', '%s' % programArgs, '-s', '1', '-w', '.'], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while tracing, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -156,7 +171,10 @@ def LoopTest(testname, program, programArgs, args):
     # Test against 2nd loop and 3rd loop. Screenshot will always be from the last loop
     for loopCount in [2, 3]:
         # Replay
-        out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '1', '-l', str(loopCount)], env=layerEnv).decode('utf-8')
+        try:
+            out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', '1', '-l', str(loopCount)], env=layerEnv).decode('utf-8')
+        except subprocess.CalledProcessError as e:
+            HandleError('Error while replaying, return code %s:\n%s' % (e.returncode, e.output))
 
         if 'error' in out:
             err = GetErrorMessage(out)
@@ -195,7 +213,10 @@ def TraceReplayTraceTest(testname, traceFile, args):
     # Trace replay of <traceFile>
     layerEnv = os.environ.copy()
     layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
-    out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', args.VkReplayPath, '-a', '-o %s' % traceFile, '-s', frame, '-w', '.'], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', args.VkReplayPath, '-a', '-o %s' % traceFile, '-s', frame, '-w', '.'], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while tracing replay of original trace, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
@@ -207,7 +228,10 @@ def TraceReplayTraceTest(testname, traceFile, args):
     else:
         HandleError('Error: Screenshot not taken while tracing.')
 
-    out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', frame], env=layerEnv).decode('utf-8')
+    try:
+        out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', frame], env=layerEnv).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        HandleError('Error while replaying, return code %s:\n%s' % (e.returncode, e.output))
 
     if 'error' in out:
         err = GetErrorMessage(out)
