@@ -49,6 +49,7 @@ namespace vktrace_replay {
 
 class ReplayDisplayImp {
    public:
+    ReplayDisplayImp() : m_initedVK(false) {}
     virtual ~ReplayDisplayImp() {}
     virtual int init(const unsigned int gpu_idx) = 0;
     virtual int create_window(const unsigned int width, const unsigned int height) = 0;
