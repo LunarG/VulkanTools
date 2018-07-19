@@ -298,6 +298,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
             pCreateInfo->ppEnabledLayerNames = saved_ppLayers;
             pCreateInfo->enabledLayerCount = savedLayerCount;
         }
+        m_display->m_initedVK = true;
     }
     return replayResult;
 }
@@ -393,90 +394,90 @@ bool vkReplay::getQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, ui
 
 VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    VkDevice device;
+    VkPhysicalDevice remappedPhysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
+    VkDeviceCreateInfo *pCreateInfo;
+    char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
+    const char strScreenShot[] = "VK_LAYER_LUNARG_screenshot";
+
     for (uint32_t i = 0; i < pPacket->pCreateInfo->queueCreateInfoCount; i++)
         vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[i]);
-    if (!m_display->m_initedVK) {
-        VkDevice device;
-        VkPhysicalDevice remappedPhysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
-        VkDeviceCreateInfo *pCreateInfo;
-        char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
-        if (remappedPhysicalDevice == VK_NULL_HANDLE) {
-            vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
-            return VK_ERROR_VALIDATION_FAILED_EXT;
-        }
-        const char strScreenShot[] = "VK_LAYER_LUNARG_screenshot";
 
-        pCreateInfo = (VkDeviceCreateInfo *)pPacket->pCreateInfo;
-        if (g_pReplaySettings->screenshotList != NULL) {
-            // enable screenshot layer if it is available and not already in list
-            bool found_ss = false;
-            for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
-                if (!strcmp(pCreateInfo->ppEnabledLayerNames[i], strScreenShot)) {
+    if (remappedPhysicalDevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    pCreateInfo = (VkDeviceCreateInfo *)pPacket->pCreateInfo;
+    if (g_pReplaySettings->screenshotList != NULL) {
+        // enable screenshot layer if it is available and not already in list
+        bool found_ss = false;
+        for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
+            if (!strcmp(pCreateInfo->ppEnabledLayerNames[i], strScreenShot)) {
+                found_ss = true;
+                break;
+            }
+        }
+        if (!found_ss) {
+            uint32_t count;
+
+            // query to find if ScreenShot layer is available
+            m_vkFuncs.EnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, NULL);
+            VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
+            if (props && count > 0) m_vkFuncs.EnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, props);
+            for (uint32_t i = 0; i < count; i++) {
+                if (!strcmp(props[i].layerName, strScreenShot)) {
                     found_ss = true;
                     break;
                 }
             }
-            if (!found_ss) {
-                uint32_t count;
-
-                // query to find if ScreenShot layer is available
-                m_vkFuncs.EnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, NULL);
-                VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
-                if (props && count > 0) m_vkFuncs.EnumerateDeviceLayerProperties(remappedPhysicalDevice, &count, props);
-                for (uint32_t i = 0; i < count; i++) {
-                    if (!strcmp(props[i].layerName, strScreenShot)) {
-                        found_ss = true;
-                        break;
-                    }
+            if (found_ss) {
+                // screenshot layer is available so enable it
+                ppEnabledLayerNames = (char **)vktrace_malloc((pCreateInfo->enabledLayerCount + 1) * sizeof(char *));
+                for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount && ppEnabledLayerNames; i++) {
+                    ppEnabledLayerNames[i] = (char *)pCreateInfo->ppEnabledLayerNames[i];
                 }
-                if (found_ss) {
-                    // screenshot layer is available so enable it
-                    ppEnabledLayerNames = (char **)vktrace_malloc((pCreateInfo->enabledLayerCount + 1) * sizeof(char *));
-                    for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount && ppEnabledLayerNames; i++) {
-                        ppEnabledLayerNames[i] = (char *)pCreateInfo->ppEnabledLayerNames[i];
-                    }
-                    ppEnabledLayerNames[pCreateInfo->enabledLayerCount] = (char *)vktrace_malloc(strlen(strScreenShot) + 1);
-                    strcpy(ppEnabledLayerNames[pCreateInfo->enabledLayerCount++], strScreenShot);
-                    saved_ppLayers = (char **)pCreateInfo->ppEnabledLayerNames;
-                    pCreateInfo->ppEnabledLayerNames = ppEnabledLayerNames;
-                }
-                vktrace_free(props);
+                ppEnabledLayerNames[pCreateInfo->enabledLayerCount] = (char *)vktrace_malloc(strlen(strScreenShot) + 1);
+                strcpy(ppEnabledLayerNames[pCreateInfo->enabledLayerCount++], strScreenShot);
+                saved_ppLayers = (char **)pCreateInfo->ppEnabledLayerNames;
+                pCreateInfo->ppEnabledLayerNames = ppEnabledLayerNames;
             }
+            vktrace_free(props);
         }
+    }
 
-        // Convert all instances of queueFamilyIndex in structure
-        for (uint32_t i = 0; i < pPacket->pCreateInfo->queueCreateInfoCount; i++) {
-            uint32_t replayIdx;
-            if (pPacket->pCreateInfo->pQueueCreateInfos &&
-                getQueueFamilyIdx(pPacket->physicalDevice, remappedPhysicalDevice,
-                                  pPacket->pCreateInfo->pQueueCreateInfos->queueFamilyIndex, &replayIdx)) {
-                *((uint32_t *)&pPacket->pCreateInfo->pQueueCreateInfos->queueFamilyIndex) = replayIdx;
-            } else {
-                vktrace_LogError("vkCreateDevice failed, bad queueFamilyIndex");
-                return VK_ERROR_VALIDATION_FAILED_EXT;
-            }
+    // Convert all instances of queueFamilyIndex in structure
+    for (uint32_t i = 0; i < pPacket->pCreateInfo->queueCreateInfoCount; i++) {
+        uint32_t replayIdx;
+        if (pPacket->pCreateInfo->pQueueCreateInfos &&
+            getQueueFamilyIdx(pPacket->physicalDevice, remappedPhysicalDevice,
+                              pPacket->pCreateInfo->pQueueCreateInfos->queueFamilyIndex, &replayIdx)) {
+            *((uint32_t *)&pPacket->pCreateInfo->pQueueCreateInfos->queueFamilyIndex) = replayIdx;
+        } else {
+            vktrace_LogError("vkCreateDevice failed, bad queueFamilyIndex");
+            return VK_ERROR_VALIDATION_FAILED_EXT;
         }
+    }
 
-        replayResult = m_vkFuncs.CreateDevice(remappedPhysicalDevice, pPacket->pCreateInfo, NULL, &device);
-        if (ppEnabledLayerNames) {
-            // restore the packets CreateInfo struct
-            vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
-            vktrace_free(ppEnabledLayerNames);
-            pCreateInfo->ppEnabledLayerNames = saved_ppLayers;
-        }
-        if (replayResult == VK_SUCCESS) {
-            m_objMapper.add_to_devices_map(*(pPacket->pDevice), device);
-            tracePhysicalDevices[*(pPacket->pDevice)] = pPacket->physicalDevice;
-            replayPhysicalDevices[device] = remappedPhysicalDevice;
+    replayResult = m_vkFuncs.CreateDevice(remappedPhysicalDevice, pPacket->pCreateInfo, NULL, &device);
+    if (ppEnabledLayerNames) {
+        // restore the packets CreateInfo struct
+        vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
+        vktrace_free(ppEnabledLayerNames);
+        pCreateInfo->ppEnabledLayerNames = saved_ppLayers;
+    }
+    if (replayResult == VK_SUCCESS) {
+        m_objMapper.add_to_devices_map(*(pPacket->pDevice), device);
+        tracePhysicalDevices[*(pPacket->pDevice)] = pPacket->physicalDevice;
+        replayPhysicalDevices[device] = remappedPhysicalDevice;
 
-            // Build device dispatch table
-            layer_init_device_dispatch_table(device, &m_vkDeviceFuncs, m_vkDeviceFuncs.GetDeviceProcAddr);
-        } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
-            vktrace_LogVerbose("vkCreateDevice failed with VK_ERROR_EXTENSION_NOT_PRESENT");
-            vktrace_LogVerbose("List of requested extensions:");
-            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
-            }
+        // Build device dispatch table
+        layer_init_device_dispatch_table(device, &m_vkDeviceFuncs, m_vkDeviceFuncs.GetDeviceProcAddr);
+    } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
+        vktrace_LogVerbose("vkCreateDevice failed with VK_ERROR_EXTENSION_NOT_PRESENT");
+        vktrace_LogVerbose("List of requested extensions:");
+        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+            vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
         }
     }
     return replayResult;
@@ -575,80 +576,78 @@ VkResult vkReplay::manually_replay_vkCreateCommandPool(packet_vkCreateCommandPoo
 
 VkResult vkReplay::manually_replay_vkEnumeratePhysicalDevices(packet_vkEnumeratePhysicalDevices *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
-    if (!m_display->m_initedVK) {
-        uint32_t deviceCount = *(pPacket->pPhysicalDeviceCount);
-        VkPhysicalDevice *pDevices = pPacket->pPhysicalDevices;
+    uint32_t deviceCount = *(pPacket->pPhysicalDeviceCount);
+    VkPhysicalDevice *pDevices = pPacket->pPhysicalDevices;
 
-        VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
-        if (remappedInstance == VK_NULL_HANDLE) {
-            vktrace_LogError("Skipping vkEnumeratePhysicalDevices() due to invalid remapped VkInstance.");
-            return VK_ERROR_VALIDATION_FAILED_EXT;
+    VkInstance remappedInstance = m_objMapper.remap_instances(pPacket->instance);
+    if (remappedInstance == VK_NULL_HANDLE) {
+        vktrace_LogError("Skipping vkEnumeratePhysicalDevices() due to invalid remapped VkInstance.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+    if (pPacket->pPhysicalDevices != NULL) {
+        // If we are querying for the list instead of the count, use a previously acquired count
+        deviceCount = m_gpu_count;
+        pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
+    }
+    replayResult = m_vkFuncs.EnumeratePhysicalDevices(remappedInstance, &deviceCount, pDevices);
+
+    if (pDevices == NULL) {
+        // If we are querying for the count, store it for later
+        m_gpu_count = deviceCount;
+    }
+
+    if (deviceCount != *(pPacket->pPhysicalDeviceCount)) {
+        vktrace_LogWarning("Number of physical devices mismatched in replay %u versus trace %u.", deviceCount,
+                           *(pPacket->pPhysicalDeviceCount));
+    } else if (deviceCount == 0) {
+        vktrace_LogError("vkEnumeratePhysicalDevices number of gpus is zero.");
+    } else if (pDevices != NULL) {
+        vktrace_LogVerbose("Enumerated %d physical devices in the system.", deviceCount);
+    }
+
+    if (pDevices != NULL) {
+        const uint32_t replay_device_count = deviceCount;
+        uint64_t *replay_device_id = VKTRACE_NEW_ARRAY(uint64_t, replay_device_count);
+        for (uint32_t i = 0; i < replay_device_count; ++i) {
+            VkPhysicalDeviceProperties props;
+            m_vkFuncs.GetPhysicalDeviceProperties(pDevices[i], &props);
+            replay_device_id[i] = ((uint64_t)props.vendorID << 32) | (uint64_t)props.deviceID;
         }
-        if (pPacket->pPhysicalDevices != NULL) {
-            // If we are querying for the list instead of the count, use a previously acquired count
-            deviceCount = m_gpu_count;
-            pDevices = VKTRACE_NEW_ARRAY(VkPhysicalDevice, deviceCount);
-        }
-        replayResult = m_vkFuncs.EnumeratePhysicalDevices(remappedInstance, &deviceCount, pDevices);
 
-        if (pDevices == NULL) {
-            // If we are querying for the count, store it for later
-            m_gpu_count = deviceCount;
-        }
+        const uint32_t trace_device_count = *pPacket->pPhysicalDeviceCount;
 
-        if (deviceCount != *(pPacket->pPhysicalDeviceCount)) {
-            vktrace_LogWarning("Number of physical devices mismatched in replay %u versus trace %u.", deviceCount,
-                               *(pPacket->pPhysicalDeviceCount));
-        } else if (deviceCount == 0) {
-            vktrace_LogError("vkEnumeratePhysicalDevices number of gpus is zero.");
-        } else if (pDevices != NULL) {
-            vktrace_LogVerbose("Enumerated %d physical devices in the system.", deviceCount);
-        }
-
-        if (pDevices != NULL) {
-            const uint32_t replay_device_count = deviceCount;
-            uint64_t *replay_device_id = VKTRACE_NEW_ARRAY(uint64_t, replay_device_count);
-            for (uint32_t i = 0; i < replay_device_count; ++i) {
-                VkPhysicalDeviceProperties props;
-                m_vkFuncs.GetPhysicalDeviceProperties(pDevices[i], &props);
-                replay_device_id[i] = ((uint64_t)props.vendorID << 32) | (uint64_t)props.deviceID;
-            }
-
-            const uint32_t trace_device_count = *pPacket->pPhysicalDeviceCount;
-
-            for (uint32_t i = 0; i < trace_device_count; i++) {
-                // TODO: Pick a device based on matching properties. Might have to move this logic
-                // First, check if device on the same index has matching vendor and device ID
-                if (i < replay_device_count && m_pGpuinfo[i].gpu_id == replay_device_id[i]) {
-                    m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
-                } else {
-                    // Search the list for a matching device
-                    bool found = false;
-                    for (uint32_t j = 0; j < replay_device_count; ++j) {
-                        if (j == i) {
-                            continue;  // Already checked this
-                        }
-                        if (m_pGpuinfo[i].gpu_id == replay_device_id[j]) {
-                            m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[j]);
-                            found = true;
-                            break;
-                        }
+        for (uint32_t i = 0; i < trace_device_count; i++) {
+            // TODO: Pick a device based on matching properties. Might have to move this logic
+            // First, check if device on the same index has matching vendor and device ID
+            if (i < replay_device_count && m_pGpuinfo[i].gpu_id == replay_device_id[i]) {
+                m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
+            } else {
+                // Search the list for a matching device
+                bool found = false;
+                for (uint32_t j = 0; j < replay_device_count; ++j) {
+                    if (j == i) {
+                        continue;  // Already checked this
                     }
-                    if (!found) {
-                        // If all else fails, just map the indices.
-                        if (i >= replay_device_count) {
-                            m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[0]);
-                        } else {
-                            m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
-                        }
+                    if (m_pGpuinfo[i].gpu_id == replay_device_id[j]) {
+                        m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[j]);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // If all else fails, just map the indices.
+                    if (i >= replay_device_count) {
+                        m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[0]);
+                    } else {
+                        m_objMapper.add_to_physicaldevices_map(pPacket->pPhysicalDevices[i], pDevices[i]);
                     }
                 }
             }
-
-            VKTRACE_DELETE(replay_device_id);
         }
-        VKTRACE_DELETE(pDevices);
+
+        VKTRACE_DELETE(replay_device_id);
     }
+    VKTRACE_DELETE(pDevices);
     return replayResult;
 }
 
