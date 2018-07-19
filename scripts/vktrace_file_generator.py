@@ -933,7 +933,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     #TODO138 : disabling snapshot
                     #replay_gen_source += '            m_pVktraceSnapshotPrint = NULL;\n'
                     replay_gen_source += '            m_objMapper.rm_from_devices_map(pPacket->device);\n'
-                    replay_gen_source += '            m_display->m_initedVK = false;\n'
                 elif 'DestroySwapchainKHR' in cmdname:
                     replay_gen_source += '            m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
                 elif 'AcquireNextImage' in cmdname:
@@ -944,6 +943,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            // TODO need to handle multiple instances and only clearing maps within an instance.\n'
                     replay_gen_source += '            // TODO this only works with a single instance used at any given time.\n'
                     replay_gen_source += '            m_objMapper.clear_all_map_handles();\n'
+                    replay_gen_source += '            m_display->m_initedVK = false;\n'
                 elif 'MergePipelineCaches' in cmdname:
                     replay_gen_source += '            delete[] remappedpSrcCaches;\n'
                 elif 'FreeCommandBuffers' in cmdname:
