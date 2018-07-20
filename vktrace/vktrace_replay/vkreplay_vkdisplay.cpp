@@ -197,6 +197,16 @@ int vkDisplayWin32::create_window(const unsigned int width, const unsigned int h
         vktrace_LogError("Failed to create window");
         return -1;
     }
+
+    // Get and save screen size
+    RECT sr;
+    if (!GetWindowRect(GetDesktopWindow(), &sr)) {
+        vktrace_LogError("Failed to get size of screen");
+        return -1;
+    }
+    m_screenWidth = sr.right;
+    m_screenHeight = sr.bottom;
+
     // TODO : Not sure of best place to put this, but I have all the info I need here so just setting it all here for now
     m_surface.base.platform = VK_ICD_WSI_PLATFORM_WIN32;
     m_surface.hinstance = wcex.hInstance;
@@ -209,10 +219,19 @@ void vkDisplayWin32::resize_window(const unsigned int width, const unsigned int 
     if (width != m_windowWidth || height != m_windowHeight) {
         m_windowWidth = width;
         m_windowHeight = height;
-
-        RECT wr = {0, 0, (LONG)width, (LONG)height};
-        AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-        SetWindowPos(get_window_handle(), HWND_TOP, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE);
+        if (width >= m_screenWidth || height >= m_screenHeight) {
+            // Make window full screen w/o borders
+            BOOL rval;
+            rval = (NULL != SetWindowLongPtr(m_windowHandle, GWL_STYLE, WS_VISIBLE | WS_POPUP));
+            rval &= SetWindowPos(m_windowHandle, HWND_TOP, 0, 0, width, height, SWP_FRAMECHANGED);
+            if (!rval) {
+                vktrace_LogError("Failed to set window size to %d %d", width, height);
+            }
+        } else {
+            RECT wr = {0, 0, (LONG)width, (LONG)height};
+            AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+            SetWindowPos(m_windowHandle, HWND_TOP, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE);
+        }
 
         // Make sure window is visible.
         ShowWindow(m_windowHandle, SW_SHOWDEFAULT);

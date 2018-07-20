@@ -42,7 +42,7 @@ extern "C" {
 #endif
 
 /* classes to abstract the display and initialization of rendering API for presenting
- * framebuffers for display into a window on the screen or else fullscreen.
+ * framebuffers for display into a window on the screen.
  * Uses Bridge design pattern.
  */
 namespace vktrace_replay {
@@ -67,13 +67,12 @@ class ReplayDisplayImp {
 
 class ReplayDisplay {
    public:
-    ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0), m_fullscreen(false) {}
+    ReplayDisplay() : m_imp(NULL), m_width(0), m_height(0), m_gpu(0) {}
 
-    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu, const bool fullscreen)
-        : m_imp(NULL), m_width(width), m_height(height), m_gpu(gpu), m_fullscreen(fullscreen) {}
+    ReplayDisplay(const unsigned int width, const unsigned int height, const unsigned int gpu)
+        : m_imp(NULL), m_width(width), m_height(height), m_gpu(gpu) {}
 
-    ReplayDisplay(const unsigned int width, const unsigned int height, const bool fullscreen)
-        : m_imp(NULL), m_width(width), m_height(height), m_gpu(-1), m_fullscreen(fullscreen) {}
+    ReplayDisplay(const unsigned int width, const unsigned int height) : m_imp(NULL), m_width(width), m_height(height), m_gpu(-1) {}
 
     virtual ~ReplayDisplay() {}
 
@@ -99,7 +98,6 @@ class ReplayDisplay {
     unsigned int get_gpu() { return m_gpu; }
     unsigned int get_width() { return m_width; }
     unsigned int get_height() { return m_height; }
-    bool get_fullscreen() { return m_fullscreen; }
     bool get_pause_status() {
         if (m_imp) {
             return m_imp->get_pause_status();
@@ -124,7 +122,6 @@ class ReplayDisplay {
     unsigned int m_width;
     unsigned int m_height;
     unsigned int m_gpu;
-    bool m_fullscreen;
 };
 
 }  // namespace vktrace_replay

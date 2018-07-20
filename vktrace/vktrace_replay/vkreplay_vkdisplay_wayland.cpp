@@ -49,6 +49,9 @@ vkDisplayWayland::vkDisplayWayland() : m_windowWidth(0), m_windowHeight(0) {
 
     registry_listener.global = registry_handle_global;
     registry_listener.global_remove = registry_handle_global_remove;
+
+    output_listener.geometry = output_handle_geometry;
+    output_listener.mode = output_handle_mode;
 }
 
 vkDisplayWayland::~vkDisplayWayland() {
@@ -116,6 +119,11 @@ void vkDisplayWayland::resize_window(const unsigned int width, const unsigned in
     if (width != m_windowWidth || height != m_windowHeight) {
         m_windowWidth = width;
         m_windowHeight = height;
+        if (width >= m_screenWidth || height >= m_screenHeight) {
+            // Make window full screen
+            wl_shell_surface_set_fullscreen(m_shell_surface, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, m_refresh, m_output);
+        }
+
         // In Wayland, the shell_surface should resize based on the Vulkan surface automagically
     }
 }
@@ -220,9 +228,26 @@ void vkDisplayWayland::registry_handle_global(void *data, wl_registry *registry,
     } else if (strcmp(interface, "wl_seat") == 0) {
         display->m_seat = (wl_seat *)wl_registry_bind(registry, id, &wl_seat_interface, 1);
         wl_seat_add_listener(display->m_seat, &seat_listener, display);
+    } else if (strcmp(interface, "wl_output") == 0) {
+        display->m_output = (wl_output *)wl_registry_bind(registry, id, &wl_output_interface, 1);
+        wl_output_add_listener(display->m_output, &output_listener, display);
     }
 }
 
 void vkDisplayWayland::registry_handle_global_remove(void *data, wl_registry *registry, uint32_t name) {}
 
 struct wl_registry_listener vkDisplayWayland::registry_listener;
+
+void vkDisplayWayland::output_handle_geometry(void *data, struct wl_output *wl_output, int x, int y, int physical_width,
+                                              int physical_height, int subpixel, const char *make, const char *model,
+                                              int transform) {}
+
+void vkDisplayWayland::output_handle_mode(void *data, struct wl_output *wl_output, uint32_t flags, int width, int height,
+                                          int refresh) {
+    auto *display = (vkDisplayWayland *)data;
+    display->m_screenWidth = width;
+    display->m_screenHeight = height;
+    display->m_refresh = refresh;
+}
+
+struct wl_output_listener vkDisplayWayland::output_listener;

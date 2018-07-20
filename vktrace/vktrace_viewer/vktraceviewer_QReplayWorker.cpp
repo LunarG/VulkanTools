@@ -142,10 +142,8 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
     bool bReplayerLoaded = false;
 
     vktrace_replay::ReplayDisplay disp;
-    if (separateReplayWindow) {
-        disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight, 0, false);
-    } else {
-        disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight, 0);
+    disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight);
+    if (!separateReplayWindow) {
         disp.set_window_handle(&hWindow);
     }
 
@@ -441,10 +439,10 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
 
             vktrace_replay::ReplayDisplay disp;
             if (detach) {
-                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight, 0, false);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
             } else {
                 WId hWindow = m_pReplayWindow->winId();
-                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight, 0);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
                 disp.set_window_handle(&hWindow);
             }
 
