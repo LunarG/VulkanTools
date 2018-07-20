@@ -555,7 +555,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
 
     // Create window. Initial size is 100x100. It will later get resized to the size
     // used by the traced app. The resize will happen  during playback of swapchain functions.
-    vktrace_replay::ReplayDisplay disp(100, 100, false);
+    vktrace_replay::ReplayDisplay disp(100, 100);
 
 // Create display
 #if defined(PLATFORM_LINUX) && !defined(ANDROID)

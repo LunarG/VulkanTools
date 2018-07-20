@@ -20,7 +20,7 @@ These additional packages are needed for building the components in this repo.
 # Dependencies from included submodule components
 sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libmirclient-dev libwayland-dev libxrandr-dev
 # Additional dependencies for this repo:
-sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev
+sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
 # If performing 32-bit builds, you will also need:
 sudo apt-get install libc6-dev-i386 g++-multilib
 ```

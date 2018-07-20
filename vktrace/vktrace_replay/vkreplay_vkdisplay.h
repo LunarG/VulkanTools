@@ -64,10 +64,11 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
     xcb_screen_t *m_pXcbScreen;
     xcb_window_t m_XcbWindow;
     xcb_intern_atom_reply_t *atom_wm_delete_window;
-// VkPlatformHandleXcbKHR m_XcbPlatformHandle;
 
     unsigned int m_windowWidth;
     unsigned int m_windowHeight;
+    unsigned int m_screenWidth;
+    unsigned int m_screenHeight;
     std::vector<VkExtent2D> imageExtents;
     std::vector<VkImage> imageHandles;
     std::vector<VkDeviceMemory> imageMemory;
@@ -115,6 +116,7 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
     struct wl_seat *m_seat;
     struct wl_pointer *m_pointer;
     struct wl_keyboard *m_keyboard;
+    struct wl_output *m_output;
 
     static void handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial);
     static void handle_configure(void *data, wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height);
@@ -142,9 +144,16 @@ class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
     static void registry_handle_global(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version);
     static void registry_handle_global_remove(void *data, wl_registry *registry, uint32_t name);
     static struct wl_registry_listener registry_listener;
+    static void output_handle_geometry(void *data, struct wl_output *wl_output, int x, int y, int physical_width,
+                                       int physical_height, int subpixel, const char *make, const char *model, int transform);
+    static void output_handle_mode(void *data, struct wl_output *wl_output, uint32_t flags, int width, int height, int refresh);
+    static struct wl_output_listener output_listener;
 
     unsigned int m_windowWidth;
     unsigned int m_windowHeight;
+    unsigned int m_screenWidth;
+    unsigned int m_screenHeight;
+    unsigned int m_refresh;
     std::vector<VkExtent2D> imageExtents;
     std::vector<VkImage> imageHandles;
     std::vector<VkDeviceMemory> imageMemory;
@@ -230,6 +239,9 @@ class vkDisplayWin32 : public vktrace_replay::ReplayDisplayImp {
 
     unsigned int m_windowWidth;
     unsigned int m_windowHeight;
+    unsigned int m_screenWidth;
+    unsigned int m_screenHeight;
+
     std::vector<VkExtent2D> imageExtents;
     std::vector<VkImage> imageHandles;
     std::vector<VkDeviceMemory> imageMemory;

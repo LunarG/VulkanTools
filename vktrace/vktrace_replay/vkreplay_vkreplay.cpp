@@ -3440,6 +3440,12 @@ out:
         VKTRACE_DELETE(pRemappedSwapchains);
     }
 
+    if (pPacket->result != VK_SUCCESS) {
+        // The call failed during tracing, probably because the window was resized by the app.
+        // We'll return the result from the trace file, even though the call succeeded.
+        return pPacket->result;
+    }
+
     return replayResult;
 }
 

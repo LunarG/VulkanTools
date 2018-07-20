@@ -20,7 +20,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_library(${XCB_DISPLAY_LIB} SHARED ${XCB_SRC_LIST} ${XCB_HDR_LIST})
 
     target_link_libraries(${XCB_DISPLAY_LIB}
-        xcb
+        xcb-randr xcb-ewmh xcb
         vktrace_common
     )
 

@@ -20,6 +20,8 @@
  */
 
 #include "vkreplay_vkdisplay.h"
+#include <xcb/randr.h>
+#include <xcb/xcb_ewmh.h>
 
 extern "C" {
 __attribute__((visibility("default"))) vkDisplayXcb *CreateVkDisplayXcb() { return new vkDisplayXcb(); }
@@ -69,8 +71,32 @@ int vkDisplayXcb::create_window(const unsigned int width, const unsigned int hei
     value_list[0] = m_pXcbScreen->black_pixel;
     value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE;
 
+    m_windowWidth = width;
+    m_windowHeight = height;
+
     xcb_create_window(m_pXcbConnection, XCB_COPY_FROM_PARENT, m_XcbWindow, m_pXcbScreen->root, 0, 0, width, height, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, m_pXcbScreen->root_visual, value_mask, value_list);
+
+    // Magic code to get screen size
+    xcb_randr_get_screen_resources_cookie_t screenResCookie;
+    xcb_randr_crtc_t *pCRTC;
+    xcb_randr_get_crtc_info_cookie_t crtcResCookie;
+    xcb_flush(m_pXcbConnection);
+    screenResCookie = xcb_randr_get_screen_resources(m_pXcbConnection, m_XcbWindow);
+    xcb_randr_get_screen_resources_reply_t *screenResReply;
+    screenResReply = xcb_randr_get_screen_resources_reply(m_pXcbConnection, screenResCookie, 0);
+    if (screenResReply)
+        pCRTC = xcb_randr_get_screen_resources_crtcs(screenResReply);
+    else
+        return -1;
+    crtcResCookie = xcb_randr_get_crtc_info(m_pXcbConnection, *pCRTC, 0);
+    xcb_randr_get_crtc_info_reply_t *crtcResReply;
+    crtcResReply = xcb_randr_get_crtc_info_reply(m_pXcbConnection, crtcResCookie, 0);
+    if (crtcResReply) {
+        m_screenWidth = crtcResReply->width;
+        m_screenHeight = crtcResReply->height;
+    } else
+        return -1;
 
     // Magic code that will send notification when window is destroyed
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_pXcbConnection, 1, 12, "WM_PROTOCOLS");
@@ -97,6 +123,15 @@ void vkDisplayXcb::resize_window(const unsigned int width, const unsigned int he
     if (width != m_windowWidth || height != m_windowHeight) {
         m_windowWidth = width;
         m_windowHeight = height;
+        if (width >= m_screenWidth || height >= m_screenHeight) {
+            // Magic code that makes window full screen
+            xcb_ewmh_connection_t EWMH;
+            xcb_intern_atom_cookie_t *EWMHCookie = xcb_ewmh_init_atoms(m_pXcbConnection, &EWMH);
+            xcb_ewmh_init_atoms_replies(&EWMH, EWMHCookie, NULL);
+            xcb_change_property(m_pXcbConnection, XCB_PROP_MODE_REPLACE, m_XcbWindow, EWMH._NET_WM_STATE, XCB_ATOM_ATOM, 32, 1,
+                                &(EWMH._NET_WM_STATE_FULLSCREEN));
+        }
+
         uint32_t values[2];
         values[0] = width;
         values[1] = height;
