@@ -2953,6 +2953,14 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
     VkResult result;
     packet_vkCreateImage* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCreateImage, get_struct_chain_size((void*)pCreateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkImage));
+
+    if (g_trimEnabled) {
+        // need to add TRANSFER_SRC usage to the image so that we can copy out of it.
+        // By Doc, image for which we can use vkCmdCopyImageToBuffer and vkCmdCopyImage
+        // to copy out must have been created with VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag.
+        (const_cast<VkImageCreateInfo*>(pCreateInfo))->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+
     result = mdd(device)->devTable.CreateImage(device, pCreateInfo, pAllocator, pImage);
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreateImage(pHeader);
