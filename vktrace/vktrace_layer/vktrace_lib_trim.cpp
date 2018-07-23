@@ -641,6 +641,10 @@ VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool comman
         if (result == VK_SUCCESS) {
             s_deviceToCommandBufferMap[device] = commandBuffer;
         }
+
+        // Because this commandBuffer was not allocated through the loader's
+        // trampoile function, we need to assign the dispatch table here
+        *(void **)commandBuffer = *(void **)device;
     } else {
         commandBuffer = s_deviceToCommandBufferMap[device];
 
