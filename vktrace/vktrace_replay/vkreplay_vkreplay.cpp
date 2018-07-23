@@ -53,11 +53,13 @@ vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_head
     m_pCBDump = NULL;
     m_display = display;
 
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
     if (strcasecmp(pReplaySettings->displayServer, "xcb") == 0) {
         m_displayServer = VK_DISPLAY_XCB;
     } else if (strcasecmp(pReplaySettings->displayServer, "wayland") == 0) {
         m_displayServer = VK_DISPLAY_WAYLAND;
     }
+#endif
 
     //    m_pVktraceSnapshotPrint = NULL;
     m_objMapper.m_adjustForGPU = false;
