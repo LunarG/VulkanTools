@@ -936,6 +936,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
                     VkQueue queue = VK_NULL_HANDLE;
                     mdd(*pDevice)->devTable.GetDeviceQueue(*pDevice, queueFamilyIndex, q, &queue);
                     info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues[q] = queue;
+
+                    // Because this queue was not retrieved through the loader's
+                    // trampoile function, we need to assign the dispatch table here
+                    *(void**)queue = *(void**)*pDevice;
                 }
             }
         }
