@@ -1821,16 +1821,22 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
-        elif ('vkGetImageMemoryRequirements' == proto.name):
-            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Image_objectInfo(image);")
-            trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->size;")
+        elif ('vkGetImageMemoryRequirements' == proto.name) or ('vkGetImageMemoryRequirements2' == proto.name) or ('vkGetImageMemoryRequirements2KHR' == proto.name):
+            if ('vkGetImageMemoryRequirements' == proto.name):
+                trim_instructions.append("        trim::ObjectInfo* pTrimObjectInfo = trim::get_Image_objectInfo(image);")
+            else:
+                trim_instructions.append("        trim::ObjectInfo* pTrimObjectInfo = trim::get_Image_objectInfo(pInfo->image);")
+            trim_instructions.append("        if (pTrimObjectInfo != NULL) {")
+            if ('vkGetImageMemoryRequirements' == proto.name):
+                trim_instructions.append("            pTrimObjectInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->size;")
+            else:
+                trim_instructions.append("            pTrimObjectInfo->ObjectInfo.Image.memorySize = pMemoryRequirements->memoryRequirements.size;")
             trim_instructions.append("        }")
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::add_Image_call(trim::copy_packet(pHeader));")
             trim_instructions.append("#else")
-            trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        if (pTrimObjectInfo != NULL) {")
+            trim_instructions.append("            pTrimObjectInfo->ObjectInfo.Image.pGetImageMemoryRequirementsPacket = trim::copy_packet(pHeader);")
             trim_instructions.append("        }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append('        if (g_trimIsInTrim) {')
