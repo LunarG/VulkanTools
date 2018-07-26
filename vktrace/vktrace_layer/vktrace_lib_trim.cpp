@@ -1145,7 +1145,7 @@ void snapshot_state_tracker() {
 
             VkDeviceMemory memory = imageIter->second.ObjectInfo.Image.memory;
             VkDeviceSize offset = imageIter->second.ObjectInfo.Image.memoryOffset;
-            VkDeviceSize size = ROUNDUP_TO_4(imageIter->second.ObjectInfo.Image.memorySize);
+            VkDeviceSize size = imageIter->second.ObjectInfo.Image.memorySize;
 
             if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
                 // Note that the staged memory object won't be in the state tracker,
@@ -1347,7 +1347,7 @@ void snapshot_state_tracker() {
 
             VkDeviceMemory memory = bufferIter->second.ObjectInfo.Buffer.memory;
             VkDeviceSize offset = bufferIter->second.ObjectInfo.Buffer.memoryOffset;
-            VkDeviceSize size = ROUNDUP_TO_4(bufferIter->second.ObjectInfo.Buffer.size);
+            VkDeviceSize size = bufferIter->second.ObjectInfo.Buffer.size;
 
             void *mappedAddress = NULL;
             VkDeviceSize mappedOffset = 0;
@@ -1472,7 +1472,7 @@ void snapshot_state_tracker() {
             VkDevice device = iter->second.belongsToDevice;
             VkDeviceMemory deviceMemory = iter->first;
             VkDeviceSize offset = 0;
-            VkDeviceSize size = ROUNDUP_TO_4(iter->second.ObjectInfo.DeviceMemory.size);
+            VkDeviceSize size = iter->second.ObjectInfo.DeviceMemory.size;
             VkMemoryMapFlags flags = 0;
             void *pData = iter->second.ObjectInfo.DeviceMemory.mappedAddress;
 
