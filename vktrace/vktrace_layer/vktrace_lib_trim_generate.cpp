@@ -453,7 +453,7 @@ vktrace_trace_packet_header *vkMapMemory(bool makeCall, VkDevice device, VkDevic
 vktrace_trace_packet_header *vkUnmapMemory(bool makeCall, VkDeviceSize size, void *pData, VkDevice device, VkDeviceMemory memory) {
     vktrace_trace_packet_header *pHeader;
     packet_vkUnmapMemory *pPacket;
-    CREATE_TRACE_PACKET(vkUnmapMemory, size);
+    CREATE_TRACE_PACKET(vkUnmapMemory, ROUNDUP_TO_4(size));
     pPacket = interpret_body_as_vkUnmapMemory(pHeader);
     if (size > 0) {
         vktrace_add_buffer_to_trace_packet(pHeader, (void **)&(pPacket->pData), size, pData);
