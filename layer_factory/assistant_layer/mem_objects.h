@@ -28,7 +28,7 @@ static const uint32_t kMemoryObjectWarningLimit = 250;
 class TooManyMemObjects : public layer_factory {
    public:
     // Constructor for interceptor
-    TooManyMemObjects() : layer_factory(this), number_mem_objects_(0){};
+    TooManyMemObjects() : number_mem_objects_(0){};
 
     // Intercept the memory allocation calls and increment the counter
     VkResult PreCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,
