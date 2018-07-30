@@ -173,135 +173,137 @@ int vkReplay::dump_validation_data() {
 }
 
 VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPacket) {
+    if (m_display->m_initedVK) {
+        return VK_SUCCESS;
+    }
+
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkInstanceCreateInfo *pCreateInfo;
     char **ppEnabledLayerNames = NULL, **saved_ppLayers = NULL;
     uint32_t savedLayerCount = 0;
-    if (!m_display->m_initedVK) {
-        VkInstance inst;
+    VkInstance inst;
 
-        const char strScreenShot[] = "VK_LAYER_LUNARG_screenshot";
-        pCreateInfo = (VkInstanceCreateInfo *)pPacket->pCreateInfo;
-        if (g_pReplaySettings->screenshotList != NULL) {
-            // enable screenshot layer if it is available and not already in list
-            bool found_ss = false;
-            for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
-                if (!strcmp(pCreateInfo->ppEnabledLayerNames[i], strScreenShot)) {
+    const char strScreenShot[] = "VK_LAYER_LUNARG_screenshot";
+    pCreateInfo = (VkInstanceCreateInfo *)pPacket->pCreateInfo;
+    if (g_pReplaySettings->screenshotList != NULL) {
+        // enable screenshot layer if it is available and not already in list
+        bool found_ss = false;
+        for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
+            if (!strcmp(pCreateInfo->ppEnabledLayerNames[i], strScreenShot)) {
+                found_ss = true;
+                break;
+            }
+        }
+        if (!found_ss) {
+            uint32_t count;
+
+            // query to find if ScreenShot layer is available
+            vkEnumerateInstanceLayerProperties(&count, NULL);
+            VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
+            if (props && count > 0) vkEnumerateInstanceLayerProperties(&count, props);
+            for (uint32_t i = 0; i < count; i++) {
+                if (!strcmp(props[i].layerName, strScreenShot)) {
                     found_ss = true;
                     break;
                 }
             }
-            if (!found_ss) {
-                uint32_t count;
-
-                // query to find if ScreenShot layer is available
-                vkEnumerateInstanceLayerProperties(&count, NULL);
-                VkLayerProperties *props = (VkLayerProperties *)vktrace_malloc(count * sizeof(VkLayerProperties));
-                if (props && count > 0) vkEnumerateInstanceLayerProperties(&count, props);
-                for (uint32_t i = 0; i < count; i++) {
-                    if (!strcmp(props[i].layerName, strScreenShot)) {
-                        found_ss = true;
-                        break;
-                    }
+            if (found_ss) {
+                // screenshot layer is available so enable it
+                savedLayerCount = pCreateInfo->enabledLayerCount;
+                ppEnabledLayerNames = (char **)vktrace_malloc((pCreateInfo->enabledLayerCount + 1) * sizeof(char *));
+                for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount && ppEnabledLayerNames; i++) {
+                    ppEnabledLayerNames[i] = (char *)pCreateInfo->ppEnabledLayerNames[i];
                 }
-                if (found_ss) {
-                    // screenshot layer is available so enable it
-                    savedLayerCount = pCreateInfo->enabledLayerCount;
-                    ppEnabledLayerNames = (char **)vktrace_malloc((pCreateInfo->enabledLayerCount + 1) * sizeof(char *));
-                    for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount && ppEnabledLayerNames; i++) {
-                        ppEnabledLayerNames[i] = (char *)pCreateInfo->ppEnabledLayerNames[i];
-                    }
-                    ppEnabledLayerNames[pCreateInfo->enabledLayerCount] = (char *)vktrace_malloc(strlen(strScreenShot) + 1);
-                    strcpy(ppEnabledLayerNames[pCreateInfo->enabledLayerCount++], strScreenShot);
-                    saved_ppLayers = (char **)pCreateInfo->ppEnabledLayerNames;
-                    pCreateInfo->ppEnabledLayerNames = ppEnabledLayerNames;
-                }
-                vktrace_free(props);
+                ppEnabledLayerNames[pCreateInfo->enabledLayerCount] = (char *)vktrace_malloc(strlen(strScreenShot) + 1);
+                strcpy(ppEnabledLayerNames[pCreateInfo->enabledLayerCount++], strScreenShot);
+                saved_ppLayers = (char **)pCreateInfo->ppEnabledLayerNames;
+                pCreateInfo->ppEnabledLayerNames = ppEnabledLayerNames;
             }
+            vktrace_free(props);
         }
+    }
 
-        char **saved_ppExtensions = (char **)pCreateInfo->ppEnabledExtensionNames;
-        uint32_t savedExtensionCount = pCreateInfo->enabledExtensionCount;
-        vector<const char *> extension_names;
-        vector<string> outlist;
+    char **saved_ppExtensions = (char **)pCreateInfo->ppEnabledExtensionNames;
+    uint32_t savedExtensionCount = pCreateInfo->enabledExtensionCount;
+    vector<const char *> extension_names;
+    vector<string> outlist;
 
 #if defined(PLATFORM_LINUX)
 #if !defined(ANDROID)
-        // LINUX
-        if (m_displayServer == VK_DISPLAY_XCB) {
-            extension_names.push_back("VK_KHR_xcb_surface");
-            outlist.push_back("VK_KHR_wayland_surface");
-        } else if (m_displayServer == VK_DISPLAY_WAYLAND) {
-            extension_names.push_back("VK_KHR_wayland_surface");
-            outlist.push_back("VK_KHR_xcb_surface");
-        }
-        outlist.push_back("VK_KHR_android_surface");
-        outlist.push_back("VK_KHR_xlib_surface");
-        outlist.push_back("VK_KHR_win32_surface");
-        outlist.push_back("VK_KHR_mir_surface");
-#else
-        // ANDROID
-        extension_names.push_back("VK_KHR_android_surface");
-        outlist.push_back("VK_KHR_win32_surface");
-        outlist.push_back("VK_KHR_xlib_surface");
-        outlist.push_back("VK_KHR_xcb_surface");
+    // LINUX
+    if (m_displayServer == VK_DISPLAY_XCB) {
+        extension_names.push_back("VK_KHR_xcb_surface");
         outlist.push_back("VK_KHR_wayland_surface");
-        outlist.push_back("VK_KHR_mir_surface");
-#endif
-#else
-        // WIN32
-        extension_names.push_back("VK_KHR_win32_surface");
-        outlist.push_back("VK_KHR_xlib_surface");
+    } else if (m_displayServer == VK_DISPLAY_WAYLAND) {
+        extension_names.push_back("VK_KHR_wayland_surface");
         outlist.push_back("VK_KHR_xcb_surface");
-        outlist.push_back("VK_KHR_wayland_surface");
-        outlist.push_back("VK_KHR_mir_surface");
-        outlist.push_back("VK_KHR_android_surface");
-#endif
-
-        // Add any extensions that are both replayable and in the packet
-        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-            if (find(outlist.begin(), outlist.end(), pCreateInfo->ppEnabledExtensionNames[i]) == outlist.end()) {
-                extension_names.push_back(pCreateInfo->ppEnabledExtensionNames[i]);
-            }
-        }
-        pCreateInfo->ppEnabledExtensionNames = extension_names.data();
-        pCreateInfo->enabledExtensionCount = (uint32_t)extension_names.size();
-
-        replayResult = vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
-
-        if (replayResult == VK_SUCCESS) {
-            m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
-
-            // Build instance dispatch table
-            layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
-            // Not handled by codegen
-            m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
-        } else if (replayResult == VK_ERROR_LAYER_NOT_PRESENT) {
-            vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_LAYER_NOT_PRESENT");
-            vktrace_LogVerbose("List of requested layers:");
-            for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
-                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledLayerNames[i]);
-            }
-        } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
-            vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_EXTENSION_NOT_PRESENT");
-            vktrace_LogVerbose("List of requested extensions:");
-            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
-                vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
-            }
-        }
-
-        pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
-        pCreateInfo->enabledExtensionCount = savedExtensionCount;
-
-        if (ppEnabledLayerNames) {
-            // restore the packets CreateInfo struct
-            vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
-            vktrace_free(ppEnabledLayerNames);
-            pCreateInfo->ppEnabledLayerNames = saved_ppLayers;
-            pCreateInfo->enabledLayerCount = savedLayerCount;
-        }
-        m_display->m_initedVK = true;
     }
+    outlist.push_back("VK_KHR_android_surface");
+    outlist.push_back("VK_KHR_xlib_surface");
+    outlist.push_back("VK_KHR_win32_surface");
+    outlist.push_back("VK_KHR_mir_surface");
+#else
+    // ANDROID
+    extension_names.push_back("VK_KHR_android_surface");
+    outlist.push_back("VK_KHR_win32_surface");
+    outlist.push_back("VK_KHR_xlib_surface");
+    outlist.push_back("VK_KHR_xcb_surface");
+    outlist.push_back("VK_KHR_wayland_surface");
+    outlist.push_back("VK_KHR_mir_surface");
+#endif
+#else
+    // WIN32
+    extension_names.push_back("VK_KHR_win32_surface");
+    outlist.push_back("VK_KHR_xlib_surface");
+    outlist.push_back("VK_KHR_xcb_surface");
+    outlist.push_back("VK_KHR_wayland_surface");
+    outlist.push_back("VK_KHR_mir_surface");
+    outlist.push_back("VK_KHR_android_surface");
+#endif
+
+    // Add any extensions that are both replayable and in the packet
+    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+        if (find(outlist.begin(), outlist.end(), pCreateInfo->ppEnabledExtensionNames[i]) == outlist.end()) {
+            extension_names.push_back(pCreateInfo->ppEnabledExtensionNames[i]);
+        }
+    }
+    pCreateInfo->ppEnabledExtensionNames = extension_names.data();
+    pCreateInfo->enabledExtensionCount = (uint32_t)extension_names.size();
+
+    replayResult = vkCreateInstance(pPacket->pCreateInfo, NULL, &inst);
+
+    if (replayResult == VK_SUCCESS) {
+        m_objMapper.add_to_instances_map(*(pPacket->pInstance), inst);
+
+        // Build instance dispatch table
+        layer_init_instance_dispatch_table(inst, &m_vkFuncs, m_vkFuncs.GetInstanceProcAddr);
+        // Not handled by codegen
+        m_vkFuncs.CreateDevice = (PFN_vkCreateDevice)m_vkFuncs.GetInstanceProcAddr(inst, "vkCreateDevice");
+    } else if (replayResult == VK_ERROR_LAYER_NOT_PRESENT) {
+        vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_LAYER_NOT_PRESENT");
+        vktrace_LogVerbose("List of requested layers:");
+        for (uint32_t i = 0; i < pCreateInfo->enabledLayerCount; i++) {
+            vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledLayerNames[i]);
+        }
+    } else if (replayResult == VK_ERROR_EXTENSION_NOT_PRESENT) {
+        vktrace_LogVerbose("vkCreateInstance failed with VK_ERROR_EXTENSION_NOT_PRESENT");
+        vktrace_LogVerbose("List of requested extensions:");
+        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+            vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
+        }
+    }
+
+    pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
+    pCreateInfo->enabledExtensionCount = savedExtensionCount;
+
+    if (ppEnabledLayerNames) {
+        // restore the packets CreateInfo struct
+        vktrace_free(ppEnabledLayerNames[pCreateInfo->enabledLayerCount - 1]);
+        vktrace_free(ppEnabledLayerNames);
+        pCreateInfo->ppEnabledLayerNames = saved_ppLayers;
+        pCreateInfo->enabledLayerCount = savedLayerCount;
+    }
+    m_display->m_initedVK = true;
     return replayResult;
 }
 
