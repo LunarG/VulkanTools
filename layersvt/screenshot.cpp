@@ -771,8 +771,8 @@ static void writePPM(const char *filename, VkImage image1) {
 
     // The source image needs to be transitioned from present to transfer
     // source.
-    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
-                                            &presentMemoryBarrier);
+    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, dstStages, 0, 0, NULL, 0,
+                                            NULL, 1, &presentMemoryBarrier);
 
     // image2 needs to be transitioned from its undefined state to transfer
     // destination.
@@ -1176,8 +1176,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     }
     DeviceMapStruct *devMap = get_dev_info((VkDevice)queue);
     assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     loader_platform_thread_lock_mutex(&globalLock);
 
     if (!screenshotFramesReceived) {
@@ -1197,7 +1195,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         local_free_getenv(vk_screenshot_frames);
     }
 
-    if (result == VK_SUCCESS && (!screenshotFrames.empty() || screenShotFrameRange.valid)) {
+    if (!screenshotFrames.empty() || screenShotFrameRange.valid) {
         set<int>::iterator it;
         bool inScreenShotFrames = false;
         bool inScreenShotFrameRange = false;
@@ -1252,6 +1250,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     }
     frameNumber++;
     loader_platform_thread_unlock_mutex(&globalLock);
+    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     return result;
 }
 
