@@ -26,7 +26,7 @@
 class ExtensionTypeWarning : public layer_factory {
    public:
     // Constructor for interceptor
-    ExtensionTypeWarning() : layer_factory(this){};
+    ExtensionTypeWarning(){};
 
     // Intercept CreateInstance to warn for device extensions
     VkResult PreCallCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator,

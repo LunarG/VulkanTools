@@ -26,7 +26,7 @@
 class LoadAndUndefined : public layer_factory {
    public:
     // Constructor for interceptor
-    LoadAndUndefined() : layer_factory(this){};
+    LoadAndUndefined(){};
 
     // Intercept CreateRenderPassCalls calls and check LoadOp and Layout
     VkResult PreCallCreateRenderPass(VkDevice device, const VkRenderPassCreateInfo *pCreateInfo,

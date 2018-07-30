@@ -27,7 +27,7 @@ static uint32_t display_rate = 60;
 class MemAllocLevel : public layer_factory {
    public:
     // Constructor for interceptor
-    MemAllocLevel() : layer_factory(this), number_mem_objects_(0), total_memory_(0), present_count_(0){};
+    MemAllocLevel() : number_mem_objects_(0), total_memory_(0), present_count_(0){};
 
     // Intercept the memory allocation calls and increment the counter
     VkResult PostCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,

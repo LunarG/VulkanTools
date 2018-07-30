@@ -544,7 +544,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '// Layer Factory base class definition\n'
         self.layer_factory += 'class layer_factory {\n'
         self.layer_factory += '    public:\n'
-        self.layer_factory += '        layer_factory(layer_factory *interceptor) {\n'
+        self.layer_factory += '        layer_factory() {\n'
         self.layer_factory += '            global_interceptor_list.emplace_back(this);\n'
         self.layer_factory += '        };\n'
         self.layer_factory += '\n'

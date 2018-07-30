@@ -27,7 +27,7 @@
 class MemDemo : public layer_factory {
    public:
     // Constructor for state_tracker
-    MemDemo() : layer_factory(this), number_mem_objects_(0), total_memory_(0), present_count_(0){};
+    MemDemo() : number_mem_objects_(0), total_memory_(0), present_count_(0){};
 
     void PreCallApiFunction(const char *api_name);
 

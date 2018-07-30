@@ -25,7 +25,7 @@
 class PipelineCacheWarning : public layer_factory {
    public:
     // Constructor for interceptor
-    PipelineCacheWarning() : layer_factory(this){};
+    PipelineCacheWarning(){};
 
     // Intercept graphics pipeline creation
     VkResult PreCallCreateGraphicsPipelines(VkDevice device, VkPipelineCache pipelineCache, uint32_t createInfoCount,

@@ -26,7 +26,7 @@
 class ZeroCounts : public layer_factory {
    public:
     // Constructor for interceptor
-    ZeroCounts() : layer_factory(this){};
+    ZeroCounts(){};
 
     // Intercept CmdDraw calls and check instanceCount
     void PreCallCmdDraw(VkCommandBuffer commandBuffer, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex,
