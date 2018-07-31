@@ -261,12 +261,48 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
     outlist.push_back("VK_KHR_android_surface");
 #endif
 
+    // Get replayable extensions in compatibility mode
+    uint32_t extensionCount = 0;
+    VkExtensionProperties *extensions = NULL;
+    if (g_pReplaySettings->compatibilityMode) {
+        if (VK_SUCCESS != vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, NULL)) {
+            vktrace_LogError("vkEnumerateInstanceExtensionProperties failed to get extension count!");
+        } else {
+            extensions = (VkExtensionProperties *)vktrace_malloc(sizeof(VkExtensionProperties) * extensionCount);
+            if (VK_SUCCESS != vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions)) {
+                vktrace_LogError("vkEnumerateInstanceExtensionProperties failed to get extension name!");
+                vktrace_free(extensions);
+                extensionCount = 0;
+            }
+        }
+    }
+
     // Add any extensions that are both replayable and in the packet
     for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (find(outlist.begin(), outlist.end(), pCreateInfo->ppEnabledExtensionNames[i]) == outlist.end()) {
-            extension_names.push_back(pCreateInfo->ppEnabledExtensionNames[i]);
+            if (find(extension_names.begin(), extension_names.end(), string(pCreateInfo->ppEnabledExtensionNames[i])) ==
+                extension_names.end()) {
+                bool foundExtension = false;
+                for (uint32_t j = 0; j < extensionCount; j++) {
+                    // Check extension is replayable
+                    if (strcmp(extensions[j].extensionName, pCreateInfo->ppEnabledExtensionNames[i]) == 0) {
+                        foundExtension = true;
+                        break;
+                    }
+                }
+                if (!g_pReplaySettings->compatibilityMode || foundExtension) {
+                    extension_names.push_back(pCreateInfo->ppEnabledExtensionNames[i]);
+                } else {
+                    vktrace_LogVerbose("Instance extension filtered out: %s", pCreateInfo->ppEnabledExtensionNames[i]);
+                }
+            }
         }
     }
+
+    if (extensions) {
+        vktrace_free(extensions);
+    }
+
     pCreateInfo->ppEnabledExtensionNames = extension_names.data();
     pCreateInfo->enabledExtensionCount = (uint32_t)extension_names.size();
 
@@ -463,6 +499,56 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
         }
     }
 
+    char **saved_ppExtensions = (char **)pCreateInfo->ppEnabledExtensionNames;
+    uint32_t savedExtensionCount = pCreateInfo->enabledExtensionCount;
+    vector<const char *> extensionNames;
+
+    // Get replayable extensions in compatibility mode
+    uint32_t extensionCount = 0;
+    VkExtensionProperties *extensions = NULL;
+    if (g_pReplaySettings->compatibilityMode) {
+        if (VK_SUCCESS != m_vkFuncs.EnumerateDeviceExtensionProperties(remappedPhysicalDevice, NULL, &extensionCount, NULL)) {
+            vktrace_LogError("vkEnumerateInstanceExtensionProperties failed to get extension count!");
+        } else {
+            extensions = (VkExtensionProperties *)vktrace_malloc(sizeof(VkExtensionProperties) * extensionCount);
+            if (VK_SUCCESS !=
+                m_vkFuncs.EnumerateDeviceExtensionProperties(remappedPhysicalDevice, NULL, &extensionCount, extensions)) {
+                vktrace_LogError("vkEnumerateInstanceExtensionProperties failed to get extension name!");
+                vktrace_free(extensions);
+                extensionCount = 0;
+            }
+        }
+    }
+
+    // Add any extensions that are both replayable and in the packet
+    for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
+        if (find(extensionNames.begin(), extensionNames.end(), string(pCreateInfo->ppEnabledExtensionNames[i])) ==
+            extensionNames.end()) {
+            bool foundExtension = false;
+            for (uint32_t j = 0; j < extensionCount; j++) {
+                // Check extension is replayable
+                if (strcmp(extensions[j].extensionName, pCreateInfo->ppEnabledExtensionNames[i]) == 0) {
+                    foundExtension = true;
+                    break;
+                }
+            }
+            if (!g_pReplaySettings->compatibilityMode || foundExtension) {
+                extensionNames.push_back(pCreateInfo->ppEnabledExtensionNames[i]);
+            } else {
+                vktrace_LogVerbose("Device extension filtered out: %s", pCreateInfo->ppEnabledExtensionNames[i]);
+            }
+        }
+    }
+
+    if (extensions) {
+        vktrace_free(extensions);
+    }
+
+    if (extensionNames.size()) {
+        pCreateInfo->ppEnabledExtensionNames = extensionNames.data();
+        pCreateInfo->enabledExtensionCount = (uint32_t)extensionNames.size();
+    }
+
     replayResult = m_vkFuncs.CreateDevice(remappedPhysicalDevice, pPacket->pCreateInfo, NULL, &device);
     if (ppEnabledLayerNames) {
         // restore the packets CreateInfo struct
@@ -484,6 +570,12 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
             vktrace_LogVerbose("   %s", pCreateInfo->ppEnabledExtensionNames[i]);
         }
     }
+
+    if (extensionNames.size()) {
+        pCreateInfo->ppEnabledExtensionNames = saved_ppExtensions;
+        pCreateInfo->enabledExtensionCount = savedExtensionCount;
+    }
+
     return replayResult;
 }
 
