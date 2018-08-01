@@ -557,41 +557,8 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
     // used by the traced app. The resize will happen  during playback of swapchain functions.
     vktrace_replay::ReplayDisplay disp(100, 100, false);
 
-// Create display
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
-    // On linux, the option -ds will choose a display server
-    if (strcasecmp(replaySettings.displayServer, "xcb") == 0) {
-        // Attempt to load libvkdisplay_xcb and constructor
-        auto xcb_handle = dlopen("libvkdisplay_xcb.so", RTLD_NOW);
-        if (dlerror()) {
-            vktrace_LogError("Unable to load xcb library.");
-            if (pAllSettings != NULL) {
-                vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
-            }
-            fclose(tracefp);
-            vktrace_free(pTraceFile);
-            vktrace_free(traceFile);
-            return -1;
-        }
-        auto CreateVkDisplayXcb = reinterpret_cast<vkDisplayXcb* (*)()>(dlsym(xcb_handle, "CreateVkDisplayXcb"));
-        pDisp = CreateVkDisplayXcb();
-    } else if (strcasecmp(replaySettings.displayServer, "wayland") == 0) {
-        // Attempt to load libvkdisplay_wayland and constructor
-        auto wayland_handle = dlopen("libvkdisplay_wayland.so", RTLD_NOW);
-        if (dlerror()) {
-            vktrace_LogError("Unable to load wayland library.");
-            if (pAllSettings != NULL) {
-                vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
-            }
-            fclose(tracefp);
-            vktrace_free(pTraceFile);
-            vktrace_free(traceFile);
-            return -1;
-        }
-        auto CreateVkDisplayWayland = reinterpret_cast<vkDisplayWayland* (*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
-        pDisp = CreateVkDisplayWayland();
-    } else {
-        vktrace_LogError("Invalid display server. Valid options are: xcb, wayland");
+    // Create display
+    if (GetDisplayImplementation(replaySettings.displayServer, &pDisp) == -1) {
         if (pAllSettings != NULL) {
             vktrace_SettingGroup_Delete_Loaded(&pAllSettings, &numAllSettings);
         }
@@ -600,11 +567,6 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         vktrace_free(traceFile);
         return -1;
     }
-#elif defined(PLATFORM_LINUX) && defined(ANDROID)
-    // Will be received from android_main
-#elif defined(WIN32)
-    pDisp = new vkDisplayWin32();
-#endif
 
     disp.set_implementation(pDisp);
 //**********************************************************

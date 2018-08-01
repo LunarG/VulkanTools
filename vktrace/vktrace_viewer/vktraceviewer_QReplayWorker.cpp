@@ -148,6 +148,13 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
         disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight, 0);
         disp.set_window_handle(&hWindow);
     }
+    vktrace_replay::ReplayDisplayImp* pDisp = nullptr;
+    // Get display implementation. Use XCB on linux
+    if (GetDisplayImplementation("xcb", &pDisp) == -1) {
+        emit OutputMessage(VKTRACE_LOG_ERROR, QString("Could not initialize display."));
+        return false;
+    }
+    disp.set_implementation(pDisp);
 
     for (uint64_t i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         m_pReplayers[i] = NULL;
