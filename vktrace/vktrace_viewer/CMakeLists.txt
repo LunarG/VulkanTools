@@ -7,6 +7,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     set(OS_REPLAYER_LIBS xcb  ${LIBRARIES})
+
+    # Make sure the exe directory is searched when loading libraries with dlopen
+    SET(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
