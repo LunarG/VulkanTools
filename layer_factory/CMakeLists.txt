@@ -69,14 +69,41 @@ MACRO(SUBDIRLIST result curdir)
 ENDMACRO()
 
 # Paths for the layer factory json template and the destination for factory layer json files
+set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory.json.in)
 if (WIN32)
-    set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory_windows.json)
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR})
     set (JSON_DECORATED_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers/$<CONFIGURATION>)
 else()
-    set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory_linux.json)
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 endif()
+
+set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+SUBDIRLIST(ST_SUBDIRS ${CMAKE_LAYER_FACTORY_SOURCE_DIR})
+
+# json file creation
+
+# The output file needs Unix "/" separators or Windows "\" separators
+# On top of that, Windows separators actually need to be doubled because the json format uses backslash escapes
+file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
+string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
+ # Run json.in file through the generator
+# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time
+# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically)
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\")")
+foreach(SUBDIR ${ST_SUBDIRS})
+    set(TARGET_NAME VkLayer_${SUBDIR})
+    set(CONFIG_DEFINES
+        -DINPUT_FILE=${JSON_TEMPLATE_PATH}
+        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+    )
+    set(CONFIG_DEFINES ${CONFIG_DEFINES}
+        -DOUTPUT_FILE="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json"
+        -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
+        -DLAYER_NAME="VK_LAYER_LUNARG_${SUBDIR}"
+    )
+    add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
+endforeach()
+
 
 if (WIN32)
     macro(add_factory_layer target subdir)
@@ -114,9 +141,6 @@ else()
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
     endmacro()
 endif()
-
-set (CMAKE_LAYER_FACTORY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-SUBDIRLIST(ST_SUBDIRS ${CMAKE_LAYER_FACTORY_SOURCE_DIR})
 
 # Loop through all subdirectories, creating a factory-based layer for each. For each factory layer, create a dependency link on
 # the previous layer in order to serialize their builds.
