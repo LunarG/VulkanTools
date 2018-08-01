@@ -24,6 +24,7 @@
  */
 
 #include "vkreplay_vkdisplay.h"
+#include "vkreplay_settings.h"
 
 #if defined(PLATFORM_LINUX) && defined(ANDROID)
 #include <jni.h>
@@ -31,6 +32,39 @@
 
 #define APP_NAME "vkreplay_vk"
 #define IDI_ICON 101
+
+int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDisplayImp **ppDisp) {
+#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+    // On linux, the option -ds will choose a display server
+    if (strcasecmp(displayServer, "xcb") == 0) {
+        // Attempt to load libvkdisplay_xcb and constructor
+        auto xcb_handle = dlopen("libvkdisplay_xcb.so", RTLD_NOW);
+        if (dlerror()) {
+            vktrace_LogError("Unable to load xcb library.");
+            return -1;
+        }
+        auto CreateVkDisplayXcb = reinterpret_cast<vkDisplayXcb *(*)()>(dlsym(xcb_handle, "CreateVkDisplayXcb"));
+        *ppDisp = CreateVkDisplayXcb();
+    } else if (strcasecmp(displayServer, "wayland") == 0) {
+        // Attempt to load libvkdisplay_wayland and constructor
+        auto wayland_handle = dlopen("libvkdisplay_wayland.so", RTLD_NOW);
+        if (dlerror()) {
+            vktrace_LogError("Unable to load wayland library.");
+            return -1;
+        }
+        auto CreateVkDisplayWayland = reinterpret_cast<vkDisplayWayland *(*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
+        *ppDisp = CreateVkDisplayWayland();
+    } else {
+        vktrace_LogError("Invalid display server. Valid options are: xcb, wayland");
+        return -1;
+    }
+#elif defined(PLATFORM_LINUX) && defined(ANDROID)
+// Will be received from android_main
+#elif defined(WIN32)
+    *ppDisp = new vkDisplayWin32();
+#endif
+    return 0;
+}
 
 #if defined(PLATFORM_LINUX) && defined(ANDROID)
 #include <jni.h>

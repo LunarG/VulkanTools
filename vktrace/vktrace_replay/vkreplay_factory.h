@@ -26,7 +26,7 @@ extern "C" {
 #include "vktrace_settings.h"
 #include "vktrace_trace_packet_identifiers.h"
 }
-#include "vkreplay_window.h"
+#include "vkreplay_vkdisplay.h"
 #include "vkreplay_main.h"
 
 namespace vktrace_replay {
