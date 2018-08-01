@@ -61,7 +61,7 @@ MACRO(SUBDIRLIST result curdir)
   FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
   SET(dirlist "")
   FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
+    IF(IS_DIRECTORY ${curdir}/${child} AND NOT (${child} STREQUAL "json"))
       LIST(APPEND dirlist ${child})
     ENDIF()
   ENDFOREACH()
@@ -69,14 +69,38 @@ MACRO(SUBDIRLIST result curdir)
 ENDMACRO()
 
 # Paths for the layer factory json template and the destination for factory layer json files
+set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/json/layer_factory.json.in)
 if (WIN32)
-    set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory_windows.json)
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR})
     set (JSON_DECORATED_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers/$<CONFIGURATION>)
 else()
-    set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory_linux.json)
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 endif()
+
+
+# json file creation
+
+# The output file needs Unix "/" separators or Windows "\" separators
+# On top of that, Windows separators actually need to be doubled because the json format uses backslash escapes
+set(TARGET_NAMES VkLayer_assistant_layer VkLayer_demo_layer VkLayer_starter_layer )
+file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
+string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
+ # Run each .json.in file through the generator
+# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time
+# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically)
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\")")
+foreach(TARGET_NAME ${TARGET_NAMES})
+    set(CONFIG_DEFINES
+        -DINPUT_FILE=${JSON_TEMPLATE_PATH}
+        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+    )
+    set(CONFIG_DEFINES ${CONFIG_DEFINES}
+        -DOUTPUT_FILE="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json"
+        -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
+    )
+    add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
+endforeach()
+
 
 if (WIN32)
     macro(add_factory_layer target subdir)
