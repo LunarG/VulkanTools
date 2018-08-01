@@ -36,6 +36,8 @@ enum VkDisplayType {
     VK_DISPLAY_WAYLAND,
 };
 
+int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDisplayImp **ppDisp);
+
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_XCB_KHR)
 
 class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
