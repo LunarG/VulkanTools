@@ -732,7 +732,7 @@ static void writePPM(const char *filename, VkImage image1) {
     // This barrier is used to transition from/to present Layout
     VkImageMemoryBarrier presentMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                                                  NULL,
-                                                 VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                 VK_ACCESS_MEMORY_WRITE_BIT,
                                                  VK_ACCESS_TRANSFER_READ_BIT,
                                                  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -758,7 +758,7 @@ static void writePPM(const char *filename, VkImage image1) {
     VkImageMemoryBarrier generalMemoryBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                                                  NULL,
                                                  VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                 VK_ACCESS_TRANSFER_READ_BIT,
+                                                 VK_ACCESS_MEMORY_READ_BIT,
                                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                  VK_IMAGE_LAYOUT_GENERAL,
                                                  VK_QUEUE_FAMILY_IGNORED,
