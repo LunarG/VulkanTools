@@ -19,6 +19,8 @@ project(VkLayer_vktrace_layer)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
+set(TARGET_NAMES VkLayer_vktrace_layer)
+
 if (WIN32)
     # Put VkLayer_vktrace_layer.dll in the same directory as vktrace.exe
     # so that vktrace.exe can find VkLayer_vktrace_layer.dll.
@@ -71,45 +73,77 @@ include_directories(
     ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
-# copy/link layer json file into build/layersvt directory
 if (NOT WIN32)
-    # extra setup for out-of-tree builds
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        add_custom_target(vktrace_layer-json ALL
-            COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/VkLayer_vktrace_layer.json ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}../layersvt/
-            VERBATIM
-            )
-    endif()
-    # Add targets for JSON file install on Linux.
-    # Need to remove the "../vktrace" from the library path before installing to /etc.
-    set (LAYER_JSON_FILES VkLayer_vktrace_layer)
-    foreach (config_file ${LAYER_JSON_FILES})
-        add_custom_target(${config_file}-staging-json ALL
-            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND sed -i -e "/\"library_path\":/s$../vktrace/libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json
-            VERBATIM
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-            )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
-    endforeach(config_file)
+    set (GIPA VK_LAYER_LUNARG_vktraceGetInstanceProcAddr)
+    set (GDPA VK_LAYER_LUNARG_vktraceGetDeviceProcAddr)
 else()
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
-        if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
-            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
-        else()
-            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/VkLayer_vktrace_layer.json dst_json)
-        endif()
-
-        add_custom_target(vktrace_layer-json ALL
-            COMMAND copy ${src_json} ${dst_json}
-            VERBATIM
-            )
-        add_dependencies(vktrace_layer-json VkLayer_vktrace_layer)
-        set_target_properties(vktrace_layer-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
-    endif()
+    set (GIPA __HOOKED_vktraceGetInstanceProcAddr)
+    set (GDPA __HOOKED_vktraceGetDeviceProcAddr)
 endif()
+
+# json file creation
+
+# The output file needs Unix "/" separators or Windows "\" separators.
+# On top of that, Windows separators actually need to be doubled because the json format uses backslash escapes.
+file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
+string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
+ # Run each .json.in file through the generator.
+# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time.
+# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically).
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\")")
+foreach(TARGET_NAME ${TARGET_NAMES})
+    set(CONFIG_DEFINES
+        -DGIPA="${GIPA}"
+        -DGDPA="${GDPA}"
+        -DINPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/json/${TARGET_NAME}.json.in"
+        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+    )
+    set(CONFIG_DEFINES ${CONFIG_DEFINES}
+        -DOUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/../../layersvt/${TARGET_NAME}.json"
+        -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
+    )
+    add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
+endforeach()
+
+#if (NOT WIN32)
+#    # extra setup for out-of-tree builds
+#    #if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
+#    #    add_custom_target(vktrace_layer-json ALL
+#    #        COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/VkLayer_vktrace_layer.json ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}../layersvt/
+#    #        VERBATIM
+#    #        )
+#    #endif()
+#    # Add targets for JSON file install on Linux.
+#    # Need to remove the "../vktrace" from the library path before installing to /etc.
+#    set (LAYER_JSON_FILES VkLayer_vktrace_layer)
+#    foreach (config_file ${LAYER_JSON_FILES})
+#        add_custom_target(${config_file}-staging-json ALL
+#            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+#            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+#            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+#            COMMAND sed -i -e "/\"library_path\":/s$../vktrace/libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json
+#            VERBATIM
+#            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/json/${config_file}.json.in
+#            )
+#        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+#    endforeach(config_file)
+#else()
+#    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
+#        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/VkLayer_vktrace_layer.json src_json)
+#        if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
+#            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/$<CONFIGURATION>/VkLayer_vktrace_layer.json dst_json)
+#        else()
+#            FILE(TO_NATIVE_PATH ${PROJECT_BINARY_DIR}/../../layersvt/VkLayer_vktrace_layer.json dst_json)
+#        endif()
+#
+#        add_custom_target(vktrace_layer-json ALL
+#            COMMAND copy ${src_json} ${dst_json}
+#            VERBATIM
+#            )
+#        add_dependencies(vktrace_layer-json VkLayer_vktrace_layer)
+#        set_target_properties(vktrace_layer-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+#    endif()
+#endif()
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${HDR_LIST})
 
