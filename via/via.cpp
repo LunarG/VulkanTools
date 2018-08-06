@@ -5507,7 +5507,7 @@ ErrorResults PrintTestResults(void) {
         path += "/../examples/build";
 #endif
         full_cmd = cube_exe;
-        full_cmd += " --c 100";
+        full_cmd += " --c 100 --suppress_popups";
 
         PrintBeginTable("Cube", 2);
 
