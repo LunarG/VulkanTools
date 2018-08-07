@@ -66,6 +66,6 @@ REGISTRY=${REGISTRY_PATH}/vk.xml
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vkreplay_vk_objmapper.h )
 
 ( pushd ${LVL_BASE}/build-android; rm -rf generated; mkdir -p generated/include generated/common; popd )
-( cd generated/include; cp -rf * ../../${LVL_BASE}/build-android/generated/include )
+( cd generated/include; cp -rf * ${LVL_BASE}/build-android/generated/include )
 
 exit 0
