@@ -142,6 +142,7 @@ class vkReplay {
     uint32_t m_gpu_count = 0;
 
     VkDisplayType m_displayServer;
+    const char* initialized_screenshot_list;
 
     // Replay platform description
     uint64_t m_replay_endianess;

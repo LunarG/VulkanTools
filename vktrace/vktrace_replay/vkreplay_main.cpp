@@ -143,8 +143,7 @@ vktrace_SettingInfo g_settings_info[] = {
 vktrace_SettingGroup g_replaySettingGroup = {"vkreplay", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
 
 namespace vktrace_replay {
-int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_trace_packet_replay_library* replayerArray[],
-              vkreplayer_settings settings) {
+int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_trace_packet_replay_library* replayerArray[]) {
     int err = 0;
     vktrace_trace_packet_header* packet;
     unsigned int res;
@@ -155,28 +154,28 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     bool trace_running = true;
     unsigned int prevFrameNumber = UINT_MAX;
 
-    if (settings.loopEndFrame != UINT_MAX) {
+    if (replaySettings.loopEndFrame != UINT_MAX) {
         // Increase by 1 because it is comparing with the frame number which is increased right after vkQueuePresentKHR being
         // called.
         // e.g. when frame number is 3, maybe frame 2 is just finished replaying and frame 3 is not started yet.
-        settings.loopEndFrame += 1;
+        replaySettings.loopEndFrame += 1;
     }
 
     // record the location of looping start packet
     seq.record_bookmark();
     seq.get_bookmark(startingPacket);
-    uint64_t totalLoops = settings.numLoops;
+    uint64_t totalLoops = replaySettings.numLoops;
     uint64_t totalLoopFrames = 0;
     uint64_t start_time = vktrace_get_time();
     uint64_t end_time;
-    uint64_t start_frame = settings.loopStartFrame == UINT_MAX ? 0 : settings.loopStartFrame;
+    uint64_t start_frame = replaySettings.loopStartFrame == UINT_MAX ? 0 : replaySettings.loopStartFrame;
     uint64_t end_frame = UINT_MAX;
     const char* screenshot_list = replaySettings.screenshotList;
-    while (settings.numLoops > 0) {
-        if (settings.numLoops > 1 && replaySettings.screenshotList != NULL) {
+    while (replaySettings.numLoops > 0) {
+        if (replaySettings.numLoops > 1 && replaySettings.screenshotList != NULL) {
             // Don't take screenshots until the last loop
             replaySettings.screenshotList = NULL;
-        } else if (settings.numLoops == 1 && replaySettings.screenshotList != screenshot_list) {
+        } else if (replaySettings.numLoops == 1 && replaySettings.screenshotList != screenshot_list) {
             // Re-enable screenshots on last loop if they have been disabled
             replaySettings.screenshotList = screenshot_list;
         }
@@ -241,13 +240,13 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                             prevFrameNumber = frameNumber;
 
                             // Only set the loop start location in the first loop when loopStartFrame is not 0
-                            if (frameNumber == start_frame && start_frame > 0 && settings.numLoops == totalLoops) {
+                            if (frameNumber == start_frame && start_frame > 0 && replaySettings.numLoops == totalLoops) {
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
                             }
 
-                            if (frameNumber == settings.loopEndFrame) {
+                            if (frameNumber == replaySettings.loopEndFrame) {
                                 trace_running = false;
                             }
                         }
@@ -260,19 +259,19 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                 }
             }
         }
-        settings.numLoops--;
-        vktrace_LogVerbose("Loop number %d completed. Remaining loops:%d", settings.numLoops + 1, settings.numLoops);
+        replaySettings.numLoops--;
+        vktrace_LogVerbose("Loop number %d completed. Remaining loops:%d", replaySettings.numLoops + 1, replaySettings.numLoops);
 
         if (end_frame == UINT_MAX)
-            end_frame = settings.loopEndFrame == UINT_MAX
+            end_frame = replaySettings.loopEndFrame == UINT_MAX
                             ? replayer->GetFrameNumber()
-                            : std::min((unsigned int)replayer->GetFrameNumber(), settings.loopEndFrame);
+                            : std::min((unsigned int)replayer->GetFrameNumber(), replaySettings.loopEndFrame);
         totalLoopFrames += end_frame - start_frame;
 
         seq.set_bookmark(startingPacket);
         trace_running = true;
         if (replayer != NULL) {
-            replayer->ResetFrameNumber(settings.loopStartFrame);
+            replayer->ResetFrameNumber(replaySettings.loopStartFrame);
         }
     }
     end_time = vktrace_get_time();
@@ -640,7 +639,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
 
     // main loop
     Sequencer sequencer(traceFile);
-    err = vktrace_replay::main_loop(disp, sequencer, replayer, replaySettings);
+    err = vktrace_replay::main_loop(disp, sequencer, replayer);
 
     for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         if (replayer[i] != NULL) {
