@@ -47,7 +47,8 @@ using namespace std;
 vkreplayer_settings *g_pReplaySettings;
 
 vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_header *pFileHeader,
-                   vktrace_replay::ReplayDisplayImp *display) {
+                   vktrace_replay::ReplayDisplayImp *display)
+    : initialized_screenshot_list("") {
     g_pReplaySettings = pReplaySettings;
     m_pDSDump = NULL;
     m_pCBDump = NULL;
@@ -173,9 +174,10 @@ int vkReplay::dump_validation_data() {
 }
 
 VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPacket) {
-    if (m_display->m_initedVK) {
+    if (m_display->m_initedVK && initialized_screenshot_list == g_pReplaySettings->screenshotList) {
         return VK_SUCCESS;
     }
+    initialized_screenshot_list = g_pReplaySettings->screenshotList;
 
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkInstanceCreateInfo *pCreateInfo;
