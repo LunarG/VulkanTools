@@ -12,6 +12,8 @@ override_dh_auto_configure:
 	dh_quilt_patch
 	dh_auto_configure -- \
 	-DUSE_CCACHE=On \
+	-DVULKAN_HEADERS_INSTALL_DIR=/usr \
+	-DVULKAN_LOADER_INSTALL_DIR=/usr \
 	-DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=/usr \
 	-DCMAKE_BUILD_TYPE=Release
 
