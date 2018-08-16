@@ -23,7 +23,7 @@ if ( !(Test-Path $toolsroot\$bits_build) ) {
 }
 
 $skip = @( "LongFenceChain)", "CreatePipelineCheckShaderCapabilityExtension1of2",
-    "CreatePipelineCheckShaderCapabilityExtension2of2", "ExternalFence", "ExternalMemory" )
+    "CreatePipelineCheckShaderCapabilityExtension2of2", "ExternalFence", "ExternalMemory", "ExternalSemaphore", "CreateGraphicsPipelineWithIgnoredPointers" )
 $lvlbinpath = "$toolsroot\Vulkan-ValidationLayers\$bits_build"
 $lvlcodepath = "$toolsroot\Vulkan-ValidationLayers"
 
