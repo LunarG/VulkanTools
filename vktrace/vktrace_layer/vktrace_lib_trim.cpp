@@ -33,6 +33,7 @@ uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
 bool g_trimAlreadyFinished = false;
+std::mutex g_trimImageHandling_Mutex;
 
 namespace trim {
 // Tracks the existence of objects from the very beginning of the application
@@ -90,6 +91,11 @@ static std::unordered_map<VkBuffer, StagingInfo> s_bufferToStagedInfoMap;
 static std::unordered_map<VkImage, StagingInfo> s_imageToStagedInfoMap;
 
 //=========================================================================
+// Map to associate trace-time image with its SubResourceSizes
+//=========================================================================
+static std::unordered_map<VkImage, std::vector<VkDeviceSize>> s_imageToSubResourceSizes;
+
+//=========================================================================
 // Associates a Device to a trim-specific CommandPool
 //=========================================================================
 static std::unordered_map<VkDevice, std::unordered_map<uint32_t, VkCommandPool>> s_deviceToCommandPoolMap;
@@ -106,6 +112,83 @@ static std::unordered_map<const void *, VkAllocationCallbacks> s_trimAllocatorMa
 //=========================================================================
 static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
 
+//=========================================================================
+VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo,
+                                           const VkAllocationCallbacks *pAllocator, uint32_t subresourceIndex) {
+    VkDeviceSize imageSubResourceSize = 0;
+    VkImage image;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.extent.depth = std::max(static_cast<uint32_t>(1), imageCreateInfo.extent.depth >> subresourceIndex);
+    imageCreateInfo.extent.height = std::max(static_cast<uint32_t>(1), imageCreateInfo.extent.height >> subresourceIndex);
+    imageCreateInfo.extent.width = std::max(static_cast<uint32_t>(1), imageCreateInfo.extent.width >> subresourceIndex);
+
+    VkResult result = mdd(device)->devTable.CreateImage(device, &imageCreateInfo, NULL, &image);
+    assert(result == VK_SUCCESS);
+
+    if (result == VK_SUCCESS) {
+        VkMemoryRequirements memoryRequirements;
+        VkDeviceMemory memory;
+
+        mdd(device)->devTable.GetImageMemoryRequirements(device, image, &memoryRequirements);
+        imageSubResourceSize = memoryRequirements.size;
+    }
+    mdd(device)->devTable.DestroyImage(device, image, pAllocator);
+    return imageSubResourceSize;
+}
+
+bool calculateImageAllSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                      std::vector<VkDeviceSize> &subResourceSizes) {
+    uint32_t mipLevel, wholeSize = 0;
+    subResourceSizes.push_back(0);
+    for (uint32_t i = 0; i < imageCreateInfo.mipLevels; i++) {
+        subResourceSizes.push_back(calculateImageSubResourceSize(device, imageCreateInfo, pAllocator, i));
+        wholeSize += subResourceSizes[i + 1];
+    }
+    subResourceSizes[0] = wholeSize;
+    return true;
+}
+
+void addImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> subResourceSizes) {
+    std::lock_guard<std::mutex> guard(g_trimImageHandling_Mutex);
+    s_imageToSubResourceSizes[image] = subResourceSizes;
+}
+
+bool getImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> *pSubresourceSizes) {
+    std::lock_guard<std::mutex> guard(g_trimImageHandling_Mutex);
+    bool getImageSubResourceSizesResult = false;
+    auto it = s_imageToSubResourceSizes.find(image);
+    if (it != s_imageToSubResourceSizes.end()) {
+        if (pSubresourceSizes != nullptr) {
+            *pSubresourceSizes = it->second;
+        }
+        getImageSubResourceSizesResult = true;
+    }
+    return getImageSubResourceSizesResult;
+}
+
+void deleteImageSubResourceSizes(VkImage image) {
+    std::lock_guard<std::mutex> guard(g_trimImageHandling_Mutex);
+    auto it = s_imageToSubResourceSizes.find(image);
+    if (it != s_imageToSubResourceSizes.end()) {
+        s_imageToSubResourceSizes.erase(it);
+    }
+}
+
+VkDeviceSize getImageSize(VkImage image) {
+    std::vector<VkDeviceSize> subResourceSizes;
+    getImageSubResourceSizes(image, &subResourceSizes);
+    return subResourceSizes[0];
+}
+
+VkDeviceSize getImageSubResourceOffset(VkImage image, uint32_t mipLevel) {
+    VkDeviceSize subResourceOffset = 0;
+    std::vector<VkDeviceSize> subResourceSizes;
+    getImageSubResourceSizes(image, &subResourceSizes);
+    for (uint32_t i = 0; i < mipLevel; i++) {
+        subResourceOffset += subResourceSizes[i + 1];
+    }
+    return subResourceOffset;
+}
 //=========================================================================
 // Start trimming
 //=========================================================================
@@ -965,9 +1048,9 @@ void snapshot_state_tracker() {
             if (result != VK_SUCCESS) continue;
 
             if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
-                StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer,
-                                                              (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
-                                                              imageIter->second.ObjectInfo.Image.memorySize);
+                StagingInfo stagingInfo = createStagingBuffer(
+                    device, commandPool, commandBuffer, (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
+                    std::max(getImageSize(image), imageIter->second.ObjectInfo.Image.memorySize));
 
                 // From Docs: srcImage must have a sample count equal to
                 // VK_SAMPLE_COUNT_1_BIT
@@ -975,7 +1058,7 @@ void snapshot_state_tracker() {
                 // VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag
 
                 // Copy from device_local image to host_visible buffer
-
+                bool callGetImageSubresourceLayoutApi = (false == getImageSubResourceSizes(image, nullptr));
                 VkImageAspectFlags aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
                 if (aspectMask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
                     stagingInfo.imageCopyRegions.reserve(2);
@@ -987,7 +1070,11 @@ void snapshot_state_tracker() {
                     sub.mipLevel = 0;
                     {
                         VkSubresourceLayout layout;
-                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        if (callGetImageSubresourceLayoutApi) {
+                            mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        } else {
+                            layout.offset = getImageSubResourceOffset(image, 0);
+                        }
 
                         VkBufferImageCopy copyRegion = {};
 
@@ -1026,7 +1113,11 @@ void snapshot_state_tracker() {
                     sub.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
                     {
                         VkSubresourceLayout layout;
-                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        if (callGetImageSubresourceLayoutApi) {
+                            mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        } else {
+                            layout.offset = getImageSubResourceOffset(image, 0);
+                        }
 
                         VkBufferImageCopy copyRegion;
 
@@ -1060,7 +1151,11 @@ void snapshot_state_tracker() {
                     for (uint32_t i = 0; i < imageIter->second.ObjectInfo.Image.mipLevels; i++) {
                         VkSubresourceLayout lay;
                         sub.mipLevel = i;
-                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
+                        if (callGetImageSubresourceLayoutApi) {
+                            mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
+                        } else {
+                            lay.offset = getImageSubResourceOffset(image, i);
+                        }
 
                         VkBufferImageCopy copyRegion;
                         copyRegion.bufferRowLength = 0;    //< tightly packed texels

@@ -1845,6 +1845,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
         elif 'vkDestroyImage' == proto.name:
+            trim_instructions.append("        trim::deleteImageSubResourceSizes(image);")
             trim_instructions.append("#if TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::add_Image_call(trim::copy_packet(pHeader));")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")

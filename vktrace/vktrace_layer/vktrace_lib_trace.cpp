@@ -2962,6 +2962,43 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
     }
 
     result = mdd(device)->devTable.CreateImage(device, pCreateInfo, pAllocator, pImage);
+
+    if (g_trimEnabled && (pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL) && (result == VK_SUCCESS)) {
+        // For all miplevels of the image, here we fisrt get all subresource
+        // memory sizes and put them in a vector, then save the vector to a
+        // map of which the key is image handle.
+        //
+        // Such process is part of a solution to fix an image difference
+        // problem for some title:
+        //
+        // For some title, if trim start at some specific locations, trimmed
+        // trace file playback show image difference compared with original
+        // title running.
+
+        // The reason of the problem is: when trim copy out an optimal tiling
+        // image which is bound to device local only memory, it will first
+        // copy the image data to a staging buffer. An API
+        // vkGetImageSubresourceLayout is used to get every subresource data
+        // offset for saving to the buffer. But by Doc, the image must
+        // be linear tiling image. In the problem title, trim need to copy
+        // out some optimal tiling images to staging buffer, the call
+        // vkGetImageSubresourceLayout return wrong offset and size for some
+        // miplevel of the image and cause image data overwriting and finally
+        // cause trimmed trace file playback show image difference.
+        //
+        // The fix of the problem use the following process to replace
+        // vkGetImageSubresourceLayout call and get the subresource size and
+        // then get the offset. The basic process is: create image with
+        // specific miplevel, then query its memory requirement to get the
+        // size. such process performed when vkCreateImage and save these
+        // sizes to a map. When starting to trim and copy out the image, trim
+        // will directly use these sizes.
+
+        std::vector<VkDeviceSize> subResourceSizes;
+        if (trim::calculateImageAllSubResourceSize(device, *pCreateInfo, pAllocator, subResourceSizes)) {
+            trim::addImageSubResourceSizes(*pImage, subResourceSizes);
+        }
+    }
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreateImage(pHeader);
     pPacket->device = device;
