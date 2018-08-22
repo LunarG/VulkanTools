@@ -19,9 +19,12 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com> <plohrmann@gmail.com>
  **************************************************************************/
 
-#include "vktraceviewer_QReplayWorker.h"
 #include <QAction>
 #include <QCoreApplication>
+
+#include "vktraceviewer_settings.h"
+#include "vktraceviewer_QReplayWorker.h"
+
 #include "vktraceviewer_trace_file_utils.h"
 #include <stdlib.h>
 #include <string>
@@ -52,7 +55,7 @@ void replayWorkerLoggingCallback(VktraceLogLevel level, const char* pMessage) {
     }
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -144,11 +147,17 @@ bool vktraceviewer_QReplayWorker::load_replayers(vktraceviewer_trace_file_info* 
     bool bReplayerLoaded = false;
 
     vktrace_replay::ReplayDisplay disp;
-    if (separateReplayWindow) {
-        disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight, 0, false);
-    } else {
-        disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, replayWindowWidth, replayWindowHeight);
+    disp = vktrace_replay::ReplayDisplay(replayWindowWidth, replayWindowHeight);
+    if (!separateReplayWindow) {
+        disp.set_window_handle(&hWindow);
     }
+    vktrace_replay::ReplayDisplayImp* pDisp = nullptr;
+    // Get display implementation. Use XCB on linux
+    if (GetDisplayImplementation("xcb", &pDisp) == -1) {
+        emit OutputMessage(VKTRACE_LOG_ERROR, QString("Could not initialize display."));
+        return false;
+    }
+    disp.set_implementation(pDisp);
 
     for (uint64_t i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
         m_pReplayers[i] = NULL;
@@ -321,15 +330,13 @@ void vktraceviewer_QReplayWorker::playCurrentTraceFile(uint64_t startPacketIndex
                         }
                     } else {
                         bool continuePlaying = false;
-                        //To avoid the 0 data retry condition, we add 1 to the packet, then negate 1 upon receiving.
+                        // To avoid the 0 data retry condition, we add 1 to the packet, then negate 1 upon receiving.
                         uint64_t packetNo = pCurPacket->pHeader->global_packet_index + 1;
 
-                        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Packet Sent: %1")
-                                                                            .arg(packetNo)
-                                                                            .toStdString()
-                                                                            .c_str());
+                        replayWorkerLoggingCallback(VKTRACE_LOG_DEBUG,
+                                                    QString("Packet Sent: %1").arg(packetNo - 1).toStdString().c_str());
                         if (!first)
-                            //Block operation until the remote replayer is ready to receive the next packet.
+                            // Block operation until the remote replayer is ready to receive the next packet.
                             vktrace_FileLike_ReadRaw(fileLikeSocket, &continuePlaying, sizeof(continuePlaying));
                         else
                             first = false;
@@ -460,13 +467,14 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
 
             vktrace_replay::ReplayDisplay disp;
             if (detach) {
-                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight, 0, false);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
             } else {
                 WId hWindow = m_pReplayWindow->winId();
-                disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp.set_window_handle(&hWindow);
             }
 
-#if PLATFORM_LINUX
+#if defined(PLATFORM_LINUX)
             int err __attribute__((unused)) = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
 #else
             int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
@@ -477,57 +485,77 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
 }
 
 void vktraceviewer_QReplayWorker::RemoteReplay(bool remoteMode) {
-
     remoteReplayer = remoteMode;
+    std::string adb = g_settings.adb_location;
 
     if (remoteMode) {
         for (int i = 0; i < VKTRACE_MAX_TRACER_ID_ARRAY_SIZE; i++) {
-            if (m_pReplayers[i] != NULL)
-                m_pReplayers[i]->Deinitialize();
+            if (m_pReplayers[i] != NULL) m_pReplayers[i]->Deinitialize();
         }
 
-        system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
-
-        replayWorkerLoggingCallback(
-            VKTRACE_LOG_VERBOSE,
-            QString("Initializing APK and setting up connection. Please wait a few seconds...")
-                .toStdString()
-                .c_str());
-
-        //Ideally we move this all to initialize just once (e.g: load_replayers). Due to frame reset not working, 
-        //the hack method requires us to call these commands multiple times, so for now it is called here.
+        // Ideally we move this all to initialize just once (e.g: load_replayers). Due to frame reset not working,
+        // the hack method requires us to call these commands multiple times, so for now it is called here.
         unsigned int portNo = VKTRACE_BASE_PORT + VKTRACE_TID_VULKAN;
-        std::string reversePort = "adb reverse localabstract:" + std::to_string(portNo) + " tcp:" + std::to_string(portNo);
-        std::string pushcmd = "nohup adb push " + traceFilename + " /sdcard/tracefile.vktrace >/dev/null 2>&1 &";
+        int res = 0;
+        system(("nohup " + adb + " shell am force-stop com.example.vkreplay >/dev/null 2>&1 &").c_str());
+        system("nohup killall vktrace >/dev/null 2>&1 &");
+        system("nohup killall vktrace32 >/dev/null 2>&1 &");
 
-        system(reversePort.c_str());
-        system("adb shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE");
-        system("adb shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE");
+        res = system((adb + " reverse localabstract:" + std::to_string(portNo) + " tcp:" + std::to_string(portNo)).c_str());
+        if (res == 0) {
+            replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Port forwarding complete.").toStdString().c_str());
+        } else if (res == 256) {
+            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Number of connected devices is not 1.").toStdString().c_str());
+            return;
+        } else if (res == 32512) {
+            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR,
+                                        QString("ADB not found. Please set the path in Settings.").toStdString().c_str());
+            return;
+        }
+
+        system((adb + " shell pm grant com.example.vkreplay android.permission.READ_EXTERNAL_STORAGE").c_str());
+        system((adb + " shell pm grant com.example.vkreplay android.permission.WRITE_EXTERNAL_STORAGE").c_str());
+        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Permissions granted.").toStdString().c_str());
 #if defined(WIN32)
         Sleep(1000);
 #else
-        sleep(1); //After giving read/write permissions, delay to let permissions apply.
+        sleep(1);  // After giving read/write permissions, delay to let permissions apply.
 #endif
-        system("adb shell input keyevent \"KEYCODE_MENU\"");
-        system("adb shell input keyevent \"KEYCODE_HOME\"");
-        system("nohup adb shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH\
-                 -n com.example.vkreplay/android.app.NativeActivity --es args\
-                 \"-v\\ full\\ -t\\ /sdcard/tracefile.vktrace\\ -r\\ true\" >/dev/null 2>&1 &");
 
-        system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
-        system(pushcmd.c_str());
+        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE,
+                                    QString("Pushing the tracefile to the device. This may take a while...").toStdString().c_str());
+        res = system((adb + " push " + traceFilename + " /sdcard/tracefile.vktrace").c_str());
+        if (res == 0) {
+            replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Tracefile has been pushed.").toStdString().c_str());
+        } else if (res == 256) {
+            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR,
+                                        QString("Tracefile failed to push. File does not exist.").toStdString().c_str());
+            return;
+        } else {
+            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Tracefile failed to push.").toStdString().c_str());
+            return;
+        }
+
+        system((adb + " shell input keyevent \"KEYCODE_MENU\"").c_str());
+        system((adb + " shell input keyevent \"KEYCODE_HOME\"").c_str());
+        system(("nohup " + adb + " shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH\
+                 -n com.example.vkreplay/android.app.NativeActivity --es args\
+                 \"-v\\ full\\ -t\\ /sdcard/tracefile.vktrace\\ -r\\ true\" >/dev/null 2>&1 &")
+                   .c_str());
+        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("VkReplay started.").toStdString().c_str());
 
         pMessageStream = vktrace_MessageStream_create(TRUE, "127.0.0.1", portNo);
-        if (pMessageStream == NULL)
-            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Could not create message stream.")
-                                                                .toStdString()
-                                                                .c_str());
+        if (pMessageStream == NULL) {
+            replayWorkerLoggingCallback(VKTRACE_LOG_ERROR, QString("Could not create message stream.").toStdString().c_str());
+            return;
+        }
         fileLikeSocket = vktrace_FileLike_create_msg(pMessageStream);
-        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Connection Successful.")
-                                                            .toStdString()
-                                                            .c_str());
+        replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("Connection Successful.").toStdString().c_str());
     } else {
-        system("nohup adb shell am force-stop com.example.vkreplay >/dev/null 2>&1 &");
+        system(("nohup " + adb + " shell am force-stop com.example.vkreplay >/dev/null 2>&1 &").c_str());
+        system("nohup killall vktrace >/dev/null 2>&1 &");
+        system("nohup killall vktrace32 >/dev/null 2>&1 &");
+
         shutdown(pMessageStream->mSocket, 2);
         pMessageStream = NULL;
         fileLikeSocket = NULL;
@@ -537,7 +565,8 @@ void vktraceviewer_QReplayWorker::RemoteReplay(bool remoteMode) {
                 vktrace_replay::ReplayDisplay disp;
 
                 WId hWindow = m_pReplayWindow->winId();
-                disp = vktrace_replay::ReplayDisplay((vktrace_window_handle)hWindow, m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp = vktrace_replay::ReplayDisplay(m_pReplayWindowWidth, m_pReplayWindowHeight);
+                disp.set_window_handle(&hWindow);
 
                 int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
                 assert(err == 0);
@@ -550,11 +579,10 @@ void vktraceviewer_QReplayWorker::doReplayPaused(uint64_t packetIndex) { emit Re
 
 void vktraceviewer_QReplayWorker::doReplayStopped(uint64_t packetIndex) {
     emit ReplayStopped(packetIndex);
-    
-    //Hack method. Ideally we want to reset the frame to 0 and restart the trace. Since the frame reset appears non-functional,
-    //we instead restart the APK and re-establish a fresh connection.
-    if (remoteReplayer)
-        RemoteReplay(true);
+
+    // Hack method. Ideally we want to reset the frame to 0 and restart the trace. Since the frame reset appears non-functional,
+    // we instead restart the APK and re-establish a fresh connection.
+    if (remoteReplayer) RemoteReplay(true);
 
     // Replay will start again from the beginning, so setup for that now.
     m_currentReplayPacketIndex = 0;
@@ -564,10 +592,9 @@ void vktraceviewer_QReplayWorker::doReplayFinished(uint64_t packetIndex) {
     // Indicate that the replay finished at the particular packet.
     emit ReplayFinished(packetIndex);
 
-    //Hack method. Ideally we want to reset the frame to 0 and restart the trace. Since the frame reset appears non-functional,
-    //we instead restart the APK and re-establish a fresh connection.
-    if (remoteReplayer)
-        RemoteReplay(true);
+    // Hack method. Ideally we want to reset the frame to 0 and restart the trace. Since the frame reset appears non-functional,
+    // we instead restart the APK and re-establish a fresh connection.
+    if (remoteReplayer) RemoteReplay(true);
 
     // Replay will start again from the beginning, so setup for that now.
     m_currentReplayPacketIndex = 0;

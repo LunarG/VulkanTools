@@ -20,6 +20,7 @@
  * Author: Chris Forbes <chrisforbes@google.com>
  * Author: Tony Barbour <tony@lunarg.com>
  */
+#include <vk_loader_platform.h>
 #include "vk_layer_data.h"
 #include "vk_layer_extension_utils.h"
 #include "vk_layer_table.h"
@@ -29,7 +30,6 @@
 #include <time.h>
 #include <unordered_map>
 #include <vk_dispatch_table_helper.h>
-#include <vk_loader_platform.h>
 #include <vulkan/vk_layer.h>
 #include <vulkan/vulkan.h>
 

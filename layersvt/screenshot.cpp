@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (C) 2015-2016 Valve Corporation
- * Copyright (C) 2015-2016 LunarG, Inc.
+ * Copyright (C) 2015-2018 Valve Corporation
+ * Copyright (C) 2015-2018 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * Author: Cody Northrop <cody@lunarg.com>
  * Author: David Pinedo <david@lunarg.com>
  * Author: Jon Ashburn <jon@lunarg.com>
+ * Author: Tony Barbour <tony@lunarg.com>
  */
 
 #include <inttypes.h>
@@ -52,6 +53,7 @@ using namespace std;
 static char android_env[64] = {};
 const char *env_var = "debug.vulkan.screenshot";
 const char *env_var_old = env_var;
+const char *env_var_format = "debug.vulkan.screenshot.format";
 #else  //Linux or Windows
 const char *env_var_old = "_VK_SCREENSHOT";
 const char *env_var = "VK_SCREENSHOT_FRAMES";
@@ -164,11 +166,11 @@ typedef struct {
     VkLayerDispatchTable *device_dispatch_table;
     bool wsi_enabled;
     VkQueue queue;
-    std::list<VkCommandPool> commandPools;
     VkPhysicalDevice physicalDevice;
     PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DeviceMapStruct;
 static unordered_map<VkDevice, DeviceMapStruct *> deviceMap;
+static unordered_map<VkQueue, uint32_t> queueIndexMap;
 
 // unordered map: associates a physical device with an instance
 typedef struct { VkInstance instance; } PhysDeviceMapStruct;
@@ -228,9 +230,7 @@ static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, b
 
 //Get users request is specific color space format required
 void readScreenShotFormatENV(void) {
-#ifndef ANDROID
     vk_screenshot_format = local_getenv(env_var_format);
-#endif
     if (vk_screenshot_format && *vk_screenshot_format) {
         if (!strcmp(vk_screenshot_format, "UNORM")) {
             userColorSpaceFormat = UNORM;
@@ -248,6 +248,10 @@ void readScreenShotFormatENV(void) {
             userColorSpaceFormat = SINT;
         } else {
 #ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "screenshot",
+                                "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
+                                "SRGB\nSwapchain Colorspace will be used instead\n",
+                                vk_screenshot_format);
 #else
             fprintf(stderr, "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                             "Swapchain Colorspace will be used instead\n", vk_screenshot_format);
@@ -375,6 +379,7 @@ WritePPMCleanupData::~WritePPMCleanupData() {
     if (image3) pTableDevice->DestroyImage(device, image3, NULL);
 
     if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
 }
 
 // Save an image to a PPM image file.
@@ -527,14 +532,16 @@ static void writePPM(const char *filename, VkImage image1) {
     //Still could not find the right format then we use UNORM
     if (destformat == VK_FORMAT_UNDEFINED)
     {
-#ifdef ANDROID
-#else
         if (printFormatWarning) {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "screenshot",
+                                "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n");
+#else
             fprintf(stderr, "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                             "UNORM colorspace will be used instead\n");
+#endif
             printFormatWarning = false;
         }
-#endif
         if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
         else
@@ -681,18 +688,21 @@ static void writePPM(const char *filename, VkImage image1) {
         if (VK_SUCCESS != err) return;
     }
 
-    // Set up the command buffer.  We get a command buffer from a pool we saved
-    // in a hooked function, which would be the application's pool.
-    if (deviceMap[device]->commandPools.empty()) {
-        assert(!deviceMap[device]->commandPools.empty());
-        return;
-    }
+    // We want to create our own command pool to be sure we can use it from this thread
+    VkCommandPoolCreateInfo cmd_pool_info = {};
+    cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    cmd_pool_info.pNext = NULL;
+    auto it = queueIndexMap.find(queue);
+    assert(it != queueIndexMap.end());
+    cmd_pool_info.queueFamilyIndex = it->second;
+    cmd_pool_info.flags = 0;
 
-    VkCommandPool commandPool = deviceMap[device]->commandPools.front();
+    err = pTableDevice->CreateCommandPool(device, &cmd_pool_info, NULL, &data.commandPool);
+    assert(!err);
 
+    // Set up the command buffer.
     const VkCommandBufferAllocateInfo allocCommandBufferInfo = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, NULL,
-        commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
-    data.commandPool = commandPool;
+                                                                data.commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
     err = pTableDevice->AllocateCommandBuffers(device, &allocCommandBufferInfo, &data.commandBuffer);
     assert(!err);
     if (VK_SUCCESS != err) return;
@@ -761,8 +771,8 @@ static void writePPM(const char *filename, VkImage image1) {
 
     // The source image needs to be transitioned from present to transfer
     // source.
-    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
-                                            &presentMemoryBarrier);
+    pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, dstStages, 0, 0, NULL, 0,
+                                            NULL, 1, &presentMemoryBarrier);
 
     // image2 needs to be transitioned from its undefined state to transfer
     // destination.
@@ -1063,56 +1073,14 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
     }
 
     if (graphicsCapable) {
+        // Create a mapping from a device to a queue
         VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
         deviceMap.emplace(que, devMap);
-
-        // Create a mapping from a device to a queue
         devMap->queue = *pQueue;
+        queueIndexMap.emplace(*pQueue, queueFamilyIndex);
     }
     loader_platform_thread_unlock_mutex(&globalLock);
 }
-
-VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(VkDevice device, const VkCommandPoolCreateInfo *pCreateInfo,
-                                                 const VkAllocationCallbacks *pAllocator, VkCommandPool *pCommandPool) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    VkResult result = pDisp->CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
-
-    // Save the command pool on a map if we are taking screenshots.
-    loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
-        // No screenshots in the list to take
-        loader_platform_thread_unlock_mutex(&globalLock);
-        return result;
-    }
-
-    // Create a mapping from a device to a commandPool
-    devMap->commandPools.push_front(*pCommandPool);
-    loader_platform_thread_unlock_mutex(&globalLock);
-    return result;
-}
-
-VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(VkDevice device, VkCommandPool commandPool, const VkAllocationCallbacks *pAllocator) {
-    DeviceMapStruct *devMap = get_dev_info(device);
-    assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    pDisp->DestroyCommandPool(device, commandPool, pAllocator);
-
-    // Remove the command pool from the map if we are taking screenshots.
-    loader_platform_thread_lock_mutex(&globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
-        // No screenshots in the list to take
-        loader_platform_thread_unlock_mutex(&globalLock);
-        return;
-    }
-
-    // Remove the commandPool from the device mapping
-    devMap->commandPools.remove(commandPool);
-    loader_platform_thread_unlock_mutex(&globalLock);
-    return;
-}
-
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
                                                   const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
@@ -1141,6 +1109,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
         swapchainMapElem->device = device;
         swapchainMapElem->imageExtent = pCreateInfo->imageExtent;
         swapchainMapElem->format = pCreateInfo->imageFormat;
+        // If there's a (destroyed) swapchain with the same handle, remove it from the swapchainMap
+        if (swapchainMap.find(*pSwapchain) != swapchainMap.end()) {
+            delete swapchainMap[*pSwapchain];
+            swapchainMap.erase(*pSwapchain);
+        }
         swapchainMap.insert(make_pair(*pSwapchain, swapchainMapElem));
 
         // Create a mapping for the swapchain object into the dispatch table
@@ -1203,8 +1176,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     }
     DeviceMapStruct *devMap = get_dev_info((VkDevice)queue);
     assert(devMap);
-    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
-    VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     loader_platform_thread_lock_mutex(&globalLock);
 
     if (!screenshotFramesReceived) {
@@ -1224,7 +1195,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         local_free_getenv(vk_screenshot_frames);
     }
 
-    if (result == VK_SUCCESS && (!screenshotFrames.empty() || screenShotFrameRange.valid)) {
+    if (!screenshotFrames.empty() || screenShotFrameRange.valid) {
         set<int>::iterator it;
         bool inScreenShotFrames = false;
         bool inScreenShotFrameRange = false;
@@ -1240,6 +1211,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             snprintf(buffer, sizeof(buffer), "/sdcard/Android/%d", frameNumber);
             std::string base(buffer);
             fileName = base + ".ppm";
+            __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
 #else
             fileName = to_string(frameNumber) + ".ppm";
             printf("Screen Capture file is: %s \n", fileName.c_str());
@@ -1278,6 +1250,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     }
     frameNumber++;
     loader_platform_thread_unlock_mutex(&globalLock);
+    VkLayerDispatchTable *pDisp = devMap->device_dispatch_table;
+    VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     return result;
 }
 
@@ -1386,8 +1360,6 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
     } core_device_commands[] = {
         {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
         {"vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
-        {"vkCreateCommandPool", reinterpret_cast<PFN_vkVoidFunction>(CreateCommandPool)},
-        {"vkDestroyCommandPool", reinterpret_cast<PFN_vkVoidFunction>(DestroyCommandPool)},
         {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
     };
 

@@ -30,6 +30,8 @@
 
 #include "vktraceviewer_QReplayWorker.h"
 
+#undef Bool  // Xlib defines this, will not be compatible with QT
+
 class vktraceviewer_QReplayWidget : public QWidget {
     Q_OBJECT
    public:

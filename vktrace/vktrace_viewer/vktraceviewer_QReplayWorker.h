@@ -27,6 +27,8 @@
 #include "vktrace_interconnect.h"
 #include "vktrace_filelike.h"
 
+#undef Bool  // Xlib defines this, will not be compatible with QT
+
 // Replay from vktraceviewer doesn't work yet. Disable it for now.
 #define ENABLE_REPLAY false
 

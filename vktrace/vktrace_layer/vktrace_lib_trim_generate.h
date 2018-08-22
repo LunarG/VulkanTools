@@ -15,7 +15,7 @@
 */
 #pragma once
 #include "vktrace_trace_packet_identifiers.h"
-#include "vulkan.h"
+#include "vulkan/vulkan.h"
 
 namespace trim {
 namespace generate {

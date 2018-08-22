@@ -32,7 +32,7 @@
 #include "vktrace_memory.h"
 #include "vktrace_tracelog.h"
 
-#ifndef STRINGIFY
+#if !defined(STRINGIFY)
 #define STRINGIFY(x) #x
 #endif
 
@@ -69,12 +69,15 @@
 
 static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // Windows needs 64 bit versions of fseek and ftell
-#if defined (WIN32)
+#if defined(WIN32)
 #define Ftell _ftelli64
 #define Fseek _fseeki64
+#elif defined(ANDROID)
+#define Ftell vktrace_ftell
+#define Fseek vktrace_fseek
 #else
-#define Ftell ftell
-#define Fseek fseek
+#define Ftell ftello
+#define Fseek fseeko
 #endif
 
 // Enviroment variables used by vktrace/replay

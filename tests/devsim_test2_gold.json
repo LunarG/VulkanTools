@@ -155,7 +155,7 @@
   "VkPhysicalDeviceProperties": {
     "apiVersion": 1,
     "deviceID": 0,
-    "deviceName": "device_simulation_layer_test_1",
+    "deviceName": "devsim test2",
     "deviceType": 0,
     "driverVersion": 2,
     "limits": {

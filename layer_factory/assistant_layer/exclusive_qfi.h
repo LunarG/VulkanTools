@@ -27,7 +27,7 @@
 class ExclusiveQfiCheck : public layer_factory {
    public:
     // Constructor for interceptor
-    ExclusiveQfiCheck() : layer_factory(this){};
+    ExclusiveQfiCheck(){};
 
     VkResult PreCallCreateBuffer(VkDevice device, const VkBufferCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator,
                                  VkBuffer* pBuffer) {

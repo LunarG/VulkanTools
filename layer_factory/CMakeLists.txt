@@ -32,11 +32,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${V_LVL_ROOT_DIR}/loader
-    ${V_LVL_ROOT_DIR}/layers
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
-
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
 )
 
 if (WIN32)
@@ -54,8 +51,8 @@ else()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
 endif()
 
-run_vk_xml_generate(layer_factory_generator.py layer_factory.h)
-run_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
+run_vulkantools_vk_xml_generate(layer_factory_generator.py layer_factory.h)
+run_vulkantools_vk_xml_generate(layer_factory_generator.py layer_factory.cpp)
 add_custom_target(generate_vlf DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.cpp ${CMAKE_CURRENT_BINARY_DIR}/layer_factory.h)
 set_target_properties(generate_vlf PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
@@ -101,9 +98,8 @@ if (WIN32)
     set_target_properties(${target}json-copy PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
-    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
     endmacro()
 else()
     macro(add_factory_layer target subdir)
@@ -113,14 +109,9 @@ else()
     file(TO_NATIVE_PATH ${JSON_DEST_PATH}/VkLayer_${target}.json dst_json)
     file(WRITE ${dst_json} ${target_json_file})
     add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
     target_include_directories(VkLayer_${target} PRIVATE ${subdir})
-    add_dependencies(VkLayer_${target} generate_helper_files VkLayer_utils)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
-
-    if(INSTALL_LVL_FILES)
-        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-    endif()
     endmacro()
 endif()
 
@@ -132,25 +123,30 @@ SUBDIRLIST(ST_SUBDIRS ${CMAKE_LAYER_FACTORY_SOURCE_DIR})
 set(dep_chain generate_vlf)
 FOREACH(subdir ${ST_SUBDIRS})
     file(GLOB INTERCEPTOR_SOURCES ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir}/*.h ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir}/*.cpp)
-    add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp ${INTERCEPTOR_SOURCES})
+    add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ${INTERCEPTOR_SOURCES})
     add_dependencies(VkLayer_${subdir} ${dep_chain})
     set(dep_chain VkLayer_${subdir})
 ENDFOREACH()
 
-# Add targets for JSON file install on Linux.
-# Need to remove the "./" from the library path before installing to /etc.
-if(UNIX)
-    if(INSTALL_LVL_FILES)
-        foreach (factory_layer ${ST_SUBDIRS})
-            set(config_file VkLayer_${factory_layer})
-            add_custom_target(${config_file}-staging-json ALL
-                COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json
-                COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/../layers/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json
-                COMMAND sed -i -e "/\"library_path\":/s$./libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json/${config_file}.json
-                VERBATIM
-                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../layers/${config_file}.json
-                )
-            install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
-        endforeach(factory_layer)
-    endif()
+# Add targets for JSON file install. Try to follow the same convention as the Khronos Vulkan-ValidationLayers repository to maintain
+# a coherent directory topology in the install path.
+if(WIN32)
+    foreach (factory_layer ${ST_SUBDIRS})
+        set(config_file VkLayer_${factory_layer})
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${config_file}.json DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endforeach(factory_layer)
+elseif(UNIX)
+    foreach (factory_layer ${ST_SUBDIRS})
+        set(config_file VkLayer_${factory_layer})
+        add_custom_target(
+            ${config_file}-staging-json ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json
+            COMMAND ${CMAKE_COMMAND} -E copy ${JSON_DEST_PATH}/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json
+            COMMAND sed -i -e "/\"library_path\":/s$./libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json/${config_file}.json
+            VERBATIM
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../layers/${config_file}.json
+        )
+
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+    endforeach(factory_layer)
 endif()

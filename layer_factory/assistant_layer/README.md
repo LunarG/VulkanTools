@@ -6,7 +6,7 @@ the Vulkan specification but that may lead to application problems.
 This layer will ideally be run periodically along with normal validation checks so that issues may be addressed in early stages of development.
 
 The specific areas covered by this layer are currently tracked in
-[Github Issue #1612: Best Practices/Assistant/Performance Layer](https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/1612).
+[Github Issue #1612: Best Practices/Assistant/Performance Layer](https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/24).
 Requests for additional checks can be posted through the same issue, or by creating a new Github issue, and current status is tracked there
 as well.
 

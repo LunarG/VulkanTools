@@ -15,18 +15,6 @@
 # limitations under the License.
 
 import argparse, cProfile, pdb, string, sys, time, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../submodules/Vulkan-LoaderAndValidationLayers/scripts'))
-
-from reg import *
-from generator import write
-from cgenerator import CGeneratorOptions, COutputGenerator
-
-# VulkanTools generator additions
-from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
-from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN
-from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
-from mock_icd_generator import MockICDGeneratorOptions, MockICDOutputGenerator
-from layer_factory_generator import LayerFactoryGeneratorOptions, LayerFactoryOutputGenerator
 
 # Simple timer functions
 startTime = None
@@ -485,14 +473,14 @@ def genTarget(args):
         createGenerator = genOpts[args.target][0]
         options = genOpts[args.target][1]
 
-        if not args.quiet:
-            write('* Building', options.filename, file=sys.stderr)
-            write('* options.versions          =', options.versions, file=sys.stderr)
-            write('* options.emitversions      =', options.emitversions, file=sys.stderr)
-            write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
-            write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
-            write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
-            write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
+        #if not args.quiet:
+           # write('* Building', options.filename, file=sys.stderr)
+           # write('* options.versions          =', options.versions, file=sys.stderr)
+           # write('* options.emitversions      =', options.emitversions, file=sys.stderr)
+           # write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
+           # write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
+           # write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
+           # write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
 
         startTimer(args.time)
         gen = createGenerator(errFile=errWarn,
@@ -559,7 +547,25 @@ if __name__ == '__main__':
     parser.add_argument('-quiet', action='store_true', default=False,
                         help='Suppress script output during normal execution.')
 
+    # This argument tells us where to load the script from the Vulkan-Headers registry
+    parser.add_argument('-scripts', action='store',
+                        help='Find additional scripts in this directory')
+
     args = parser.parse_args()
+
+    scripts_directory_path = os.path.dirname(os.path.abspath(__file__))
+    registry_headers_path = os.path.join(scripts_directory_path, args.scripts)
+    sys.path.insert(0, registry_headers_path)
+
+    from reg import *
+    from generator import *
+    from cgenerator import CGeneratorOptions, COutputGenerator
+
+    # VulkanTools generator additions
+    from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
+    from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN
+    from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
+    from layer_factory_generator import LayerFactoryGeneratorOptions, LayerFactoryOutputGenerator
 
     # This splits arguments which are space-separated lists
     args.feature = [name for arg in args.feature for name in arg.split()]

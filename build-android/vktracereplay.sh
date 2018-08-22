@@ -343,6 +343,10 @@ do
     then
         echo "vktrace timeout reached: $vktrace_seconds seconds"
         echo "No vktrace screenshot, closing down"
+        # Cleanup
+        adb $serialFlag shell am force-stop $package
+        adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+        adb $serialFlag shell setprop debug.vulkan.layer.2 '""'
         exit 1
     fi
 
@@ -400,6 +404,9 @@ do
     then
         echo "vkreplay timeout reached: $vkreplay_seconds seconds"
         echo "No vkreplay screenshot, closing down"
+        # Cleanup
+        adb $serialFlag shell am force-stop com.example.vkreplay
+        adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
         exit 1
     fi
     sleep 5

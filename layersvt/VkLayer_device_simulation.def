@@ -25,4 +25,5 @@ EXPORTS
 vkGetInstanceProcAddr
 vkCreateInstance
 vkEnumerateInstanceLayerProperties
+vkEnumerateInstanceExtensionProperties
 vkNegotiateLoaderLayerInterfaceVersion

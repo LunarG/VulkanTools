@@ -111,16 +111,15 @@ if (WIN32)
         VERBATIM
     )
     add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-    add_dependencies(VkLayer_${target} generate_helper_files)
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
     set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
     macro(add_vk_layer target)
     add_library(VkLayer_${target} SHARED ${ARGN})
-    target_link_Libraries(VkLayer_${target} VkLayer_utils)
-    add_dependencies(VkLayer_${target} generate_helper_files generate_api_cpp generate_api_h generate_api_html_h VkLayer_utils)
+    target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+    add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
     set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
     install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
@@ -128,12 +127,9 @@ endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${V_LVL_ROOT_DIR}/loader
-    ${V_LVL_ROOT_DIR}/layers
-    ${V_LVL_ROOT_DIR}/include/vulkan
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
     ${JSONCPP_INCLUDE_DIR}
 )
@@ -155,18 +151,17 @@ if (WIN32)
         set (CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG} -D_CRT_SECURE_NO_WARNINGS")
     endif()
 else()
-    set (CMAKE_CXX_FLAGS "-std=c++11")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
 
 #VulkanTools layers
-run_vk_xml_generate(api_dump_generator.py api_dump.cpp)
-run_vk_xml_generate(api_dump_generator.py api_dump_text.h)
-run_vk_xml_generate(api_dump_generator.py api_dump_html.h)
+run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
+run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
+run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
 
-add_vk_layer(monitor monitor.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp)
-add_vk_layer(device_simulation device_simulation.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
-add_vk_layer(api_dump api_dump.cpp ${V_LVL_ROOT_DIR}/layers/vk_layer_table.cpp)
-
+add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
+add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
+add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)

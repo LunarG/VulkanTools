@@ -93,7 +93,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.enable_pmb},
      TRUE,
      "Enable tracking of persistently mapped buffers, default is TRUE."},
-#if _DEBUG
+#if defined(_DEBUG)
     {"v",
      "Verbosity",
      VKTRACE_SETTING_STRING,
@@ -205,7 +205,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
     fflush(stdout);
 
 #if defined(WIN32)
-#if _DEBUG
+#if defined(_DEBUG)
     OutputDebugString(pMessage);
 #endif
 #endif
@@ -214,7 +214,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 // ------------------------------------------------------------------------------------------------
 char* append_index_to_filename(const char* base, uint32_t index, const char* extension) {
     char num[17];
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX)
     snprintf(num, 17, "-%u", index);
 #elif defined(WIN32)
     _snprintf_s(num, 17, _TRUNCATE, "-%u", index);
@@ -297,7 +297,7 @@ static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     if (0 == Fseek(pTraceFile, 0, SEEK_END) && 1 == fwrite(&hdr, sizeof(hdr), 1, pTraceFile) &&
         portabilityTable.size() == fwrite(&portabilityTable[0], sizeof(uint64_t), portabilityTable.size(), pTraceFile)) {
         // Set the flag in the file header that indicates the portability table has been written
-        if (0 == fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))
+        if (0 == Fseek(pTraceFile, offsetof(vktrace_trace_file_header, portability_table_valid), SEEK_SET))
             fwrite(&one_64, sizeof(uint64_t), 1, pTraceFile);
     }
     portabilityTable.clear();
@@ -347,7 +347,7 @@ int main(int argc, char* argv[]) {
             vktrace_LogSetLevel(VKTRACE_LOG_WARNING);
         else if (strcmp(g_settings.verbosity, "full") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_VERBOSE);
-#if _DEBUG
+#if defined(_DEBUG)
         else if (strcmp(g_settings.verbosity, "debug") == 0)
             vktrace_LogSetLevel(VKTRACE_LOG_DEBUG);
 #endif

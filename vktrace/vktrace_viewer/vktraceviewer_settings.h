@@ -32,6 +32,7 @@ extern unsigned int g_numAllSettings;
 
 typedef struct vktraceviewer_settings {
     char* trace_file_to_open;
+    char* adb_location;
     int window_position_left;
     int window_position_top;
     int window_size_width;

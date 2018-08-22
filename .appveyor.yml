@@ -33,18 +33,60 @@ before_build:
   - if %PLATFORM% == x64 (if %CONFIGURATION% == Release (update_external_sources.bat --64 --release))
   # Determine the appropriate CMake generator for the current version of Visual Studio
   - echo Determining VS version
-  - python .\submodules\Vulkan-LoaderAndValidationLayers\scripts\determine_vs_version.py > vsversion.tmp
+  - python .\scripts\determine_vs_version.py > vsversion.tmp
   - set /p VS_VERSION=< vsversion.tmp
   - echo Detected Visual Studio Version as %VS_VERSION%
   - del /Q /F vsversion.tmp
   - if %PLATFORM% == Win32 (set GENERATOR="Visual Studio %VS_VERSION%")
   - if %PLATFORM% == x64 (set GENERATOR="Visual Studio %VS_VERSION% Win64")
-  # Generate build files using CMake for the build step.
-  - echo Generating CMake files for %GENERATOR%
-  - cd %TOP_DIR%
+  ## Build VulkanTools deps
+  # Vulkan-Headers
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/Vulkan-Headers.git
+  - cd Vulkan-Headers
   - mkdir build
   - cd build
-  - cmake -G %GENERATOR% ..
+  - cmake -DCMAKE_INSTALL_PREFIX=install ..
+  - cmake --build . --target install
+  # Vulkan-Loader
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/Vulkan-Loader.git
+  - cd Vulkan-Loader
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DCMAKE_INSTALL_PREFIX=install ..
+  - cmake --build . --config %CONFIGURATION% --target install
+  # glslang
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/glslang.git
+  - cd glslang
+  - python .\update_glslang_sources.py
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DCMAKE_INSTALL_PREFIX=install ..
+  - cmake --build . --config %CONFIGURATION% --target install
+  # Vulkan-ValidationLayers
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/Vulkan-ValidationLayers.git
+  - cd Vulkan-ValidationLayers
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DCMAKE_INSTALL_PREFIX=install -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install -DGLSLANG_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\glslang\build\install ..
+  - cmake --build . --config %CONFIGURATION% --target install
+  # Vulkan-Tools
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git clone https://github.com/KhronosGroup/Vulkan-Tools.git
+  - cd Vulkan-Tools
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DCMAKE_INSTALL_PREFIX=install -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install ..
+  - cmake --build . --config %CONFIGURATION% --target install
+  # Generate build files using CMake for the build step.
+  - echo Generating CMake files for %GENERATOR%
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - mkdir build
+  - cd build
+  - cmake -G %GENERATOR% -DVULKAN_HEADERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Headers\build\install -DVULKAN_LOADER_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-Loader\build\install -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=%APPVEYOR_BUILD_FOLDER%\Vulkan-ValidationLayers\build\install ..
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
 
 platform:
@@ -54,6 +96,16 @@ platform:
 configuration:
   - Release
   - Debug
+
+# Build only x64 Release and Win32(x86) Debug to reduce build time.
+# This should still provide adequate 32-bit vs 64-bit and
+# Release vs Debug coverage.
+matrix:
+  exclude:
+    - configuration: Release
+      platform: Win32
+    - configuration: Debug
+      platform: x64
 
 build:
   parallel: true                  # enable MSBuild parallel builds

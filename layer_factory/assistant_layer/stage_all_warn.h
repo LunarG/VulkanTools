@@ -22,7 +22,7 @@
 class WarnOnPipelineStageAll : public layer_factory {
    public:
     // Constructor for interceptor
-    WarnOnPipelineStageAll() : layer_factory(this){};
+    WarnOnPipelineStageAll(){};
 
     void CheckPipelineStageFlags(std::string api_name, const VkPipelineStageFlags flags) {
         if (flags & VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT) {

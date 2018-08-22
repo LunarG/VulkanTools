@@ -1,9 +1,8 @@
 #!/bin/bash
-# Update source for glslang
 
 set -e
 
-if [[ $(uname) == "Linux" || $(uname) =~ "CYGWIN" ]]; then
+if [[ $(uname) == "Linux" || $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" ]]; then
     CURRENT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
     CORE_COUNT=$(nproc || echo 4)
 elif [[ $(uname) == "Darwin" ]]; then
@@ -22,6 +21,3 @@ echo "Building ${BASEDIR}/jsoncpp"
 cd ${BASEDIR}/jsoncpp
 python amalgamate.py
 
-echo "Running LVL update external sources"
-cd ${BASEDIR}/Vulkan-LoaderAndValidationLayers
-./update_external_sources.sh "$@"

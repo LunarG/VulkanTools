@@ -49,7 +49,53 @@ extern "C" {
 
 #include "vulkan/vulkan.h"
 
+#if !defined(VK_USE_PLATFORM_WIN32_KHR)
+#define VK_USE_PLATFORM_WIN32_KHR
+#define undef_VK_USE_PLATFORM_WIN32_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_XLIB_KHR)
+#define VK_USE_PLATFORM_XLIB_KHR
+#define undef_VK_USE_PLATFORM_XLIB_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_XCB_KHR)
+#define VK_USE_PLATFORM_XCB_KHR
+#define undef_VK_USE_PLATFORM_XCB_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#define undef_VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#if !defined(VK_USE_PLATFORM_ANDROID_KHR)
+#define VK_USE_PLATFORM_ANDROID_KHR
+#define undef_VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
 #include "vk_layer_dispatch_table.h"
+
+#if defined(undef_VK_USE_PLATFORM_WIN32_KHR)
+#undef VK_USE_PLATFORM_WIN32_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_XLIB_KHR)
+#undef VK_USE_PLATFORM_XLIB_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_XCB_KHR)
+#undef VK_USE_PLATFORM_XCB_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_WAYLAND_KHR)
+#undef VK_USE_PLATFORM_WAYLAND_KHR
+#endif
+
+#if defined(undef_VK_USE_PLATFORM_ANDROID_KHR)
+#undef VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
 #include "vk_dispatch_table_helper.h"
 
 #include "vkreplay_vkdisplay.h"
@@ -62,10 +108,11 @@ extern vkreplayer_settings* g_pReplaySettings;
 class vkReplay {
    public:
     ~vkReplay();
-    vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader);
+    vkReplay(vkreplayer_settings* pReplaySettings, vktrace_trace_file_header* pFileHeader,
+             vktrace_replay::ReplayDisplayImp* display);
 
     int init(vktrace_replay::ReplayDisplay& disp);
-    vkDisplay* get_display() { return m_display; }
+    vktrace_replay::ReplayDisplayImp* get_display() { return m_display; }
     vktrace_replay::VKTRACE_REPLAY_RESULT replay(vktrace_trace_packet_header* packet);
     vktrace_replay::VKTRACE_REPLAY_RESULT handle_replay_errors(const char* entrypointName, const VkResult resCall,
                                                                const VkResult resTrace,
@@ -87,12 +134,15 @@ class vkReplay {
     void (*m_pDSDump)(char*);
     void (*m_pCBDump)(char*);
     // VKTRACESNAPSHOT_PRINT_OBJECTS m_pVktraceSnapshotPrint;
-    vkDisplay* m_display;
+    vktrace_replay::ReplayDisplayImp* m_display;
 
     int m_frameNumber;
     vktrace_trace_file_header* m_pFileHeader;
     struct_gpuinfo* m_pGpuinfo;
     uint32_t m_gpu_count = 0;
+
+    VkDisplayType m_displayServer;
+    const char* initialized_screenshot_list;
 
     // Replay platform description
     uint64_t m_replay_endianess;
@@ -105,6 +155,24 @@ class vkReplay {
     // Result of comparing trace platform with replay platform
     // -1: Not initialized. 0: No match. 1: Match.
     int m_platformMatch;
+
+    bool platformMatch() {
+        if (m_platformMatch == -1 && m_replay_gpu != 0 && m_replay_drv_vers != 0) {
+            // Compare trace file platform to replay platform.
+            // If a value is null/zero, it is unknown, and we'll consider the platform to not match.
+            // If m_replay_gpu and/or m_replay_drv_vers is 0, we don't yet have replay device gpu and driver version info because
+            // vkGetPhysicalDeviceProperties has not yet been called. We'll consider it a non-match, but will keep checking for
+            // non-zero on subsequent calls.
+            // We save the result of the compare so we don't have to keep doing this complex compare.
+            m_platformMatch = (m_replay_endianess == m_pFileHeader->endianess) & (m_replay_ptrsize == m_pFileHeader->ptrsize) &
+                              (m_replay_arch == m_pFileHeader->arch) & (m_replay_os == m_pFileHeader->os) &
+                              (m_replay_gpu == m_pGpuinfo->gpu_id) & (m_replay_drv_vers == m_pGpuinfo->gpu_drv_vers) &
+                              (m_pGpuinfo->gpu_id != 0) & (m_pGpuinfo->gpu_drv_vers != 0) & (strlen((char*)&m_replay_arch) != 0) &
+                              (strlen((char*)&m_replay_os) != 0) & (strlen((char*)&m_pFileHeader->arch) != 0) &
+                              (strlen((char*)&m_pFileHeader->os) != 0);
+        }
+        return (m_platformMatch == 1);
+    }
 
     struct ValidationMsg {
         VkFlags msgFlags;

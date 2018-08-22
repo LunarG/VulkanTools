@@ -1,20 +1,71 @@
-# The name of our project is "VULKAN". CMakeLists files in this project can
-# refer to the root source directory of the project as ${VULKAN_SOURCE_DIR} and
-# to the root binary directory of the project as ${VULKAN_BINARY_DIR}.
 cmake_minimum_required(VERSION 2.8.11)
-project (VULKAN_TOOLS)
-# set (CMAKE_VERBOSE_MAKEFILE 1)
 
-# The API_NAME allows renaming builds to avoid conflicts with installed SDKs
-# The MAJOR number of the version we're building, used in naming
-# <api-name>-<major>.dll (and other files).
-set(API_NAME "Vulkan" CACHE STRING "API name to use when building")
-set(MAJOR "1")
-string(TOLOWER ${API_NAME} API_LOWERCASE)
+project (VULKAN_TOOLS)
+
+set(API_NAME "Vulkan" CACHE STRING "API name")
+add_definitions(-DAPI_NAME="${API_NAME}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(PythonInterp 3 REQUIRED)
 
+# Define GNU standard installation directories.
+include(GNUInstallDirs)
+
+# Set a better default install location for Windows only if the user did not provide one.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND WIN32)
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "default install path" FORCE)
+endif()
+
+# Find Vulkan Headers, Loader, and ValidationLayers
+# Search order:
+#  User-supplied CMAKE_PREFIX_PATH containing paths to the header and/or loader install dirs
+#  CMake options VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
+#  Env vars VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
+#  Fallback to FindVulkan operation using SDK install or system installed components.
+set(VULKAN_HEADERS_INSTALL_DIR "HEADERS-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Headers install directory")
+set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
+set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR "VALIDATIONLAYERS-NOTFOUND" CACHE PATH "Absolute path to Vulkan-ValidationLayers directory")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+message(STATUS "Using find_package to locate Vulkan")
+find_package(Vulkan)
+message(STATUS "Vulkan FOUND = ${Vulkan_FOUND}")
+message(STATUS "Vulkan Include = ${Vulkan_INCLUDE_DIR}")
+message(STATUS "Vulkan Lib = ${Vulkan_LIBRARY}")
+
+if(NOT VULKAN_HEADERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_HEADERS_INSTALL_DIR})
+    message(FATAL_ERROR "Must define location of Vulkan-Headers install -- see BUILD.md")
+endif()
+
+# Cmake command line option overrides environment variable
+if(NOT VULKAN_HEADERS_INSTALL_DIR)
+    set(VULKAN_HEADERS_INSTALL_DIR $ENV{VULKAN_HEADERS_INSTALL_DIR})
+endif()
+message(STATUS "Using Vulkan-Headers install located at ${VULKAN_HEADERS_INSTALL_DIR}")
+
+if(NOT VULKAN_LOADER_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_LOADER_INSTALL_DIR})
+    message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
+endif()
+
+# Cmake command line option overrides environment variable
+if(NOT VULKAN_LOADER_INSTALL_DIR)
+    set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
+endif()
+message(STATUS "Using Vulkan-Loader install located at ${VULKAN_LOADER_INSTALL_DIR}")
+
+if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+    message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
+endif()
+
+# Cmake command line option overrides environment variable
+if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
+    set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+endif()
+message(STATUS "Using Vulkan-ValidationLayers install located at ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}")
+
+set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include")
+set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
+find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
+
+find_package(PythonInterp 3 REQUIRED)
 set (PYTHON_CMD ${PYTHON_EXECUTABLE})
 
 # Enable cmake folders
@@ -44,13 +95,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(DEMOS_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for demos (XCB, XLIB, WAYLAND, MIR, DISPLAY)")
     set(VKREPLAY_WSI_SELECTION "XCB" CACHE STRING "Select WSI target for vkreplay (XCB, WAYLAND, DISPLAY)")
 
-    # Need to turn WSI_SELECTION into boolean definitions for preprocessor directives
-    if (VKREPLAY_WSI_SELECTION STREQUAL "XCB")
-        add_definitions(-DVKREPLAY_USE_WSI_XCB)
-    elseif (VKREPLAY_WSI_SELECTION STREQUAL "WAYLAND")
-        add_definitions(-DVKREPLAY_USE_WSI_WAYLAND)
-    endif()
-
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
     endif()
@@ -67,29 +111,32 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(BUILD_WSI_MIR_SUPPORT)
         find_package(Mir REQUIRED)
     endif()
-
-    # This option can be used to suppress the installation of artifacts from the
-    # Vulkan-LoaderAndValidationLayers repo while running "make install" for the
-    # VulkanTools and VulkanSamples repos.  This can be used to prevent the
-    # overwriting of LVL artifacts when installing these downstream repos.
-    option(INSTALL_LVL_FILES "Install content from LoaderAndValidationLayers repo" ON)
 endif()
 
+set (VULKAN_SDK $ENV{VULKAN_SDK})
 
-
-set (V_LVL_RELATIVE_LOCATION submodules/Vulkan-LoaderAndValidationLayers)
+# NOTE: jsoncpp is located in SUBPROJECTS_DIR.
 set (SUBPROJECTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 
-add_subdirectory(${V_LVL_RELATIVE_LOCATION})
-
-set (V_LVL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${V_LVL_RELATIVE_LOCATION})
-
-set(VT_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
-set(LVL_SCRIPTS_DIR ${V_LVL_ROOT_DIR}/scripts)
+set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
 
 # Header file for CMake settings
-include_directories(${V_LVL_ROOT_DIR}/include)
+find_package(VulkanHeaders)
+include_directories(${VulkanHeaders_INCLUDE_DIR} ${PROJECT_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION})
 
+# The vulkan loader search is:
+#     User-supplied setting of CMAKE_PREFIX_PATH
+#     VULKAN_LOADER_INSTALL_DIR defined via cmake option
+#     VULKAN_LOADER_INSTALL_DIR defined via environment variable
+#     Default findVulkan operation if the VULKAN_SDK environment variable is defined
+set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
+if (VULKAN_LOADER_INSTALL_DIR)
+    message(STATUS "VULKAN_LOADER_INSTALL_DIR specified, using find_package to locate Vulkan")
+elseif(ENV{VULKAN_LOADER_INSTALL_DIR})
+    message(STATUS "VULKAN_LOADER_INSTALL_DIR environment variable specified, using find_package to locate Vulkan")
+endif()
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR})
+find_package(Vulkan)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -124,9 +171,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 endif()
 
-# Define a variable for a default root location to the gslang, SPIRV-Tools and other external sources and cache it to allow the user to customize it as needed
-set(SUBPROJECT_SOURCE_ROOT ${V_LVL_ROOT_DIR}/submodules CACHE STRING "Root path to VulkanTools submodule repositories")
-
 find_path(JSONCPP_INCLUDE_DIR json/json.h HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist"
                                                    "${SUBPROJECTS_DIR}/JsonCpp/dist"
                                                    "${SUBPROJECTS_DIR}/JsonCPP/dist"
@@ -153,14 +197,12 @@ if (WIN32)
 endif()
 
 # Define macro used for building vkxml generated files
-macro(run_vk_xml_generate dependency output)
+macro(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml ${output}
-    DEPENDS ${LVL_SCRIPTS_DIR}/vk.xml ${LVL_SCRIPTS_DIR}/generator.py ${VT_SCRIPTS_DIR}/${dependency} ${VT_SCRIPTS_DIR}/vt_genvk.py ${LVL_SCRIPTS_DIR}/reg.py
+    COMMAND ${PYTHON_CMD} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} ${output}
+    DEPENDS ${VulkanRegistry_DIR}/vk.xml ${VulkanRegistry_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/reg.py
     )
 endmacro()
-
-add_definitions(-DAPI_NAME="${API_NAME}")
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
@@ -181,3 +223,11 @@ endif()
 if(BUILD_VIA)
     add_subdirectory(via)
 endif()
+
+# uninstall target
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)

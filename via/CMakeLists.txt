@@ -3,18 +3,7 @@ file(GLOB TEXTURES
 )
 file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/via/images)
 
-
 if(WIN32)
-    set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
-
-    # For Windows, since 32-bit and 64-bit items can co-exist, we build each in its own build directory.
-    # 32-bit target data goes in build32, and 64-bit target data goes into build.  So, include/link the
-    # appropriate data at build time.
-    if (CMAKE_CL_64)
-        set (BUILDTGT_DIR build)
-    else ()
-        set (BUILDTGT_DIR build32)
-    endif()
 
     # Use static MSVCRT libraries
     foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
@@ -30,10 +19,6 @@ if(WIN32)
 else()
 
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-    if(UNIX)
-        set (LIBRARIES "${API_LOWERCASE}")
-    endif()
 
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
@@ -58,15 +43,15 @@ else()
     # the environment setup by the user
     SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
 
-    link_libraries(${API_LOWERCASE} m)
-
 endif()
 
 add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(via ${LIBRARIES})
+target_link_libraries(via Vulkan::Vulkan)
 if(WIN32)
     target_link_libraries(via version shlwapi Cfgmgr32)
+else()
+    target_link_libraries(via dl)
 endif()
 if(UNIX)
     install(TARGETS via DESTINATION ${CMAKE_INSTALL_BINDIR})

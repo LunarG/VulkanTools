@@ -43,6 +43,8 @@ unsigned int g_numAllSettings = 0;
 vktrace_SettingInfo g_settings_info[] = {
     {"o", "OpenTraceFile", VKTRACE_SETTING_STRING, &g_settings.trace_file_to_open, &s_default_settings.trace_file_to_open, TRUE,
      "Load the specified trace file when vktraceviewer is opened."},
+    {"adb", "ADBLocation", VKTRACE_SETTING_STRING, &g_settings.adb_location, &s_default_settings.adb_location, TRUE,
+     "Specify the location of your ADB file."},
     {"wl", "WindowLeft", VKTRACE_SETTING_INT, &g_settings.window_position_left, &s_default_settings.window_position_left, TRUE,
      "Left coordinate of vktraceviewer window on startup."},
     {"wt", "WindowTop", VKTRACE_SETTING_INT, &g_settings.window_position_top, &s_default_settings.window_position_top, TRUE,
@@ -97,6 +99,7 @@ bool vktraceviewer_initialize_settings(int argc, char* argv[]) {
     memset(&s_default_settings, 0, sizeof(vktraceviewer_settings));
 
     s_default_settings.trace_file_to_open = NULL;
+    s_default_settings.adb_location = NULL;
     s_default_settings.window_position_left = 0;
     s_default_settings.window_position_top = 0;
     s_default_settings.window_size_width = 1024;

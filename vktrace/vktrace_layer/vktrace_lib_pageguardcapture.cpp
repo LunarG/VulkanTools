@@ -39,7 +39,7 @@ void PageGuardCapture::vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemor
                                                   VkFlags flags, void** ppData) {
     PageGuardMappedMemory OPTmappedmem;
     if (getPageGuardEnableFlag()) {
-#ifdef PAGEGUARD_TARGET_RANGE_SIZE_CONTROL
+#if defined(PAGEGUARD_TARGET_RANGE_SIZE_CONTROL)
         if (size >= ref_target_range_size())
 #endif
         {
@@ -64,6 +64,13 @@ void PageGuardCapture::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMem
     MapMemoryPtr.erase(memory);
     MapMemoryOffset.erase(memory);
     MapMemorySize.erase(memory);
+}
+
+void PageGuardCapture::SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory) {
+    LPPageGuardMappedMemory lpOPTMemoryTemp = findMappedMemoryObject(device, memory);
+    if (lpOPTMemoryTemp) {
+        lpOPTMemoryTemp->SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+    }
 }
 
 void* PageGuardCapture::getMappedMemoryPointer(VkDevice device, VkDeviceMemory memory) { return MapMemoryPtr[memory]; }

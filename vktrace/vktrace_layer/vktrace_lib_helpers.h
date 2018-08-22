@@ -24,8 +24,10 @@
 #include <unordered_map>
 #include "vktrace_vk_vk.h"
 #include "vulkan/vk_layer.h"
+#include "vk_layer_dispatch_table.h"
 #include "vktrace_platform.h"
 
+#include "vk_layer_dispatch_table.h"
 #include "vk_struct_size_helper.h"
 
 // Support for shadowing CPU mapped memory
@@ -231,8 +233,7 @@ static void rm_handle_from_mem_info(const VkDeviceMemory handle) {
 static void add_VkPipelineShaderStageCreateInfo_to_trace_packet(vktrace_trace_packet_header *pHeader,
                                                                 VkPipelineShaderStageCreateInfo *packetShader,
                                                                 const VkPipelineShaderStageCreateInfo *paramShader) {
-    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&packetShader->pName, ROUNDUP_TO_4(strlen(paramShader->pName) + 1),
-                                       paramShader->pName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void **)&packetShader->pName, strlen(paramShader->pName) + 1, paramShader->pName);
     vktrace_finalize_buffer_address(pHeader, (void **)&packetShader->pName);
 
     // Specialization info

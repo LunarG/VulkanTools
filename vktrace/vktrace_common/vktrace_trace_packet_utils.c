@@ -26,7 +26,7 @@
 #include "vktrace_filelike.h"
 #include "vktrace_pageguard_memorycopy.h"
 
-#ifdef WIN32
+#if defined(WIN32)
 #include <rpc.h>
 #pragma comment(lib, "Rpcrt4.lib")
 #endif
@@ -46,10 +46,17 @@
 #include "vktrace_pageguard_memorycopy.h"
 
 static VKTRACE_CRITICAL_SECTION s_packet_index_lock;
+static VKTRACE_CRITICAL_SECTION s_trace_lock;
 
-void vktrace_initialize_trace_packet_utils() { vktrace_create_critical_section(&s_packet_index_lock); }
+void vktrace_initialize_trace_packet_utils() {
+    vktrace_create_critical_section(&s_packet_index_lock);
+    vktrace_create_critical_section(&s_trace_lock);
+}
 
-void vktrace_deinitialize_trace_packet_utils() { vktrace_delete_critical_section(&s_packet_index_lock); }
+void vktrace_deinitialize_trace_packet_utils() {
+    vktrace_delete_critical_section(&s_packet_index_lock);
+    vktrace_delete_critical_section(&s_trace_lock);
+}
 
 uint64_t vktrace_get_unique_packet_index() {
     // Keep the s_packet_index scope to within this method, to ensure this method is always used to get a unique packet index.
@@ -172,6 +179,7 @@ uint64_t get_os() {
 
 vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint16_t packet_id, uint64_t packet_size,
                                                          uint64_t additional_buffers_size) {
+    vktrace_enter_critical_section(&s_trace_lock);
     // Always allocate at least enough space for the packet header
     uint64_t total_packet_size =
         ROUNDUP_TO_8(sizeof(vktrace_trace_packet_header) + ROUNDUP_TO_8(packet_size) + additional_buffers_size);
@@ -201,12 +209,11 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
     return pHeader;
 }
 
+// Delete packet after vktrace_create_trace_packet being called.
 void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader) {
-    if (ppHeader == NULL) return;
-    if (*ppHeader == NULL) return;
+    vktrace_delete_trace_packet_no_lock(ppHeader);
 
-    VKTRACE_DELETE(*ppHeader);
-    *ppHeader = NULL;
+    vktrace_leave_critical_section(&s_trace_lock);
 }
 
 void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* pHeader, uint64_t byteCount) {
@@ -225,12 +232,10 @@ void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* p
     return pBufferStart;
 }
 
-// size is the buffer size pointed by pBuffer, it should be 4 byte aligned.
-// if size is not 4 byte aligned (some title is not 4 byte aligned when call
-// vkMapMemory), it will be ROUNDUP_TO_4 when get new buffer address in the
-// function.
-// as input parameter, size must be size of pBuffer because we also memcpy
-// pBuffer in the function.
+// size is the size of the buffer pointed to by pBuffer.
+// If size is not 4 byte aligned, when computing dest buffer addresses, round up
+// the size so it is 4 byte aligned. We use the unrounded size when doing the
+// actual copy -- this is so that we don't access memory past the end of the buffer.
 void vktrace_add_buffer_to_trace_packet(vktrace_trace_packet_header* pHeader, void** ptr_address, uint64_t size,
                                         const void* pBuffer) {
     // Make sure we have a valid pointer.
@@ -353,7 +358,7 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                     AddPointerWithCountToTracebuffer(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks,
                                                      correlationMaskCount);
                     break;
-#ifdef WIN32
+#if defined(WIN32)
                 case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                     AddPointerWithCountToTracebuffer(VkWin32KeyedMutexAcquireReleaseInfoKHR, VkDeviceMemory, pAcquireSyncs,
                                                      acquireCount);
@@ -445,6 +450,15 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
     return pHeader;
 }
 
+// Delete packet after vktrace_read_trace_packet being called.
+void vktrace_delete_trace_packet_no_lock(vktrace_trace_packet_header** ppHeader) {
+    if (ppHeader == NULL) return;
+    if (*ppHeader == NULL) return;
+
+    VKTRACE_DELETE(*ppHeader);
+    *ppHeader = NULL;
+}
+
 void* vktrace_trace_packet_interpret_buffer_pointer(vktrace_trace_packet_header* pHeader, intptr_t ptr_variable) {
     // the pointer variable actually contains a byte offset from the packet body to the start of the buffer.
     uint64_t offset = ptr_variable;
@@ -461,12 +475,11 @@ void add_VkApplicationInfo_to_packet(vktrace_trace_packet_header* pHeader, VkApp
                                      const VkApplicationInfo* pInStruct) {
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)ppStruct, sizeof(VkApplicationInfo), pInStruct);
     vktrace_add_pnext_structs_to_trace_packet(pHeader, (void**)ppStruct, (void*)pInStruct);
-    vktrace_add_buffer_to_trace_packet(
-        pHeader, (void**)&((*ppStruct)->pApplicationName),
-        (pInStruct->pApplicationName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pApplicationName) + 1) : 0,
-        pInStruct->pApplicationName);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pApplicationName),
+                                       (pInStruct->pApplicationName != NULL) ? strlen(pInStruct->pApplicationName) + 1 : 0,
+                                       pInStruct->pApplicationName);
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&((*ppStruct)->pEngineName),
-                                       (pInStruct->pEngineName != NULL) ? ROUNDUP_TO_4(strlen(pInStruct->pEngineName) + 1) : 0,
+                                       (pInStruct->pEngineName != NULL) ? strlen(pInStruct->pEngineName) + 1 : 0,
                                        pInStruct->pEngineName);
     vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pApplicationName));
     vktrace_finalize_buffer_address(pHeader, (void**)&((*ppStruct)->pEngineName));
@@ -485,7 +498,7 @@ void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, Vk
                                        pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
     if (pInStruct->enabledLayerCount > 0) {
         for (i = 0; i < pInStruct->enabledLayerCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
                                                pInStruct->ppEnabledLayerNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
@@ -496,7 +509,7 @@ void add_VkInstanceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, Vk
                                        pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
     if (pInStruct->enabledExtensionCount > 0) {
         for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
                                                pInStruct->ppEnabledExtensionNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
@@ -527,7 +540,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                        pInStruct->enabledLayerCount * sizeof(char*), pInStruct->ppEnabledLayerNames);
     if (pInStruct->enabledLayerCount > 0) {
         for (i = 0; i < pInStruct->enabledLayerCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledLayerNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledLayerNames[i]), siz,
                                                pInStruct->ppEnabledLayerNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledLayerNames[i]);
@@ -538,7 +551,7 @@ void add_VkDeviceCreateInfo_to_packet(vktrace_trace_packet_header* pHeader, VkDe
                                        pInStruct->enabledExtensionCount * sizeof(char*), pInStruct->ppEnabledExtensionNames);
     if (pInStruct->enabledExtensionCount > 0) {
         for (i = 0; i < pInStruct->enabledExtensionCount; i++) {
-            siz = (uint32_t)ROUNDUP_TO_4(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
+            siz = (uint32_t)(1 + strlen(pInStruct->ppEnabledExtensionNames[i]));
             vktrace_add_buffer_to_trace_packet(pHeader, (void**)(&(*ppStruct)->ppEnabledExtensionNames[i]), siz,
                                                pInStruct->ppEnabledExtensionNames[i]);
             vktrace_finalize_buffer_address(pHeader, (void**)&(*ppStruct)->ppEnabledExtensionNames[i]);
@@ -744,7 +757,7 @@ void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void
                 InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, int32_t, pViewOffsets);
                 InterpretPointerInPNext(VkRenderPassMultiviewCreateInfo, uint32_t, pCorrelationMasks);
                 break;
-#ifdef WIN32
+#if defined(WIN32)
             case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoKHR, VkDeviceMemory, pAcquireSyncs);
                 InterpretPointerInPNext(VkWin32KeyedMutexAcquireReleaseInfoKHR, uint64_t, pAcquireKeys);

@@ -288,10 +288,10 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
     MappedDevice = device;
     MappedMemory = memory;
     MappedOffset = offset;
-#ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
+#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
     pRealMappedData = (PBYTE)*ppData;
     pMappedData = (PBYTE)pageguardAllocateMemory(size);
-#ifndef WIN32
+#if !defined(WIN32)
     // the memcpy is only for other plaforms, for win32, here we only create shadow memory,
     // but we do not sync the content with real mapped memory for the shadow memory,
     // we leave this work to page guard handler, and only sync those pages which are truly
@@ -331,7 +331,7 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
         setAllPageGuardAndFlag(false, false);
         removePageGuardExceptionHandler();
         clearChangedDataPackage();
-#ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
+#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
         if (MappedData == nullptr) {
             pageguardFreeMemory(pMappedData);
         } else {
@@ -349,6 +349,15 @@ void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDevi
         pPageStatus = nullptr;
         MappedMemory = (VkDeviceMemory) nullptr;
         MappedSize = 0;
+    }
+}
+
+void PageGuardMappedMemory::SyncRealMappedMemoryToMemoryCopyHandle(VkDevice device, VkDeviceMemory memory) {
+    if ((memory == MappedMemory) && (device == MappedDevice) && isUseCopyForRealMappedMemory()) {
+        bool isBlockChanged = !isNoMappedBlockChanged();
+        setAllPageGuardAndFlag(false, isBlockChanged);
+        vktrace_pageguard_memcpy(pMappedData, pRealMappedData, MappedSize);
+        setAllPageGuardAndFlag(true, isBlockChanged);
     }
 }
 
@@ -415,7 +424,7 @@ uint64_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, Vk
                 pChangedData = pData + DataOffset + infosize + SaveSize;
 
                 srcAddr = (void *)((uint64_t)(pMappedData + offset));
-#ifdef WIN32
+#if defined(WIN32)
                 // We are about to copy from mapped memory to a temporary buffer.
                 // If another thread were to change this mapped memory after the
                 // copy but before the VirtualProtect we'll be doing later to
@@ -492,7 +501,7 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(VkDevice dev
     getChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, pChangedDataPackage, 0, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
 
 // if use copy of real mapped memory, need copy back to real mapped memory
-#ifndef PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY
+#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
     PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pChangedDataPackage;
     if (pChangedInfoArray[0].length) {
         PBYTE pChangedData = (PBYTE)pChangedDataPackage + sizeof(PageGuardChangedBlockInfo) * (pChangedInfoArray[0].offset + 1);

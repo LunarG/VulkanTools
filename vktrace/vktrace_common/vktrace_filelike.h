@@ -21,7 +21,7 @@
 
 #pragma once
 
-#ifdef WIN32
+#if defined(WIN32)
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -47,7 +47,7 @@ typedef struct Checkpoint {
     size_t mTokenLength;
 } Checkpoint;
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -85,6 +85,6 @@ uint64_t vktrace_FileLike_GetCurrentPosition(FileLike* pFile);
 // Set the starting position for the next vktrace_FileLike_ReadRaw
 BOOL vktrace_FileLike_SetCurrentPosition(FileLike* pFile, uint64_t offset);
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif

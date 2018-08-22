@@ -4,18 +4,13 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
-add_definitions(-DAPI_LOWERCASE="${API_LOWERCASE}")
-
-if(WIN32)
-  set (LIBRARIES "${API_LOWERCASE}-${MAJOR}")
-elseif(UNIX)
-  set (LIBRARIES "${API_LOWERCASE}")
-else()
-endif()
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     set(OS_REPLAYER_LIBS xcb  ${LIBRARIES})
+
+    # Make sure the exe directory is searched when loading libraries with dlopen
+    SET(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" OR
@@ -25,13 +20,6 @@ endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${SRC_DIR}/cmake/Modules/")
 set(GENERATED_FILES_DIR ${CMAKE_BINARY_DIR}/vktrace)
-
-# Run a codegen script to generate vktrace-specific vulkan utils
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_packet_id.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vktrace_vk_vk_packets.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_replay_gen.cpp)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_func_ptrs.h)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VT_SCRIPTS_DIR}/vt_genvk.py -registry ${LVL_SCRIPTS_DIR}/vk.xml -o ${GENERATED_FILES_DIR} vkreplay_vk_objmapper.h)
 
 # we want cmake to link the Qt libs into the binary
 # This policy was introduced in 2.8.11, so on newer versions, use the OLD policy to maintain consistent behavior
@@ -58,7 +46,7 @@ include_directories(
     ${SRC_DIR}/vktrace_replay
     ${SRC_DIR}/vktrace_viewer
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}/${V_LVL_RELATIVE_LOCATION}
+    ${Vulkan-ValidationLayers_INCLUDE_DIR}
     ${CMAKE_BINARY_DIR}
     ${Qt5Widgets_INCLUDE_DIRS}
 )
@@ -183,13 +171,13 @@ if (TARGET SDL)
     add_dependencies(${PROJECT_NAME} SDL)
 endif ()
 
-add_dependencies(${PROJECT_NAME} generate_helper_files)
+add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Core
     Qt5::Svg
-    ${VKTRACE_VULKAN_LIB}
+    Vulkan::Vulkan
     ${OS_REPLAYER_LIBS}
     vktrace_common
     ${CMAKE_DL_LIBS}
@@ -256,4 +244,7 @@ if (MSVC)
 endif()
 
 build_options_finalize()
+if(UNIX)
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 endif(NOT Qt5_FOUND)
