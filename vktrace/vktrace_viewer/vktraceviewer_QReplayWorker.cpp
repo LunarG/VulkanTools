@@ -540,8 +540,7 @@ void vktraceviewer_QReplayWorker::RemoteReplay(bool remoteMode) {
         system((adb + " shell input keyevent \"KEYCODE_HOME\"").c_str());
         system(("nohup " + adb + " shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH\
                  -n com.example.vkreplay/android.app.NativeActivity --es args\
-                 \"-v\\ full\\ -t\\ /sdcard/tracefile.vktrace\\ -r\\ true\" >/dev/null 2>&1 &")
-                   .c_str());
+                 \"-v\\ full\\ -t\\ /sdcard/tracefile.vktrace\\ -r\\ true\" >/dev/null 2>&1 &").c_str());
         replayWorkerLoggingCallback(VKTRACE_LOG_VERBOSE, QString("VkReplay started.").toStdString().c_str());
 
         pMessageStream = vktrace_MessageStream_create(TRUE, "127.0.0.1", portNo);
