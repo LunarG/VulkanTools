@@ -1,0 +1,94 @@
+{
+  "repos" : [
+    {
+      "name" : "glslang",
+      "url" : "https://github.com/KhronosGroup/glslang.git",
+      "sub_dir" : "glslang",
+      "build_dir" : "glslang/build",
+      "install_dir" : "glslang/build/install",
+      "commit" : "1323bf8e39fa17da3e0901a4b1ab5dfd61ee5460",
+      "prebuild" : [
+        "python update_glslang_sources.py"
+      ]
+    },
+    {
+      "name" : "Vulkan-Headers",
+      "url" : "https://github.com/KhronosGroup/Vulkan-Headers.git",
+      "sub_dir" : "Vulkan-Headers",
+      "build_dir" : "Vulkan-Headers/build",
+      "install_dir" : "Vulkan-Headers/build/install",
+      "commit" : "db09f95ac00e44149f3894bf82c918e58277cfdb"
+    },
+    {
+      "name" : "Vulkan-Loader",
+      "url" : "https://github.com/KhronosGroup/Vulkan-Loader.git",
+      "sub_dir" : "Vulkan-Loader",
+      "build_dir" : "Vulkan-Loader/build",
+      "install_dir" : "Vulkan-Loader/build/install",
+      "commit" : "4573f327dd9a5e4114d5c56682892290affa46e5",
+      "deps" : [
+        {
+          "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
+          "repo_name" : "Vulkan-Headers"
+        }
+      ],
+      "cmake_options" : [
+        "-DBUILD_TESTS=NO"
+      ]
+    },
+    {
+      "name" : "Vulkan-Tools",
+      "url" : "https://github.com/KhronosGroup/Vulkan-Tools.git",
+      "sub_dir" : "Vulkan-Tools",
+      "build_dir" : "Vulkan-Tools/build",
+      "install_dir" : "Vulkan-Tools/build/install",
+      "commit" : "ca05ec7c9706eb2949e489b4719fe499b0059d36",
+      "deps" : [
+        {
+          "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
+          "repo_name" : "Vulkan-Headers"
+        },
+        {
+          "var_name" : "VULKAN_LOADER_INSTALL_DIR",
+          "repo_name" : "Vulkan-Loader"
+        }
+      ]
+    },
+    {
+      "name" : "Vulkan-ValidationLayers",
+      "url" : "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git",
+      "sub_dir" : "Vulkan-ValidationLayers",
+      "build_dir" : "Vulkan-ValidationLayers/build",
+      "install_dir" : "Vulkan-ValidationLayers/build/install",
+      "commit" : "0506d320de7ffa3492c733b5d3b776daee9f5f4a",
+      "deps" : [
+        {
+          "var_name" : "GLSLANG_INSTALL_DIR",
+          "repo_name" : "glslang"
+        },
+        {
+          "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
+          "repo_name" : "Vulkan-Headers"
+        },
+        {
+          "var_name" : "VULKAN_LOADER_INSTALL_DIR",
+          "repo_name" : "Vulkan-Loader"
+        },
+        {
+          "var_name" : "VULKAN_TOOLS_INSTALL_DIR",
+          "repo_name" : "Vulkan-Tools"
+        }
+      ],
+      "cmake_options" : [
+        "-DBUILD_TESTS=NO"
+      ]
+    }
+  ],
+  "install_names" : {
+      "glslang" : "GLSLANG_INSTALL_DIR",
+      "Vulkan-Headers" : "VULKAN_HEADERS_INSTALL_DIR",
+      "Vulkan-Loader" : "VULKAN_LOADER_INSTALL_DIR",
+      "Vulkan-Tools" : "VULKAN_TOOLS_INSTALL_DIR",
+      "Vulkan-ValidationLayers" : "VULKAN_VALIDATIONLAYERS_INSTALL_DIR"
+    }
+}
