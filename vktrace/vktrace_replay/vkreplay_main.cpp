@@ -239,11 +239,12 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         if (prevFrameNumber != frameNumber) {
                             prevFrameNumber = frameNumber;
 
-                            // Only set the loop start location in the first loop when loopStartFrame is not 0
+                            // Only set the loop start location and start_time in the first loop when loopStartFrame is not 0
                             if (frameNumber == start_frame && start_frame > 0 && replaySettings.numLoops == totalLoops) {
                                 // record the location of looping start packet
                                 seq.record_bookmark();
                                 seq.get_bookmark(startingPacket);
+                                start_time = vktrace_get_time();
                             }
 
                             if (frameNumber == replaySettings.loopEndFrame) {
