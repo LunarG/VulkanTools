@@ -1,7 +1,8 @@
-lunarg-tools (1.1.82.0-3) UNRELEASED; urgency=medium
+lunarg-tools (1.1.82.0-4) UNRELEASED; urgency=medium
 
   * New upstream version
   * vlf and vkreplay cherry-pick fixes
+  * Add new vkdisplay libraries.
 
  -- Brett Johnson <brett@linuxturtle.net>  Tue, 28 Aug 2018 14:40:08 -0600
 

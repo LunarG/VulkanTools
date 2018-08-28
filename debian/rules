@@ -23,6 +23,9 @@ override_dh_auto_install:
 	mv debian/tmp/etc/vulkan/explicit_layer.d/*.json \
 	   debian/tmp/usr/share/vulkan/explicit_layer.d
 
+override_dh_missing:
+	dh_missing --fail-missing
+
 gentarball: SOURCE=lunarg-tools
 gentarball: UV=$(shell dpkg-parsechangelog|awk '/^Version:/ {print $$2}'|sed 's/-.*$$//')
 gentarball:
