@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2017 Valve Corporation
- * Copyright (c) 2016-2017 LunarG, Inc.
+ * Copyright (c) 2016-2018 Valve Corporation
+ * Copyright (c) 2016-2018 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #ifdef _WIN32
 #include <tuple>
 #endif
@@ -74,9 +75,11 @@ struct VulkanInfo {
 
 struct GlobalItems {
     std::ofstream html_file_stream;
+    std::string os_name;
     bool sdk_found;
     bool tests_ran;
     std::string sdk_path;
+    bool is_system_install_sdk;
     VulkanInfo min_vulkan_info;
     VulkanInfo max_vulkan_info;
     uint32_t cur_table;
@@ -1066,6 +1069,7 @@ ErrorResults PrintSystemInfo(void) {
                                          MAX_STRING_LENGTH - 1, generic_string)) {
                         PrintBeginTableRow();
                         PrintTableElement("Windows");
+                        global_items.os_name = generic_string;
                         PrintTableElement(generic_string);
                         PrintTableElement(os_size);
                         PrintEndTableRow();
@@ -1089,14 +1093,16 @@ ErrorResults PrintSystemInfo(void) {
                     } else {
                         PrintBeginTableRow();
                         PrintTableElement("Windows");
-                        PrintTableElement("Windows 10 (or newer)");
+                        global_items.os_name = "Windows 10 (or newer)";
+                        PrintTableElement(global_items.os_name);
                         PrintTableElement(os_size);
                         PrintEndTableRow();
                     }
                 } else {
                     PrintBeginTableRow();
                     PrintTableElement("Windows");
-                    PrintTableElement("Windows Server 2016 (or newer)");
+                    global_items.os_name = "Windows Server 2016 (or newer)";
+                    PrintTableElement(global_items.os_name);
                     PrintTableElement(os_size);
                     PrintEndTableRow();
                 }
@@ -1109,6 +1115,7 @@ ErrorResults PrintSystemInfo(void) {
                                                  "ProductName", MAX_STRING_LENGTH - 1, generic_string)) {
                                 PrintBeginTableRow();
                                 PrintTableElement("Windows");
+                                global_items.os_name = generic_string;
                                 PrintTableElement(generic_string);
                                 PrintTableElement(os_size);
                                 PrintEndTableRow();
@@ -1138,7 +1145,8 @@ ErrorResults PrintSystemInfo(void) {
                         } else {
                             PrintBeginTableRow();
                             PrintTableElement("Windows");
-                            PrintTableElement("Windows Server 2012 R2 (or newer)");
+                            global_items.os_name = "Windows Server 2012 R2 (or newer)";
+                            PrintTableElement(global_items.os_name);
                             PrintTableElement(os_size);
                             PrintEndTableRow();
                         }
@@ -1149,6 +1157,7 @@ ErrorResults PrintSystemInfo(void) {
                                                  "ProductName", MAX_STRING_LENGTH - 1, generic_string)) {
                                 PrintBeginTableRow();
                                 PrintTableElement("Windows");
+                                global_items.os_name = generic_string;
                                 PrintTableElement(generic_string);
                                 PrintTableElement(os_size);
                                 PrintEndTableRow();
@@ -1177,7 +1186,8 @@ ErrorResults PrintSystemInfo(void) {
                         } else {
                             PrintBeginTableRow();
                             PrintTableElement("Windows");
-                            PrintTableElement("Windows Server 2012 (or newer)");
+                            global_items.os_name = "Windows Server 2012 (or newer)";
+                            PrintTableElement(global_items.os_name);
                             PrintTableElement(os_size);
                             PrintEndTableRow();
                         }
@@ -1186,13 +1196,15 @@ ErrorResults PrintSystemInfo(void) {
                         if (os_info.wProductType == VER_NT_WORKSTATION) {
                             PrintBeginTableRow();
                             PrintTableElement("Windows");
-                            PrintTableElement("Windows 7 (or newer)");
+                            global_items.os_name = "Windows 7 (or newer)";
+                            PrintTableElement(global_items.os_name);
                             PrintTableElement(os_size);
                             PrintEndTableRow();
                         } else {
                             PrintBeginTableRow();
                             PrintTableElement("Windows");
-                            PrintTableElement("Windows Server 2008 R2 (or newer)");
+                            global_items.os_name = "Windows Server 2008 R2 (or newer)";
+                            PrintTableElement(global_items.os_name);
                             PrintTableElement(os_size);
                             PrintEndTableRow();
                         }
@@ -1201,13 +1213,15 @@ ErrorResults PrintSystemInfo(void) {
                         if (os_info.wProductType == VER_NT_WORKSTATION) {
                             PrintBeginTableRow();
                             PrintTableElement("Windows");
-                            PrintTableElement("Windows Vista (or newer)");
+                            global_items.os_name = "Windows Vista (or newer)";
+                            PrintTableElement(global_items.os_name);
                             PrintTableElement(os_size);
                             PrintEndTableRow();
                         } else {
                             PrintBeginTableRow();
                             PrintTableElement("Windows");
-                            PrintTableElement("Windows Server 2008 (or newer)");
+                            global_items.os_name = "Windows Server 2008 (or newer)";
+                            PrintTableElement(global_items.os_name);
                             PrintTableElement(os_size);
                             PrintEndTableRow();
                         }
@@ -1230,6 +1244,7 @@ ErrorResults PrintSystemInfo(void) {
                         }
                         PrintBeginTableRow();
                         PrintTableElement("Windows");
+                        global_items.os_name = generic_string;
                         PrintTableElement(generic_string);
                         PrintTableElement(os_size);
                         PrintEndTableRow();
@@ -1237,14 +1252,16 @@ ErrorResults PrintSystemInfo(void) {
                     case 1:
                         PrintBeginTableRow();
                         PrintTableElement("Windows");
-                        PrintTableElement("Windows XP");
+                        global_items.os_name = "Windows XP";
+                        PrintTableElement(global_items.os_name);
                         PrintTableElement(os_size);
                         PrintEndTableRow();
                         break;
                     case 0:
                         PrintBeginTableRow();
                         PrintTableElement("Windows");
-                        PrintTableElement("Windows 2000");
+                        global_items.os_name = "Windows 2000";
+                        PrintTableElement(global_items.os_name);
                         PrintTableElement(os_size);
                         PrintEndTableRow();
                         break;
@@ -2741,6 +2758,7 @@ ErrorResults PrintSystemInfo(void) {
                 while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
                     index++;
                 }
+                global_items.os_name = &path[index];
                 PrintBeginTableRow();
                 PrintTableElement("Linux");
                 PrintTableElement("");
@@ -2749,7 +2767,7 @@ ErrorResults PrintSystemInfo(void) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Distro");
-                PrintTableElement(&path[index]);
+                PrintTableElement(global_items.os_name);
                 PrintEndTableRow();
                 break;
             }
@@ -3551,7 +3569,7 @@ ErrorResults PrintRunTimeInfo(void) {
 
 // Print out the explicit layers that are stored in any of the standard
 // locations.
-ErrorResults PrintExplicitLayersInFolder(std::string &id, std::string &folder_loc) {
+ErrorResults PrintExplicitLayersInFolder(const std::string &id, std::string &folder_loc) {
     ErrorResults res = SUCCESSFUL;
     DIR *layer_dir;
 
@@ -3658,6 +3676,7 @@ ErrorResults PrintSDKInfo(void) {
 
     PrintBeginTable("LunarG Vulkan SDKs", 4);
 
+    // First, try environmental variables
     for (uint32_t dir = 0; dir < 2; dir++) {
         switch (dir) {
             case 0:
@@ -3680,6 +3699,12 @@ ErrorResults PrintSDKInfo(void) {
                 res = UNKNOWN_ERROR;
                 continue;
         }
+        PrintBeginTableRow();
+        PrintTableElement(sdk_env_name);
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintTableElement("");
+        PrintEndTableRow();
 
         std::string explicit_layer_path = sdk_path;
         explicit_layer_path += "/etc/explicit_layer.d";
@@ -3692,11 +3717,185 @@ ErrorResults PrintSDKInfo(void) {
             }
             closedir(sdk_dir);
 
-            res = PrintExplicitLayersInFolder(sdk_env_name, explicit_layer_path);
+            res = PrintExplicitLayersInFolder("", explicit_layer_path);
 
             global_items.sdk_found = true;
             global_items.sdk_path = sdk_path;
             sdk_exists = true;
+        }
+    }
+
+    // Next, try system install items
+    std::string upper_os_name = global_items.os_name;
+    std::transform(upper_os_name.begin(), upper_os_name.end(), upper_os_name.begin(), ::toupper);
+    if (upper_os_name.find("FEDORA") != std::string::npos) {
+        FILE *dnf_output = popen("dnf list installed | grep lunarg-vulkan-sdk", "r");
+        if (dnf_output != nullptr) {
+            char cur_line[1035];
+            std::string install_name;
+            std::string install_version;
+            std::string target("lunarg-vulkan-sdk");
+            // Read the output a line at a time - output it.
+            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
+                if (!strncmp(cur_line, target.c_str(), target.size())) {
+                    uint32_t count = 0;
+                    // Found it
+                    char *p = strtok(cur_line, " ");
+                    while (p) {
+                        if (count == 0) {
+                            install_name = p;
+                        } else if (count == 1) {
+                            install_version = p;
+                            break;
+                        }
+                        count++;
+                        p = strtok(NULL, " ");
+                    }
+                    break;
+                }
+            }
+            pclose(dnf_output);
+            if (install_name.size() > 0 && install_version.size() > 0) {
+                PrintBeginTableRow();
+                PrintTableElement("System Installed SDK");
+                PrintTableElement(install_name.c_str());
+                PrintTableElement(install_version.c_str());
+                PrintTableElement("");
+                PrintEndTableRow();
+
+                global_items.sdk_found = true;
+                global_items.is_system_install_sdk = true;
+                sdk_exists = true;
+            }
+        }
+    } else if (upper_os_name.find("RED HAT") != std::string::npos || upper_os_name.find("REDHAT") != std::string::npos) {
+        FILE *dnf_output = popen("yum list installed lunarg-vulkan-sdk", "r");
+        if (dnf_output != nullptr) {
+            char cur_line[1035];
+            std::string install_name;
+            std::string install_version;
+            std::string target("lunarg-vulkan-sdk");
+            // Read the output a line at a time - output it.
+            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
+                if (!strncmp(cur_line, target.c_str(), target.size())) {
+                    uint32_t count = 0;
+                    // Found it
+                    char *p = strtok(cur_line, " ");
+                    while (p) {
+                        if (count == 0) {
+                            install_name = p;
+                        } else if (count == 1) {
+                            install_version = p;
+                            break;
+                        }
+                        count++;
+                        p = strtok(NULL, " ");
+                    }
+                    break;
+                }
+            }
+            pclose(dnf_output);
+            if (install_name.size() > 0 && install_version.size() > 0) {
+                PrintBeginTableRow();
+                PrintTableElement("System Installed SDK");
+                PrintTableElement(install_name.c_str());
+                PrintTableElement(install_version.c_str());
+                PrintTableElement("");
+                PrintEndTableRow();
+
+                global_items.sdk_found = true;
+                global_items.is_system_install_sdk = true;
+                sdk_exists = true;
+            }
+        }
+    } else if (upper_os_name.find("ARCH") != std::string::npos) {
+        FILE *dnf_output = popen("pacman -Qi lunarg-vulkan-sdk", "r");
+        if (dnf_output != nullptr) {
+            char cur_line[1035];
+            std::string install_name;
+            std::string install_version;
+            std::string error_prefix("error: package");
+            std::string name_prefix("Name   ");
+            std::string version_prefix("Version   ");
+            uint32_t count = 0;
+            // Read the output a line at a time - output it.
+            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
+                // If we found the appropriate error, it wasn't found.
+                if (!strncmp(cur_line, error_prefix.c_str(), error_prefix.size()) && nullptr != strstr(cur_line, "was not found")) {
+                    break;
+                }
+                if (!strncmp(cur_line, name_prefix.c_str(), name_prefix.size())) {
+                    // Found it, but we want the second string after the colon and then after the space
+                    char *cur_char = cur_line;
+                    while (*cur_char != ':') {
+                        ++cur_char;
+                    }
+                    ++cur_char;
+                    install_name = cur_char;
+                } else if (!strncmp(cur_line, version_prefix.c_str(), version_prefix.size())) {
+                    // Found it, but we want the second string after the colon and then after the space
+                    char *cur_char = cur_line;
+                    while (*cur_char != ':') {
+                        ++cur_char;
+                    }
+                    ++cur_char;
+                    install_version = cur_char;
+                    break;
+                }
+            }
+            pclose(dnf_output);
+            if (install_name.size() > 0 && install_version.size() > 0) {
+                PrintBeginTableRow();
+                PrintTableElement("System Installed SDK");
+                PrintTableElement(install_name.c_str());
+                PrintTableElement(install_version.c_str());
+                PrintTableElement("");
+                PrintEndTableRow();
+
+                global_items.sdk_found = true;
+                global_items.is_system_install_sdk = true;
+                sdk_exists = true;
+            }
+        }
+    } else {
+        FILE *dnf_output = popen("dpkg -l lunarg-vulkan-sdk", "r");
+        if (dnf_output != nullptr) {
+            char cur_line[1035];
+            std::string install_name;
+            std::string install_version;
+            std::string target("lunarg-vulkan-sdk");
+            // Read the output a line at a time - output it.
+            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
+                if (!strncmp(cur_line, target.c_str(), target.size())) {
+                    uint32_t count = 0;
+                    // Found it
+                    char *p = strtok(cur_line, " ");
+                    while (p) {
+                        if (count == 1) {
+                            install_name = p;
+                        } else if (count == 2) {
+                            install_version = p;
+                            break;
+                        }
+                        count++;
+                        p = strtok(NULL, " ");
+                    }
+                    break;
+                }
+            }
+            pclose(dnf_output);
+            if (install_name.size() > 0 && install_version.size() > 0) {
+                PrintBeginTableRow();
+                PrintTableElement("System Installed SDK");
+                PrintTableElement(install_name.c_str());
+                PrintTableElement(install_version.c_str());
+                PrintTableElement("");
+                PrintEndTableRow();
+
+                global_items.sdk_found = true;
+                global_items.is_system_install_sdk = true;
+                sdk_exists = true;
+            }
         }
     }
 
@@ -5490,56 +5689,86 @@ ErrorResults PrintTestResults(void) {
 
     BeginSection("External Tests");
     if (global_items.sdk_found) {
+        bool found_exe = false;
         std::string cube_exe;
         std::string full_cmd;
-        std::string path = global_items.sdk_path;
+        std::string path = "";
 
+        for (uint32_t pass = 0; pass < 2; ++pass) {
+            switch (pass) {
+                case 0:
+                default:
+                    cube_exe = "vkcube";
+                    break;
+                case 1:
+                    cube_exe = "cube";
+            }
 #ifdef _WIN32
-        cube_exe = "cube.exe";
-
+            cube_exe += "exe";
+            if (!global_items.is_system_install_sdk) {
+                path = global_items.sdk_path;
 #if _WIN64
-        path += "\\Bin";
+                path += "\\Bin";
 #else
-        path += "\\Bin32";
+                path += "\\Bin32";
 #endif
+            }
 #else  // gcc
-        cube_exe = "./cube";
-        path += "/../examples/build";
+            if (!global_items.is_system_install_sdk) {
+                cube_exe = "./" + cube_exe;
+                path = global_items.sdk_path;
+                path += "/../examples/build";
+            }
 #endif
-        full_cmd = cube_exe;
-        full_cmd += " --c 100 --suppress_popups";
 
-        PrintBeginTable("Cube", 2);
+            full_cmd = cube_exe;
+            full_cmd += " --c 100 --suppress_popups";
+            int test_result = RunTestInDirectory(path, cube_exe, full_cmd);
+            if (test_result == 0) {
+                found_exe = true;
+            } else {
+                continue;
+            }
 
-        PrintBeginTableRow();
-        PrintTableElement(full_cmd);
-        int test_result = RunTestInDirectory(path, cube_exe, full_cmd);
-        if (test_result == 0) {
-            PrintTableElement("SUCCESSFUL");
-            global_items.tests_ran = true;
-        } else if (test_result == 1) {
-            PrintTableElement("Not Found");
-        } else {
-            PrintTableElement("FAILED!");
-            res = TEST_FAILED;
+            PrintBeginTable("Cube", 2);
+
+            PrintBeginTableRow();
+            PrintTableElement(full_cmd);
+            if (test_result == 0) {
+                PrintTableElement("SUCCESSFUL");
+                global_items.tests_ran = true;
+            } else if (test_result == 1) {
+                PrintTableElement("Not Found");
+            } else {
+                PrintTableElement("FAILED!");
+                res = TEST_FAILED;
+            }
+            PrintEndTableRow();
+
+            full_cmd += " --validate";
+
+            PrintBeginTableRow();
+            PrintTableElement(full_cmd);
+            test_result = RunTestInDirectory(path, cube_exe, full_cmd);
+            if (test_result == 0) {
+                PrintTableElement("SUCCESSFUL");
+                global_items.tests_ran = true;
+            } else if (test_result == 1) {
+                PrintTableElement("Not Found");
+            } else {
+                PrintTableElement("FAILED!");
+                res = TEST_FAILED;
+            }
+            PrintEndTableRow();
         }
-        PrintEndTableRow();
 
-        full_cmd += " --validate";
-
-        PrintBeginTableRow();
-        PrintTableElement(full_cmd);
-        test_result = RunTestInDirectory(path, cube_exe, full_cmd);
-        if (test_result == 0) {
-            PrintTableElement("SUCCESSFUL");
-            global_items.tests_ran = true;
-        } else if (test_result == 1) {
-            PrintTableElement("Not Found");
-        } else {
-            PrintTableElement("FAILED!");
+        if (!found_exe) {
             res = TEST_FAILED;
+            PrintBeginTableRow();
+            PrintTableElement("Failed to find either \'vkcube\' or \'cube\' executables");
+            PrintTableElement("FAILURE");
+            PrintEndTableRow();
         }
-        PrintEndTableRow();
 
         PrintEndTable();
     } else {
