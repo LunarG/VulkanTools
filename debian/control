@@ -33,7 +33,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  vulkan-headers (>=${source:Upstream-Version}),
  libvulkan1 (>=${source:Upstream-Version}),
- vulkan-validation-layers (>=${source:Upstream-Version})
+ vulkan-validationlayers (>=${source:Upstream-Version})
 Description: Extra vulkan development layers from LunarG
  This package contains extra development layers for Vulkan from LunarG.  These
  include Api_dump, screenshot, device_simulation, and vktrace layers.
@@ -43,7 +43,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  vulkan-headers (>=${source:Upstream-Version}),
  libvulkan1 (>=${source:Upstream-Version}),
- vulkan-validation-layers (>=${source:Upstream-Version})
+ vulkan-validationlayers (>=${source:Upstream-Version})
 Description: LunarG vulkan API capture and replay tools
  This package contains the vktrace and vkreplay tools, used to capture and
  replay vulkan API calls from an application.
@@ -53,7 +53,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  vulkan-headers (>=${source:Upstream-Version}),
  libvulkan1 (>=${source:Upstream-Version}),
- vulkan-validation-layers (>=${source:Upstream-Version})
+ vulkan-validationlayers (>=${source:Upstream-Version})
 Description: LunarG Vulkan Installation Analyzer
  VIA is a tool that can:
  .
