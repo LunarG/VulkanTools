@@ -2142,7 +2142,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     // First find this vkAM call in portabilityTable
     pPacket->header = (vktrace_trace_packet_header *)((PBYTE)pPacket - sizeof(vktrace_trace_packet_header));
     for (amIdx = amSearchPos; amIdx < portabilityTable.size(); amIdx++) {
-        FSEEK(traceFile, (long)portabilityTable[amIdx], SEEK_SET);
+        FSEEK(traceFile, portabilityTable[amIdx], SEEK_SET);
         FREAD(&packetHeader1, sizeof(vktrace_trace_packet_header), 1, traceFile);  // Read the packet header
 
         if (packetHeader1.global_packet_index == pPacket->header->global_packet_index &&
@@ -2167,7 +2167,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     foundBindMem = false;
     pFullBindTracePacket = NULL;
     for (size_t i = amIdx + 1; !foundBindMem && i < portabilityTable.size(); i++) {
-        FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+        FSEEK(traceFile, portabilityTable[i], SEEK_SET);
         FREAD(&packetHeader1, sizeof(vktrace_trace_packet_header), 1, traceFile);  // Read the packet header
 
         if (packetHeader1.packet_id == VKTRACE_TPI_VK_vkFreeMemory) {
@@ -2182,7 +2182,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
                    packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory2KHR ||
                    packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindBufferMemory2KHR) {
             pFullBindTracePacket = (void *)vktrace_malloc(packetHeader1.size);
-            FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+            FSEEK(traceFile, portabilityTable[i], SEEK_SET);
             FREAD(pFullBindTracePacket, packetHeader1.size, 1, traceFile);
             ((vktrace_trace_packet_header *)pFullBindTracePacket)->pBody =
                 (uintptr_t)((PBYTE)pFullBindTracePacket + sizeof(vktrace_trace_packet_header));
@@ -2254,7 +2254,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
             vktrace_trace_packet_header createPacketHeaderHeader;
             vktrace_trace_packet_header *pCreatePacketFull;
             packet_vkCreateImage *pCreatePacket;
-            FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+            FSEEK(traceFile, portabilityTable[i], SEEK_SET);
             FREAD(&createPacketHeaderHeader, sizeof(vktrace_trace_packet_header), 1, traceFile);
             if ((packetHeader1.packet_id == VKTRACE_TPI_VK_vkBindImageMemory &&
                  createPacketHeaderHeader.packet_id == VKTRACE_TPI_VK_vkCreateImage) ||
@@ -2267,7 +2267,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
                     vktrace_FileLike_SetCurrentPosition(traceFile, saveFilePos);
                     return false;
                 }
-                FSEEK(traceFile, (long)portabilityTable[i], SEEK_SET);
+                FSEEK(traceFile, portabilityTable[i], SEEK_SET);
                 FREAD(pCreatePacketFull, createPacketHeaderHeader.size, 1, traceFile);
                 pCreatePacket = (packet_vkCreateImage *)(pCreatePacketFull + 1);
                 pCreatePacket->header = pCreatePacketFull;
