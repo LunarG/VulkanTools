@@ -70,7 +70,7 @@ class TrimLockGuard {  // specialization for a single mutex
         }
     }
 
-    ~TrimLockGuard() _NOEXCEPT {  // unlock
+    ~TrimLockGuard() {  // unlock
         if (m_islocked) {
             _MyMutex.unlock();
             m_islocked = false;
