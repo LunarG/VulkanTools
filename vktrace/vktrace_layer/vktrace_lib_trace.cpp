@@ -50,6 +50,8 @@
 
 #include "vk_struct_size_helper.h"
 
+std::mutex g_mutex;
+
 VKTRACER_LEAVE _Unload(void) {
     // only do the hooking and networking if the tracer is NOT loaded by vktrace
     if (vktrace_is_loaded_into_vktrace() == FALSE) {
@@ -164,9 +166,11 @@ void* strip_create_extensions(const void* pNext) {
     return create_info;
 }
 
+
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkDeviceMemory* pMemory) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateMemory* pPacket = NULL;
@@ -216,6 +220,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset,
                                                                     VkDeviceSize size, VkFlags flags, void** ppData) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkMapMemory* pPacket = NULL;
@@ -297,6 +302,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkMapMemory(VkDevice dev
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice device, VkDeviceMemory memory) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkUnmapMemory* pPacket;
     VKAllocInfo* entry;
@@ -363,6 +369,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUnmapMemory(VkDevice devic
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device, VkDeviceMemory memory,
                                                                  const VkAllocationCallbacks* pAllocator) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkFreeMemory* pPacket = NULL;
 #if defined(USE_PAGEGUARD_SPEEDUP)
@@ -408,6 +415,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemoryRanges(VkDevice device, uint32_t memoryRangeCount,
                                                                                        const VkMappedMemoryRange* pMemoryRanges) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     size_t rangesSize = 0;
@@ -497,6 +505,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRanges(VkDevice device, uint32_t memoryRangeCount,
                                                                                   const VkMappedMemoryRange* pMemoryRanges) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     uint64_t rangesSize = 0;
@@ -632,6 +641,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers(VkDevice device,
                                                                                  const VkCommandBufferAllocateInfo* pAllocateInfo,
                                                                                  VkCommandBuffer* pCommandBuffers) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateCommandBuffers* pPacket = NULL;
@@ -678,6 +688,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(VkCommandBuffer commandBuffer,
                                                                              const VkCommandBufferBeginInfo* pBeginInfo) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkBeginCommandBuffer* pPacket = NULL;
@@ -717,6 +728,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorPool(V
                                                                                const VkDescriptorPoolCreateInfo* pCreateInfo,
                                                                                const VkAllocationCallbacks* pAllocator,
                                                                                VkDescriptorPool* pDescriptorPool) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateDescriptorPool* pPacket = NULL;
@@ -778,6 +790,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
     VkPhysicalDevice physicalDevice,
     VkPhysicalDeviceProperties* pProperties)
 {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceProperties* pPacket = NULL;
     CREATE_TRACE_PACKET(vkGetPhysicalDeviceProperties, sizeof(VkPhysicalDeviceProperties));
@@ -821,6 +834,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceProperties2KHR(VkPhysicalDevice physicalDevice,
                                                                                       VkPhysicalDeviceProperties2KHR* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceProperties2KHR* pPacket = NULL;
     CREATE_TRACE_PACKET(vkGetPhysicalDeviceProperties2KHR, get_struct_chain_size((void*)pProperties));
@@ -854,6 +868,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDevicePropertie
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysicalDevice physicalDevice,
                                                                        const VkDeviceCreateInfo* pCreateInfo,
                                                                        const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateDevice* pPacket = NULL;
@@ -957,6 +972,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(VkDe
                                                                             const VkFramebufferCreateInfo* pCreateInfo,
                                                                             const VkAllocationCallbacks* pAllocator,
                                                                             VkFramebuffer* pFramebuffer) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateFramebuffer* pPacket = NULL;
@@ -1092,6 +1108,7 @@ static void send_vk_api_version_packet() {
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkInstance* pInstance) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateInstance* pPacket = NULL;
@@ -1211,6 +1228,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateInstance(const V
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyInstance(VkInstance instance,
                                                                       const VkAllocationCallbacks* pAllocator) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     if (g_trimEnabled && g_trimIsInTrim) {
         trim::stop();
     }
@@ -1250,6 +1268,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateRenderPass(VkDev
                                                                            const VkRenderPassCreateInfo* pCreateInfo,
                                                                            const VkAllocationCallbacks* pAllocator,
                                                                            VkRenderPass* pRenderPass) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateRenderPass* pPacket = NULL;
@@ -1345,6 +1364,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
                                                                                              const char* pLayerName,
                                                                                              uint32_t* pPropertyCount,
                                                                                              VkExtensionProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkEnumerateDeviceExtensionProperties* pPacket = NULL;
@@ -1395,6 +1415,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceExtensi
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice,
                                                                                          uint32_t* pPropertyCount,
                                                                                          VkLayerProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkEnumerateDeviceLayerProperties* pPacket = NULL;
@@ -1432,6 +1453,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateDeviceLayerPr
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFamilyProperties(
     VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties* pQueueFamilyProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceQueueFamilyProperties* pPacket = NULL;
     uint64_t startTime;
@@ -1480,6 +1502,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
     VkPhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, VkQueueFamilyProperties2KHR* pQueueFamilyProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceQueueFamilyProperties2KHR* pPacket = NULL;
     uint64_t startTime;
@@ -1527,6 +1550,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumeratePhysicalDevices(VkInstance instance,
                                                                                    uint32_t* pPhysicalDeviceCount,
                                                                                    VkPhysicalDevice* pPhysicalDevices) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkEnumeratePhysicalDevices* pPacket = NULL;
@@ -1590,6 +1614,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
                                                                               uint32_t firstQuery, uint32_t queryCount,
                                                                               size_t dataSize, void* pData, VkDeviceSize stride,
                                                                               VkQueryResultFlags flags) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetQueryPoolResults* pPacket = NULL;
@@ -1631,6 +1656,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets(VkDevice device,
                                                                                  const VkDescriptorSetAllocateInfo* pAllocateInfo,
                                                                                  VkDescriptorSet* pDescriptorSets) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateDescriptorSets* pPacket = NULL;
@@ -1954,6 +1980,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
                                                                            const VkWriteDescriptorSet* pDescriptorWrites,
                                                                            uint32_t descriptorCopyCount,
                                                                            const VkCopyDescriptorSet* pDescriptorCopies) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkUpdateDescriptorSets* pPacket = NULL;
     // begin custom code
@@ -2110,6 +2137,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue queue, uint32_t submitCount,
                                                                       const VkSubmitInfo* pSubmits, VkFence fence) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     if ((g_trimEnabled) && (pSubmits != NULL)) {
         vktrace_enter_critical_section(&trim::trimTransitionMapLock);
     }
@@ -2257,6 +2285,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueue queue, uint32_t bindInfoCount,
                                                                           const VkBindSparseInfo* pBindInfo, VkFence fence) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkQueueBindSparse* pPacket = NULL;
@@ -2353,6 +2382,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
     VkPipelineStageFlags dstStageMask, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers,
     uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
     const VkImageMemoryBarrier* pImageMemoryBarriers) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdWaitEvents* pPacket = NULL;
     size_t customSize;
@@ -2425,6 +2455,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
     VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers,
     uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
     const VkImageMemoryBarrier* pImageMemoryBarriers) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPipelineBarrier* pPacket = NULL;
     size_t customSize;
@@ -2510,6 +2541,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(VkCommandBuffer commandBuffer, VkPipelineLayout layout,
                                                                        VkShaderStageFlags stageFlags, uint32_t offset,
                                                                        uint32_t size, const void* pValues) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPushConstants* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCmdPushConstants, size);
@@ -2539,6 +2571,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushConstants(VkCommand
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdExecuteCommands(VkCommandBuffer commandBuffer, uint32_t commandBufferCount,
                                                                          const VkCommandBuffer* pCommandBuffers) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdExecuteCommands* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCmdExecuteCommands, commandBufferCount * sizeof(VkCommandBuffer));
@@ -2579,6 +2612,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdExecuteCommands(VkComma
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(VkDevice device, VkPipelineCache pipelineCache,
                                                                                size_t* pDataSize, void* pData) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkGetPipelineCacheData* pPacket = NULL;
@@ -2649,6 +2683,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
                                                                                   const VkGraphicsPipelineCreateInfo* pCreateInfos,
                                                                                   const VkAllocationCallbacks* pAllocator,
                                                                                   VkPipeline* pPipelines) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateGraphicsPipelines* pPacket = NULL;
@@ -2738,6 +2773,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
                                                                                  const VkComputePipelineCreateInfo* pCreateInfos,
                                                                                  const VkAllocationCallbacks* pAllocator,
                                                                                  VkPipeline* pPipelines) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateComputePipelines* pPacket = NULL;
@@ -2809,6 +2845,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
                                                                               const VkPipelineCacheCreateInfo* pCreateInfo,
                                                                               const VkAllocationCallbacks* pAllocator,
                                                                               VkPipelineCache* pPipelineCache) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreatePipelineCache* pPacket = NULL;
@@ -2853,6 +2890,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreatePipelineCache(Vk
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkCommandBuffer commandBuffer,
                                                                          const VkRenderPassBeginInfo* pRenderPassBegin,
                                                                          VkSubpassContents contents) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdBeginRenderPass* pPacket = NULL;
     size_t clearValueSize = sizeof(VkClearValue) * pRenderPassBegin->clearValueCount;
@@ -2910,6 +2948,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkDevice device, VkDescriptorPool descriptorPool,
                                                                              uint32_t descriptorSetCount,
                                                                              const VkDescriptorSet* pDescriptorSets) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkFreeDescriptorSets* pPacket = NULL;
@@ -2949,6 +2988,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkD
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice device, const VkImageCreateInfo* pCreateInfo,
                                                                       const VkAllocationCallbacks* pAllocator, VkImage* pImage) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     VkResult result;
     packet_vkCreateImage* pPacket = NULL;
@@ -3025,6 +3065,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateBuffer(VkDevice device, const VkBufferCreateInfo* pCreateInfo,
                                                                        const VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateBuffer* pPacket = NULL;
@@ -3080,6 +3121,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateBuffer(VkDevice 
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyBuffer(VkDevice device, VkBuffer buffer,
                                                                     const VkAllocationCallbacks* pAllocator) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkDestroyBuffer* pPacket = NULL;
     CREATE_TRACE_PACKET(vkDestroyBuffer, sizeof(VkAllocationCallbacks));
@@ -3110,6 +3152,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyBuffer(VkDevice dev
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory,
                                                                            VkDeviceSize memoryOffset) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkBindBufferMemory* pPacket = NULL;
@@ -3150,6 +3193,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBindBufferMemory(VkDev
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
     VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkSurfaceCapabilitiesKHR* pSurfaceCapabilities) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceSurfaceCapabilitiesKHR* pPacket = NULL;
@@ -3179,6 +3223,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
                                                                                              VkSurfaceKHR surface,
                                                                                              uint32_t* pSurfaceFormatCount,
                                                                                              VkSurfaceFormatKHR* pSurfaceFormats) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     size_t _dataSize;
@@ -3220,6 +3265,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfa
                                                                                                   VkSurfaceKHR surface,
                                                                                                   uint32_t* pPresentModeCount,
                                                                                                   VkPresentModeKHR* pPresentModes) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     size_t _dataSize;
@@ -3262,6 +3308,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(VkD
                                                                              const VkSwapchainCreateInfoKHR* pCreateInfo,
                                                                              const VkAllocationCallbacks* pAllocator,
                                                                              VkSwapchainKHR* pSwapchain) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateSwapchainKHR* pPacket = NULL;
@@ -3305,6 +3352,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateSwapchainKHR(VkD
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain,
                                                                                 uint32_t* pSwapchainImageCount,
                                                                                 VkImage* pSwapchainImages) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     size_t _dataSize;
@@ -3361,6 +3409,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueue queue, const VkPresentInfoKHR* pPresentInfo) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkQueuePresentKHR* pPacket = NULL;
@@ -3475,6 +3524,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
                                                                                 const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                                                                 const VkAllocationCallbacks* pAllocator,
                                                                                 VkSurfaceKHR* pSurface) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateWin32SurfaceKHR* pPacket = NULL;
@@ -3515,6 +3565,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateWin32SurfaceKHR(
 
 VKTRACER_EXPORT VKAPI_ATTR VkBool32 VKAPI_CALL
 __HOOKED_vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkBool32 result;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetPhysicalDeviceWin32PresentationSupportKHR* pPacket = NULL;
@@ -3869,6 +3920,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdateTemplate(
     VkDevice device, const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator,
     VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return __HOOKED_vkCreateDescriptorUpdateTemplateKHR(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 }
 
@@ -3889,6 +3941,7 @@ void unlockDescriptorUpdateTemplateCreateInfo() { vktrace_sem_post(descriptorUpd
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdateTemplateKHR(
     VkDevice device, const VkDescriptorUpdateTemplateCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator,
     VkDescriptorUpdateTemplateKHR* pDescriptorUpdateTemplate) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateDescriptorUpdateTemplateKHR* pPacket = NULL;
@@ -3946,6 +3999,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdate
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTemplate(
     VkDevice device, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkDestroyDescriptorUpdateTemplate* pPacket = NULL;
     CREATE_TRACE_PACKET(vkDestroyDescriptorUpdateTemplate, sizeof(VkAllocationCallbacks));
@@ -3980,6 +4034,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTemplateKHR(
     VkDevice device, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, const VkAllocationCallbacks* pAllocator) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkDestroyDescriptorUpdateTemplateKHR* pPacket = NULL;
     CREATE_TRACE_PACKET(vkDestroyDescriptorUpdateTemplateKHR, sizeof(VkAllocationCallbacks));
@@ -4059,6 +4114,7 @@ static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorU
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTemplate(
     VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkUpdateDescriptorSetWithTemplate* pPacket = NULL;
     size_t dataSize;
@@ -4090,6 +4146,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTemplateKHR(
     VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, const void* pData) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkUpdateDescriptorSetWithTemplateKHR* pPacket = NULL;
     size_t dataSize;
@@ -4124,6 +4181,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetKHR(Vk
                                                                               VkPipelineLayout layout, uint32_t set,
                                                                               uint32_t descriptorWriteCount,
                                                                               const VkWriteDescriptorSet* pDescriptorWrites) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPushDescriptorSetKHR* pPacket = NULL;
     size_t arrayByteCount = 0;
@@ -4248,6 +4306,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetKHR(Vk
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetWithTemplateKHR(
     VkCommandBuffer commandBuffer, VkDescriptorUpdateTemplateKHR descriptorUpdateTemplate, VkPipelineLayout layout, uint32_t set,
     const void* pData) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdPushDescriptorSetWithTemplateKHR* pPacket = NULL;
     size_t dataSize;
@@ -4282,6 +4341,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdCopyImageToBuffer(VkCom
                                                                            VkImageLayout srcImageLayout, VkBuffer dstBuffer,
                                                                            uint32_t regionCount,
                                                                            const VkBufferImageCopy* pRegions) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdCopyImageToBuffer* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCmdCopyImageToBuffer, regionCount * sizeof(VkBufferImageCopy));
@@ -4314,6 +4374,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdCopyImageToBuffer(VkCom
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice device, uint32_t fenceCount,
                                                                         const VkFence* pFences, VkBool32 waitAll,
                                                                         uint64_t timeout) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkWaitForFences* pPacket = NULL;
@@ -4427,12 +4488,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
     return result;
 }
 
-VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(
-     VkDevice                                    device,
-     const VkObjectTableCreateInfoNVX*           pCreateInfo,
-     const VkAllocationCallbacks*                pAllocator,
-     VkObjectTableNVX*                           pObjectTable)
-{
+VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(VkDevice device,
+                                                                               const VkObjectTableCreateInfoNVX* pCreateInfo,
+                                                                               const VkAllocationCallbacks* pAllocator,
+                                                                               VkObjectTableNVX* pObjectTable) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateObjectTableNVX* pPacket = NULL;
@@ -4484,11 +4544,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateObjectTableNVX(
     return result;
 }
 
-
-VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdProcessCommandsNVX(
-    VkCommandBuffer commandBuffer,
-    const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo)
-{
+VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL
+__HOOKED_vkCmdProcessCommandsNVX(VkCommandBuffer commandBuffer, const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdProcessCommandsNVX* pPacket;
     size_t datasize = 0;
@@ -4529,11 +4587,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdProcessCommandsNVX(
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommandsLayoutNVX(
-    VkDevice device,
-    const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo,
-    const VkAllocationCallbacks* pAllocator,
-    VkIndirectCommandsLayoutNVX* pIndirectCommandsLayout)
-{
+    VkDevice device, const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo, const VkAllocationCallbacks* pAllocator,
+    VkIndirectCommandsLayoutNVX* pIndirectCommandsLayout) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkCreateIndirectCommandsLayoutNVX* pPacket = NULL;
@@ -4579,7 +4635,6 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommands
     }
     return result;
 }
-
 
 // TODO Wayland and Mir support
 
@@ -4631,6 +4686,7 @@ pSurfaceDescription);
  * but not for loader initiated calls to GDPA. Thus need two versions of GDPA.
  */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAddr(VkDevice device, const char* funcName) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     PFN_vkVoidFunction addr;
 
     vktrace_trace_packet_header* pHeader;
@@ -4659,6 +4715,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAdd
 
 /* GDPA with no trace packet creation */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDeviceProcAddr(VkDevice device, const char* funcName) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     if (!strcmp("vkGetDeviceProcAddr", funcName)) {
         if (gMessageStream != NULL) {
             return (PFN_vkVoidFunction)vktraceGetDeviceProcAddr;
@@ -4696,6 +4753,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDevicePro
  * but not for loader initiated calls to GIPA. Thus need two versions of GIPA.
  */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     PFN_vkVoidFunction addr;
     vktrace_trace_packet_header* pHeader;
     packet_vkGetInstanceProcAddr* pPacket = NULL;
@@ -4725,6 +4783,7 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetInstanceProcA
 
 /* GIPA with no trace packet creation */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     PFN_vkVoidFunction addr;
     layer_instance_data* instData;
 
@@ -4838,12 +4897,14 @@ VkResult EnumerateProperties(uint32_t src_count, const T* src_props, uint32_t* d
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
                                                                                   VkLayerProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName,
                                                                                       uint32_t* pPropertyCount,
                                                                                       VkExtensionProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
         return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
 
@@ -4853,23 +4914,27 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceExtensionProperties(const char* pLayerName,
                                                                                                uint32_t* pPropertyCount,
                                                                                                VkExtensionProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return vkEnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
                                                                                            VkLayerProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return vkEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice,
                                                                                 uint32_t* pPropertyCount,
                                                                                 VkLayerProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(const char* pLayerName,
                                                                                     uint32_t* pPropertyCount,
                                                                                     VkExtensionProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
         return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
 
@@ -4878,10 +4943,12 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionPropert
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetInstanceProcAddr(VkInstance instance,
                                                                                                     const char* funcName) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return __HOOKED_vkGetInstanceProcAddr(instance, funcName);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetDeviceProcAddr(VkDevice device,
                                                                                                   const char* funcName) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return __HOOKED_vkGetDeviceProcAddr(device, funcName);
 }
