@@ -2819,6 +2819,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 ptr_packet_update_list = self.GetPacketPtrParamList(proto.members)
                 # End of function declaration portion, begin function body
                 trace_vk_src += ' {\n'
+                trace_vk_src += '    trim::TrimLockGuard<std::mutex> lock(g_mutex);\n'
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    %s result;\n' % resulttype
                     return_txt = 'result = '
