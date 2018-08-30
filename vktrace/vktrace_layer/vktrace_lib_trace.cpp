@@ -166,7 +166,6 @@ void* strip_create_extensions(const void* pNext) {
     return create_info;
 }
 
-
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
                                                                          const VkAllocationCallbacks* pAllocator,
                                                                          VkDeviceMemory* pMemory) {
