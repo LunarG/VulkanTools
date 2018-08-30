@@ -4538,7 +4538,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdCopyImageToBuffer(VkCom
                                                                            VkImageLayout srcImageLayout, VkBuffer dstBuffer,
                                                                            uint32_t regionCount,
                                                                            const VkBufferImageCopy* pRegions) {
-    trim::TrimLockGuard<std::mutex> lock(g_mutex_trim);
+    trim::TrimLockGuard<std::mutex> lock(g_mutex_trim);.
     vktrace_trace_packet_header* pHeader;
     packet_vkCmdCopyImageToBuffer* pPacket = NULL;
     CREATE_TRACE_PACKET(vkCmdCopyImageToBuffer, regionCount * sizeof(VkBufferImageCopy));
