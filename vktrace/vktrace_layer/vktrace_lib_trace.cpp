@@ -2218,6 +2218,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                             trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pWaitSemaphores[w]);
                             if (pInfo != NULL) {
                                 pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                             }
                         }
                     }
@@ -2227,6 +2228,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                             trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pSignalSemaphores[s]);
                             if (pInfo != NULL) {
                                 pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                             }
                         }
                     }
@@ -2338,6 +2340,32 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueu
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+
+        if (result == VK_SUCCESS) {
+            if (bindInfoCount != 0) {
+                for (uint32_t i = 0; i < bindInfoCount; i++) {
+                    if (pBindInfo[i].pWaitSemaphores != NULL) {
+                        for (uint32_t w = 0; w < pBindInfo[i].waitSemaphoreCount; w++) {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo[i].pWaitSemaphores[w]);
+                            if (pInfo != NULL) {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+
+                    if (pBindInfo[i].pSignalSemaphores != NULL) {
+                        for (uint32_t s = 0; s < pBindInfo[i].signalSemaphoreCount; s++) {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo[i].pSignalSemaphores[s]);
+                            if (pInfo != NULL) {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
@@ -3409,6 +3437,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                 trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pPresentInfo->pWaitSemaphores[i]);
                 if (pInfo != NULL) {
                     pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                    pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                 }
             }
         }
