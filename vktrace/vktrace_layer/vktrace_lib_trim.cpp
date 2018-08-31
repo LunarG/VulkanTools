@@ -3822,6 +3822,41 @@ void write_all_referenced_object_calls() {
             vktrace_trace_packet_header *pHeader = generate::vkQueueSubmit(false, queue, 1, &submit_info, VK_NULL_HANDLE);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
+        } else {
+            // The semaphore is not signaled by queue related calls like
+            // vkQueueSubmit and vkQueueBindSparse, here we continue
+            // to check if it is signaled by swapchain related calls like
+            // vkAcquireNextImageKHR.
+            if (obj->second.ObjectInfo.Semaphore.signaledOnSwapChain != VK_NULL_HANDLE) {
+                // The Semaphore is signaled by swapchain related calls
+                // so here we need to signal the recreated semaphore.
+
+                VkSemaphore semaphore = obj->first;
+
+                VkQueue queue = trim::get_DeviceQueue(obj->second.belongsToDevice, 0, 0);
+
+                // generate a queue submit to signal the semaphore
+                VkSubmitInfo submit_info;
+                submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submit_info.pNext = NULL;
+                submit_info.waitSemaphoreCount = 0;
+                submit_info.pWaitSemaphores = NULL;
+                submit_info.pWaitDstStageMask = NULL;
+                submit_info.commandBufferCount = 0;
+                submit_info.pCommandBuffers = NULL;
+                submit_info.signalSemaphoreCount = 1;
+                submit_info.pSignalSemaphores = &semaphore;
+
+                VkFence nullFence = VK_NULL_HANDLE;
+                vktrace_trace_packet_header *pHeader = generate::vkQueueSubmit(false, queue, 1, &submit_info, VK_NULL_HANDLE);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // generate vkWaitQueueIdle() to make sure the semaphore is signaled.
+                vktrace_trace_packet_header *pQueueWaitIdlePacket = generate::vkQueueWaitIdle(false, queue);
+                vktrace_write_trace_packet(pQueueWaitIdlePacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pQueueWaitIdlePacket);
+            }
         }
     }
 
