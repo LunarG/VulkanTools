@@ -77,7 +77,26 @@ else()
     include_directories(${VK_INC_DIR})
 endif()
 
-add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+
+if(WIN32)
+add_definitions(-DVIA_WINDOWS_TARGET)
+add_executable(via
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_windows.hpp
+                  via_system_windows.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+else()
+add_definitions(-DVIA_LINUX_TARGET)
+add_executable(via
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_linux.hpp
+                  via_system_linux.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+endif()
 target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
 target_link_libraries(via ${LIBRARIES})
 if(WIN32)
