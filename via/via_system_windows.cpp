@@ -1594,13 +1594,6 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
     std::string cur_registry_loc;
     char temp_string[1024];
 
-    PrintBeginTableRow();
-    PrintTableElement("Implicit Layers in Registry");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintTableElement("");
-    PrintEndTableRow();
-
     for (uint32_t layer = 0; layer < static_cast<uint32_t>(cur_layer_json.size()); layer++) {
         std::string cur_layer_json_path = std::get<2>(cur_layer_json[layer]);
 
@@ -1678,14 +1671,6 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
     const char vulkan_public_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan\\ExplicitLayers";
     const char vulkan_driver_reg_key_wow64[] = "VulkanExplicitLayerPathsWow";
 
-#if _WIN64 || __x86_64__ || __ppc64__
-    std::string reg_path = vulkan_public_reg_base;
-    registry_locations.push_back(reg_path);
-    registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
-    registry_locations.push_back(reg_path);
-    registry_top_hkey.push_back(HKEY_CURRENT_USER);
-    FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
-#else
     if (g_is_wow64) {
         std::string reg_path = vulkan_public_reg_base_wow64;
         registry_locations.push_back(reg_path);
@@ -1701,7 +1686,6 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
         FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
     }
-#endif
     FindRegistryJsons(registry_top_hkey, registry_locations, layer_jsons);
 
     PrintBeginTable("LunarG Vulkan SDKs", 4);
@@ -1784,35 +1768,43 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemImplicitLayerInfo() {
     std::vector<HKEY> registry_top_hkey;
     std::vector<std::string> registry_locations;
     std::vector<std::tuple<std::string, bool, std::string>> layer_jsons;
+    std::string system_path;
+    char generic_string[1024];
     const char vulkan_public_reg_base[] = "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers";
-    const char vulkan_driver_reg_key[] = "VulkanImplicitLayerPaths";
+    const char vulkan_implicit_reg_key[] = "VulkanImplicitLayerPaths";
+    const char vulkan_driver_reg_key[] = "VulkanImplicitLayers";
     const char vulkan_public_reg_base_wow64[] = "SOFTWARE\\WOW6432Node\\Khronos\\Vulkan\\ImplicitLayers";
-    const char vulkan_driver_reg_key_wow64[] = "VulkanImplicitLayerPathsWow";
+    const char vulkan_implicit_reg_key_wow64[] = "VulkanImplicitLayerPathsWow";
+    const char vulkan_driver_reg_key_wow64[] = "VulkanImplicitLayersWow";
+    std::string reg_path;
 
-#if _WIN64 || __x86_64__ || __ppc64__
-    std::string reg_path = vulkan_public_reg_base;
-    registry_locations.push_back(reg_path);
-    registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
-    registry_locations.push_back(reg_path);
-    registry_top_hkey.push_back(HKEY_CURRENT_USER);
-    FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
-#else
+    GetEnvironmentVariableA("SYSTEMROOT", generic_string, 1024);
+    system_path = generic_string;
+
     if (g_is_wow64) {
-        std::string reg_path = vulkan_public_reg_base_wow64;
+        system_path += "\\sysWOW64\\";
+        reg_path = vulkan_public_reg_base_wow64;
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
         FindDriverSpecificRegistryJsons(vulkan_driver_reg_key_wow64, layer_jsons);
     } else {
-        std::string reg_path = vulkan_public_reg_base;
+        system_path += "\\system32\\";
+        reg_path = vulkan_public_reg_base;
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
         registry_locations.push_back(reg_path);
         registry_top_hkey.push_back(HKEY_CURRENT_USER);
         FindDriverSpecificRegistryJsons(vulkan_driver_reg_key, layer_jsons);
     }
-#endif
+    FindRegistryJsons(registry_top_hkey, registry_locations, layer_jsons);
+
+    if (g_is_wow64) {
+        FindDriverSpecificRegistryJsons(vulkan_implicit_reg_key_wow64, layer_jsons);
+    } else {
+        FindDriverSpecificRegistryJsons(vulkan_implicit_reg_key, layer_jsons);
+    }
     FindRegistryJsons(registry_top_hkey, registry_locations, layer_jsons);
 
     if (layer_jsons.size() > 0) {
@@ -2043,13 +2035,6 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
         std::vector<std::string> registry_locations;
         std::vector<HKEY> registry_top_hkey;
 
-#if _WIN64 || __x86_64__ || __ppc64__
-        std::string reg_path = vulkan_reg_base;
-        registry_locations.push_back(reg_path);
-        registry_top_hkey.push_back(HKEY_LOCAL_MACHINE);
-        registry_locations.push_back(reg_path);
-        registry_top_hkey.push_back(HKEY_CURRENT_USER);
-#else
         if (g_is_wow64) {
             std::string reg_path = vulkan_reg_base_wow64;
             registry_locations.push_back(reg_path);
@@ -2063,7 +2048,6 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
             registry_locations.push_back(reg_path);
             registry_top_hkey.push_back(HKEY_CURRENT_USER);
         }
-#endif
 
         size_t loop_size = registry_top_hkey.size();
         if (registry_top_hkey.size() > registry_locations.size()) {
