@@ -240,6 +240,9 @@ ObjectInfo *get_Sampler_objectInfo(VkSampler var);
 ObjectInfo &add_DescriptorSetLayout_object(VkDescriptorSetLayout var);
 ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var);
 
+ObjectInfo &add_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var);
+ObjectInfo *get_DescriptorUpdateTemplate_objectInfo(VkDescriptorUpdateTemplate var);
+
 ObjectInfo &add_DescriptorSet_object(VkDescriptorSet var);
 ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var);
 
@@ -269,5 +272,6 @@ void remove_ShaderModule_object(const VkShaderModule var);
 void remove_PipelineLayout_object(const VkPipelineLayout var);
 void remove_Sampler_object(const VkSampler var);
 void remove_DescriptorSetLayout_object(const VkDescriptorSetLayout var);
+void remove_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var);
 void remove_DescriptorSet_object(const VkDescriptorSet var);
 }  // namespace trim

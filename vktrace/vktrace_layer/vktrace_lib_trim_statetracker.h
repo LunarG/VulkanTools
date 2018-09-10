@@ -248,6 +248,18 @@ typedef struct _Trim_ObjectInfo {
                                            // sets that will need a copy update.
             VkCopyDescriptorSet *pCopyDescriptorSets;
         } DescriptorSet;
+        struct _DescriptorUpdateTemplate {  // VkDescriptorSet
+            vktrace_trace_packet_header *pCreatePacket;
+            const VkAllocationCallbacks *pAllocator;
+            VkDescriptorUpdateTemplateCreateFlags flags;
+            uint32_t descriptorUpdateEntryCount;
+            const VkDescriptorUpdateTemplateEntry *pDescriptorUpdateEntries;
+            VkDescriptorUpdateTemplateType templateType;
+            VkDescriptorSetLayout descriptorSetLayout;
+            VkPipelineBindPoint pipelineBindPoint;
+            VkPipelineLayout pipelineLayout;
+            uint32_t set;
+        } DescriptorUpdateTemplate;
         struct _Framebuffer {  // VkFramebuffer
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
@@ -348,6 +360,7 @@ class StateTracker {
     ObjectInfo &add_Sampler(VkSampler var);
     ObjectInfo &add_DescriptorSetLayout(VkDescriptorSetLayout var);
     ObjectInfo &add_DescriptorSet(VkDescriptorSet var);
+    ObjectInfo &add_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
 
     ObjectInfo *get_Instance(VkInstance var);
     ObjectInfo *get_PhysicalDevice(VkPhysicalDevice var);
@@ -375,6 +388,7 @@ class StateTracker {
     ObjectInfo *get_PipelineLayout(VkPipelineLayout var);
     ObjectInfo *get_Sampler(VkSampler var);
     ObjectInfo *get_DescriptorSetLayout(VkDescriptorSetLayout var);
+    ObjectInfo * get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
     ObjectInfo *get_DescriptorSet(VkDescriptorSet var);
 
     void remove_Instance(const VkInstance var);
@@ -403,6 +417,7 @@ class StateTracker {
     void remove_PipelineLayout(const VkPipelineLayout var);
     void remove_Sampler(const VkSampler var);
     void remove_DescriptorSetLayout(const VkDescriptorSetLayout var);
+    void remove_DescriptorUpdateTemplate(const VkDescriptorUpdateTemplate var);
     void remove_DescriptorSet(const VkDescriptorSet var);
 
     static void copy_VkRenderPassCreateInfo(VkRenderPassCreateInfo *pDst, const VkRenderPassCreateInfo &src);
@@ -456,6 +471,7 @@ class StateTracker {
     std::unordered_map<VkPipelineLayout, ObjectInfo> createdPipelineLayouts;
     std::unordered_map<VkSampler, ObjectInfo> createdSamplers;
     std::unordered_map<VkDescriptorSetLayout, ObjectInfo> createdDescriptorSetLayouts;
+    std::unordered_map<VkDescriptorUpdateTemplate, ObjectInfo> createdDescriptorUpdateTemplates;
     std::unordered_map<VkDescriptorSet, ObjectInfo> createdDescriptorSets;
 };
 }

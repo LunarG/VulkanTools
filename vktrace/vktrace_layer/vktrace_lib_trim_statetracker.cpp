@@ -444,6 +444,27 @@ StateTracker &StateTracker::operator=(const StateTracker &other) {
         COPY_PACKET(obj->second.ObjectInfo.DescriptorPool.pCreatePacket);
     }
 
+    createdDescriptorUpdateTemplates = other.createdDescriptorUpdateTemplates;
+    for (auto obj = createdDescriptorUpdateTemplates.begin(); obj != createdDescriptorUpdateTemplates.end(); obj++) {
+        COPY_PACKET(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket);
+
+        if (obj->second.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount != 0) {
+            const VkDescriptorUpdateTemplateEntry *pOtherDescriptorUpdateEntries =
+                obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries;
+
+            obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries = VKTRACE_NEW_ARRAY(
+                VkDescriptorUpdateTemplateEntry, obj->second.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount);
+
+            assert(obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries != nullptr);
+
+            memcpy(reinterpret_cast<void *>(const_cast<VkDescriptorUpdateTemplateEntry *>(
+                       obj->second.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries)),
+                   reinterpret_cast<const void *>(const_cast<VkDescriptorUpdateTemplateEntry *>(pOtherDescriptorUpdateEntries)),
+                   obj->second.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount *
+                       sizeof(VkDescriptorUpdateTemplateEntry));
+        }
+    }
+
     createdSwapchainKHRs = other.createdSwapchainKHRs;
     for (auto obj = createdSwapchainKHRs.begin(); obj != createdSwapchainKHRs.end(); obj++) {
         COPY_PACKET(obj->second.ObjectInfo.SwapchainKHR.pCreatePacket);
@@ -1066,6 +1087,13 @@ ObjectInfo &StateTracker::add_DescriptorSet(VkDescriptorSet var) {
     return info;
 }
 
+ObjectInfo &StateTracker::add_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var) {
+    ObjectInfo &info = createdDescriptorUpdateTemplates[var];
+    memset(&info, 0, sizeof(ObjectInfo));
+    info.vkObject = (uint64_t)var;
+    return info;
+}
+
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 ObjectInfo *StateTracker::get_Instance(VkInstance var) {
@@ -1198,6 +1226,15 @@ ObjectInfo *StateTracker::get_DescriptorSetLayout(VkDescriptorSetLayout var) {
     auto iter = createdDescriptorSetLayouts.find(var);
     ObjectInfo *pResult = NULL;
     if (iter != createdDescriptorSetLayouts.end()) {
+        pResult = &(iter->second);
+    }
+    return pResult;
+}
+
+ObjectInfo *StateTracker::get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var) {
+    auto iter = createdDescriptorUpdateTemplates.find(var);
+    ObjectInfo *pResult = NULL;
+    if (iter != createdDescriptorUpdateTemplates.end()) {
         pResult = &(iter->second);
     }
     return pResult;
@@ -1457,6 +1494,18 @@ void StateTracker::remove_DescriptorSetLayout(const VkDescriptorSetLayout var) {
         }
     }
     createdDescriptorSetLayouts.erase(var);
+}
+
+void StateTracker::remove_DescriptorUpdateTemplate(const VkDescriptorUpdateTemplate var) {
+    ObjectInfo *pInfo = get_DescriptorUpdateTemplate(var);
+    if (pInfo != nullptr) {
+        vktrace_delete_trace_packet(&pInfo->ObjectInfo.DescriptorUpdateTemplate.pCreatePacket);
+        if ((pInfo->ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount != 0) &&
+            (pInfo->ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries != nullptr)) {
+            delete[] pInfo->ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries;
+        }
+    }
+    createdDescriptorUpdateTemplates.erase(var);
 }
 
 void StateTracker::remove_PipelineLayout(const VkPipelineLayout var) {
