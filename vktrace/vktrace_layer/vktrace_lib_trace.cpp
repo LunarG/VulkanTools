@@ -3935,6 +3935,32 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDescriptorUpdate
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        trim::ObjectInfo& info = trim::add_DescriptorUpdateTemplate_object(*pDescriptorUpdateTemplate);
+        info.belongsToDevice = device;
+        info.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket = trim::copy_packet(pHeader);
+        info.ObjectInfo.DescriptorUpdateTemplate.flags = pCreateInfo->flags;
+        info.ObjectInfo.DescriptorUpdateTemplate.descriptorUpdateEntryCount = pCreateInfo->descriptorUpdateEntryCount;
+        if ((pCreateInfo->descriptorUpdateEntryCount != 0) && (pCreateInfo->pDescriptorUpdateEntries != nullptr)) {
+            info.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries =
+                VKTRACE_NEW_ARRAY(VkDescriptorUpdateTemplateEntry, pCreateInfo->descriptorUpdateEntryCount);
+            assert(info.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries != nullptr);
+            memcpy(
+                reinterpret_cast<void*>(const_cast<VkDescriptorUpdateTemplateEntry*>(
+                    info.ObjectInfo.DescriptorUpdateTemplate.pDescriptorUpdateEntries)),
+                reinterpret_cast<const void*>(const_cast<VkDescriptorUpdateTemplateEntry*>(pCreateInfo->pDescriptorUpdateEntries)),
+                pCreateInfo->descriptorUpdateEntryCount * sizeof(VkDescriptorUpdateTemplateEntry));
+        }
+        info.ObjectInfo.DescriptorUpdateTemplate.templateType = pCreateInfo->templateType;
+        info.ObjectInfo.DescriptorUpdateTemplate.descriptorSetLayout = pCreateInfo->descriptorSetLayout;
+        info.ObjectInfo.DescriptorUpdateTemplate.pipelineBindPoint = pCreateInfo->pipelineBindPoint;
+        info.ObjectInfo.DescriptorUpdateTemplate.pipelineLayout = pCreateInfo->pipelineLayout;
+        info.ObjectInfo.DescriptorUpdateTemplate.set = pCreateInfo->set;
+
+        if (pAllocator != NULL) {
+            info.ObjectInfo.DescriptorUpdateTemplate.pAllocator = pAllocator;
+            trim::add_Allocator(pAllocator);
+        }
+
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {
@@ -3961,6 +3987,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        trim::remove_DescriptorUpdateTemplate_object(descriptorUpdateTemplate);
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {
@@ -3995,6 +4022,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyDescriptorUpdateTem
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        trim::remove_DescriptorUpdateTemplate_object(descriptorUpdateTemplate);
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
         } else {

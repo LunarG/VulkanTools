@@ -2211,6 +2211,33 @@ ObjectInfo *get_DescriptorSetLayout_objectInfo(VkDescriptorSetLayout var) {
 }
 
 //=========================================================================
+ObjectInfo &add_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    ObjectInfo &info = s_trimGlobalStateTracker.add_DescriptorUpdateTemplate(var);
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+    return info;
+}
+
+//=========================================================================
+void remove_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    s_trimGlobalStateTracker.remove_DescriptorUpdateTemplate(var);
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
+//=========================================================================
+ObjectInfo *get_DescriptorUpdateTemplate_objectInfo(VkDescriptorUpdateTemplate var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimGlobalStateTracker.createdDescriptorUpdateTemplates.find(var);
+    ObjectInfo *pResult = NULL;
+    if (iter != s_trimGlobalStateTracker.createdDescriptorUpdateTemplates.end()) {
+        pResult = &(iter->second);
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+    return pResult;
+}
+
+//=========================================================================
 ObjectInfo &add_PipelineLayout_object(VkPipelineLayout var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     ObjectInfo &info = s_trimGlobalStateTracker.add_PipelineLayout(var);
@@ -3728,6 +3755,14 @@ void write_all_referenced_object_calls() {
     }
 
     VKTRACE_DELETE(pSignalSemaphores);
+
+    // DescriptorUpdateTemplate
+    for (auto obj = stateTracker.createdDescriptorUpdateTemplates.begin(); obj != stateTracker.createdDescriptorUpdateTemplates.end();
+        obj++) {
+        vktrace_write_trace_packet(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket));
+    }
+
 
     vktrace_LogDebug("vktrace done recreating objects for trim.");
 }
