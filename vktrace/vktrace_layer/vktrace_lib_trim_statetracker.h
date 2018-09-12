@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <list>
 #include <vector>
+#include <set>
 #include "vktrace_trace_packet_utils.h"
 
 // Create / Destroy all image resources in the order performed by the
@@ -312,6 +313,21 @@ class StateTracker {
 
     void clear();
 
+    // The following two maps are used to record the binding relations between
+    // command buffer and pipeline.
+    //
+    // Some title destroy a pipeline object when the command buffer which use
+    // it still alive. If trim starting just at the location, the generated
+    // trimmed trace file will include invalid calls in the command buffer
+    // recreation process. During playback, some of these calls cause crash,
+    // (also may cause undefined behaviour by Doc.). The two maps let us know
+    // the binding relation between command buffer and pipeline. So we can
+    // clears all record calls in bound command buffer if a pipeline is
+    // destroyed before the command buffer.
+
+    std::unordered_map<VkCommandBuffer, std::set<VkPipeline>> m_cmdBufferToBindingPipelinesMap;
+    std::unordered_map<VkPipeline, std::set<VkCommandBuffer>> m_BindingPipelineTocmdBuffersMap;
+
     std::unordered_map<VkCommandBuffer, std::list<ImageTransition>> m_cmdBufferToImageTransitionsMap;
     void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
     void ClearImageTransitions(VkCommandBuffer commandBuffer);
@@ -390,6 +406,9 @@ class StateTracker {
     ObjectInfo *get_DescriptorSetLayout(VkDescriptorSetLayout var);
     ObjectInfo *get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
     ObjectInfo *get_DescriptorSet(VkDescriptorSet var);
+
+    std::set<VkCommandBuffer> *StateTracker::get_BoundCommandBuffers(VkPipeline var, bool createFlag = true);
+    std::set<VkPipeline> *StateTracker::get_BindingPipelines(VkCommandBuffer var, bool createFlag = true);
 
     void remove_Instance(const VkInstance var);
     void remove_PhysicalDevice(const VkPhysicalDevice var);

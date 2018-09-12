@@ -35,6 +35,8 @@ uint64_t g_trimEndFrame = UINT64_MAX;
 bool g_trimAlreadyFinished = false;
 std::mutex g_trimImageHandling_Mutex;
 
+static std::mutex g_Mutex_CommandBufferPipelineMap;
+
 namespace trim {
 // Tracks the existence of objects from the very beginning of the application
 static StateTracker s_trimGlobalStateTracker;
@@ -2494,6 +2496,80 @@ ObjectInfo *get_Pipeline_objectInfo(VkPipeline var) {
     }
     vktrace_leave_critical_section(&trimStateTrackerLock);
     return pResult;
+}
+
+//=========================================================================
+// target title will bind pipeline to commandBuffer, the function record the
+// binding relation to the pipeline track info.
+void add_CommandBuffer_to_binding_Pipeline(VkCommandBuffer commandBuffer, VkPipeline pipeLine) {
+    std::lock_guard<std::mutex> lock(g_Mutex_CommandBufferPipelineMap);
+
+    auto pCommandBuffers = s_trimGlobalStateTracker.get_BoundCommandBuffers(pipeLine);
+    if (pCommandBuffers != nullptr) {
+        pCommandBuffers->insert(commandBuffer);
+    }
+}
+
+//=========================================================================
+// The function first clear all record calls in any commandbuffer if the
+// command buffer use the pipeline, also clear ImageTransitions and
+// BufferTransitions in the command buffer track info.
+// The function is used when target title destroy the pipeline.
+void clear_CommandBuffer_calls_by_binding_Pipeline(VkPipeline pipeLine) {
+    std::lock_guard<std::mutex> lock(g_Mutex_CommandBufferPipelineMap);
+
+    auto pCommandBuffers = s_trimGlobalStateTracker.get_BoundCommandBuffers(pipeLine);
+    if (pCommandBuffers != nullptr) {
+        for (auto pCommandBuffer = pCommandBuffers->begin(); pCommandBuffer != pCommandBuffers->end(); pCommandBuffer++) {
+            remove_CommandBuffer_calls(*pCommandBuffer);
+            ClearImageTransitions(*pCommandBuffer);
+            ClearBufferTransitions(*pCommandBuffer);
+
+            // remove all pipelines from the command buffer track info because
+            // we already clear all its recorded calls.
+            auto pPipelines = s_trimGlobalStateTracker.get_BindingPipelines(*pCommandBuffer);
+            if (pPipelines != nullptr) {
+                pPipelines->clear();
+            }
+        }
+    }
+}
+
+//=========================================================================
+// The function record the binding relation to the command buffer
+// track info.
+// The function is used when target title bind pipeline to commandBuffer.
+void add_binding_Pipeline_to_CommandBuffer(VkCommandBuffer commandBuffer, VkPipeline pipeLine) {
+    std::lock_guard<std::mutex> lock(g_Mutex_CommandBufferPipelineMap);
+
+    auto pPipelines = s_trimGlobalStateTracker.get_BindingPipelines(commandBuffer);
+    if (pPipelines != nullptr) {
+        pPipelines->insert(pipeLine);
+    }
+}
+
+//=========================================================================
+// For every pipeline used by the command buffer, the function delete
+// the command buffer from that pipeline, then delete all pipelines from the
+// command buffer track info.
+// The function is used when target title call vkResetCommandBuffer,
+// vkFreeCommandBuffer or vkBeginCommandBuffer. so we need to remove its
+// registration from all used pipelines:
+void clear_binding_Pipelines_from_CommandBuffer(VkCommandBuffer commandBuffer) {
+    std::lock_guard<std::mutex> lock(g_Mutex_CommandBufferPipelineMap);
+
+    auto pBindingPipelines = s_trimGlobalStateTracker.get_BindingPipelines(commandBuffer);
+    if (pBindingPipelines != nullptr) {
+        for (auto pPipeline = pBindingPipelines->begin(); pPipeline != pBindingPipelines->end(); pPipeline++) {
+            auto pCommandBuffers = s_trimGlobalStateTracker.get_BoundCommandBuffers(*pPipeline);
+            if (pCommandBuffers != nullptr) {
+                pCommandBuffers->erase(commandBuffer);
+            }
+        }
+
+        // Clear all pipelines used by the command buffer from its track info.
+        pBindingPipelines->clear();
+    }
 }
 
 //=========================================================================

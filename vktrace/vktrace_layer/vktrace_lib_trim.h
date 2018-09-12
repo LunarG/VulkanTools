@@ -17,12 +17,12 @@
 #include <list>
 #include <map>
 #include <algorithm>
+#include <mutex>
 #include "vktrace_trace_packet_identifiers.h"
 
 #include "vktrace_lib_trim_generate.h"
 #include "vktrace_lib_trim_statetracker.h"
 #include "vulkan/vulkan.h"
-#include <mutex>
 
 #if defined(PLATFORM_LINUX)  // VK_USE_PLATFORM_XCB_KHR
 #if defined(ANDROID)
@@ -274,4 +274,10 @@ void remove_Sampler_object(const VkSampler var);
 void remove_DescriptorSetLayout_object(const VkDescriptorSetLayout var);
 void remove_DescriptorUpdateTemplate_object(VkDescriptorUpdateTemplate var);
 void remove_DescriptorSet_object(const VkDescriptorSet var);
+
+void add_binding_Pipeline_to_CommandBuffer(VkCommandBuffer commandBuffer, VkPipeline pipeLine);
+void clear_binding_Pipelines_from_CommandBuffer(VkCommandBuffer commandBuffer);
+void add_CommandBuffer_to_binding_Pipeline(VkCommandBuffer commandBuffer, VkPipeline pipeLine);
+void clear_CommandBuffer_calls_by_binding_Pipeline(VkPipeline pipeLine);
+
 }  // namespace trim

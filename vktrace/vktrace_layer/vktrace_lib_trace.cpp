@@ -716,6 +716,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(VkC
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         trim::ClearImageTransitions(commandBuffer);
         trim::ClearBufferTransitions(commandBuffer);
+        trim::clear_binding_Pipelines_from_CommandBuffer(commandBuffer);
 
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);

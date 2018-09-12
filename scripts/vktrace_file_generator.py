@@ -1760,7 +1760,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        }')
 
         elif ('vkEndCommandBuffer' == proto.name or
-              'vkCmdBindPipeline' == proto.name or
               'vkCmdSetViewport' == proto.name or
               'vkCmdSetScissor' == proto.name or
               'vkCmdSetLineWidth' == proto.name or
@@ -1794,10 +1793,20 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
+        elif ('vkCmdBindPipeline' == proto.name):
+            trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
+            trim_instructions.append("        trim::add_CommandBuffer_to_binding_Pipeline(commandBuffer, pipeline);")
+            trim_instructions.append("        trim::add_binding_Pipeline_to_CommandBuffer(commandBuffer, pipeline);")
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
         elif ('vkResetCommandBuffer' == proto.name):
             trim_instructions.append("        trim::remove_CommandBuffer_calls(commandBuffer);")
             trim_instructions.append("        trim::ClearImageTransitions(commandBuffer);")
             trim_instructions.append("        trim::ClearBufferTransitions(commandBuffer);")
+            trim_instructions.append("        trim::clear_binding_Pipelines_from_CommandBuffer(commandBuffer);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
@@ -2105,6 +2114,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        }')
         elif 'vkDestroyPipeline' == proto.name:
             trim_instructions.append("        trim::remove_Pipeline_object(pipeline);")
+            trim_instructions.append("        trim::clear_CommandBuffer_calls_by_binding_Pipeline(pipeline);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
