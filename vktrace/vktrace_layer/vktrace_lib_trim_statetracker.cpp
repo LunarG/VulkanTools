@@ -1257,6 +1257,32 @@ ObjectInfo *StateTracker::get_Pipeline(VkPipeline var) {
     return pResult;
 }
 
+std::set<VkCommandBuffer> *StateTracker::get_BoundCommandBuffers(VkPipeline var, bool createFlag) {
+    auto iter = m_BindingPipelineTocmdBuffersMap.find(var);
+    std::set<VkCommandBuffer> *pResult = NULL;
+    if (iter != m_BindingPipelineTocmdBuffersMap.end()) {
+        pResult = &(iter->second);
+    } else {
+        if (createFlag) {
+            pResult = &m_BindingPipelineTocmdBuffersMap[var];
+        }
+    }
+    return pResult;
+}
+
+std::set<VkPipeline> *StateTracker::get_BindingPipelines(VkCommandBuffer var, bool createFlag) {
+    auto iter = m_cmdBufferToBindingPipelinesMap.find(var);
+    std::set<VkPipeline> *pResult = NULL;
+    if (iter != m_cmdBufferToBindingPipelinesMap.end()) {
+        pResult = &(iter->second);
+    } else {
+        if (createFlag) {
+            pResult = &m_cmdBufferToBindingPipelinesMap[var];
+        }
+    }
+    return pResult;
+}
+
 ObjectInfo *StateTracker::get_Semaphore(VkSemaphore var) {
     auto iter = createdSemaphores.find(var);
     ObjectInfo *pResult = NULL;
