@@ -61,22 +61,32 @@ int ViaSystemLinux::RunTestInDirectory(std::string path, std::string test, std::
     LogInfo("SDK Found! - Will attempt to run " + test + " using the command-line: " + cmd_line);
 
     if (NULL != getcwd(orig_dir, 1023)) {
-        int err = chdir(path.c_str());
-        if (-1 != err) {
-            if (-1 != access(test.c_str(), X_OK)) {
+        if(path.empty()) {
+            // If the path is empty, check system paths.
+            auto const which_query = "which " + test;
+            err_code = system(which_query.c_str());
+            if(err_code != 0) {
                 err_code = system(cmd_line.c_str());
+            }
+        }
+        else {
+            int err = chdir(path.c_str());
+            if (-1 != err) {
+                if (-1 != access(test.c_str(), X_OK)) {
+                    err_code = system(cmd_line.c_str());
+                } else {
+                    // Can't run because it's either not there or an actual
+                    // exe.  So, just return a separate error code.
+                    err_code = 1;
+                    LogWarning(test + " not found.  Skipping.");
+                }
             } else {
-                // Can't run because it's either not there or an actual
-                // exe.  So, just return a separate error code.
+                // Path doesn't exist at all
                 err_code = 1;
                 LogWarning(test + " not found.  Skipping.");
             }
-        } else {
-            // Path doesn't exist at all
-            err_code = 1;
-            LogWarning(test + " not found.  Skipping.");
+            err = chdir(orig_dir);
         }
-        err = chdir(orig_dir);
     }
     return err_code;
 }
