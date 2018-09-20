@@ -2480,12 +2480,12 @@ VkResult vkReplay::manually_replay_vkMapMemory(packet_vkMapMemory *pPacket) {
                                                  pPacket->flags, &pData);
         if (replayResult == VK_SUCCESS) {
             if (local_mem.pGpuMem) {
-                local_mem.pGpuMem->setMemoryMapRange(pData, (size_t)pPacket->size, (size_t)pPacket->offset, false);
+                local_mem.pGpuMem->setMemoryMapRange(pData, pPacket->size, pPacket->offset, false);
             }
         }
     } else {
         if (local_mem.pGpuMem) {
-            local_mem.pGpuMem->setMemoryMapRange(NULL, (size_t)pPacket->size, (size_t)pPacket->offset, true);
+            local_mem.pGpuMem->setMemoryMapRange(NULL, pPacket->size, pPacket->offset, true);
         }
     }
     return replayResult;
@@ -2566,11 +2566,11 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
                 if (vktrace_check_min_version(VKTRACE_TRACE_FILE_VERSION_5))
                     pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
                 else
-                    pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size,
-                                                           (size_t)pPacket->pMemoryRanges[i].offset);
+                    pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, pPacket->pMemoryRanges[i].size,
+                                                           pPacket->pMemoryRanges[i].offset);
 #else
-                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size,
-                                                       (size_t)pPacket->pMemoryRanges[i].offset);
+                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, pPacket->pMemoryRanges[i].size,
+                                                       pPacket->pMemoryRanges[i].offset);
 #endif
             }
         } else {
@@ -2583,11 +2583,11 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
             if (vktrace_check_min_version(VKTRACE_TRACE_FILE_VERSION_5))
                 pLocalMems[i].pGpuMem->copyMappingDataPageGuard(pPacket->ppData[i]);
             else
-                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size,
-                                                       (size_t)pPacket->pMemoryRanges[i].offset);
+                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, pPacket->pMemoryRanges[i].size,
+                                                       pPacket->pMemoryRanges[i].offset);
 #else
-            pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size,
-                                                   (size_t)pPacket->pMemoryRanges[i].offset);
+            pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, pPacket->pMemoryRanges[i].size,
+                                                   pPacket->pMemoryRanges[i].offset);
 #endif
         }
     }
@@ -2636,8 +2636,8 @@ VkResult vkReplay::manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInval
 
         if (!pLocalMems[i].pGpuMem->isPendingAlloc()) {
             if (pPacket->pMemoryRanges[i].size != 0) {
-                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size,
-                                                       (size_t)pPacket->pMemoryRanges[i].offset);
+                pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, pPacket->pMemoryRanges[i].size,
+                                                       pPacket->pMemoryRanges[i].offset);
             }
         } else {
             unsigned char *pBuf = (unsigned char *)vktrace_malloc(pLocalMems[i].pGpuMem->getMemoryMapSize());
@@ -2645,8 +2645,8 @@ VkResult vkReplay::manually_replay_vkInvalidateMappedMemoryRanges(packet_vkInval
                 vktrace_LogError("vkInvalidateMappedMemoryRanges() malloc failed.");
             }
             pLocalMems[i].pGpuMem->setMemoryDataAddr(pBuf);
-            pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, (size_t)pPacket->pMemoryRanges[i].size,
-                                                   (size_t)pPacket->pMemoryRanges[i].offset);
+            pLocalMems[i].pGpuMem->copyMappingData(pPacket->ppData[i], false, pPacket->pMemoryRanges[i].size,
+                                                   pPacket->pMemoryRanges[i].offset);
         }
     }
 
