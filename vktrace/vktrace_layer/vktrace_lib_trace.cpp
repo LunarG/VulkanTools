@@ -424,8 +424,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     // determine sum of sizes of memory ranges and pNext structures
     for (iter = 0; iter < memoryRangeCount; iter++) {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+        VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
-        dataSize += ROUNDUP_TO_4((size_t)pRange->size);
+        uint64_t range_size = pRange->size;
+        if (pRange->size == VK_WHOLE_SIZE) {
+            assert(pRange->offset >= pEntry->rangeOffset);
+            range_size = pEntry->totalSize - pRange->offset;
+            assert(range_size <= pEntry->rangeSize);
+        }
+        dataSize += ROUNDUP_TO_4((size_t)range_size);
         dataSize += get_struct_chain_size((void*)pRange);
     }
 
@@ -455,11 +462,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 
         if (pEntry != NULL) {
             assert(pEntry->handle == pRange->memory);
-            assert(pEntry->totalSize >= (pRange->size + pRange->offset));
-            assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset &&
-                   (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size,
+            uint64_t range_size = 0;
+            if (pRange->size != VK_WHOLE_SIZE) {
+                assert(pEntry->totalSize >= (pRange->size + pRange->offset));
+                assert(pEntry->totalSize >= pRange->size);
+                assert(pRange->offset >= pEntry->rangeOffset &&
+                       (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
+                range_size = pRange->size;
+            } else {
+                range_size = pEntry->totalSize - pRange->offset;
+            }
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), range_size,
                                                pEntry->pData + pRange->offset);
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
             pEntry->didFlush = TRUE;  // Do we need didInvalidate?
