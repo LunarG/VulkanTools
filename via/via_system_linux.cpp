@@ -1287,7 +1287,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
             }
         }
     } else {
-        FILE *dnf_output = popen("dpkg -l lunarg-vulkan-sdk", "r");
+        FILE *dnf_output = popen("dpkg-query --show --showformat='${Package} ${Version}\n' lunarg-vulkan-sdk", "r");
         if (dnf_output != nullptr) {
             char cur_line[1035];
             std::string install_name;
@@ -1300,9 +1300,9 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
                     // Found it
                     char *p = strtok(cur_line, " ");
                     while (p) {
-                        if (count == 1) {
+                        if (count == 0) {
                             install_name = p;
-                        } else if (count == 2) {
+                        } else if (count == 1) {
                             install_version = p;
                             break;
                         }
