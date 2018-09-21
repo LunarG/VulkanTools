@@ -66,6 +66,8 @@ int ViaSystemLinux::RunTestInDirectory(std::string path, std::string test, std::
             auto const which_query = "which " + test;
             err_code = system(which_query.c_str());
             if (err_code != 0) {
+                LogWarning(test + " not found.  Skipping.");
+            } else {
                 err_code = system(cmd_line.c_str());
             }
         } else {
