@@ -1180,6 +1180,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.handles = set()
         self.structs = set()
         self.unions = set()
+        self.aliases = {}
 
         self.registryFile = registryFile
 
@@ -1322,7 +1323,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
 
-        self.functions.add(VulkanFunction(cmd.elem, self.constants))
+        self.functions.add(VulkanFunction(cmd.elem, self.constants, self.aliases))
 
     # These are actually constants
     def genEnum(self, enuminfo, name, alias):
@@ -1350,6 +1351,8 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         if alias is not None:
             trackedName = alias
+            if typeinfo.elem.get('category') == 'struct':
+                self.aliases[name] = alias
         else:
             trackedName = name
         if trackedName in self.trackedTypes:
@@ -1483,11 +1486,13 @@ class Control:
 # Base class for VulkanStruct.Member and VulkanStruct.Parameter
 class VulkanVariable:
 
-    def __init__(self, rootNode, constants, parentName):
+    def __init__(self, rootNode, constants, aliases, parentName):
         # Set basic properties
         self.name = rootNode.find('name').text      # Variable name
         self.typeID = rootNode.find('type').text    # Typename, dereferenced and converted to a useable C++ token
-        self.baseType = self.typeID                     # Type, dereferenced to the non-pointer type
+        if aliases != None and self.typeID in aliases:
+            self.typeID = aliases[self.typeID]
+        self.baseType = self.typeID                 # Type, dereferenced to the non-pointer type
         self.childType = None                       # Type, dereferenced to the non-pointer type (None if it isn't a pointer)
         self.arrayLength = None                     # Length of the array, or None if it isn't an array
 
@@ -1733,8 +1738,8 @@ class VulkanFunction:
 
     class Parameter(VulkanVariable):
 
-        def __init__(self, rootNode, constants, parentName):
-            VulkanVariable.__init__(self, rootNode, constants, parentName)
+        def __init__(self, rootNode, constants, aliases, parentName):
+            VulkanVariable.__init__(self, rootNode, constants, aliases, parentName)
 
         def values(self):
             return {
@@ -1748,7 +1753,7 @@ class VulkanFunction:
                 'prmInheritedConditions': self.inheritedConditions,
             }
 
-    def __init__(self, rootNode, constants):
+    def __init__(self, rootNode, constants, aliases):
         self.name = rootNode.find('proto').find('name').text
         self.returnType = rootNode.find('proto').find('type').text
 
@@ -1756,7 +1761,7 @@ class VulkanFunction:
         self.namedParams = ''
         self.typedParams = ''
         for node in rootNode.findall('param'):
-            self.parameters.append(VulkanFunction.Parameter(node, constants, self.name))
+            self.parameters.append(VulkanFunction.Parameter(node, constants, aliases, self.name))
             self.namedParams += self.parameters[-1].name + ', '
             self.typedParams += self.parameters[-1].text + ', '
         if len(self.parameters) > 0:
@@ -1813,7 +1818,7 @@ class VulkanStruct:
     class Member(VulkanVariable):
 
         def __init__(self, rootNode, constants, parentName):
-            VulkanVariable.__init__(self, rootNode, constants, parentName)
+            VulkanVariable.__init__(self, rootNode, constants, None, parentName)
 
             # Search for a member condition
             self.condition = None
@@ -1876,7 +1881,7 @@ class VulkanUnion:
     class Choice(VulkanVariable):
 
         def __init__(self, rootNode, constants, parentName):
-            VulkanVariable.__init__(self, rootNode, constants, parentName)
+            VulkanVariable.__init__(self, rootNode, constants, None, parentName)
 
         def values(self):
             return {
