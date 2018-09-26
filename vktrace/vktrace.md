@@ -86,7 +86,7 @@ In remote client/server mode, the remote client must additionally identify the I
 ```
 $ cd examples/build
 $ export VKTRACE_LIB_IPADDR=<ip address of trace server system>
-$ export VK_INSTANCE_LAYERS=Vktrace
+$ export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_vktrace
 $ ./cube
 ```
 
