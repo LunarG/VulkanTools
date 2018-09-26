@@ -62,13 +62,13 @@ if ($exitstatus -eq 0) {
     rm -recurse -force vktracereplay_tmp  > $null 2> $null
 }
 
-if ($exitstatus -eq 0) {
-    $scriptpath = (Split-Path -parent $PSCommandPath)
-    $toolsroot = (Get-Item $scriptpath).parent.parent.FullName
-    $command = ".\trace_positive_validation.ps1 -toolsroot $toolsroot $tplarg"
-    Invoke-Expression $command
-    # If test didn't crash, it passed
-}
+#if ($exitstatus -eq 0) {
+#    $scriptpath = (Split-Path -parent $PSCommandPath)
+#    $toolsroot = (Get-Item $scriptpath).parent.parent.FullName
+#    $command = ".\trace_positive_validation.ps1 -toolsroot $toolsroot $tplarg"
+#    Invoke-Expression $command
+#    # If test didn't crash, it passed
+#}
 
 write-host "vktracereplay.ps1: Vktrace trace/replay"
 write-host
