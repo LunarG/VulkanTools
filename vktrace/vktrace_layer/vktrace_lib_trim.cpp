@@ -3757,12 +3757,11 @@ void write_all_referenced_object_calls() {
     VKTRACE_DELETE(pSignalSemaphores);
 
     // DescriptorUpdateTemplate
-    for (auto obj = stateTracker.createdDescriptorUpdateTemplates.begin(); obj != stateTracker.createdDescriptorUpdateTemplates.end();
-        obj++) {
+    for (auto obj = stateTracker.createdDescriptorUpdateTemplates.begin();
+         obj != stateTracker.createdDescriptorUpdateTemplates.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket));
     }
-
 
     vktrace_LogDebug("vktrace done recreating objects for trim.");
 }
