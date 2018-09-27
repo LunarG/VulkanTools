@@ -388,7 +388,7 @@ class StateTracker {
     ObjectInfo *get_PipelineLayout(VkPipelineLayout var);
     ObjectInfo *get_Sampler(VkSampler var);
     ObjectInfo *get_DescriptorSetLayout(VkDescriptorSetLayout var);
-    ObjectInfo * get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
+    ObjectInfo *get_DescriptorUpdateTemplate(VkDescriptorUpdateTemplate var);
     ObjectInfo *get_DescriptorSet(VkDescriptorSet var);
 
     void remove_Instance(const VkInstance var);
