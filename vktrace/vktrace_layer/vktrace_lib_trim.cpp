@@ -3749,7 +3749,6 @@ void write_all_referenced_object_calls() {
                 submit_info.signalSemaphoreCount = 1;
                 submit_info.pSignalSemaphores = &semaphore;
 
-                VkFence nullFence = VK_NULL_HANDLE;
                 vktrace_trace_packet_header *pHeader = generate::vkQueueSubmit(false, queue, 1, &submit_info, VK_NULL_HANDLE);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
