@@ -383,8 +383,8 @@ class StateTracker {
     ObjectInfo *get_DescriptorSetLayout(VkDescriptorSetLayout var);
     ObjectInfo *get_DescriptorSet(VkDescriptorSet var);
 
-    std::set<VkCommandBuffer> *StateTracker::get_BoundCommandBuffers(VkPipeline var, bool createFlag = true);
-    std::set<VkPipeline> *StateTracker::get_BindingPipelines(VkCommandBuffer var, bool createFlag = true);
+    std::set<VkCommandBuffer> *get_BoundCommandBuffers(VkPipeline var, bool createFlag = true);
+    std::set<VkPipeline> *get_BindingPipelines(VkCommandBuffer var, bool createFlag = true);
 
     void remove_Instance(const VkInstance var);
     void remove_PhysicalDevice(const VkPhysicalDevice var);
