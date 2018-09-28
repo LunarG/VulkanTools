@@ -42,6 +42,7 @@ class ViaSystemLinux : public ViaSystem {
     virtual ViaResults PrintSystemSettingsFileInfo();
     virtual bool CheckExpiration(OverrideExpiration expiration);
     virtual std::string GetEnvironmentalVariableValue(const std::string &env_var);
+    virtual bool ExpandPathWithEnvVar(std::string &path);
 
    private:
     bool ReadDriverJson(std::string cur_driver_json, bool &found_lib);
