@@ -1665,4 +1665,10 @@ std::string ViaSystemLinux::GetEnvironmentalVariableValue(const std::string &env
     return return_value;
 }
 
+bool ViaSystemLinux::ExpandPathWithEnvVar(std::string &path) {
+    // TBD
+    (void)path;
+    return true;
+}
+
 #endif  // VIA_LINUX_TARGET
