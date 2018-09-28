@@ -95,6 +95,7 @@ class ViaSystem {
     // Utility methods
     std::string TrimWhitespace(const std::string& str, const std::string& whitespace = " \t\n\r");
     virtual std::string GetEnvironmentalVariableValue(const std::string& env_var) = 0;
+    virtual bool ExpandPathWithEnvVar(std::string& path) = 0;
 
     // Json Methods
     bool DetermineJsonLibraryPath(const std::string& json_location, const std::string& json_library_info,

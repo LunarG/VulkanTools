@@ -2112,4 +2112,13 @@ std::string ViaSystemWindows::GetEnvironmentalVariableValue(const std::string &e
     return return_value;
 }
 
+bool ViaSystemWindows::ExpandPathWithEnvVar(std::string &path) {
+    char temporary_path[8192];
+    if (!ExpandEnvironmentStrings(path.c_str(), temporary_path, 8191)) {
+        return false;
+    }
+    path = temporary_path;
+    return true;
+}
+
 #endif  // VIA_WINDOWS_TARGET

@@ -48,6 +48,7 @@ class ViaSystemWindows : public ViaSystem {
     virtual void PrintFileVersionInfo(const std::string& json_filename, const std::string& library);
     virtual bool CheckExpiration(OverrideExpiration expiration);
     virtual std::string GetEnvironmentalVariableValue(const std::string& env_var);
+    virtual bool ExpandPathWithEnvVar(std::string& path);
 
    private:
     bool FindDriverIdsFromPlugAndPlay();

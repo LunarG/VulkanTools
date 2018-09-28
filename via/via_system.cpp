@@ -73,13 +73,24 @@ bool ViaSystem::Init(int argc, char** argv) {
     // and then continue writing the rest of the name below
     std::string file_path = "";
     if (output_path != NULL) {
-        file_path = output_path + _directory_symbol;
+        file_path = output_path;
+        file_path += _directory_symbol;
+
+        // Expand any environment variables in the path
+        ExpandPathWithEnvVar(file_path);
     }
 
     // If the user wants a unique file, generate a file with the current
     // time and date incorporated into it.
     _html_file = argv[0];
 #ifdef VIA_WINDOWS_TARGET
+    if (output_path != NULL) {
+        auto dir_pos = _html_file.rfind(_directory_symbol);
+        if (dir_pos != std::string::npos) {
+            // Erase everything before the last directory symbol
+            _html_file.erase(0, dir_pos + 1);
+        }
+    }
     // If it has an ending with a period, remove it.
     auto period_pos = _html_file.rfind('.');
     if (period_pos != std::string::npos) {
