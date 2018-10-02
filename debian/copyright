@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: lunarg-vulkan-sdk
+Source: https://github.com/linuxturtle/lunarg-vulkan-sdk
+
+Files: *
+Copyright: 2018 by LunarG, Inc
+License: Apache-2.0

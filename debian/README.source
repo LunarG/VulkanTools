@@ -1,0 +1,10 @@
+The process for updating this package to a new upstream commit/release usually
+goes something like this:
+
+# git checkout upstream-unstable
+# git reset --hard <new upstream commit ID>
+# git branch -D d-u
+# git checkout -b d-u
+# git co debian-unstable -- debian
+# dch
+# git commit ...
