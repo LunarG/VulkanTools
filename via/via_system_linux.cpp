@@ -469,7 +469,7 @@ bool ViaSystemLinux::ReadDriverJson(std::string cur_driver_json, bool &found_lib
     Json::Value dev_exts = Json::nullValue;
     Json::Reader reader;
     std::string full_driver_path;
-    char generic_string[1024];
+    char generic_string[2048];
     uint32_t j = 0;
 
     stream = new std::ifstream(cur_driver_json.c_str(), std::ifstream::in);
@@ -564,7 +564,7 @@ bool ViaSystemLinux::ReadDriverJson(std::string cur_driver_json, bool &found_lib
 
                 // Read the output a line at a time - output it.
                 if (fgets(query_res, sizeof(query_res) - 1, fp) != NULL) {
-                    sprintf(generic_string, "Found at %s", query_res);
+                    snprintf(generic_string, 2047, "Found at %s", query_res);
                     PrintBeginTableRow();
                     PrintTableElement("");
                     PrintTableElement("");
@@ -923,8 +923,8 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemLoaderInfo() {
     ViaResults result = VIA_SUCCESSFUL;
     const char vulkan_so_prefix[] = "libvulkan.so.";
     char path[1035];
-    char generic_string[1024];
-    char buff[PATH_MAX];
+    char generic_string[2048];
+    char buff[1024];
     std::string runtime_dir_name;
     std::string location;
     FILE *pfp;
@@ -941,12 +941,12 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemLoaderInfo() {
         result = VIA_VULKAN_CANT_FIND_RUNTIME;
     }
 
-    ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff) - 1);
+    ssize_t len = ::readlink("/proc/self/exe", buff, 1023);
     if (len != -1) {
         buff[len] = '\0';
 
         std::string runtime_dir_id = "Runtime Folder Used By via";
-        snprintf(generic_string, 1023, "ldd \'%s\'", buff);
+        snprintf(generic_string, 2047, "ldd \'%s\'", buff);
         pfp = popen(generic_string, "r");
         if (pfp == NULL) {
             PrintBeginTableRow();
@@ -1257,7 +1257,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
             std::string error_prefix("error: package");
             std::string name_prefix("Name   ");
             std::string version_prefix("Version   ");
-            uint32_t count = 0;
             // Read the output a line at a time - output it.
             while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
                 // If we found the appropriate error, it wasn't found.
