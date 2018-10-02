@@ -3,8 +3,8 @@ Section: libdevel
 Priority: optional
 Maintainer: Brett Johnson <brett@linuxturtle.net>
 Build-Depends: debhelper (>=9),
- libvulkan-dev (>=1.1.82.0),
- vulkan-validationlayers-dev (>=1.1.82.0),
+ libvulkan-dev (>=1.1.85.0),
+ vulkan-validationlayers-dev (>=1.1.85.0),
  glslang-tools,
  cmake,
  bison,
