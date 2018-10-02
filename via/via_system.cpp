@@ -1018,7 +1018,7 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
         } else {
             vulkan_info = &_vulkan_max_info;
             if (VK_NULL_HANDLE == vulkan_info->vk_instance || 0 >= vulkan_info->vk_physical_devices.size() ||
-                vulkan_info->max_api_version.major == 1 && vulkan_info->max_api_version.minor == 0) {
+                (vulkan_info->max_api_version.major == 1 && vulkan_info->max_api_version.minor == 0)) {
                 continue;
             }
             snprintf(generic_string, 1023, "vkCreateDevice [%d.%d]", vulkan_info->max_api_version.major,
@@ -1756,7 +1756,7 @@ void ViaSystem::GenerateImplicitLayerJsonInfo(const char* layer_json_filename, J
         char date_copy[32];
         OverrideExpiration expiration = {};
         uint8_t cur_item = 0;
-        strncpy(date_copy, expiration_json.asString().c_str(), 32);
+        strncpy(date_copy, expiration_json.asString().c_str(), 31);
         if (strlen(date_copy) == 16) {
             char* cur_start = &date_copy[0];
             char* next_dash = strchr(date_copy, '-');
