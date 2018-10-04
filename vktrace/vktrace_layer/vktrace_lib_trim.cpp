@@ -127,7 +127,6 @@ VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo im
 
     if (result == VK_SUCCESS) {
         VkMemoryRequirements memoryRequirements;
-        VkDeviceMemory memory;
 
         mdd(device)->devTable.GetImageMemoryRequirements(device, image, &memoryRequirements);
         imageSubResourceSize = memoryRequirements.size;
@@ -138,7 +137,7 @@ VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo im
 
 bool calculateImageAllSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo, const VkAllocationCallbacks *pAllocator,
                                       std::vector<VkDeviceSize> &subResourceSizes) {
-    uint32_t mipLevel, wholeSize = 0;
+    uint32_t wholeSize = 0;
     subResourceSizes.push_back(0);
     for (uint32_t i = 0; i < imageCreateInfo.mipLevels; i++) {
         subResourceSizes.push_back(calculateImageSubResourceSize(device, imageCreateInfo, pAllocator, i));
