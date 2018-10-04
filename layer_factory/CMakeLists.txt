@@ -148,5 +148,6 @@ elseif(UNIX)
         )
 
         install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+        install(TARGETS ${config_file} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endforeach(factory_layer)
 endif()
