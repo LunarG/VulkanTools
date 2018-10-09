@@ -1,12 +1,4 @@
 #!/usr/bin/make -f
-.PHONY: debian/control
-
-debian/control: vk-api-vers = $(shell dpkg-parsechangelog -SVersion | sed -n 's/.[0-9]*-[0-9]*$$//p')
-debian/control:
-	sed \
-		-e 's/__VKAPIVERSION__/$(vk-api-vers)/g' \
-		< debian/control.in \
-		> debian/control
 
 %:
 	dh $@ --parallel
@@ -34,6 +26,12 @@ override_dh_auto_install:
 
 override_dh_missing:
 	dh_missing --fail-missing
+
+.PHONY: debian/control
+debian/control: vk-api-vers = $(shell dpkg-parsechangelog -SVersion | sed 's/\.[^.]*-.*$$//')
+debian/control:
+	sed -e 's/__VKAPIVERSION__/$(vk-api-vers)/g' \
+	    < debian/control.in > debian/control
 
 gentarball: SOURCE = $(shell dpkg-parsechangelog -SSource)
 gentarball: UV=$(shell dpkg-parsechangelog -SVersion |sed 's/-.*$$//')
