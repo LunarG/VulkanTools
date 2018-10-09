@@ -1,8 +1,14 @@
-lunarg-tools (1.1.85.0.1-1) UNRELEASED; urgency=medium
+lunarg-tools (1.1.85.0.1-2) UNRELEASED; urgency=medium
+
+  * Fix packaging
+
+ -- Brett Johnson <brett@linuxturtle.net>  Tue, 09 Oct 2018 17:19:39 -0600
+
+lunarg-tools (1.1.85.0.1-1) unstable; urgency=medium
 
   * New upstream version
 
- -- Brett Johnson <brett@linuxturtle.net>  Fri, 05 Oct 2018 16:05:25 -0600
+ -- Brett Johnson <brett@linuxturtle.net>  Tue, 09 Oct 2018 17:19:39 -0600
 
 lunarg-tools (1.1.85.0-1) unstable; urgency=medium
 
