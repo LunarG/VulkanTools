@@ -1,12 +1,21 @@
 #!/usr/bin/make -f
+.PHONY: debian/control
+
+debian/control: vk-api-vers = $(shell dpkg-parsechangelog -SVersion | sed -n 's/.[0-9]*-[0-9]*$$//p')
+debian/control:
+	sed \
+		-e 's/__VKAPIVERSION__/$(vk-api-vers)/g' \
+		< debian/control.in \
+		> debian/control
 
 %:
 	dh $@ --parallel
 
 override_dh_clean:
 	dh_clean
-	rm -rf __pycache__ \
-		scripts/__pycache__
+	rm -rf .pc \
+	__pycache__ \
+	scripts/__pycache__
 
 override_dh_auto_configure:
 	dh_quilt_patch
@@ -21,13 +30,13 @@ override_dh_auto_install:
 	dh_auto_install --destdir=debian/tmp
 	mkdir -p debian/tmp/usr/share/vulkan/explicit_layer.d
 	mv debian/tmp/etc/vulkan/explicit_layer.d/*.json \
-	   debian/tmp/usr/share/vulkan/explicit_layer.d
+	debian/tmp/usr/share/vulkan/explicit_layer.d
 
 override_dh_missing:
 	dh_missing --fail-missing
 
-gentarball: SOURCE=lunarg-tools
-gentarball: UV=$(shell dpkg-parsechangelog|awk '/^Version:/ {print $$2}'|sed 's/-.*$$//')
+gentarball: SOURCE = $(shell dpkg-parsechangelog -SSource)
+gentarball: UV=$(shell dpkg-parsechangelog -SVersion |sed 's/-.*$$//')
 gentarball:
 	tar --transform 's,^,$(SOURCE)-$(UV)/,' \
 		--exclude 'debian' --exclude-vcs \
