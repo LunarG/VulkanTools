@@ -1,0 +1,2 @@
+usr/share/vulkan/explicit_layer.d
+usr/lib/*/libVkLayer*.so

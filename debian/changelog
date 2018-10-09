@@ -1,0 +1,32 @@
+lunarg-tools (1.1.85.0.1-1) UNRELEASED; urgency=medium
+
+  * New upstream version
+
+ -- Brett Johnson <brett@linuxturtle.net>  Fri, 05 Oct 2018 16:05:25 -0600
+
+lunarg-tools (1.1.85.0-1) unstable; urgency=medium
+
+  * New upstream version
+
+ -- Brett Johnson <brett@linuxturtle.net>  Fri, 05 Oct 2018 16:05:25 -0600
+
+lunarg-tools (1.1.82.0-4) unstable; urgency=medium
+
+  * New upstream version
+  * vlf and vkreplay cherry-pick fixes
+  * Add new vkdisplay libraries.
+
+ -- Brett Johnson <brett@linuxturtle.net>  Tue, 02 Oct 2018 15:40:53 -0600
+
+lunarg-tools (1.1.79.0-1) stable; urgency=medium
+
+  * Merge new upstream 1.0.68 release
+  * Merge new upstream 1.1.79 pre-release
+
+ -- Brett Johnson <brett@linuxturtle.net>  Thu, 28 Jun 2018 10:47:12 -0600
+
+lunarg-tools (1.0.65.0-1) sid; urgency=medium
+
+  * Initial release
+
+ -- Brett Johnson <brett@linuxturtle.net>  Wed, 17 Jan 2018 12:57:43 -0700

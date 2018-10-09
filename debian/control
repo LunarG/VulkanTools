@@ -1,0 +1,65 @@
+Source: lunarg-tools
+Section: libdevel
+Priority: optional
+Maintainer: Brett Johnson <brett@linuxturtle.net>
+Build-Depends: debhelper (>=9),
+ libvulkan-dev (>=1.1.85.0),
+ vulkan-validationlayers-dev (>=1.1.85.0),
+ glslang-tools,
+ cmake,
+ bison,
+ libx11-xcb-dev,
+ libxcb1-dev,
+ libxcb-keysyms1-dev,
+ libxkbcommon-dev,
+ libwayland-dev,
+ libegl1-mesa-dev,
+ libx11-dev,
+ libxcb1-dev,
+ libxcb-ewmh-dev,
+ libxrandr-dev,
+ qtbase5-dev,
+ libqt5svg5-dev,
+ pkg-config,
+ python3,
+ python3-lxml,
+ quilt
+Standards-Version: 4.1.4
+Homepage: https://github.com/LunarG/VulkanTools
+Vcs-Git: https://github.com/linuxturtle/VulkanTools.git
+Vcs-Browser: https://github.com/linuxturtle/VulkanTools
+
+Package: lunarg-vulkan-layers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ vulkan-headers (>=${source:Upstream-Version}),
+ libvulkan1 (>=${source:Upstream-Version}),
+ vulkan-validationlayers (>=${source:Upstream-Version})
+Description: Extra vulkan development layers from LunarG
+ This package contains extra development layers for Vulkan from LunarG.  These
+ include Api_dump, screenshot, device_simulation, and vktrace layers.
+
+Package: lunarg-vktrace
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ vulkan-headers (>=${source:Upstream-Version}),
+ libvulkan1 (>=${source:Upstream-Version}),
+ vulkan-validationlayers (>=${source:Upstream-Version})
+Description: LunarG vulkan API capture and replay tools
+ This package contains the vktrace and vkreplay tools, used to capture and
+ replay vulkan API calls from an application.
+
+Package: lunarg-via
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ vulkan-headers (>=${source:Upstream-Version}),
+ libvulkan1 (>=${source:Upstream-Version}),
+ vulkan-validationlayers (>=${source:Upstream-Version})
+Description: LunarG Vulkan Installation Analyzer
+ VIA is a tool that can:
+ .
+ 1. Determine the state of Vulkan components on your system
+ 2. Validate that your Vulkan Loader and drivers are installed properly
+ 3. Capture your system state in a form that can be used as an attachment
+    when submitting bugs
+
