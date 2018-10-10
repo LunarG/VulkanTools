@@ -80,6 +80,13 @@ typedef struct _DeviceMemory {
     VkDeviceMemory memory;
 } DeviceMemory;
 
+// These mutexes are used to protect the following fence,buffer and
+// commandbuffer maps. Some title crash during capture due to multithreads
+// access the following maps simultaneously.
+static std::mutex g_Mutex_cmdBufferToBuffersMap;
+static std::mutex g_Mutex_fenceToCommandBuffersMap;
+static std::mutex g_Mutex_commandBufferToCommandBuffersMap;
+
 std::unordered_map<VkCommandBuffer, std::list<VkBuffer>> g_cmdBufferToBuffers;
 std::unordered_map<VkBuffer, DeviceMemory> g_bufferToDeviceMemory;
 std::unordered_map<VkFence, std::list<VkCommandBuffer>> g_fenceToCommandBuffers;
@@ -2150,6 +2157,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
     vktrace_set_packet_entrypoint_end_time(pHeader);
 #if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
     if (fence != VK_NULL_HANDLE) {
+        g_Mutex_fenceToCommandBuffersMap.lock();
         if (g_fenceToCommandBuffers.find(fence) != g_fenceToCommandBuffers.end()) {
             g_fenceToCommandBuffers[fence].clear();
         }
@@ -2159,6 +2167,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                 g_fenceToCommandBuffers[fence].push_back(pSubmits[i].pCommandBuffers[j]);
             }
         }
+        g_Mutex_fenceToCommandBuffersMap.unlock();
     }
 #endif
     pPacket = interpret_body_as_vkQueueSubmit(pHeader);
@@ -4454,22 +4463,51 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
     // Find a way to fully resolve the memory read not detectable issue in pageguard on Linux and Android.
     // Because current solution won't solve memory read problem when a linear image's memory is mapped to CPU memory and application
     // wants to read from that CPU memory. It only works for applications which always read from buffers instead of images.
-    for (uint32_t i = 0; i < fenceCount; ++i) {
-        if (g_fenceToCommandBuffers.find(pFences[i]) != g_fenceToCommandBuffers.end()) {
-            // Iterate command buffers related to a fence (from the mapping created in __HOOKED_vkQueueSubmit)
-            for (auto iterPrim = g_fenceToCommandBuffers[pFences[i]].begin(); iterPrim != g_fenceToCommandBuffers[pFences[i]].end();
-                 ++iterPrim) {
-                VkCommandBuffer primaryCmdBuffer = *iterPrim;
-                if (g_commandBufferToCommandBuffers.find(primaryCmdBuffer) != g_commandBufferToCommandBuffers.end()) {
-                    // Iterate secondary command buffers and their primary command buffer (from the mapping created in
-                    // __HOOKED_vkCmdExecuteCommands)
-                    for (auto iter = g_commandBufferToCommandBuffers[primaryCmdBuffer].begin();
-                         iter != g_commandBufferToCommandBuffers[primaryCmdBuffer].end(); ++iter) {
-                        VkCommandBuffer cmdBuffer = *iter;
-                        if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+    {
+        std::lock(g_Mutex_fenceToCommandBuffersMap, g_Mutex_commandBufferToCommandBuffersMap, g_Mutex_cmdBufferToBuffersMap);
+        std::lock_guard<std::mutex> lockFenceToCommandBuffersMap(g_Mutex_fenceToCommandBuffersMap, std::adopt_lock);
+        std::lock_guard<std::mutex> lockCommandBufferToCommandBuffersMap(g_Mutex_commandBufferToCommandBuffersMap, std::adopt_lock);
+        std::lock_guard<std::mutex> lockCmdBufferToBuffersMap(g_Mutex_cmdBufferToBuffersMap, std::adopt_lock);
+        for (uint32_t i = 0; i < fenceCount; ++i) {
+            if (g_fenceToCommandBuffers.find(pFences[i]) != g_fenceToCommandBuffers.end()) {
+                // Iterate command buffers related to a fence (from the mapping created in __HOOKED_vkQueueSubmit)
+                for (auto iterPrim = g_fenceToCommandBuffers[pFences[i]].begin();
+                     iterPrim != g_fenceToCommandBuffers[pFences[i]].end(); ++iterPrim) {
+                    VkCommandBuffer primaryCmdBuffer = *iterPrim;
+                    if (g_commandBufferToCommandBuffers.find(primaryCmdBuffer) != g_commandBufferToCommandBuffers.end()) {
+                        // Iterate secondary command buffers and their primary command buffer (from the mapping created in
+                        // __HOOKED_vkCmdExecuteCommands)
+                        for (auto iter = g_commandBufferToCommandBuffers[primaryCmdBuffer].begin();
+                             iter != g_commandBufferToCommandBuffers[primaryCmdBuffer].end(); ++iter) {
+                            VkCommandBuffer cmdBuffer = *iter;
+                            if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
+                                for (auto iterBuffer = g_cmdBufferToBuffers[cmdBuffer].begin();
+                                     iterBuffer != g_cmdBufferToBuffers[cmdBuffer].end(); ++iterBuffer) {
+                                    VkBuffer buffer = *iterBuffer;
+                                    if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
+                                        // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer
+                                        // (recorded in __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
+                                        VkDevice device = g_bufferToDeviceMemory[buffer].device;
+                                        VkDeviceMemory memory = g_bufferToDeviceMemory[buffer].memory;
+                                        getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
+                                    }
+                                }
+                                // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
+                                if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                    g_cmdBufferToBuffers[cmdBuffer].clear();
+                                }
+                                g_cmdBufferToBuffers.erase(cmdBuffer);
+                            }
+                        }
+                        g_commandBufferToCommandBuffers[primaryCmdBuffer].clear();
+                        g_commandBufferToCommandBuffers.erase(primaryCmdBuffer);
+                    } else {
+                        // There's no secondary command buffer so no need to iterate.
+                        if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
                             // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
-                            for (auto iterBuffer = g_cmdBufferToBuffers[cmdBuffer].begin();
-                                 iterBuffer != g_cmdBufferToBuffers[cmdBuffer].end(); ++iterBuffer) {
+                            for (auto iterBuffer = g_cmdBufferToBuffers[primaryCmdBuffer].begin();
+                                 iterBuffer != g_cmdBufferToBuffers[primaryCmdBuffer].end(); ++iterBuffer) {
                                 VkBuffer buffer = *iterBuffer;
                                 if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
                                     // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer
@@ -4480,39 +4518,16 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
                                 }
                             }
                             // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
-                            if (g_cmdBufferToBuffers.find(cmdBuffer) != g_cmdBufferToBuffers.end()) {
-                                g_cmdBufferToBuffers[cmdBuffer].clear();
+                            if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
+                                g_cmdBufferToBuffers[primaryCmdBuffer].clear();
                             }
-                            g_cmdBufferToBuffers.erase(cmdBuffer);
+                            g_cmdBufferToBuffers.erase(primaryCmdBuffer);
                         }
-                    }
-                    g_commandBufferToCommandBuffers[primaryCmdBuffer].clear();
-                    g_commandBufferToCommandBuffers.erase(primaryCmdBuffer);
-                } else {
-                    // There's no secondary command buffer so no need to iterate.
-                    if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
-                        // Iterate buffers (from the mapping created in __HOOKED_vkCmdCopyImageToBuffer)
-                        for (auto iterBuffer = g_cmdBufferToBuffers[primaryCmdBuffer].begin();
-                             iterBuffer != g_cmdBufferToBuffers[primaryCmdBuffer].end(); ++iterBuffer) {
-                            VkBuffer buffer = *iterBuffer;
-                            if (g_bufferToDeviceMemory.find(buffer) != g_bufferToDeviceMemory.end()) {
-                                // Sync real mapped memory (recorded in __HOOKED_vkBindBufferMemory) for the dest buffer (recorded
-                                // in __HOOKED_vkCmdCopyImageToBuffer) back to the copy of that memory
-                                VkDevice device = g_bufferToDeviceMemory[buffer].device;
-                                VkDeviceMemory memory = g_bufferToDeviceMemory[buffer].memory;
-                                getPageGuardControlInstance().SyncRealMappedMemoryToMemoryCopyHandle(device, memory);
-                            }
-                        }
-                        // Assuming the command buffer which has vkCmdCopyImageToBuffer will not be re-used.
-                        if (g_cmdBufferToBuffers.find(primaryCmdBuffer) != g_cmdBufferToBuffers.end()) {
-                            g_cmdBufferToBuffers[primaryCmdBuffer].clear();
-                        }
-                        g_cmdBufferToBuffers.erase(primaryCmdBuffer);
                     }
                 }
+                g_fenceToCommandBuffers[pFences[i]].clear();
+                g_fenceToCommandBuffers.erase(pFences[i]);
             }
-            g_fenceToCommandBuffers[pFences[i]].clear();
-            g_fenceToCommandBuffers.erase(pFences[i]);
         }
     }
 #endif
