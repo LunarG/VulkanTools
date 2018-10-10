@@ -15,10 +15,15 @@ if(WIN32)
 
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES")
+    add_definitions(-DVIA_WINDOWS_TARGET)
 
 else()
-
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+        set(COMMON_COMPILE_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
+        set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fno-strict-aliasing -fno-builtin-memcmp")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -fno-rtti")
+    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -std=c++11")
 
     if (BUILD_WSI_XCB_SUPPORT)
         find_package(XCB REQUIRED)
@@ -43,9 +48,27 @@ else()
     # the environment setup by the user
     SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
 
+    add_definitions(-DVIA_LINUX_TARGET)
 endif()
 
-add_executable(via via.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+if(WIN32)
+add_executable(via
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_windows.hpp
+                  via_system_windows.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+else()
+add_executable(via
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_linux.hpp
+                  via_system_linux.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+endif()
+
 target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
 target_link_libraries(via Vulkan::Vulkan)
 if(WIN32)

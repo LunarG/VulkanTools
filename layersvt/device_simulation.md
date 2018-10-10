@@ -147,7 +147,7 @@ export VK_LAYER_PATH="${VulkanTools}/build/layersvt"
 export VK_INSTANCE_LAYERS="VK_LAYER_LUNARG_device_simulation"
 
 # Specify the simulated device's configuration file.
-export VK_DEVSIM_FILENAME="${VulkanTools}/layersvt/device_simulation_examples/tiny1.json" 
+export VK_DEVSIM_FILENAME="${VulkanTools}/layersvt/device_simulation_examples/tiny1.json"
 # A list of files could look like:
 # export VK_DEVSIM_FILENAME="/home/foo/first.json:/home/foo/second.json"
 
@@ -183,10 +183,8 @@ See the vulkaninfo documentation for further details.
 ### JSON validation
 The DevSim layer itself does very little sanity checking of the configuration file, so those files should be validated to the schema using a separate tool, such as the following web-based validators.
 1. http://www.jsonschemavalidator.net/
-1. https://jsonschemalint.com/#/version/draft-04/markup/json
-1. https://json-schema-validator.herokuapp.com/
+2. https://json-schema-validator.herokuapp.com/
 
 ### Other Resources
 1. http://json.org/
-1. http://json-schema.org/
-
+2. http://json-schema.org/

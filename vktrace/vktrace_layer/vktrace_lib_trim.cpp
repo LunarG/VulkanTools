@@ -33,6 +33,7 @@ uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
 bool g_trimAlreadyFinished = false;
+std::mutex g_trimImageHandling_Mutex;
 
 static std::mutex g_Mutex_CommandBufferPipelineMap;
 
@@ -92,6 +93,11 @@ static std::unordered_map<VkBuffer, StagingInfo> s_bufferToStagedInfoMap;
 static std::unordered_map<VkImage, StagingInfo> s_imageToStagedInfoMap;
 
 //=========================================================================
+// Map to associate trace-time image with its SubResourceSizes
+//=========================================================================
+static std::unordered_map<VkImage, std::vector<VkDeviceSize>> s_imageToSubResourceSizes;
+
+//=========================================================================
 // Associates a Device to a trim-specific CommandPool
 //=========================================================================
 static std::unordered_map<VkDevice, std::unordered_map<uint32_t, VkCommandPool>> s_deviceToCommandPoolMap;
@@ -108,6 +114,82 @@ static std::unordered_map<const void *, VkAllocationCallbacks> s_trimAllocatorMa
 //=========================================================================
 static std::unordered_map<VkDevice, VkCommandBuffer> s_deviceToCommandBufferMap;
 
+//=========================================================================
+VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo,
+                                           const VkAllocationCallbacks *pAllocator, uint32_t subresourceIndex) {
+    VkDeviceSize imageSubResourceSize = 0;
+    VkImage image;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.extent.depth = std::max(static_cast<uint32_t>(1), imageCreateInfo.extent.depth >> subresourceIndex);
+    imageCreateInfo.extent.height = std::max(static_cast<uint32_t>(1), imageCreateInfo.extent.height >> subresourceIndex);
+    imageCreateInfo.extent.width = std::max(static_cast<uint32_t>(1), imageCreateInfo.extent.width >> subresourceIndex);
+
+    VkResult result = mdd(device)->devTable.CreateImage(device, &imageCreateInfo, NULL, &image);
+    assert(result == VK_SUCCESS);
+
+    if (result == VK_SUCCESS) {
+        VkMemoryRequirements memoryRequirements;
+
+        mdd(device)->devTable.GetImageMemoryRequirements(device, image, &memoryRequirements);
+        imageSubResourceSize = memoryRequirements.size;
+    }
+    mdd(device)->devTable.DestroyImage(device, image, pAllocator);
+    return imageSubResourceSize;
+}
+
+bool calculateImageAllSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                      std::vector<VkDeviceSize> &subResourceSizes) {
+    uint32_t wholeSize = 0;
+    subResourceSizes.push_back(0);
+    for (uint32_t i = 0; i < imageCreateInfo.mipLevels; i++) {
+        subResourceSizes.push_back(calculateImageSubResourceSize(device, imageCreateInfo, pAllocator, i));
+        wholeSize += subResourceSizes[i + 1];
+    }
+    subResourceSizes[0] = wholeSize;
+    return true;
+}
+
+void addImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> subResourceSizes) {
+    std::lock_guard<std::mutex> guard(g_trimImageHandling_Mutex);
+    s_imageToSubResourceSizes[image] = subResourceSizes;
+}
+
+bool getImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> *pSubresourceSizes) {
+    std::lock_guard<std::mutex> guard(g_trimImageHandling_Mutex);
+    bool getImageSubResourceSizesResult = false;
+    auto it = s_imageToSubResourceSizes.find(image);
+    if (it != s_imageToSubResourceSizes.end()) {
+        if (pSubresourceSizes != nullptr) {
+            *pSubresourceSizes = it->second;
+        }
+        getImageSubResourceSizesResult = true;
+    }
+    return getImageSubResourceSizesResult;
+}
+
+void deleteImageSubResourceSizes(VkImage image) {
+    std::lock_guard<std::mutex> guard(g_trimImageHandling_Mutex);
+    auto it = s_imageToSubResourceSizes.find(image);
+    if (it != s_imageToSubResourceSizes.end()) {
+        s_imageToSubResourceSizes.erase(it);
+    }
+}
+
+VkDeviceSize getImageSize(VkImage image) {
+    std::vector<VkDeviceSize> subResourceSizes;
+    getImageSubResourceSizes(image, &subResourceSizes);
+    return subResourceSizes[0];
+}
+
+VkDeviceSize getImageSubResourceOffset(VkImage image, uint32_t mipLevel) {
+    VkDeviceSize subResourceOffset = 0;
+    std::vector<VkDeviceSize> subResourceSizes;
+    getImageSubResourceSizes(image, &subResourceSizes);
+    for (uint32_t i = 0; i < mipLevel; i++) {
+        subResourceOffset += subResourceSizes[i + 1];
+    }
+    return subResourceOffset;
+}
 //=========================================================================
 // Start trimming
 //=========================================================================
@@ -643,6 +725,10 @@ VkCommandBuffer getCommandBufferFromDevice(VkDevice device, VkCommandPool comman
         if (result == VK_SUCCESS) {
             s_deviceToCommandBufferMap[device] = commandBuffer;
         }
+
+        // Because this commandBuffer was not allocated through the loader's
+        // trampoile function, we need to assign the dispatch table here
+        *(void **)commandBuffer = *(void **)device;
     } else {
         commandBuffer = s_deviceToCommandBufferMap[device];
 
@@ -967,9 +1053,9 @@ void snapshot_state_tracker() {
             if (result != VK_SUCCESS) continue;
 
             if (imageIter->second.ObjectInfo.Image.needsStagingBuffer) {
-                StagingInfo stagingInfo = createStagingBuffer(device, commandPool, commandBuffer,
-                                                              (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
-                                                              imageIter->second.ObjectInfo.Image.memorySize);
+                StagingInfo stagingInfo = createStagingBuffer(
+                    device, commandPool, commandBuffer, (queueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) ? 0 : queueFamilyIndex,
+                    std::max(getImageSize(image), imageIter->second.ObjectInfo.Image.memorySize));
 
                 // From Docs: srcImage must have a sample count equal to
                 // VK_SAMPLE_COUNT_1_BIT
@@ -977,7 +1063,7 @@ void snapshot_state_tracker() {
                 // VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag
 
                 // Copy from device_local image to host_visible buffer
-
+                bool callGetImageSubresourceLayoutApi = (false == getImageSubResourceSizes(image, nullptr));
                 VkImageAspectFlags aspectMask = imageIter->second.ObjectInfo.Image.aspectMask;
                 if (aspectMask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
                     stagingInfo.imageCopyRegions.reserve(2);
@@ -989,7 +1075,11 @@ void snapshot_state_tracker() {
                     sub.mipLevel = 0;
                     {
                         VkSubresourceLayout layout;
-                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        if (callGetImageSubresourceLayoutApi) {
+                            mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        } else {
+                            layout.offset = getImageSubResourceOffset(image, 0);
+                        }
 
                         VkBufferImageCopy copyRegion = {};
 
@@ -1028,7 +1118,11 @@ void snapshot_state_tracker() {
                     sub.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
                     {
                         VkSubresourceLayout layout;
-                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        if (callGetImageSubresourceLayoutApi) {
+                            mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &layout);
+                        } else {
+                            layout.offset = getImageSubResourceOffset(image, 0);
+                        }
 
                         VkBufferImageCopy copyRegion;
 
@@ -1062,7 +1156,11 @@ void snapshot_state_tracker() {
                     for (uint32_t i = 0; i < imageIter->second.ObjectInfo.Image.mipLevels; i++) {
                         VkSubresourceLayout lay;
                         sub.mipLevel = i;
-                        mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
+                        if (callGetImageSubresourceLayoutApi) {
+                            mdd(device)->devTable.GetImageSubresourceLayout(device, image, &sub, &lay);
+                        } else {
+                            lay.offset = getImageSubResourceOffset(image, i);
+                        }
 
                         VkBufferImageCopy copyRegion;
                         copyRegion.bufferRowLength = 0;    //< tightly packed texels
@@ -3800,6 +3898,40 @@ void write_all_referenced_object_calls() {
             vktrace_trace_packet_header *pHeader = generate::vkQueueSubmit(false, queue, 1, &submit_info, VK_NULL_HANDLE);
             vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
             vktrace_delete_trace_packet(&pHeader);
+        } else {
+            // The semaphore is not signaled by queue related calls like
+            // vkQueueSubmit and vkQueueBindSparse, here we continue
+            // to check if it is signaled by swapchain related calls like
+            // vkAcquireNextImageKHR.
+            if (obj->second.ObjectInfo.Semaphore.signaledOnSwapChain != VK_NULL_HANDLE) {
+                // The Semaphore is signaled by swapchain related calls
+                // so here we need to signal the recreated semaphore.
+
+                VkSemaphore semaphore = obj->first;
+
+                VkQueue queue = trim::get_DeviceQueue(obj->second.belongsToDevice, 0, 0);
+
+                // generate a queue submit to signal the semaphore
+                VkSubmitInfo submit_info;
+                submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submit_info.pNext = NULL;
+                submit_info.waitSemaphoreCount = 0;
+                submit_info.pWaitSemaphores = NULL;
+                submit_info.pWaitDstStageMask = NULL;
+                submit_info.commandBufferCount = 0;
+                submit_info.pCommandBuffers = NULL;
+                submit_info.signalSemaphoreCount = 1;
+                submit_info.pSignalSemaphores = &semaphore;
+
+                vktrace_trace_packet_header *pHeader = generate::vkQueueSubmit(false, queue, 1, &submit_info, VK_NULL_HANDLE);
+                vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pHeader);
+
+                // generate vkWaitQueueIdle() to make sure the semaphore is signaled.
+                vktrace_trace_packet_header *pQueueWaitIdlePacket = generate::vkQueueWaitIdle(false, queue);
+                vktrace_write_trace_packet(pQueueWaitIdlePacket, vktrace_trace_get_trace_file());
+                vktrace_delete_trace_packet(&pQueueWaitIdlePacket);
+            }
         }
     }
 

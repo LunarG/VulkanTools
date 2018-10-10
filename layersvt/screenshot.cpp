@@ -1057,28 +1057,46 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
         return;
     }
 
-    // Make sure this queue can take graphics commands
+    // Make sure this queue can take graphics or present commands
     uint32_t count;
-    bool graphicsCapable = false;
+    VkBool32 graphicsCapable = VK_FALSE;
+    VkBool32 presentCapable = VK_FALSE;
     VkLayerInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physDeviceMap[devMap->physicalDevice]->instance);
+
     pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, NULL);
 
-    VkQueueFamilyProperties *queueProps = (VkQueueFamilyProperties *)malloc(count * sizeof(VkQueueFamilyProperties));
-    if (queueProps) {
-        pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, queueProps);
+    std::vector<VkQueueFamilyProperties> queueProps(count);
+
+    if (queueProps.size() > 0) {
+        pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, queueProps.data());
+
         graphicsCapable = ((queueProps[queueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
-        free(queueProps);
+
+#if defined(_WIN32)
+        presentCapable = instance_dispatch_table(devMap->physicalDevice)
+                             ->GetPhysicalDeviceWin32PresentationSupportKHR(devMap->physicalDevice, queueFamilyIndex);
+#elif defined(__ANDROID__)
+        // Android - all physical devices and queue families must be capable of presentation with any native window
+        presentCapable = VK_TRUE;
+#else  // (__linux__), (__APPLE__), (__QNXNTO__) or Others
+       // TODO LINUX, make function call to get present support from vkGetPhysicalDeviceXlibPresentationSupportKHR and
+       // vkGetPhysicalDeviceXcbPresentationSupportKHR
+       // TBD APPLE, QNXNTO, others Temp use original logic.
+        presentCapable = ((queueProps[queueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
+#endif
+
     } else {
-        graphicsCapable = true;
+        graphicsCapable = VK_TRUE;
     }
 
-    if (graphicsCapable) {
+    if ((presentCapable == VK_TRUE) || (graphicsCapable == VK_TRUE)) {
         // Create a mapping from a device to a queue
         VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
         deviceMap.emplace(que, devMap);
         devMap->queue = *pQueue;
         queueIndexMap.emplace(*pQueue, queueFamilyIndex);
     }
+
     loader_platform_thread_unlock_mutex(&globalLock);
 }
 

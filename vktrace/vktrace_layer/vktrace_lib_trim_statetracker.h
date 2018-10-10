@@ -259,6 +259,16 @@ typedef struct _Trim_ObjectInfo {
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
             VkQueue signaledOnQueue;
+            VkSwapchainKHR signaledOnSwapChain;  // The member variable is the swapchain object for
+                                                 // which the related calls signal the semaphore. If
+                                                 // the member variable is not VK_NULL_HANDLE, that
+                                                 // mean the semaphore should be signaled after
+                                                 // recreation in trimmed trace file.
+                                                 //
+                                                 // Swapchain related calls like vkAcquireNextImageKHR
+                                                 // and vkQueuePresentKHR also wait or signal semaphore,
+                                                 // so it's also needed to track the state change caused
+                                                 // by them.
         } Semaphore;
         struct _Fence {  // VkFence
             const VkAllocationCallbacks *pAllocator;

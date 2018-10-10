@@ -424,8 +424,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
     // determine sum of sizes of memory ranges and pNext structures
     for (iter = 0; iter < memoryRangeCount; iter++) {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+        VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
         rangesSize += vk_size_vkmappedmemoryrange(pRange);
-        dataSize += ROUNDUP_TO_4((size_t)pRange->size);
+        uint64_t range_size = pRange->size;
+        if (pRange->size == VK_WHOLE_SIZE) {
+            assert(pRange->offset >= pEntry->rangeOffset);
+            range_size = pEntry->totalSize - pRange->offset;
+            assert(range_size <= pEntry->rangeSize);
+        }
+        dataSize += ROUNDUP_TO_4((size_t)range_size);
         dataSize += get_struct_chain_size((void*)pRange);
     }
 
@@ -455,11 +462,17 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkInvalidateMappedMemory
 
         if (pEntry != NULL) {
             assert(pEntry->handle == pRange->memory);
-            assert(pEntry->totalSize >= (pRange->size + pRange->offset));
-            assert(pEntry->totalSize >= pRange->size);
-            assert(pRange->offset >= pEntry->rangeOffset &&
-                   (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
-            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), pRange->size,
+            uint64_t range_size = 0;
+            if (pRange->size != VK_WHOLE_SIZE) {
+                assert(pEntry->totalSize >= (pRange->size + pRange->offset));
+                assert(pEntry->totalSize >= pRange->size);
+                assert(pRange->offset >= pEntry->rangeOffset &&
+                       (pRange->offset + pRange->size) <= (pEntry->rangeOffset + pEntry->rangeSize));
+                range_size = pRange->size;
+            } else {
+                range_size = pEntry->totalSize - pRange->offset;
+            }
+            vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), range_size,
                                                pEntry->pData + pRange->offset);
             vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->ppData[iter]));
             pEntry->didFlush = TRUE;  // Do we need didInvalidate?
@@ -937,6 +950,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
                     VkQueue queue = VK_NULL_HANDLE;
                     mdd(*pDevice)->devTable.GetDeviceQueue(*pDevice, queueFamilyIndex, q, &queue);
                     info.ObjectInfo.Device.pQueueFamilies[queueFamilyIndex].queues[q] = queue;
+
+                    // Because this queue was not retrieved through the loader's
+                    // trampoile function, we need to assign the dispatch table here
+                    *(void**)queue = *(void**)*pDevice;
                 }
             }
         }
@@ -2219,6 +2236,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                             trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pWaitSemaphores[w]);
                             if (pInfo != NULL) {
                                 pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                             }
                         }
                     }
@@ -2228,6 +2246,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                             trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pSubmits[i].pSignalSemaphores[s]);
                             if (pInfo != NULL) {
                                 pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                             }
                         }
                     }
@@ -2339,6 +2358,32 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueu
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+
+        if (result == VK_SUCCESS) {
+            if (bindInfoCount != 0) {
+                for (uint32_t i = 0; i < bindInfoCount; i++) {
+                    if (pBindInfo[i].pWaitSemaphores != NULL) {
+                        for (uint32_t w = 0; w < pBindInfo[i].waitSemaphoreCount; w++) {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo[i].pWaitSemaphores[w]);
+                            if (pInfo != NULL) {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+
+                    if (pBindInfo[i].pSignalSemaphores != NULL) {
+                        for (uint32_t s = 0; s < pBindInfo[i].signalSemaphoreCount; s++) {
+                            trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pBindInfo[i].pSignalSemaphores[s]);
+                            if (pInfo != NULL) {
+                                pInfo->ObjectInfo.Semaphore.signaledOnQueue = queue;
+                                pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         if (g_trimIsInTrim) {
             trim::write_packet(pHeader);
@@ -2963,6 +3008,43 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateImage(VkDevice d
     }
 
     result = mdd(device)->devTable.CreateImage(device, pCreateInfo, pAllocator, pImage);
+
+    if (g_trimEnabled && (pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL) && (result == VK_SUCCESS)) {
+        // For all miplevels of the image, here we fisrt get all subresource
+        // memory sizes and put them in a vector, then save the vector to a
+        // map of which the key is image handle.
+        //
+        // Such process is part of a solution to fix an image difference
+        // problem for some title:
+        //
+        // For some title, if trim start at some specific locations, trimmed
+        // trace file playback show image difference compared with original
+        // title running.
+
+        // The reason of the problem is: when trim copy out an optimal tiling
+        // image which is bound to device local only memory, it will first
+        // copy the image data to a staging buffer. An API
+        // vkGetImageSubresourceLayout is used to get every subresource data
+        // offset for saving to the buffer. But by Doc, the image must
+        // be linear tiling image. In the problem title, trim need to copy
+        // out some optimal tiling images to staging buffer, the call
+        // vkGetImageSubresourceLayout return wrong offset and size for some
+        // miplevel of the image and cause image data overwriting and finally
+        // cause trimmed trace file playback show image difference.
+        //
+        // The fix of the problem use the following process to replace
+        // vkGetImageSubresourceLayout call and get the subresource size and
+        // then get the offset. The basic process is: create image with
+        // specific miplevel, then query its memory requirement to get the
+        // size. such process performed when vkCreateImage and save these
+        // sizes to a map. When starting to trim and copy out the image, trim
+        // will directly use these sizes.
+
+        std::vector<VkDeviceSize> subResourceSizes;
+        if (trim::calculateImageAllSubResourceSize(device, *pCreateInfo, pAllocator, subResourceSizes)) {
+            trim::addImageSubResourceSizes(*pImage, subResourceSizes);
+        }
+    }
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkCreateImage(pHeader);
     pPacket->device = device;
@@ -3410,6 +3492,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                 trim::ObjectInfo* pInfo = trim::get_Semaphore_objectInfo(pPresentInfo->pWaitSemaphores[i]);
                 if (pInfo != NULL) {
                     pInfo->ObjectInfo.Semaphore.signaledOnQueue = VK_NULL_HANDLE;
+                    pInfo->ObjectInfo.Semaphore.signaledOnSwapChain = VK_NULL_HANDLE;
                 }
             }
         }

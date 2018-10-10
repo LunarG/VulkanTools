@@ -17,6 +17,7 @@
 #include <list>
 #include <map>
 #include <mutex>
+#include <algorithm>
 #include "vktrace_trace_packet_identifiers.h"
 
 #include "vktrace_lib_trim_generate.h"
@@ -90,6 +91,21 @@ enum enum_key_state {
 
 // return if hotkey triggered;
 bool is_hotkey_trim_triggered();
+
+VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo,
+                                           const VkAllocationCallbacks *pAllocator, uint32_t subresourceIndex);
+bool calculateImageAllSubResourceSize(VkDevice device, VkImageCreateInfo imageCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                      std::vector<VkDeviceSize> &subResourceSizes);
+
+void addImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> subResourceSizes);
+
+bool getImageSubResourceSizes(VkImage image, std::vector<VkDeviceSize> *pSubresourceSizes);
+
+void deleteImageSubResourceSizes(VkImage image);
+
+VkDeviceSize getImageSize(VkImage image);
+
+VkDeviceSize getImageSubResourceOffset(VkImage image, uint32_t mipLevel);
 
 // Use this to snapshot the global state tracker at the start of the trim
 // frames.

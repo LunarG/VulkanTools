@@ -95,20 +95,20 @@ class gpuMemory {
         }
     }
 
-    void setMemoryMapRange(void *pBuf, const size_t size, const size_t offset, const bool pending) {
+    void setMemoryMapRange(void *pBuf, const uint64_t size, const uint64_t offset, const bool pending) {
         MapRange mr;
         mr.pData = (uint8_t *)pBuf;
         if (size == 0)
-            mr.size = (size_t)m_allocInfo.allocationSize - offset;
+            mr.size = m_allocInfo.allocationSize - offset;
         else
             mr.size = size;
         mr.offset = offset;
         mr.pending = pending;
         m_mapRange.push_back(mr);
-        assert((size_t)m_allocInfo.allocationSize >= (size + offset));
+        assert(m_allocInfo.allocationSize >= (size + offset));
     }
 
-    void copyMappingData(const void *pSrcData, bool entire_map, size_t size, size_t offset) {
+    void copyMappingData(const void *pSrcData, bool entire_map, uint64_t size, uint64_t offset) {
         if (m_mapRange.empty()) {
             return;
         }
@@ -124,22 +124,24 @@ class gpuMemory {
         if (entire_map) {
             size = mr.size;
             offset = 0;  // pointer to mapped buffer is from offset 0
+        } else if (size == VK_WHOLE_SIZE) {
+            size = m_allocInfo.allocationSize - offset;
         } else {
             assert(offset >= mr.offset);
-            assert(size <= mr.size && (size + offset) <= (size_t)m_allocInfo.allocationSize);
+            assert(size <= mr.size && (size + offset) <= m_allocInfo.allocationSize);
         }
         memcpy(mr.pData + offset, pSrcData, size);
         if (!mr.pending && entire_map) m_mapRange.pop_back();
     }
 
-    size_t getMemoryMapSize() { return (!m_mapRange.empty()) ? m_mapRange.back().size : 0; }
+    uint64_t getMemoryMapSize() { return (!m_mapRange.empty()) ? m_mapRange.back().size : 0; }
 
    private:
     bool m_pendingAlloc;
     struct MapRange {
         bool pending;
-        size_t size;
-        size_t offset;
+        uint64_t size;
+        uint64_t offset;
         uint8_t *pData;
     };
     std::vector<MapRange> m_mapRange;
