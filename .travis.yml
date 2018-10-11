@@ -39,6 +39,11 @@ before_install:
   - set -e
   # Install the appropriate Linux packages.
   - |
+    if [[ "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
+        # Add an option to update dependencies from master
+        UPDATE_DEPS_EXTRA_OPTIONS="--ref=master"
+    fi
+  - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       sudo apt-get -qq update
       sudo apt-get -y install libxkbcommon-dev libwayland-dev libmirclient-dev libxrandr-dev libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
@@ -71,7 +76,7 @@ script:
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       # Build VulkanTools
       ./update_external_sources.sh
-      python scripts/update_deps.py --config=Debug --arch=x64
+      python scripts/update_deps.py --config=Debug --arch=x64 $UPDATE_DEPS_EXTRA_OPTIONS
       mkdir dbuild
       pushd dbuild
       cmake -DCMAKE_BUILD_TYPE=Debug \
