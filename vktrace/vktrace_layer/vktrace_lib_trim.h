@@ -16,6 +16,7 @@
 #pragma once
 #include <list>
 #include <map>
+#include <mutex>
 #include <algorithm>
 #include <mutex>
 #include "vktrace_trace_packet_identifiers.h"
