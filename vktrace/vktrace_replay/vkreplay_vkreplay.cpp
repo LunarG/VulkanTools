@@ -1327,14 +1327,15 @@ VkResult vkReplay::manually_replay_vkAllocateDescriptorSets(packet_vkAllocateDes
         }
     }
 
-    VkDescriptorSet *pDescriptorSets = NULL;
-    replayResult = m_vkDeviceFuncs.AllocateDescriptorSets(remappedDevice, pPacket->pAllocateInfo, pDescriptorSets);
+    VkDescriptorSet *localDSs = VKTRACE_NEW_ARRAY(VkDescriptorSet, pPacket->pAllocateInfo->descriptorSetCount);
+    replayResult = m_vkDeviceFuncs.AllocateDescriptorSets(remappedDevice, &allocateInfo, localDSs);
     if (replayResult == VK_SUCCESS) {
         for (uint32_t i = 0; i < pPacket->pAllocateInfo->descriptorSetCount; ++i) {
-            m_objMapper.add_to_descriptorsets_map(pPacket->pDescriptorSets[i], pDescriptorSets[i]);
+            m_objMapper.add_to_descriptorsets_map(pPacket->pDescriptorSets[i], localDSs[i]);
         }
     }
 
+    VKTRACE_DELETE(localDSs);
     VKTRACE_DELETE(pRemappedSetLayouts);
 
     return replayResult;
