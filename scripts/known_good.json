@@ -9,6 +9,10 @@
       "commit" : "a440fbb04f82b5cb19541802a31abdf1aeb94abe",
       "prebuild" : [
         "python update_glslang_sources.py"
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     },
     {
@@ -34,6 +38,10 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=NO"
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     },
     {
@@ -52,6 +60,10 @@
           "var_name" : "VULKAN_LOADER_INSTALL_DIR",
           "repo_name" : "Vulkan-Loader"
         }
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     },
     {
@@ -81,6 +93,10 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=NO"
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     }
   ],

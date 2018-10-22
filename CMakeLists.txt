@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+
 project (VULKAN_TOOLS)
 
 set(API_NAME "Vulkan" CACHE STRING "API name")
@@ -41,29 +43,31 @@ if(NOT VULKAN_HEADERS_INSTALL_DIR)
 endif()
 message(STATUS "Using Vulkan-Headers install located at ${VULKAN_HEADERS_INSTALL_DIR}")
 
-if(NOT VULKAN_LOADER_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_LOADER_INSTALL_DIR})
-    message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
-endif()
+if(NOT APPLE)
+    if(NOT VULKAN_LOADER_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_LOADER_INSTALL_DIR})
+        message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
+    endif()
 
-# Cmake command line option overrides environment variable
-if(NOT VULKAN_LOADER_INSTALL_DIR)
-    set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
-endif()
-message(STATUS "Using Vulkan-Loader install located at ${VULKAN_LOADER_INSTALL_DIR}")
+    # Cmake command line option overrides environment variable
+    if(NOT VULKAN_LOADER_INSTALL_DIR)
+        set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
+    endif()
+    message(STATUS "Using Vulkan-Loader install located at ${VULKAN_LOADER_INSTALL_DIR}")
 
-if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-    message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
-endif()
+    if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+        message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
+    endif()
 
-# Cmake command line option overrides environment variable
-if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
-    set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-endif()
-message(STATUS "Using Vulkan-ValidationLayers install located at ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}")
+    # Cmake command line option overrides environment variable
+    if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
+        set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+    endif()
+    message(STATUS "Using Vulkan-ValidationLayers install located at ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}")
 
-set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include")
-set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
-find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
+    set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include")
+    set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
+    find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
+endif()
 
 find_package(PythonInterp 3 REQUIRED)
 set (PYTHON_CMD ${PYTHON_EXECUTABLE})
@@ -141,6 +145,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_VKTRACE "Build VkTrace" ON)
     option(BUILD_VIA "Build via" ON)
 
+    option(BUILD_LAYERMGR "Build layer manager" ON)
+    option(CUSTOM_GLSLANG_BIN_ROOT "Use the user defined GLSLANG_BINARY_ROOT" OFF)
+    option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
+
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
     else()
@@ -148,7 +156,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     endif()
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-
+    
     # Only vktrace enable for macOS
     option(BUILD_VKTRACE ON)
     option(BUILD_LOADER OFF)
@@ -160,6 +168,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_DEMOS OFF)
     option(BUILD_VKJSON OFF)
     option(BUILD_VIA OFF)
+    option(BUILD_LAYERMGR "Build layer manager" ON)
     option(BUILD_VKTRACE_LAYER OFF)
     option(BUILD_VKTRACE_REPLAY OFF)
 
@@ -198,24 +207,30 @@ macro(run_vulkantools_vk_xml_generate dependency output)
     )
 endmacro()
 
-if(BUILD_TESTS)
-    add_subdirectory(tests)
+if(NOT APPLE)
+	if(BUILD_TESTS)
+	    add_subdirectory(tests)
+	endif()
+
+	if(BUILD_VLF)
+	    add_subdirectory(layer_factory)
+	endif()
+
+	if(BUILD_LAYERSVT)
+	    add_subdirectory(layersvt)
+	endif()
+
+	if(BUILD_VKTRACE)
+	    add_subdirectory(vktrace)
+	endif()
+
+	if(BUILD_VIA)
+	    add_subdirectory(via)
+	endif()
 endif()
 
-if(BUILD_VLF)
-    add_subdirectory(layer_factory)
-endif()
-
-if(BUILD_LAYERSVT)
-    add_subdirectory(layersvt)
-endif()
-
-if(BUILD_VKTRACE)
-    add_subdirectory(vktrace)
-endif()
-
-if(BUILD_VIA)
-    add_subdirectory(via)
+if(BUILD_LAYERMGR)
+    add_subdirectory(vkconfig)
 endif()
 
 # uninstall target
