@@ -51,11 +51,6 @@ void ext_init_create_instance(layer_instance_data* instData, VkInstance inst, ui
     instData->instTable.GetPhysicalDeviceXcbPresentationSupportKHR =
         (PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)gpa(inst, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
 #endif
-#if defined(VK_USE_PLATFORM_MIR_KHR)
-    instData->instTable.CreateMirSurfaceKHR = (PFN_vkCreateMirSurfaceKHR)gpa(inst, "vkCreateMirSurfaceKHR");
-    instData->instTable.GetPhysicalDeviceMirPresentationSupportKHR =
-        (PFN_vkGetPhysicalDeviceMirPresentationSupportKHR)gpa(inst, "vkGetPhysicalDeviceMirPresentationSupportKHR");
-#endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     instData->instTable.CreateWaylandSurfaceKHR = (PFN_vkCreateWaylandSurfaceKHR)gpa(inst, "vkCreateWaylandSurfaceKHR");
     instData->instTable.GetPhysicalDeviceWaylandPresentationSupportKHR =
@@ -74,7 +69,6 @@ void ext_init_create_instance(layer_instance_data* instData, VkInstance inst, ui
     instData->KHRXlibSurfaceEnabled = false;
     instData->KHRXcbSurfaceEnabled = false;
     instData->KHRWaylandSurfaceEnabled = false;
-    instData->KHRMirSurfaceEnabled = false;
     instData->KHRWin32SurfaceEnabled = false;
     instData->KHRAndroidSurfaceEnabled = false;
     for (uint32_t i = 0; i < extension_count; i++) {
@@ -92,11 +86,6 @@ void ext_init_create_instance(layer_instance_data* instData, VkInstance inst, ui
 #if defined(VK_USE_PLATFORM_XCB_KHR)
         if (strcmp(ppEnabledExtensions[i], VK_KHR_XCB_SURFACE_EXTENSION_NAME) == 0) {
             instData->KHRXcbSurfaceEnabled = true;
-        }
-#endif
-#if defined(VK_USE_PLATFORM_MIR_KHR)
-        if (strcmp(ppEnabledExtensions[i], VK_KHR_MIR_SURFACE_EXTENSION_NAME) == 0) {
-            instData->KHRMirSurfaceEnabled = true;
         }
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)

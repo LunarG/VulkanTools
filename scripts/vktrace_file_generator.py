@@ -78,7 +78,6 @@ approved_ext = [
                 'VK_KHR_incremental_present',
                 'VK_KHR_maintenance1',
                 'VK_KHR_maintenance2',
-                #'VK_KHR_mir_surface',
                 'VK_KHR_push_descriptor',
                 'VK_KHR_relaxed_block_layout',
                 'VK_KHR_sampler_filter_minmax',
@@ -2407,7 +2406,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                          'vkCreateSwapchainKHR',
                                          'vkGetSwapchainImagesKHR',
                                          'vkQueuePresentKHR',
-                                         #TODO add Mir
                                          'vkCreateXcbSurfaceKHR',
                                          'vkCreateWaylandSurfaceKHR',
                                          'vkCreateXlibSurfaceKHR',

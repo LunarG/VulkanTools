@@ -243,7 +243,6 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
     outlist.push_back("VK_KHR_android_surface");
     outlist.push_back("VK_KHR_xlib_surface");
     outlist.push_back("VK_KHR_win32_surface");
-    outlist.push_back("VK_KHR_mir_surface");
 #else
     // ANDROID
     extension_names.push_back("VK_KHR_android_surface");
@@ -251,7 +250,6 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
     outlist.push_back("VK_KHR_xlib_surface");
     outlist.push_back("VK_KHR_xcb_surface");
     outlist.push_back("VK_KHR_wayland_surface");
-    outlist.push_back("VK_KHR_mir_surface");
 #endif
 #else
     // WIN32
@@ -259,7 +257,6 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
     outlist.push_back("VK_KHR_xlib_surface");
     outlist.push_back("VK_KHR_xcb_surface");
     outlist.push_back("VK_KHR_wayland_surface");
-    outlist.push_back("VK_KHR_mir_surface");
     outlist.push_back("VK_KHR_android_surface");
 #endif
 
