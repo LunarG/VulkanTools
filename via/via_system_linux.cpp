@@ -206,14 +206,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemEnvironmentInfo() {
         PrintTableElement(env_value);
         PrintEndTableRow();
     }
-    env_value = getenv("MIR_SOCKET");
-    if (env_value != NULL) {
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("MIR_SOCKET");
-        PrintTableElement(env_value);
-        PrintEndTableRow();
-    }
 
     PrintEndTable();
     return result;

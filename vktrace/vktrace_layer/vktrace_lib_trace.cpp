@@ -4693,8 +4693,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateIndirectCommands
     return result;
 }
 
-
-// TODO Wayland and Mir support
+// TODO Wayland support
 
 /* TODO: Probably want to make this manual to get the result of the boolean and then check it on replay
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPhysicalDeviceSurfaceSupportKHR(
@@ -4895,13 +4894,6 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetInstanceP
             if (!strcmp("vkCreateWaylandSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateWaylandSurfaceKHR;
             if (!strcmp("vkGetPhysicalDeviceWaylandPresentationSupportKHR", funcName))
                 return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceWaylandPresentationSupportKHR;
-        }
-#endif
-#if defined(VK_USE_PLATFORM_MIR_KHR)
-        if (instData->KHRMirSurfaceEnabled) {
-            if (!strcmp("vkCreateMirSurfaceKHR", funcName)) return (PFN_vkVoidFunction)__HOOKED_vkCreateMirSurfaceKHR;
-            if (!strcmp("vkGetPhysicalDeviceMirPresentationSupportKHR", funcName))
-                return (PFN_vkVoidFunction)__HOOKED_vkGetPhysicalDeviceMirPresentationSupportKHR;
         }
 #endif
 #if defined(VK_USE_PLATFORM_WIN32_KHR)

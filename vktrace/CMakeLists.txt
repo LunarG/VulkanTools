@@ -529,12 +529,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
     endif()
 
-    if (BUILD_WSI_MIR_SUPPORT)
-        # TODO Add Mir Support
-        # add_definitions(-DVK_USE_PLATFORM_MIR_KHR)
-        # include_directories(${MIR_INCLUDE_DIR})
-    endif()
-
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Only vktrace is supported on macOS
 else()
