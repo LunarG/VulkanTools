@@ -273,7 +273,8 @@ if __name__ == '__main__':
     TraceReplayProgramTest('cube', cubePath, '--c 50', args)
 
     # Run trim test on cube
-    TrimTest('cube-trim', cubePath, '--c 250', args)
+    # Removing until github issue #646 is resolved
+    # TrimTest('cube-trim', cubePath, '--c 250', args)
 
     # Run loop test on cube
     LoopTest('cube-loop', cubePath, '--c 50', args)
