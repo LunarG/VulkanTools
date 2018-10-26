@@ -17,7 +17,7 @@
       "sub_dir" : "Vulkan-Headers",
       "build_dir" : "Vulkan-Headers/build",
       "install_dir" : "Vulkan-Headers/build/install",
-      "commit" : "b65941cc4b2b43b74de00534d110b581c52c394b"
+      "commit" : "aaca7baef0132f5f8c8f89ee07e3a27aca52b59c"
     },
     {
       "name" : "Vulkan-Loader",
@@ -25,7 +25,7 @@
       "sub_dir" : "Vulkan-Loader",
       "build_dir" : "Vulkan-Loader/build",
       "install_dir" : "Vulkan-Loader/build/install",
-      "commit" : "2aa6dcc10189f7700824bc5e21120beeff013c3a",
+      "commit" : "953b0807fd4d9487b9c888539ab3adefa4329820",
       "deps" : [
         {
           "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
@@ -42,7 +42,7 @@
       "sub_dir" : "Vulkan-Tools",
       "build_dir" : "Vulkan-Tools/build",
       "install_dir" : "Vulkan-Tools/build/install",
-      "commit" : "6e078e779458368b0b6e3da0f91b39ca09c67182",
+      "commit" : "2e8d601de618eddf2bab8597fd140b2824a060b2",
       "deps" : [
         {
           "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
@@ -60,7 +60,7 @@
       "sub_dir" : "Vulkan-ValidationLayers",
       "build_dir" : "Vulkan-ValidationLayers/build",
       "install_dir" : "Vulkan-ValidationLayers/build/install",
-      "commit" : "b280fca5fc494a2b605143095676c9eedcdeff7d",
+      "commit" : "ddbcf24383770a6ea9a9470920f7519585880b12",
       "deps" : [
         {
           "var_name" : "GLSLANG_INSTALL_DIR",
