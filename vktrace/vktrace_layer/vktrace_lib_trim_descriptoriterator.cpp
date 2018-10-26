@@ -25,50 +25,113 @@ namespace trim {
 // uint32_t descriptorArrayLength, how many descriptors the API call will update.
 //          Note: descriptorArrayLength may longer than all descriptors left from
 //          descriptorIndex in bindingIndex and cross to next binding.
-DescriptorIterator::DescriptorIterator(ObjectInfo *pObjectInfo, uint32_t bindingIndex, uint32_t descriptorIndex,
-                                       uint32_t descriptorArrayLength){
-    // TODO: implementation
+DescriptorIterator::DescriptorIterator(ObjectInfo *object_info, uint32_t binding_index, uint32_t descriptor_index,
+                                       uint32_t descriptorArrayLength)
+    : update_descriptor_count_(descriptorArrayLength),
+      descriptorset_((object_info != nullptr) ? &object_info->ObjectInfo.DescriptorSet : nullptr),
+      descriptorset_layout_(
+          ((object_info != nullptr) && (trim::get_DescriptorSetLayout_objectInfo(descriptorset_->layout) != nullptr))
+              ? &trim::get_DescriptorSetLayout_objectInfo(descriptorset_->layout)->ObjectInfo.DescriptorSetLayout
+              : nullptr),
+      current_descriptor_binding_index_(binding_index),
+      current_descriptor_index_(descriptor_index),
+      current_iterator_index_(0) {
+    if (object_info == nullptr) {
+        update_descriptor_count_ = 0;  // make sure point to end of iterator
+        // output error message in log
+        vktrace_LogError("Failed to create descriptor iterator due to invalid ObjectInfo pointer");
+    }
 };
 
 DescriptorIterator &DescriptorIterator::operator*() const {
-    // TODO: implementation
-    DescriptorIterator *pDescriptorInfo = nullptr;
-    return *(pDescriptorInfo);
+    DescriptorIterator *descriptor_info = nullptr;
+    switch (descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].descriptorType) {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+            descriptor_info = reinterpret_cast<DescriptorIterator *>(const_cast<VkDescriptorImageInfo *>(
+                descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].pImageInfo + current_descriptor_index_));
+        } break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+            descriptor_info = reinterpret_cast<DescriptorIterator *>(const_cast<VkDescriptorBufferInfo *>(
+                descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].pBufferInfo + current_descriptor_index_));
+        } break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+            descriptor_info = reinterpret_cast<DescriptorIterator *>(const_cast<VkBufferView *>(
+                descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].pTexelBufferView +
+                current_descriptor_index_));
+        } break;
+        default:
+            assert(false);  // something wrong or it's a new type
+                            // that we cannot handle.
+            break;
+    }
+    return *descriptor_info;
 };
 
 DescriptorIterator &DescriptorIterator::operator++() {
-    // TODO: implementation
+    MoveToNextDescriptorInfo();
     return *this;
 };
 
 DescriptorIterator DescriptorIterator::operator++(int) {
-    // TODO: implementation
-    return *this;
+    DescriptorIterator temp_descriptor_iterator = *this;
+    MoveToNextDescriptorInfo();
+    return temp_descriptor_iterator;
 };
 
-bool DescriptorIterator::operator==(const DescriptorIterator &iterator) {
-    // TODO: implementation
-    return false;
-};
+bool DescriptorIterator::operator==(const DescriptorIterator &iterator) { return IsEqual(*this, iterator); };
 
-bool DescriptorIterator::operator!=(const DescriptorIterator &iterator) {
-    // TODO: implementation
-    return false;
-};
+bool DescriptorIterator::operator!=(const DescriptorIterator &iterator) { return !IsEqual(*this, iterator); };
 
-bool DescriptorIterator::isEnd() {
-    // TODO: implementation
-    return false;
+bool DescriptorIterator::IsEnd() {
+    bool end_flag = false;
+    if (current_iterator_index_ < update_descriptor_count_) {
+        // the current iterator index within the range, we continue to check if it's a valid descriptor location.
+        if (current_descriptor_binding_index_ < descriptorset_layout_->bindingCount) {
+            if ((current_descriptor_binding_index_ + 1) == descriptorset_layout_->bindingCount) {
+                // it's the end binding, we need to check if current_descriptor_index_ is valid.
+                if (current_descriptor_index_ <
+                    descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorCount) {
+                    end_flag = true;
+                }
+            } else {
+                end_flag = true;
+            }
+        }
+    }
+    return end_flag;
 }
 
 // Suppose the two descriptorIterator come from same descriptorset.
-bool DescriptorIterator::isEqual(const DescriptorIterator &iterator1, const DescriptorIterator &iterator2) {
-    // TODO: implementation
-    return false;
+bool DescriptorIterator::IsEqual(const DescriptorIterator &iterator1, const DescriptorIterator &iterator2) {
+    return (const_cast<DescriptorIterator &>(iterator1).IsEnd() && const_cast<DescriptorIterator &>(iterator2).IsEnd()) ||
+           (!const_cast<DescriptorIterator &>(iterator1).IsEnd() && !const_cast<DescriptorIterator &>(iterator2).IsEnd() &&
+            (iterator1.current_descriptor_binding_index_ == iterator2.current_descriptor_binding_index_) &&
+            (iterator1.current_descriptor_index_ == iterator2.current_descriptor_index_));
 }
 
-void DescriptorIterator::moveToNextDescriptorInfo() {
-    // TODO: implementation
+void DescriptorIterator::MoveToNextDescriptorInfo() {
+    if (!IsEnd()) {
+        current_iterator_index_++;
+        if ((current_descriptor_index_ + 1) < descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorCount) {
+            current_descriptor_index_++;
+        } else {
+            current_descriptor_index_ = 0;
+            current_descriptor_binding_index_++;
+            // Doc allow a binding has zero descriptors, we have to bypass all zero descriptors bindings
+            while ((descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorCount == 0) &&
+                   (current_descriptor_binding_index_ < descriptorset_layout_->bindingCount)) {
+                current_descriptor_binding_index_++;
+            }
+        }
+    }
 }
 
 }  // namespace trim
