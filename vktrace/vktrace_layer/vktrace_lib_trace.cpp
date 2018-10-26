@@ -1507,8 +1507,13 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
     mid(physicalDevice)
         ->instTable.GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
     endTime = vktrace_get_time();
-    CREATE_TRACE_PACKET(vkGetPhysicalDeviceQueueFamilyProperties2KHR,
-                        sizeof(uint32_t) + get_struct_chain_size((void*)pQueueFamilyProperties));
+    int resultArraySize = 0;
+    if (pQueueFamilyProperties != nullptr) {
+        for (uint32_t i = 0; i < *pQueueFamilyPropertyCount; ++i) {
+            resultArraySize += get_struct_chain_size((void*)&pQueueFamilyProperties[i]);
+        }
+    }
+    CREATE_TRACE_PACKET(vkGetPhysicalDeviceQueueFamilyProperties2KHR, sizeof(uint32_t) + resultArraySize);
     pHeader->vktrace_begin_time = vktraceStartTime;
     pHeader->entrypoint_begin_time = startTime;
     pHeader->entrypoint_end_time = endTime;
@@ -1516,8 +1521,8 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkGetPhysicalDeviceQueueFami
     pPacket->physicalDevice = physicalDevice;
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyPropertyCount), sizeof(uint32_t),
                                        pQueueFamilyPropertyCount);
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyProperties),
-                                       (*pQueueFamilyPropertyCount) * sizeof(VkQueueFamilyProperties2KHR), pQueueFamilyProperties);
+    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pQueueFamilyProperties), resultArraySize,
+                                       pQueueFamilyProperties);
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pQueueFamilyPropertyCount));
     vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pQueueFamilyProperties));
     if (!g_trimEnabled) {
