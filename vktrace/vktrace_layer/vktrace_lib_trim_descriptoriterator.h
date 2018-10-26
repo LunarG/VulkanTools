@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
-#include <unordered_map>
-#include <list>
-#include <vector>
-#include <set>
+#ifndef __VKTRACE_LIB_TRIM_DESCRIPTOR_ITERATOR_H__
+#define __VKTRACE_LIB_TRIM_DESCRIPTOR_ITERATOR_H__
+
 #include "vktrace_trace_packet_utils.h"
 
 namespace trim {
@@ -70,7 +68,8 @@ class DescriptorIterator {
     // uint32_t descriptorArrayLength, how many descriptors the API call will update.
     //          Note: descriptorArrayLength may longer than all descriptors left from
     //          descriptorIndex in bindingIndex and cross to next binding.
-    DescriptorIterator(ObjectInfo *pObjectInfo, uint32_t bindingIndex, uint32_t descriptorIndex, uint32_t descriptorArrayLength);
+    DescriptorIterator(ObjectInfo *object_info, uint32_t binding_index, uint32_t descriptor_index,
+                       uint32_t descriptor_array_length);
 
     DescriptorIterator &operator*() const;
 
@@ -82,7 +81,7 @@ class DescriptorIterator {
 
     bool operator!=(const DescriptorIterator &iterator);
 
-    bool isEnd();
+    bool IsEnd();
 
    private:
     // The target descriptorset trim tracking info.
@@ -92,8 +91,6 @@ class DescriptorIterator {
     // descriptorset be created from.
     ObjectInfo::_ObjectInfo::_DescriptorSetLayout *descriptorset_layout_;
 
-    uint32_t begin_descriptor_binding_index_;
-    uint32_t begin_descriptor_index_;
     uint32_t update_descriptor_count_;
     uint32_t current_iterator_index_;
 
@@ -101,8 +98,10 @@ class DescriptorIterator {
     uint32_t current_descriptor_index_;
 
     // Suppose the two descriptorIterator come from same descriptorset.
-    bool isEqual(const DescriptorIterator &iterator1, const DescriptorIterator &iterator2);
+    bool IsEqual(const DescriptorIterator &iterator1, const DescriptorIterator &iterator2);
 
-    void moveToNextDescriptorInfo();
+    void MoveToNextDescriptorInfo();
 };
 }  // namespace trim
+
+#endif  // __VKTRACE_LIB_TRIM_DESCRIPTOR_ITERATOR_H__
