@@ -262,9 +262,9 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
                 decoratedName = '{}/{}'.format(*match.group(2, 3))
         else:
             # Matches expressions similar to 'latexmath : [dataSize \over 4]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
-            name = match.group(1)
-            decoratedName = '{}/{}'.format(*match.group(1, 2))
+            match = re.match(r'latexmath\s*\:\s*\[\s*(\\textrm\{)?(\w+)\}?\s*\\over\s*(\d+)\s*\]', source)
+            name = match.group(2)
+            decoratedName = '{}/{}'.format(*match.group(2, 3))
         return name, decoratedName
     #
     # Retrieve the value of the len tag
@@ -490,4 +490,3 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
             return self.GenerateStructSizeHelperSource()
         else:
             return 'Bad Tools Helper File Generator Option %s' % self.helper_file_type
-

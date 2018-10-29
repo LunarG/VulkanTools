@@ -1536,6 +1536,7 @@ class VulkanVariable:
             code = re.sub('{|}', '', code)
             code = re.sub('\\\\mathit', '', code)
             code = re.sub('\\\\over', '/', code)
+            code = re.sub('\\\\textrm', '', code)
             self.arrayLength = code
 
         # Dereference if necessary and handle members of variables
