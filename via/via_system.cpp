@@ -1686,9 +1686,10 @@ void ViaSystem::GenerateImplicitLayerJsonInfo(const char* layer_json_filename, J
     bool expired = false;
     std::string enable_env_variable = "--NONE--";
     bool enable_var_set = false;
+    std::string enable_return = "";
     std::string disable_env_variable = "--NONE--";
     bool disable_var_set = false;
-    char disable_env_value[16];
+    std::string disable_return = "";
 
     GenerateExplicitLayerJsonInfo(layer_json_filename, root);
 
@@ -1725,7 +1726,7 @@ void ViaSystem::GenerateImplicitLayerJsonInfo(const char* layer_json_filename, J
             enable_env_variable = en_iter.key().asString();
             // If an enable define exists, set it to disabled by default.
             enabled = false;
-            std::string enable_return = GetEnvironmentalVariableValue(enable_env_variable);
+            enable_return = GetEnvironmentalVariableValue(enable_env_variable);
             if (atoi(enable_return.c_str()) != 0) {
                 enable_var_set = true;
                 enabled = true;
@@ -1741,7 +1742,7 @@ void ViaSystem::GenerateImplicitLayerJsonInfo(const char* layer_json_filename, J
                 continue;
             }
             disable_env_variable = dis_iter.key().asString();
-            std::string disable_return = GetEnvironmentalVariableValue(disable_env_variable);
+            disable_return = GetEnvironmentalVariableValue(disable_env_variable);
             if (atoi(disable_return.c_str()) != 0) {
                 disable_var_set = true;
                 enabled = false;
@@ -1826,7 +1827,7 @@ void ViaSystem::GenerateImplicitLayerJsonInfo(const char* layer_json_filename, J
     PrintTableElement("Enable Env Var", VIA_ALIGN_RIGHT);
     PrintTableElement(enable_env_variable);
     if (enable_var_set) {
-        PrintTableElement("");
+        PrintTableElement(enable_return);
     } else {
         PrintTableElement("Not Defined");
     }
@@ -1836,7 +1837,7 @@ void ViaSystem::GenerateImplicitLayerJsonInfo(const char* layer_json_filename, J
     PrintTableElement("Disable Env Var", VIA_ALIGN_RIGHT);
     PrintTableElement(disable_env_variable);
     if (disable_var_set) {
-        PrintTableElement(disable_env_value);
+        PrintTableElement(disable_return);
     } else {
         PrintTableElement("Not Defined");
     }
