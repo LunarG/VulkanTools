@@ -31,6 +31,11 @@ if __name__ == '__main__':
         default=False,
         dest='no_deps',
         help='Do not update external dependencies')
+    arg_parser.add_argument(
+        '--no-build', action='store_true',
+        default=False,
+        dest='no_build',
+        help='Do not run cmake build, only generate build files')
     arguments = arg_parser.parse_args(sys.argv[1:])
     if not arguments.no_deps:
         subprocess.run(['git', 'submodule', 'update', '--recursive'],
@@ -54,8 +59,9 @@ if __name__ == '__main__':
          '-A', arguments.arch, '--config', arguments.config.capitalize(),
          '-C', 'helper.cmake', os.getcwd()],
         cwd=build_path)
-    cmake_build_args = ['cmake', '--build', '.',
-                        '--config', arguments.config.capitalize()]
-    if arguments.install:
-        cmake_build_args.extend(['--target', 'install'])
-    subprocess.run(cmake_build_args, cwd=build_path)
+    if not arguments.no_build:
+        cmake_build_args = ['cmake', '--build', '.',
+                            '--config', arguments.config.capitalize()]
+        if arguments.install:
+            cmake_build_args.extend(['--target', 'install'])
+        subprocess.run(cmake_build_args, cwd=build_path)
