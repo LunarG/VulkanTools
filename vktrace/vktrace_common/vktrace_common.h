@@ -148,6 +148,23 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // trace layer.
 #define VKTRACE_TRIM_TRIGGER_ENV "VKTRACE_TRIM_TRIGGER"
 
+// VKTRACE_TRIM_POST_PROCESS env var is an option to be configured to do write
+// all referenced object calls in either trim start frame or trim stop frame.
+//
+// When it is set to 0, write all referenced object calls will happen in trim start frame.
+// When it is set to 1, write all referenced object calls will happen in trim end frame.
+// If this var is undefined or other value, trimmed data writes will happen in the start frame.
+//
+// Setting it to 1 will reduce trimmed trace file size a lot for some vulkan titles which have
+// lots of shader modules, images and buffers NOT referenced in-trim.
+//
+// But the post processing will consume a lot of memory if there are too many in-trim frames
+// because it keeps both trimmed data and in-trim packets in memory until writting everything to
+// trace file in trim end frame which may exceeds the system memory.
+// So it is default to 0 (disabled) and should be only enabled as needed.
+// (e.g. when generating trace file with only 1 or small range of frames.)
+#define VKTRACE_TRIM_POST_PROCESS_ENV "VKTRACE_TRIM_POST_PROCESS"
+
 // _VKTRACE_VERBOSITY env var is set by the vktrace program to
 // communicate verbosity level to the trace layer. It is set to
 // one of "quiet", "errors", "warnings", "full", or "debug".

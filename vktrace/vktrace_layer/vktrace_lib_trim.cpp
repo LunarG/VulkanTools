@@ -33,6 +33,8 @@ uint64_t g_trimFrameCounter = 0;
 uint64_t g_trimStartFrame = 0;
 uint64_t g_trimEndFrame = UINT64_MAX;
 bool g_trimAlreadyFinished = false;
+bool g_trimPostProcess = false;
+
 std::mutex g_trimImageHandling_Mutex;
 
 static std::mutex g_Mutex_CommandBufferPipelineMap;
@@ -198,8 +200,10 @@ void start() {
     g_trimIsInTrim = true;
     snapshot_state_tracker();
 
-    // This will write packets to recreate all objects (but not command buffers)
-    write_all_referenced_object_calls();
+    if (!g_trimPostProcess) {
+        // This will write packets to recreate all objects
+        write_all_referenced_object_calls();
+    }
 }
 
 //=========================================================================
@@ -208,6 +212,11 @@ void start() {
 void stop() {
     g_trimIsInTrim = false;
     g_trimIsPostTrim = true;
+
+    if (g_trimPostProcess) {
+        // This will write packets to recreate all objects
+        write_all_referenced_object_calls();
+    }
 
     // write packets to destroy all created objects
     write_destroy_packets();
@@ -477,7 +486,30 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType) {
 }
 
 //=========================================================================
+void getTrimPreProcessOption() {
+    static bool firstTimeRun = true;
+    if (firstTimeRun) {
+        firstTimeRun = false;
+        const char *env_trimPostProcess = vktrace_get_global_var(VKTRACE_TRIM_POST_PROCESS_ENV);
+        if (env_trimPostProcess) {
+            int envvalue;
+            if (sscanf(env_trimPostProcess, "%d", &envvalue) == 1) {
+                if (envvalue == 1) {
+                    g_trimPostProcess = true;
+                } else if (envvalue == 0) {
+                    g_trimPostProcess = false;
+                } else {
+                    // Other values
+                    g_trimPostProcess = false;
+                }
+            }
+        }
+    }
+}
+
+//=========================================================================
 void initialize() {
+    getTrimPreProcessOption();
     const char *trimFrames = getTraceTriggerOptionString(enum_trim_trigger::frameCounter);
     if (trimFrames != nullptr) {
         uint32_t numFrames = 0;
@@ -600,7 +632,11 @@ VkMemoryPropertyFlags LookUpMemoryProperties(VkDevice device, uint32_t memoryTyp
     assert(memoryTypeIndex < VK_MAX_MEMORY_TYPES);
     if (memoryTypeIndex >= VK_MAX_MEMORY_TYPES) return false;
 
-    VkPhysicalDevice physicalDevice = get_Device_objectInfo(device)->belongsToPhysicalDevice;
+    ObjectInfo *pDeviceInfo = get_Device_objectInfo(device);
+    assert(pDeviceInfo != NULL);
+    if (pDeviceInfo == NULL) return false;
+
+    VkPhysicalDevice physicalDevice = pDeviceInfo->belongsToPhysicalDevice;
     assert(physicalDevice != VK_NULL_HANDLE);
     if (physicalDevice == VK_NULL_HANDLE) return false;
 
@@ -1610,6 +1646,15 @@ void add_Image_call(vktrace_trace_packet_header *pHeader) {
     }
 }
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
+
+void add_InTrim_call(vktrace_trace_packet_header *pHeader) {
+    if (pHeader != NULL) {
+        vktrace_enter_critical_section(&trimStateTrackerLock);
+        s_trimGlobalStateTracker.add_InTrim_call(pHeader);
+        vktrace_leave_critical_section(&trimStateTrackerLock);
+    }
+}
+
 //=========================================================================
 ObjectInfo &add_Instance_object(VkInstance var) {
     vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2742,7 +2787,8 @@ ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
         auto iter = s_trimStateTrackerSnapshot.created##type##s.find(var); \
         if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {   \
             ObjectInfo *info = &iter->second;                              \
-            if (info != nullptr) {                                         \
+            if (info != nullptr && !(info->bReferencedInTrimChecked)) {    \
+                info->bReferencedInTrimChecked = true;                     \
                 info->bReferencedInTrim = true;                            \
             }                                                              \
         }                                                                  \
@@ -2755,7 +2801,8 @@ ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
         auto iter = s_trimStateTrackerSnapshot.created##type##s.find(var); \
         if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {   \
             ObjectInfo *info = &iter->second;                              \
-            if (info != nullptr) {                                         \
+            if (info != nullptr && !(info->bReferencedInTrimChecked)) {    \
+                info->bReferencedInTrimChecked = true;                     \
                 info->bReferencedInTrim = true;                            \
                 mark_Device_reference((VkDevice)info->belongsToDevice);    \
             }                                                              \
@@ -2763,17 +2810,21 @@ ObjectInfo *get_DescriptorSet_objectInfo(VkDescriptorSet var) {
         vktrace_leave_critical_section(&trimStateTrackerLock);             \
     }
 
-void mark_CommandBuffer_reference(VkCommandBuffer var) {
-    vktrace_enter_critical_section(&trimStateTrackerLock);
-    auto iter = s_trimStateTrackerSnapshot.createdCommandBuffers.find(var);
-    if (iter != s_trimStateTrackerSnapshot.createdCommandBuffers.end()) {
-        ObjectInfo *info = &iter->second;
-        if (info != nullptr) {
-            info->bReferencedInTrim = true;
-        }
+#define TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICEMEMORY_DEPENDENCY(type)      \
+    void mark_##type##_reference(Vk##type var) {                           \
+        vktrace_enter_critical_section(&trimStateTrackerLock);             \
+        auto iter = s_trimStateTrackerSnapshot.created##type##s.find(var); \
+        if (iter != s_trimStateTrackerSnapshot.created##type##s.end()) {   \
+            ObjectInfo *info = &iter->second;                              \
+            if (info != nullptr && !(info->bReferencedInTrimChecked)) {    \
+                info->bReferencedInTrimChecked = true;                     \
+                info->bReferencedInTrim = true;                            \
+                mark_DeviceMemory_reference(info->ObjectInfo.type.memory); \
+                mark_Device_reference((VkDevice)info->belongsToDevice);    \
+            }                                                              \
+        }                                                                  \
+        vktrace_leave_critical_section(&trimStateTrackerLock);             \
     }
-    vktrace_leave_critical_section(&trimStateTrackerLock);
-}
 
 TRIM_MARK_OBJECT_REFERENCE(Instance);
 TRIM_MARK_OBJECT_REFERENCE(PhysicalDevice);
@@ -2781,20 +2832,13 @@ TRIM_MARK_OBJECT_REFERENCE(Device);
 
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(CommandPool)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorPool)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSet)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(RenderPass)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineCache)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Pipeline)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Queue)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Semaphore)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DeviceMemory)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Fence)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(SwapchainKHR)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Image)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(ImageView)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Buffer)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(BufferView)
-TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Framebuffer)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Event)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(QueryPool)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(ShaderModule)
@@ -2802,10 +2846,402 @@ TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(PipelineLayout)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(Sampler)
 TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICE_DEPENDENCY(DescriptorSetLayout)
 
+TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICEMEMORY_DEPENDENCY(Image)
+TRIM_MARK_OBJECT_REFERENCE_WITH_DEVICEMEMORY_DEPENDENCY(Buffer)
+
+void mark_CommandBuffer_reference(VkCommandBuffer var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimStateTrackerSnapshot.createdCommandBuffers.find(var);
+    if (iter != s_trimStateTrackerSnapshot.createdCommandBuffers.end()) {
+        ObjectInfo *info = &iter->second;
+        if (info != nullptr && !(info->bReferencedInTrimChecked)) {
+            info->bReferencedInTrimChecked = true;
+            if (s_trimGlobalStateTracker.m_cmdBufferPackets.find(var) != s_trimGlobalStateTracker.m_cmdBufferPackets.end()) {
+                info->bReferencedInTrim = true;
+            }
+            mark_CommandPool_reference(info->ObjectInfo.CommandBuffer.commandPool);
+        }
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
+void mark_Pipeline_reference(VkPipeline var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimStateTrackerSnapshot.createdPipelines.find(var);
+    if (iter != s_trimStateTrackerSnapshot.createdPipelines.end()) {
+        ObjectInfo *info = &iter->second;
+        if (info != nullptr && !(info->bReferencedInTrimChecked)) {
+            info->bReferencedInTrimChecked = true;
+            info->bReferencedInTrim = true;
+            mark_PipelineCache_reference(info->ObjectInfo.Pipeline.pipelineCache);
+            mark_Device_reference(info->belongsToDevice);
+        }
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
+void mark_DescriptorSet_reference(VkDescriptorSet var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimStateTrackerSnapshot.createdDescriptorSets.find(var);
+    if (iter != s_trimStateTrackerSnapshot.createdDescriptorSets.end()) {
+        ObjectInfo *info = &iter->second;
+        if (info != nullptr && !(info->bReferencedInTrimChecked)) {
+            info->bReferencedInTrimChecked = true;
+            info->bReferencedInTrim = true;
+            mark_DescriptorPool_reference(info->ObjectInfo.DescriptorSet.descriptorPool);
+        }
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
+void mark_ImageView_reference(VkImageView var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimStateTrackerSnapshot.createdImageViews.find(var);
+    if (iter != s_trimStateTrackerSnapshot.createdImageViews.end()) {
+        ObjectInfo *info = &iter->second;
+        if (info != nullptr && !(info->bReferencedInTrimChecked)) {
+            info->bReferencedInTrimChecked = true;
+            info->bReferencedInTrim = true;
+            mark_Image_reference(info->ObjectInfo.ImageView.image);
+        }
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
+void mark_BufferView_reference(VkBufferView var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimStateTrackerSnapshot.createdBufferViews.find(var);
+    if (iter != s_trimStateTrackerSnapshot.createdBufferViews.end()) {
+        ObjectInfo *info = &iter->second;
+        if (info != nullptr && !(info->bReferencedInTrimChecked)) {
+            info->bReferencedInTrimChecked = true;
+            info->bReferencedInTrim = true;
+            mark_Buffer_reference(info->ObjectInfo.BufferView.buffer);
+        }
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
+void mark_Framebuffer_reference(VkFramebuffer var) {
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    auto iter = s_trimStateTrackerSnapshot.createdFramebuffers.find(var);
+    if (iter != s_trimStateTrackerSnapshot.createdFramebuffers.end()) {
+        ObjectInfo *info = &iter->second;
+        if (info != nullptr && !(info->bReferencedInTrimChecked)) {
+            info->bReferencedInTrimChecked = true;
+            info->bReferencedInTrim = true;
+            for (uint32_t i = 0; i < info->ObjectInfo.Framebuffer.attachmentCount; i++) {
+                mark_ImageView_reference(info->ObjectInfo.Framebuffer.pAttachments[i]);
+            }
+            mark_Device_reference(info->belongsToDevice);
+        }
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+}
+
 //=========================================================================
 // Recreate all objects
 //=========================================================================
 void write_all_referenced_object_calls() {
+    if (g_trimPostProcess) {
+        vktrace_LogDebug("vktrace marking references before recreating objects for trim.");
+
+        // Mark reference for objects being used by referenced command buffer.
+        for (auto obj = s_trimStateTrackerSnapshot.createdCommandBuffers.begin();
+             obj != s_trimStateTrackerSnapshot.createdCommandBuffers.end(); ++obj) {
+            if (obj->second.bReferencedInTrim) {
+                std::list<vktrace_trace_packet_header *> &packets =
+                    s_trimStateTrackerSnapshot.m_cmdBufferPackets[(VkCommandBuffer)obj->first];
+                for (std::list<vktrace_trace_packet_header *>::iterator packet = packets.begin(); packet != packets.end();
+                     ++packet) {
+                    vktrace_trace_packet_header *pHeader = *packet;
+                    switch (pHeader->packet_id) {
+                        case VKTRACE_TPI_VK_vkCmdBindPipeline: {
+                            packet_vkCmdBindPipeline *pPacket = (packet_vkCmdBindPipeline *)(pHeader->pBody);
+                            if (pPacket->pipeline != VK_NULL_HANDLE) {
+                                trim::mark_Pipeline_reference(pPacket->pipeline);
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdBindDescriptorSets: {
+                            packet_vkCmdBindDescriptorSets *pPacket = (packet_vkCmdBindDescriptorSets *)(pHeader->pBody);
+                            const VkDescriptorSet *pDescriptorSets =
+                                (const VkDescriptorSet *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pDescriptorSets);
+                            if (pPacket->descriptorSetCount != 0 && pDescriptorSets != NULL) {
+                                for (uint32_t i = 0; i < pPacket->descriptorSetCount; i++) {
+                                    trim::mark_DescriptorSet_reference(pDescriptorSets[i]);
+                                }
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkBeginCommandBuffer: {
+                            if (obj->second.ObjectInfo.CommandBuffer.level == VK_COMMAND_BUFFER_LEVEL_SECONDARY) {
+                                packet_vkBeginCommandBuffer *pPacket = (packet_vkBeginCommandBuffer *)(pHeader->pBody);
+                                const VkCommandBufferBeginInfo *pBeginInfo =
+                                    (const VkCommandBufferBeginInfo *)vktrace_trace_packet_interpret_buffer_pointer(
+                                        pHeader, (intptr_t)pPacket->pBeginInfo);
+                                if (pBeginInfo != NULL && pBeginInfo->pInheritanceInfo) {
+                                    VkCommandBufferInheritanceInfo *pInheritanceInfo =
+                                        (VkCommandBufferInheritanceInfo *)vktrace_trace_packet_interpret_buffer_pointer(
+                                            pHeader, (intptr_t)pPacket->pBeginInfo->pInheritanceInfo);
+                                    if (pInheritanceInfo) {
+                                        trim::mark_Framebuffer_reference(pInheritanceInfo->framebuffer);
+                                    }
+                                }
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdBeginRenderPass: {
+                            packet_vkCmdBeginRenderPass *pPacket = (packet_vkCmdBeginRenderPass *)(pHeader->pBody);
+                            const VkRenderPassBeginInfo *pRenderPassBegin =
+                                (const VkRenderPassBeginInfo *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pRenderPassBegin);
+                            if (pRenderPassBegin != NULL) {
+                                trim::mark_Framebuffer_reference(pRenderPassBegin->framebuffer);
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdBeginQuery: {
+                            packet_vkCmdBeginQuery *pPacket = (packet_vkCmdBeginQuery *)(pHeader->pBody);
+                            trim::mark_QueryPool_reference(pPacket->queryPool);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdEndQuery: {
+                            packet_vkCmdEndQuery *pPacket = (packet_vkCmdEndQuery *)(pHeader->pBody);
+                            trim::mark_QueryPool_reference(pPacket->queryPool);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdResetQueryPool: {
+                            packet_vkCmdResetQueryPool *pPacket = (packet_vkCmdResetQueryPool *)(pHeader->pBody);
+                            trim::mark_QueryPool_reference(pPacket->queryPool);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdWriteTimestamp: {
+                            packet_vkCmdWriteTimestamp *pPacket = (packet_vkCmdWriteTimestamp *)(pHeader->pBody);
+                            trim::mark_QueryPool_reference(pPacket->queryPool);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdCopyQueryPoolResults: {
+                            packet_vkCmdCopyQueryPoolResults *pPacket = (packet_vkCmdCopyQueryPoolResults *)(pHeader->pBody);
+                            trim::mark_QueryPool_reference(pPacket->queryPool);
+                            trim::mark_Buffer_reference(pPacket->dstBuffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdWaitEvents: {
+                            packet_vkCmdWaitEvents *pPacket = (packet_vkCmdWaitEvents *)(pHeader->pBody);
+                            const VkBufferMemoryBarrier *pBufferMemoryBarriers =
+                                (const VkBufferMemoryBarrier *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pBufferMemoryBarriers);
+                            if (pBufferMemoryBarriers != NULL) {
+                                for (uint32_t i = 0; i < pPacket->bufferMemoryBarrierCount; i++) {
+                                    trim::mark_Buffer_reference(pBufferMemoryBarriers[i].buffer);
+                                }
+                            }
+                            const VkImageMemoryBarrier *pImageMemoryBarriers =
+                                (const VkImageMemoryBarrier *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pImageMemoryBarriers);
+                            if (pImageMemoryBarriers != NULL) {
+                                for (uint32_t i = 0; i < pPacket->imageMemoryBarrierCount; i++) {
+                                    trim::mark_Image_reference(pImageMemoryBarriers[i].image);
+                                }
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdPipelineBarrier: {
+                            packet_vkCmdPipelineBarrier *pPacket = (packet_vkCmdPipelineBarrier *)(pHeader->pBody);
+                            const VkBufferMemoryBarrier *pBufferMemoryBarriers =
+                                (const VkBufferMemoryBarrier *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pBufferMemoryBarriers);
+                            if (pBufferMemoryBarriers != NULL) {
+                                for (uint32_t i = 0; i < pPacket->bufferMemoryBarrierCount; i++) {
+                                    trim::mark_Buffer_reference(pBufferMemoryBarriers[i].buffer);
+                                }
+                            }
+                            const VkImageMemoryBarrier *pImageMemoryBarriers =
+                                (const VkImageMemoryBarrier *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pImageMemoryBarriers);
+                            if (pImageMemoryBarriers != NULL) {
+                                for (uint32_t i = 0; i < pPacket->imageMemoryBarrierCount; i++) {
+                                    trim::mark_Image_reference(pImageMemoryBarriers[i].image);
+                                }
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdBindIndexBuffer: {
+                            packet_vkCmdBindIndexBuffer *pPacket = (packet_vkCmdBindIndexBuffer *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->buffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdBindVertexBuffers: {
+                            packet_vkCmdBindVertexBuffers *pPacket = (packet_vkCmdBindVertexBuffers *)(pHeader->pBody);
+                            const VkBuffer *pBuffers = (const VkBuffer *)vktrace_trace_packet_interpret_buffer_pointer(
+                                pHeader, (intptr_t)pPacket->pBuffers);
+                            if (pBuffers != NULL) {
+                                for (uint32_t i = 0; i < pPacket->bindingCount; i++) {
+                                    trim::mark_Buffer_reference(pBuffers[i]);
+                                }
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdDrawIndirect: {
+                            packet_vkCmdDrawIndirect *pPacket = (packet_vkCmdDrawIndirect *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->buffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdDrawIndexedIndirect: {
+                            packet_vkCmdDrawIndexedIndirect *pPacket = (packet_vkCmdDrawIndexedIndirect *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->buffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdDispatchIndirect: {
+                            packet_vkCmdDispatchIndirect *pPacket = (packet_vkCmdDispatchIndirect *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->buffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdCopyBuffer: {
+                            packet_vkCmdCopyBuffer *pPacket = (packet_vkCmdCopyBuffer *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->srcBuffer);
+                            trim::mark_Buffer_reference(pPacket->dstBuffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdCopyBufferToImage: {
+                            packet_vkCmdCopyBufferToImage *pPacket = (packet_vkCmdCopyBufferToImage *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->srcBuffer);
+                            trim::mark_Image_reference(pPacket->dstImage);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdCopyImageToBuffer: {
+                            packet_vkCmdCopyImageToBuffer *pPacket = (packet_vkCmdCopyImageToBuffer *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->dstBuffer);
+                            trim::mark_Image_reference(pPacket->srcImage);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdUpdateBuffer: {
+                            packet_vkCmdUpdateBuffer *pPacket = (packet_vkCmdUpdateBuffer *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->dstBuffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdFillBuffer: {
+                            packet_vkCmdFillBuffer *pPacket = (packet_vkCmdFillBuffer *)(pHeader->pBody);
+                            trim::mark_Buffer_reference(pPacket->dstBuffer);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdPushDescriptorSetKHR: {
+                            packet_vkCmdPushDescriptorSetKHR *pPacket = (packet_vkCmdPushDescriptorSetKHR *)(pHeader->pBody);
+                            const VkWriteDescriptorSet *pDescriptorWrites =
+                                (const VkWriteDescriptorSet *)vktrace_trace_packet_interpret_buffer_pointer(
+                                    pHeader, (intptr_t)pPacket->pDescriptorWrites);
+                            for (uint32_t i = 0; i < pPacket->descriptorWriteCount; i++) {
+                                switch (pDescriptorWrites[i].descriptorType) {
+                                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                                        VkDescriptorImageInfo *pImageInfo =
+                                            (VkDescriptorImageInfo *)vktrace_trace_packet_interpret_buffer_pointer(
+                                                pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pImageInfo);
+                                        for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                                            trim::mark_ImageView_reference(pImageInfo[j].imageView);
+                                        }
+                                    } break;
+                                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                                        VkDescriptorBufferInfo *pBufferInfo =
+                                            (VkDescriptorBufferInfo *)vktrace_trace_packet_interpret_buffer_pointer(
+                                                pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pBufferInfo);
+                                        for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                                            trim::mark_Buffer_reference(pBufferInfo[j].buffer);
+                                        }
+                                    } break;
+                                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                                        VkBufferView *pTexelBufferView =
+                                            (VkBufferView *)vktrace_trace_packet_interpret_buffer_pointer(
+                                                pHeader, (intptr_t)pPacket->pDescriptorWrites[i].pTexelBufferView);
+                                        for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                                            trim::mark_BufferView_reference(pTexelBufferView[j]);
+                                        }
+                                    } break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdCopyImage: {
+                            packet_vkCmdCopyImage *pPacket = (packet_vkCmdCopyImage *)(pHeader->pBody);
+                            trim::mark_Image_reference(pPacket->srcImage);
+                            trim::mark_Image_reference(pPacket->dstImage);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdBlitImage: {
+                            packet_vkCmdBlitImage *pPacket = (packet_vkCmdBlitImage *)(pHeader->pBody);
+                            trim::mark_Image_reference(pPacket->srcImage);
+                            trim::mark_Image_reference(pPacket->dstImage);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdClearColorImage: {
+                            packet_vkCmdClearColorImage *pPacket = (packet_vkCmdClearColorImage *)(pHeader->pBody);
+                            trim::mark_Image_reference(pPacket->image);
+                        } break;
+                        case VKTRACE_TPI_VK_vkCmdClearDepthStencilImage: {
+                            packet_vkCmdClearDepthStencilImage *pPacket = (packet_vkCmdClearDepthStencilImage *)(pHeader->pBody);
+                            trim::mark_Image_reference(pPacket->image);
+                        } break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        // Mark reference for objects (buffer, buffer view) used by update descriptor sets
+        for (auto deviceObj = s_trimStateTrackerSnapshot.createdDevices.begin();
+             deviceObj != s_trimStateTrackerSnapshot.createdDevices.end(); deviceObj++) {
+            for (auto setObj = s_trimStateTrackerSnapshot.createdDescriptorSets.begin();
+                 setObj != s_trimStateTrackerSnapshot.createdDescriptorSets.end(); setObj++) {
+                if (setObj->second.bReferencedInTrim) {
+                    if (setObj->second.belongsToDevice == (VkDevice)deviceObj->first) {
+                        uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
+                        if (descriptorWriteCount > 0) {
+                            VkWriteDescriptorSet *pDescriptorWrites = setObj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets;
+                            for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+                                trim::mark_DescriptorSet_reference(pDescriptorWrites[i].dstSet);
+                                for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                                    switch (pDescriptorWrites[i].descriptorType) {
+                                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                                            trim::mark_ImageView_reference(pDescriptorWrites[i].pImageInfo[j].imageView);
+                                        } break;
+                                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                                            trim::mark_Buffer_reference(pDescriptorWrites[i].pBufferInfo[j].buffer);
+                                        } break;
+                                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                                            trim::mark_BufferView_reference(pDescriptorWrites[i].pTexelBufferView[j]);
+                                        } break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
+                        if (descriptorCopyCount > 0) {
+                            VkCopyDescriptorSet *pDescriptorCopies = setObj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets;
+                            for (uint32_t i = 0; i < descriptorCopyCount; i++) {
+                                trim::mark_DescriptorSet_reference(pDescriptorCopies[i].srcSet);
+                                trim::mark_DescriptorSet_reference(pDescriptorCopies[i].dstSet);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Mark reference for objects related to swapchain images
+        for (auto obj = s_trimStateTrackerSnapshot.createdFramebuffers.begin();
+             obj != s_trimStateTrackerSnapshot.createdFramebuffers.end(); obj++) {
+            for (uint32_t i = 0; i < obj->second.ObjectInfo.Framebuffer.attachmentCount; i++) {
+                trim::ObjectInfo *pImageViewObjectInfo =
+                    trim::get_ImageView_objectInfo(obj->second.ObjectInfo.Framebuffer.pAttachments[i]);
+                if (pImageViewObjectInfo) {
+                    trim::ObjectInfo *pImageObjectInfo =
+                        trim::get_Image_objectInfo(pImageViewObjectInfo->ObjectInfo.ImageView.image);
+                    if (pImageObjectInfo && pImageObjectInfo->ObjectInfo.Image.bIsSwapchainImage) {
+                        trim::mark_Framebuffer_reference((VkFramebuffer)obj->first);
+                    }
+                }
+            }
+        }
+    }
+
     vktrace_LogDebug("vktrace recreating objects for trim.");
 
     vktrace_enter_critical_section(&trimStateTrackerLock);
@@ -2965,6 +3401,11 @@ void write_all_referenced_object_calls() {
 
     // CommandPool
     for (auto poolObj = stateTracker.createdCommandPools.begin(); poolObj != stateTracker.createdCommandPools.end(); poolObj++) {
+        if (g_trimPostProcess && !poolObj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_CommandPool_object((VkCommandPool)poolObj->first);
+            continue;
+        }
         vktrace_write_trace_packet(poolObj->second.ObjectInfo.CommandPool.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(poolObj->second.ObjectInfo.CommandPool.pCreatePacket));
 
@@ -3009,6 +3450,9 @@ void write_all_referenced_object_calls() {
 
     // First fill in the memory that the image will be associated with
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            continue;
+        }
         // only update the memory for images that don't need a staging buffer
         if (obj->second.ObjectInfo.Image.needsStagingBuffer == false) {
             // write map / unmap packets so the memory contents gets set on
@@ -3033,7 +3477,7 @@ void write_all_referenced_object_calls() {
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
     // The location of following code block which is used to recreate
-    // Swapchain must be put before ordered image creation if
+    // Swapchain must be put after ordered image creation if
     // TRIM_USE_ORDERED_IMAGE_CREATION is enabled. the reason:
     // Let's consider the following calls during capture a title:
     //
@@ -3079,6 +3523,9 @@ void write_all_referenced_object_calls() {
     }
 
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            continue;
+        }
 #if !TRIM_USE_ORDERED_IMAGE_CREATION
         // CreateImage
         if (obj->second.ObjectInfo.Image.pCreatePacket != NULL) {
@@ -3103,6 +3550,11 @@ void write_all_referenced_object_calls() {
 
     vktrace_LogDebug("Recreating Images.");
     for (auto obj = stateTracker.createdImages.begin(); obj != stateTracker.createdImages.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_Image_object((VkImage)obj->first);
+            continue;
+        }
         VkImage image = obj->first;
         VkDevice device = obj->second.belongsToDevice;
 
@@ -3393,6 +3845,11 @@ void write_all_referenced_object_calls() {
 
     // ImageView
     for (auto obj = stateTracker.createdImageViews.begin(); obj != stateTracker.createdImageViews.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_ImageView_object((VkImageView)obj->first);
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.ImageView.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.ImageView.pCreatePacket));
     }
@@ -3400,6 +3857,11 @@ void write_all_referenced_object_calls() {
     // Buffer
     vktrace_LogDebug("Recreating Buffers.");
     for (auto obj = stateTracker.createdBuffers.begin(); obj != stateTracker.createdBuffers.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_Buffer_object((VkBuffer)obj->first);
+            continue;
+        }
         VkBuffer buffer = (VkBuffer)obj->first;
         VkDevice device = obj->second.belongsToDevice;
 
@@ -3558,6 +4020,11 @@ void write_all_referenced_object_calls() {
 
     // BufferView
     for (auto obj = stateTracker.createdBufferViews.begin(); obj != stateTracker.createdBufferViews.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_BufferView_object((VkBufferView)obj->first);
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.BufferView.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.BufferView.pCreatePacket));
     }
@@ -3589,6 +4056,11 @@ void write_all_referenced_object_calls() {
 
     // ShaderModule
     for (auto obj = stateTracker.createdShaderModules.begin(); obj != stateTracker.createdShaderModules.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_ShaderModule_object((VkShaderModule)obj->first);
+            continue;
+        }
         VkShaderModule shaderModule = static_cast<VkShaderModule>(obj->first);
         vktrace_trace_packet_header *pHeader =
             generate::vkCreateShaderModule(false, obj->second.belongsToDevice, &obj->second.ObjectInfo.ShaderModule.createInfo,
@@ -3599,12 +4071,22 @@ void write_all_referenced_object_calls() {
 
     // PipelineCache
     for (auto obj = stateTracker.createdPipelineCaches.begin(); obj != stateTracker.createdPipelineCaches.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_PipelineCache_object((VkPipelineCache)obj->first);
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.PipelineCache.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.PipelineCache.pCreatePacket));
     }
 
     // Pipeline
     for (auto obj = stateTracker.createdPipelines.begin(); obj != stateTracker.createdPipelines.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_Pipeline_object((VkPipeline)obj->first);
+            continue;
+        }
         VkPipeline pipeline = obj->first;
         VkDevice device = obj->second.belongsToDevice;
         VkPipelineCache pipelineCache = obj->second.ObjectInfo.Pipeline.pipelineCache;
@@ -3616,7 +4098,9 @@ void write_all_referenced_object_calls() {
                                         ? obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[moduleIndex].module
                                         : obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo.stage.module;
 
-            if (stateTracker.createdShaderModules.find(module) == stateTracker.createdShaderModules.end()) {
+            auto shaderModuleObj = stateTracker.createdShaderModules.find(module);
+            if (shaderModuleObj == stateTracker.createdShaderModules.end() ||
+                (g_trimPostProcess && !shaderModuleObj->second.bReferencedInTrim)) {
                 // the shader module does not yet exist, so create it specifically for this pipeline
                 vktrace_trace_packet_header *pCreateShaderModule = generate::vkCreateShaderModule(
                     false, device, &obj->second.ObjectInfo.Pipeline.pShaderModuleCreateInfos[moduleIndex], nullptr, &module);
@@ -3673,7 +4157,9 @@ void write_all_referenced_object_calls() {
                                         ? obj->second.ObjectInfo.Pipeline.graphicsPipelineCreateInfo.pStages[moduleIndex].module
                                         : obj->second.ObjectInfo.Pipeline.computePipelineCreateInfo.stage.module;
 
-            if (stateTracker.createdShaderModules.find(module) == stateTracker.createdShaderModules.end()) {
+            auto shaderModuleObj = stateTracker.createdShaderModules.find(module);
+            if (shaderModuleObj == stateTracker.createdShaderModules.end() ||
+                (g_trimPostProcess && !shaderModuleObj->second.bReferencedInTrim)) {
                 // the shader module did not previously exist, so delete it.
                 vktrace_trace_packet_header *pDestroyShaderModule = generate::vkDestroyShaderModule(false, device, module, nullptr);
                 vktrace_write_trace_packet(pDestroyShaderModule, vktrace_trace_get_trace_file());
@@ -3685,6 +4171,11 @@ void write_all_referenced_object_calls() {
     // DescriptorPool
     for (auto poolObj = stateTracker.createdDescriptorPools.begin(); poolObj != stateTracker.createdDescriptorPools.end();
          poolObj++) {
+        if (g_trimPostProcess && !poolObj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_DescriptorPool_object((VkDescriptorPool)poolObj->first);
+            continue;
+        }
         // write the createDescriptorPool packet
         vktrace_write_trace_packet(poolObj->second.ObjectInfo.DescriptorPool.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(poolObj->second.ObjectInfo.DescriptorPool.pCreatePacket));
@@ -3706,6 +4197,11 @@ void write_all_referenced_object_calls() {
                  setObj++) {
                 // get descriptorSetLayouts and DescriptorSets specific to this
                 // pool
+                if (g_trimPostProcess && !setObj->second.bReferencedInTrim) {
+                    // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+                    trim::remove_DescriptorSet_object((VkDescriptorSet)setObj->first);
+                    continue;
+                }
                 if (setObj->second.ObjectInfo.DescriptorSet.descriptorPool == allocateInfo.descriptorPool &&
                     setIndex < poolObj->second.ObjectInfo.DescriptorPool.numSets) {
                     pSetLayouts[setIndex] = setObj->second.ObjectInfo.DescriptorSet.layout;
@@ -3735,6 +4231,11 @@ void write_all_referenced_object_calls() {
     for (auto deviceObj = stateTracker.createdDevices.begin(); deviceObj != stateTracker.createdDevices.end(); deviceObj++) {
         for (auto setObj = stateTracker.createdDescriptorSets.begin(); setObj != stateTracker.createdDescriptorSets.end();
              setObj++) {
+            if (g_trimPostProcess && !setObj->second.bReferencedInTrim) {
+                // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+                trim::remove_DescriptorSet_object((VkDescriptorSet)setObj->first);
+                continue;
+            }
             if (setObj->second.belongsToDevice == (VkDevice)deviceObj->first) {
                 // when trim track vkAllocateDescriptorSets, it create numBindings
                 // WriteDescriptorSets and CopyDescriptorSets to record the binding
@@ -3748,6 +4249,9 @@ void write_all_referenced_object_calls() {
                 // has been updated.
                 uint32_t descriptorWriteCount = setObj->second.ObjectInfo.DescriptorSet.writeDescriptorCount;
                 uint32_t descriptorCopyCount = setObj->second.ObjectInfo.DescriptorSet.copyDescriptorCount;
+                if (descriptorWriteCount == 0 && descriptorCopyCount == 0) {
+                    continue;
+                }
                 VkWriteDescriptorSet *pDescriptorWrites = setObj->second.ObjectInfo.DescriptorSet.pWriteDescriptorSets;
                 VkCopyDescriptorSet *pDescriptorCopies = setObj->second.ObjectInfo.DescriptorSet.pCopyDescriptorSets;
 
@@ -3762,6 +4266,11 @@ void write_all_referenced_object_calls() {
 
     // Framebuffer
     for (auto obj = stateTracker.createdFramebuffers.begin(); obj != stateTracker.createdFramebuffers.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_Framebuffer_object((VkFramebuffer)obj->first);
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.Framebuffer.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.Framebuffer.pCreatePacket));
     }
@@ -3778,7 +4287,7 @@ void write_all_referenced_object_calls() {
         VkFence fence = obj->first;
         VkAllocationCallbacks *pAllocator = get_Allocator(obj->second.ObjectInfo.Fence.pAllocator);
 
-        VkFenceCreateInfo createInfo;
+        VkFenceCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         createInfo.pNext = nullptr;
         createInfo.flags = (obj->second.ObjectInfo.Fence.signaled) ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
@@ -3796,6 +4305,11 @@ void write_all_referenced_object_calls() {
 
     // QueryPool
     for (auto obj = stateTracker.createdQueryPools.begin(); obj != stateTracker.createdQueryPools.end(); obj++) {
+        if (g_trimPostProcess && !obj->second.bReferencedInTrim) {
+            // TODO: Find a way to not remove from s_trimGlobalStateTracker.
+            trim::remove_QueryPool_object((VkQueryPool)obj->first);
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.QueryPool.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.QueryPool.pCreatePacket));
 
@@ -3882,6 +4396,9 @@ void write_all_referenced_object_calls() {
     // 1. Go through secondary command buffers
     for (auto cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end();
          ++cmdBuffer) {
+        if (g_trimPostProcess && !cmdBuffer->second.bReferencedInTrim) {
+            continue;
+        }
         if (cmdBuffer->second.ObjectInfo.CommandBuffer.level == VK_COMMAND_BUFFER_LEVEL_SECONDARY) {
             std::list<vktrace_trace_packet_header *> &packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
 
@@ -3896,6 +4413,9 @@ void write_all_referenced_object_calls() {
     // 2. Go through primary command buffers
     for (auto cmdBuffer = stateTracker.createdCommandBuffers.begin(); cmdBuffer != stateTracker.createdCommandBuffers.end();
          ++cmdBuffer) {
+        if (g_trimPostProcess && !cmdBuffer->second.bReferencedInTrim) {
+            continue;
+        }
         if (cmdBuffer->second.ObjectInfo.CommandBuffer.level == VK_COMMAND_BUFFER_LEVEL_PRIMARY) {
             std::list<vktrace_trace_packet_header *> &packets = stateTracker.m_cmdBufferPackets[(VkCommandBuffer)cmdBuffer->first];
 
@@ -3979,6 +4499,15 @@ void write_all_referenced_object_calls() {
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.DescriptorUpdateTemplate.pCreatePacket));
     }
 
+    // Recreate in-trim objects
+    vktrace_enter_critical_section(&trimStateTrackerLock);
+    for (auto iter = s_trimGlobalStateTracker.m_inTrim_calls.begin(); iter != s_trimGlobalStateTracker.m_inTrim_calls.end();
+         ++iter) {
+        vktrace_write_trace_packet(*iter, vktrace_trace_get_trace_file());
+        vktrace_delete_trace_packet_no_lock(&(*iter));
+    }
+    vktrace_leave_critical_section(&trimStateTrackerLock);
+
     vktrace_LogDebug("vktrace done recreating objects for trim.");
 }
 
@@ -4013,6 +4542,12 @@ void add_CommandBuffer_call(VkCommandBuffer commandBuffer, vktrace_trace_packet_
 void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer) {
     vktrace_enter_critical_section(&trimCommandBufferPacketLock);
     s_trimGlobalStateTracker.remove_CommandBuffer_calls(commandBuffer);
+    if (g_trimIsInTrim) {
+        // Set command buffer reference as checked to not re-create the
+        // useless command buffer calls before trim if the same command
+        // buffer is re-used in trim.
+        mark_CommandBuffer_reference(commandBuffer);
+    }
     vktrace_leave_critical_section(&trimCommandBufferPacketLock);
 }
 
@@ -4036,7 +4571,11 @@ void reset_DescriptorPool(VkDescriptorPool descriptorPool) {
 // Packet Recording for frames of interest
 //===============================================
 void write_packet(vktrace_trace_packet_header *pHeader) {
-    vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+    if (g_trimPostProcess && g_trimIsInTrim) {
+        add_InTrim_call(copy_packet(pHeader));
+    } else {
+        vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
+    }
     vktrace_delete_trace_packet(&pHeader);
 }
 

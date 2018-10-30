@@ -681,6 +681,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateCommandBuffers
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_CommandPool_reference(pAllocateInfo->commandPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -719,6 +720,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBeginCommandBuffer(VkC
         trim::clear_binding_Pipelines_from_CommandBuffer(commandBuffer);
 
         if (g_trimIsInTrim) {
+            if (pBeginInfo->pInheritanceInfo) {
+                trim::mark_Framebuffer_reference(pBeginInfo->pInheritanceInfo->framebuffer);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -1019,6 +1023,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateFramebuffer(VkDe
             trim::add_Allocator(pAllocator);
         }
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++) {
+                trim::mark_ImageView_reference(pCreateInfo->pAttachments[i]);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -1642,6 +1649,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetQueryPoolResults(Vk
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
+            trim::mark_QueryPool_reference(queryPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -1793,6 +1801,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateDescriptorSets
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_DescriptorPool_reference(pAllocateInfo->descriptorPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2051,6 +2060,33 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
         for (uint32_t i = 0; i < descriptorWriteCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
             if (pInfo != NULL) {
+                if (g_trimIsInTrim) {
+                    trim::mark_DescriptorSet_reference(pDescriptorWrites[i].dstSet);
+                    for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                        switch (pDescriptorWrites[i].descriptorType) {
+                            case VK_DESCRIPTOR_TYPE_SAMPLER:
+                            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                                trim::mark_ImageView_reference(pDescriptorWrites[i].pImageInfo[j].imageView);
+                            } break;
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                                trim::mark_Buffer_reference(pDescriptorWrites[i].pBufferInfo[j].buffer);
+                            } break;
+                            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                                trim::mark_BufferView_reference(pDescriptorWrites[i].pTexelBufferView[j]);
+                            } break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
                 // find existing writeDescriptorSet info to update.
                 VkWriteDescriptorSet* pWriteDescriptorSet = NULL;
                 for (uint32_t w = 0; w < pInfo->ObjectInfo.DescriptorSet.numBindings; w++) {
@@ -2103,6 +2139,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSets(VkDev
         for (uint32_t i = 0; i < descriptorCopyCount; i++) {
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorCopies[i].dstSet);
             if (pInfo != NULL) {
+                if (g_trimIsInTrim) {
+                    trim::mark_DescriptorSet_reference(pDescriptorCopies[i].srcSet);
+                    trim::mark_DescriptorSet_reference(pDescriptorCopies[i].dstSet);
+                }
                 // find existing CopyDescriptorSet info to update, or allocate space for a new one.
                 VkCopyDescriptorSet* pCopyDescriptorSet = NULL;
                 for (uint32_t c = 0; c < pInfo->ObjectInfo.DescriptorSet.numBindings; c++) {
@@ -2210,7 +2250,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueSubmit(VkQueue qu
                     // Update attachment objects based on RenderPass transitions
                     for (uint32_t c = 0; c < pSubmits[i].commandBufferCount; c++) {
                         trim::ObjectInfo* pCBInfo = trim::get_CommandBuffer_objectInfo(pSubmits[i].pCommandBuffers[c]);
-                        pCBInfo->ObjectInfo.CommandBuffer.submitQueue = queue;
+                        if (pCBInfo != nullptr) {
+                            pCBInfo->ObjectInfo.CommandBuffer.submitQueue = queue;
+                        }
 
                         // apply image transitions
                         std::list<trim::ImageTransition> imageTransitions =
@@ -2391,6 +2433,15 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueueBindSparse(VkQueu
         }
 
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < pBindInfo->bufferBindCount; i++) {
+                trim::mark_Buffer_reference(pBindInfo->pBufferBinds[i].buffer);
+            }
+            for (uint32_t i = 0; i < pBindInfo->imageBindCount; i++) {
+                trim::mark_Image_reference(pBindInfo->pImageBinds[i].image);
+            }
+            for (uint32_t i = 0; i < pBindInfo->imageOpaqueBindCount; i++) {
+                trim::mark_Image_reference(pBindInfo->pImageOpaqueBinds[i].image);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2455,7 +2506,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) {
             trim::ObjectInfo* pImageInfo = trim::get_Image_objectInfo(pImageMemoryBarriers[i].image);
-            assert(pImageInfo != nullptr);
             if (pImageInfo != nullptr) {
                 pImageInfo->ObjectInfo.Image.mostRecentLayout = pImageMemoryBarriers[i].newLayout;
             }
@@ -2464,6 +2514,12 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdWaitEvents(
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
 
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++) {
+                trim::mark_Buffer_reference(pBufferMemoryBarriers[i].buffer);
+            }
+            for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) {
+                trim::mark_Image_reference(pImageMemoryBarriers[i].image);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2523,7 +2579,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < imageMemoryBarrierCount; i++) {
             trim::ObjectInfo* pImageInfo = trim::get_Image_objectInfo(pImageMemoryBarriers[i].image);
-            assert(pImageInfo != nullptr);
             if (pImageInfo != nullptr) {
                 trim::ImageTransition transition;
                 transition.image = pImageMemoryBarriers[i].image;
@@ -2533,12 +2588,14 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
                 transition.dstAccessMask = pImageMemoryBarriers[i].dstAccessMask;
 
                 trim::AddImageTransition(commandBuffer, transition);
+                if (g_trimIsInTrim) {
+                    trim::mark_Image_reference(pImageMemoryBarriers[i].image);
+                }
             }
         }
 
         for (uint32_t i = 0; i < bufferMemoryBarrierCount; i++) {
             trim::ObjectInfo* pBufferInfo = trim::get_Buffer_objectInfo(pBufferMemoryBarriers[i].buffer);
-            assert(pBufferInfo != nullptr);
             if (pBufferInfo != nullptr) {
                 trim::BufferTransition transition;
                 transition.buffer = pBufferMemoryBarriers[i].buffer;
@@ -2546,6 +2603,9 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPipelineBarrier(
                 transition.dstAccessMask = pBufferMemoryBarriers[i].dstAccessMask;
 
                 trim::AddBufferTransition(commandBuffer, transition);
+                if (g_trimIsInTrim) {
+                    trim::mark_Buffer_reference(pBufferMemoryBarriers[i].buffer);
+                }
             }
         }
 
@@ -2659,6 +2719,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetPipelineCacheData(V
         vktrace_finalize_trace_packet(pHeader);
 
         if (g_trimIsInTrim) {
+            trim::mark_PipelineCache_reference(pipelineCache);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2748,6 +2809,12 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
                     trim::StateTracker::copy_VkShaderModuleCreateInfo(
                         &info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex],
                         pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+                } else {
+                    memset(&info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[stageIndex], 0, sizeof(VkShaderModuleCreateInfo));
+                }
+
+                if (g_trimIsInTrim) {
+                    trim::mark_ShaderModule_reference(pCreateInfos[i].pStages[stageIndex].module);
                 }
             }
 
@@ -2760,6 +2827,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateGraphicsPipeline
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_PipelineCache_reference(pipelineCache);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2838,6 +2906,8 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
             if (pShaderModuleInfo != nullptr) {
                 trim::StateTracker::copy_VkShaderModuleCreateInfo(&info.ObjectInfo.Pipeline.pShaderModuleCreateInfos[0],
                                                                   pShaderModuleInfo->ObjectInfo.ShaderModule.createInfo);
+            } else {
+                memset(info.ObjectInfo.Pipeline.pShaderModuleCreateInfos, 0, sizeof(VkShaderModuleCreateInfo));
             }
 
             trim::StateTracker::copy_VkComputePipelineCreateInfo(&info.ObjectInfo.Pipeline.computePipelineCreateInfo,
@@ -2846,8 +2916,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateComputePipelines
                 info.ObjectInfo.Pipeline.pAllocator = pAllocator;
                 trim::add_Allocator(pAllocator);
             }
+
+            if (g_trimIsInTrim) {
+                trim::mark_ShaderModule_reference(pCreateInfos[i].stage.module);
+            }
         }
         if (g_trimIsInTrim) {
+            trim::mark_PipelineCache_reference(pipelineCache);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2932,7 +3007,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
 
             trim::ObjectInfo* pFramebuffer = trim::get_Framebuffer_objectInfo(pRenderPassBegin->framebuffer);
             trim::ObjectInfo* pRenderPass = trim::get_RenderPass_objectInfo(pRenderPassBegin->renderPass);
-            assert(pRenderPass != nullptr && pFramebuffer != nullptr);
             if (pRenderPass != nullptr && pFramebuffer != nullptr) {
                 assert(pRenderPass->ObjectInfo.RenderPass.attachmentCount == pFramebuffer->ObjectInfo.Framebuffer.attachmentCount);
                 uint32_t minAttachmentCount = std::min<uint32_t>(pRenderPass->ObjectInfo.RenderPass.attachmentCount,
@@ -2940,7 +3014,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
                 for (uint32_t i = 0; i < minAttachmentCount; i++) {
                     trim::ObjectInfo* pImageView =
                         trim::get_ImageView_objectInfo(pFramebuffer->ObjectInfo.Framebuffer.pAttachments[i]);
-                    assert(pImageView != nullptr);
                     if (pImageView != nullptr) {
                         pRenderPass->ObjectInfo.RenderPass.pAttachments[i].image = pImageView->ObjectInfo.ImageView.image;
                     } else {
@@ -2951,6 +3024,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdBeginRenderPass(VkComma
         }
 
         if (g_trimIsInTrim) {
+            trim::mark_Framebuffer_reference(pRenderPassBegin->framebuffer);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -2987,9 +3061,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFreeDescriptorSets(VkD
             for (uint32_t i = 0; i < descriptorSetCount; i++) {
                 // Clean up memory
                 trim::remove_DescriptorSet_object(pDescriptorSets[i]);
+                if (g_trimIsInTrim) {
+                    trim::mark_DescriptorSet_reference(pDescriptorSets[i]);
+                }
             }
         }
         if (g_trimIsInTrim) {
+            trim::mark_DescriptorPool_reference(descriptorPool);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -3190,6 +3268,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkDestroyBuffer(VkDevice dev
         vktrace_finalize_trace_packet(pHeader);
         trim::remove_Buffer_object(buffer);
         if (g_trimIsInTrim) {
+            trim::mark_Buffer_reference(buffer);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -3229,6 +3308,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkBindBufferMemory(VkDev
             pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(memory);
         }
         if (g_trimIsInTrim) {
+            trim::mark_Buffer_reference(buffer);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -3441,6 +3521,9 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
         }
 
         if (g_trimIsInTrim) {
+            for (uint32_t i = 0; i < *pSwapchainImageCount; i++) {
+                trim::mark_Image_reference(pSwapchainImages[i]);
+            }
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -4199,6 +4282,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
+            trim::mark_DescriptorSet_reference(descriptorSet);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -4230,6 +4314,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
     } else {
         vktrace_finalize_trace_packet(pHeader);
         if (g_trimIsInTrim) {
+            trim::mark_DescriptorSet_reference(descriptorSet);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);
@@ -4304,6 +4389,33 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdPushDescriptorSetKHR(Vk
     } else {
         vktrace_finalize_trace_packet(pHeader);
         for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+            if (g_trimIsInTrim) {
+                trim::mark_DescriptorSet_reference(pDescriptorWrites[i].dstSet);
+                for (uint32_t j = 0; j < pDescriptorWrites[i].descriptorCount; j++) {
+                    switch (pDescriptorWrites[i].descriptorType) {
+                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
+                            trim::mark_ImageView_reference(pDescriptorWrites[i].pImageInfo[j].imageView);
+                        } break;
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
+                            trim::mark_Buffer_reference(pDescriptorWrites[i].pBufferInfo[j].buffer);
+                        } break;
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
+                            trim::mark_BufferView_reference(pDescriptorWrites[i].pTexelBufferView[j]);
+                        } break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(pDescriptorWrites[i].dstSet);
             if (pInfo != NULL) {
                 // find existing writeDescriptorSet info to update.
@@ -4422,6 +4534,8 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkCmdCopyImageToBuffer(VkCom
         vktrace_finalize_trace_packet(pHeader);
         trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));
         if (g_trimIsInTrim) {
+            trim::mark_Buffer_reference(dstBuffer);
+            trim::mark_Image_reference(srcImage);
             trim::write_packet(pHeader);
         } else {
             vktrace_delete_trace_packet(&pHeader);

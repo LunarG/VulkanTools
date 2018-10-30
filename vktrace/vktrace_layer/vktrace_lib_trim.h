@@ -132,6 +132,8 @@ void remove_CommandBuffer_calls(VkCommandBuffer commandBuffer);
 void add_Image_call(vktrace_trace_packet_header *pHeader);
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
+void add_InTrim_call(vktrace_trace_packet_header *pHeader);
+
 void AddImageTransition(VkCommandBuffer commandBuffer, ImageTransition transition);
 std::list<ImageTransition> GetImageTransitions(VkCommandBuffer commandBuffer);
 void ClearImageTransitions(VkCommandBuffer commandBuffer);
@@ -158,7 +160,21 @@ VkImageAspectFlags getImageAspectFromFormat(VkFormat format);
 void add_Allocator(const VkAllocationCallbacks *pAllocator);
 VkAllocationCallbacks *get_Allocator(const VkAllocationCallbacks *pAllocator);
 
-void mark_CommandBuffer_reference(VkCommandBuffer commandbuffer);
+void mark_Device_reference(VkDevice var);
+void mark_CommandBuffer_reference(VkCommandBuffer var);
+void mark_CommandPool_reference(VkCommandPool var);
+void mark_ShaderModule_reference(VkShaderModule var);
+void mark_Pipeline_reference(VkPipeline var);
+void mark_PipelineCache_reference(VkPipelineCache var);
+void mark_DescriptorPool_reference(VkDescriptorPool var);
+void mark_DescriptorSet_reference(VkDescriptorSet var);
+void mark_Image_reference(VkImage var);
+void mark_ImageView_reference(VkImageView var);
+void mark_Framebuffer_reference(VkFramebuffer var);
+void mark_QueryPool_reference(VkQueryPool var);
+void mark_DeviceMemory_reference(VkDeviceMemory var);
+void mark_Buffer_reference(VkBuffer var);
+void mark_BufferView_reference(VkBufferView var);
 
 ObjectInfo &add_Instance_object(VkInstance var);
 ObjectInfo *get_Instance_objectInfo(VkInstance var);
