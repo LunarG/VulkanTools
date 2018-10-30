@@ -334,10 +334,10 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         outstring += 'size_t get_struct_size(const void* struct_ptr);\n'
         for item in self.structMembers:
             lower_case_name = item.name.lower()
-            if item.ifdef_protect != None:
+            if item.ifdef_protect is not None:
                 outstring += '#ifdef %s\n' % item.ifdef_protect
             outstring += 'size_t vk_size_%s(const %s* struct_ptr);\n' % (item.name.lower(), item.name)
-            if item.ifdef_protect != None:
+            if item.ifdef_protect is not None:
                 outstring += '#endif // %s\n' % item.ifdef_protect
         outstring += '#ifdef __cplusplus\n'
         outstring += '}\n'
@@ -412,7 +412,7 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
         for item in self.structMembers:
             struct_size_funcs += '\n'
             lower_case_name = item.name.lower()
-            if item.ifdef_protect != None:
+            if item.ifdef_protect is not None:
                 struct_size_funcs += '#ifdef %s\n' % item.ifdef_protect
                 struct_size += '#ifdef %s\n' % item.ifdef_protect
                 chain_size += '#ifdef %s\n' % item.ifdef_protect
@@ -460,7 +460,7 @@ class ToolHelperFileOutputGenerator(OutputGenerator):
             struct_size_funcs += '    }\n'
             struct_size_funcs += '    return struct_size;\n'
             struct_size_funcs += '}\n'
-            if item.ifdef_protect != None:
+            if item.ifdef_protect is not None:
                 struct_size_funcs += '#endif // %s\n' % item.ifdef_protect
                 struct_size += '#endif // %s\n' % item.ifdef_protect
                 chain_size += '#endif // %s\n' % item.ifdef_protect
