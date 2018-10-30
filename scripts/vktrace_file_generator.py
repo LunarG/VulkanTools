@@ -789,7 +789,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     else:
                         replay_gen_source += '            %s local_%s;\n' % (params[-1].type.strip('*').replace('const ', ''), params[-1].name)
                 elif cmdname == 'ResetFences':
-                    replay_gen_source += '            VkFence* fences = VKTRACE_NEW_ARRAY(VkFence, pPacket->fenceCount);\n'
+                    replay_gen_source += '            VkFence* fences = (VkFence *)pPacket->pFences;\n'
                     replay_gen_source += '            for (uint32_t i = 0; i < pPacket->fenceCount; i++) {\n'
                     replay_gen_source += '                fences[i] = m_objMapper.remap_fences(pPacket->%s[i]);\n' % (params[-1].name)
                     replay_gen_source += '                if (fences[i] == VK_NULL_HANDLE) {\n'
@@ -965,8 +965,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            if (memcmp(&memProperties, pPacket->pMemoryProperties, sizeof(VkPhysicalDeviceMemoryProperties)) != 0) {\n'
                     replay_gen_source += '                vktrace_LogError("Physical Device Memory properties differ. Memory heaps may not match as expected.");\n'
                     replay_gen_source += '            }\n'
-                elif cmdname == 'ResetFences':
-                    replay_gen_source += '            VKTRACE_DELETE(fences);\n'
                 elif create_func: # Save handle mapping if create successful
                     if ret_value:
                         replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
