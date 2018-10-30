@@ -8,12 +8,18 @@ import os.path
 import subprocess
 import sys
 
+ANDROID_ARCH_BUILD_ERROR_MSG = '''
+Error: Android builds are not supported by this script.
+       You can manually build for Android by following the instruction in the
+       BUILD.md file.
+'''
+
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(
         description='Vulkan Tools build script')
     arg_parser.add_argument(
         '-a', '--arch', action='store',
-        default='x64',  choices=['x86', 'x64'],
+        default='x64',  choices=['x86', 'x64', 'android'],
         dest='arch', metavar='ARCH',
         help='Choose target architecture')
     arg_parser.add_argument(
@@ -37,6 +43,9 @@ if __name__ == '__main__':
         dest='no_build',
         help='Do not run cmake build, only generate build files')
     arguments = arg_parser.parse_args(sys.argv[1:])
+    if 'android' == arguments.arch:
+        print(ANDROID_ARCH_BUILD_ERROR_MSG)
+        exit(1)
     if not arguments.no_deps:
         subprocess.run(['git', 'submodule', 'update', '--recursive'],
                        cwd=os.getcwd())
