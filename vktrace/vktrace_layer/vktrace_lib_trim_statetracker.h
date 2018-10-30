@@ -70,6 +70,8 @@ typedef struct _Trim_ObjectInfo {
     uint64_t vkObject;                         // object handle
     bool bReferencedInTrim;                    // True if the object was referenced during the trim
                                                // frames
+    bool bReferencedInTrimChecked;             // True if the object has been checked if it was referenced
+                                               // during the trim frames
     VkInstance belongsToInstance;              // owning Instance
     VkPhysicalDevice belongsToPhysicalDevice;  // owning PhysicalDevice
     VkDevice belongsToDevice;                  // owning Device
@@ -185,6 +187,7 @@ typedef struct _Trim_ObjectInfo {
         struct _BufferView {  // VkBufferView
             vktrace_trace_packet_header *pCreatePacket;
             const VkAllocationCallbacks *pAllocator;
+            VkBuffer buffer;
         } BufferView;
         struct _Sampler {  // VkSampler
             vktrace_trace_packet_header *pCreatePacket;
@@ -347,6 +350,8 @@ class StateTracker {
     void add_Image_call(vktrace_trace_packet_header *pHeader);
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
+    void add_InTrim_call(vktrace_trace_packet_header *pHeader);
+
     StateTracker &operator=(const StateTracker &other);
 
     ObjectInfo &add_Instance(VkInstance var);
@@ -463,6 +468,8 @@ class StateTracker {
     // We need to recreate them in the same order to ensure they will have the
     // same size requirements as they had a trace-time.
     std::list<vktrace_trace_packet_header *> m_image_calls;
+
+    std::list<vktrace_trace_packet_header *> m_inTrim_calls;
 
     std::unordered_map<VkInstance, ObjectInfo> createdInstances;
     std::vector<VkInstance> seqInstances;

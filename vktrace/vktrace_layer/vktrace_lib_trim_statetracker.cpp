@@ -101,6 +101,8 @@ void StateTracker::remove_CommandBuffer_calls(VkCommandBuffer commandBuffer) {
 void StateTracker::add_Image_call(vktrace_trace_packet_header *pHeader) { m_image_calls.push_back(pHeader); }
 #endif  // TRIM_USE_ORDERED_IMAGE_CREATION
 
+void StateTracker::add_InTrim_call(vktrace_trace_packet_header *pHeader) { m_inTrim_calls.push_back(pHeader); }
+
 //-------------------------------------------------------------------------
 void StateTracker::clear() {
     seqInstances.clear();
@@ -229,6 +231,12 @@ void StateTracker::clear() {
         vktrace_delete_trace_packet(&pHeader);
     }
     m_image_calls.clear();
+
+    for (auto packet = m_inTrim_calls.begin(); packet != m_inTrim_calls.end(); ++packet) {
+        vktrace_trace_packet_header *pHeader = *packet;
+        vktrace_delete_trace_packet(&pHeader);
+    }
+    m_inTrim_calls.clear();
 
     for (auto renderPassIter = m_renderPassVersions.begin(); renderPassIter != m_renderPassVersions.end(); ++renderPassIter) {
         std::vector<VkRenderPassCreateInfo *> versions = renderPassIter->second;

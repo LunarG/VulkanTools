@@ -1563,14 +1563,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     # during the trim frames.
     def GenerateTrimRecordingInstructions(self, proto):
         trim_instructions = []
-        if 'CmdExecuteCommands' is proto.name:
+        if 'vkCmdExecuteCommands' == proto.name:
             trim_instructions.append("            trim::write_packet(pHeader);")
             trim_instructions.append("            trim::mark_CommandBuffer_reference(commandBuffer);")
             trim_instructions.append("            if (pCommandBuffers != nullptr && commandBufferCount > 0) {")
             trim_instructions.append("                for (uint32_t i = 0; i < commandBufferCount; i++) {")
             trim_instructions.append("                    trim::mark_CommandBuffer_reference(pCommandBuffers[i]);")
             trim_instructions.append("                }")
-            trim_instructions.append("            }")
+            trim_instructions.append("            }\n")
         else:
             return None
         return "\n".join(trim_instructions)
@@ -1607,14 +1607,38 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyCommandPool' == proto.name:
             trim_instructions.append("        trim::remove_CommandPool_object(commandPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_CommandPool_reference(commandPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
-        elif 'vkDestroyCommandPool' == proto.name:
-            trim_instructions.append("        trim::remove_CommandPool_object(commandPool);")
+        elif 'vkResetCommandPool' == proto.name:
             trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
+            trim_instructions.append('            trim::mark_CommandPool_reference(commandPool);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkGetBufferMemoryRequirements2', 'vkGetBufferMemoryRequirements2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Buffer_reference(pInfo->buffer);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkGetBufferMemoryRequirements' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Buffer_reference(buffer);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkBindBufferMemory2', 'vkBindBufferMemory2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            for (uint32_t i = 0; i < bindInfoCount; i++) {')
+            trim_instructions.append('                trim::mark_Buffer_reference(pBindInfos[i].buffer);')
+            trim_instructions.append('            }')
+            trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
@@ -1729,6 +1753,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkCmdCopyBufferToImage' == proto.name:
+                trim_instructions.append("            trim::mark_Buffer_reference(srcBuffer);")
+                trim_instructions.append("            trim::mark_Image_reference(dstImage);")
+            else:
+                trim_instructions.append("            trim::mark_Image_reference(srcImage);")
+                trim_instructions.append("            trim::mark_Image_reference(dstImage);")
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1741,6 +1771,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append("            trim::mark_Image_reference(image);")
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1788,10 +1819,24 @@ class VkTraceFileOutputGenerator(OutputGenerator):
               'vkCmdClearAttachments' == proto.name or
               'vkCmdSetEvent' == proto.name or
               'vkCmdResetEvent' == proto.name or
-              'vkCmdNextSubpass' == proto.name or
-              'vkCmdExecuteCommands' == proto.name):
+              'vkCmdNextSubpass' == proto.name):
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkCmdBindDescriptorSets' == proto.name:
+                trim_instructions.append('            for (uint32_t i = 0; i < descriptorSetCount; i++) {')
+                trim_instructions.append('                trim::mark_DescriptorSet_reference(pDescriptorSets[i]);')
+                trim_instructions.append('            }')
+            elif proto.name in [ 'vkCmdBindIndexBuffer', 'vkCmdDrawIndirect', 'vkCmdDrawIndexedIndirect', 'vkCmdDispatchIndirect' ]:
+                trim_instructions.append('            trim::mark_Buffer_reference(buffer);')
+            elif 'vkCmdCopyBuffer' == proto.name:
+                trim_instructions.append('            trim::mark_Buffer_reference(srcBuffer);')
+                trim_instructions.append('            trim::mark_Buffer_reference(dstBuffer);')
+            elif proto.name in [ 'vkCmdUpdateBuffer', 'vkCmdFillBuffer' ]:
+                trim_instructions.append('            trim::mark_Buffer_reference(dstBuffer);')
+            elif 'vkCmdBindVertexBuffers' == proto.name:
+                trim_instructions.append('            for (uint32_t i = 0; i < bindingCount; i++) {')
+                trim_instructions.append('                trim::mark_Buffer_reference(pBuffers[i]);')
+                trim_instructions.append('            }')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1801,6 +1846,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::add_CommandBuffer_to_binding_Pipeline(commandBuffer, pipeline);")
             trim_instructions.append("        trim::add_binding_Pipeline_to_CommandBuffer(commandBuffer, pipeline);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Pipeline_reference(pipeline);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1825,6 +1871,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(pCreateInfo->image);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1832,6 +1879,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyImageView' == proto.name:
             trim_instructions.append("        trim::remove_ImageView_object(imageView);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_ImageView_reference(imageView);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1855,6 +1903,27 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkGetImageMemoryRequirements' == proto.name:
+                trim_instructions.append('            trim::mark_Image_reference(image);')
+            else:
+                trim_instructions.append('            trim::mark_Image_reference(pInfo->image);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkGetImageSparseMemoryRequirements', 'vkGetImageSparseMemoryRequirements2', 'vkGetImageSparseMemoryRequirements2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            if 'vkGetImageSparseMemoryRequirements' == proto.name:
+                trim_instructions.append('            trim::mark_Image_reference(image);')
+            else:
+                trim_instructions.append('            trim::mark_Image_reference(pInfo->image);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkGetImageSubresourceLayout' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(image);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1866,6 +1935,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("#endif //TRIM_USE_ORDERED_IMAGE_CREATION")
             trim_instructions.append("        trim::remove_Image_object(image);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(image);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1889,6 +1959,16 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("            pInfo->ObjectInfo.Image.needsStagingBuffer = pInfo->ObjectInfo.Image.needsStagingBuffer || trim::IsMemoryDeviceOnly(memory);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Image_reference(image);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif proto.name in [ 'vkBindImageMemory2', 'vkBindImageMemory2KHR' ]:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            for (uint32_t i = 0; i < bindInfoCount; i++) {')
+            trim_instructions.append('                trim::mark_Image_reference(pBindInfos[i].image);')
+            trim_instructions.append('            }')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1897,6 +1977,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::ObjectInfo &info = trim::add_BufferView_object(*pView);")
             trim_instructions.append("        info.belongsToDevice = device;")
             trim_instructions.append("        info.ObjectInfo.BufferView.pCreatePacket = trim::copy_packet(pHeader);")
+            trim_instructions.append("        info.ObjectInfo.BufferView.buffer = pCreateInfo->buffer;")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            info.ObjectInfo.BufferView.pAllocator = pAllocator;")
             trim_instructions.append("        }")
@@ -1904,6 +1985,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Buffer_reference(pCreateInfo->buffer);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1911,6 +1993,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyBufferView' == proto.name:
             trim_instructions.append("        trim::remove_BufferView_object(bufferView);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_BufferView_reference(bufferView);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -1926,26 +2009,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        if (pAllocator != NULL) {")
             trim_instructions.append("            trim::add_Allocator(pAllocator);")
-            trim_instructions.append("        }")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::write_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroyBuffer' == proto.name:
-            trim_instructions.append("        trim::remove_Buffer_object(buffer);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::write_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkBindBufferMemory' == proto.name:
-            trim_instructions.append("        trim::ObjectInfo* pInfo = trim::get_Buffer_objectInfo(buffer);")
-            trim_instructions.append("        if (pInfo != NULL) {")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.pBindBufferMemoryPacket = trim::copy_packet(pHeader);")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memory = memory;")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.memoryOffset = memoryOffset;")
-            trim_instructions.append("            pInfo->ObjectInfo.Buffer.needsStagingBuffer = trim::IsMemoryDeviceOnly(memory);")
             trim_instructions.append("        }")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
@@ -2016,9 +2079,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append('        }')
         elif 'vkResetDescriptorPool' == proto.name:
             trim_instructions.append("        trim::ObjectInfo* pPoolInfo = trim::get_DescriptorPool_objectInfo(descriptorPool);")
-            trim_instructions.append("        pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
+            trim_instructions.append("        if (pPoolInfo != NULL) {")
+            trim_instructions.append("            pPoolInfo->ObjectInfo.DescriptorPool.numSets = 0;")
+            trim_instructions.append('        }')
             trim_instructions.append("        trim::reset_DescriptorPool(descriptorPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_DescriptorPool_reference(descriptorPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2049,6 +2115,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyPipelineCache' == proto.name:
             trim_instructions.append("        trim::remove_PipelineCache_object(pipelineCache);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_PipelineCache_reference(pipelineCache);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2064,27 +2131,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::remove_SurfaceKHR_object(surface);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
             trim_instructions.append('            trim::write_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroyPipelineCache' == proto.name:
-            trim_instructions.append("        trim::remove_PipelineCache_object(pipelineCache);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroySwapchainKHR' == proto.name:
-            trim_instructions.append("        trim::remove_SwapchainKHR_object(swapchain);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
-            trim_instructions.append('        } else {')
-            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
-            trim_instructions.append('        }')
-        elif 'vkDestroySurfaceKHR' == proto.name:
-            trim_instructions.append("        trim::remove_SurfaceKHR_object(surface);")
-            trim_instructions.append('        if (g_trimIsInTrim) {')
-            trim_instructions.append('            trim::add_recorded_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
             trim_instructions.append('        }')
@@ -2111,6 +2157,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyShaderModule' == proto.name:
             trim_instructions.append("        trim::remove_ShaderModule_object(shaderModule);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_ShaderModule_reference(shaderModule);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2119,6 +2166,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        trim::remove_Pipeline_object(pipeline);")
             trim_instructions.append("        trim::clear_CommandBuffer_calls_by_binding_Pipeline(pipeline);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Pipeline_reference(pipeline);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2126,6 +2174,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyDescriptorPool' == proto.name:
             trim_instructions.append("        trim::remove_DescriptorPool_object(descriptorPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_DescriptorPool_reference(descriptorPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2133,6 +2182,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyFramebuffer' == proto.name:
             trim_instructions.append("        trim::remove_Framebuffer_object(framebuffer);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_Framebuffer_reference(framebuffer);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2187,6 +2237,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2194,6 +2245,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkCmdBeginQuery' == proto.name:
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2207,6 +2259,15 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             trim_instructions.append("        }")
             trim_instructions.append("        trim::add_CommandBuffer_call(commandBuffer, trim::copy_packet(pHeader));")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkCmdCopyQueryPoolResults' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
+            trim_instructions.append('            trim::mark_Buffer_reference(dstBuffer);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2214,6 +2275,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyQueryPool' == proto.name:
             trim_instructions.append("        trim::remove_QueryPool_object(queryPool);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::mark_QueryPool_reference(queryPool);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
@@ -2277,6 +2339,16 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         elif 'vkDestroyDevice' == proto.name:
             trim_instructions.append("        trim::remove_Device_object(device);")
             trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            trim::write_packet(pHeader);')
+            trim_instructions.append('        } else {')
+            trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
+            trim_instructions.append('        }')
+        elif 'vkMergePipelineCaches' == proto.name:
+            trim_instructions.append('        if (g_trimIsInTrim) {')
+            trim_instructions.append('            for (uint32_t i = 0; i < srcCacheCount; i++) {')
+            trim_instructions.append('                trim::mark_PipelineCache_reference(pSrcCaches[i]);')
+            trim_instructions.append('            }')
+            trim_instructions.append('            trim::mark_PipelineCache_reference(dstCache);')
             trim_instructions.append('            trim::write_packet(pHeader);')
             trim_instructions.append('        } else {')
             trim_instructions.append('            vktrace_delete_trace_packet(&pHeader);')
