@@ -1191,7 +1191,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         gen.OutputGenerator.beginFile(self, genOpts)
         self.format = genOpts.input
 
-        if self.registryFile != None:
+        if self.registryFile is not None:
             root = xml.etree.ElementTree.parse(self.registryFile)
         else:
             root = self.registry.reg
@@ -1218,7 +1218,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         # Find all of the extensions that use the system types
         self.sysTypes = set()
         for node in self.registry.reg.find('types').findall('type'):
-            if node.get('category') == None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform' or \
+            if node.get('category') is None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform' or \
                 (node.find('name') is not None and node.find('name').text in DEFINE_TYPES): #Handle system types that are '#define'd in spec
                 for extension in self.extTypes:
                     for structName in self.extTypes[extension].vktypes:
@@ -1259,14 +1259,14 @@ class ApiDumpOutputGenerator(OutputGenerator):
         loops = []
         unassignedControls = []
         depth = 0
-        while nextFor != None or nextFor != None or nextEnd != None:
+        while nextFor is not None or nextFor is not None or nextEnd is not None:
             # If this is a @foreach
-            if nextFor != None and ((nextIf == None or nextFor.start() < nextIf.start()) and nextFor.start() < nextEnd.start()):
+            if nextFor is not None and ((nextIf is None or nextFor.start() < nextIf.start()) and nextFor.start() < nextEnd.start()):
                 depth += 1
                 forType = re.search('(?<=\\s)[a-z]+', self.format[nextFor.start():nextFor.end()])
                 text = self.format[forType.start()+nextFor.start():forType.end()+nextFor.start()]
                 whereMatch = re.search('(?<=where\\().*(?=\\))', self.format[nextFor.start():nextFor.end()])
-                condition = None if whereMatch == None else self.format[whereMatch.start()+nextFor.start():whereMatch.end()+nextFor.start()]
+                condition = None if whereMatch is None else self.format[whereMatch.start()+nextFor.start():whereMatch.end()+nextFor.start()]
                 unassignedControls.append((nextFor.start(), nextFor.end(), text, condition))
 
                 try:
@@ -1275,10 +1275,10 @@ class ApiDumpOutputGenerator(OutputGenerator):
                     nextFor = None
 
             # If this is an @if
-            elif nextIf != None and nextIf.start() < nextEnd.start():
+            elif nextIf is not None and nextIf.start() < nextEnd.start():
                 depth += 1
                 condMatch = re.search('(?<=if\\().*(?=\\))', self.format[nextIf.start():nextIf.end()])
-                condition = None if condMatch == None else self.format[condMatch.start()+nextIf.start():condMatch.end()+nextIf.start()]
+                condition = None if condMatch is None else self.format[condMatch.start()+nextIf.start():condMatch.end()+nextIf.start()]
                 unassignedControls.append((nextIf.start(), nextIf.end(), 'if', condition))
 
                 try:
@@ -1363,7 +1363,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
             self.structs.add(VulkanStruct(typeinfo.elem, self.constants))
         elif typeinfo.elem.get('category') == 'basetype':
             self.basetypes.add(VulkanBasetype(typeinfo.elem))
-        elif typeinfo.elem.get('category') == None and typeinfo.elem.get('requires') == 'vk_platform':
+        elif typeinfo.elem.get('category') is None and typeinfo.elem.get('requires') == 'vk_platform':
             self.externalTypes.add(VulkanExternalType(typeinfo.elem))
         elif typeinfo.elem.get('category') == 'handle':
             self.handles.add(VulkanHandle(typeinfo.elem))
@@ -1423,7 +1423,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
                 values.update(parent.values())
 
             # Check if the condition is met
-            if loop.condition != None:
+            if loop.condition is not None:
                 cond = eval(loop.condition.format(**values))
                 assert(cond == True or cond == False)
                 if not cond:
@@ -1438,7 +1438,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
                 ext = item.ext
             else:
                 ext = None
-            if ext != None and ext.guard != None:
+            if ext is not None and ext.guard is not None:
                 out += '#if defined({})\n'.format(ext.guard)
 
             # Format the string
@@ -1450,7 +1450,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
             out += loop.fullString[lastIndex:loop.endPos[0]].format(**values)
 
             # Close the ifdef
-            if ext != None and ext.guard != None:
+            if ext is not None and ext.guard is not None:
                 out += '#endif // {}\n'.format(ext.guard)
 
         return out
@@ -1462,7 +1462,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
                 if isinstance(item, ty):
                     value = item
                     break
-        assert(value != None)
+        assert(value is not None)
         return value
 
 class Control:
@@ -1490,7 +1490,7 @@ class VulkanVariable:
         # Set basic properties
         self.name = rootNode.find('name').text      # Variable name
         self.typeID = rootNode.find('type').text    # Typename, dereferenced and converted to a useable C++ token
-        if aliases != None and self.typeID in aliases:
+        if aliases is not None and self.typeID in aliases:
             self.typeID = aliases[self.typeID]
         self.baseType = self.typeID                 # Type, dereferenced to the non-pointer type
         self.childType = None                       # Type, dereferenced to the non-pointer type (None if it isn't a pointer)
@@ -1500,7 +1500,7 @@ class VulkanVariable:
         self.text = ''
         for node in rootNode.itertext():
             comment = rootNode.find('comment')
-            if comment != None and comment.text == node:
+            if comment is not None and comment.text == node:
                 continue
             self.text += node
 
@@ -1508,7 +1508,7 @@ class VulkanVariable:
         self.type = typeMatch.string[typeMatch.start():typeMatch.end()]
         self.type = ' '.join(self.type.split())
         bracketMatch = re.search('(?<=\\[)[a-zA-Z0-9_]+(?=\\])', self.text)
-        if bracketMatch != None:
+        if bracketMatch is not None:
             matchText = bracketMatch.string[bracketMatch.start():bracketMatch.end()]
             self.childType = self.type
             self.type += '[' + matchText + ']'
@@ -1520,15 +1520,15 @@ class VulkanVariable:
         self.lengthMember = False
         lengthString = rootNode.get('len')
         lengths = []
-        if lengthString != None:
+        if lengthString is not None:
             lengths = re.split(',', lengthString)
             lengths = list(filter(('null-terminated').__ne__, lengths))
         assert(len(lengths) <= 1)
-        if self.arrayLength == None and len(lengths) > 0:
+        if self.arrayLength is None and len(lengths) > 0:
             self.childType = '*'.join(self.type.split('*')[0:-1])
             self.arrayLength = lengths[0]
             self.lengthMember = True
-        if self.arrayLength != None and self.arrayLength.startswith('latexmath'):
+        if self.arrayLength is not None and self.arrayLength.startswith('latexmath'):
             code = self.arrayLength[10:len(self.arrayLength)]
             code = re.sub('\\[', '', code)
             code = re.sub('\\]', '', code)
@@ -1539,7 +1539,7 @@ class VulkanVariable:
             self.arrayLength = code
 
         # Dereference if necessary and handle members of variables
-        if self.arrayLength != None:
+        if self.arrayLength is not None:
             self.arrayLength = re.sub('::', '->', self.arrayLength)
             sections = self.arrayLength.split('->')
             if sections[-1][0] == 'p' and sections[0][1].isupper():
@@ -1585,7 +1585,7 @@ class VulkanBitmask:
             childValue = child.get('value')
             childBitpos = child.get('bitpos')
             childComment = child.get('comment')
-            if childName == None or (childValue == None and childBitpos == None):
+            if childName is None or (childValue is None and childBitpos is None):
                 continue
 
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
@@ -1610,7 +1610,7 @@ class VulkanEnum:
             self.name = name
             self.comment = comment
 
-            if value == 0 or value == None:
+            if value == 0 or value is None:
                 value = 1 << int(bitpos)
             self.value = value
 
@@ -1632,7 +1632,7 @@ class VulkanEnum:
             childValue = child.get('value')
             childBitpos = child.get('bitpos')
             childComment = child.get('comment')
-            if childName == None or (childValue == None and childBitpos == None):
+            if childName is None or (childValue is None and childBitpos is None):
                 continue
             # Check for duplicates, TODO: Maybe solve up a level
             duplicate = False
@@ -1685,12 +1685,12 @@ class VulkanExtension:
                 bitpos = enum.get('bitpos')
                 offset = enum.get('offset')
 
-                if value == None and bitpos != None:
+                if value is None and bitpos is not None:
                     value = 1 << int(bitpos)
 
-                if offset != None:
+                if offset is not None:
                     offset = int(offset)
-                if base != None and offset != None:
+                if base is not None and offset is not None:
                     enumValue = 1000000000 + 1000*(self.number - 1) + offset
                     if enum.get('dir') == '-':
                         enumValue = -enumValue;

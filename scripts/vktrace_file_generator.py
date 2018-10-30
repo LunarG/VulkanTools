@@ -157,7 +157,7 @@ def isSupportedCmd(cmd, cmd_extension_dict):
 def isInstanceCmd(cmd):
     cmdtarget = cmd.members[0].type
     handle = cmd.members[0].handle
-    return handle == None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice'
+    return handle is None or cmdtarget == "VkInstance" or cmdtarget == 'VkPhysicalDevice'
 
 #
 # VkTraceFileOutputGeneratorOptions - subclass of GeneratorOptions.
@@ -726,7 +726,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             # Handle return values, if any
             ret_value = True
             resulttype = cmdinfo.elem.find('proto/type')
-            if resulttype != None and resulttype.text == 'void' or cmdname in custom_body_dict:
+            if resulttype is not None and resulttype.text == 'void' or cmdname in custom_body_dict:
               ret_value = False
             create_func = True if True in [create_txt in cmdname for create_txt in ['Create', 'Allocate', 'Acquire', 'GetDeviceQueue']] else False
             create_view = True if True in [create_txt in cmdname for create_txt in ['CreateBufferView', 'CreateImageView']] else False
@@ -2930,7 +2930,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 elif 'FlushMappedMemoryRanges' in proto.name or 'InvalidateMappedMemoryRanges' in proto.name:
                     trace_pkt_hdr += '    void** ppData;\n'
                 resulttype = cmdinfo.elem.find('proto/type')
-                if resulttype != None and resulttype.text != 'void':
+                if resulttype is not None and resulttype.text != 'void':
                     trace_pkt_hdr += '    %s result;\n' % resulttype.text
                 trace_pkt_hdr += '} packet_%s;\n\n' % proto.name
                 trace_pkt_hdr += 'static packet_%s* interpret_body_as_%s(vktrace_trace_packet_header* pHeader) {\n' % (proto.name, proto.name)

@@ -620,7 +620,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             self.newline()
             # If type declarations are needed by other features based on this one, it may be necessary to suppress the ExtraProtect,
             # or move it below the 'for section...' loop.
-            if (self.featureExtraProtect != None):
+            if (self.featureExtraProtect is not None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
             for section in self.TYPE_SECTIONS:
                 contents = self.sections[section]
@@ -630,7 +630,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             if (self.sections['command']):
                 write('\n'.join(self.sections['command']), end=u'', file=self.outFile)
                 self.newline()
-            if (self.featureExtraProtect != None):
+            if (self.featureExtraProtect is not None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
@@ -702,14 +702,14 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         if self.header: # In the header declare all intercepts
             self.appendSection('command', '')
             self.appendSection('command', self.makeCDecls(cmdinfo.elem)[0])
-            if (self.featureExtraProtect != None):
+            if (self.featureExtraProtect is not None):
                 self.intercepts += [ '#ifdef %s' % self.featureExtraProtect ]
                 self.layer_factory += '#ifdef %s\n' % self.featureExtraProtect
             # Update base class with virtual function declarations
             self.layer_factory += self.BaseClassCdecl(cmdinfo.elem, name)
             # Update function intercepts
             self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
-            if (self.featureExtraProtect != None):
+            if (self.featureExtraProtect is not None):
                 self.intercepts += [ '#endif' ]
                 self.layer_factory += '#endif\n'
             return
@@ -738,10 +738,10 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
             self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
             return
         # Record that the function will be intercepted
-        if (self.featureExtraProtect != None):
+        if (self.featureExtraProtect is not None):
             self.intercepts += [ '#ifdef %s' % self.featureExtraProtect ]
         self.intercepts += [ '    {"%s", (void*)%s},' % (name,name[2:]) ]
-        if (self.featureExtraProtect != None):
+        if (self.featureExtraProtect is not None):
             self.intercepts += [ '#endif' ]
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
         #
@@ -771,9 +771,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
 
         # Declare result variable, if any.
         resulttype = cmdinfo.elem.find('proto/type')
-        if (resulttype != None and resulttype.text == 'void'):
+        if (resulttype is not None and resulttype.text == 'void'):
           resulttype = None
-        if (resulttype != None):
+        if (resulttype is not None):
             assignresult = resulttype.text + ' result = '
         else:
             assignresult = ''
@@ -786,7 +786,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.appendSection('command', '    }')
 
         # Return result variable, if any.
-        if (resulttype != None):
+        if (resulttype is not None):
             self.appendSection('command', '    return result;')
         self.appendSection('command', '}')
     #
