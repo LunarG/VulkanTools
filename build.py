@@ -26,16 +26,23 @@ if __name__ == '__main__':
         default=False,
         dest='install',
         help='Build install target')
+    arg_parser.add_argument(
+        '--no-deps', action='store_true',
+        default=False,
+        dest='no_deps',
+        help='Do not update external dependencies')
     arguments = arg_parser.parse_args(sys.argv[1:])
-    subprocess.run(['git', 'submodule', 'update', '--recursive'])
-    subprocess.run(['update_external_sources.bat'])
+    if not arguments.no_deps:
+        subprocess.run(['git', 'submodule', 'update', '--recursive'],
+                       cwd=os.getcwd())
+        subprocess.run(['update_external_sources.bat'],
+                       cwd=os.getcwd())
     build_dir = 'build'
     if 'debug' == arguments.config:
         build_dir = 'dbuild'
     if 'x86' == arguments.arch:
         build_dir = build_dir + '32'
     build_path = os.path.join(os.getcwd(), build_dir)
-    print(build_path, arguments.config.capitalize())
     os.makedirs(build_path, mode=0o744, exist_ok=True)
     subprocess.run([
         'python', os.path.join('..', 'scripts', 'update_deps.py'),
