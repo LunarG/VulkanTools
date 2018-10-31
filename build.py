@@ -5,6 +5,7 @@
 import argparse
 import os
 import os.path
+import platform
 import subprocess
 import sys
 
@@ -49,8 +50,12 @@ if __name__ == '__main__':
     if not arguments.no_deps:
         subprocess.run(['git', 'submodule', 'update', '--recursive'],
                        cwd=os.getcwd())
-        subprocess.run(['update_external_sources.bat'],
-                       cwd=os.getcwd())
+        if 'windows' == platform.system().lower():
+            subprocess.run(['update_external_sources.bat'],
+                           cwd=os.getcwd())
+        else:
+            subprocess.run(['update_external_sources.sh'],
+                           cwd=os.getcwd())
     build_dir = 'build'
     if 'debug' == arguments.config:
         build_dir = 'dbuild'
