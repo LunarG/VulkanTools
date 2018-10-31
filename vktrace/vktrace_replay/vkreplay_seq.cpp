@@ -27,7 +27,7 @@ extern "C" {
 namespace vktrace_replay {
 
 vktrace_trace_packet_header *Sequencer::get_next_packet() {
-    vktrace_delete_trace_packet_no_lock(&m_lastPacket);
+    vktrace_delete_trace_packet(&m_lastPacket);
     if (!m_pFile) return (NULL);
     m_lastPacket = vktrace_read_trace_packet(m_pFile);
     return (m_lastPacket);

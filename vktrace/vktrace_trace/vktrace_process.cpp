@@ -275,7 +275,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
             if (pHeader->packet_id == VKTRACE_TPI_MARKER_TERMINATE_PROCESS) {
                 pInfo->pProcessInfo->serverRequestsTermination = true;
-                vktrace_delete_trace_packet_no_lock(&pHeader);
+                vktrace_delete_trace_packet(&pHeader);
                 vktrace_LogVerbose("Thread_CaptureTrace is exiting.");
                 break;
             }
@@ -309,7 +309,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         }
 
         // clean up
-        vktrace_delete_trace_packet_no_lock(&pHeader);
+        vktrace_delete_trace_packet(&pHeader);
     }
 
 #if defined(WIN32)
