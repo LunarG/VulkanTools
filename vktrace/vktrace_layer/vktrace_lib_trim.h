@@ -53,42 +53,33 @@ extern std::mutex g_mutex;
 
 namespace trim {
 
-template<typename _Mutex>
-class TrimLockGuard
-{	// specialization for a single mutex
-private:
-    _Mutex& _MyMutex;
+template <typename _Mutex>
+class TrimLockGuard {  // specialization for a single mutex
+   private:
+    _Mutex &_MyMutex;
     bool m_islocked;
 
-public:
+   public:
     typedef _Mutex mutex_type;
 
-    explicit TrimLockGuard(_Mutex& _Mtx)
-        : _MyMutex(_Mtx)
-    {	// construct and lock only when trim enabled
-        if (g_trimEnabled)
-        {
+    explicit TrimLockGuard(_Mutex &_Mtx) : _MyMutex(_Mtx) {  // construct and lock only when trim enabled
+        if (g_trimEnabled) {
             _MyMutex.lock();
             m_islocked = true;
-        }
-        else
-        {
+        } else {
             m_islocked = false;
         }
     }
 
-    ~TrimLockGuard() _NOEXCEPT
-    {	// unlock
-        if (m_islocked)
-        {
+    ~TrimLockGuard() {  // unlock
+        if (m_islocked) {
             _MyMutex.unlock();
             m_islocked = false;
         }
     }
 
-	TrimLockGuard(const TrimLockGuard&) = delete;
-	TrimLockGuard& operator=(const TrimLockGuard&) = delete;
-
+    TrimLockGuard(const TrimLockGuard &) = delete;
+    TrimLockGuard &operator=(const TrimLockGuard &) = delete;
 };
 
 void initialize();
