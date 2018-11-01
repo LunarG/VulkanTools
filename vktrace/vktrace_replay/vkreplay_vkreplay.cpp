@@ -3368,6 +3368,9 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
 
     (*pSC) = save_oldSwapchain;
     *pSurf = save_surface;
+
+    m_objMapper.m_pImageIndex.clear();
+
     return replayResult;
 }
 
