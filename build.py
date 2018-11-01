@@ -60,12 +60,6 @@ if __name__ == '__main__':
     if not arguments.no_deps:
         subprocess.run(['git', 'submodule', 'update', '--recursive'],
                        cwd=os.getcwd())
-        if 'windows' == platform.system().lower():
-            subprocess.run(['update_external_sources.bat'],
-                           cwd=os.getcwd())
-        else:
-            subprocess.run(['update_external_sources.sh'],
-                           cwd=os.getcwd())
     build_dir = arguments.build_dir
     if build_dir is None:
         if 'debug' == arguments.config.lower():
