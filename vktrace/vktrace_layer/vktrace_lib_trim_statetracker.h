@@ -465,6 +465,7 @@ class StateTracker {
     std::list<vktrace_trace_packet_header *> m_image_calls;
 
     std::unordered_map<VkInstance, ObjectInfo> createdInstances;
+    std::vector<VkInstance> seqInstances;
     std::unordered_map<VkPhysicalDevice, ObjectInfo> createdPhysicalDevices;
     std::unordered_map<VkDevice, ObjectInfo> createdDevices;
     std::unordered_map<VkSurfaceKHR, ObjectInfo> createdSurfaceKHRs;
@@ -479,6 +480,7 @@ class StateTracker {
     std::unordered_map<VkDeviceMemory, ObjectInfo> createdDeviceMemorys;
     std::unordered_map<VkFence, ObjectInfo> createdFences;
     std::unordered_map<VkSwapchainKHR, ObjectInfo> createdSwapchainKHRs;
+    std::vector<VkSwapchainKHR> seqSwapchainKHRs;
     std::unordered_map<VkImage, ObjectInfo> createdImages;
     std::unordered_map<VkImageView, ObjectInfo> createdImageViews;
     std::unordered_map<VkBuffer, ObjectInfo> createdBuffers;

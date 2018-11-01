@@ -2814,7 +2814,11 @@ void write_all_referenced_object_calls() {
     vktrace_leave_critical_section(&trimStateTrackerLock);
 
     // Instances (& PhysicalDevices)
-    for (auto obj = stateTracker.createdInstances.begin(); obj != stateTracker.createdInstances.end(); obj++) {
+    for (auto iterator = stateTracker.seqInstances.begin(); iterator != stateTracker.seqInstances.end(); ++iterator) {
+        auto obj = stateTracker.createdInstances.find(*iterator);
+        if (obj == stateTracker.createdInstances.end()) {
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.Instance.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.Instance.pCreatePacket));
 
@@ -3058,7 +3062,11 @@ void write_all_referenced_object_calls() {
     // swapchain image.
 
     // SwapchainKHR
-    for (auto obj = stateTracker.createdSwapchainKHRs.begin(); obj != stateTracker.createdSwapchainKHRs.end(); obj++) {
+    for (auto iterator = stateTracker.seqSwapchainKHRs.begin(); iterator != stateTracker.seqSwapchainKHRs.end(); ++iterator) {
+        auto obj = stateTracker.createdSwapchainKHRs.find(*iterator);
+        if (obj == stateTracker.createdSwapchainKHRs.end()) {
+            continue;
+        }
         vktrace_write_trace_packet(obj->second.ObjectInfo.SwapchainKHR.pCreatePacket, vktrace_trace_get_trace_file());
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.SwapchainKHR.pCreatePacket));
 
