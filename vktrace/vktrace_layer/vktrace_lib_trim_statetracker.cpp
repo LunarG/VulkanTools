@@ -16,6 +16,8 @@
 #include "vktrace_lib_trim_statetracker.h"
 #include "vktrace_lib_trim.h"
 
+#include <algorithm>
+
 namespace trim {
 // declared extern in statetracker.h
 VKTRACE_CRITICAL_SECTION trimTransitionMapLock;
@@ -101,6 +103,9 @@ void StateTracker::add_Image_call(vktrace_trace_packet_header *pHeader) { m_imag
 
 //-------------------------------------------------------------------------
 void StateTracker::clear() {
+    seqInstances.clear();
+    seqSwapchainKHRs.clear();
+
     while (createdInstances.size() != 0) {
         remove_Instance(reinterpret_cast<const VkInstance>(createdInstances.begin()->first));
     }
@@ -366,6 +371,9 @@ VkRenderPassCreateInfo *StateTracker::get_RenderPassCreateInfo(VkRenderPass rend
 //-------------------------------------------------------------------------
 StateTracker &StateTracker::operator=(const StateTracker &other) {
     if (this == &other) return *this;
+
+    seqInstances = other.seqInstances;
+    seqSwapchainKHRs = other.seqSwapchainKHRs;
 
     m_renderPassVersions = other.m_renderPassVersions;
     for (auto iter = m_renderPassVersions.begin(); iter != m_renderPassVersions.end(); ++iter) {
@@ -899,6 +907,9 @@ void StateTracker::copy_VkComputePipelineCreateInfo(VkComputePipelineCreateInfo 
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 ObjectInfo &StateTracker::add_Instance(VkInstance var) {
+    if (std::find(seqInstances.begin(), seqInstances.end(), var) == seqInstances.end()) {
+        seqInstances.push_back(var);
+    }
     ObjectInfo &info = createdInstances[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
@@ -997,6 +1008,9 @@ ObjectInfo &StateTracker::add_Fence(VkFence var) {
 }
 
 ObjectInfo &StateTracker::add_SwapchainKHR(VkSwapchainKHR var) {
+    if (std::find(seqSwapchainKHRs.begin(), seqSwapchainKHRs.end(), var) == seqSwapchainKHRs.end()) {
+        seqSwapchainKHRs.push_back(var);
+    }
     ObjectInfo &info = createdSwapchainKHRs[var];
     memset(&info, 0, sizeof(ObjectInfo));
     info.vkObject = (uint64_t)var;
