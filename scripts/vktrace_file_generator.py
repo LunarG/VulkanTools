@@ -810,7 +810,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         last_name = p.name
 
                 if cmdname == 'DestroyInstance':
-                    replay_gen_source += '            if (m_vkFuncs.DestroyDebugReportCallbackEXT != NULL) {\n'
+                    replay_gen_source += '            if (g_fpDbgMsgCallback && (m_vkFuncs.DestroyDebugReportCallbackEXT != NULL)) {\n'
                     replay_gen_source += '                m_vkFuncs.DestroyDebugReportCallbackEXT(remappedinstance, m_dbgMsgCallbackObj, pPacket->pAllocator);\n'
                     replay_gen_source += '            }\n'
                 # TODO: need a better way to indicate which extensions should be mapped to which Get*ProcAddr
@@ -858,6 +858,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '            VkPhysicalDeviceMemoryProperties memProperties = *(pPacket->pMemoryProperties);\n'
                 elif cmdname == 'GetImageMemoryRequirements':
                     replay_gen_source += '            VkMemoryRequirements memReqs = *(pPacket->pMemoryRequirements);\n'
+                elif cmdname == 'DebugReportMessageEXT':
+                    replay_gen_source += '            if (!g_fpDbgMsgCallback || !m_vkFuncs.DebugReportMessageEXT) {\n'
+                    replay_gen_source += '                // just eat this call as we don\'t have local call back function defined\n'
+                    replay_gen_source += '                break;\n'
+                    replay_gen_source += '            }\n'
                 elif 'SparseMemoryRequirements2' in cmdname:
                     replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pInfo);\n'
                     replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pSparseMemoryRequirementCount; i++)\n'
@@ -1060,20 +1065,21 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
         cb_body.append('                    break;')
         cb_body.append('                }')
+        cb_body.append('                if (!g_fpDbgMsgCallback || !m_vkFuncs.CreateDebugReportCallbackEXT) {')
+        cb_body.append('                    vktrace_LogWarning("%s not enabled in vkCreateInstance. Not going to register vulkan callback for replayer error handling.", VK_EXT_DEBUG_REPORT_EXTENSION_NAME);')
+        cb_body.append('                    break;')
+        cb_body.append('                }')
         cb_body.append('                VkFlags reportFlags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT;')
-        cb_body.append('                PFN_vkCreateDebugReportCallbackEXT callback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(remappedInstance, "vkCreateDebugReportCallbackEXT");')
-        cb_body.append('                if (callback != NULL) {')
-        cb_body.append('                    VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;')
-        cb_body.append('                    memset(&dbgCreateInfo, 0, sizeof(dbgCreateInfo));')
-        cb_body.append('                    dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;')
-        cb_body.append('                    dbgCreateInfo.flags = reportFlags;')
-        cb_body.append('                    dbgCreateInfo.pfnCallback = g_fpDbgMsgCallback;')
-        cb_body.append('                    dbgCreateInfo.pUserData = NULL;')
-        cb_body.append('                    if (callback(remappedInstance, &dbgCreateInfo, NULL, &m_dbgMsgCallbackObj) != VK_SUCCESS) {')
-        cb_body.append('                        vktrace_LogWarning("Failed to register vulkan callback for replayer error handling.");')
-        cb_body.append('                        returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
-        cb_body.append('                        break;')
-        cb_body.append('                    }')
+        cb_body.append('                VkDebugReportCallbackCreateInfoEXT dbgCreateInfo;')
+        cb_body.append('                memset(&dbgCreateInfo, 0, sizeof(dbgCreateInfo));')
+        cb_body.append('                dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;')
+        cb_body.append('                dbgCreateInfo.flags = reportFlags;')
+        cb_body.append('                dbgCreateInfo.pfnCallback = g_fpDbgMsgCallback;')
+        cb_body.append('                dbgCreateInfo.pUserData = NULL;')
+        cb_body.append('                if (m_vkFuncs.CreateDebugReportCallbackEXT(remappedInstance, &dbgCreateInfo, NULL, &m_dbgMsgCallbackObj) != VK_SUCCESS) {')
+        cb_body.append('                    vktrace_LogWarning("Failed to register vulkan callback for replayer error handling.");')
+        cb_body.append('                    returnValue = vktrace_replay::VKTRACE_REPLAY_ERROR;')
+        cb_body.append('                    break;')
         cb_body.append('                }')
         cb_body.append('            }')
         return "\n".join(cb_body)

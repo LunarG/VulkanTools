@@ -298,6 +298,11 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
         }
     }
 
+    // Disable debug report extension calls when debug report extension is not enabled/supported
+    if (find(extension_names.begin(), extension_names.end(), "VK_EXT_debug_report") == extension_names.end()) {
+        g_fpDbgMsgCallback = NULL;
+    }
+
     if (extensions) {
         vktrace_free(extensions);
     }
@@ -3941,6 +3946,11 @@ void vkReplay::manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyD
         return;
     }
 
+    if (!g_fpDbgMsgCallback || !m_vkFuncs.DestroyDebugReportCallbackEXT) {
+        // just eat this call as we don't have local call back function defined
+        return;
+    }
+
     VkDebugReportCallbackEXT remappedMsgCallback;
     remappedMsgCallback = m_objMapper.remap_debugreportcallbackexts(pPacket->callback);
     if (remappedMsgCallback == VK_NULL_HANDLE) {
@@ -3948,12 +3958,7 @@ void vkReplay::manually_replay_vkDestroyDebugReportCallbackEXT(packet_vkDestroyD
         return;
     }
 
-    if (!g_fpDbgMsgCallback) {
-        // just eat this call as we don't have local call back function defined
-        return;
-    } else {
-        m_vkFuncs.DestroyDebugReportCallbackEXT(remappedInstance, remappedMsgCallback, NULL);
-    }
+    m_vkFuncs.DestroyDebugReportCallbackEXT(remappedInstance, remappedMsgCallback, NULL);
 }
 
 VkResult vkReplay::manually_replay_vkAllocateCommandBuffers(packet_vkAllocateCommandBuffers *pPacket) {
