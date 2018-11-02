@@ -4454,6 +4454,7 @@ VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemor
 }
 
 VkResult vkReplay::manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_vkGetDisplayPlaneSupportedDisplaysKHR *pPacket) {
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
     if (pPacket->physicalDevice != VK_NULL_HANDLE && remappedphysicalDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Error detected in GetDisplayPlaneSupportedDisplaysKHR() due to invalid remapped VkPhysicalDevice.");
@@ -4462,28 +4463,26 @@ VkResult vkReplay::manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_
 
     // No need to remap planeIndex
     // No need to remap pDisplayCount
+    // No need to remap pDisplays
 
-    // Get remapped displays
-    VkDisplayKHR *remapped_displays = VKTRACE_NEW_ARRAY(VkDisplayKHR, *pPacket->pDisplayCount);
-    for (uint32_t i = 0; i < *pPacket->pDisplayCount; ++i) {
-        remapped_displays[i] = m_objMapper.remap_displaykhrs(*(pPacket->pDisplays + i));
+    VkDisplayKHR *pDisplays = pPacket->pDisplays;
+    if (pPacket->pDisplays != NULL) {
+        pDisplays = VKTRACE_NEW_ARRAY(VkDisplayKHR, *pPacket->pDisplayCount);
+    }
+    replayResult = m_vkFuncs.GetDisplayPlaneSupportedDisplaysKHR(remappedphysicalDevice, pPacket->planeIndex,
+                                                                 pPacket->pDisplayCount, pDisplays);
+
+    if (pPacket->pDisplays != NULL) {
+        if (memcmp(pDisplays, pPacket->pDisplays, sizeof(VkDisplayKHR) * (*pPacket->pDisplayCount)) != 0) {
+            vktrace_LogError("Display Plane supported displays differ. Displays may not match as expected.");
+        }
+        for (uint32_t i = 0; i < *pPacket->pDisplayCount; ++i) {
+            m_objMapper.add_to_displaykhrs_map(pPacket->pDisplays[i], pDisplays[i]);
+        }
+        VKTRACE_DELETE(pDisplays);
     }
 
-    if (pPacket->pDisplays != VK_NULL_HANDLE && remapped_displays == VK_NULL_HANDLE) {
-        vktrace_LogError("Error detected in GetDisplayPlaneSupportedDisplaysKHR() due to invalid remapped VkDisplayKHR.");
-        return VK_ERROR_VALIDATION_FAILED_EXT;
-    }
-
-    VkDisplayKHR *displays = pPacket->pDisplays;
-
-    auto result = m_vkFuncs.GetDisplayPlaneSupportedDisplaysKHR(remappedphysicalDevice, pPacket->planeIndex, pPacket->pDisplayCount,
-                                                                remapped_displays);
-
-    if (memcmp(displays, pPacket->pDisplays, sizeof(VkDisplayKHR) * (*pPacket->pDisplayCount)) != 0) {
-        vktrace_LogError("Display Plane supported displays differ. Displays may not match as expected.");
-    }
-
-    return result;
+    return replayResult;
 }
 
 VkResult vkReplay::manually_replay_vkEnumerateDeviceExtensionProperties(packet_vkEnumerateDeviceExtensionProperties *pPacket) {
