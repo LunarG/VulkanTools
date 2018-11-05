@@ -209,6 +209,12 @@ Here is a usage example for this repository (when manually updating depdencies):
 - Please use `update_deps.py --help` to list additional options and read the
   internal documentation in `update_deps.py` for further information.
 
+## Build Script
+
+There is a Python utility script that can be used to build Vulkan tools.
+By default the build script will update external dependencies and build
+x64 release build.
+Use the -h or --help command line argument to see full script usage message.
 
 ## Linux Build
 

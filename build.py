@@ -57,9 +57,6 @@ if __name__ == '__main__':
     if 'android' == arguments.arch:
         print(ANDROID_ARCH_BUILD_ERROR_MSG)
         exit(1)
-    if not arguments.no_deps:
-        subprocess.run(['git', 'submodule', 'update', '--recursive'],
-                       cwd=os.getcwd())
     build_dir = arguments.build_dir
     if build_dir is None:
         if 'debug' == arguments.config.lower():
@@ -70,21 +67,20 @@ if __name__ == '__main__':
             build_dir = build_dir + '32'
     build_path = os.path.join(os.getcwd(), build_dir)
     os.makedirs(build_path, mode=0o744, exist_ok=True)
-    subprocess.run([
-        'python', os.path.join(os.path.split(os.path.abspath(__file__))[0],
-                               'scripts', 'update_deps.py'),
-        '--config', arguments.config.capitalize(),
-        '--arch', arguments.arch],
-        cwd=build_path)
     if not arguments.no_generator:
-        subprocess.run(
-            ['cmake ',
-             '-A', arguments.arch, '--config', arguments.config.capitalize(),
-             '-C', 'helper.cmake', os.getcwd()],
-            cwd=build_path)
+        cmake_gen_args = ['cmake', os.path.split(os.path.abspath(__file__))[0],
+                          '-A', arguments.arch]
+        # assume that on windows the build uses MSVC
+        if not 'nt' == os.name:
+            cmake_gen_args.extend(['--config', arguments.config.capitalize()])
+        if arguments.no_deps:
+            cmake_gen_args.append('-DAUTO_DEPENDENCIES=OFF')
+        subprocess.run(cmake_gen_args, cwd=build_path)
     if not arguments.no_build:
-        cmake_build_args = ['cmake', '--build', '.',
-                            '--config', arguments.config.capitalize()]
+        cmake_build_args = ['cmake', '--build', '.']
+        # assume that on windows the build uses MSVC
+        if 'nt' == os.name:
+            cmake_gen_args.extend(['--config', arguments.config.capitalize()])
         if arguments.install:
             cmake_build_args.extend(['--target', 'install'])
         subprocess.run(cmake_build_args, cwd=build_path)
