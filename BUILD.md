@@ -159,17 +159,27 @@ to gather and build the dependent repositories mentioned above. This program
 also uses information stored in the `scripts/known-good.json` file to checkout
 dependent repository revisions that are known to be compatible with the
 revision of this repository that you currently have checked out.
+This script is called automatically by cmake unless the auto dependnecies flag
+is turned off.
 
-Here is a usage example for this repository:
+Here is a usage example for this repository (when automatically updating
+depdencies):
+
+    git clone git@github.com:KhronosGroup/VulkanTools.git
+    cd VulkanTools
+    mkdir build
+    cd build
+    cmake --build .
+
+Here is a usage example for this repository (when manually updating depdencies):
 
     git clone git@github.com:KhronosGroup/VulkanTools.git
     cd VulkanTools
     mkdir build
     cd build
     ../scripts/update_deps.py
-    cmake -C helper.cmake ..
+    cmake -C helper.cmake .. -DAUTO_DEPENDENCIES=OFF
     cmake --build .
-
 
 #### Notes
 
@@ -198,7 +208,6 @@ Here is a usage example for this repository:
   execution.
 - Please use `update_deps.py --help` to list additional options and read the
   internal documentation in `update_deps.py` for further information.
-
 
 
 ## Linux Build

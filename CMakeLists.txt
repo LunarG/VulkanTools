@@ -17,21 +17,47 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND WIN32)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "default install path" FORCE)
 endif()
 
+
 # Find Vulkan Headers, Loader, and ValidationLayers
 # Search order:
+#  Run update dependencies scripts unless user specifically requested not to
 #  User-supplied CMAKE_PREFIX_PATH containing paths to the header and/or loader install dirs
 #  CMake options VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
 #  Env vars VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
 #  Fallback to FindVulkan operation using SDK install or system installed components.
-set(VULKAN_HEADERS_INSTALL_DIR "HEADERS-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Headers install directory")
-set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
-set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR "VALIDATIONLAYERS-NOTFOUND" CACHE PATH "Absolute path to Vulkan-ValidationLayers directory")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-message(STATUS "Using find_package to locate Vulkan")
-find_package(Vulkan)
-message(STATUS "Vulkan FOUND = ${Vulkan_FOUND}")
-message(STATUS "Vulkan Include = ${Vulkan_INCLUDE_DIR}")
-message(STATUS "Vulkan Lib = ${Vulkan_LIBRARY}")
+set(AUTO_DEPENDENCIES ON CACHE BOOL "If on, update repository submodule and external dependencies")
+if(AUTO_DEPENDENCIES)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(BUILD_ARCH "x64")
+    else()
+        set(BUILD_ARCH "x86")
+    endif()
+    set(BUILD_TYPE "Release")
+    if (CMAKE_BUILD_TYPE)
+        set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
+    endif()
+    if (WIN32)
+        execute_process(COMMAND "${CMAKE_HOME_DIRECTORY}/update_external_sources.bat"
+                WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY})
+    else()
+        execute_process(COMMAND "${CMAKE_HOME_DIRECTORY}/update_external_sources.sh"
+                WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY})
+    endif()
+    execute_process(COMMAND "python" "${CMAKE_HOME_DIRECTORY}/scripts/update_deps.py"
+            "--arch" ${BUILD_ARCH} "--config" ${BUILD_TYPE}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    include("${CMAKE_CURRENT_BINARY_DIR}/helper.cmake")
+else()
+    set(VULKAN_HEADERS_INSTALL_DIR "HEADERS-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Headers install directory")
+    set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
+    set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR "VALIDATIONLAYERS-NOTFOUND" CACHE PATH "Absolute path to Vulkan-ValidationLayers directory")
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+    message(STATUS "Using find_package to locate Vulkan")
+    find_package(Vulkan)
+    message(STATUS "Vulkan FOUND = ${Vulkan_FOUND}")
+    message(STATUS "Vulkan Include = ${Vulkan_INCLUDE_DIR}")
+    message(STATUS "Vulkan Lib = ${Vulkan_LIBRARY}")
+endif()
 
 if(NOT VULKAN_HEADERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_HEADERS_INSTALL_DIR})
     message(FATAL_ERROR "Must define location of Vulkan-Headers install -- see BUILD.md")

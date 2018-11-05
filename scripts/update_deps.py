@@ -249,6 +249,7 @@ import sys
 import platform
 import multiprocessing
 import shlex
+import re
 import shutil
 
 KNOWN_GOOD_FILE_NAME = 'known_good.json'
@@ -285,6 +286,7 @@ def command_output(cmd, directory, fail_ok=False):
         print(stdout)
     return stdout
 
+
 class GoodRepo(object):
     """Represents a repository at a known-good commit."""
 
@@ -315,12 +317,16 @@ class GoodRepo(object):
             'prebuild_linux' in json) else []
         self.prebuild_windows = json['prebuild_windows'] if (
             'prebuild_windows' in json) else []
-        self.custom_build = json['custom_build'] if ('custom_build' in json) else []
+        self.custom_build = json['custom_build'] if (
+            'custom_build' in json) else []
         self.cmake_options = json['cmake_options'] if (
             'cmake_options' in json) else []
         self.ci_only = json['ci_only'] if ('ci_only' in json) else []
-        self.build_step = json['build_step'] if ('build_step' in json) else 'build'
-        self.build_platforms = json['build_platforms'] if ('build_platforms' in json) else []
+
+        self.build_step = json['build_step'] if (
+            'build_step' in json) else 'build'
+        self.build_platforms = json['build_platforms'] if (
+            'build_platforms' in json) else []
         # Absolute paths for a repo's directories
         dir_top = os.path.abspath(args.dir)
         self.repo_dir = os.path.join(dir_top, self.sub_dir)
@@ -328,7 +334,7 @@ class GoodRepo(object):
             self.build_dir = os.path.join(dir_top, self.build_dir)
         if self.install_dir:
             self.install_dir = os.path.join(dir_top, self.install_dir)
-	    # Check if platform is one to build on
+            # Check if platform is one to build on
         self.on_build_platform = False
         if self.build_platforms == [] or platform.system().lower() in self.build_platforms:
             self.on_build_platform = True
@@ -476,8 +482,8 @@ def GetGoodRepos(args):
     parameter.
     """
     if args.known_good_dir:
-        known_good_file = os.path.join( os.path.abspath(args.known_good_dir),
-            KNOWN_GOOD_FILE_NAME)
+        known_good_file = os.path.join(os.path.abspath(args.known_good_dir),
+                                       KNOWN_GOOD_FILE_NAME)
     else:
         known_good_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), KNOWN_GOOD_FILE_NAME)
@@ -497,7 +503,7 @@ def GetInstallNames(args):
     """
     if args.known_good_dir:
         known_good_file = os.path.join(os.path.abspath(args.known_good_dir),
-            KNOWN_GOOD_FILE_NAME)
+                                       KNOWN_GOOD_FILE_NAME)
     else:
         known_good_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), KNOWN_GOOD_FILE_NAME)
@@ -524,12 +530,13 @@ def CreateHelper(args, repos, filename):
         return path.replace('\\', '\\\\')
     install_names = GetInstallNames(args)
     with open(filename, 'w') as helper_file:
+        helper_file.write('message(STATUS "helper.cmake")\n')
         for repo in repos:
-            if install_names and repo.name in install_names and repo.on_build_platform:
-                helper_file.write('set({var} "{dir}" CACHE STRING "" FORCE)\n'
+            if install_names and repo.name in install_names:
+                helper_file.write('set({var} "{dir}" CACHE STRING "")\n'
                                   .format(
                                       var=install_names[repo.name],
-                                      dir=escape(repo.install_dir)))
+                                      dir=re.sub(r'\\', r'\\\\', repo.install_dir)))
 
 
 def main():
@@ -553,8 +560,7 @@ def main():
         '--no-build',
         dest='do_build',
         action='store_false',
-        help=
-        "Clone/update repositories and generate build files without performing compilation",
+        help="Clone/update repositories and generate build files without performing compilation",
         default=True)
     parser.add_argument(
         '--clean',
@@ -628,7 +634,8 @@ def main():
                       'build_platforms',
                       'repo_dir',
                       'on_build_platform')
-        repo_dict[repo.name] = {field: getattr(repo, field) for field in field_list};
+        repo_dict[repo.name] = {field: getattr(
+            repo, field) for field in field_list}
 
         # If the repo has a CI whitelist, skip the repo unless
         # one of the CI's environment variable is set to true.
