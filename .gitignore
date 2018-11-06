@@ -33,3 +33,5 @@ build-android/external
 *.files
 *.includes
 .vscode/
+.vs/
+CMakeSettings.json
