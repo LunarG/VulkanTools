@@ -76,7 +76,7 @@ cp -r $LAYER_BUILD_DIR/libs/* $LAYER_BUILD_DIR/bin/libs/lib/
 create_APK VulkanLayerValidationTests
 
 #
-# build cube APKs (with and without layers)
+# build vkcube APKs (with and without layers)
 #
 (
 pushd $CUBE_BUILD_DIR
@@ -85,13 +85,13 @@ ndk-build -j $cores
 mkdir -p $CUBE_BUILD_DIR/cube/bin/libs/lib
 cp -r $CUBE_BUILD_DIR/libs/* $CUBE_BUILD_DIR/cube/bin/libs/lib/
 cd $CUBE_BUILD_DIR/cube
-create_APK cube
+create_APK vkcube
 # And one with validation layers
 mkdir -p $CUBE_BUILD_DIR/cube-with-layers/bin/libs/lib
 cp -r $CUBE_BUILD_DIR/libs/* $CUBE_BUILD_DIR/cube-with-layers/bin/libs/lib/
 cp -r $LAYER_BUILD_DIR/libs/* $CUBE_BUILD_DIR/cube-with-layers/bin/libs/lib/
 cd $CUBE_BUILD_DIR/cube-with-layers
-create_APK cube-with-layers
+create_APK vkcube-with-layers
 popd
 )
 

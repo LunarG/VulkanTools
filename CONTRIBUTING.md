@@ -89,8 +89,8 @@ that to be accepted into the repository, the pull request must [pass all tests](
   (These instructions are for Linux)
 * In the `demos` directory, run:
 
->        cube
->        cube --validate
+>        vkcube
+>        vkcube --validate
 >        smoke
 >        smoke --validate
 >        vulkaninfo
