@@ -21,18 +21,18 @@ Options for the `vktrace` command are:
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
 
-An example command to trace the sample `cube` application in local mode follows.
+An example command to trace the sample `vkcube` application in local mode follows.
 
 Linux shell:
 
 ```
-$ vktrace -p ./cube -o cubetrace.vktrace
+$ vktrace -p ./vkcube -o cubetrace.vktrace
 ```
 
 Windows Powershell:
 
 ```
-PS> vktrace -p cube.exe -o cubetrace.vktrace
+PS> vktrace -p vkcube.exe -o cubetrace.vktrace
 ```
 **Note:** Subsequent command examples in this document are written using Linux shell commands. These example commands can be translated and used as Windows Powershell commands.
 
@@ -73,11 +73,11 @@ In local client/server mode, the tracer layer must be enabled before the local c
 ```
 $ cd examples/build
 $ export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_vktrace
-$ ./cube
+$ ./vkcube
 ```
 The generated trace file is found at `examples/traces/cubetrace_s.vktrace`.
 
-*Note*:  The `cube` application is used to demonstrate tracing in client/server mode.  `cube` is a very simple application, and would not be traced in this mode in practice.
+*Note*:  The `vkcube` application is used to demonstrate tracing in client/server mode.  `vkcube` is a very simple application, and would not be traced in this mode in practice.
 
 #### Remote Client
 Remote client/server mode is useful if the client is a mobile device or running in a lightweight environment that might not have the disk or other capabilities to store large trace files.
@@ -88,7 +88,7 @@ In remote client/server mode, the remote client must additionally identify the I
 $ cd examples/build
 $ export VKTRACE_LIB_IPADDR=<ip address of trace server system>
 $ export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_vktrace
-$ ./cube
+$ ./vkcube
 ```
 
 The generated trace file is located at `examples/traces/cubetrace_s.vktrace` on the remote trace server system.
@@ -115,7 +115,7 @@ The  `vkreplay` command-line  options are:
 | Linux Only |  |  |
 | -ds&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;DisplayServer&nbsp;&lt;string&gt; | Display server - "xcb", or "wayland" | xcb |
 
-To replay the cube application trace captured in the example above:
+To replay the vkcube application trace captured in the example above:
 
 ```
 $ cd examples/build

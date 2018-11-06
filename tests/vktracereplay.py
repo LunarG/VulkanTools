@@ -1,9 +1,9 @@
 # Python script for running the regression test for both trace and replay. Python version 3 or greater required.
 # NOTES - 
-#   Cube is expected to be in the PATH or working directory.
+#   vkcube is expected to be in the PATH or working directory.
 #   This script is normally invoked from _vktracereplay.ps1 or vktracereplay.sh.
 #
-# Cube is traced and replayed with screenshot comparison, then again with trim.
+# vkcube is traced and replayed with screenshot comparison, then again with trim.
 # Also runs regression by iterating through old traces in a directory specified by the user, tracing a replay of the old trace, and replaying the new trace.
 #
 # To run this test:
@@ -264,15 +264,15 @@ if __name__ == '__main__':
     parser.add_argument('VkReplayPath', help='directory containing vkreplay')
     args = parser.parse_args()
 
-    # Get cube executable path from PATH
-    cubePath = shutil.which('cube')
+    # Get vkcube executable path from PATH
+    cubePath = shutil.which('vkcube')
     if (cubePath is None):
-        HandleError('Error: Cube executable not found')
+        HandleError('Error: vkcube executable not found')
 
-    # Trace/replay test on cube
-    TraceReplayProgramTest('cube', cubePath, '--c 50', args)
+    # Trace/replay test on vkcube
+    TraceReplayProgramTest('vkcube', cubePath, '--c 50', args)
 
-    # Run trim test on cube
+    # Run trim test on vkcube
     # Removing until github issue #646 is resolved
     # TrimTest('cube-trim', cubePath, '--c 250', args)
 
