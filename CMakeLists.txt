@@ -32,9 +32,9 @@ if(AUTO_DEPENDENCIES)
     else()
         set(BUILD_ARCH "x86")
     endif()
-    set(BUILD_TYPE "Release")
+    set(BUILD_TYPE "release")
     if (CMAKE_BUILD_TYPE)
-        set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
+        string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
     endif()
     if (WIN32)
         execute_process(COMMAND "${CMAKE_HOME_DIRECTORY}/update_external_sources.bat"
@@ -44,7 +44,7 @@ if(AUTO_DEPENDENCIES)
                 WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY})
     endif()
     execute_process(COMMAND "python" "${CMAKE_HOME_DIRECTORY}/scripts/update_deps.py"
-            "--arch" ${BUILD_ARCH} "--config" ${BUILD_TYPE}
+            "--arch" "${BUILD_ARCH}" "--config" "${BUILD_TYPE}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
     include("${CMAKE_CURRENT_BINARY_DIR}/helper.cmake")
 else()

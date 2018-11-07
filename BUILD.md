@@ -169,6 +169,7 @@ depdencies):
     cd VulkanTools
     mkdir build
     cd build
+    cmake ..
     cmake --build .
 
 Here is a usage example for this repository (when manually updating depdencies):

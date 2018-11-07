@@ -69,10 +69,8 @@ if __name__ == '__main__':
     os.makedirs(build_path, mode=0o744, exist_ok=True)
     if not arguments.no_generator:
         cmake_gen_args = ['cmake', os.path.split(os.path.abspath(__file__))[0],
-                          '-A', arguments.arch]
-        # assume that on windows the build uses MSVC
-        if not 'nt' == os.name:
-            cmake_gen_args.extend(['--config', arguments.config.capitalize()])
+                          '-A', arguments.arch,
+                          '-DCMAKE_BUILD_TYPE=' + arguments.config.capitalize()]
         if arguments.no_deps:
             cmake_gen_args.append('-DAUTO_DEPENDENCIES=OFF')
         subprocess.run(cmake_gen_args, cwd=build_path)
