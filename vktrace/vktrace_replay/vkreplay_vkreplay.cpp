@@ -3174,7 +3174,7 @@ VkResult vkReplay::manually_replay_vkQueuePresentKHR(packet_vkQueuePresentKHR *p
         pResults = VKTRACE_NEW_ARRAY(VkResult, pPacket->pPresentInfo->swapchainCount);
     }
 
-    if (pRemappedSwapchains == NULL || pRemappedWaitSems == NULL || pResults == NULL) {
+    if (pResults == NULL) {
         replayResult = VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
