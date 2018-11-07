@@ -39,6 +39,7 @@
 #include "vkreplay_seq.h"
 #include "vkreplay_vkdisplay.h"
 #include "screenshot_parsing.h"
+#include "vktrace_vk_packet_id.h"
 
 vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL};
 
@@ -346,21 +347,56 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 #endif  // ANDROID
 }
 
+std::vector<uint64_t> portabilityTable;
+static bool preloadPortabilityTablePackets() {
+    uint64_t originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
+    uint64_t portabilityTableTotalPacketSize = 0;
+
+    for (size_t i = 0; i < portabilityTable.size(); i++) {
+        if (!vktrace_FileLike_SetCurrentPosition(traceFile, portabilityTable[i])) {
+            return false;
+        }
+        vktrace_trace_packet_header* pPacket = vktrace_read_trace_packet(traceFile);
+        if (!pPacket) {
+            return false;
+        }
+        pPacket = interpret_trace_packet_vk(pPacket);
+        portabilityTablePackets[i] = (uintptr_t)pPacket;
+        portabilityTableTotalPacketSize += pPacket->size;
+    }
+
+    vktrace_LogVerbose("Total packet size preloaded for portability table: %" PRIu64 " bytes", portabilityTableTotalPacketSize);
+
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
+    return true;
+}
+
+static void freePortabilityTablePackets() {
+    for (size_t i = 0; i < portabilityTablePackets.size(); i++) {
+        vktrace_trace_packet_header* pPacket = (vktrace_trace_packet_header*)portabilityTablePackets[i];
+        if (pPacket) {
+            vktrace_free(pPacket);
+        }
+    }
+}
+
 static bool readPortabilityTable() {
     uint64_t tableSize;
     uint64_t originalFilePos;
 
     originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
+    if (UINT64_MAX == originalFilePos) return false;
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - sizeof(uint64_t))) return false;
     if (!vktrace_FileLike_ReadRaw(traceFile, &tableSize, sizeof(uint64_t))) return false;
     if (tableSize != 0) {
         if (!vktrace_FileLike_SetCurrentPosition(traceFile, traceFile->mFileLen - ((tableSize + 1) * sizeof(uint64_t))))
             return false;
         portabilityTable.resize((size_t)tableSize);
+        portabilityTablePackets.resize((size_t)tableSize);
         if (!vktrace_FileLike_ReadRaw(traceFile, &portabilityTable[0], sizeof(uint64_t) * tableSize)) return false;
     }
     if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
-    vktrace_LogDebug("portabilityTable size=%ld\n", tableSize);
+    vktrace_LogDebug("portabilityTable size=%" PRIu64 "\n", tableSize);
     return true;
 }
 
@@ -533,6 +569,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
 
     // read portability table if it exists
     if (pFileHeader->portability_table_valid) pFileHeader->portability_table_valid = readPortabilityTable();
+    if (pFileHeader->portability_table_valid) pFileHeader->portability_table_valid = preloadPortabilityTablePackets();
     if (!pFileHeader->portability_table_valid)
         vktrace_LogAlways("Trace file does not appear to contain portability table. Will not attempt to map memoryType indices.");
 
@@ -565,6 +602,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         fclose(tracefp);
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
+        if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
         return -1;
     }
 
@@ -602,6 +640,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
                 fclose(tracefp);
                 vktrace_free(pTraceFile);
                 vktrace_free(traceFile);
+                if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
                 return -1;
             }
 
@@ -622,6 +661,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
                 fclose(tracefp);
                 vktrace_free(pTraceFile);
                 vktrace_free(traceFile);
+                if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
                 return err;
             }
         }
@@ -635,6 +675,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         fclose(tracefp);
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
+        if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
         return -1;
     }
 
@@ -656,6 +697,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
     fclose(tracefp);
     vktrace_free(pTraceFile);
     vktrace_free(traceFile);
+    if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
 
     return err;
 }
