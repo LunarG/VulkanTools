@@ -52,7 +52,7 @@ else()
 endif()
 
 if(WIN32)
-add_executable(via
+add_executable(vkvia
                   via.cpp
                   via_system.hpp
                   via_system.cpp
@@ -60,7 +60,7 @@ add_executable(via
                   via_system_windows.cpp
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 else()
-add_executable(via
+add_executable(vkvia
                   via.cpp
                   via_system.hpp
                   via_system.cpp
@@ -69,13 +69,13 @@ add_executable(via
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 endif()
 
-target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(via Vulkan::Vulkan)
+target_include_directories(vkvia PUBLIC ${JSONCPP_INCLUDE_DIR})
+target_link_libraries(vkvia Vulkan::Vulkan)
 if(WIN32)
-    target_link_libraries(via version shlwapi Cfgmgr32)
+    target_link_libraries(vkvia version shlwapi Cfgmgr32)
 else()
-    target_link_libraries(via dl)
+    target_link_libraries(vkvia dl)
 endif()
 if(UNIX)
-    install(TARGETS via DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS vkvia DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
