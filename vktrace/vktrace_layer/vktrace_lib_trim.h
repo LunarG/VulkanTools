@@ -22,6 +22,7 @@
 
 #include "vktrace_lib_trim_generate.h"
 #include "vktrace_lib_trim_statetracker.h"
+#include "vktrace_lib_trim_descriptoriterator.h"
 #include "vulkan/vulkan.h"
 
 #if defined(PLATFORM_LINUX)  // VK_USE_PLATFORM_XCB_KHR

@@ -4561,7 +4561,10 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
                 pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex].descriptorCount;
             assert(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength);
 
-            for (uint32_t j = 0; j < pDescriptorUpdateEntry->descriptorCount; j++) {
+            uint32_t j = 0;
+            for (trim::DescriptorIterator descriptor_iterator(pInfo, bindingIndex, bindingDescriptorInfoArrayWriteIndex,
+                                                              pDescriptorUpdateEntry->descriptorCount);
+                 !descriptor_iterator.IsEnd(); descriptor_iterator++, j++) {
                 // First get the descriptor data pointer, Doc provide the
                 // following formula to calculate the pointer for every
                 // array element:
@@ -4577,53 +4580,22 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
                     case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                        memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo +
-                                                                  bindingDescriptorInfoArrayWriteIndex),
-                               pDescriptorRawData, sizeof(VkDescriptorImageInfo));
+                        memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)), pDescriptorRawData, sizeof(VkDescriptorImageInfo));
                         break;
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                        memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo +
-                                                                   bindingDescriptorInfoArrayWriteIndex),
-                               pDescriptorRawData, sizeof(VkDescriptorBufferInfo));
+                        memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)), pDescriptorRawData,
+                               sizeof(VkDescriptorBufferInfo));
                         break;
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                        memcpy(
-                            const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView + bindingDescriptorInfoArrayWriteIndex),
-                            pDescriptorRawData, sizeof(VkBufferView));
+                        memcpy(reinterpret_cast<void*>(&(*descriptor_iterator)), pDescriptorRawData, sizeof(VkBufferView));
                         break;
                     default:
                         assert(0);
                         break;
-                }
-
-                if (bindingIndex >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
-                    // The update reach a binding that never be used before,
-                    // we need update writeDescriptorCount so trim can generate
-                    // coressponding calls when recreate the descriptorset.
-                    pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = bindingIndex + 1;
-                }
-                // now we have updated the track info of current descriptor, the
-                // next step is to update the location for next descriptor data.
-                bindingDescriptorInfoArrayWriteIndex++;
-                if (bindingDescriptorInfoArrayWriteIndex >= bindingDescriptorInfoArrayWriteLength) {
-                    // Note: by Doc, "if descriptorCount is greater than the number
-                    // of remaining array elements in the destination binding,
-                    // those affect consecutive bindings in a manner similar to
-                    // VkWriteDescriptorSet"
-                    bindingDescriptorInfoArrayWriteIndex = 0;
-                    bindingIndex++;
-                    if (bindingIndex >= pInfo->ObjectInfo.DescriptorSet.numBindings) {
-                        if ((j + 1) < pDescriptorUpdateEntry->descriptorCount) {
-                            // already beyond the the max binding index, but
-                            // there are still some descriptor data left, this
-                            // is a wrong situation.
-                            assert(false);
-                        }
-                    }
                 }
             }
         }
