@@ -62,21 +62,21 @@ You will find the VIA binary in a different location depending on which OS you a
 
 When running, if VIA detects an installed Vulkan SDK, it will attempt to run the "Cube" demo in several ways to make sure the install truly appears valid.  The first run of "Cube" it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run "Cube" with validation enabled, again, for only a few frames.  Because of this, you may notice "Cube" popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
 
-Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the via executable).
+Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the vkvia executable).
 
 #### In the Windows Vulkan SDK
-VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "via".  This will output the resulting via.html directly to your desktop.
+VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "vkvia".  This will output the resulting vkvia.html directly to your desktop.
 
 If you need to run via from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
 ```
-via.exe
+vkvia.exe
 ```
 
 #### In the Linux Vulkan SDK
 Once built, VIA can be found in the x86_64/bin directory.  You can simply execute it from there using:
 
 ```
-via
+vkvia
 ```
 
 <BR />
@@ -89,7 +89,7 @@ Go into the folder where you generated the build items from the above building s
 
 Simply run:
 ```
-via
+vkvia
 ```
 
 
@@ -103,17 +103,17 @@ Steps to run the first time:
  3. Go into the "Debug" or "Release" folder (whichever you are desiring to work with) 
  4. Run 
 ```
-via.exe
+vkvia.exe
 ```
 
-After the first time, you just need to go into the folder and re-run "via.exe".
+After the first time, you just need to go into the folder and re-run "vkvia.exe".
 
 <BR />
 
 ### Resulting Output
 VIA outputs two things:
  - A command-line output indicating the overall status
- - An HTML file (called via.html) containing the details which will be output to one of two locations:
+ - An HTML file (called vkvia.html) containing the details which will be output to one of two locations:
   1. If the current directory is writable, the HTML will be placed in that location.
   2. Otherwise, it will be saved to your home folder, except for the Windows Start Menu short-cut which writes the file to your desktop.
 
@@ -138,7 +138,7 @@ Where each component stands for the numeric values for year (YYYY), month (MM), 
 #### --output_path
 The --output_path arument allows the user to specify a location for the output html file. For
 example, if the user runs `via --output_path /home/me/Documents`, then the output file will be
-`/home/me/Documents/via.html`.
+`/home/me/Documents/vkvia.html`.
 
 <BR />
 

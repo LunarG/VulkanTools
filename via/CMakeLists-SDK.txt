@@ -80,7 +80,7 @@ endif()
 
 if(WIN32)
 add_definitions(-DVIA_WINDOWS_TARGET)
-add_executable(via
+add_executable(vkvia
                   via.cpp
                   via_system.hpp
                   via_system.cpp
@@ -89,7 +89,7 @@ add_executable(via
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 else()
 add_definitions(-DVIA_LINUX_TARGET)
-add_executable(via
+add_executable(vkvia
                   via.cpp
                   via_system.hpp
                   via_system.cpp
@@ -97,8 +97,8 @@ add_executable(via
                   via_system_linux.cpp
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 endif()
-target_include_directories(via PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(via ${LIBRARIES})
+target_include_directories(vkvia PUBLIC ${JSONCPP_INCLUDE_DIR})
+target_link_libraries(vkvia ${LIBRARIES})
 if(WIN32)
-    target_link_libraries(via version)
+    target_link_libraries(vkvia version)
 endif()
