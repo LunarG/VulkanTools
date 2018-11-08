@@ -347,6 +347,15 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 #endif  // ANDROID
 }
 
+static void freePortabilityTablePackets() {
+    for (size_t i = 0; i < portabilityTablePackets.size(); i++) {
+        vktrace_trace_packet_header* pPacket = (vktrace_trace_packet_header*)portabilityTablePackets[i];
+        if (pPacket) {
+            vktrace_free(pPacket);
+        }
+    }
+}
+
 std::vector<uint64_t> portabilityTable;
 static bool preloadPortabilityTablePackets() {
     uint64_t originalFilePos = vktrace_FileLike_GetCurrentPosition(traceFile);
@@ -367,17 +376,11 @@ static bool preloadPortabilityTablePackets() {
 
     vktrace_LogVerbose("Total packet size preloaded for portability table: %" PRIu64 " bytes", portabilityTableTotalPacketSize);
 
-    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) return false;
-    return true;
-}
-
-static void freePortabilityTablePackets() {
-    for (size_t i = 0; i < portabilityTablePackets.size(); i++) {
-        vktrace_trace_packet_header* pPacket = (vktrace_trace_packet_header*)portabilityTablePackets[i];
-        if (pPacket) {
-            vktrace_free(pPacket);
-        }
+    if (!vktrace_FileLike_SetCurrentPosition(traceFile, originalFilePos)) {
+        freePortabilityTablePackets();
+        return false;
     }
+    return true;
 }
 
 static bool readPortabilityTable() {
