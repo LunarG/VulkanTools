@@ -44,7 +44,7 @@ typedef struct vktrace_settings {
     BOOL enable_pmb;
     const char* verbosity;
     const char* traceTrigger;
-
+    BOOL enable_trim_post_processing;
 } vktrace_settings;
 
 extern vktrace_settings g_settings;
