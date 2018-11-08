@@ -16,7 +16,7 @@ Options for the `vktrace` command are:
 | -w&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;WorkingDir&nbsp;&lt;string&gt; | Alternate working directory | the application's directory |
 | -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace  persistently mapped buffers | true |
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
-| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post processing to make trimmed trace file smaller | false |
+| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
@@ -150,7 +150,7 @@ vktraceviewer has a dependency on Qt5 libraries; they need to be installed on th
 
 ## Persistently Mapped Buffers and vktrace
 
-If a Vulkan program uses persistently mapped buffers (PMB) that are allocated via vkMapMemory, vktrace can track changes to PMB and automatically copy modified PMB pages to the trace file, rather than requiring that the Vulkan program call vkFlushMappedMemoryRanges to specify what PMB buffers should be copied. On Windows, the trace layer detects changes to PMB pages by setting the PAGE_GUARD flag for mapped memory pages and installing an exception handler for PAGE_GUARD that keeps track of which pages have been modified.  On Linux, the trace layer detects changes to PMB pages by examining /proc/self/pagemap.
+If a Vulkan program uses persistently mapped buffers (PMB) that are allocated via vkMapMemory, vktrace can track changes to PMB and automatically copy modified PMB pages to the trace file, rather than requiring that the Vulkan program call vkFlushMappedMemoryRanges to specify what PMB buffers should be copied. On Windows, the trace layer detects changes to PMB pages by setting the PAGE_GUARD flag for mapped memory pages and installing an exception handler for PAGE_GUARD that keeps track of which pages have been modified.  On Linux, the trace layer detects changes by using mprotect to disable writes to mapped memory pages and installing a signal handler for SIGSEGV.
 
 Tracking of changes to PMB using the above techniques is enabled by default. If you wish to disable PMB tracking, it can be disabled by with the `--PMB false` option to the vktrace command. Disabling PMB tracking can result in some mapped memory changes not being detected by the trace layer, a larger trace file, and/or slower trace/replay.
 
