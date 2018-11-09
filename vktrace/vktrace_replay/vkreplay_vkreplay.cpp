@@ -4408,9 +4408,6 @@ VkResult vkReplay::manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_
                                                                  pPacket->pDisplayCount, pDisplays);
 
     if (pPacket->pDisplays != NULL) {
-        if (memcmp(pDisplays, pPacket->pDisplays, sizeof(VkDisplayKHR) * (*pPacket->pDisplayCount)) != 0) {
-            vktrace_LogError("Display Plane supported displays differ. Displays may not match as expected.");
-        }
         for (uint32_t i = 0; i < *pPacket->pDisplayCount; ++i) {
             m_objMapper.add_to_displaykhrs_map(pPacket->pDisplays[i], pDisplays[i]);
         }
