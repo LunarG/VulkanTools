@@ -143,4 +143,6 @@ VkDescriptorType DescriptorIterator::GetCurrentDescriptorType() {
     return descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorType;
 }
 
+uint32_t DescriptorIterator::GetCurrentBindingIndex() { return current_descriptor_binding_index_; }
+
 }  // namespace trim

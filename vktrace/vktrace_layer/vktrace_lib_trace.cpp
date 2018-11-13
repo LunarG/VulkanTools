@@ -1955,6 +1955,15 @@ void handleWriteDescriptorSet(const VkWriteDescriptorSet* pDescriptorUpdateEntry
         // The following code update the descriptorset track info
         // with the descriptor data.
 
+        if (descriptor_iterator.GetCurrentBindingIndex() >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+            // this is to track the latest data in this call and also cover previous calls.
+            // writeDescriptorCount is used to indicate so far how many bindings of this
+            // descriptorset has been updated, this include this call and all previous
+            // calls, from all these calls, we record the max bindingindex. its value must
+            // be <= numBindings.
+            pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = descriptor_iterator.GetCurrentBindingIndex() + 1;
+        }
+
         switch (pDescriptorUpdateEntry->descriptorType) {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
