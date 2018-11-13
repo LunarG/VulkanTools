@@ -45,7 +45,11 @@ DescriptorIterator::DescriptorIterator(ObjectInfo *object_info, uint32_t binding
 
 DescriptorIterator &DescriptorIterator::operator*() const {
     DescriptorIterator *descriptor_info = nullptr;
-    switch (descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].descriptorType) {
+    // Vulkan has no API function for init descriptorset, the initialization of
+    // descriptorset is also through update call. Here we use its
+    // layout trackinfo to get descriptorType of specific binding
+    // to avoid invalid descriptorType for first time update.
+    switch (descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorType) {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
@@ -91,7 +95,7 @@ bool DescriptorIterator::operator==(const DescriptorIterator &iterator) { return
 bool DescriptorIterator::operator!=(const DescriptorIterator &iterator) { return !IsEqual(*this, iterator); };
 
 bool DescriptorIterator::IsEnd() {
-    bool end_flag = false;
+    bool end_flag = true;
     if (current_iterator_index_ < update_descriptor_count_) {
         // the current iterator index within the range, we continue to check if it's a valid descriptor location.
         if (current_descriptor_binding_index_ < descriptorset_layout_->bindingCount) {
@@ -99,10 +103,11 @@ bool DescriptorIterator::IsEnd() {
                 // it's the end binding, we need to check if current_descriptor_index_ is valid.
                 if (current_descriptor_index_ <
                     descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorCount) {
-                    end_flag = true;
+                    end_flag = false;
                 }
             } else {
-                end_flag = true;
+                // it's not the end binding
+                end_flag = false;
             }
         }
     }
@@ -135,7 +140,7 @@ void DescriptorIterator::MoveToNextDescriptorInfo() {
 }
 
 VkDescriptorType DescriptorIterator::GetCurrentDescriptorType() {
-    return descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].descriptorType;
+    return descriptorset_layout_->pBindings[current_descriptor_binding_index_].descriptorType;
 }
 
 }  // namespace trim
