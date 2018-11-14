@@ -5111,11 +5111,13 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceExtensionProperties(const char* pLayerName,
                                                                                                uint32_t* pPropertyCount,
                                                                                                VkExtensionProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex_trim);
     return vkEnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
 }
 
 VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
                                                                                            VkLayerProperties* pProperties) {
+    trim::TrimLockGuard<std::mutex> lock(g_mutex_trim);
     return vkEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
