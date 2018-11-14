@@ -298,7 +298,7 @@ void MultiEnumSelectWidget::changeItem(QAction *action)
 
 void MultiEnumSelectWidget::updateText()
 {
-    QList<QString> selected_items;
+    QStringList selected_items;
     QList<QAction*> actions = popup_menu->actions();
     for (QAction *action : actions) {
         if (action->isChecked()) {

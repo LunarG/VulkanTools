@@ -64,7 +64,7 @@ OverrideSettings::OverrideSettings()
             QString setting_name = subsections[0];
             QString setting_value = subsections[1];
 
-            QList<QString> layer_sections = layer_abbrev.split("_");
+            QStringList layer_sections = layer_abbrev.split("_");
             layer_sections[0] = layer_sections[0].toUpper();
             layer_sections.prepend("LAYER");
             layer_sections.prepend("VK");
@@ -124,14 +124,14 @@ bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths,
         json_layers.append(manifest.name);
     }
     QJsonObject disable;
-    disable.insert("DISABLE_VK_LAYER_LUNARG_override", "1");
+    disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
 
     QJsonObject layer;
-    layer.insert("name", "VK_LAYER_LUNARG_override");
-    layer.insert("type", "GLOBAL");
+    layer.insert("name", QString("VK_LAYER_LUNARG_override"));
+    layer.insert("type", QString("GLOBAL"));
     layer.insert("api_version", "1.1." + QString::number(VK_HEADER_VERSION));
-    layer.insert("implementation_version", "1");
-    layer.insert("description", "LunarG Override Layer");
+    layer.insert("implementation_version", QString("1"));
+    layer.insert("description", QString("LunarG Override Layer"));
     if (expiration >= 0) {
         layer.insert("expiration_date", now.toString("yyyy-MM-dd-hh-mm"));
     }
@@ -140,7 +140,7 @@ bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths,
     layer.insert("disable_environment", disable);
 
     QJsonObject root;
-    root.insert("file_format_version", QJsonValue("1.1.2"));
+    root.insert("file_format_version", QJsonValue(QString("1.1.2")));
     root.insert("layer", layer);
     QJsonDocument doc(root);
 
@@ -160,7 +160,8 @@ bool OverrideSettings::SaveSettings(const QHash<QString, QHash<QString, LayerVal
     for (const QString &layer : settings.keys()) {
         QHash<QString, QString> options;
         for (const QString &option : settings[layer].keys()) {
-            options.insert(option, settings[layer][option].values.values().join(","));
+            QStringList values = settings[layer][option].values.values();
+            options.insert(option, values.join(","));
         }
         layer_settings.insert(layer, options);
     }
@@ -179,7 +180,8 @@ bool OverrideSettings::SaveSettings(const QHash<QString, QHash<QString, LayerVal
 
         stream << "\n# " << layer << "\n";
         for (const QString &option : settings[layer].keys()) {
-            QString string_value = settings[layer][option].values.values().join(",");
+            QStringList values = settings[layer][option].values.values();
+            QString string_value = values.join(",");
             stream << short_layer << "." << option << " = " << string_value << "\n";
         }
     }
