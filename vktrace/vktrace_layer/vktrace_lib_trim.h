@@ -49,7 +49,9 @@ extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
 extern bool g_trimAlreadyFinished;
 
-extern std::mutex g_mutex;
+// This mutex is used to protect API calls sequence
+// when trim starting process.
+extern std::mutex g_mutex_trim;
 
 namespace trim {
 
