@@ -9,7 +9,7 @@
 #endif
 
 QString LayerManifest::PrettyName() const {
-    QList<QString> segments = name.split("_");
+    QStringList segments = name.split("_");
     if (segments.count() <= 3 || segments[0] != "VK" || segments[1] != "LAYER") {
         return name;
     }
