@@ -437,7 +437,7 @@ int ViaSystemWindows::RunTestInDirectory(std::string path, std::string test, std
     char orig_dir[1024];
     orig_dir[0] = '\0';
 
-    LogInfo("SDK Found! - Will attempt to run " + test + " using the command-line: " + cmd_line);
+    LogInfo("       Command-line: " + cmd_line);
 
     if (0 != GetCurrentDirectoryA(1023, orig_dir) && TRUE == SetCurrentDirectoryA(path.c_str())) {
         if (TRUE == PathFileExists(test.c_str())) {
