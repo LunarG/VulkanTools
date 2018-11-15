@@ -1,2 +1,3 @@
-usr/bin/vk*
+usr/bin/vkreplay
+usr/bin/vktrace
 usr/lib/*/libvkdisplay*.so
