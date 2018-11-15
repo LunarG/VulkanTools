@@ -23,6 +23,7 @@ Build-Depends: debhelper (>=9),
  pkg-config,
  python3,
  python3-lxml,
+ qt5-default,
  quilt
 Standards-Version: 4.1.4
 Homepage: https://github.com/LunarG/VulkanTools
@@ -68,7 +69,10 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  vulkan-headers (>=__VKAPIVERSION__),
  libvulkan1 (>=__VKAPIVERSION__),
- vulkan-validationlayers (>=__VKAPIVERSION__)
+ vulkan-validationlayers (>=__VKAPIVERSION__),
+ libqt5core5a,
+ libqt5gui5,
+ libqt5widgets5
 Description: LunarG GUI tool to configure Vulkan layers
  The Vulkan configuration tool is a graphical application that allows a user to
  specify which layers will be loaded by Vulkan applications at runtime. It
