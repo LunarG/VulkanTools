@@ -201,9 +201,6 @@ vktrace_trace_packet_header* vktrace_create_trace_packet(uint8_t tracer_id, uint
     return pHeader;
 }
 
-// Delete packet after vktrace_create_trace_packet being called.
-void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader) { vktrace_delete_trace_packet_no_lock(ppHeader); }
-
 void* vktrace_trace_packet_get_new_buffer_address(vktrace_trace_packet_header* pHeader, uint64_t byteCount) {
     void* pBufferStart;
     assert(byteCount > 0);
@@ -442,7 +439,7 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
 }
 
 // Delete packet after vktrace_read_trace_packet being called.
-void vktrace_delete_trace_packet_no_lock(vktrace_trace_packet_header** ppHeader) {
+void vktrace_delete_trace_packet(vktrace_trace_packet_header** ppHeader) {
     if (ppHeader == NULL) return;
     if (*ppHeader == NULL) return;
 
