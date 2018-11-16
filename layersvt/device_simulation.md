@@ -75,7 +75,7 @@ When configuring the order of the layers list, the DevSim layer should be "last"
 i.e.: closest to the driver, farthest from the application.
 That allows the Validation layer to see the results of the DevSim layer, and permit Validation to enforce the simulated capabilities.
 
-Please report issues to the [GitHub VulkanTools repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
+Please report issues to [LunarG's VulkanTools GitHub repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
 
 ### Layer name
 `VK_LAYER_LUNARG_device_simulation`
