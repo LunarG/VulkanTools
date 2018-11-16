@@ -464,7 +464,7 @@ class PhysicalDeviceData {
         assert(pd != VK_NULL_HANDLE);
         assert(instance != VK_NULL_HANDLE);
         assert(!Find(pd));  // Verify this instance does not already exist.
-        const auto result = map_.emplace(pd, PhysicalDeviceData(pd, instance));
+        const auto result = map_.emplace(pd, PhysicalDeviceData(instance));
         assert(result.second);  // true=insertion, false=replacement
         auto iter = result.first;
         PhysicalDeviceData *pdd = &iter->second;
@@ -491,13 +491,12 @@ class PhysicalDeviceData {
    private:
     PhysicalDeviceData() = delete;
     PhysicalDeviceData &operator=(const PhysicalDeviceData &) = delete;
-    PhysicalDeviceData(VkPhysicalDevice pd, VkInstance instance) : physical_device_(pd), instance_(instance) {
+    PhysicalDeviceData(VkInstance instance) : instance_(instance) {
         physical_device_properties_ = {};
         physical_device_features_ = {};
         physical_device_memory_properties_ = {};
     }
 
-    const VkPhysicalDevice physical_device_;
     const VkInstance instance_;
 
     typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceData> Map;
