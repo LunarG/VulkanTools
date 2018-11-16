@@ -1,6 +1,8 @@
-# Overview
+# VK\_LAYER\_LUNARG\_device\_simulation
 
-## Extend your Vulkan test coverage with free LunarG tool
+## Overview
+
+### Extend your Vulkan test coverage with free LunarG tool
 
 Do you have a test lab with examples of all the GPUs you hope your application will support?
 
