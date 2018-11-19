@@ -50,10 +50,13 @@ LayerManager::LayerManager()
 
     QHBoxLayout *button_layout = new QHBoxLayout();
     QPushButton *save_button = new QPushButton(tr("Save"));
+    save_button->setToolTip(tr("Save layers and settings"));
     button_layout->addWidget(save_button, 0);
     QPushButton *restore_button = new QPushButton(tr("Restore"));
+    restore_button->setToolTip(tr("Restore to last saved state"));
     button_layout->addWidget(restore_button, 0);
     QPushButton *clear_button = new QPushButton(tr("Clear"));
+    clear_button->setToolTip(tr("Clear saved layers and settings"));
     button_layout->addWidget(clear_button, 0);
 
     button_layout->addSpacing(24);
