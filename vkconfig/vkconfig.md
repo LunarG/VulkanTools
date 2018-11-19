@@ -1,19 +1,19 @@
 
-# Vulkan Configuration Tool (vkconfig)
+# Vulkan Configurator (vkconfig)
 
-The Vulkan configuration tool is a graphical application that allows a user to specify which layers will be loaded by Vulkan applications at runtime.
+The Vulkan Configurator is a graphical application that allows a user to specify which layers will be loaded by Vulkan applications at runtime.
 It provides an alternative to setting layers through environment variables or an application's layer selection.
 In addition, it allows using layers from non-standard locations, selecting the ordering for implicit layers, and specifying settings for layers that vkconfig supports.
 
-## Using vkconfig
+## Using the Vulkan Configurator
 
-The Vulkan configuration tool is a graphical user interface (GUI), and does not support any functionality through the system console. It may be launched from the console (as `vkconfig`), but no further functionality will be available from the console. The tool is distributed differently, depending on the platform:
+The Vulkan Configurator is a graphical user interface (GUI), and does not support any functionality through the system console. It may be launched from the console (as `vkconfig`), but no further functionality will be available from the console. The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
 - Linux tarball: After extracting the SDK, run the `build_tools.sh` script to build `vkconfig`. Note that the Core, GUI, and Widgets modules of Qt5 must be installed prior to running the build script.
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. It will be called `vkconfig`.
 - MacOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
-The configuration tool is divided into the following three sections.
+The configurator is divided into the following three sections.
 
 ### Layer Locations
 
@@ -91,13 +91,17 @@ Finally, the "Exit" button will quit the application (without saving).
 It is effectively the same as pressing the "Reset" button and exiting the application.
 Note that while all unsaved changes will be lost, all saved settings in the tool will be remembered the next time vkconfig is run.
 
-When any of these buttons is run, a timestamped message will appear at the bottom of the configuration tool indicating the action that was taken.
+When any of these buttons is run, a timestamped message will appear at the bottom of the Vulkan Configurator indicating the action that was taken.
 This can be useful as a confirmation of what you did.
 In addition, it can give you information like when you last saved, since the message will stay there until another command is given.
 
+Keep in mind that any changes made to a system will persist indefinitely (unless an expiration is set).
+As a result, it is very important that the user remember to clear the state of the tool when finishing using it.
+Otherwise, applications will continue to run with the layers that were specified by the configurator.
+
 ## System Modifcations
 
-The layer configuration tool does not make any system-wide changes to a system, but it does make user-specific changes.
+The Vulkan Configurator does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
 
 ### Linux/Mac
