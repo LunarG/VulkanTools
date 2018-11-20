@@ -125,6 +125,8 @@ void vkDisplayXcb::resize_window(const unsigned int width, const unsigned int he
         m_windowHeight = height;
         if (width >= m_screenWidth || height >= m_screenHeight) {
             // Magic code that makes window full screen
+            xcb_unmap_window(m_pXcbConnection, m_XcbWindow);
+            xcb_flush(m_pXcbConnection);
             xcb_ewmh_connection_t EWMH;
             xcb_intern_atom_cookie_t *EWMHCookie = xcb_ewmh_init_atoms(m_pXcbConnection, &EWMH);
             xcb_ewmh_init_atoms_replies(&EWMH, EWMHCookie, NULL);
