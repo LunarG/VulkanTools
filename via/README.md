@@ -60,14 +60,14 @@ The source for VIA can also be found in the LunarG Linux [Vulkan SDK](https://vu
 ## Running
 You will find the VIA binary in a different location depending on which OS you are using and whether you have built it, or installed it as part of the SDK.  The following information states where to find the proper executable.
 
-When running, if VIA detects an installed Vulkan SDK, it will attempt to run the "Cube" demo in several ways to make sure the install truly appears valid.  The first run of "Cube" it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run "Cube" with validation enabled, again, for only a few frames.  Because of this, you may notice "Cube" popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
+When running, if VIA detects an installed Vulkan SDK, it will attempt to run the Vulkan Cube demo in several ways to make sure the install truly appears valid.  The first run of Vulkan Cube it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run Vulkan Cube with validation enabled, again, for only a few frames.  Because of this, you may notice Vulkan Cube popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
 
 Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the vkvia executable).
 
 #### In the Windows Vulkan SDK
-VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "vkvia".  This will output the resulting vkvia.html directly to your desktop.
+VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "VIA".  This will output the resulting vkvia.html directly to your desktop.
 
-If you need to run via from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
+If you need to run VIA from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
 ```
 vkvia.exe
 ```
