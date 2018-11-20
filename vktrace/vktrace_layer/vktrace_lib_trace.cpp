@@ -4493,34 +4493,7 @@ static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplateKHR descriptorU
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTemplate(
     VkDevice device, VkDescriptorSet descriptorSet, VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) {
-    vktrace_trace_packet_header* pHeader;
-    packet_vkUpdateDescriptorSetWithTemplate* pPacket = NULL;
-    size_t dataSize;
-
-    // TODO: We're saving all the data, from pData to the end of the last item, including data before offset and skipped data.
-    // This could be optimized to save only the data chunks that are actually needed.
-    dataSize = getDescriptorSetDataSize(descriptorUpdateTemplate);
-
-    CREATE_TRACE_PACKET(vkUpdateDescriptorSetWithTemplate, dataSize);
-    mdd(device)->devTable.UpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
-    vktrace_set_packet_entrypoint_end_time(pHeader);
-    pPacket = interpret_body_as_vkUpdateDescriptorSetWithTemplate(pHeader);
-    pPacket->device = device;
-    pPacket->descriptorSet = descriptorSet;
-    pPacket->descriptorUpdateTemplate = descriptorUpdateTemplate;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pData), dataSize, pData);
-    vktrace_finalize_buffer_address(pHeader, (void**)&(pPacket->pData));
-    if (!g_trimEnabled) {
-        FINISH_TRACE_PACKET();
-    } else {
-        vktrace_finalize_trace_packet(pHeader);
-        if (g_trimIsInTrim) {
-            trim::mark_DescriptorSet_reference(descriptorSet);
-            trim::write_packet(pHeader);
-        } else {
-            vktrace_delete_trace_packet(&pHeader);
-        }
-    }
+    __HOOKED_vkUpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
 VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTemplateKHR(
@@ -4546,6 +4519,115 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
         FINISH_TRACE_PACKET();
     } else {
         vktrace_finalize_trace_packet(pHeader);
+        lockDescriptorUpdateTemplateCreateInfo();
+
+        // Trim keep tracking all descriptorsets from beginning, include all
+        // descriptors in the descriptorset. If any function change any
+        // descriptor of it, the track info of that descriptorset should
+        // also be changed. The following source code update the descriptorset
+        // trackinfo to make sure the track info reflect current descriptorset
+        // state after the function update its descriptors.
+        //
+        for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->descriptorUpdateEntryCount; i++) {
+            const VkDescriptorUpdateTemplateEntry* pDescriptorUpdateEntry =
+                &(descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i]);
+            // The following variables are used to locate the descriptor
+            // track info in the target descriptor set, so we can use the
+            // descriptor data in template to update it.
+            // For every input descriptor data, we need to find
+            // corresponding binding number and array element index.
+            VkWriteDescriptorSet* pWriteDescriptorSet =
+                nullptr;  // This is the pointer to trim tracking info of binding in target descriptorset.
+            uint32_t bindingDescriptorInfoArrayWriteIndex = 0;   // This is the array index of current descriptor
+                                                                 // (within the binding array) that we'll update.
+            uint32_t bindingDescriptorInfoArrayWriteLength = 0;  // The descriptor amount in the binding array.
+
+            uint32_t bindingIndex = 0;  // the array index of the current binding in the descriptorset track info.
+
+            trim::ObjectInfo* pInfo = trim::get_DescriptorSet_objectInfo(descriptorSet);
+
+            // Get the binding index from the binding number which is the
+            // updating target.
+            //
+            // Note: by Doc, Vulkan allows the descriptor bindings to be
+            // specified sparsely so we cannot assume the binding index
+            // is the binding number.
+            bindingIndex = get_binding_index(descriptorSet, pDescriptorUpdateEntry->dstBinding);
+            assert(bindingIndex != INVALID_BINDING_INDEX);
+
+            pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex];
+            bindingDescriptorInfoArrayWriteIndex = pDescriptorUpdateEntry->dstArrayElement;
+            bindingDescriptorInfoArrayWriteLength =
+                pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex].descriptorCount;
+            assert(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength);
+
+            for (uint32_t j = 0; j < pDescriptorUpdateEntry->descriptorCount; j++) {
+                // First get the descriptor data pointer, Doc provide the
+                // following formula to calculate the pointer for every
+                // array element:
+                const char* pDescriptorRawData =
+                    (const char*)pData + pDescriptorUpdateEntry->offset + j * pDescriptorUpdateEntry->stride;
+
+                // The following code update the descriptorset track info
+                // with the descriptor data.
+
+                switch (pDescriptorUpdateEntry->descriptorType) {
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                        memcpy(const_cast<VkDescriptorImageInfo*>(pWriteDescriptorSet->pImageInfo +
+                                                                  bindingDescriptorInfoArrayWriteIndex),
+                               pDescriptorRawData, sizeof(VkDescriptorImageInfo));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                        memcpy(const_cast<VkDescriptorBufferInfo*>(pWriteDescriptorSet->pBufferInfo +
+                                                                   bindingDescriptorInfoArrayWriteIndex),
+                               pDescriptorRawData, sizeof(VkDescriptorBufferInfo));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                        memcpy(
+                            const_cast<VkBufferView*>(pWriteDescriptorSet->pTexelBufferView + bindingDescriptorInfoArrayWriteIndex),
+                            pDescriptorRawData, sizeof(VkBufferView));
+                        break;
+                    default:
+                        assert(0);
+                        break;
+                }
+
+                if (bindingIndex >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+                    // The update reach a binding that never be used before,
+                    // we need update writeDescriptorCount so trim can generate
+                    // coressponding calls when recreate the descriptorset.
+                    pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = bindingIndex + 1;
+                }
+                // now we have updated the track info of current descriptor, the
+                // next step is to update the location for next descriptor data.
+                bindingDescriptorInfoArrayWriteIndex++;
+                if (bindingDescriptorInfoArrayWriteIndex >= bindingDescriptorInfoArrayWriteLength) {
+                    // Note: by Doc, "if descriptorCount is greater than the number
+                    // of remaining array elements in the destination binding,
+                    // those affect consecutive bindings in a manner similar to
+                    // VkWriteDescriptorSet"
+                    bindingDescriptorInfoArrayWriteIndex = 0;
+                    bindingIndex++;
+                    if (bindingIndex >= pInfo->ObjectInfo.DescriptorSet.numBindings) {
+                        if ((j + 1) < pDescriptorUpdateEntry->descriptorCount) {
+                            // already beyond the the max binding index, but
+                            // there are still some descriptor data left, this
+                            // is a wrong situation.
+                            assert(false);
+                        }
+                    }
+                }
+            }
+        }
+        unlockDescriptorUpdateTemplateCreateInfo();
         if (g_trimIsInTrim) {
             trim::mark_DescriptorSet_reference(descriptorSet);
             trim::write_packet(pHeader);
