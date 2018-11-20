@@ -28,7 +28,7 @@ For production builds, be sure your application has access to read and write to 
 ```
 
 You may also need to grant it access with package manager.  For example, using the
-Vulkan "Cube" demo from [Khronos/Vulkan-Tools](https://github.com/KhronosGroup/Vulkan-Tools):
+Vulkan Cube demo from [Khronos/Vulkan-Tools](https://github.com/KhronosGroup/Vulkan-Tools):
 
 ```
 adb shell pm grant com.example.VkCube android.permission.READ_EXTERNAL_STORAGE

@@ -135,7 +135,7 @@ it on the CMake command line for building this repository, as described below.
 
 The tests in this repository depend on the Vulkan-Tools repository, which is
 hosted under Khronos' GitHub account and differentiated in name by a hyphen.
-The tests use vulkaninfo and the mock ICD from Vulkan-Tools.
+The tests use Vulkan Info and the mock ICD from Vulkan-Tools.
 
 You may build the
 [Vulkan-Tools repository](https://github.com/KhronosGroup/Vulkan-Tools.git)

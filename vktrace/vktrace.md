@@ -21,7 +21,7 @@ Options for the `vktrace` command are:
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
 
-An example command to trace the sample `vkcube` application in local mode follows.
+An example command to trace the sample Vulkan Cube application in local mode follows.
 
 Linux shell:
 
@@ -77,7 +77,7 @@ $ ./vkcube
 ```
 The generated trace file is found at `examples/traces/cubetrace_s.vktrace`.
 
-*Note*:  The `vkcube` application is used to demonstrate tracing in client/server mode.  `vkcube` is a very simple application, and would not be traced in this mode in practice.
+*Note*:  The Vulkan Cube application is used to demonstrate tracing in client/server mode.  Vulkan Cube is a very simple application, and would not be traced in this mode in practice.
 
 #### Remote Client
 Remote client/server mode is useful if the client is a mobile device or running in a lightweight environment that might not have the disk or other capabilities to store large trace files.
@@ -115,7 +115,7 @@ The  `vkreplay` command-line  options are:
 | Linux Only |  |  |
 | -ds&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;DisplayServer&nbsp;&lt;string&gt; | Display server - "xcb", or "wayland" | xcb |
 
-To replay the vkcube application trace captured in the example above:
+To replay the Vulkan Cube application trace captured in the example above:
 
 ```
 $ cd examples/build

@@ -3,7 +3,7 @@
 
 The Vulkan Configurator is a graphical application that allows a user to specify which layers will be loaded by Vulkan applications at runtime.
 It provides an alternative to setting layers through environment variables or an application's layer selection.
-In addition, it allows using layers from non-standard locations, selecting the ordering for implicit layers, and specifying settings for layers that vkconfig supports.
+In addition, it allows using layers from non-standard locations, selecting the ordering for implicit layers, and specifying settings for layers that Vulkan Configurator supports.
 
 ## Using the Vulkan Configurator
 
@@ -23,13 +23,13 @@ Each location is labeled with either an "E", denoting that this location contain
 At the top of the layer locations selector is a checkbox labelled "Use custom layer paths".
 When this checkbox is selected, the user gains the ability to choose the locations where layers will be searched.
 The user can then add or remove paths with the "Add", "Remove", and "Clear" buttons on the right.
-In addition, the "Search" button will allow the user to select a directory and vkconfig will scan that directory for json files that look like Vulkan layers, then prompt the user to ask if each path should actually be added.
+In addition, the "Search" button will allow the user to select a directory and Vulkan Configurator will scan that directory for json files that look like Vulkan layers, then prompt the user to ask if each path should actually be added.
 This can be helpful when a user does not wish to manually find the exact location of layers.
 When selecting layers manually, the selected layers will be saved each time the application is run, making it unnecessary to reset them every time.
 
 ### Active Layers
 
-The bottom of vkconfig is the active layer selector.
+The bottom of Vulkan Configurator is the active layer selector.
 This section allows a user to choose which layers are active for Vulkan applications, as well as selecting the order of those layers.
 Any layers specified in this section will be active on any Vulkan application that is run on the current machine, with the current user.
 The layer selector consists of three lists and a few other options.
@@ -47,9 +47,9 @@ The "Clear" button will disable all layers, regardless of selection.
 
 There are two more tools at the top of the active layer selector: the expiration duration and the refresh button.
 The refresh button is the simpler of these tools &mdash; it simply searches the paths specified by the layer locations widget for layers.
-This can be useful when adding or removing layers in these locations while vkconfig is running, since vkconfig will not pick up these changes by default.
+This can be useful when adding or removing layers in these locations while Vulkan Configurator is running, since it will not pick up these changes by default.
 The expiration duration is a little more complex.
-The expiration provides a mechanism so that the layer selections provided by vkconfig will expire (that is, they will stop having any effect) after a given time.
+The expiration provides a mechanism so that the layer selections provided by Vulkan Configurator will expire (that is, they will stop having any effect) after a given time.
 The prevents a user from setting specific layers as overrides and forgetting that these layers will still be enabled, days, months, or even years later.
 The default expiration is 12 hours, meaning that all layer selections will no longer work 12 hours after the layer selections are saved.
 Resaving layer selections does extend the expiration to 12 hours from the new save.
@@ -61,7 +61,7 @@ It's no fun debugging issues only to find that the wrong layers were enabled.
 ### Layer Settings
 
 The pane on the right side is the layer settings selector.
-Currently, vkconfig provides support for changing the settings of all LunarG layers, as well as other layers in standard validation.
+Currently, Vulkan Configurator provides support for changing the settings of all LunarG layers, as well as other layers in standard validation.
 Support for changing settings for other layers may be added in the future.
 
 The panel provides a list of layers for which settings can be selected.
@@ -80,16 +80,16 @@ In the future, settings may work for other layers, but this feature has not curr
 
 ## Saving and Restoring
 
-Finally, at the bottom of vkconfig, there are four buttons to control the tool: "Save", "Restore", "Clear", and "Exit".
+Finally, at the bottom of Vulkan Configurator, there are four buttons to control the tool: "Save", "Restore", "Clear", and "Exit".
 The "Save" button saves all changes that have been made in the tool.
-No changes made in vkconfig will have any effect until the user hits that save button.
+No changes made in Vulkan Configurator will have any effect until the user hits that save button.
 The "Restore" button does the opposite.
 It discards all changes made since the last time the user saved.
-The "Clear" button will remove all of the files that the vkconfig saves to change an application's behavior.
-After using this button, Vulkan applications will behave as if vkconfig was never run.
+The "Clear" button will remove all of the files that the Vulkan Configurator saves to change an application's behavior.
+After using this button, Vulkan applications will behave as if Vulkan Configurator was never run.
 Finally, the "Exit" button will quit the application (without saving).
 It is effectively the same as pressing the "Reset" button and exiting the application.
-Note that while all unsaved changes will be lost, all saved settings in the tool will be remembered the next time vkconfig is run.
+Note that while all unsaved changes will be lost, all saved settings in the tool will be remembered the next time Vulkan Configurator is run.
 
 When any of these buttons is run, a timestamped message will appear at the bottom of the Vulkan Configurator indicating the action that was taken.
 This can be useful as a confirmation of what you did.
