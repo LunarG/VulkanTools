@@ -1880,200 +1880,41 @@ void handleCopyDescriptorSet(const VkCopyDescriptorSet* pDescriptorCopies) {
 
     // In pDescriptorCopies, the caller specified the initial src and dst
     // bindings, we need to convert to binding index.
-    // the two index can be changed in the while loop, by Doc, "If
-    // descriptorCount is greater than the number of remaining array
-    // elements in the source or destination binding, those affect
-    // consecutive bindings...", so in the following while loop they can
-    // be increased on the matched condition.
-    //
-    // Another consideration here is it's possible the src and dst
-    // bingdings might have different descriptor numbers.
+
     uint32_t current_dst_binding_index = get_binding_index(pDescriptorCopies->dstSet, pDescriptorCopies->dstBinding);
     uint32_t current_src_binding_index = get_binding_index(pDescriptorCopies->srcSet, pDescriptorCopies->srcBinding);
 
-    // This is where the caller want to copy to the dst binding or copy
-    // from the source bindings. they are also can be changed in the following
-    // while loop if the copy cross multiple bindings in src or dst
-    // descriptorset
-    uint32_t current_dst_binding_descriptor_info_array_index = pDescriptorCopies->dstArrayElement;
-    uint32_t current_src_binding_descriptor_info_array_index = pDescriptorCopies->srcArrayElement;
-
-    // how many bindings the src and dst descriptorset have, they are same with
-    // the number defined in their descriptorset layout.
-    uint32_t dst_descriptorset_bindings = pDstInfo->ObjectInfo.DescriptorSet.numBindings;
-    uint32_t src_descriptorset_bindings = pSrcInfo->ObjectInfo.DescriptorSet.numBindings;
-
-    // how many descriptors in current src and dst bindings. They are also
-    // can be changed in the following while loop if the copy cross multiple
-    // bindings.
-    uint32_t current_src_binding_Descriptor_count =
-        pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].descriptorCount;
-    uint32_t current_dst_binding_Descriptor_count =
-        pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].descriptorCount;
-
-    // we use this variable to track how many descriptor info elements we should
-    // copy at one time execution of the following while loop block.
-    uint32_t current_binding_descriptor_info_array_copy_length = 0;
-
-    // we use this variable to track how many descriptors left to copy
-    // according to the VkCopyDescriptorSet struct, we reduce the variable
-    // in the while loop whenever we finish one time copy in loop block.
-    uint32_t left_descriptor_array_copy_length = pDescriptorCopies->descriptorCount;
-
-    bool stop_update = false;
-
-    // In the following while loop, we do the copy in one time execution:
-    //    from: current_src_binding_descriptor_info_array_index of
-    //          current_src_binding_index in pDescriptorCopies->srcSet
-    //    to: current_dst_binding_descriptor_info_array_index of
-    //          current_dst_binding_index in pDescriptorCopies->dstSet
-    //    length: current_binding_descriptor_info_array_copy_length
-    //
-    //    the length and starting position can be different in every time
-    //    execution of the while loop block.
-    //
-    // for every time execution of the while loop block, copy will be stopped
-    // when reaching the end of dst or src binding, then related variables
-    // will be updated for next time execution: new location of dst or src,
-    // new binding of dst or src, it also might quit the while loop if
-    // reaching caller needed descriptors count.
-    //
-    while (!stop_update) {
-        // calculate how many elements we need to copy in this time execution. we
-        // first select the minimum one from both current bindings for their remaining
-        // length.
-        current_binding_descriptor_info_array_copy_length =
-            std::min(current_src_binding_Descriptor_count - current_src_binding_descriptor_info_array_index,
-                     current_dst_binding_Descriptor_count - current_dst_binding_descriptor_info_array_index);
-
-        // then we check if the min remaining length already beyond left length
-        // of the caller want to copy.
-        if (current_binding_descriptor_info_array_copy_length > left_descriptor_array_copy_length) {
-            current_binding_descriptor_info_array_copy_length = left_descriptor_array_copy_length;
-        }
-        if (current_binding_descriptor_info_array_copy_length != 0) {
-            switch (pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].descriptorType) {
-                case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT: {
-                    if ((pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].pImageInfo !=
-                         nullptr) &&
-                        (pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].pImageInfo !=
-                         nullptr)) {
-                        memcpy(const_cast<VkDescriptorImageInfo*>(
-                                   pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].pImageInfo +
-                                   current_dst_binding_descriptor_info_array_index),
-                               const_cast<VkDescriptorImageInfo*>(
-                                   pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].pImageInfo +
-                                   current_src_binding_descriptor_info_array_index),
-                               sizeof(VkDescriptorImageInfo) * current_binding_descriptor_info_array_copy_length);
-                    } else {
-                        assert(false);
-                        vktrace_LogWarning(
-                            "The descriptorType does not match when the app tries to update the bindings of the DescriptorSet "
-                            "using "
-                            "vkUpdateDescriptorSets.");
-                    }
-                } break;
-                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER: {
-                    if ((pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].pTexelBufferView !=
-                         nullptr) &&
-                        (pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].pTexelBufferView !=
-                         nullptr)) {
-                        memcpy(const_cast<VkBufferView*>(
-                                   pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index]
-                                       .pTexelBufferView +
-                                   current_dst_binding_descriptor_info_array_index),
-                               const_cast<VkBufferView*>(
-                                   pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index]
-                                       .pTexelBufferView +
-                                   current_src_binding_descriptor_info_array_index),
-                               sizeof(VkBufferView) * current_binding_descriptor_info_array_copy_length);
-                    } else {
-                        assert(false);
-                        vktrace_LogWarning(
-                            "The descriptorType does not match when the app tries to update the bindings of the DescriptorSet "
-                            "using "
-                            "vkUpdateDescriptorSets.");
-                    }
-                } break;
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC: {
-                    if ((pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].pBufferInfo !=
-                         nullptr) &&
-                        (pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].pBufferInfo !=
-                         nullptr)) {
-                        memcpy(const_cast<VkDescriptorBufferInfo*>(
-                                   pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].pBufferInfo +
-                                   current_dst_binding_descriptor_info_array_index),
-                               const_cast<VkDescriptorBufferInfo*>(
-                                   pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].pBufferInfo +
-                                   current_src_binding_descriptor_info_array_index),
-                               sizeof(VkDescriptorBufferInfo) * current_binding_descriptor_info_array_copy_length);
-                    } else {
-                        assert(false);
-                        vktrace_LogWarning(
-                            "The descriptorType does not match when the app tries to update the bindings of the DescriptorSet "
-                            "using "
-                            "vkUpdateDescriptorSets.");
-                    }
-                } break;
-                default:
-                    break;
-            }
-
-            // calculate how many descriptors left after the above copy.
-            left_descriptor_array_copy_length -= current_binding_descriptor_info_array_copy_length;
-
-            if (left_descriptor_array_copy_length == 0) {
-                stop_update = true;  // we already finished updating all caller needed descriptors in this time execution.
-            } else {
-                // we still have descriptors left after the above copy, we need to continue the copy in next execution of the while
-                // loop block
-
-                // detect if we already reach the end of current src binding after the above copy
-                if ((current_src_binding_Descriptor_count - current_src_binding_descriptor_info_array_index) ==
-                    current_binding_descriptor_info_array_copy_length) {
-                    // we already reach the end of current src binding, by Doc, the subsequent binding will be updated, so we switch
-                    // to next src binding.
-                    current_src_binding_index++;
-                    current_src_binding_descriptor_info_array_index = 0;
-                } else {
-                    // adjust the current location in src binding, this is where we do next copy from.
-                    current_src_binding_descriptor_info_array_index += current_binding_descriptor_info_array_copy_length;
-                }
-
-                // detect if we already reach the end of current dst binding after the above
-                // copy and increase current binding index and adjust current descriptor
-                // location for next copy.
-                if ((current_dst_binding_Descriptor_count - current_dst_binding_descriptor_info_array_index) ==
-                    current_binding_descriptor_info_array_copy_length) {
-                    current_dst_binding_index++;
-                    current_dst_binding_descriptor_info_array_index = 0;
-                } else {
-                    current_dst_binding_descriptor_info_array_index += current_binding_descriptor_info_array_copy_length;
-                }
-
-                // if it already reach the last binding of src descriptorset or dst
-                // descriptorset, the while loop should be stopped. if not, we need
-                // to refresh the descriptor count of current src and dst bindings.
-                if ((current_dst_binding_index >= dst_descriptorset_bindings) ||
-                    (current_src_binding_index >= src_descriptorset_bindings)) {
-                    stop_update = true;
-                } else {
-                    current_src_binding_Descriptor_count =
-                        pSrcInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_src_binding_index].descriptorCount;
-                    current_dst_binding_Descriptor_count =
-                        pDstInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[current_dst_binding_index].descriptorCount;
-                }
-            }
-        } else {
-            stop_update = true;
+    uint32_t j = 0;
+    for (trim::DescriptorIterator descriptor_iterator_dst(pDstInfo, current_dst_binding_index, pDescriptorCopies->dstArrayElement,
+                                                          pDescriptorCopies->descriptorCount),
+         descriptor_iterator_src(pSrcInfo, current_src_binding_index, pDescriptorCopies->srcArrayElement,
+                                 pDescriptorCopies->descriptorCount);
+         (false == descriptor_iterator_dst.IsEnd()) && (false == descriptor_iterator_src.IsEnd());
+         ++descriptor_iterator_dst, ++descriptor_iterator_src, ++j) {
+        switch (descriptor_iterator_dst.GetCurrentDescriptorType()) {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator_dst)), reinterpret_cast<void*>(&(*descriptor_iterator_src)),
+                       sizeof(VkDescriptorImageInfo));
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator_dst)), reinterpret_cast<void*>(&(*descriptor_iterator_src)),
+                       sizeof(VkDescriptorBufferInfo));
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                memcpy(reinterpret_cast<void*>(&(*descriptor_iterator_dst)), reinterpret_cast<void*>(&(*descriptor_iterator_src)),
+                       sizeof(VkBufferView));
+                break;
+            default:
+                assert(0);
+                break;
         }
     }
 }

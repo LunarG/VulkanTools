@@ -83,6 +83,8 @@ class DescriptorIterator {
 
     bool IsEnd();
 
+    VkDescriptorType GetCurrentDescriptorType();
+
    private:
     // The target descriptorset trim tracking info.
     ObjectInfo::_ObjectInfo::_DescriptorSet *descriptorset_;

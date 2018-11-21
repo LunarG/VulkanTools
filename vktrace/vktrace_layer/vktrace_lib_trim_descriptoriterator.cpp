@@ -134,4 +134,8 @@ void DescriptorIterator::MoveToNextDescriptorInfo() {
     }
 }
 
+VkDescriptorType DescriptorIterator::GetCurrentDescriptorType() {
+    return descriptorset_->pWriteDescriptorSets[current_descriptor_binding_index_].descriptorType;
+}
+
 }  // namespace trim
