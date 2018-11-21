@@ -75,20 +75,42 @@ OverrideSettings::OverrideSettings()
     }
 }
 
-#include <QDebug>
 void OverrideSettings::ClearLayers()
 {
-    QFile file(LayerFile(false));
+    QString layer_path = LayerFile(false);
+#if defined(_WIN32)
+    HKEY key;
+    LSTATUS err = RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers", REG_OPTION_NON_VOLATILE, KEY_WRITE, &key);
+    if (err == ERROR_SUCCESS) {
+        QByteArray path_bytes = layer_path.toLocal8Bit();
+        const char* dummy = path_bytes.data();
+        RegDeleteValue(key, path_bytes.data());
+        RegCloseKey(key);
+    }
+#endif
+
+    QFile file(layer_path);
     if (file.exists()) {
         file.remove();
     }
     layers.clear();
-    qDebug() << "Cleared";
 }
 
 void OverrideSettings::ClearSettings()
 {
-    QFile file(LayerSettingsFile(false));
+    QString settings_path = LayerSettingsFile(false);
+#if defined(_WIN32)
+    HKEY key;
+    LSTATUS err = RegOpenKeyEx(HKEY_CURRENT_USER, "SOFTWARE\\Khronos\\Vulkan\\Settings", REG_OPTION_NON_VOLATILE, KEY_WRITE, &key);
+    if (err == ERROR_SUCCESS) {
+        QByteArray path_bytes = settings_path.toLocal8Bit();
+        const char *dummy = path_bytes.data();
+        RegDeleteValue(key, path_bytes.data());
+        RegCloseKey(key);
+    }
+#endif
+
+    QFile file(settings_path);
     if (file.exists()) {
         file.remove();
     }
