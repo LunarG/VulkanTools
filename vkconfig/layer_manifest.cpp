@@ -210,8 +210,9 @@ void LayerManifest::LoadLayerObject(const QJsonObject &layer_object, LayerType t
     QJsonValue library_path = layer_object.value("library_path");
     QJsonValue component_layers = layer_object.value("component_layers");
     if (name.isString() && description.isString() && (library_path.isString() || component_layers.isArray())) {
-        QFileInfo library(file.dir(), library_path.toString());
-        if (library.exists() || component_layers.isArray()) {
+        QString lib_path = library_path.toString();
+        QFileInfo library(file.dir(), lib_path);
+        if (!(lib_path.startsWith("./") || lib_path.startsWith(".\\")) || library.exists() || component_layers.isArray()) {
             LayerManifest layer_manifest;
             layer_manifest.file_path = file.absoluteFilePath();
             layer_manifest.name = layer_object.value("name").toString();
