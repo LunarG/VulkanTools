@@ -1,4 +1,10 @@
-lunarg-tools (1.1.85.0.1-2) UNRELEASED; urgency=medium
+lunarg-tools (1.1.92.0~rc1-1lunarg16.04.1.1) xenial; urgency=medium
+
+  * new upstream version
+
+ -- Jeremy Hayes <jeremy@centaurus>  Thu, 15 Nov 2018 15:59:01 -0700
+
+lunarg-tools (1.1.85.0.1-2) unstable; urgency=medium
 
   * Fix packaging
 
