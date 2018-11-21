@@ -307,7 +307,7 @@ QList<LayerOption> LayerOption::LoadOptions(const LayerManifest &manifest) {
             if (!default_value.isBool()) {
                 continue;
             }
-            option.default_values.insert(default_value.toBool() ? "True" : "False");
+            option.default_values.insert(default_value.toBool() ? "TRUE" : "FALSE");
 
         } else if (option_type == "enum" || option_type == "multi_enum") {
             QJsonValue enum_options = option_info.value("options");
