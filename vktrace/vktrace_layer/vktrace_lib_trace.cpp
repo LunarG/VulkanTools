@@ -3599,7 +3599,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
             {
                 if (trim::is_hotkey_trim_triggered()) {
                     if (g_trimIsInTrim) {
-                        vktrace_LogAlways("Trim stopping now at frame: %d", g_trimFrameCounter-1);
+                        vktrace_LogAlways("Trim stopping now at frame: %" PRIu64, g_trimFrameCounter - 1);
                         trim::stop();
                     }
                     else {
@@ -3608,7 +3608,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                         {
                             g_trimEndFrame += g_trimStartFrame;
                         }
-                        vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
+                        vktrace_LogAlways("Trim starting now at frame: %" PRIu64, g_trimStartFrame);
                         trim::start();
                     }
                 }
@@ -3622,7 +3622,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
                     {
                         if (g_trimFrameCounter == g_trimEndFrame)
                         {
-                            vktrace_LogAlways("Trim stopping now at frame: %d", g_trimEndFrame);
+                            vktrace_LogAlways("Trim stopping now at frame: %" PRIu64, g_trimEndFrame);
                             trim::stop();
                         }
                     }
@@ -3630,11 +3630,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkQueuePresentKHR(VkQueu
             }
         } else if (trim::is_trim_trigger_enabled(trim::enum_trim_trigger::frameCounter)) {
             if (g_trimFrameCounter == g_trimStartFrame) {
-                vktrace_LogAlways("Trim starting now at frame: %d", g_trimStartFrame);
+                vktrace_LogAlways("Trim starting now at frame: %" PRIu64, g_trimStartFrame);
                 trim::start();
             }
             if (g_trimEndFrame < UINT64_MAX && g_trimFrameCounter == g_trimEndFrame + 1) {
-                vktrace_LogAlways("Trim stopping now at frame: %d", g_trimEndFrame);
+                vktrace_LogAlways("Trim stopping now at frame: %" PRIu64, g_trimEndFrame);
                 trim::stop();
             }
         }
