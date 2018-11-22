@@ -19,11 +19,6 @@ then echo "Please set ANDROID_SDK_HOME, exiting"; exit 1;
 else echo "ANDROID_SDK_HOME is ${ANDROID_SDK_HOME}";
 fi
 
-if [ -z "${ANDROID_NDK_HOME}" ];
-then echo "Please set ANDROID_NDK_HOME, exiting"; exit 1;
-else echo "ANDROID_NDK_HOME is ${ANDROID_NDK_HOME}";
-fi
-
 if [[ $(uname) == "Linux" ]]; then
     cores=$(nproc) || echo 4
 elif [[ $(uname) == "Darwin" ]]; then
@@ -75,9 +70,13 @@ create_APK vkreplay
 (
 pushd ..
 ./update_external_sources.sh -g -s
+if [[ ! -d external ]]; then
+    mkdir -p external
+    python scripts/update_deps.py --dir external
+fi
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_LAYERS=Off -DBUILD_LAYER_SUPPORT_FILES=On -DBUILD_VKTRACE=On ..
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_LAYERS=Off -DBUILD_LAYER_SUPPORT_FILES=On -DBUILD_VKTRACE=On -DVULKAN_LOADER_INSTALL_DIR=../external/Vulkan-Loader/build/install -DVULKAN_HEADERS_INSTALL_DIR=../external/Vulkan-Headers/build/install -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=../external/Vulkan-ValidationLayers/build/install ..
 make -j $cores
 popd
 )
@@ -89,7 +88,7 @@ popd
 pushd ..
 mkdir -p build32
 cd build32
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_LAYERS=Off -DBUILD_LAYER_SUPPORT_FILES=On -DBUILD_X64=Off -DBUILD_VKTRACE=On ..
+cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=Off -DBUILD_VLF=Off -DBUILD_VKTRACEVIEWER=Off -DBUILD_LAYERSVT=Off -DBUILD_VIA=Off -DBUILD_VKTRACE_LAYER=Off -DBUILD_VKTRACE_REPLAY=Off -DBUILD_LAYERS=Off -DBUILD_LAYER_SUPPORT_FILES=On -DBUILD_X64=Off -DBUILD_VKTRACE=On -DVULKAN_LOADER_INSTALL_DIR=../external/Vulkan-Loader/build/install -DVULKAN_HEADERS_INSTALL_DIR=../external/Vulkan-Headers/build/install -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=../external/Vulkan-ValidationLayers/build/install ..
 make -j $cores
 popd
 )
