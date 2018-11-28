@@ -67,18 +67,37 @@ if __name__ == '__main__':
             build_dir = build_dir + '32'
     build_path = os.path.join(os.getcwd(), build_dir)
     os.makedirs(build_path, mode=0o744, exist_ok=True)
+    if not arguments.no_deps:
+        if 'windows' == platform.system().lower():
+            subprocess.run(['update_external_sources.bat'], cwd=os.getcwd())
+        else:
+            subprocess.run(
+                [os.path.join('.', 'update_external_sources.sh')],
+                cwd=os.getcwd())
+        update_deps_args = [
+            'python',
+            os.path.join(
+                os.path.split(os.path.abspath(__file__))[0], 'scripts', 'update_deps.py'),
+            '--config', arguments.config]
+        if 'windows' == platform.system().lower():
+            update_deps_args.extend(['--arch', arguments.arch])
+        subprocess.run(update_deps_args, cwd=build_path)
     if not arguments.no_generator:
-        cmake_gen_args = ['cmake', os.path.split(os.path.abspath(__file__))[0],
-                          '-A', arguments.arch,
-                          '-DCMAKE_BUILD_TYPE=' + arguments.config.capitalize()]
-        if arguments.no_deps:
-            cmake_gen_args.append('-DAUTO_DEPENDENCIES=OFF')
-        subprocess.run(cmake_gen_args, cwd=build_path)
+        generator_args = [
+            'cmake',
+            '-C', 'helper.cmake',
+            os.path.split(os.path.abspath(__file__))[0],
+            '-DCMAKE_BUILD_TYPE=' + arguments.config.capitalize(),
+            '-DAUTO_DEPENDENCIES=OFF']
+        if 'windows' == platform.system().lower():
+            generator_args.extend(['-A', arguments.arch])
+        subprocess.run(generator_args, cwd=build_path)
     if not arguments.no_build:
         cmake_build_args = ['cmake', '--build', '.']
         # assume that on windows the build uses MSVC
-        if 'nt' == os.name:
-            cmake_gen_args.extend(['--config', arguments.config.capitalize()])
+        if 'windows' == platform.system().lower():
+            cmake_build_args.extend(
+                ['--config', arguments.config.capitalize()])
         if arguments.install:
             cmake_build_args.extend(['--target', 'install'])
         subprocess.run(cmake_build_args, cwd=build_path)
