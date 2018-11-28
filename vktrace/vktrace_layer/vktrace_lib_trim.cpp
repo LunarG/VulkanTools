@@ -2953,7 +2953,6 @@ void mark_Framebuffer_reference(VkFramebuffer var) {
 // is VK_DESCRIPTOR_TYPE_SAMPLER, we check both sampler and imageview.
 bool isValidDescriptorIndex(const VkWriteDescriptorSet *pDescriptorWrites, uint32_t index) {
     bool isValidDescriptor = true;
-    trim::ObjectInfo *pInfo;
     if (index < pDescriptorWrites->descriptorCount) {
         switch (pDescriptorWrites->descriptorType) {
             case VK_DESCRIPTOR_TYPE_SAMPLER:
