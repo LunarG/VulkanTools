@@ -185,9 +185,9 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     }
 
     // create trace file
-    pInfo->pProcessInfo->pTraceFile = vktrace_open_trace_file(pInfo->pProcessInfo);
+    pInfo->pTraceFile = vktrace_open_trace_file(pInfo->pProcessInfo);
 
-    if (pInfo->pProcessInfo->pTraceFile == NULL) {
+    if (pInfo->pTraceFile == NULL) {
         // open of trace file generated an error, no sense in continuing.
         vktrace_LogError("Error cannot create trace file.");
         return 1;
@@ -213,15 +213,15 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     vktrace_enter_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
 
     // Write the trace file header to the file
-    bytes_written = fwrite(&file_header, 1, sizeof(file_header), pInfo->pProcessInfo->pTraceFile);
+    bytes_written = fwrite(&file_header, 1, sizeof(file_header), pInfo->pTraceFile);
 
     // Read and write the gpu_info structs
     struct_gpuinfo gpuinfo;
     for (uint64_t i = 0; i < file_header.n_gpuinfo; i++) {
         vktrace_FileLike_ReadRaw(fileLikeSocket, &gpuinfo, sizeof(struct_gpuinfo));
-        bytes_written += fwrite(&gpuinfo, 1, sizeof(struct_gpuinfo), pInfo->pProcessInfo->pTraceFile);
+        bytes_written += fwrite(&gpuinfo, 1, sizeof(struct_gpuinfo), pInfo->pTraceFile);
     }
-    fflush(pInfo->pProcessInfo->pTraceFile);
+    fflush(pInfo->pTraceFile);
     vktrace_leave_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
 
     if (bytes_written != sizeof(file_header) + file_header.n_gpuinfo * sizeof(struct_gpuinfo)) {
@@ -280,10 +280,10 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
                 break;
             }
 
-            if (pInfo->pProcessInfo->pTraceFile != NULL) {
+            if (pInfo->pTraceFile != NULL) {
                 vktrace_enter_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
-                bytes_written = fwrite(pHeader, 1, (size_t)pHeader->size, pInfo->pProcessInfo->pTraceFile);
-                fflush(pInfo->pProcessInfo->pTraceFile);
+                bytes_written = fwrite(pHeader, 1, (size_t)pHeader->size, pInfo->pTraceFile);
+                fflush(pInfo->pTraceFile);
                 vktrace_leave_critical_section(&pInfo->pProcessInfo->traceFileCriticalSection);
                 if (bytes_written != pHeader->size) {
                     vktrace_LogError("Failed to write the packet for packet_id = %hu", pHeader->packet_id);
@@ -312,7 +312,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         vktrace_delete_trace_packet_no_lock(&pHeader);
     }
 
-    vktrace_appendPortabilityPacket(pInfo->pProcessInfo->pTraceFile);
+    vktrace_appendPortabilityPacket(pInfo->pTraceFile);
 #if defined(WIN32)
     PostThreadMessage(pInfo->pProcessInfo->parentThreadId, VKTRACE_WM_COMPLETE, 0, 0);
 #endif

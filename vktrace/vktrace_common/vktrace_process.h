@@ -32,7 +32,6 @@ typedef struct vktrace_process_info {
     char* fullProcessCmdLine;
     char* workingDirectory;
     char* traceFilename;
-    FILE* pTraceFile;
 
     // vktrace's thread id
     vktrace_thread_id parentThreadId;
@@ -40,7 +39,7 @@ typedef struct vktrace_process_info {
     VKTRACE_CRITICAL_SECTION traceFileCriticalSection;
 
     volatile BOOL serverRequestsTermination;
-
+    uint32_t currentCaptureThreadsCount;
     vktrace_process_capture_trace_thread_info* pCaptureThreads;
 
     // process id, handle, and main thread
@@ -60,6 +59,7 @@ struct vktrace_process_capture_trace_thread_info {
     vktrace_thread recordingThread;
     vktrace_process_info* pProcessInfo;
     VKTRACE_TRACER_ID tracerId;
+    FILE* pTraceFile;
 };
 
 BOOL vktrace_process_spawn(vktrace_process_info* pInfo);

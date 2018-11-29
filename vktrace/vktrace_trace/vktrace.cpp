@@ -154,8 +154,7 @@ uint64_t MessageLoop() {
 #endif
 
 int PrepareTracers(vktrace_process_capture_trace_thread_info** ppTracerInfo) {
-    unsigned int num_tracers = 1;
-
+    unsigned int num_tracers = 32;
     assert(ppTracerInfo != NULL && *ppTracerInfo == NULL);
     *ppTracerInfo = VKTRACE_NEW_ARRAY(vktrace_process_capture_trace_thread_info, num_tracers);
     memset(*ppTracerInfo, 0, sizeof(vktrace_process_capture_trace_thread_info) * num_tracers);
@@ -452,7 +451,7 @@ int main(int argc, char* argv[]) {
 
         // setup tracer, only Vulkan tracer suppported
         PrepareTracers(&procInfo.pCaptureThreads);
-
+        procInfo.currentCaptureThreadsCount = 1;
         if (g_settings.program != NULL) {
             char* instEnv = vktrace_get_global_var("VK_INSTANCE_LAYERS");
             // Add ScreenShot layer if enabled

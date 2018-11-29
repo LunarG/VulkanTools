@@ -117,10 +117,11 @@ void vktrace_process_info_delete(vktrace_process_info* pInfo) {
 #if defined(WIN32)
     vktrace_platform_delete_thread(&(pInfo->watchdogThread));
 #endif
-
-    if (pInfo->pTraceFile != NULL) {
-        vktrace_LogDebug("Closing trace file: '%s'", pInfo->traceFilename);
-        fclose(pInfo->pTraceFile);
+    for (int i = 0; i < pInfo->currentCaptureThreadsCount; i++) {
+        if (pInfo->pCaptureThreads[i].pTraceFile != NULL) {
+            vktrace_LogDebug("Closing trace file: '%s'", pInfo->traceFilename);
+            fclose(pInfo->pCaptureThreads[i].pTraceFile);
+        }
     }
 
     VKTRACE_DELETE(pInfo->traceFilename);
