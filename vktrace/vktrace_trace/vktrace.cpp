@@ -277,7 +277,7 @@ uint32_t lastPacketThreadId;
 uint64_t lastPacketIndex;
 uint64_t lastPacketEndTime;
 
-static void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
+void vktrace_appendPortabilityPacket(FILE* pTraceFile) {
     vktrace_trace_packet_header hdr;
     uint64_t one_64 = 1;
 
@@ -522,7 +522,6 @@ int main(int argc, char* argv[]) {
             exitval = (int)MessageLoop();
 #endif
         }
-        vktrace_appendPortabilityPacket(procInfo.pTraceFile);
         vktrace_process_info_delete(&procInfo);
         serverIndex++;
     } while (g_settings.program == NULL);

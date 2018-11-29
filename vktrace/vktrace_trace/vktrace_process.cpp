@@ -312,6 +312,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
         vktrace_delete_trace_packet_no_lock(&pHeader);
     }
 
+    vktrace_appendPortabilityPacket(pInfo->pProcessInfo->pTraceFile);
 #if defined(WIN32)
     PostThreadMessage(pInfo->pProcessInfo->parentThreadId, VKTRACE_WM_COMPLETE, 0, 0);
 #endif
