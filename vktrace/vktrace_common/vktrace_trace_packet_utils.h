@@ -43,21 +43,46 @@ uint64_t get_endianess();
 uint64_t get_arch();
 uint64_t get_os();
 
-static FILE* vktrace_open_trace_file(vktrace_process_info* pProcInfo) {
+static FILE* vktrace_open_trace_file(vktrace_process_capture_trace_thread_info* trace_thread_info) {
     FILE* tracefp = NULL;
-    assert(pProcInfo != NULL);
+    assert(trace_thread_info != NULL);
 
-    // open trace file
-    tracefp = fopen(pProcInfo->traceFilename, "w+b");
+    // For any title captured by vktrace, there is a base trace file
+    // name which is a mermber of vktrace_process_info: "traceFilename".
+    // it's specified by user or by default.
+    //
+    // One title may have multiple processes running and thus generate
+    // multiple trace files. The first one of these trace files will
+    // have same name with the base trace file name and the name of
+    // others will be a concatenated string which is base name + "-n".
+    // for example, the second one name will be base name+"-1",
+    // the third one name will be base name + "-2".....
+    //
+    // open trace file for the trace thread to record into it.
+    if (trace_thread_info->traceFileIndex != 0) {
+        char index[16];
+        char* process_trace_file_name = vktrace_allocate_and_copy_n(trace_thread_info->pProcessInfo->traceFilename, sizeof(index));
+        assert(process_trace_file_name != NULL);
+        sprintf(index, "-%d", trace_thread_info->traceFileIndex);
+        strcat(process_trace_file_name, index);
+        tracefp = fopen(process_trace_file_name, "w+b");
+        vktrace_free(process_trace_file_name);
+    } else {
+        tracefp = fopen(trace_thread_info->pProcessInfo->traceFilename, "w+b");
+    }
+
     if (tracefp == NULL) {
-        vktrace_LogError("Cannot open trace file for writing %s.", pProcInfo->traceFilename);
+        vktrace_LogError("Cannot open trace file for writing %s.", trace_thread_info->pProcessInfo->traceFilename);
         return tracefp;
     } else {
-        vktrace_LogDebug("Creating trace file: '%s'", pProcInfo->traceFilename);
+        vktrace_LogDebug("Creating trace file: '%s'", trace_thread_info->pProcessInfo->traceFilename);
     }
 
     // create critical section
-    vktrace_create_critical_section(&pProcInfo->traceFileCriticalSection);
+    if (trace_thread_info->pProcessInfo->traceFileCriticalSectionCreated != TRUE) {
+        vktrace_create_critical_section(&trace_thread_info->pProcessInfo->traceFileCriticalSection);
+        trace_thread_info->pProcessInfo->traceFileCriticalSectionCreated = TRUE;
+    }
 
     return tracefp;
 };

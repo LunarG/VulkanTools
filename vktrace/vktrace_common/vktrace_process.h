@@ -37,6 +37,7 @@ typedef struct vktrace_process_info {
     vktrace_thread_id parentThreadId;
 
     VKTRACE_CRITICAL_SECTION traceFileCriticalSection;
+    BOOL traceFileCriticalSectionCreated;
 
     volatile BOOL serverRequestsTermination;
     uint32_t currentCaptureThreadsCount;
@@ -60,6 +61,19 @@ struct vktrace_process_capture_trace_thread_info {
     vktrace_process_info* pProcessInfo;
     VKTRACE_TRACER_ID tracerId;
     FILE* pTraceFile;
+    uint32_t traceFileIndex;  // The index of the record thread trace file
+                              // within all trace files of the current
+                              // target title. Starting one title may cause
+                              // multiple processes be created, every process
+                              // will has a record thread running on server
+                              // side writing to a trace file, any record
+                              // thread has an index in this struct based on
+                              // the position of its trace file creation within
+                              // all trace file creations by the create order.
+                              // For example, some title has several record
+                              // threads running in server, according to the
+                              // creation order, traceFileIndex will be 0
+                              // for the first created trace file.
 };
 
 BOOL vktrace_process_spawn(vktrace_process_info* pInfo);

@@ -185,7 +185,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     }
 
     // create trace file
-    pInfo->pTraceFile = vktrace_open_trace_file(pInfo->pProcessInfo);
+    pInfo->pTraceFile = vktrace_open_trace_file(pInfo);
 
     if (pInfo->pTraceFile == NULL) {
         // open of trace file generated an error, no sense in continuing.
