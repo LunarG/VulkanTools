@@ -931,14 +931,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # Insert the real_*(..) call
                 replay_gen_source += '%s\n' % rr_string
                 # Handle return values or anything that needs to happen after the real_*(..) call
+                if 'Destroy' in cmdname:
+                    clean_type = params[-2].type.strip('*').replace('const ', '')
+                    replay_gen_source += '            m_objMapper.rm_from_%ss_map(pPacket->%s);\n' % (clean_type.lower()[2:], params[-2].name)
                 if 'DestroyDevice' in cmdname:
                     replay_gen_source += '            m_pCBDump = NULL;\n'
                     replay_gen_source += '            m_pDSDump = NULL;\n'
                     #TODO138 : disabling snapshot
                     #replay_gen_source += '            m_pVktraceSnapshotPrint = NULL;\n'
-                    replay_gen_source += '            m_objMapper.rm_from_devices_map(pPacket->device);\n'
-                elif 'DestroySwapchainKHR' in cmdname:
-                    replay_gen_source += '            m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
                 elif 'AcquireNextImage' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     replay_gen_source += '                m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
