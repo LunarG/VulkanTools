@@ -47,7 +47,6 @@ py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% v
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_dispatch_table_helper.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% thread_check.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% parameter_validation.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% unique_objects_wrappers.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_layer_dispatch_table.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_extension_helper.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.cpp

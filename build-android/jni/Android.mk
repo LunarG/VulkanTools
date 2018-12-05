@@ -28,8 +28,7 @@ LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_layer_utils.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/vk_format_utils.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/layers \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
 include $(BUILD_STATIC_LIBRARY)
@@ -40,15 +39,15 @@ LOCAL_SRC_FILES += $(LVL_DIR)/layers/core_validation.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/descriptor_sets.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/buffer_validation.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/shader_validation.cpp
+LOCAL_SRC_FILES += $(LVL_DIR)/layers/convert_to_renderpass2.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/xxhash.c
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
-LOCAL_STATIC_LIBRARIES += layer_utils glslang SPIRV-Tools
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
+LOCAL_STATIC_LIBRARIES += layer_utils glslang SPIRV-Tools SPIRV-Tools-opt
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
-LOCAL_LDLIBS    := -llog
+LOCAL_LDLIBS    := -llog -landroid
 LOCAL_LDFLAGS   += -Wl,-Bsymbolic
 LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL
 include $(BUILD_SHARED_LIBRARY)
@@ -59,8 +58,7 @@ LOCAL_SRC_FILES += $(LAYER_DIR)/include/parameter_validation.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/parameter_validation_utils.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/layers \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LVL_DIR)/layers
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden
@@ -72,14 +70,15 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_object_tracker
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/object_tracker.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/layer_chassis_dispatch.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/chassis.cpp
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/object_tracker_utils.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden -DBUILD_OBJECT_TRACKER
 LOCAL_LDLIBS    := -llog
 LOCAL_LDFLAGS   += -Wl,-Bsymbolic
 LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL
@@ -90,8 +89,7 @@ LOCAL_MODULE := VkLayer_threading
 LOCAL_SRC_FILES += $(LVL_DIR)/layers/threading.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden
@@ -102,14 +100,14 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_unique_objects
-LOCAL_SRC_FILES += $(LVL_DIR)/layers/unique_objects.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/layer_chassis_dispatch.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/chassis.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden -DLAYER_CHASSIS_CAN_WRAP_HANDLES
 LOCAL_LDLIBS    := -llog
 LOCAL_LDFLAGS   += -Wl,-Bsymbolic
 LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL
@@ -125,8 +123,7 @@ LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
@@ -141,8 +138,7 @@ LOCAL_SRC_FILES += $(SRC_DIR)/layersvt/vk_layer_table.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
@@ -158,8 +154,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(ANDROID_DIR)/third_party/jsoncpp/dist \
                     $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LVL_DIR)/layers \
                     $(LOCAL_PATH)/$(SRC_DIR)/layersvt \
-                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include
 LOCAL_STATIC_LIBRARIES += layer_utils
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fexceptions
@@ -172,6 +167,8 @@ LOCAL_SRC_FILES += $(LVL_DIR)/tests/layer_validation_tests.cpp \
                    $(LVL_DIR)/tests/vktestbinding.cpp \
                    $(LVL_DIR)/tests/vktestframeworkandroid.cpp \
                    $(LVL_DIR)/tests/vkrenderframework.cpp \
+                   $(LVL_DIR)/layers/convert_to_renderpass2.cpp \
+                   $(LAYER_DIR)/include/vk_safe_struct.cpp \
                    $(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
@@ -181,8 +178,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
 
 LOCAL_STATIC_LIBRARIES := googletest_main layer_utils shaderc
 LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden --include=$(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.h
-LOCAL_LDLIBS := -llog
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DNV_EXTENSIONS -DAMD_EXTENSIONS -fvisibility=hidden --include=$(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.h
+LOCAL_LDLIBS := -llog -landroid
 LOCAL_LDFLAGS   += -Wl,-Bsymbolic
 LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL
 include $(BUILD_EXECUTABLE)
@@ -194,6 +191,8 @@ LOCAL_SRC_FILES += $(LVL_DIR)/tests/layer_validation_tests.cpp \
                    $(LVL_DIR)/tests/vktestbinding.cpp \
                    $(LVL_DIR)/tests/vktestframeworkandroid.cpp \
                    $(LVL_DIR)/tests/vkrenderframework.cpp \
+                   $(LVL_DIR)/layers/convert_to_renderpass2.cpp \
+                   $(LAYER_DIR)/include/vk_safe_struct.cpp \
                    $(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
@@ -203,7 +202,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(THIRD_PARTY)/Vulkan-Headers/include \
 
 LOCAL_STATIC_LIBRARIES := googletest_main layer_utils shaderc
 LOCAL_CPPFLAGS += -std=c++11 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -fvisibility=hidden -DVALIDATION_APK --include=$(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.h
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DNV_EXTENSIONS -DAMD_EXTENSIONS -fvisibility=hidden -DVALIDATION_APK --include=$(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.h
 LOCAL_WHOLE_STATIC_LIBRARIES += android_native_app_glue
 LOCAL_LDLIBS := -llog -landroid
 LOCAL_LDFLAGS := -u ANativeActivity_onCreate
@@ -237,7 +236,6 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/vktrace/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_common \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_layer \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguardmappedmemory.h \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguardcapture.h \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_layer/vktrace_lib_pageguard.h \
@@ -280,8 +278,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/vktrace/include \
                     $(LOCAL_PATH)/$(LAYER_DIR)/include \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_common \
                     $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_layer \
-                    $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_replay \
-                    $(LOCAL_PATH)/$(LVL_DIR)/loader
+                    $(LOCAL_PATH)/$(SRC_DIR)/vktrace/vktrace_replay
 LOCAL_STATIC_LIBRARIES += layer_utils android_native_app_glue
 LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
 LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR --include=$(THIRD_PARTY)/Vulkan-Tools/common/vulkan_wrapper.h -fexceptions
