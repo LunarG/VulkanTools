@@ -139,14 +139,31 @@ vktrace_SettingGroup g_settingGroup = {"vktrace", sizeof(g_settings_info) / size
 
 // ------------------------------------------------------------------------------------------------
 #if defined(WIN32)
-uint64_t MessageLoop() {
+uint64_t MessageLoop(vktrace_process_info* pInfo) {
     MSG msg = {0};
     bool quit = false;
+    uint32_t record_thread_complete_message_count = 0;
+    uint32_t last_capture_threads_count = 0;
     while (!quit) {
         if (GetMessage(&msg, NULL, 0, 0) == FALSE) {
             quit = true;
         } else {
-            quit = (msg.message == VKTRACE_WM_COMPLETE);
+            if (msg.message == VKTRACE_WM_COMPLETE) {
+                record_thread_complete_message_count++;
+            }
+        }
+        if (record_thread_complete_message_count == pInfo->currentCaptureThreadsCount) {
+            quit = true;
+        } else {
+            if ((record_thread_complete_message_count + 1) == pInfo->currentCaptureThreadsCount) {
+                last_capture_threads_count = pInfo->currentCaptureThreadsCount;
+                // note: it's possible that a process of target app need some
+                //       time to send first Vulkan API call, but 30 seconds
+                //       should be enough.
+                Sleep(30 * 1000);
+                quit = ((record_thread_complete_message_count + 1) == pInfo->currentCaptureThreadsCount) &&
+                       (last_capture_threads_count == pInfo->currentCaptureThreadsCount);
+            }
         }
     }
     return msg.wParam;
@@ -518,7 +535,7 @@ int main(int argc, char* argv[]) {
             vktrace_platform_resume_thread(&procInfo.hThread);
 
             // Now into the main message loop, listen for hotkeys to send over.
-            exitval = (int)MessageLoop();
+            exitval = (int)MessageLoop(&procInfo);
 #endif
         }
         vktrace_process_info_delete(&procInfo);

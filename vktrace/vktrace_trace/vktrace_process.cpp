@@ -218,6 +218,16 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     if (pMessageStream == NULL) {
         vktrace_LogError("Thread_CaptureTrace() cannot create message stream.");
         return 1;
+    } else {
+        // Now we get a valid pMessageStream which mean a connection
+        // request from a client already be accepted and a private socket
+        // will be used to record the following API packets in the current
+        // thread until the trace file recording be terminated. So we
+        // create another thread to serve other possible clients.
+        if (false == CreateAdditionalRecordTraceThread(pInfo->pProcessInfo)) {
+            vktrace_LogError(
+                "Some process of the title will not be captured into trace file due to failure on creating record thread!");
+        }
     }
 
     // create trace file
