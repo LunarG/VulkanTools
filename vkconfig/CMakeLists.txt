@@ -33,4 +33,8 @@ else()
     else()
         include(macOS/vkconfig.cmake)
     endif()
+
+    if(UNIX)
+        install(TARGETS vkconfig DESTINATION ${CMAKE_INSTALL_BINDIR})
+    endif()
 endif()
