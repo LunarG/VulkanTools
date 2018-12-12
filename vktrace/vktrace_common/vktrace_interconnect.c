@@ -19,15 +19,15 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  */
 
-#include "vktrace_interconnect.h"
 #include "vktrace_common.h"
-
 #include "vktrace_filelike.h"
 
 #if defined(ANDROID)
 #include <sys/un.h>
 #endif
-
+#if !defined(WIN32)
+#include <errno.h>
+#endif
 const size_t kSendBufferSize = 1024 * 1024;
 
 MessageStream* gMessageStream = NULL;
@@ -37,7 +37,6 @@ static VKTRACE_CRITICAL_SECTION gSendLock;
 // ------------------------------------------------------------------------------------------------
 // private functions
 BOOL vktrace_MessageStream_SetupSocket(MessageStream* pStream);
-BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream);
 BOOL vktrace_MessageStream_SetupClientSocket(MessageStream* pStream);
 BOOL vktrace_MessageStream_Handshake(MessageStream* pStream);
 BOOL vktrace_MessageStream_ReallySend(MessageStream* pStream, const void* _bytes, uint64_t _size, BOOL _optional);
@@ -60,6 +59,7 @@ MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char
     pStream->mHostAddressInfo = NULL;
     pStream->mNextPacketId = 0;
     pStream->mSocket = INVALID_SOCKET;
+    pStream->mServerListenSocket = INVALID_SOCKET;
     pStream->mSendBuffer = NULL;
 
     if (vktrace_MessageStream_SetupSocket(pStream) == FALSE) {
@@ -91,7 +91,12 @@ void vktrace_MessageStream_destroy(MessageStream** ppStream) {
 
     vktrace_LogDebug("Destroyed socket connection.");
 #if defined(WIN32)
-    WSACleanup();
+    if (!(*ppStream)->mHost)
+    {
+        // we should only do cleanup for client side because the library
+        // is shared by multiple thread on server side
+        WSACleanup();
+    }
 #endif
     VKTRACE_DELETE(*ppStream);
     (*ppStream) = NULL;
@@ -127,7 +132,8 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream) {
 #endif
     struct addrinfo hostAddrInfo = {0};
     SOCKET listenSocket;
-
+    if (pStream->mServerListenSocket == INVALID_SOCKET)
+    {
     vktrace_create_critical_section(&gSendLock);
     hostAddrInfo.ai_family = AF_INET;
     hostAddrInfo.ai_socktype = SOCK_STREAM;
@@ -149,6 +155,10 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream) {
         pStream->mHostAddressInfo = NULL;
         return FALSE;
     }
+    else
+    {
+        pStream->mServerListenSocket = listenSocket;
+    }
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
     setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
@@ -166,21 +176,39 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream) {
     freeaddrinfo(pStream->mHostAddressInfo);
     pStream->mHostAddressInfo = NULL;
 
-    hr = listen(listenSocket, 1);
+    hr = listen(listenSocket, 5);
     if (hr == SOCKET_ERROR) {
         vktrace_LogError("Host: Failed listening on socket err=%d.", VKTRACE_WSAGetLastError());
         closesocket(listenSocket);
         return FALSE;
     }
+    }
+    else
+    {
+        listenSocket = pStream->mServerListenSocket;
+    }
 
     // Fo reals.
     vktrace_LogVerbose("Listening for connections on port %s.", pStream->mPort);
-    pStream->mSocket = accept(listenSocket, NULL, NULL);
-    closesocket(listenSocket);
 
-    if (pStream->mSocket == INVALID_SOCKET) {
-        vktrace_LogError("Host: Failed accepting socket connection.");
-        return FALSE;
+    pStream->mSocket = INVALID_SOCKET;
+    // We need to put the accept call in while loop because none-blocking
+    // mode is used during receiving trace file data.
+    int error_code;
+    while (pStream->mSocket == INVALID_SOCKET) {
+        pStream->mSocket = accept(listenSocket, NULL, NULL);
+        if (pStream->mSocket == INVALID_SOCKET) {
+#if defined(WIN32)
+            error_code = WSAGetLastError();
+            if ((error_code == WSAECONNRESET) || (error_code == WSAENETDOWN)) {
+#else
+            error_code = errno;
+            if ((error_code == ECONNABORTED) || (error_code == ENETDOWN)) {
+#endif
+                vktrace_LogError("Host: Failed network connection.");
+                return FALSE;
+            }
+        }
     }
 
     vktrace_LogVerbose("Connected on port %s.", pStream->mPort);

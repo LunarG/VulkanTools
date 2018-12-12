@@ -39,11 +39,10 @@ typedef struct vktrace_process_info {
     VKTRACE_CRITICAL_SECTION traceFileCriticalSection;
     BOOL traceFileCriticalSectionCreated;
 
-    volatile BOOL serverRequestsTermination;
     uint32_t maxCaptureThreadsNumber;
     uint32_t currentCaptureThreadsCount;
     vktrace_process_capture_trace_thread_info* pCaptureThreads;
-
+    struct MessageStream* messageStream;
     // process id, handle, and main thread
     vktrace_process_id processId;
     vktrace_process_handle hProcess;
@@ -75,6 +74,7 @@ struct vktrace_process_capture_trace_thread_info {
                               // threads running in server, according to the
                               // creation order, traceFileIndex will be 0
                               // for the first created trace file.
+    BOOL serverRequestsTermination;
 };
 
 BOOL vktrace_process_spawn(vktrace_process_info* pInfo);

@@ -154,16 +154,6 @@ uint64_t MessageLoop(vktrace_process_info* pInfo) {
         }
         if (record_thread_complete_message_count == pInfo->currentCaptureThreadsCount) {
             quit = true;
-        } else {
-            if ((record_thread_complete_message_count + 1) == pInfo->currentCaptureThreadsCount) {
-                last_capture_threads_count = pInfo->currentCaptureThreadsCount;
-                // note: it's possible that a process of target app need some
-                //       time to send first Vulkan API call, but 30 seconds
-                //       should be enough.
-                Sleep(30 * 1000);
-                quit = ((record_thread_complete_message_count + 1) == pInfo->currentCaptureThreadsCount) &&
-                       (last_capture_threads_count == pInfo->currentCaptureThreadsCount);
-            }
         }
     }
     return msg.wParam;

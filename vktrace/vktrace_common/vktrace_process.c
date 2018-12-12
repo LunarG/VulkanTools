@@ -178,6 +178,8 @@ void vktrace_process_info_delete(vktrace_process_info* pInfo) {
     VKTRACE_DELETE(pInfo->processArgs);
     VKTRACE_DELETE(pInfo->fullProcessCmdLine);
     VKTRACE_DELETE(pInfo->exeName);
-
+#if defined(WIN32)
+    WSACleanup();
+#endif
     vktrace_delete_critical_section(&(pInfo->traceFileCriticalSection));
 }

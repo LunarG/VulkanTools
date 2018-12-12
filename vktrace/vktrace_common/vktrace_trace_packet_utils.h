@@ -61,7 +61,9 @@ static FILE* vktrace_open_trace_file(vktrace_process_capture_trace_thread_info* 
     // open trace file for the trace thread to record into it.
     if (trace_thread_info->traceFileIndex != 0) {
         char index[16];
-        char* process_trace_file_name = vktrace_allocate_and_copy_n(trace_thread_info->pProcessInfo->traceFilename, sizeof(index));
+        char* process_trace_file_name =
+            vktrace_allocate_and_copy_n(trace_thread_info->pProcessInfo->traceFilename,
+                strlen(trace_thread_info->pProcessInfo->traceFilename) + 1 + sizeof(index));
         assert(process_trace_file_name != NULL);
         sprintf(index, "-%d", trace_thread_info->traceFileIndex);
         strcat(process_trace_file_name, index);

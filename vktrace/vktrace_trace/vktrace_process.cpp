@@ -63,6 +63,17 @@ void SafeCloseHandle(HANDLE& _handle) {
 static int rval;
 #endif
 // ------------------------------------------------------------------------------------------------
+bool GetServerRequestsTerminationFlag(vktrace_process_info* pProcInfo) {
+    bool get_server_requests_termination_flag = true;
+    for (int i = 0; i < pProcInfo->currentCaptureThreadsCount; i++) {
+        if (pProcInfo->pCaptureThreads[i].serverRequestsTermination == false) {
+            get_server_requests_termination_flag = false;
+            break;
+        }
+    }
+    return get_server_requests_termination_flag;
+}
+// ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr) {
     vktrace_process_info* pProcInfo = (vktrace_process_info*)_procInfoPtr;
 
@@ -71,7 +82,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
     DWORD processExitCode = 0;
     DWORD waitingResult = WAIT_FAILED;
     while (WAIT_TIMEOUT == (waitingResult = WaitForSingleObject(pProcInfo->hProcess, kWatchDogPollTime))) {
-        if (pProcInfo->serverRequestsTermination) {
+        if (GetServerRequestsTerminationFlag(pProcInfo)) {
             vktrace_LogVerbose("Vktrace has requested exit.");
             return 0;
         }
@@ -122,7 +133,9 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
     vktrace_LogVerbose("Child process has terminated.");
     GetExitCodeProcess(pProcInfo->hProcess, &processExitCode);
     PostThreadMessage(pProcInfo->parentThreadId, VKTRACE_WM_COMPLETE, processExitCode, 0);
-    pProcInfo->serverRequestsTermination = TRUE;
+    for (int i = 0; i < pProcInfo->currentCaptureThreadsCount; i++) {
+        pProcInfo->pCaptureThreads[i].serverRequestsTermination = true;
+    }
     return 0;
 
 #elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
@@ -179,6 +192,7 @@ bool CreateAdditionalRecordTraceThread(vktrace_process_info* pInfo) {
     if (new_thread_trace_file_index < pInfo->maxCaptureThreadsNumber) {
         pInfo->pCaptureThreads[new_thread_trace_file_index].pProcessInfo = pInfo;
         pInfo->pCaptureThreads[new_thread_trace_file_index].recordingThread = VKTRACE_NULL_THREAD;
+        pInfo->pCaptureThreads[new_thread_trace_file_index].serverRequestsTermination = false;
         pInfo->pCaptureThreads[new_thread_trace_file_index].traceFileIndex = new_thread_trace_file_index;
         // create thread to record trace packets from the tracer
         pInfo->pCaptureThreads[new_thread_trace_file_index].recordingThread =
@@ -213,8 +227,23 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 #elif defined(PLATFORM_OSX)
     sig_t rval __attribute__((unused));
 #endif
+    MessageStream* pMessageStream = nullptr;
+    if(pInfo->pProcessInfo->messageStream == nullptr)
+    {
+        pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
 
-    MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
+        // listen socket is shared by all recording threads. So except
+        // this thread, other thread just need to reuse it.
+        pInfo->pProcessInfo->messageStream = VKTRACE_NEW(MessageStream);
+        *pInfo->pProcessInfo->messageStream = *pMessageStream;
+    }
+    else
+    {
+        pMessageStream = VKTRACE_NEW(MessageStream);
+        *pMessageStream = *pInfo->pProcessInfo->messageStream;
+        vktrace_MessageStream_SetupHostSocket(pMessageStream);
+    }
+
     if (pMessageStream == NULL) {
         vktrace_LogError("Thread_CaptureTrace() cannot create message stream.");
         return 1;
@@ -288,7 +317,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     assert(rval != SIG_ERR);
 #endif
 
-    while (!terminationSignalArrived && pInfo->pProcessInfo->serverRequestsTermination == FALSE) {
+    while (!terminationSignalArrived && pInfo->serverRequestsTermination == FALSE) {
         // get a packet
         // vktrace_LogDebug("Waiting for a packet...");
 
@@ -320,7 +349,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
             }
 
             if (pHeader->packet_id == VKTRACE_TPI_MARKER_TERMINATE_PROCESS) {
-                pInfo->pProcessInfo->serverRequestsTermination = true;
+                pInfo->serverRequestsTermination = true;
                 vktrace_delete_trace_packet_no_lock(&pHeader);
                 vktrace_LogVerbose("Thread_CaptureTrace is exiting.");
                 break;

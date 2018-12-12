@@ -54,6 +54,7 @@ struct SimpleBuffer;
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 typedef struct MessageStream {
+    SOCKET mServerListenSocket;
     SOCKET mSocket;
     struct addrinfo* mHostAddressInfo;
     size_t mNextPacketId;
@@ -75,6 +76,7 @@ extern "C" {
 #endif
 MessageStream* vktrace_MessageStream_create_port_string(BOOL _isHost, const char* _address, const char* _port);
 MessageStream* vktrace_MessageStream_create(BOOL _isHost, const char* _address, unsigned int _port);
+BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream);
 void vktrace_MessageStream_destroy(MessageStream** ppStream);
 BOOL vktrace_MessageStream_BufferedSend(MessageStream* pStream, const void* _bytes, uint64_t _size, BOOL _optional);
 BOOL vktrace_MessageStream_Send(MessageStream* pStream, const void* _bytes, uint64_t _len);
