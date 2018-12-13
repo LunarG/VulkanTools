@@ -151,7 +151,7 @@ example, if the user runs `via --output_path /home/me/Documents`, then the outpu
 LunarG's VIA could detect no problems with your setup.  In fact it was able to create an instance and device up through Vulkan version X.Y.
 
 ##### Possible Reason:
-Your system is likely setup properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+Your system is likely set up properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
 Re-run VIA from the location your Vulkan application/game is supposed to run.
@@ -163,7 +163,7 @@ Re-run VIA from the location your Vulkan application/game is supposed to run.
 LunarG's VIA could detect no problems with your setup other than a missing SDK.  It was able to run some limited tests and create both a Vulkan instance and device.
 
 ##### Possible Reason:
-Your system is likely setup properly, but is either missing an installed Vulkan SDK or you didn't setup your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+Your system is likely set up properly, but is either missing an installed Vulkan SDK or you didn't set up your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
 Install the LunarG Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
@@ -357,7 +357,7 @@ it's possible the SDK did not install properly.
 See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
-#### [WINDOWS] Dialog box pop's up indicating "vulkan-1.dll is missing from your computer."
+#### [WINDOWS] Dialog box pops up indicating "vulkan-1.dll is missing from your computer."
 
 ##### Problem:
 The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
