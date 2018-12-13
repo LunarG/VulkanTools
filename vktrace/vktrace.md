@@ -16,7 +16,7 @@ Options for the `vktrace` command are:
 | -w&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;WorkingDir&nbsp;&lt;string&gt; | Alternate working directory | the application's directory |
 | -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace  persistently mapped buffers | true |
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
-| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
+| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
@@ -168,11 +168,11 @@ Several environment variables can be set to change the behavior of vktrace/vkrep
 
  - VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS
 
-    VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS, when set to a non-null value, enables post processing  when read PMB support is enabled.  When VKTRACE_PAGEGUARD_ENABLE_READ_PMB is set, PMB processing will sometimes miss writes following reads if writes occur on the same page as a read. Set this environment variable to enable post processing to fix missed pmb writes. It is supported only on Windows.
+    VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS, when set to a non-null value, enables post-processing  when read PMB support is enabled.  When VKTRACE_PAGEGUARD_ENABLE_READ_PMB is set, PMB processing will sometimes miss writes following reads if writes occur on the same page as a read. Set this environment variable to enable post-processing to fix missed PMB writes. It is supported only on Windows.
 
  - VKTRACE_TRIM_POST_PROCESS
 
-    VKTRACE_TRIM_POST_PROCESS enables post processing of trim if its value is 1.  Other values disable trim post processing.  Disable post processing means the trimmed trace file will record all the not destroyed objects no matter they are used/referenced in the trim frame range or not.  Enable post processing will drop most of the pre-trim objects which are not used/referenced in the trim frame range.  Set this environment variable to 1 to enable post processing of trim to generate a smaller trace file and eliminate most useless pre-trim objects and vulkan calls.  Do NOT enable trim post processing when there's a large trim frame range because both the referenced pre-trim data and in-trim data are kept in memory until writing to trace file in the trim end frame which may exceeds the system memory.
+    VKTRACE_TRIM_POST_PROCESS enables post-processing of trim if its value is 1.  Other values disable trim post-processing.  Disable post-processing means the trimmed trace file will record all the not destroyed objects whether they are used/referenced in the trim frame range or not.  Enable post-processing will drop most of the pre-trim objects which are not used/referenced in the trim frame range.  Set this environment variable to 1 to enable post-processing of trim to generate a smaller trace file and eliminate most useless pre-trim objects and Vulkan calls.  Do NOT enable trim post-processing when there's a large trim frame range because both the referenced pre-trim data and in-trim data are kept in memory until writing to trace file in the trim end frame which may exceeds the system memory.
 
 ## Android
 

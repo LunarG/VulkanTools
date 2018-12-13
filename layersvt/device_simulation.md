@@ -11,7 +11,7 @@ Is your Vulkan application stress-tested to ensure it behaves correctly across t
 If either answer is "no," LunarG offers a free tool that could extend your test coverage and increase your peace of mind.
 
 ### Introducing the LunarG Device Simulation Layer
-The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully-automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
+The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
 
 The DevSim layer library is available pre-built in the LunarG Vulkan SDK, and continues to evolve. DevSim works for all Vulkan platforms (Linux, Windows, and Android), and is open-source software hosted on GitHub.
 
@@ -174,7 +174,7 @@ A JSON index of the available device records can be queried with https://vulkan.
 That index includes URLs to download the specific device records in DevSim-compatible format, for example https://vulkan.gpuinfo.org/api/v2/devsim/getreport.php?id=1456
 
 As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.
-Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
+Downloaded device records should be reviewed to determine that their capabilities can be simulated by the underlying device.
 
 ### Device configuration data from the local system
 Vulkan Info can write its output in a format compatible the DevSim JSON schema,
