@@ -2929,20 +2929,20 @@ VkResult vkReplay::manually_replay_vkCreateSampler(packet_vkCreateSampler *pPack
     // We only remap from m_objMapper.remap_samplerycbcrconversions because
     // m_objMapper.add_to_samplerycbcrconversionkhrs_map is not used.
     if (pPacket->pCreateInfo && pPacket->pCreateInfo->pNext) {
-         VkSamplerYcbcrConversionInfo *sci = (VkSamplerYcbcrConversionInfo *)pPacket->pCreateInfo->pNext;
-         while (sci) {
-             if (sci->sType == VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO) {
-                 sci->conversion = m_objMapper.remap_samplerycbcrconversions(sci->conversion);
-                 sci = (VkSamplerYcbcrConversionInfo *)sci->pNext;
-             }
-         }
-     }
+        VkSamplerYcbcrConversionInfo *sci = (VkSamplerYcbcrConversionInfo *)pPacket->pCreateInfo->pNext;
+        while (sci) {
+            if (sci->sType == VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO) {
+                sci->conversion = m_objMapper.remap_samplerycbcrconversions(sci->conversion);
+                sci = (VkSamplerYcbcrConversionInfo *)sci->pNext;
+            }
+        }
+    }
 
-     replayResult = m_vkDeviceFuncs.CreateSampler(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSampler);
-     if (replayResult == VK_SUCCESS) {
-         m_objMapper.add_to_samplers_map(*(pPacket->pSampler), local_pSampler);
-     }
-     return replayResult;
+    replayResult = m_vkDeviceFuncs.CreateSampler(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSampler);
+    if (replayResult == VK_SUCCESS) {
+        m_objMapper.add_to_samplers_map(*(pPacket->pSampler), local_pSampler);
+    }
+    return replayResult;
 }
 
 VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchainKHR *pPacket) {
