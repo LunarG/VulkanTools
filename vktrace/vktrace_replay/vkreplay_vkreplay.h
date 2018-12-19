@@ -288,6 +288,7 @@ class vkReplay {
     VkResult manually_replay_vkBindImageMemory(packet_vkBindImageMemory* pPacket);
     void manually_replay_vkGetImageMemoryRequirements2(packet_vkGetImageMemoryRequirements2* pPacket);
     void manually_replay_vkGetBufferMemoryRequirements2(packet_vkGetBufferMemoryRequirements2* pPacket);
+    VkResult manually_replay_vkCreateSampler(packet_vkCreateSampler* pPacket);
 
     void process_screenshot_list(const char* list) {
         std::string spec(list), word;

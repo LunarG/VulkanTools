@@ -2913,6 +2913,38 @@ VkResult vkReplay::manually_replay_vkGetPhysicalDeviceSurfacePresentModesKHR(
     return replayResult;
 }
 
+VkResult vkReplay::manually_replay_vkCreateSampler(packet_vkCreateSampler *pPacket) {
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    VkSampler local_pSampler;
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in vkCreateSampler() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    // No need to remap pCreateInfo
+    // No need to remap pAllocator
+
+    // Remap conversion handles in pPacket->pCreateInfo->pNext structs.
+    // We only remap from m_objMapper.remap_samplerycbcrconversions because
+    // m_objMapper.add_to_samplerycbcrconversionkhrs_map is not used.
+    if (pPacket->pCreateInfo && pPacket->pCreateInfo->pNext) {
+         VkSamplerYcbcrConversionInfo *sci = (VkSamplerYcbcrConversionInfo *)pPacket->pCreateInfo->pNext;
+         while (sci) {
+             if (sci->sType == VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO) {
+                 sci->conversion = m_objMapper.remap_samplerycbcrconversions(sci->conversion);
+                 sci = (VkSamplerYcbcrConversionInfo *)sci->pNext;
+             }
+         }
+     }
+
+     replayResult = m_vkDeviceFuncs.CreateSampler(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSampler);
+     if (replayResult == VK_SUCCESS) {
+         m_objMapper.add_to_samplers_map(*(pPacket->pSampler), local_pSampler);
+     }
+     return replayResult;
+}
+
 VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchainKHR *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkSwapchainKHR local_pSwapchain;
