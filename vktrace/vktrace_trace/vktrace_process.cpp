@@ -161,6 +161,42 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
 bool terminationSignalArrived = false;
 void terminationSignalHandler(int sig) { terminationSignalArrived = true; }
 
+// There are multiple processes be created and their running time have overlap
+// when start some titles such as some steam titles. These processes all call
+// vulkan API and trace layer already got loaded, so we only need to take care
+// how to handle their connection request and receive their packet data.
+//
+// Every process in the case will be a client and the server side need to
+// accept their connections within system timeout. Because both side also
+// need to keep the connection for a relatively long time for trace file
+// recording, so multiple threads are needed to response to multiple clients.
+// Here the function is used to create these additional recording threads.
+bool CreateAdditionalRecordTraceThread(vktrace_process_info* pInfo) {
+    bool create_additional_record_trace_thread = true;
+    assert(pInfo != nullptr);
+    // prepare data for capture threads
+    uint32_t new_thread_trace_file_index = pInfo->currentCaptureThreadsCount;
+    if (new_thread_trace_file_index < pInfo->maxCaptureThreadsNumber) {
+        pInfo->pCaptureThreads[new_thread_trace_file_index].pProcessInfo = pInfo;
+        pInfo->pCaptureThreads[new_thread_trace_file_index].recordingThread = VKTRACE_NULL_THREAD;
+        pInfo->pCaptureThreads[new_thread_trace_file_index].traceFileIndex = new_thread_trace_file_index;
+        // create thread to record trace packets from the tracer
+        pInfo->pCaptureThreads[new_thread_trace_file_index].recordingThread =
+            vktrace_platform_create_thread(Process_RunRecordTraceThread, &(pInfo->pCaptureThreads[new_thread_trace_file_index]));
+        if (pInfo->pCaptureThreads[new_thread_trace_file_index].recordingThread == VKTRACE_NULL_THREAD) {
+            vktrace_LogError("Failed to create additional trace recording thread.");
+            create_additional_record_trace_thread = false;
+        } else {
+            pInfo->currentCaptureThreadsCount++;
+        }
+    } else {
+        vktrace_LogError(
+            "Unable to create additional trace recording thread because the trace recording threads number reach the limit.");
+        create_additional_record_trace_thread = false;
+    }
+    return create_additional_record_trace_thread;
+}
+
 // ------------------------------------------------------------------------------------------------
 VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadInfo) {
     vktrace_process_capture_trace_thread_info* pInfo = (vktrace_process_capture_trace_thread_info*)_threadInfo;

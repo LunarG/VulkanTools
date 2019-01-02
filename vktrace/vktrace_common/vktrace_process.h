@@ -40,6 +40,7 @@ typedef struct vktrace_process_info {
     BOOL traceFileCriticalSectionCreated;
 
     volatile BOOL serverRequestsTermination;
+    uint32_t maxCaptureThreadsNumber;
     uint32_t currentCaptureThreadsCount;
     vktrace_process_capture_trace_thread_info* pCaptureThreads;
 

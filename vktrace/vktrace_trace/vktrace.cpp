@@ -450,7 +450,7 @@ int main(int argc, char* argv[]) {
         procInfo.parentThreadId = vktrace_platform_get_thread_id();
 
         // setup tracer, only Vulkan tracer suppported
-        PrepareTracers(&procInfo.pCaptureThreads);
+        procInfo.maxCaptureThreadsNumber = PrepareTracers(&procInfo.pCaptureThreads);
         procInfo.currentCaptureThreadsCount = 1;
         if (g_settings.program != NULL) {
             char* instEnv = vktrace_get_global_var("VK_INSTANCE_LAYERS");
