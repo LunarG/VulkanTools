@@ -20,6 +20,7 @@
  * Author: Peter Lohrmann <peterl@valvesoftware.com>
  * Author: David Pinedo <david@lunarg.com>
  **************************************************************************/
+#include <stdbool.h>
 #include "vktrace_process.h"
 
 BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
@@ -108,22 +109,70 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
     return TRUE;
 }
 
-void vktrace_process_info_delete(vktrace_process_info* pInfo) {
-    if (pInfo->pCaptureThreads != NULL) {
-        vktrace_platform_delete_thread(&(pInfo->pCaptureThreads[0].recordingThread));
-        VKTRACE_DELETE(pInfo->pCaptureThreads);
+// Get the trace file name according to base name and trace file index.
+//
+// for example, if the base file name is sometitle-trace-file.vktrace, and the
+// trace file index is not 0 (for example: 3), then the returned trace file
+// name will be sometitle-trace-file-3.vktrace. If the trace file index is 0,
+// then the returned trace file name will be base file name.
+//
+// trace_file_name point to a buffer of which the size is
+// trace_file_name_buffer_size, it must be enough to hold the
+// base_name + "-" + number of chars needed by trace_file_index.
+bool GetTraceFileName(char* trace_file_name, const uint32_t trace_file_name_buffer_size, const char* base_name,
+                      const int trace_file_index) {
+    bool get_trace_file_name = false;
+    if (base_name != NULL) {
+        if (trace_file_index == 0) {
+            strncpy(trace_file_name, base_name, trace_file_name_buffer_size - 1);
+            get_trace_file_name = true;
+        } else {
+            char suffix[16];
+            snprintf(suffix, sizeof(suffix), "-%d", trace_file_index);
+            uint32_t base_name_length = strlen(base_name);
+            if ((base_name_length + strlen(suffix)) < trace_file_name_buffer_size) {
+                get_trace_file_name = true;
+                const char* extension_name = strrchr(base_name, '.');
+                if (extension_name = NULL) {
+                    strncpy(trace_file_name, base_name, trace_file_name_buffer_size - 1);
+                } else {
+                    strncpy(trace_file_name, "\0", trace_file_name_buffer_size - 1);
+                    strncat(trace_file_name, base_name, base_name_length - strlen(extension_name));
+                }
+                strncat(trace_file_name, suffix, trace_file_name_buffer_size - 1 - strlen(trace_file_name));
+                if (extension_name != NULL) {
+                    strncat(trace_file_name, extension_name, trace_file_name_buffer_size - 1 - strlen(trace_file_name));
+                }
+            } else {
+                assert(false);
+            }
+        }
     }
+    return get_trace_file_name;
+}
 
+void vktrace_process_info_delete(vktrace_process_info* pInfo) {
 #if defined(WIN32)
     vktrace_platform_delete_thread(&(pInfo->watchdogThread));
 #endif
-    for (int i = 0; i < pInfo->currentCaptureThreadsCount; i++) {
-        if (pInfo->pCaptureThreads[i].pTraceFile != NULL) {
-            vktrace_LogDebug("Closing trace file: '%s'", pInfo->traceFilename);
-            fclose(pInfo->pCaptureThreads[i].pTraceFile);
+    if (pInfo->pCaptureThreads != NULL) {
+        uint32_t trace_file_name_buffer_size = strlen(pInfo->traceFilename) + 16;
+        char* trace_file_name = VKTRACE_NEW_ARRAY(char, trace_file_name_buffer_size);
+        assert(trace_file_name != NULL);
+        for (int i = 0; i < pInfo->currentCaptureThreadsCount; i++) {
+            vktrace_platform_delete_thread(&(pInfo->pCaptureThreads[i].recordingThread));
+            if (pInfo->pCaptureThreads[i].pTraceFile != NULL) {
+                GetTraceFileName(trace_file_name, trace_file_name_buffer_size, pInfo->traceFilename, i);
+                vktrace_LogDebug("Closing trace file: %s", trace_file_name);
+                fclose(pInfo->pCaptureThreads[i].pTraceFile);
+            }
         }
+        VKTRACE_DELETE(trace_file_name);
     }
 
+    if (pInfo->pCaptureThreads != NULL) {
+        VKTRACE_DELETE(pInfo->pCaptureThreads);
+    }
     VKTRACE_DELETE(pInfo->traceFilename);
     VKTRACE_DELETE(pInfo->workingDirectory);
     VKTRACE_DELETE(pInfo->processArgs);
