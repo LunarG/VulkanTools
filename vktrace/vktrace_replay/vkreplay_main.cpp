@@ -41,7 +41,7 @@
 #include "screenshot_parsing.h"
 #include "vktrace_vk_packet_id.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL, FALSE};
 
 #if defined(ANDROID)
 const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
@@ -66,6 +66,13 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.pTraceFilePath},
      TRUE,
      "The trace file to open and replay. (Deprecated)"},
+    {"pltf",
+     "PreloadTraceFile",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.preloadTraceFile},
+     {&replaySettings.preloadTraceFile},
+     TRUE,
+     "Preload tracefile to memory before replay. (NumLoops need to be 1.)"},
     {"l",
      "NumLoops",
      VKTRACE_SETTING_UINT,
@@ -144,7 +151,24 @@ vktrace_SettingInfo g_settings_info[] = {
 vktrace_SettingGroup g_replaySettingGroup = {"vkreplay", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
 
 namespace vktrace_replay {
+static void* preloadTraceFile(void* ptr) {
+    Sequencer* pSequencer = (Sequencer*)ptr;
+    const uint64_t bufferedPacketCount = 8192;  // Preload buffered packet count before replay
+    pSequencer->preload_trace_file(bufferedPacketCount);
+    return NULL;
+}
+
 int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_trace_packet_replay_library* replayerArray[]) {
+    pthread_t threadPreloadTraceFile;
+    if (replaySettings.preloadTraceFile) {
+        vktrace_LogAlways("Preloading trace file...");
+        pthread_create(&threadPreloadTraceFile, NULL, preloadTraceFile, (void*)&seq);
+        while (!seq.ready_to_replay()) {
+            usleep(10);
+        }
+        vktrace_LogAlways("Preloading trace file...Ready to replay.");
+    }
+
     int err = 0;
     vktrace_trace_packet_header* packet;
     unsigned int res;
@@ -287,6 +311,10 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     }
 
 out:
+    if (replaySettings.preloadTraceFile) {
+        seq.stop_preload();
+        pthread_join(threadPreloadTraceFile, NULL);
+    }
     seq.clean_up();
     if (replaySettings.screenshotList != NULL) {
         vktrace_free((char*)replaySettings.screenshotList);
@@ -428,6 +456,14 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
 
     // merge settings so that new settings will get written into the settings file
     vktrace_SettingGroup_merge(&g_replaySettingGroup, &pAllSettings, &numAllSettings);
+
+    // Force NumLoops option to 1 if pre-load is enabled, because the trace file loaded into memory may be overwritten during replay
+    // which will cause error in the second or later loops.
+    if (replaySettings.preloadTraceFile && replaySettings.numLoops != 1) {
+        vktrace_LogError("PreloadTraceFile is enabled.  Force NumLoops to 1!");
+        vktrace_LogError("Please don't enable PreloadTraceFile if you want to replay the trace file multiple times!");
+        replaySettings.numLoops = 1;
+    }
 
     // Set verbosity level
     if (replaySettings.verbosity == NULL || !strcmp(replaySettings.verbosity, "errors"))

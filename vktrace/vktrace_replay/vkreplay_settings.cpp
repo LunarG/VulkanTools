@@ -27,7 +27,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL, FALSE};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -44,6 +44,13 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.pTraceFilePath},
      TRUE,
      "(Deprecated, use -o or --Open instead) The trace file to replay."},
+    {"pltf",
+     "PreloadTraceFile",
+     VKTRACE_SETTING_BOOL,
+     {&g_vkReplaySettings.preloadTraceFile},
+     {&s_defaultVkReplaySettings.preloadTraceFile},
+     TRUE,
+     "Preload tracefile to memory before replay."},
     {"l",
      "NumLoops",
      VKTRACE_SETTING_UINT,

@@ -33,6 +33,7 @@ typedef struct vkreplayer_settings {
     const char* screenshotColorFormat;
     const char* verbosity;
     const char* displayServer;
+    BOOL preloadTraceFile;
 } vkreplayer_settings;
 
 #include <vector>
