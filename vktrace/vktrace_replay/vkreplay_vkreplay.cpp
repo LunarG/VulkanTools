@@ -1814,6 +1814,15 @@ bool vkReplay::getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uin
         }
     }
 
+    // At last, search for mem type with DEVICE_LOCAL set
+    // from set of bits in memoryRequirements->memoryTypeBits
+    for (i = 0; i < replayMemoryProperties[replayPhysicalDevice].memoryTypeCount; i++) {
+        if (((1 << i) & memRequirements->memoryTypeBits) &&
+            (VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT & replayMemoryProperties[replayPhysicalDevice].memoryTypes[i].propertyFlags)) {
+            *pReplayIdx = i;
+            return true;
+        }
+    }
 
 fail:
     // Didn't find a match
