@@ -346,7 +346,13 @@ class vkReplay {
     // Map device to extension property count, for device extension property queries
     std::unordered_map<VkPhysicalDevice, uint32_t> replayDeviceExtensionPropertyCount;
 
-    void modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevice, packet_vkAllocateMemory* pPacket);
+    bool modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevice, packet_vkAllocateMemory* pPacket);
+
+    std::unordered_map<VkImage, VkImageTiling> replayImageToTiling;
+    std::unordered_map<VkImage, VkDeviceMemory> replayOptimalImageToDeviceMemory;
+    std::unordered_map<VkDeviceMemory, uint32_t> traceDeviceMemoryToMemoryTypeIndex;
+
+    std::unordered_set<VkDeviceMemory> traceSkippedDeviceMemories;
 
     bool getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, VkMemoryRequirements* memRequirements,
                           uint32_t* pReplayIdx);
