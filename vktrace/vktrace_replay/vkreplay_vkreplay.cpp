@@ -2755,7 +2755,9 @@ VkResult vkReplay::manually_replay_vkBindImageMemory(packet_vkBindImageMemory *p
             }
 
             VkMemoryAllocateInfo memoryAllocateInfo = {
-                VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, NULL, replayGetImageMemoryRequirements[remappedimage].size,
+                VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                NULL,
+                replayGetImageMemoryRequirements[remappedimage].size,
                 replayMemTypeIndex,
             };
             replayResult = m_vkDeviceFuncs.AllocateMemory(remappeddevice, &memoryAllocateInfo, NULL, &remappedmemory);
@@ -4480,7 +4482,7 @@ VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemor
 
         if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch()) {
             if (replayImageToTiling.find(remappedImage) == replayImageToTiling.end()) {
-                vktrace_LogError("Error detected in BindImageMemory() due to invalid remapped image tiling.");
+                vktrace_LogError("Error detected in BindImageMemory2KHR() due to invalid remapped image tiling.");
                 return VK_ERROR_VALIDATION_FAILED_EXT;
             }
 
@@ -4499,12 +4501,14 @@ VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemor
                 if (!getMemoryTypeIdx(pPacket->device, remappeddevice,
                                       traceDeviceMemoryToMemoryTypeIndex[pPacket->pBindInfos[i].memory],
                                       &replayGetImageMemoryRequirements[remappedImage], &replayMemTypeIndex)) {
-                    vktrace_LogError("Error detected in BindImageMemory() due to invalid remapped memory type index.");
+                    vktrace_LogError("Error detected in BindImageMemory2KHR() due to invalid remapped memory type index.");
                     return VK_ERROR_VALIDATION_FAILED_EXT;
                 }
 
                 VkMemoryAllocateInfo memoryAllocateInfo = {
-                    VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, NULL, replayGetImageMemoryRequirements[remappedImage].size,
+                    VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                    NULL,
+                    replayGetImageMemoryRequirements[remappedImage].size,
                     replayMemTypeIndex,
                 };
                 VkDeviceMemory remappedMemory = VK_NULL_HANDLE;
