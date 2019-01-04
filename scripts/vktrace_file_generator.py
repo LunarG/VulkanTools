@@ -2359,6 +2359,225 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         return "\n".join(trim_instructions)
 
 
+    #
+    # Construct vkparser parser gen source file
+    def GenerateParserGenSource(self):
+        cmd_member_dict = dict(self.cmdMembers)
+        cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
+        cmd_extension_dict = dict(self.cmd_extension_names)
+
+        parser_gen_source  = '\n'
+        parser_gen_source += '#include "vktrace_vk_packet_id.h"\n\n'
+        parser_gen_source += '#undef NOMINMAX\n'
+        parser_gen_source += '#include "api_dump_text.h"\n'
+        parser_gen_source += '#include "api_dump_html.h"\n'
+        parser_gen_source += '#include "vkparser_main.h"'
+        parser_gen_source += '\n'
+        parser_gen_source += 'void dump_packet(const vktrace_trace_packet_header* packet) {\n'
+        parser_gen_source += '    switch (packet->packet_id) {\n'
+
+        for api in self.cmdMembers:
+            if not isSupportedCmd(api, cmd_extension_dict):
+                continue
+
+            vk_cmdname = api.name
+            # Strip off 'vk' from command name
+            cmdname = api.name[2:]
+
+            cmdinfo = cmd_info_dict[vk_cmdname]
+            protect = cmd_protect_dict[vk_cmdname]
+            if protect is not None:
+                parser_gen_source += '#ifdef %s\n' % protect
+
+            ret_value = True
+            resulttype = cmdinfo.elem.find('proto/type')
+            if resulttype != None and resulttype.text != 'VkResult':
+                ret_value = False
+
+            params = cmd_member_dict[vk_cmdname]
+            parser_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
+            if cmdname != 'GetInstanceProcAddr' and cmdname != 'GetDeviceProcAddr':
+                parser_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
+
+                # Build the call to the "dump_" entrypoint
+                param_string = ''
+                if ret_value:
+                    param_string += 'pPacket->result, '
+                for p in params:
+                    if p.name is not '':
+                        param_string += 'pPacket->%s, ' % p.name
+                param_string = '%s);' % param_string[:-2]
+
+                if cmdname == 'CreateDescriptorSetLayout':
+                    parser_gen_source += '            VkDescriptorSetLayoutCreateInfo *pInfo = (VkDescriptorSetLayoutCreateInfo *)pPacket->pCreateInfo;\n'
+                    parser_gen_source += '            if (pInfo != NULL) {\n'
+                    parser_gen_source += '                if (pInfo->pBindings != NULL) {\n'
+                    parser_gen_source += '                    pInfo->pBindings = (VkDescriptorSetLayoutBinding *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                        pPacket->header, (intptr_t)pInfo->pBindings);\n'
+                    parser_gen_source += '                    for (unsigned int i = 0; i < pInfo->bindingCount; i++) {\n'
+                    parser_gen_source += '                        VkDescriptorSetLayoutBinding *pBindings = (VkDescriptorSetLayoutBinding *)&pInfo->pBindings[i];\n'
+                    parser_gen_source += '                        if (pBindings->pImmutableSamplers != NULL) {\n'
+                    parser_gen_source += '                            pBindings->pImmutableSamplers = (const VkSampler *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                                pPacket->header, (intptr_t)pBindings->pImmutableSamplers);\n'
+                    parser_gen_source += '                        }\n'
+                    parser_gen_source += '                    }\n'
+                    parser_gen_source += '                }\n'
+                    parser_gen_source += '            }\n'
+                elif cmdname == 'QueueBindSparse':
+                    parser_gen_source += '            VkSparseImageMemoryBindInfo *sIMBinf = NULL;\n'
+                    parser_gen_source += '            VkSparseBufferMemoryBindInfo *sBMBinf = NULL;\n'
+                    parser_gen_source += '            VkSparseImageOpaqueMemoryBindInfo *sIMOBinf = NULL;\n'
+                    parser_gen_source += '            VkSparseImageMemoryBind *pLocalIMs = NULL;\n'
+                    parser_gen_source += '            VkSparseMemoryBind *pLocalBMs = NULL;\n'
+                    parser_gen_source += '            VkSparseMemoryBind *pLocalIOMs = NULL;\n'
+                    parser_gen_source += '            VkBindSparseInfo *pLocalBIs = VKTRACE_NEW_ARRAY(VkBindSparseInfo, pPacket->bindInfoCount);\n'
+                    parser_gen_source += '            memcpy((void *)pLocalBIs, (void *)(pPacket->pBindInfo), sizeof(VkBindSparseInfo) * pPacket->bindInfoCount);\n'
+                    parser_gen_source += '            for (uint32_t i = 0; i < pPacket->bindInfoCount; i++) {\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalBIs[i]);\n'
+                    parser_gen_source += '                if (pLocalBIs[i].pBufferBinds) {\n'
+                    parser_gen_source += '                    sBMBinf = VKTRACE_NEW_ARRAY(VkSparseBufferMemoryBindInfo, pLocalBIs[i].bufferBindCount);\n'
+                    parser_gen_source += '                    pLocalBIs[i].pBufferBinds =\n'
+                    parser_gen_source += '                        (const VkSparseBufferMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pBufferBinds));\n'
+                    parser_gen_source += '                    memcpy((void *)sBMBinf, (void *)pLocalBIs[i].pBufferBinds,\n'
+                    parser_gen_source += '                        sizeof(VkSparseBufferMemoryBindInfo) * pLocalBIs[i].bufferBindCount);\n'
+                    parser_gen_source += '                    if (pLocalBIs[i].pBufferBinds->bindCount > 0 && pLocalBIs[i].pBufferBinds->pBinds) {\n'
+                    parser_gen_source += '                        pLocalBMs  = (VkSparseMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pBufferBinds->pBinds));\n'
+                    parser_gen_source += '                    }\n'
+                    parser_gen_source += '                    sBMBinf->pBinds = pLocalBMs;\n'
+                    parser_gen_source += '                    pLocalBIs[i].pBufferBinds = sBMBinf;\n'
+                    parser_gen_source += '                }\n'
+                    parser_gen_source += '                if (pLocalBIs[i].pImageBinds) {\n'
+                    parser_gen_source += '                    sIMBinf = VKTRACE_NEW_ARRAY(VkSparseImageMemoryBindInfo, pLocalBIs[i].imageBindCount);\n'
+                    parser_gen_source += '                    pLocalBIs[i].pImageBinds =\n'
+                    parser_gen_source += '                        (const VkSparseImageMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageBinds));\n'
+                    parser_gen_source += '                    memcpy((void *)sIMBinf, (void *)pLocalBIs[i].pImageBinds,\n'
+                    parser_gen_source += '                        sizeof(VkSparseImageMemoryBindInfo) * pLocalBIs[i].imageBindCount);\n'
+                    parser_gen_source += '                    if (pLocalBIs[i].pImageBinds->bindCount > 0 && pLocalBIs[i].pImageBinds->pBinds) {\n'
+                    parser_gen_source += '                        pLocalIMs  = (VkSparseImageMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageBinds->pBinds));\n'
+                    parser_gen_source += '                    }\n'
+                    parser_gen_source += '                    sIMBinf->pBinds = pLocalIMs;\n'
+                    parser_gen_source += '                    pLocalBIs[i].pImageBinds = sIMBinf;\n'
+                    parser_gen_source += '                }\n'
+                    parser_gen_source += '                if (pLocalBIs[i].pImageOpaqueBinds) {\n'
+                    parser_gen_source += '                    sIMOBinf = VKTRACE_NEW_ARRAY(VkSparseImageOpaqueMemoryBindInfo, pLocalBIs[i].imageOpaqueBindCount);\n'
+                    parser_gen_source += '                    pLocalBIs[i].pImageOpaqueBinds =\n'
+                    parser_gen_source += '                        (const VkSparseImageOpaqueMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageOpaqueBinds));\n'
+                    parser_gen_source += '                    memcpy((void *)sIMOBinf, (void *)pLocalBIs[i].pImageOpaqueBinds,\n'
+                    parser_gen_source += '                        sizeof(VkSparseImageOpaqueMemoryBindInfo) * pLocalBIs[i].imageOpaqueBindCount);\n'
+                    parser_gen_source += '                    if (pLocalBIs[i].pImageOpaqueBinds->bindCount > 0 && pLocalBIs[i].pImageOpaqueBinds->pBinds) {\n'
+                    parser_gen_source += '                        pLocalIOMs = (VkSparseMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageOpaqueBinds->pBinds));\n'
+                    parser_gen_source += '                    }\n'
+                    parser_gen_source += '                    sIMOBinf->pBinds = pLocalIOMs;\n'
+                    parser_gen_source += '                    pLocalBIs[i].pImageOpaqueBinds = sIMOBinf;\n'
+                    parser_gen_source += '                }\n'
+                    parser_gen_source += '            }\n'
+                    parser_gen_source += '            pPacket->pBindInfo = pLocalBIs;\n'
+                elif cmdname == 'CreateComputePipelines':
+                    parser_gen_source += '            VkComputePipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);\n'
+                    parser_gen_source += '            memcpy((void *)pLocalCIs, (void *)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo) * pPacket->createInfoCount);\n'
+                    parser_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    parser_gen_source += '                if (pLocalCIs[i].stage.pName) {\n'
+                    parser_gen_source += '                    pLocalCIs[i].stage.pName =\n'
+                    parser_gen_source += '                        (const char *)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));\n'
+                    parser_gen_source += '                }\n'
+                    parser_gen_source += '                if (pLocalCIs[i].stage.pSpecializationInfo) {\n'
+                    parser_gen_source += '                    pLocalCIs[i].stage.pSpecializationInfo = \n'
+                    parser_gen_source += '                        (const VkSpecializationInfo  *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                            pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo));\n'
+                    parser_gen_source += '                    if (pLocalCIs[i].stage.pSpecializationInfo->mapEntryCount > 0 && pLocalCIs[i].stage.pSpecializationInfo->pMapEntries) {\n'
+                    parser_gen_source += '                        ((VkSpecializationInfo *)(pLocalCIs[i]).stage.pSpecializationInfo)->pMapEntries =\n'
+                    parser_gen_source += '                            (const VkSpecializationMapEntry *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                                pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));\n'
+                    parser_gen_source += '                    }\n'
+                    parser_gen_source += '                    if (pLocalCIs[i].stage.pSpecializationInfo->dataSize > 0 && pLocalCIs[i].stage.pSpecializationInfo->pData) {\n'
+                    parser_gen_source += '                        ((VkSpecializationInfo *)(pLocalCIs[i]).stage.pSpecializationInfo)->pData =\n'
+                    parser_gen_source += '                            (const void *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                                pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pData));\n'
+                    parser_gen_source += '                    }\n'
+                    parser_gen_source += '                }\n'
+                    parser_gen_source += '            }\n'
+                    parser_gen_source += '            pPacket->pCreateInfos = pLocalCIs;\n'
+                elif cmdname == 'CreateGraphicsPipelines':
+                    parser_gen_source += '            VkGraphicsPipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkGraphicsPipelineCreateInfo, pPacket->createInfoCount);\n'
+                    parser_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
+                    parser_gen_source += '                memcpy((void *)&(pLocalCIs[i]), (void *)&(pPacket->pCreateInfos[i]), sizeof(VkGraphicsPipelineCreateInfo));\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pStages);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pVertexInputState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pInputAssemblyState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pTessellationState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pViewportState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pRasterizationState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pMultisampleState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDepthStencilState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pColorBlendState);\n'
+                    parser_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDynamicState);\n'
+                    parser_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pViewports =\n'
+                    parser_gen_source += '                    (VkViewport *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pViewportState->pViewports);\n'
+                    parser_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pScissors =\n'
+                    parser_gen_source += '                    (VkRect2D *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header,\n'
+                    parser_gen_source += '                        (intptr_t)pPacket->pCreateInfos[i].pViewportState->pScissors);\n'
+                    parser_gen_source += '                ((VkPipelineMultisampleStateCreateInfo *)pLocalCIs[i].pMultisampleState)->pSampleMask =\n'
+                    parser_gen_source += '                    (VkSampleMask *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    parser_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pMultisampleState->pSampleMask);\n'
+                    parser_gen_source += '            }\n'
+                    parser_gen_source += '            pPacket->pCreateInfos = pLocalCIs;\n'
+                parser_gen_source += '            ApiDumpInstance& dump_inst = ApiDumpInstance::current();\n'
+                parser_gen_source += '            const ApiDumpSettings& settings(dump_inst.settings());\n'
+                parser_gen_source += '            dump_inst.setThreadID(packet->thread_id);\n'
+                parser_gen_source += '            settings.stream() << \"GlobalPacketIndex \" << packet->global_packet_index << \", \";\n'
+                if cmdname == 'AllocateCommandBuffers':
+                    parser_gen_source += '            dump_inst.addCmdBuffers(pPacket->device,\n'
+                    parser_gen_source += '                                    pPacket->pAllocateInfo->commandPool,\n'
+                    parser_gen_source += '                                    std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->pAllocateInfo->commandBufferCount),\n'
+                    parser_gen_source += '                                    pPacket->pAllocateInfo->level);\n'
+                elif cmdname == 'DestroyCommandPool':
+                    parser_gen_source += '            dump_inst.eraseCmdBufferPool(pPacket->device, pPacket->commandPool);\n'
+                elif cmdname == 'FreeCommandBuffers':
+                    parser_gen_source += '            dump_inst.eraseCmdBuffers(pPacket->device,\n'
+                    parser_gen_source += '                                      pPacket->commandPool,\n'
+                    parser_gen_source += '                                      std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->commandBufferCount));\n'
+                parser_gen_source += '            switch(dump_inst.settings().format()) {\n'
+                parser_gen_source += '            case ApiDumpFormat::Text:\n'
+                parser_gen_source += '                dump_text_vk%s(dump_inst, ' % cmdname
+                parser_gen_source += '%s\n' % param_string
+                parser_gen_source += '                break;\n'
+                parser_gen_source += '            case ApiDumpFormat::Html:\n'
+                parser_gen_source += '                dump_html_vk%s(dump_inst, ' % cmdname
+                parser_gen_source += '%s\n' % param_string
+                parser_gen_source += '                break;\n'
+                parser_gen_source += '            }\n'
+                if cmdname == 'QueuePresentKHR':
+                    parser_gen_source += '            dump_inst.nextFrame();\n'
+                elif cmdname == 'QueueBindSparse':
+                    parser_gen_source += '            VKTRACE_DELETE(pLocalBIs);\n'
+                    parser_gen_source += '            VKTRACE_DELETE(sIMBinf);\n'
+                    parser_gen_source += '            VKTRACE_DELETE(sBMBinf);\n'
+                    parser_gen_source += '            VKTRACE_DELETE(sIMOBinf);\n'
+                elif cmdname == 'CreateComputePipelines':
+                    parser_gen_source += '            VKTRACE_DELETE(pLocalCIs);\n'
+                elif cmdname == 'CreateGraphicsPipelines':
+                    parser_gen_source += '            VKTRACE_DELETE(pLocalCIs);\n'
+            parser_gen_source += '            break;\n'
+            parser_gen_source += '        }\n'
+            if protect is not None:
+                parser_gen_source += '#endif // %s\n' % protect
+        parser_gen_source += '        default:\n'
+        parser_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'
+        parser_gen_source += '            break;\n'
+        parser_gen_source += '    }\n'
+        parser_gen_source += '    return;\n'
+        parser_gen_source += '}\n'
+        return parser_gen_source
 
 
     #
@@ -3074,5 +3293,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return self.GenerateTraceVkSource()
         elif self.vktrace_file_type == 'vktrace_vk_packets_header':
             return self.GenerateTraceVkPacketsHeader()
+        elif self.vktrace_file_type == 'vktrace_parser_gen_source':
+            return self.GenerateParserGenSource()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type
