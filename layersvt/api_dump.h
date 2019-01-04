@@ -60,10 +60,15 @@ class ApiDumpSettings {
         if (file_option != NULL && strcmp(file_option, "TRUE") == 0) {
             use_cout = false;
             const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
-            if (filename_option != NULL && strcmp(filename_option, "") != 0)
+            if (filename_option != NULL && strcmp(filename_option, "") != 0) {
                 output_stream.open(filename_option, std::ofstream::out | std::ostream::trunc);
-            else
+                size_t last_slash_idx = std::string(filename_option).find_last_of("\\/");
+                if (std::string::npos != last_slash_idx) {
+                    output_dir = std::string(filename_option).substr(0, last_slash_idx + 1);
+                }
+            } else {
                 output_stream.open("vk_apidump.txt", std::ofstream::out | std::ostream::trunc);
+            }
         } else {
             use_cout = true;
         }
@@ -260,6 +265,8 @@ class ApiDumpSettings {
 
     inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
+    inline std::string directory() const { return output_dir; }
+
    private:
     inline static bool readBoolOption(const char *option, bool default_value) {
         const char *string_option = getLayerOption(option);
@@ -296,6 +303,7 @@ class ApiDumpSettings {
     inline static const char *tabs(int count) { return TABS + (MAX_TABS - std::max(count, 0)); }
 
     bool use_cout;
+    std::string output_dir = "";
     std::ofstream output_stream;
     ApiDumpFormat output_format;
     bool show_params;
@@ -516,9 +524,9 @@ inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDump
         return;
     }
     if (settings.showAddress())
-        settings.stream() << (void *)array << "\n";
+        settings.stream() << (void *)array;
     else
-        settings.stream() << "address\n";
+        settings.stream() << "address";
 
     std::stringstream stream;
     const uint8_t *arraybyte = reinterpret_cast<const uint8_t *>(array);
@@ -528,7 +536,20 @@ inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDump
             stream << "\n";
         }
     }
-    settings.stream() << stream.str() << "\n";
+
+    if (settings.stream().rdbuf() == std::cout.rdbuf()) {
+        settings.stream() << "\n" << stream.str() << "\n";
+    } else {
+        static uint64_t shaderDumpIndex = 0;
+        std::stringstream shaderDumpFileName;
+        shaderDumpFileName << settings.directory() << "shader_" << shaderDumpIndex << ".hex";
+        settings.stream() << " (" << shaderDumpFileName.str() << ")\n";
+        ++shaderDumpIndex;
+        std::ofstream shaderDumpFile;
+        shaderDumpFile.open(shaderDumpFileName.str(), std::ofstream::out | std::ostream::trunc);
+        shaderDumpFile << stream.str() << "\n";
+        shaderDumpFile.close();
+    }
 }
 
 template <typename T, typename... Args>
@@ -541,9 +562,9 @@ inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDump
         return;
     }
     if (settings.showAddress())
-        settings.stream() << (void *)array << "\n";
+        settings.stream() << (void *)array;
     else
-        settings.stream() << "address\n";
+        settings.stream() << "address";
 
     std::stringstream stream;
     const uint8_t *arraybyte = reinterpret_cast<const uint8_t *>(array);
@@ -553,7 +574,20 @@ inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDump
             stream << "\n";
         }
     }
-    settings.stream() << stream.str() << "\n";
+
+    if (settings.stream().rdbuf() == std::cout.rdbuf()) {
+        settings.stream() << "\n" << stream.str() << "\n";
+    } else {
+        static uint64_t shaderDumpIndex = 0;
+        std::stringstream shaderDumpFileName;
+        shaderDumpFileName << settings.directory() << "shader_" << shaderDumpIndex << ".hex";
+        settings.stream() << " (" << shaderDumpFileName.str() << ")\n";
+        ++shaderDumpIndex;
+        std::ofstream shaderDumpFile;
+        shaderDumpFile.open(shaderDumpFileName.str(), std::ofstream::out | std::ostream::trunc);
+        shaderDumpFile << stream.str() << "\n";
+        shaderDumpFile.close();
+    }
 }
 
 template <typename T, typename... Args>
