@@ -148,6 +148,10 @@ The vktraceviewer tool allows interactive creation and viewing of Vulkan trace f
 
 vktraceviewer has a dependency on Qt5 libraries; they need to be installed on the system.
 
+## vkparser
+
+The vkparser tool allows API dump generation from a Vulkan trace file offline instead of using API dump layer when Vulkan application is running.
+
 ## Persistently Mapped Buffers and vktrace
 
 If a Vulkan program uses persistently mapped buffers (PMB) that are allocated via vkMapMemory, vktrace can track changes to PMB and automatically copy modified PMB pages to the trace file, rather than requiring that the Vulkan program call vkFlushMappedMemoryRanges to specify what PMB buffers should be copied. On Windows, the trace layer detects changes to PMB pages by setting the PAGE_GUARD flag for mapped memory pages and installing an exception handler for PAGE_GUARD that keeps track of which pages have been modified.  On Linux, the trace layer detects changes by using mprotect to disable writes to mapped memory pages and installing a signal handler for SIGSEGV.

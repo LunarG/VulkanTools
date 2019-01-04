@@ -638,6 +638,7 @@ add_custom_target(vktrace_generate_helper_files
 
 add_subdirectory(vktrace_common)
 add_subdirectory(vktrace_trace)
+add_subdirectory(vktrace_parser)
 
 option(BUILD_VKTRACE_LAYER "Build vktrace_layer" ON)
 if(BUILD_VKTRACE_LAYER)

@@ -365,7 +365,13 @@ class ApiDumpInstance {
         return *dump_settings;
     }
 
-    uint32_t threadID() {
+    // Only used in vkparser to print thread id in trace file
+    void setThreadID(uint64_t trace_thread_id) { thread_id = trace_thread_id; }
+
+    uint64_t threadID() {
+        if (thread_id != UINT32_MAX) {
+            return thread_id;
+        }
         loader_platform_thread_id id = loader_platform_get_thread_id();
         loader_platform_thread_lock_mutex(&thread_mutex);
         for (uint32_t i = 0; i < thread_count; ++i) {
@@ -460,6 +466,7 @@ class ApiDumpInstance {
     loader_platform_thread_mutex thread_mutex;
     loader_platform_thread_id thread_map[MAX_THREADS];
     uint32_t thread_count;
+    uint64_t thread_id = UINT64_MAX;
 
     loader_platform_thread_mutex cmd_buffer_state_mutex;
     std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;
