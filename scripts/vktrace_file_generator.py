@@ -2360,7 +2360,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
 
     #
-    # Construct vkparser parser gen source file
+    # Construct vktraceparser gen source file
     def GenerateParserGenSource(self):
         cmd_member_dict = dict(self.cmdMembers)
         cmd_info_dict = dict(self.cmd_info_data)
@@ -2372,7 +2372,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         parser_gen_source += '#undef NOMINMAX\n'
         parser_gen_source += '#include "api_dump_text.h"\n'
         parser_gen_source += '#include "api_dump_html.h"\n'
-        parser_gen_source += '#include "vkparser_main.h"'
+        parser_gen_source += '#include "vktraceparser_main.h"'
         parser_gen_source += '\n'
         parser_gen_source += 'void dump_packet(const vktrace_trace_packet_header* packet) {\n'
         parser_gen_source += '    switch (packet->packet_id) {\n'
