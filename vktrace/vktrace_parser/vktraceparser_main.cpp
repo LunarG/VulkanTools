@@ -273,9 +273,6 @@ int main(int argc, char** argv) {
             }
             if (ret > -1) {
                 vktrace_trace_packet_header* packet = NULL;
-                uint32_t swapchainId = 0;
-                unordered_map<uint32_t, VkExtent2D> swapchainResolutions;
-                unordered_map<uint32_t, uint32_t> swapchainPresentCounts;
                 uint32_t frameNumber = 0;
                 uint64_t currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
                 bool apiVerPrinted = false;
@@ -289,14 +286,7 @@ int main(int argc, char** argv) {
                             dump_packet(pInterpretedHeader);
                         }
                         switch (pInterpretedHeader->packet_id) {
-                            case VKTRACE_TPI_VK_vkCreateSwapchainKHR: {
-                                swapchainId++;
-                                packet_vkCreateSwapchainKHR* pPacket = (packet_vkCreateSwapchainKHR*)(pInterpretedHeader->pBody);
-                                swapchainResolutions[swapchainId] = pPacket->pCreateInfo->imageExtent;
-                                swapchainPresentCounts[swapchainId] = 0;
-                            } break;
                             case VKTRACE_TPI_VK_vkQueuePresentKHR: {
-                                swapchainPresentCounts[swapchainId]++;
                                 frameNumber++;
                             } break;
                             case VKTRACE_TPI_VK_vkGetPhysicalDeviceProperties: {
@@ -338,16 +328,6 @@ int main(int argc, char** argv) {
                     vktrace_delete_trace_packet_no_lock(&packet);
                     currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
                 }
-                uint32_t maxPresentCount = 0;
-                VkExtent2D mainResolution;
-                for (auto it = swapchainResolutions.begin(); it != swapchainResolutions.end(); it++) {
-                    if (swapchainPresentCounts[it->first] > maxPresentCount) {
-                        maxPresentCount = swapchainPresentCounts[it->first];
-                        mainResolution = it->second;
-                    }
-                }
-                cout << setw(COLUMN_WIDTH) << left << "Resolution:" << dec << mainResolution.width << "x" << dec
-                     << mainResolution.height << endl;
                 cout << setw(COLUMN_WIDTH) << left << "Frames:" << frameNumber << endl;
             }
             if (g_params.simpleDumpFile) {
