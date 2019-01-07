@@ -50,8 +50,12 @@ const uint32_t COLUMN_WIDTH = 15;
 static void print_usage() {
     cout << "vktraceparser available options:" << endl;
     cout << "    -o <traceFile>        The trace file to open and parse" << endl;
-    cout << "    -s <simpleDumpFile>   The file to save the outputs of simple/brief API dump (Optional)" << endl;
-    cout << "    -f <fullDumpFile>     The file to save the outputs of full/detailed API dump (Optional)" << endl;
+    cout << "    -s <simpleDumpFile>   (Optional) The file to save the outputs of simple/brief API dump. Use 'stdout' to send "
+            "outputs to stdout."
+         << endl;
+    cout << "    -f <fullDumpFile>     (Optional) The file to save the outputs of full/detailed API dump. Use 'stdout' to send "
+            "outputs to stdout."
+         << endl;
     cout << "    -ds                   Dump the shader binary code in pCode to shader dump files shader_<index>.hex.  Only works "
             "with \"-f <fullDumpFile>\" option."
          << endl;
@@ -68,7 +72,7 @@ static void print_usage() {
 
 static int parse_args(int argc, char** argv) {
     for (int i = 1; i < argc;) {
-        std::string arg(argv[i]);
+        string arg(argv[i]);
         if (arg.compare("-o") == 0) {
             const char* traceFile = argv[i + 1];
             g_params.traceFile = traceFile;
@@ -107,7 +111,7 @@ static int parse_args(int argc, char** argv) {
     return 0;
 }
 
-static void dump_packet_brief(ofstream& dumpFile, uint32_t frameNumber, vktrace_trace_packet_header* packet,
+static void dump_packet_brief(ostream& dumpFile, uint32_t frameNumber, vktrace_trace_packet_header* packet,
                               uint64_t currentPosition) {
     static size_t index = 0;
     static bool skipApi = false;
@@ -183,7 +187,11 @@ static void dump_full_setup() {
             }
             settingFile << "lunarg_api_dump.detailed = TRUE" << endl;
             settingFile << "lunarg_api_dump.no_addr = " << (g_params.noAddr ? "TRUE" : "FALSE") << endl;
-            settingFile << "lunarg_api_dump.file = TRUE" << endl;
+            if (g_params.fullDumpFile && (!strcmp(g_params.fullDumpFile, "STDOUT") || !strcmp(g_params.fullDumpFile, "stdout"))) {
+                settingFile << "lunarg_api_dump.file = FALSE" << endl;
+            } else {
+                settingFile << "lunarg_api_dump.file = TRUE" << endl;
+            }
             settingFile << "lunarg_api_dump.log_filename = " << g_params.fullDumpFile << endl;
             settingFile << "lunarg_api_dump.flush = TRUE" << endl;
             settingFile << "lunarg_api_dump.indent_size = 4" << endl;
@@ -243,10 +251,18 @@ int main(int argc, char** argv) {
                  << "bit vktraceparser!" << endl;
             ret = -1;
         } else {
-            ofstream simpleDumpFile;
+            streambuf* buf = NULL;
+            ofstream fileOutput;
             if (g_params.simpleDumpFile) {
-                simpleDumpFile.open(g_params.simpleDumpFile);
+                if (!strcmp(g_params.simpleDumpFile, "STDOUT") || !strcmp(g_params.simpleDumpFile, "stdout")) {
+                    buf = cout.rdbuf();
+                } else {
+                    fileOutput.open(g_params.simpleDumpFile);
+                    buf = fileOutput.rdbuf();
+                }
             }
+            ostream simpleDumpFile(buf);
+
             if (g_params.fullDumpFile) {
                 dump_full_setup();
             }
@@ -275,7 +291,12 @@ int main(int argc, char** argv) {
                 vktrace_trace_packet_header* packet = NULL;
                 uint32_t frameNumber = 0;
                 uint64_t currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
-                bool apiVerPrinted = false;
+                uint32_t apiVersion = UINT32_MAX;
+                char* pApplicationName = NULL;
+                uint32_t applicationVersion = 0;
+                char* pEngineName = NULL;
+                uint32_t engineVersion = 0;
+                char deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE] = "";
                 while ((packet = vktrace_read_trace_packet(traceFile))) {
                     if (packet->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
                         vktrace_trace_packet_header* pInterpretedHeader = interpret_trace_packet_vk(packet);
@@ -290,35 +311,29 @@ int main(int argc, char** argv) {
                                 frameNumber++;
                             } break;
                             case VKTRACE_TPI_VK_vkGetPhysicalDeviceProperties: {
-                                if (!apiVerPrinted) {
+                                if (apiVersion == UINT32_MAX) {
                                     packet_vkGetPhysicalDeviceProperties* pPacket =
                                         (packet_vkGetPhysicalDeviceProperties*)(pInterpretedHeader->pBody);
-                                    uint32_t apiVersion = pPacket->pProperties->apiVersion;
-                                    cout << setw(COLUMN_WIDTH) << left << "API Ver:" << dec << VK_VERSION_MAJOR(apiVersion) << "."
-                                         << dec << VK_VERSION_MINOR(apiVersion) << "." << dec << VK_VERSION_PATCH(apiVersion)
-                                         << endl;
-                                    cout << setw(COLUMN_WIDTH) << left << "Device Name:" << pPacket->pProperties->deviceName
-                                         << endl;
-                                    apiVerPrinted = true;
+                                    apiVersion = pPacket->pProperties->apiVersion;
+                                    memcpy(deviceName, pPacket->pProperties->deviceName, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
                                 }
                             } break;
                             case VKTRACE_TPI_VK_vkCreateInstance: {
                                 packet_vkCreateInstance* pPacket = (packet_vkCreateInstance*)(pInterpretedHeader->pBody);
-                                if (pPacket->pCreateInfo->pApplicationInfo) {
-                                    const char* appName = pPacket->pCreateInfo->pApplicationInfo->pApplicationName;
-                                    const char* engineName = pPacket->pCreateInfo->pApplicationInfo->pEngineName;
-                                    if (appName == NULL) {
-                                        appName = "NULL";
+                                if (pApplicationName == NULL && pEngineName == NULL && pPacket->pCreateInfo->pApplicationInfo) {
+                                    if (pPacket->pCreateInfo->pApplicationInfo->pApplicationName) {
+                                        pApplicationName =
+                                            (char*)malloc(strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName));
+                                        memcpy(pApplicationName, pPacket->pCreateInfo->pApplicationInfo->pApplicationName,
+                                               strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName));
                                     }
-                                    if (engineName == NULL) {
-                                        engineName = "NULL";
+                                    applicationVersion = pPacket->pCreateInfo->pApplicationInfo->applicationVersion;
+                                    if (pPacket->pCreateInfo->pApplicationInfo->pEngineName) {
+                                        pEngineName = (char*)malloc(strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName));
+                                        memcpy(pEngineName, pPacket->pCreateInfo->pApplicationInfo->pEngineName,
+                                               strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName));
                                     }
-                                    cout << setw(COLUMN_WIDTH) << left << "App Name:" << appName << endl;
-                                    cout << setw(COLUMN_WIDTH) << left << "App Ver:" << dec
-                                         << pPacket->pCreateInfo->pApplicationInfo->applicationVersion << endl;
-                                    cout << setw(COLUMN_WIDTH) << left << "Engine Name:" << engineName << endl;
-                                    cout << setw(COLUMN_WIDTH) << left << "Engine Ver:" << dec
-                                         << pPacket->pCreateInfo->pApplicationInfo->applicationVersion << endl;
+                                    engineVersion = pPacket->pCreateInfo->pApplicationInfo->engineVersion;
                                 }
                             } break;
                             default:
@@ -328,10 +343,34 @@ int main(int argc, char** argv) {
                     vktrace_delete_trace_packet_no_lock(&packet);
                     currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
                 }
+                if (apiVersion != UINT32_MAX) {
+                    cout << setw(COLUMN_WIDTH) << left << "API Ver:" << dec << VK_VERSION_MAJOR(apiVersion) << "." << dec
+                         << VK_VERSION_MINOR(apiVersion) << "." << dec << VK_VERSION_PATCH(apiVersion) << endl;
+                    cout << setw(COLUMN_WIDTH) << left << "Device Name:" << deviceName << endl;
+                }
+                if (pApplicationName) {
+                    cout << setw(COLUMN_WIDTH) << left << "App Name:" << pApplicationName << endl;
+                    free(pApplicationName);
+                    pApplicationName = NULL;
+                } else {
+                    cout << setw(COLUMN_WIDTH) << left << "App Name:"
+                         << "NULL" << endl;
+                }
+                cout << setw(COLUMN_WIDTH) << left << "App Ver:" << applicationVersion << endl;
+                if (pEngineName) {
+                    cout << setw(COLUMN_WIDTH) << left << "Engine Name:" << pEngineName << endl;
+                    free(pEngineName);
+                    pEngineName = NULL;
+                } else {
+                    cout << setw(COLUMN_WIDTH) << left << "Engine Name:"
+                         << "NULL" << endl;
+                }
+                cout << setw(COLUMN_WIDTH) << left << "Engine Ver:" << engineVersion << endl;
                 cout << setw(COLUMN_WIDTH) << left << "Frames:" << frameNumber << endl;
             }
-            if (g_params.simpleDumpFile) {
-                simpleDumpFile.close();
+            if (g_params.simpleDumpFile && !strcmp(g_params.simpleDumpFile, "STDOUT") &&
+                !strcmp(g_params.simpleDumpFile, "stdout")) {
+                fileOutput.close();
             }
             if (g_params.fullDumpFile) {
                 dump_full_teardown();
