@@ -39,7 +39,6 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk
 set(SRC_LIST
     ${SRC_LIST}
     vktraceparser_main.cpp
-    ${Vulkan-ValidationLayers_INCLUDE_DIR}/vk_layer_config.cpp
     ${GENERATED_FILES_DIR}/vktraceparser_vk_parser_gen.cpp
 )
 
@@ -62,6 +61,7 @@ add_dependencies(${PROJECT_NAME} vktrace_generate_helper_files)
 
 target_link_libraries(${PROJECT_NAME}
     vktrace_common
+    ${VkLayer_utils_LIBRARY}
 )
 
 build_options_finalize()
