@@ -28,7 +28,7 @@
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_vk_packet_id.h"
 
-#include "vkparser_main.h"
+#include "vktraceparser_main.h"
 
 using namespace std;
 
@@ -48,7 +48,7 @@ const char* SPACES = "               ";
 const uint32_t COLUMN_WIDTH = 15;
 
 static void print_usage() {
-    cout << "vkparser available options:" << endl;
+    cout << "vktraceparser available options:" << endl;
     cout << "    -o <traceFile>        The trace file to open and parse" << endl;
     cout << "    -s <simpleDumpFile>   The file to save the outputs of simple/brief API dump (Optional)" << endl;
     cout << "    -f <fullDumpFile>     The file to save the outputs of full/detailed API dump (Optional)" << endl;
@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
             ret = -1;
         } else if (sizeof(void*) != fileHeader.ptrsize) {
             cout << "Error: " << fileHeader.ptrsize * 8 << "bit trace file cannot be parsed by " << sizeof(void*) * 8
-                 << "bit vkparser!" << endl;
+                 << "bit vktraceparser!" << endl;
             ret = -1;
         } else {
             ofstream simpleDumpFile;

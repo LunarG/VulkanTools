@@ -313,11 +313,11 @@ def makeGenOpts(args):
             expandEnumerants  = False)
         ]
 
-    # VkTrace file generator options for vkparser_vk_parser_gen.cpp
-    genOpts['vkparser_vk_parser_gen.cpp'] = [
+    # VkTrace file generator options for vktraceparser_vk_parser_gen.cpp
+    genOpts['vktraceparser_vk_parser_gen.cpp'] = [
           VkTraceFileOutputGenerator,
           VkTraceFileOutputGeneratorOptions(
-            filename          = 'vkparser_vk_parser_gen.cpp',
+            filename          = 'vktraceparser_vk_parser_gen.cpp',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
