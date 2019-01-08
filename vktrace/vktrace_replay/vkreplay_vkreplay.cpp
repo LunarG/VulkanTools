@@ -1955,9 +1955,11 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     }
 
     if (!foundBindMem) {
-        // Didn't find vkBind{Image|Buffer}Memory call for this vkAllocateMemory.
-        // This isn't an error - the memory is allocated but never used.
-        // So just use the index from the trace file and continue.
+        // Didn't find vkBind{Image|Buffer}Memory call for this vkAllocateMemory or the memory is allocated for optimal image(s)
+        // only.
+        // This isn't an error - the memory is either allocated but never used or needs to be skipped (optimal image(s) memory
+        // allocation will be done in replaying vkBindImageMemory).
+        // So just skip the memory allocation.
         goto out;
     }
 
