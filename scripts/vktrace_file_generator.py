@@ -2400,7 +2400,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
             ret_value = True
             resulttype = cmdinfo.elem.find('proto/type')
-            if resulttype != None and resulttype.text != 'VkResult':
+            if resulttype is not None and resulttype.text == 'void':
                 ret_value = False
 
             params = cmd_member_dict[vk_cmdname]

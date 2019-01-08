@@ -148,9 +148,9 @@ The vktraceviewer tool allows interactive creation and viewing of Vulkan trace f
 
 vktraceviewer has a dependency on Qt5 libraries; they need to be installed on the system.
 
-## vkparser
+## vktraceparser
 
-The vkparser tool allows API dump generation from a Vulkan trace file offline instead of using API dump layer when Vulkan application is running.
+The vktraceparser tool allows API dump generation from a Vulkan trace file offline instead of using API dump layer when Vulkan application is running.
 
 ## Persistently Mapped Buffers and vktrace
 
