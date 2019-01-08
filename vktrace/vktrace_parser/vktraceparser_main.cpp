@@ -322,16 +322,19 @@ int main(int argc, char** argv) {
                                 packet_vkCreateInstance* pPacket = (packet_vkCreateInstance*)(pInterpretedHeader->pBody);
                                 if (pApplicationName == NULL && pEngineName == NULL && pPacket->pCreateInfo->pApplicationInfo) {
                                     if (pPacket->pCreateInfo->pApplicationInfo->pApplicationName) {
-                                        pApplicationName =
-                                            (char*)malloc(strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName));
+                                        size_t applicationNameLen =
+                                            strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName);
+                                        pApplicationName = (char*)malloc(applicationNameLen + 1);
                                         memcpy(pApplicationName, pPacket->pCreateInfo->pApplicationInfo->pApplicationName,
-                                               strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName));
+                                               applicationNameLen);
+                                        pApplicationName[applicationNameLen] = '\0';
                                     }
                                     applicationVersion = pPacket->pCreateInfo->pApplicationInfo->applicationVersion;
                                     if (pPacket->pCreateInfo->pApplicationInfo->pEngineName) {
-                                        pEngineName = (char*)malloc(strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName));
-                                        memcpy(pEngineName, pPacket->pCreateInfo->pApplicationInfo->pEngineName,
-                                               strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName));
+                                        size_t engineNameLen = strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName);
+                                        pEngineName = (char*)malloc(engineNameLen + 1);
+                                        memcpy(pEngineName, pPacket->pCreateInfo->pApplicationInfo->pEngineName, engineNameLen);
+                                        pEngineName[engineNameLen] = '\0';
                                     }
                                     engineVersion = pPacket->pCreateInfo->pApplicationInfo->engineVersion;
                                 }
