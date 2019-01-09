@@ -142,15 +142,33 @@ The Vulkan validation layers may be enabled for trace replay.  Replaying a trace
 
 To activate specific layers on a trace replay, set the `VK_INSTANCE_LAYERS` environment variable to a colon-separated list of layer names before replaying the trace. Refer to the [Vulkan Validation and Debugging Layers](./layers.md) guide for additional information on layers and how to configure layer output options.
 
+## Dump API Calls from Vulkan Trace File
+
+The vktracedump command is used to dump Vulkan API calls from a Vulkan application trace.
+
+The  `vktracedump` command-line  options are:
+
+| Option                | Description | Default |
+| --------------------- | ----------- | ------- |
+| -o&nbsp;&lt;string&gt; | Name of trace file to open and dump | **required** |
+| -s&nbsp;&lt;string&gt; | Name of simple dump file to save the outputs of simple/brief API dump. Use 'stdout' to send outputs to stdout. | **optional** |
+| -f&nbsp;&lt;string&gt; | Name of full dump file to save the outputs of full/detailed API dump. Use 'stdout' to send outputs to stdout. | **optional** |
+| -ds | Dump the shader binary code in pCode to shader dump files shader_<index>.hex.  Only works with "-f <fullDumpFile>" option. The file name shader_<index>.hex can be found in pCode in the <fullDumpFile> to associate with vkCreateShaderModule. | disabled |
+| -dh | Save full/detailed API dump as HTML format. Only works with "-f <fullDumpFile>" option. | text format |
+| -na | Dump string "address" in place of hex addresses. Only works with "-f <fullDumpFile>" option.  | disabled |
+
+To dump API calls from the Vulkan Cube application trace captured in the example above:
+
+```
+$ cd examples/build
+$ vktracedump -o cubetrace.vktrace -s <simple_api_dump_file> -f <full_api_dump_file>
+```
+
 ## vktraceviewer
 
 The vktraceviewer tool allows interactive creation and viewing of Vulkan trace files. In the future, it will include support for interactively playing back trace files. This is alpha software.
 
 vktraceviewer has a dependency on Qt5 libraries; they need to be installed on the system.
-
-## vktraceparser
-
-The vktraceparser tool allows API dump generation from a Vulkan trace file offline instead of using API dump layer when Vulkan application is running.
 
 ## Persistently Mapped Buffers and vktrace
 
