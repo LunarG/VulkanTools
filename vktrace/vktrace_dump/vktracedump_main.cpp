@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2019 ARM Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@
 #include "vktrace_trace_packet_utils.h"
 #include "vktrace_vk_packet_id.h"
 
-#include "vktraceparser_main.h"
+#include "vktracedump_main.h"
 
 using namespace std;
 
-struct parser_params {
+struct vktracedump_params {
     const char* traceFile = NULL;
     const char* simpleDumpFile = NULL;
     const char* fullDumpFile = NULL;
@@ -48,7 +48,7 @@ const char* SPACES = "               ";
 const uint32_t COLUMN_WIDTH = 15;
 
 static void print_usage() {
-    cout << "vktraceparser available options:" << endl;
+    cout << "vktracedump available options:" << endl;
     cout << "    -o <traceFile>        The trace file to open and parse" << endl;
     cout << "    -s <simpleDumpFile>   (Optional) The file to save the outputs of simple/brief API dump. Use 'stdout' to send "
             "outputs to stdout."
@@ -248,7 +248,7 @@ int main(int argc, char** argv) {
             ret = -1;
         } else if (sizeof(void*) != fileHeader.ptrsize) {
             cout << "Error: " << fileHeader.ptrsize * 8 << "bit trace file cannot be parsed by " << sizeof(void*) * 8
-                 << "bit vktraceparser!" << endl;
+                 << "bit vktracedump!" << endl;
             ret = -1;
         } else {
             streambuf* buf = NULL;
@@ -288,16 +288,17 @@ int main(int argc, char** argv) {
                 }
             }
             if (ret > -1) {
-                vktrace_trace_packet_header* packet = NULL;
                 uint32_t frameNumber = 0;
-                uint64_t currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
                 uint32_t apiVersion = UINT32_MAX;
                 char* pApplicationName = NULL;
                 uint32_t applicationVersion = 0;
                 char* pEngineName = NULL;
                 uint32_t engineVersion = 0;
                 char deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE] = "";
-                while ((packet = vktrace_read_trace_packet(traceFile))) {
+                while (true) {
+                    uint64_t currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
+                    vktrace_trace_packet_header* packet = vktrace_read_trace_packet(traceFile);
+                    if (!packet) break;
                     if (packet->packet_id >= VKTRACE_TPI_VK_vkApiVersion) {
                         vktrace_trace_packet_header* pInterpretedHeader = interpret_trace_packet_vk(packet);
                         if (g_params.simpleDumpFile) {
@@ -344,7 +345,6 @@ int main(int argc, char** argv) {
                         }
                     }
                     vktrace_delete_trace_packet_no_lock(&packet);
-                    currentPosition = vktrace_FileLike_GetCurrentPosition(traceFile);
                 }
                 if (apiVersion != UINT32_MAX) {
                     cout << setw(COLUMN_WIDTH) << left << "API Ver:" << dec << VK_VERSION_MAJOR(apiVersion) << "." << dec
