@@ -365,7 +365,7 @@ class ApiDumpInstance {
         return *dump_settings;
     }
 
-    // Only used in vkparser to print thread id in trace file
+    // Only used in vktracedump to print thread id in trace file
     void setThreadID(uint64_t trace_thread_id) { thread_id = trace_thread_id; }
 
     uint64_t threadID() {
