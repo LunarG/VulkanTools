@@ -567,6 +567,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         fclose(tracefp);
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
+        vktrace_free(pFileHeader);
         return -1;
     }
 
@@ -606,6 +607,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
         if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+        vktrace_free(pFileHeader);
         return -1;
     }
 
@@ -644,6 +646,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
                 vktrace_free(pTraceFile);
                 vktrace_free(traceFile);
                 if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+                vktrace_free(pFileHeader);
                 return -1;
             }
 
@@ -665,6 +668,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
                 vktrace_free(pTraceFile);
                 vktrace_free(traceFile);
                 if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+                vktrace_free(pFileHeader);
                 return err;
             }
         }
@@ -679,6 +683,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         vktrace_free(pTraceFile);
         vktrace_free(traceFile);
         if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+        vktrace_free(pFileHeader);
         return -1;
     }
 
@@ -701,6 +706,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
     vktrace_free(pTraceFile);
     vktrace_free(traceFile);
     if (pFileHeader->portability_table_valid) freePortabilityTablePackets();
+    vktrace_free(pFileHeader);
 
     return err;
 }
