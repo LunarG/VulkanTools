@@ -140,84 +140,71 @@ static void dump_packet_brief(ostream& dumpFile, uint32_t frameNumber, vktrace_t
 }
 
 static void dump_full_setup() {
-    if (g_params.fullDumpFile != NULL) {
+    if (g_params.fullDumpFile) {
+        // Remove existing dump setting file before creating a new one
+        remove(DUMP_SETTING_FILE);
+
         vktrace_set_global_var("VK_LAYER_PATH", "");
         vktrace_set_global_var("VK_LAYER_SETTINGS_PATH", "");
-        FILE* settingfp = fopen(DUMP_SETTING_FILE, "r");
-        if (settingfp == NULL) {
-            // Generate a default vk_layer_settings.txt if it does not exist or failed to be opened.
-            ofstream settingFile;
-            settingFile.open(DUMP_SETTING_FILE);
-            settingFile << "#  ==============" << endl;
-            settingFile << "#  lunarg_api_dump.output_format : Specifies the format used for output, can be Text (default -- "
-                           "outputs plain text) or Html."
-                        << endl;
-            settingFile << "#  lunarg_api_dump.detailed : Setting this to TRUE causes parameter details to be dumped in addition "
-                           "to API calls."
-                        << endl;
-            settingFile
-                << "#  lunarg_api_dump.no_addr : Setting this to TRUE causes \"address\" to be dumped in place of hex addresses."
-                << endl;
-            settingFile << "#  lunarg_api_dump.file : Setting this to TRUE indicates that output should be written to file instead "
-                           "of STDOUT."
-                        << endl;
-            settingFile << "#  lunarg_api_dump.log_filename : Specifies the file to dump to when \"file = TRUE\"." << endl;
-            settingFile << "#  lunarg_api_dump.flush : Setting this to TRUE causes IO to be flushed each API call that is written."
-                        << endl;
-            settingFile << "#  lunarg_api_dump.indent_size : Specifies the number of spaces that a tab is equal to." << endl;
-            settingFile << "#  lunarg_api_dump.show_types : Setting this to TRUE causes types to be dumped in addition to values."
-                        << endl;
-            settingFile << "#  lunarg_api_dump.name_size : The number of characters the name of a variable should consume, "
-                           "assuming more are not required."
-                        << endl;
-            settingFile << "#  lunarg_api_dump.type_size : The number of characters the type of a variable should consume, "
-                           "assuming more are not requires."
-                        << endl;
-            settingFile
-                << "#  lunarg_api_dump.use_spaces : Setting this to TRUE causes all tabs characters to be replaced with spaces."
-                << endl;
-            settingFile << "#  lunarg_api_dump.show_shader : Setting this to TRUE causes the shader binary code in pCode to be "
-                           "also written to output."
-                        << endl;
-            settingFile << "#  ==============" << endl;
-            if (g_params.saveAsHtml) {
-                settingFile << "lunarg_api_dump.output_format = Html" << endl;
-            } else {
-                settingFile << "lunarg_api_dump.output_format = Text" << endl;
-            }
-            settingFile << "lunarg_api_dump.detailed = TRUE" << endl;
-            settingFile << "lunarg_api_dump.no_addr = " << (g_params.noAddr ? "TRUE" : "FALSE") << endl;
-            if (g_params.fullDumpFile && (!strcmp(g_params.fullDumpFile, "STDOUT") || !strcmp(g_params.fullDumpFile, "stdout"))) {
-                settingFile << "lunarg_api_dump.file = FALSE" << endl;
-            } else {
-                settingFile << "lunarg_api_dump.file = TRUE" << endl;
-            }
-            settingFile << "lunarg_api_dump.log_filename = " << g_params.fullDumpFile << endl;
-            settingFile << "lunarg_api_dump.flush = TRUE" << endl;
-            settingFile << "lunarg_api_dump.indent_size = 4" << endl;
-            settingFile << "lunarg_api_dump.show_types = TRUE" << endl;
-            settingFile << "lunarg_api_dump.name_size = 32" << endl;
-            settingFile << "lunarg_api_dump.type_size = 0" << endl;
-            settingFile << "lunarg_api_dump.use_spaces = TRUE" << endl;
-            if (g_params.dumpShader) {
-                settingFile << "lunarg_api_dump.show_shader = TRUE" << endl;
-            } else {
-                settingFile << "lunarg_api_dump.show_shader = FALSE" << endl;
-            }
-            settingFile.close();
+        // Generate a default vk_layer_settings.txt if it does not exist or failed to be opened.
+        ofstream settingFile;
+        settingFile.open(DUMP_SETTING_FILE);
+        settingFile << "#  ==============" << endl;
+        settingFile << "#  lunarg_api_dump.output_format : Specifies the format used for output, can be Text (default -- "
+                       "outputs plain text) or Html."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.detailed : Setting this to TRUE causes parameter details to be dumped in addition "
+                       "to API calls."
+                    << endl;
+        settingFile
+            << "#  lunarg_api_dump.no_addr : Setting this to TRUE causes \"address\" to be dumped in place of hex addresses."
+            << endl;
+        settingFile << "#  lunarg_api_dump.file : Setting this to TRUE indicates that output should be written to file instead "
+                       "of STDOUT."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.log_filename : Specifies the file to dump to when \"file = TRUE\"." << endl;
+        settingFile << "#  lunarg_api_dump.flush : Setting this to TRUE causes IO to be flushed each API call that is written."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.indent_size : Specifies the number of spaces that a tab is equal to." << endl;
+        settingFile << "#  lunarg_api_dump.show_types : Setting this to TRUE causes types to be dumped in addition to values."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.name_size : The number of characters the name of a variable should consume, "
+                       "assuming more are not required."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.type_size : The number of characters the type of a variable should consume, "
+                       "assuming more are not requires."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.use_spaces : Setting this to TRUE causes all tabs characters to be replaced with spaces."
+                    << endl;
+        settingFile << "#  lunarg_api_dump.show_shader : Setting this to TRUE causes the shader binary code in pCode to be "
+                       "also written to output."
+                    << endl;
+        settingFile << "#  ==============" << endl;
+        if (g_params.saveAsHtml) {
+            settingFile << "lunarg_api_dump.output_format = Html" << endl;
         } else {
-            cout << "Warning: Found an existing " << DUMP_SETTING_FILE << ". Will load and use the settings in it." << endl;
-            cout << "Warning: Please refer to \"lunarg_api_dump.log_filename\" in " << DUMP_SETTING_FILE
-                 << " for the dump file name." << endl;
-            g_params.fullDumpFile = FULL_DUMP_FILE_UNSET;
-            fclose(settingfp);
+            settingFile << "lunarg_api_dump.output_format = Text" << endl;
         }
-    }
-}
-
-static void dump_full_teardown() {
-    if (g_params.fullDumpFile != NULL && strcmp(g_params.fullDumpFile, FULL_DUMP_FILE_UNSET) != 0) {
-        remove(DUMP_SETTING_FILE);
+        settingFile << "lunarg_api_dump.detailed = TRUE" << endl;
+        settingFile << "lunarg_api_dump.no_addr = " << (g_params.noAddr ? "TRUE" : "FALSE") << endl;
+        if (g_params.fullDumpFile && (!strcmp(g_params.fullDumpFile, "STDOUT") || !strcmp(g_params.fullDumpFile, "stdout"))) {
+            settingFile << "lunarg_api_dump.file = FALSE" << endl;
+        } else {
+            settingFile << "lunarg_api_dump.file = TRUE" << endl;
+        }
+        settingFile << "lunarg_api_dump.log_filename = " << g_params.fullDumpFile << endl;
+        settingFile << "lunarg_api_dump.flush = TRUE" << endl;
+        settingFile << "lunarg_api_dump.indent_size = 4" << endl;
+        settingFile << "lunarg_api_dump.show_types = TRUE" << endl;
+        settingFile << "lunarg_api_dump.name_size = 32" << endl;
+        settingFile << "lunarg_api_dump.type_size = 0" << endl;
+        settingFile << "lunarg_api_dump.use_spaces = TRUE" << endl;
+        if (g_params.dumpShader) {
+            settingFile << "lunarg_api_dump.show_shader = TRUE" << endl;
+        } else {
+            settingFile << "lunarg_api_dump.show_shader = FALSE" << endl;
+        }
+        settingFile.close();
     }
 }
 
@@ -376,7 +363,7 @@ int main(int argc, char** argv) {
                 fileOutput.close();
             }
             if (g_params.fullDumpFile) {
-                dump_full_teardown();
+                remove(DUMP_SETTING_FILE);
             }
         }
     } else {
