@@ -56,8 +56,8 @@ static void print_usage() {
     cout << "    -f <fullDumpFile>     (Optional) The file to save the outputs of full/detailed API dump. Use 'stdout' to send "
             "outputs to stdout."
          << endl;
-    cout << "    -ds                   Dump the shader binary code in pCode to shader dump files shader_<index>.hex.  Only works "
-            "with \"-f <fullDumpFile>\" option."
+    cout << "    -ds                   Dump the shader binary code in pCode to shader dump files shader_<index>.hex (when "
+            "<fullDumpFile> is a file) or to stdout (when <fullDumpFile> is stdout).  Only works with \"-f <fullDumpFile>\" option."
          << endl;
     cout << "                          The file name shader_<index>.hex can be found in pCode in the <fullDumpFile> to associate "
             "with vkCreateShaderModule."
