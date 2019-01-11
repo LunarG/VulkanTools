@@ -976,6 +976,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     clean_type = params[-1].type.strip('*').replace('const ', '')
                     replay_gen_source += '                m_objMapper.add_to_%ss_map(*(pPacket->%s), local_%s);\n' % (clean_type.lower()[2:], params[-1].name, params[-1].name)
+                    if not isInstanceCmd(api) \
+                       and cmdname != 'GetDeviceQueue' \
+                       and cmdname != 'GetDeviceQueue2' \
+                       and cmdname != 'CreateSamplerYcbcrConversion' \
+                       and cmdname != 'CreateSharedSwapchainsKHR' \
+                       and cmdname != 'CreateSamplerYcbcrConversionKHR' \
+                       and cmdname != 'CreateValidationCacheEXT': \
+                        replay_gen_source += '                replay%sToDevice[local_%s] = remappeddevice;\n' % (cmdname[6:], params[-1].name)
                     if 'AllocateMemory' == cmdname:
                         replay_gen_source += '                m_objMapper.add_entry_to_mapData(local_%s, pPacket->pAllocateInfo->allocationSize);\n' % (params[-1].name)
                     if ret_value:

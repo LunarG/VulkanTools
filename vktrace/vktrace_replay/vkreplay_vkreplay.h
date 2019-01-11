@@ -330,6 +330,27 @@ class vkReplay {
     std::unordered_map<VkImage, VkDevice> traceImageToDevice;
     std::unordered_map<VkImage, VkDevice> replayImageToDevice;
 
+    // Map Vulkan objects to VkDevice, so we can search for the VkDevice used to create an object
+    std::unordered_map<VkQueryPool, VkDevice> replayQueryPoolToDevice;
+    std::unordered_map<VkEvent, VkDevice> replayEventToDevice;
+    std::unordered_map<VkFence, VkDevice> replayFenceToDevice;
+    std::unordered_map<VkSemaphore, VkDevice> replaySemaphoreToDevice;
+    std::unordered_map<VkFramebuffer, VkDevice> replayFramebufferToDevice;
+    std::unordered_map<VkDescriptorPool, VkDevice> replayDescriptorPoolToDevice;
+    std::unordered_map<VkPipeline, VkDevice> replayPipelineToDevice;
+    std::unordered_map<VkPipelineCache, VkDevice> replayPipelineCacheToDevice;
+    std::unordered_map<VkShaderModule, VkDevice> replayShaderModuleToDevice;
+    std::unordered_map<VkRenderPass, VkDevice> replayRenderPassToDevice;
+    std::unordered_map<VkPipelineLayout, VkDevice> replayPipelineLayoutToDevice;
+    std::unordered_map<VkDescriptorSetLayout, VkDevice> replayDescriptorSetLayoutToDevice;
+    std::unordered_map<VkSampler, VkDevice> replaySamplerToDevice;
+    std::unordered_map<VkBufferView, VkDevice> replayBufferViewToDevice;
+    std::unordered_map<VkImageView, VkDevice> replayImageViewToDevice;
+    std::unordered_map<VkDeviceMemory, VkDevice> replayDeviceMemoryToDevice;
+    std::unordered_map<VkSwapchainKHR, VkDevice> replaySwapchainKHRToDevice;
+    std::unordered_map<VkCommandPool, VkDevice> replayCommandPoolToDevice;
+    std::unordered_map<VkImage, VkDevice> replaySwapchainImageToDevice;
+
     // Map VkSwapchainKHR to vector of VkImage, so we can unmap swapchain images at vkDestroySwapchainKHR
     std::unordered_map<VkSwapchainKHR, std::vector<VkImage>> traceSwapchainToImages;
 
