@@ -75,6 +75,179 @@ std::vector<uintptr_t> portabilityTablePackets;
 FileLike *traceFile;
 
 vkReplay::~vkReplay() {
+    for (auto subobj = traceQueueFamilyProperties.begin(); subobj != traceQueueFamilyProperties.end(); subobj++) {
+        free(subobj->second.queueFamilyProperties);
+    }
+    traceQueueFamilyProperties.clear();
+    for (auto subobj = replayQueueFamilyProperties.begin(); subobj != replayQueueFamilyProperties.end(); subobj++) {
+        free(subobj->second.queueFamilyProperties);
+    }
+    replayQueueFamilyProperties.clear();
+
+    for (auto obj = m_objMapper.m_devices.begin(); obj != m_objMapper.m_devices.end(); obj++) {
+        // Make sure no gpu job is running before quit vkreplay
+        m_vkDeviceFuncs.DeviceWaitIdle(obj->second);
+
+        // Destroy all objects created from the device before destroy device.
+        // Reference:
+        // https://vulkan.lunarg.com/doc/view/1.0.37.0/linux/vkspec.chunked/ch02s03.html#fundamentals-objectmodel-lifetime
+        // QueryPool
+        for (auto subobj = m_objMapper.m_querypools.begin(); subobj != m_objMapper.m_querypools.end(); subobj++) {
+            if (replayQueryPoolToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyQueryPool(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Event
+        for (auto subobj = m_objMapper.m_events.begin(); subobj != m_objMapper.m_events.end(); subobj++) {
+            if (replayEventToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyEvent(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Fence
+        for (auto subobj = m_objMapper.m_fences.begin(); subobj != m_objMapper.m_fences.end(); subobj++) {
+            if (replayFenceToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyFence(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Semaphore
+        for (auto subobj = m_objMapper.m_semaphores.begin(); subobj != m_objMapper.m_semaphores.end(); subobj++) {
+            if (replaySemaphoreToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroySemaphore(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Framebuffer
+        for (auto subobj = m_objMapper.m_framebuffers.begin(); subobj != m_objMapper.m_framebuffers.end(); subobj++) {
+            if (replayFramebufferToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyFramebuffer(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // DescriptorPool
+        for (auto subobj = m_objMapper.m_descriptorpools.begin(); subobj != m_objMapper.m_descriptorpools.end(); subobj++) {
+            if (replayDescriptorPoolToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyDescriptorPool(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Pipeline
+        for (auto subobj = m_objMapper.m_pipelines.begin(); subobj != m_objMapper.m_pipelines.end(); subobj++) {
+            if (replayPipelineToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyPipeline(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // PipelineCache
+        for (auto subobj = m_objMapper.m_pipelinecaches.begin(); subobj != m_objMapper.m_pipelinecaches.end(); subobj++) {
+            if (replayPipelineCacheToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyPipelineCache(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // ShaderModule
+        for (auto subobj = m_objMapper.m_shadermodules.begin(); subobj != m_objMapper.m_shadermodules.end(); subobj++) {
+            if (replayShaderModuleToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyShaderModule(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // RenderPass
+        for (auto subobj = m_objMapper.m_renderpasss.begin(); subobj != m_objMapper.m_renderpasss.end(); subobj++) {
+            if (replayRenderPassToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyRenderPass(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // PipelineLayout
+        for (auto subobj = m_objMapper.m_pipelinelayouts.begin(); subobj != m_objMapper.m_pipelinelayouts.end(); subobj++) {
+            if (replayPipelineLayoutToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyPipelineLayout(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // DescriptorSetLayout
+        for (auto subobj = m_objMapper.m_descriptorsetlayouts.begin(); subobj != m_objMapper.m_descriptorsetlayouts.end();
+             subobj++) {
+            if (replayDescriptorSetLayoutToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyDescriptorSetLayout(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Sampler
+        for (auto subobj = m_objMapper.m_samplers.begin(); subobj != m_objMapper.m_samplers.end(); subobj++) {
+            if (replaySamplerToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroySampler(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Buffer
+        for (auto subobj = m_objMapper.m_buffers.begin(); subobj != m_objMapper.m_buffers.end(); subobj++) {
+            if (replayBufferToDevice[subobj->second.replayBuffer] == obj->second) {
+                m_vkDeviceFuncs.DestroyBuffer(obj->second, subobj->second.replayBuffer, NULL);
+            }
+        }
+
+        // BufferView
+        for (auto subobj = m_objMapper.m_bufferviews.begin(); subobj != m_objMapper.m_bufferviews.end(); subobj++) {
+            if (replayBufferViewToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyBufferView(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // Image
+        for (auto subobj = m_objMapper.m_images.begin(); subobj != m_objMapper.m_images.end(); subobj++) {
+            if (replayImageToDevice[subobj->second.replayImage] == obj->second) {
+                // Only destroy non-swapchain image
+                if (replaySwapchainImageToDevice.find(subobj->second.replayImage) == replaySwapchainImageToDevice.end() ||
+                    replaySwapchainImageToDevice[subobj->second.replayImage] != obj->second) {
+                    m_vkDeviceFuncs.DestroyImage(obj->second, subobj->second.replayImage, NULL);
+                    if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch() &&
+                        replayOptimalImageToDeviceMemory.find(subobj->second.replayImage) != replayOptimalImageToDeviceMemory.end()) {
+                        m_vkDeviceFuncs.FreeMemory(obj->second, replayOptimalImageToDeviceMemory[subobj->second.replayImage], NULL);
+                        replayOptimalImageToDeviceMemory.erase(subobj->second.replayImage);
+                    }
+                }
+            }
+        }
+
+        // ImageView
+        for (auto subobj = m_objMapper.m_imageviews.begin(); subobj != m_objMapper.m_imageviews.end(); subobj++) {
+            if (replayImageViewToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyImageView(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // DeviceMemory
+        for (auto subobj = m_objMapper.m_devicememorys.begin(); subobj != m_objMapper.m_devicememorys.end(); subobj++) {
+            if (replayDeviceMemoryToDevice[subobj->second.replayDeviceMemory] == obj->second) {
+                m_vkDeviceFuncs.FreeMemory(obj->second, subobj->second.replayDeviceMemory, NULL);
+            }
+        }
+
+        // SwapchainKHR
+        for (auto subobj = m_objMapper.m_swapchainkhrs.begin(); subobj != m_objMapper.m_swapchainkhrs.end(); subobj++) {
+            if (replaySwapchainKHRToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroySwapchainKHR(obj->second, subobj->second, NULL);
+            }
+        }
+
+        // CommandPool
+        for (auto subobj = m_objMapper.m_commandpools.begin(); subobj != m_objMapper.m_commandpools.end(); subobj++) {
+            if (replayCommandPoolToDevice[subobj->second] == obj->second) {
+                m_vkDeviceFuncs.DestroyCommandPool(obj->second, subobj->second, NULL);
+            }
+        }
+
+        m_vkDeviceFuncs.DestroyDevice(obj->second, NULL);
+    }
+
+    for (auto obj = m_objMapper.m_instances.begin(); obj != m_objMapper.m_instances.end(); obj++) {
+        m_vkFuncs.DestroyInstance(obj->second, NULL);
+    }
+
     delete m_display;
     vktrace_platform_close_library(m_libHandle);
 }
@@ -673,6 +846,7 @@ VkResult vkReplay::manually_replay_vkCreateCommandPool(packet_vkCreateCommandPoo
         m_vkDeviceFuncs.CreateCommandPool(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pCommandPool);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_commandpools_map(*(pPacket->pCommandPool), local_pCommandPool);
+        replayCommandPoolToDevice[local_pCommandPool] = remappeddevice;
     }
     return replayResult;
 }
@@ -1172,6 +1346,7 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorSetLayout(packet_vkCreateDe
     replayResult = m_vkDeviceFuncs.CreateDescriptorSetLayout(remappedDevice, pPacket->pCreateInfo, NULL, &setLayout);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_descriptorsetlayouts_map(*(pPacket->pSetLayout), setLayout);
+        replayDescriptorSetLayoutToDevice[setLayout] = remappedDevice;
     }
     return replayResult;
 }
@@ -1394,6 +1569,7 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
     if (replayResult == VK_SUCCESS) {
         for (i = 0; i < pPacket->createInfoCount; i++) {
             m_objMapper.add_to_pipelines_map(pPacket->pPipelines[i], local_pPipelines[i]);
+            replayPipelineToDevice[local_pPipelines[i]] = remappeddevice;
         }
     }
 
@@ -1485,6 +1661,7 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
     if (replayResult == VK_SUCCESS) {
         for (i = 0; i < pPacket->createInfoCount; i++) {
             m_objMapper.add_to_pipelines_map(pPacket->pPipelines[i], local_pPipelines[i]);
+            replayPipelineToDevice[local_pPipelines[i]] = remappedDevice;
         }
     }
 
@@ -1508,6 +1685,7 @@ VkResult vkReplay::manually_replay_vkCreatePipelineLayout(packet_vkCreatePipelin
     replayResult = m_vkDeviceFuncs.CreatePipelineLayout(remappedDevice, pPacket->pCreateInfo, NULL, &localPipelineLayout);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_pipelinelayouts_map(*(pPacket->pPipelineLayout), localPipelineLayout);
+        replayPipelineLayoutToDevice[localPipelineLayout] = remappedDevice;
     }
     return replayResult;
 }
@@ -1664,6 +1842,7 @@ VkResult vkReplay::manually_replay_vkCreateFramebuffer(packet_vkCreateFramebuffe
     replayResult = m_vkDeviceFuncs.CreateFramebuffer(remappedDevice, pPacket->pCreateInfo, NULL, &local_framebuffer);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_framebuffers_map(*(pPacket->pFramebuffer), local_framebuffer);
+        replayFramebufferToDevice[local_framebuffer] = remappedDevice;
     }
     return replayResult;
 }
@@ -1680,6 +1859,7 @@ VkResult vkReplay::manually_replay_vkCreateRenderPass(packet_vkCreateRenderPass 
     replayResult = m_vkDeviceFuncs.CreateRenderPass(remappedDevice, pPacket->pCreateInfo, NULL, &local_renderpass);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_renderpasss_map(*(pPacket->pRenderPass), local_renderpass);
+        replayRenderPassToDevice[local_renderpass] = remappedDevice;
     }
     return replayResult;
 }
@@ -2109,6 +2289,7 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         local_mem.pGpuMem = new (gpuMemory);
         if (local_mem.pGpuMem) local_mem.pGpuMem->setAllocInfo(pPacket->pAllocateInfo, false);
         m_objMapper.add_to_devicememorys_map(*(pPacket->pMemory), local_mem);
+        replayDeviceMemoryToDevice[local_mem.replayDeviceMemory] = remappedDevice;
     } else {
         if (doAllocate) {
             vktrace_LogError("Allocate Memory 0x%llX failed with result = 0x%X\n", *(pPacket->pMemory), replayResult);
@@ -3136,6 +3317,7 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     replayResult = m_vkDeviceFuncs.CreateSwapchainKHR(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSwapchain);
     if (replayResult == VK_SUCCESS) {
         m_objMapper.add_to_swapchainkhrs_map(*(pPacket->pSwapchain), local_pSwapchain);
+        replaySwapchainKHRToDevice[local_pSwapchain] = remappeddevice;
     }
 
     (*pSC) = save_oldSwapchain;
@@ -3164,6 +3346,7 @@ void vkReplay::manually_replay_vkDestroySwapchainKHR(packet_vkDestroySwapchainKH
         VkImage image = traceSwapchainToImages[pPacket->swapchain].back();
         m_objMapper.rm_from_images_map(image);
         traceSwapchainToImages[pPacket->swapchain].pop_back();
+        replaySwapchainImageToDevice.erase(image);
     }
 
     m_vkDeviceFuncs.DestroySwapchainKHR(remappeddevice, remappedswapchain, pPacket->pAllocator);
@@ -3208,6 +3391,7 @@ VkResult vkReplay::manually_replay_vkGetSwapchainImagesKHR(packet_vkGetSwapchain
                 m_objMapper.add_to_images_map(packetImage[i], local_imageObj);
                 replayImageToDevice[pReplayImages[i]] = remappeddevice;
                 traceSwapchainToImages[pPacket->swapchain].push_back(packetImage[i]);
+                replaySwapchainImageToDevice[local_imageObj.replayImage] = remappeddevice;
             }
         }
     }
