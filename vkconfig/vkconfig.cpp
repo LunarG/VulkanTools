@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018 Valve Corporation
- * Copyright (c) 2018 LunarG, Inc.
+ * Copyright (c) 2018-2019 Valve Corporation
+ * Copyright (c) 2018-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QBoxLayout>
 #include <QFile>
+#include <QWebEngineView>
 
 int main(int argc, char **argv)
 {
@@ -37,10 +38,22 @@ int main(int argc, char **argv)
 
 LayerManager::LayerManager()
 {
-    // Build the GUI
     setWindowIcon(QPixmap(":/layermgr/icons/logo_square.png"));
     setWindowTitle(tr("Vulkan Configuration Tool"));
 
+    QWidget *center_widget = new QWidget();
+    QVBoxLayout *center_layout = new QVBoxLayout();
+
+    QTabWidget *tab_widget = new QTabWidget();
+
+    // Run vulkaninfo and display its output on a tab
+    QProcess *vulkan_info = new QProcess(this);
+    vulkan_info->setProgram("vulkaninfo");
+    vulkan_info->setArguments(QStringList() << "--html");
+    vulkan_info->setWorkingDirectory(QDir::temp().path());
+    tab_widget->addTab(showHtml(vulkan_info, "Vulkan Info", "vulkaninfo.html"), tr("Vulkan Info"));
+
+    // Build the layer manager
     QWidget *layer_widget = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
     outer_split = new QSplitter(Qt::Horizontal);
@@ -66,15 +79,32 @@ LayerManager::LayerManager()
     connect(active_layers, &ActiveLayersWidget::enabledLayersUpdated, layer_settings, &LayerSettingsWidget::updateAvailableLayers);
     layout->addWidget(outer_split, 1);
 
+    layer_widget->setLayout(layout);
+    tab_widget->addTab(layer_widget, tr("Layer Manager"));
+
+    // Run via and display its output on a tab
+#if !defined(__APPLE__)
+    QProcess *via = new QProcess(this);
+    via->setProgram("vkvia");
+    via->setArguments(QStringList() << "--output_path" << QDir::temp().path());
+    tab_widget->addTab(showHtml(via, "VIA", "vkvia.html"), tr("Installation Analyzer"));
+#endif
+
+    connect(tab_widget, &QTabWidget::currentChanged, this, &LayerManager::tabChanged);
+    center_layout->addWidget(tab_widget, 1);
+
     QHBoxLayout *button_layout = new QHBoxLayout();
-    QPushButton *save_button = new QPushButton(tr("Save"));
+    save_button = new QPushButton(tr("Save"));
     save_button->setToolTip(tr("Save layers and settings"));
+    save_button->setEnabled(false);
     button_layout->addWidget(save_button, 0);
-    QPushButton *restore_button = new QPushButton(tr("Restore"));
+    restore_button = new QPushButton(tr("Restore"));
     restore_button->setToolTip(tr("Restore to last saved state"));
+    restore_button->setEnabled(false);
     button_layout->addWidget(restore_button, 0);
-    QPushButton *clear_button = new QPushButton(tr("Clear"));
+    clear_button = new QPushButton(tr("Clear"));
     clear_button->setToolTip(tr("Clear saved layers and settings"));
+    clear_button->setEnabled(false);
     button_layout->addWidget(clear_button, 0);
 
     button_layout->addSpacing(24);
@@ -91,10 +121,10 @@ LayerManager::LayerManager()
     connect(restore_button, &QPushButton::clicked, this, &LayerManager::restore);
     connect(clear_button, &QPushButton::clicked, this, &LayerManager::clear);
     connect(exit_button, &QPushButton::clicked, this, &LayerManager::close);
-    layout->addLayout(button_layout, 0);
+    center_layout->addLayout(button_layout, 0);
 
-    layer_widget->setLayout(layout);
-    setCentralWidget(layer_widget);
+    center_widget->setLayout(center_layout);
+    setCentralWidget(center_widget);
 
     // Restore the state from the settings and the override settings
     QList<QPair<QString, LayerType>> custom_paths;
@@ -186,6 +216,14 @@ void LayerManager::saveAll()
     notify("Saved all layers and settings");
 }
 
+void LayerManager::tabChanged(int index)
+{
+    bool enabled = index == 1;
+    save_button->setEnabled(enabled);
+    restore_button->setEnabled(enabled);
+    clear_button->setEnabled(enabled);
+}
+
 void LayerManager::timerUpdate()
 {
     QPalette palette = notification_label->palette();
@@ -197,4 +235,29 @@ void LayerManager::timerUpdate()
     color.setRed(color.red() + qBound(-4, notification_base_color.red() - color.red(), 4));
     palette.setColor(QPalette::WindowText, color);
     notification_label->setPalette(palette);
+}
+
+QWidget* LayerManager::showHtml(QProcess *process, const QString &name, const QString &html_file)
+{
+    process->start();
+    if (process->waitForFinished() || process->error() != QProcess::FailedToStart) {
+        if (QDir::temp().exists(html_file)) {
+            QWebEngineView *display = new QWebEngineView();
+            display->load(QUrl::fromLocalFile(QDir::temp().absoluteFilePath(html_file)));
+            return display;
+        } else {
+            QString message = "<b>Could not find %1 output file (%2).</b><br>"
+                "An unknown error occurred in %1. To diagnose this, try running %1 separately.";
+            QLabel *error = new QLabel(message.arg(name, html_file));
+            error->setAlignment(Qt::AlignCenter);
+            return error;
+        }
+    } else {
+        QString message = "<b>Could not start %1.</b><br>"
+            "Most likely, the '%2' executable is not in the system PATH.<br>"
+            "Add '%2' to the system path to see the results here.";
+        QLabel *error = new QLabel(message.arg(name, process->program()));
+        error->setAlignment(Qt::AlignCenter);
+        return error;
+    }
 }

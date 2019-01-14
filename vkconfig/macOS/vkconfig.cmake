@@ -16,7 +16,7 @@
 # ~~~
 
 add_executable(vkconfig MACOSX_BUNDLE ${LAYERMGR_SRCS})
-target_link_libraries(vkconfig Qt5::Core Qt5::Gui Qt5::Widgets)
+target_link_libraries(vkconfig Qt5::Core Qt5::Gui Qt5::Widgets Qt5::WebEngineWidgets)
 target_link_libraries(vkconfig "-framework Cocoa -framework QuartzCore")
 
 set_target_properties(vkconfig PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)

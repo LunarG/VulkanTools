@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018 Valve Corporation
- * Copyright (c) 2018 LunarG, Inc.
+ * Copyright (c) 2018-2019 Valve Corporation
+ * Copyright (c) 2018-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <QEvent>
 #include <QLabel>
 #include <QMainWindow>
+#include <QProcess>
 #include <QSettings>
 #include <QSplitter>
 #include <QTimer>
@@ -46,9 +47,12 @@ private slots:
     void notify(const QString& message);
     void restore();
     void saveAll();
+    void tabChanged(int index);
     void timerUpdate();
 
 private:
+    QWidget* showHtml(QProcess *process, const QString &name, const QString &html_file);
+
     QSettings settings;
     OverrideSettings override_settings;
 
@@ -61,4 +65,8 @@ private:
     QLabel *notification_label;
     QTimer notification_timer;
     QColor notification_base_color;
+
+    QPushButton *save_button;
+    QPushButton *restore_button;
+    QPushButton *clear_button;
 };
