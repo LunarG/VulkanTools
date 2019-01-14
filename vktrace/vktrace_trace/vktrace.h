@@ -45,6 +45,7 @@ typedef struct vktrace_settings {
     const char* verbosity;
     const char* traceTrigger;
     BOOL enable_trim_post_processing;
+    const char* trimCmdBatchSizeStr;
 } vktrace_settings;
 
 extern vktrace_settings g_settings;
