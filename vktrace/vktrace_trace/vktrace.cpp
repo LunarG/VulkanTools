@@ -141,6 +141,13 @@ vktrace_SettingInfo g_settings_info[] = {
      TRUE,
      "Always enable lock guard for all API calls if lockguard is TRUE,\n\
                                        default is FALSE in which it is enabled only for trim."},
+    {"tbs",
+     "TrimBatchSize",
+     VKTRACE_SETTING_STRING,
+     {&g_settings.trimCmdBatchSizeStr},
+     {&g_default_settings.trimCmdBatchSizeStr},
+     TRUE,
+     "Set the maximum trim commands batch size, default is device allocation limit count divide by 100."},
 };
 
 vktrace_SettingGroup g_settingGroup = {"vktrace", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
@@ -446,6 +453,31 @@ int main(int argc, char* argv[]) {
         vktrace_set_global_var(VKTRACE_TRIM_TRIGGER_ENV, g_settings.traceTrigger);
     } else {
         vktrace_set_global_var(VKTRACE_TRIM_TRIGGER_ENV, "");
+    }
+
+    // set trim max commands batched size env var that communicates with the layer
+    if (g_settings.trimCmdBatchSizeStr != NULL) {
+        uint64_t trimMaxCmdBatchSzValue = 0;
+        if (sscanf(g_settings.trimCmdBatchSizeStr, "%d", &trimMaxCmdBatchSzValue) == 1) {
+            if (trimMaxCmdBatchSzValue > 0) {
+                vktrace_set_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV, g_settings.trimCmdBatchSizeStr);
+                vktrace_LogVerbose(
+                    "Maximum trim commands batched size set by option is: '%s'.\n\
+                                    Note: This maximum number will be limited by device max memory allocation \
+                                    count determined during trim.",
+                    g_settings.trimCmdBatchSizeStr);
+            } else {
+                vktrace_LogError(
+                    "Trim commands batched size range error. Commands batched size should be bigger than \
+                                  0 and will be limited by device max memory allocation count determined during trim.");
+                return 1;
+            }
+        } else {
+            vktrace_LogError("Trim Max Commands Batched Size option must be formatted as: \"<max batched size>\".");
+            return 1;
+        }
+    } else {
+        vktrace_set_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV, "");
     }
 
     unsigned int serverIndex = 0;

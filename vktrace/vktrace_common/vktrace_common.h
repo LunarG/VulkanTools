@@ -178,3 +178,10 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // communicate verbosity level to the trace layer. It is set to
 // one of "quiet", "errors", "warnings", "full", or "debug".
 #define _VKTRACE_VERBOSITY_ENV "_VKTRACE_VERBOSITY"
+
+// VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE env var is an option used only
+// when trim capture is enabled. It can be set by vktrace program
+// to limit the size of the commands that are batched in a commanmd buffer
+// during the resource (images and buffers) upload in trim capture.
+// It is default to device max memory allocation count divide by 100.
+#define VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV "VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE"
