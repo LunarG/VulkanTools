@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2018 Valve Corporation
- * Copyright (c) 2016-2018 LunarG, Inc.
+ * Copyright (c) 2016-2019 Valve Corporation
+ * Copyright (c) 2016-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,6 @@ bool ViaSystem::Init(int argc, char** argv) {
     // If the user wants a unique file, generate a file with the current
     // time and date incorporated into it.
     _html_file = argv[0];
-#ifdef VIA_WINDOWS_TARGET
     if (output_path != NULL) {
         auto dir_pos = _html_file.rfind(_directory_symbol);
         if (dir_pos != std::string::npos) {
@@ -91,6 +90,7 @@ bool ViaSystem::Init(int argc, char** argv) {
             _html_file.erase(0, dir_pos + 1);
         }
     }
+#ifdef VIA_WINDOWS_TARGET
     // If it has an ending with a period, remove it.
     auto period_pos = _html_file.rfind('.');
     if (period_pos != std::string::npos) {
