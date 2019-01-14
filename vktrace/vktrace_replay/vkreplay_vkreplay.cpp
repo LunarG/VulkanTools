@@ -205,7 +205,8 @@ vkReplay::~vkReplay() {
                     replaySwapchainImageToDevice[subobj->second.replayImage] != obj->second) {
                     m_vkDeviceFuncs.DestroyImage(obj->second, subobj->second.replayImage, NULL);
                     if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch() &&
-                        replayOptimalImageToDeviceMemory.find(subobj->second.replayImage) != replayOptimalImageToDeviceMemory.end()) {
+                        replayOptimalImageToDeviceMemory.find(subobj->second.replayImage) !=
+                            replayOptimalImageToDeviceMemory.end()) {
                         m_vkDeviceFuncs.FreeMemory(obj->second, replayOptimalImageToDeviceMemory[subobj->second.replayImage], NULL);
                         replayOptimalImageToDeviceMemory.erase(subobj->second.replayImage);
                     }
