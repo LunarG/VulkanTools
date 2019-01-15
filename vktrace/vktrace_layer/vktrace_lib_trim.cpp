@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -509,6 +509,43 @@ void getTrimPreProcessOption() {
 }
 
 //=========================================================================
+void getTrimMaxBatchCmdCountOption() {
+    // Set default trim maximum commands batched count by:
+    // checking for physical devices maxMemoryAllocationCount minus the memory object count
+    // which are already allocated.
+    // This number will be used to determine the maximum batched commands per command buffer
+    // For a safe range, by default this g_trimMaxBatchCmdCount is set to
+    // smaller max batch count (divide by 100 factor).
+    for (auto phyDeviceItr = s_trimStateTrackerSnapshot.createdPhysicalDevices.begin();
+         phyDeviceItr != s_trimStateTrackerSnapshot.createdPhysicalDevices.end(); phyDeviceItr++) {
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDevice physicalDevice = phyDeviceItr->first;
+        mid(physicalDevice)->instTable.GetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+        uint32_t memoryAllocationCount = deviceProperties.limits.maxMemoryAllocationCount;
+        if (memoryAllocationCount < g_trimMaxBatchCmdCount) {
+            g_trimMaxBatchCmdCount = memoryAllocationCount;
+        }
+    }
+    g_trimMaxBatchCmdCount -= s_trimStateTrackerSnapshot.createdDeviceMemorys.size();
+    uint64_t maxAllowBatchCmdCount = g_trimMaxBatchCmdCount;
+    g_trimMaxBatchCmdCount /= 100;
+
+    // Get trim maximum commands batched count set by the option if there is any.
+    const char *trimMaxCmdBatchSizeStr = vktrace_get_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV);
+    if (trimMaxCmdBatchSizeStr) {
+        uint64_t trimMaxCmdBatchSzValue = 0;
+        if (sscanf(trimMaxCmdBatchSizeStr, "%d", &trimMaxCmdBatchSzValue) == 1) {
+            if (trimMaxCmdBatchSzValue > maxAllowBatchCmdCount) {
+                g_trimMaxBatchCmdCount = maxAllowBatchCmdCount;
+            }
+            else if (trimMaxCmdBatchSzValue > 0 && trimMaxCmdBatchSzValue < maxAllowBatchCmdCount) {
+                g_trimMaxBatchCmdCount = trimMaxCmdBatchSzValue;
+            }
+        }
+    }
+}
+
+//=========================================================================
 void initialize() {
     getTrimPreProcessOption();
     const char *trimFrames = getTraceTriggerOptionString(enum_trim_trigger::frameCounter);
@@ -819,7 +856,25 @@ StagingInfo createStagingBuffer(VkDevice device, VkCommandPool commandPool, VkCo
 }
 
 //=========================================================================
-void generateCreateStagingBuffer(VkDevice device, StagingInfo stagingInfo) {
+bool generateCreateStagingBuffer(VkDevice device, StagingInfo stagingInfo) {
+    // check for valid usage of memory allocation:
+    // validate memory type index and allocation size before create memory allocation.
+    ObjectInfo *device_object_info = get_Device_objectInfo(device);
+    VkPhysicalDevice physical_device = device_object_info->belongsToPhysicalDevice;
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    mid(physical_device)->instTable.GetPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
+
+    uint32_t memory_type_index = stagingInfo.memoryAllocationInfo.memoryTypeIndex;
+    VkDeviceSize allocation_size = stagingInfo.memoryAllocationInfo.allocationSize;
+    if (memory_type_index < 0 || memory_type_index > memory_properties.memoryTypeCount) {
+        return false;
+    }
+
+    if (allocation_size > memory_properties.memoryHeaps[memory_type_index].size) {
+        return false;
+    }
+
+    // generate create buffer and memory allocation packets
     vktrace_trace_packet_header *pHeader =
         generate::vkCreateBuffer(false, device, &stagingInfo.bufferCreateInfo, NULL, &stagingInfo.buffer);
     vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
@@ -837,6 +892,8 @@ void generateCreateStagingBuffer(VkDevice device, StagingInfo stagingInfo) {
     pHeader = generate::vkBindBufferMemory(false, device, stagingInfo.buffer, stagingInfo.memory, 0);
     vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
     vktrace_delete_trace_packet(&pHeader);
+
+    return true;
 }
 
 //=========================================================================
@@ -1014,6 +1071,8 @@ void snapshot_state_tracker() {
     vktrace_enter_critical_section(&trimStateTrackerLock);
     s_trimStateTrackerSnapshot = s_trimGlobalStateTracker;
 
+    getTrimMaxBatchCmdCountOption();
+
     //
     // Copying all the buffers is a length process, it include the following
     // sub-processes:
@@ -1046,22 +1105,6 @@ void snapshot_state_tracker() {
     // by trim at same time, and avoid the allocations (needed by trim and
     // by the title itself) beyond driver limitation. Otherwise, it cause
     // some title hang problem due to fail to allocate memory.
-
-    // First, check for physical devices maxMemoryAllocationCount minus the memory object already allocated
-    // This number will be used to determine the maximum batched commands per command buffer
-    // For a safe range, use smaller max batch count (divide by 100 factor)
-    for (auto phyDeviceItr = s_trimStateTrackerSnapshot.createdPhysicalDevices.begin();
-         phyDeviceItr != s_trimStateTrackerSnapshot.createdPhysicalDevices.end(); phyDeviceItr++) {
-        VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDevice physicalDevice = phyDeviceItr->first;
-        mid(physicalDevice)->instTable.GetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-        uint32_t memoryAllocationCount = deviceProperties.limits.maxMemoryAllocationCount;
-        if (memoryAllocationCount < g_trimMaxBatchCmdCount) {
-            g_trimMaxBatchCmdCount = memoryAllocationCount;
-        }
-    }
-    g_trimMaxBatchCmdCount -= s_trimStateTrackerSnapshot.createdDeviceMemorys.size();
-    g_trimMaxBatchCmdCount /= 100;
 
     // a) Dump all images in batches, the process include the following sub-process:
     //    1a) Transition the image into host - readable state.
@@ -3529,7 +3572,9 @@ void record_created_images_commands(StateTracker &stateTracker, uint32_t &imgIte
                 stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
                 // generate packets needed to create a staging buffer
-                generateCreateStagingBuffer(device, stagingInfo);
+                if (generateCreateStagingBuffer(device, stagingInfo) == false) {
+                    break;
+                }
 
                 // here's where we map / unmap to insert data into the buffer
                 {
@@ -3667,7 +3712,9 @@ void record_created_buffers_commands(StateTracker &stateTracker, uint32_t &bufIt
                 stagingInfo.bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
                 // Generate packets to create the staging buffer
-                generateCreateStagingBuffer(device, stagingInfo);
+                if (generateCreateStagingBuffer(device, stagingInfo) == false) {
+                    break;
+                }
 
                 // here's where we map / unmap to insert data into the buffer
                 {
@@ -3829,7 +3876,7 @@ void destroy_stg_buf_resource(StateTracker &stateTracker, uint32_t &destroyBufIt
         VkBuffer buffer = (VkBuffer)obj->first;
         VkDevice device = obj->second.belongsToDevice;
 
-        if ((obj->second.ObjectInfo.Buffer.pBindBufferMemoryPacket != nullptr) && (obj->second.ObjectInfo.Buffer.size != 0)) {
+        if (0 != obj->second.ObjectInfo.Buffer.size) {
             if (obj->second.ObjectInfo.Buffer.needsStagingBuffer) {
                 // retrieve staging info from map
                 StagingInfo stagingInfo = s_bufferToStagedInfoMap[buffer];
