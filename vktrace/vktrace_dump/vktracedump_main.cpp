@@ -255,7 +255,8 @@ int main(int argc, char** argv) {
             }
             bool hideBriefInfo = false;
             if ((g_params.fullDumpFile && (!strcmp(g_params.fullDumpFile, "STDOUT") || !strcmp(g_params.fullDumpFile, "stdout"))) ||
-                (g_params.simpleDumpFile && (!strcmp(g_params.simpleDumpFile, "STDOUT") || !strcmp(g_params.simpleDumpFile, "stdout")))) {
+                (g_params.simpleDumpFile &&
+                 (!strcmp(g_params.simpleDumpFile, "STDOUT") || !strcmp(g_params.simpleDumpFile, "stdout")))) {
                 hideBriefInfo = true;
             }
             if (!hideBriefInfo) {
