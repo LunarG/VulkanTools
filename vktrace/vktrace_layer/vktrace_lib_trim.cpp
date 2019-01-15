@@ -534,7 +534,7 @@ void getTrimMaxBatchCmdCountOption() {
     const char *trimMaxCmdBatchSizeStr = vktrace_get_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV);
     if (trimMaxCmdBatchSizeStr) {
         uint64_t trimMaxCmdBatchSzValue = 0;
-        if (sscanf(trimMaxCmdBatchSizeStr, "%d", &trimMaxCmdBatchSzValue) == 1) {
+        if (sscanf(trimMaxCmdBatchSizeStr, "%" PRIu64, &trimMaxCmdBatchSzValue) == 1) {
             if (trimMaxCmdBatchSzValue > maxAllowBatchCmdCount) {
                 g_trimMaxBatchCmdCount = maxAllowBatchCmdCount;
             } else if (trimMaxCmdBatchSzValue > 0 && trimMaxCmdBatchSzValue < maxAllowBatchCmdCount) {
@@ -1713,6 +1713,7 @@ void snapshot_state_tracker() {
             // Wait for queue to complete
             VkResult waitResult = mdd(device)->devTable.QueueWaitIdle(queue);
             assert(waitResult == VK_SUCCESS);
+            if (waitResult != VK_SUCCESS) continue;
         }
     }
 
@@ -3892,9 +3893,7 @@ void destroy_commandbuffers() {
         VkDevice device = deviceItr->first;
         std::unordered_map<uint32_t, VkCommandPool> queueTypeToCommandPoolMap = deviceItr->second;
         for (auto queueItr = queueTypeToCommandPoolMap.begin(); queueItr != queueTypeToCommandPoolMap.end(); queueItr++) {
-            uint32_t queueFamilyIndex = queueItr->first;
             VkCommandPool commandPool = queueItr->second;
-            VkCommandBuffer commandBuffer = s_deviceToCommandBufferMap[device];
 
             // reset or free command buffer
             vktrace_trace_packet_header *pResetCommandPoolPacket =
