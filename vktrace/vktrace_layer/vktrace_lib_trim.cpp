@@ -537,8 +537,7 @@ void getTrimMaxBatchCmdCountOption() {
         if (sscanf(trimMaxCmdBatchSizeStr, "%d", &trimMaxCmdBatchSzValue) == 1) {
             if (trimMaxCmdBatchSzValue > maxAllowBatchCmdCount) {
                 g_trimMaxBatchCmdCount = maxAllowBatchCmdCount;
-            }
-            else if (trimMaxCmdBatchSzValue > 0 && trimMaxCmdBatchSzValue < maxAllowBatchCmdCount) {
+            } else if (trimMaxCmdBatchSzValue > 0 && trimMaxCmdBatchSzValue < maxAllowBatchCmdCount) {
                 g_trimMaxBatchCmdCount = trimMaxCmdBatchSzValue;
             }
         }
@@ -4397,16 +4396,16 @@ void recreate_descriptor_sets(StateTracker &stateTracker) {
                 // so here, before we generate the update call, we check every
                 // descriptor in pDescriptorWrites and remove all invalid descriptors.
                 std::vector<uint32_t> descriptorCountsBackup(descriptorWriteCount);
-                for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+                for (int i = 0; i < descriptorWriteCount; i++) {
                     descriptorCountsBackup[i] = pDescriptorWrites[i].descriptorCount;
                 }
-                removeInvalidDescriptorsBeforeUpdateDescriptorSets(descriptorWriteCount, pDescriptorWrites);
+                UpdateInvalidDescriptors(descriptorWriteCount, pDescriptorWrites);
                 vktrace_trace_packet_header *pHeader =
                     generate::vkUpdateDescriptorSets(false, setObj->second.belongsToDevice, descriptorWriteCount, pDescriptorWrites,
                                                      descriptorCopyCount, pDescriptorCopies);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
-                for (uint32_t i = 0; i < descriptorWriteCount; i++) {
+                for (int i = 0; i < descriptorWriteCount; i++) {
                     pDescriptorWrites[i].descriptorCount = descriptorCountsBackup[i];
                 }
             }
