@@ -119,21 +119,21 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
 // trace_file_name point to a buffer of which the size is
 // trace_file_name_buffer_size, it must be enough to hold the
 // base_name + "-" + number of chars needed by trace_file_index.
-bool GetTraceFileName(char* trace_file_name, const uint32_t trace_file_name_buffer_size, const char* base_name,
+BOOL GetTraceFileName(char* trace_file_name, const uint32_t trace_file_name_buffer_size, const char* base_name,
                       const int trace_file_index) {
-    bool get_trace_file_name = false;
+    BOOL get_trace_file_name = FALSE;
     if (base_name != NULL) {
         if (trace_file_index == 0) {
             strncpy(trace_file_name, base_name, trace_file_name_buffer_size - 1);
-            get_trace_file_name = true;
+            get_trace_file_name = TRUE;
         } else {
             char suffix[16];
             snprintf(suffix, sizeof(suffix), "-%d", trace_file_index);
             uint32_t base_name_length = strlen(base_name);
             if ((base_name_length + strlen(suffix)) < trace_file_name_buffer_size) {
-                get_trace_file_name = true;
+                get_trace_file_name = TRUE;
                 const char* extension_name = strrchr(base_name, '.');
-                if (extension_name = NULL) {
+                if (extension_name == NULL) {
                     strncpy(trace_file_name, base_name, trace_file_name_buffer_size - 1);
                 } else {
                     strncpy(trace_file_name, "\0", trace_file_name_buffer_size - 1);
@@ -144,7 +144,7 @@ bool GetTraceFileName(char* trace_file_name, const uint32_t trace_file_name_buff
                     strncat(trace_file_name, extension_name, trace_file_name_buffer_size - 1 - strlen(trace_file_name));
                 }
             } else {
-                assert(false);
+                assert(FALSE);
             }
         }
     }

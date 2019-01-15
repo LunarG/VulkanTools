@@ -54,21 +54,21 @@ static FILE* vktrace_open_trace_file(vktrace_process_capture_trace_thread_info* 
     // One title may have multiple processes running and thus generate
     // multiple trace files. The first one of these trace files will
     // have same name with the base trace file name and the name of
-    // others will be a concatenated string which is base name + "-n".
-    // for example, the second one name will be base name+"-1",
-    // the third one name will be base name + "-2".....
+    // others will be a concatenated string which is base name(without
+    // extension) + "-n" + original extension name.
+    // for example, the base trace file name is "tracefile.vktrace",
+    // the name of second one will be tracefile-1.vktrace,
+    // the name of third one will be tracefile-2.vktrace.....
     //
     // open trace file for the trace thread to record into it.
     if (trace_thread_info->traceFileIndex != 0) {
-        char index[16];
-        char* process_trace_file_name =
-            vktrace_allocate_and_copy_n(trace_thread_info->pProcessInfo->traceFilename,
-                strlen(trace_thread_info->pProcessInfo->traceFilename) + 1 + sizeof(index));
+        uint32_t trace_file_name_buffer_size = strlen(trace_thread_info->pProcessInfo->traceFilename) + 16;
+        char* process_trace_file_name = VKTRACE_NEW_ARRAY(char, trace_file_name_buffer_size);
         assert(process_trace_file_name != NULL);
-        sprintf(index, "-%d", trace_thread_info->traceFileIndex);
-        strcat(process_trace_file_name, index);
+        GetTraceFileName(process_trace_file_name, trace_file_name_buffer_size, trace_thread_info->pProcessInfo->traceFilename,
+                         trace_thread_info->traceFileIndex);
         tracefp = fopen(process_trace_file_name, "w+b");
-        vktrace_free(process_trace_file_name);
+        VKTRACE_DELETE(process_trace_file_name);
     } else {
         tracefp = fopen(trace_thread_info->pProcessInfo->traceFilename, "w+b");
     }

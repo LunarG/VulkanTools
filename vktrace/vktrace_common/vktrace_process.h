@@ -79,3 +79,5 @@ struct vktrace_process_capture_trace_thread_info {
 
 BOOL vktrace_process_spawn(vktrace_process_info* pInfo);
 void vktrace_process_info_delete(vktrace_process_info* pInfo);
+BOOL GetTraceFileName(char* trace_file_name, const uint32_t trace_file_name_buffer_size, const char* base_name,
+                      const int trace_file_index);
