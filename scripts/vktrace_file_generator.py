@@ -2534,7 +2534,9 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 dump_gen_source += '            ApiDumpInstance& dump_inst = ApiDumpInstance::current();\n'
                 dump_gen_source += '            const ApiDumpSettings& settings(dump_inst.settings());\n'
                 dump_gen_source += '            dump_inst.setThreadID(packet->thread_id);\n'
-                dump_gen_source += '            settings.stream() << \"GlobalPacketIndex \" << packet->global_packet_index << \", \";\n'
+                dump_gen_source += '            if (dump_inst.settings().format() == ApiDumpFormat::Text) {\n'
+                dump_gen_source += '                settings.stream() << \"GlobalPacketIndex \" << packet->global_packet_index << \", \";\n'
+                dump_gen_source += '            }\n'
                 if cmdname == 'AllocateCommandBuffers':
                     dump_gen_source += '            dump_inst.addCmdBuffers(pPacket->device,\n'
                     dump_gen_source += '                                    pPacket->pAllocateInfo->commandPool,\n'
