@@ -253,22 +253,31 @@ int main(int argc, char** argv) {
             if (g_params.fullDumpFile) {
                 dump_full_setup();
             }
-            cout << setw(COLUMN_WIDTH) << left << "File Version:" << fileHeader.trace_file_version << endl;
-            cout << setw(COLUMN_WIDTH) << left << "File Type:" << fileHeader.ptrsize * 8 << "bit" << endl;
-            cout << setw(COLUMN_WIDTH) << left << "Arch:" << (char*)&fileHeader.arch << endl;
-            cout << setw(COLUMN_WIDTH) << left << "OS:" << (char*)&fileHeader.os << endl;
-            cout << setw(COLUMN_WIDTH) << left << "Endianess:" << (fileHeader.endianess ? "Big" : "Little") << endl;
-            if (fileHeader.n_gpuinfo < 1 || fileHeader.n_gpuinfo > 1) {
-                cout << "Warning: number of gpu info = " << fileHeader.n_gpuinfo << endl;
+            bool hideBriefInfo = false;
+            if ((g_params.fullDumpFile && (!strcmp(g_params.fullDumpFile, "STDOUT") || !strcmp(g_params.fullDumpFile, "stdout"))) ||
+                (g_params.simpleDumpFile && (!strcmp(g_params.simpleDumpFile, "STDOUT") || !strcmp(g_params.simpleDumpFile, "stdout")))) {
+                hideBriefInfo = true;
+            }
+            if (!hideBriefInfo) {
+                cout << setw(COLUMN_WIDTH) << left << "File Version:" << fileHeader.trace_file_version << endl;
+                cout << setw(COLUMN_WIDTH) << left << "File Type:" << fileHeader.ptrsize * 8 << "bit" << endl;
+                cout << setw(COLUMN_WIDTH) << left << "Arch:" << (char*)&fileHeader.arch << endl;
+                cout << setw(COLUMN_WIDTH) << left << "OS:" << (char*)&fileHeader.os << endl;
+                cout << setw(COLUMN_WIDTH) << left << "Endianess:" << (fileHeader.endianess ? "Big" : "Little") << endl;
+                if (fileHeader.n_gpuinfo < 1 || fileHeader.n_gpuinfo > 1) {
+                    cout << "Warning: number of gpu info = " << fileHeader.n_gpuinfo << endl;
+                }
             }
             for (uint32_t i = 0; i < fileHeader.n_gpuinfo; i++) {
                 if (vktrace_FileLike_ReadRaw(traceFile, &gpuInfo, sizeof(gpuInfo))) {
-                    cout << setw(COLUMN_WIDTH) << left << "Vendor ID:"
-                         << "0x" << hex << uppercase << (gpuInfo.gpu_id >> 32) << endl;
-                    cout << setw(COLUMN_WIDTH) << left << "Device ID:"
-                         << "0x" << hex << uppercase << (gpuInfo.gpu_id & UINT32_MAX) << endl;
-                    cout << setw(COLUMN_WIDTH) << left << "Driver Ver:"
-                         << "0x" << hex << uppercase << gpuInfo.gpu_drv_vers << endl;
+                    if (!hideBriefInfo) {
+                        cout << setw(COLUMN_WIDTH) << left << "Vendor ID:"
+                             << "0x" << hex << uppercase << (gpuInfo.gpu_id >> 32) << endl;
+                        cout << setw(COLUMN_WIDTH) << left << "Device ID:"
+                             << "0x" << hex << uppercase << (gpuInfo.gpu_id & UINT32_MAX) << endl;
+                        cout << setw(COLUMN_WIDTH) << left << "Driver Ver:"
+                             << "0x" << hex << uppercase << gpuInfo.gpu_drv_vers << endl;
+                    }
                 } else {
                     cout << "Error: Read gpu info fail!" << endl;
                     ret = -1;
@@ -299,32 +308,36 @@ int main(int argc, char** argv) {
                                 frameNumber++;
                             } break;
                             case VKTRACE_TPI_VK_vkGetPhysicalDeviceProperties: {
-                                if (apiVersion == UINT32_MAX) {
-                                    packet_vkGetPhysicalDeviceProperties* pPacket =
-                                        (packet_vkGetPhysicalDeviceProperties*)(pInterpretedHeader->pBody);
-                                    apiVersion = pPacket->pProperties->apiVersion;
-                                    memcpy(deviceName, pPacket->pProperties->deviceName, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
+                                if (!hideBriefInfo) {
+                                    if (apiVersion == UINT32_MAX) {
+                                        packet_vkGetPhysicalDeviceProperties* pPacket =
+                                            (packet_vkGetPhysicalDeviceProperties*)(pInterpretedHeader->pBody);
+                                        apiVersion = pPacket->pProperties->apiVersion;
+                                        memcpy(deviceName, pPacket->pProperties->deviceName, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
+                                    }
                                 }
                             } break;
                             case VKTRACE_TPI_VK_vkCreateInstance: {
-                                packet_vkCreateInstance* pPacket = (packet_vkCreateInstance*)(pInterpretedHeader->pBody);
-                                if (pApplicationName == NULL && pEngineName == NULL && pPacket->pCreateInfo->pApplicationInfo) {
-                                    if (pPacket->pCreateInfo->pApplicationInfo->pApplicationName) {
-                                        size_t applicationNameLen =
-                                            strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName);
-                                        pApplicationName = (char*)malloc(applicationNameLen + 1);
-                                        memcpy(pApplicationName, pPacket->pCreateInfo->pApplicationInfo->pApplicationName,
-                                               applicationNameLen);
-                                        pApplicationName[applicationNameLen] = '\0';
+                                if (!hideBriefInfo) {
+                                    packet_vkCreateInstance* pPacket = (packet_vkCreateInstance*)(pInterpretedHeader->pBody);
+                                    if (pApplicationName == NULL && pEngineName == NULL && pPacket->pCreateInfo->pApplicationInfo) {
+                                        if (pPacket->pCreateInfo->pApplicationInfo->pApplicationName) {
+                                            size_t applicationNameLen =
+                                                strlen(pPacket->pCreateInfo->pApplicationInfo->pApplicationName);
+                                            pApplicationName = (char*)malloc(applicationNameLen + 1);
+                                            memcpy(pApplicationName, pPacket->pCreateInfo->pApplicationInfo->pApplicationName,
+                                                   applicationNameLen);
+                                            pApplicationName[applicationNameLen] = '\0';
+                                        }
+                                        applicationVersion = pPacket->pCreateInfo->pApplicationInfo->applicationVersion;
+                                        if (pPacket->pCreateInfo->pApplicationInfo->pEngineName) {
+                                            size_t engineNameLen = strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName);
+                                            pEngineName = (char*)malloc(engineNameLen + 1);
+                                            memcpy(pEngineName, pPacket->pCreateInfo->pApplicationInfo->pEngineName, engineNameLen);
+                                            pEngineName[engineNameLen] = '\0';
+                                        }
+                                        engineVersion = pPacket->pCreateInfo->pApplicationInfo->engineVersion;
                                     }
-                                    applicationVersion = pPacket->pCreateInfo->pApplicationInfo->applicationVersion;
-                                    if (pPacket->pCreateInfo->pApplicationInfo->pEngineName) {
-                                        size_t engineNameLen = strlen(pPacket->pCreateInfo->pApplicationInfo->pEngineName);
-                                        pEngineName = (char*)malloc(engineNameLen + 1);
-                                        memcpy(pEngineName, pPacket->pCreateInfo->pApplicationInfo->pEngineName, engineNameLen);
-                                        pEngineName[engineNameLen] = '\0';
-                                    }
-                                    engineVersion = pPacket->pCreateInfo->pApplicationInfo->engineVersion;
                                 }
                             } break;
                             default:
@@ -333,30 +346,32 @@ int main(int argc, char** argv) {
                     }
                     vktrace_delete_trace_packet_no_lock(&packet);
                 }
-                if (apiVersion != UINT32_MAX) {
-                    cout << setw(COLUMN_WIDTH) << left << "API Ver:" << dec << VK_VERSION_MAJOR(apiVersion) << "." << dec
-                         << VK_VERSION_MINOR(apiVersion) << "." << dec << VK_VERSION_PATCH(apiVersion) << endl;
-                    cout << setw(COLUMN_WIDTH) << left << "Device Name:" << deviceName << endl;
+                if (!hideBriefInfo) {
+                    if (apiVersion != UINT32_MAX) {
+                        cout << setw(COLUMN_WIDTH) << left << "API Ver:" << dec << VK_VERSION_MAJOR(apiVersion) << "." << dec
+                             << VK_VERSION_MINOR(apiVersion) << "." << dec << VK_VERSION_PATCH(apiVersion) << endl;
+                        cout << setw(COLUMN_WIDTH) << left << "Device Name:" << deviceName << endl;
+                    }
+                    if (pApplicationName) {
+                        cout << setw(COLUMN_WIDTH) << left << "App Name:" << pApplicationName << endl;
+                        free(pApplicationName);
+                        pApplicationName = NULL;
+                    } else {
+                        cout << setw(COLUMN_WIDTH) << left << "App Name:"
+                             << "NULL" << endl;
+                    }
+                    cout << setw(COLUMN_WIDTH) << left << "App Ver:" << applicationVersion << endl;
+                    if (pEngineName) {
+                        cout << setw(COLUMN_WIDTH) << left << "Engine Name:" << pEngineName << endl;
+                        free(pEngineName);
+                        pEngineName = NULL;
+                    } else {
+                        cout << setw(COLUMN_WIDTH) << left << "Engine Name:"
+                             << "NULL" << endl;
+                    }
+                    cout << setw(COLUMN_WIDTH) << left << "Engine Ver:" << engineVersion << endl;
+                    cout << setw(COLUMN_WIDTH) << left << "Frames:" << frameNumber << endl;
                 }
-                if (pApplicationName) {
-                    cout << setw(COLUMN_WIDTH) << left << "App Name:" << pApplicationName << endl;
-                    free(pApplicationName);
-                    pApplicationName = NULL;
-                } else {
-                    cout << setw(COLUMN_WIDTH) << left << "App Name:"
-                         << "NULL" << endl;
-                }
-                cout << setw(COLUMN_WIDTH) << left << "App Ver:" << applicationVersion << endl;
-                if (pEngineName) {
-                    cout << setw(COLUMN_WIDTH) << left << "Engine Name:" << pEngineName << endl;
-                    free(pEngineName);
-                    pEngineName = NULL;
-                } else {
-                    cout << setw(COLUMN_WIDTH) << left << "Engine Name:"
-                         << "NULL" << endl;
-                }
-                cout << setw(COLUMN_WIDTH) << left << "Engine Ver:" << engineVersion << endl;
-                cout << setw(COLUMN_WIDTH) << left << "Frames:" << frameNumber << endl;
             }
             if (g_params.simpleDumpFile && !strcmp(g_params.simpleDumpFile, "STDOUT") &&
                 !strcmp(g_params.simpleDumpFile, "stdout")) {
