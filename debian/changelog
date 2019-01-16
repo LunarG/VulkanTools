@@ -1,8 +1,8 @@
-lunarg-tools (1.1.92.0~rc3-1) UNRELEASED; urgency=medium
+lunarg-tools (1.1.92.0~rc3-1lunarg16.04.1.1) xenial; urgency=medium
 
   * new upstream version
 
- -- Jeremy Hayes <jeremy@centaurus>  Wed, 21 Nov 2018 13:32:26 -0700
+ -- Jeremy Hayes <jeremy@centaurus>  Wed, 21 Nov 2018 13:34:40 -0700
 
 lunarg-tools (1.1.92.0~rc2-1lunarg16.04.1.1) xenial; urgency=medium
 
