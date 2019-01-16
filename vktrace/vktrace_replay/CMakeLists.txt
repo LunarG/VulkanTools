@@ -4,6 +4,10 @@ project(vkreplay)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 
+if(WIN32)
+    set_source_files_properties(vkreplay_vkreplay.cpp PROPERTIES COMPILE_FLAGS "/bigobj")
+endif()
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
