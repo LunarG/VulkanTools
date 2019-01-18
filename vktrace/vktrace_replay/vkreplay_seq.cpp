@@ -37,8 +37,11 @@ void Sequencer::preload_trace_file(uint64_t bufferedPacketCount) {
                     if (m_pRingBuffer->enqueue(pPacket)) {
                         break;
                     } else {
-                        // vktrace_LogDebug("Ring buffer is FULL!");
-                        usleep(10);
+#if defined(WIN32)
+                        Sleep(1);
+#else
+                        usleep(1000);
+#endif
                     }
                 }
             }
@@ -63,7 +66,11 @@ vktrace_trace_packet_header *Sequencer::get_next_packet() {
                 break;
             } else {
                 vktrace_LogWarning("Ring buffer is EMPTY! Performance impacted in preload!");
-                usleep(10);
+#if defined(WIN32)
+                Sleep(1);
+#else
+                usleep(1000);
+#endif
             }
         }
     }

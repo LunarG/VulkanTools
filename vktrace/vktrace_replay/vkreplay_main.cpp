@@ -159,12 +159,25 @@ static void* preloadTraceFile(void* ptr) {
 }
 
 int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_trace_packet_replay_library* replayerArray[]) {
+#if defined(WIN32)
+    DWORD threadId;
+    HANDLE threadPreloadTraceFile;
+#else
     pthread_t threadPreloadTraceFile;
+#endif
     if (replaySettings.preloadTraceFile) {
         vktrace_LogAlways("Preloading trace file...");
+#if defined(WIN32)
+        threadPreloadTraceFile = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)preloadTraceFile, &seq, 0, &threadId);
+#else
         pthread_create(&threadPreloadTraceFile, NULL, preloadTraceFile, (void*)&seq);
+#endif
         while (!seq.ready_to_replay()) {
-            usleep(10);
+#if defined(WIN32)
+            Sleep(1);
+#else
+            usleep(1000);
+#endif
         }
         vktrace_LogAlways("Preloading trace file...Ready to replay.");
     }
@@ -313,7 +326,11 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
 out:
     if (replaySettings.preloadTraceFile) {
         seq.stop_preload();
+#if defined(WIN32)
+        WaitForSingleObject(threadPreloadTraceFile, INFINITE);
+#else
         pthread_join(threadPreloadTraceFile, NULL);
+#endif
     }
     seq.clean_up();
     if (replaySettings.screenshotList != NULL) {
