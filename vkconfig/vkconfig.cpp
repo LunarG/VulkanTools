@@ -22,7 +22,10 @@
 #include <QApplication>
 #include <QBoxLayout>
 #include <QFile>
+
+#if !defined(NO_HTML)
 #include <QWebEngineView>
+#endif
 
 int main(int argc, char **argv)
 {
@@ -47,11 +50,13 @@ LayerManager::LayerManager()
     QTabWidget *tab_widget = new QTabWidget();
 
     // Run vulkaninfo and display its output on a tab
+#if !defined(NO_HTML)
     QProcess *vulkan_info = new QProcess(this);
     vulkan_info->setProgram("vulkaninfo");
     vulkan_info->setArguments(QStringList() << "--html");
     vulkan_info->setWorkingDirectory(QDir::temp().path());
     tab_widget->addTab(showHtml(vulkan_info, "Vulkan Info", "vulkaninfo.html"), tr("Vulkan Info"));
+#endif
 
     // Build the layer manager
     QWidget *layer_widget = new QWidget();
@@ -83,7 +88,7 @@ LayerManager::LayerManager()
     tab_widget->addTab(layer_widget, tr("Layer Manager"));
 
     // Run via and display its output on a tab
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(NO_HTML)
     QProcess *via = new QProcess(this);
     via->setProgram("vkvia");
     via->setArguments(QStringList() << "--output_path" << QDir::temp().path());
@@ -96,16 +101,19 @@ LayerManager::LayerManager()
     QHBoxLayout *button_layout = new QHBoxLayout();
     save_button = new QPushButton(tr("Save"));
     save_button->setToolTip(tr("Save layers and settings"));
-    save_button->setEnabled(false);
     button_layout->addWidget(save_button, 0);
     restore_button = new QPushButton(tr("Restore"));
     restore_button->setToolTip(tr("Restore to last saved state"));
-    restore_button->setEnabled(false);
     button_layout->addWidget(restore_button, 0);
     clear_button = new QPushButton(tr("Clear"));
     clear_button->setToolTip(tr("Clear saved layers and settings"));
-    clear_button->setEnabled(false);
     button_layout->addWidget(clear_button, 0);
+
+#if !defined(NO_HTML)
+    save_button->setEnabled(false);
+    restore_button->setEnabled(false);
+    clear_button->setEnabled(false);
+#endif
 
     button_layout->addSpacing(24);
     notification_label = new QLabel("");
@@ -218,7 +226,11 @@ void LayerManager::saveAll()
 
 void LayerManager::tabChanged(int index)
 {
+#if !defined(NO_HTML)
     bool enabled = index == 1;
+#else
+    bool enabled = true;
+#endif
     save_button->setEnabled(enabled);
     restore_button->setEnabled(enabled);
     clear_button->setEnabled(enabled);
@@ -237,6 +249,7 @@ void LayerManager::timerUpdate()
     notification_label->setPalette(palette);
 }
 
+#if !defined(NO_HTML)
 QWidget* LayerManager::showHtml(QProcess *process, const QString &name, const QString &html_file)
 {
     process->start();
@@ -261,3 +274,4 @@ QWidget* LayerManager::showHtml(QProcess *process, const QString &name, const QS
         return error;
     }
 }
+#endif

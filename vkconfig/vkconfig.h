@@ -51,7 +51,9 @@ private slots:
     void timerUpdate();
 
 private:
+#if !defined(NO_HTML)
     QWidget* showHtml(QProcess *process, const QString &name, const QString &html_file);
+#endif
 
     QSettings settings;
     OverrideSettings override_settings;
