@@ -21,7 +21,7 @@ else()
         data.qrc
     )
 
-    if(NOT Qt_QWebEngineWidgets_FOUND)
+    if(NOT Qt5WebEngineWidgets_FOUND)
         message("WARNING: vkconfig will not include vulkaninfo or via because Qt Web Engine Widgets was not found.")
         set(VKCONFIG_DEFINITIONS -DNO_HTML)
     else()
