@@ -186,6 +186,7 @@ See the Vulkan Info documentation for further details.
 The DevSim layer itself does very little sanity checking of the configuration file, so those files should be validated to the schema using a separate tool, such as the following web-based validators.
 1. http://www.jsonschemavalidator.net/
 2. https://json-schema-validator.herokuapp.com/
+3. https://jsonschemalint.com/#/version/draft-04/markup/json/
 
 ### Other Resources
 1. http://json.org/
