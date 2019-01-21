@@ -244,7 +244,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemHardwareInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("Memory");
-    PrintTableElement("Physical");
+    PrintTableElement("Physical Available");
     PrintTableElement(generic_string);
     PrintEndTableRow();
 

@@ -770,42 +770,26 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemHardwareInfo() {
     }
 
     if (TRUE == GlobalMemoryStatusEx(&mem_stat)) {
+        PrintBeginTableRow();
+        PrintTableElement("Memory");
+        PrintTableElement("Physical Available");
         if ((mem_stat.ullTotalPhys >> 40) > 0x0ULL) {
             snprintf(generic_string, 1023, "%u TB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 40));
-            PrintBeginTableRow();
-            PrintTableElement("Memory");
-            PrintTableElement("Physical");
             PrintTableElement(generic_string);
-            PrintEndTableRow();
         } else if ((mem_stat.ullTotalPhys >> 30) > 0x0ULL) {
             snprintf(generic_string, 1023, "%u GB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 30));
-            PrintBeginTableRow();
-            PrintTableElement("Memory");
-            PrintTableElement("Physical");
             PrintTableElement(generic_string);
-            PrintEndTableRow();
         } else if ((mem_stat.ullTotalPhys >> 20) > 0x0ULL) {
             snprintf(generic_string, 1023, "%u MB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 20));
-            PrintBeginTableRow();
-            PrintTableElement("Memory");
-            PrintTableElement("Physical");
             PrintTableElement(generic_string);
-            PrintEndTableRow();
         } else if ((mem_stat.ullTotalPhys >> 10) > 0x0ULL) {
             snprintf(generic_string, 1023, "%u KB", static_cast<uint32_t>(mem_stat.ullTotalPhys >> 10));
-            PrintBeginTableRow();
-            PrintTableElement("Memory");
-            PrintTableElement("Physical");
             PrintTableElement(generic_string);
-            PrintEndTableRow();
         } else {
             snprintf(generic_string, 1023, "%u bytes", static_cast<uint32_t>(mem_stat.ullTotalPhys));
-            PrintBeginTableRow();
-            PrintTableElement("Memory");
-            PrintTableElement("Physical");
             PrintTableElement(generic_string);
-            PrintEndTableRow();
         }
+        PrintEndTableRow();
     }
 
     if (TRUE == GetDiskFreeSpaceA(NULL, &sect_per_cluster, &bytes_per_sect, &num_free_cluster, &total_num_cluster)) {
