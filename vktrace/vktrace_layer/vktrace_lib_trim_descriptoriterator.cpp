@@ -27,15 +27,15 @@ namespace trim {
 //          descriptorIndex in bindingIndex and cross to next binding.
 DescriptorIterator::DescriptorIterator(ObjectInfo *object_info, uint32_t binding_index, uint32_t descriptor_index,
                                        uint32_t descriptorArrayLength)
-    : update_descriptor_count_(descriptorArrayLength),
-      descriptorset_((object_info != nullptr) ? &object_info->ObjectInfo.DescriptorSet : nullptr),
+    : descriptorset_((object_info != nullptr) ? &object_info->ObjectInfo.DescriptorSet : nullptr),
       descriptorset_layout_(
           ((object_info != nullptr) && (trim::get_DescriptorSetLayout_objectInfo(descriptorset_->layout) != nullptr))
               ? &trim::get_DescriptorSetLayout_objectInfo(descriptorset_->layout)->ObjectInfo.DescriptorSetLayout
               : nullptr),
+      update_descriptor_count_(descriptorArrayLength),
+      current_iterator_index_(0),
       current_descriptor_binding_index_(binding_index),
-      current_descriptor_index_(descriptor_index),
-      current_iterator_index_(0) {
+      current_descriptor_index_(descriptor_index) {
     if (object_info == nullptr) {
         update_descriptor_count_ = 0;  // make sure point to end of iterator
         // output error message in log
