@@ -974,13 +974,16 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemLoaderInfo() {
                         std::string find_so = vulkan_so_prefix;
                         ViaResults temp_res = PrintRuntimesInFolder(trimmed, find_so, false);
                         if (!found) {
+                            // If nothing's been found so far, save the current error message
                             result = temp_res;
-                        } else {
-                            // We found one runtime, clear any failures
-                            if (result == VIA_VULKAN_CANT_FIND_RUNTIME) {
-                                result = VIA_SUCCESSFUL;
+                            // If the result was successful, then we did end up finding at least
+                            // one.
+                            if (result == VIA_SUCCESSFUL) {
                                 found = true;
                             }
+                            // We found at least one runtime already, clear any failures
+                        } else if (found && result == VIA_VULKAN_CANT_FIND_RUNTIME) {
+                            result = VIA_SUCCESSFUL;
                         }
                     }
                     break;
