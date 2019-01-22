@@ -228,17 +228,14 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     sig_t rval __attribute__((unused));
 #endif
     MessageStream* pMessageStream = nullptr;
-    if(pInfo->pProcessInfo->messageStream == nullptr)
-    {
+    if (pInfo->pProcessInfo->messageStream == nullptr) {
         pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
 
         // listen socket is shared by all recording threads. So except
         // this thread, other thread just need to reuse it.
         pInfo->pProcessInfo->messageStream = VKTRACE_NEW(MessageStream);
         *pInfo->pProcessInfo->messageStream = *pMessageStream;
-    }
-    else
-    {
+    } else {
         pMessageStream = VKTRACE_NEW(MessageStream);
         *pMessageStream = *pInfo->pProcessInfo->messageStream;
         vktrace_MessageStream_SetupHostSocket(pMessageStream);

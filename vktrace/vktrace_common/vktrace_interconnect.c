@@ -132,59 +132,54 @@ BOOL vktrace_MessageStream_SetupHostSocket(MessageStream* pStream) {
 #endif
     struct addrinfo hostAddrInfo = {0};
     SOCKET listenSocket;
-    if (pStream->mServerListenSocket == INVALID_SOCKET)
-    {
-    vktrace_create_critical_section(&gSendLock);
-    hostAddrInfo.ai_family = AF_INET;
-    hostAddrInfo.ai_socktype = SOCK_STREAM;
-    hostAddrInfo.ai_protocol = IPPROTO_TCP;
-    hostAddrInfo.ai_flags = AI_PASSIVE;
+    if (pStream->mServerListenSocket == INVALID_SOCKET) {
+        vktrace_create_critical_section(&gSendLock);
+        hostAddrInfo.ai_family = AF_INET;
+        hostAddrInfo.ai_socktype = SOCK_STREAM;
+        hostAddrInfo.ai_protocol = IPPROTO_TCP;
+        hostAddrInfo.ai_flags = AI_PASSIVE;
 
-    hr = getaddrinfo(NULL, pStream->mPort, &hostAddrInfo, &pStream->mHostAddressInfo);
-    if (hr != 0) {
-        vktrace_LogError("Host: Failed getaddrinfo.");
-        return FALSE;
-    }
+        hr = getaddrinfo(NULL, pStream->mPort, &hostAddrInfo, &pStream->mHostAddressInfo);
+        if (hr != 0) {
+            vktrace_LogError("Host: Failed getaddrinfo.");
+            return FALSE;
+        }
 
-    listenSocket = socket(pStream->mHostAddressInfo->ai_family, pStream->mHostAddressInfo->ai_socktype,
-                          pStream->mHostAddressInfo->ai_protocol);
-    if (listenSocket == INVALID_SOCKET) {
-        // TODO: Figure out errors
-        vktrace_LogError("Host: Failed creating a listen socket.");
-        freeaddrinfo(pStream->mHostAddressInfo);
-        pStream->mHostAddressInfo = NULL;
-        return FALSE;
-    }
-    else
-    {
-        pStream->mServerListenSocket = listenSocket;
-    }
+        listenSocket = socket(pStream->mHostAddressInfo->ai_family, pStream->mHostAddressInfo->ai_socktype,
+                              pStream->mHostAddressInfo->ai_protocol);
+        if (listenSocket == INVALID_SOCKET) {
+            // TODO: Figure out errors
+            vktrace_LogError("Host: Failed creating a listen socket.");
+            freeaddrinfo(pStream->mHostAddressInfo);
+            pStream->mHostAddressInfo = NULL;
+            return FALSE;
+        } else {
+            pStream->mServerListenSocket = listenSocket;
+        }
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
-    setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+        setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 #endif
-    hr = bind(listenSocket, pStream->mHostAddressInfo->ai_addr, (int)pStream->mHostAddressInfo->ai_addrlen);
-    if (hr == SOCKET_ERROR) {
-        vktrace_LogError("Host: Failed binding socket err=%d.", VKTRACE_WSAGetLastError());
+        hr = bind(listenSocket, pStream->mHostAddressInfo->ai_addr, (int)pStream->mHostAddressInfo->ai_addrlen);
+        if (hr == SOCKET_ERROR) {
+            vktrace_LogError("Host: Failed binding socket err=%d.", VKTRACE_WSAGetLastError());
+            freeaddrinfo(pStream->mHostAddressInfo);
+            pStream->mHostAddressInfo = NULL;
+            closesocket(listenSocket);
+            return FALSE;
+        }
+
+        // Done with this.
         freeaddrinfo(pStream->mHostAddressInfo);
         pStream->mHostAddressInfo = NULL;
-        closesocket(listenSocket);
-        return FALSE;
-    }
 
-    // Done with this.
-    freeaddrinfo(pStream->mHostAddressInfo);
-    pStream->mHostAddressInfo = NULL;
-
-    hr = listen(listenSocket, 5);
-    if (hr == SOCKET_ERROR) {
-        vktrace_LogError("Host: Failed listening on socket err=%d.", VKTRACE_WSAGetLastError());
-        closesocket(listenSocket);
-        return FALSE;
-    }
-    }
-    else
-    {
+        hr = listen(listenSocket, 5);
+        if (hr == SOCKET_ERROR) {
+            vktrace_LogError("Host: Failed listening on socket err=%d.", VKTRACE_WSAGetLastError());
+            closesocket(listenSocket);
+            return FALSE;
+        }
+    } else {
         listenSocket = pStream->mServerListenSocket;
     }
 
