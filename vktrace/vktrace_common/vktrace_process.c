@@ -159,7 +159,8 @@ void vktrace_process_info_delete(vktrace_process_info* pInfo) {
         uint32_t trace_file_name_buffer_size = strlen(pInfo->traceFilename) + 16;
         char* trace_file_name = VKTRACE_NEW_ARRAY(char, trace_file_name_buffer_size);
         assert(trace_file_name != NULL);
-        for (int i = 0; i < pInfo->currentCaptureThreadsCount; i++) {
+        uint32_t i;
+        for (i = 0; i < pInfo->currentCaptureThreadsCount; i++) {
             vktrace_platform_delete_thread(&(pInfo->pCaptureThreads[i].recordingThread));
             if (pInfo->pCaptureThreads[i].pTraceFile != NULL) {
                 GetTraceFileName(trace_file_name, trace_file_name_buffer_size, pInfo->traceFilename, i);
