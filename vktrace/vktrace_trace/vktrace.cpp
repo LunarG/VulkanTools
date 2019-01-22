@@ -518,8 +518,10 @@ int main(int argc, char* argv[]) {
             if (g_settings.program != NULL) {
                 vktrace_linux_sync_wait_for_thread(&procInfo.watchdogThread);
             }
-
-            vktrace_linux_sync_wait_for_thread(&(procInfo.pCaptureThreads[0].recordingThread));
+            int i;
+            for (i = 0; i < procInfo.currentCaptureThreadsCount; i++) {
+                vktrace_linux_sync_wait_for_thread(&(procInfo.pCaptureThreads[i].recordingThread));
+            }
 
 #else
             vktrace_platform_resume_thread(&procInfo.hThread);
@@ -527,6 +529,11 @@ int main(int argc, char* argv[]) {
             // Now into the main message loop, listen for hotkeys to send over.
             exitval = (int)MessageLoop(&procInfo);
 #endif
+            if (procInfo.messageStream != nullptr) {
+                if (procInfo.messageStream->mServerListenSocket != NULL) {
+                    closesocket(procInfo.messageStream->mServerListenSocket);
+                }
+            }
         }
         vktrace_process_info_delete(&procInfo);
         serverIndex++;
