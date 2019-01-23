@@ -1,3 +1,9 @@
+lunarg-tools (1.1.97.0~rc2-1lunarg16.04.1.1) xenial; urgency=medium
+
+  * new upstream version
+
+ -- John Zupin <john@odin>  Wed, 23 Jan 2019 14:07:51 -0700
+
 lunarg-tools (1.1.97.0~rc1-1lunarg16.04.1.1) xenial; urgency=medium
 
   * new upstream version
