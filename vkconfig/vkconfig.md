@@ -13,7 +13,23 @@ The Vulkan Configurator is a graphical user interface (GUI), and does not suppor
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. It will be called `vkconfig`.
 - MacOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
-The configurator is divided into the following three sections.
+The configurator displays up to three tabs at the top of the GUI.
+How many tabs are displayed depends on the platform being used, as well as how the configurator was built.
+- In the Windows SDK, all three tabs ("Vulkan Info", "Layer Manager", and "Installation Analyzer") should be present.
+- In the Linux tarball SDK, the "Layer Manager" tab should always be present. If the configurator was build on a system that includes the Qt5 Web Engine components, the other two tabs will be present as well.
+- In the Ubuntu packages, only the "Layer Manager" tab should be present.
+- In the macOS SDK, the "Vulkan Info" and "Layer Manager" tabs should be present.
+
+## Vulkan Info
+
+The "Vulkan Info" tab displays system about the Vulkan capabilities of the system.
+This tab works by invoking the `vulkaninfo` program on the host system, and displaying the results in the configurator.
+As a result, this tab will only display an error message if `vulkaninfo` is not installed, or if it is not available from the command line.
+The output of `vulkaninfo` is presented as a tree, and the user may browse through the tree to find information they are interested in.
+
+## Layer Manager
+
+The layer manager tab is divided into the following three sections.
 
 ### Layer Locations
 
@@ -78,9 +94,21 @@ Different layers will provide different settings, so it is impractical to give a
 At the present time, layer settings will only work for layers written by Khronos or LunarG.
 In the future, settings may work for other layers, but this feature has not currently been developed.
 
+## Instalation Analyzer
+
+The "Installation Analyzer" tab displays information about the Vulkan installation of a machine.
+Whereas the "Vulkan Info" tab mainly displays information from within the driver about the system's capabilities, the installation analyzer displays information about where components are installed, and how components find each other.
+This information is primarily useful for debugging why an installation doesn't work.
+
+This tab works by invoking VIA on the host system.
+As a result, the `vkvia` executable must be runnable from a console for this tab to display correctly.
+When this tab is present, the Vulkan Cube demo will run a couple times when the configurator is initialized.
+This is happening as part of running VIA to build the information on this tab, and is perfectly normal.
+The information about the installation will be displayed in a series of clickable fields that can be expanded and contracted, much like on the "Vulkan Info" tab.
+
 ## Saving and Restoring
 
-Finally, at the bottom of Vulkan Configurator, there are four buttons to control the tool: "Save", "Restore", "Clear", and "Exit".
+At the bottom of Vulkan Configurator, there are four buttons to control the tool: "Save", "Restore", "Clear", and "Exit".
 The "Save" button saves all changes that have been made in the tool.
 No changes made in Vulkan Configurator will have any effect until the user hits that save button.
 The "Restore" button does the opposite.
