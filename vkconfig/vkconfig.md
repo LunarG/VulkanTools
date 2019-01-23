@@ -109,6 +109,9 @@ The information about the installation will be displayed in a series of clickabl
 ## Saving and Restoring
 
 At the bottom of Vulkan Configurator, there are four buttons to control the tool: "Save", "Restore", "Clear", and "Exit".
+The "Exit" button is always available, while the other three buttons will only work on the "Layer Manager" tab.
+On all other tabs those buttons will be greyed out as they are not relevant to the "Vulkan Info" and "Installation Analyzer" tabs
+
 The "Save" button saves all changes that have been made in the tool.
 No changes made in Vulkan Configurator will have any effect until the user hits that save button.
 The "Restore" button does the opposite.
