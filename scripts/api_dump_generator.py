@@ -558,7 +558,7 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @end if
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+        dump_text_array_hex<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     else
         dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if

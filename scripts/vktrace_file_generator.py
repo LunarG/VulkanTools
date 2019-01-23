@@ -653,7 +653,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'BindBufferMemory2KHR',
                                  'BindImageMemory2KHR',
                                  'GetDisplayPlaneSupportedDisplaysKHR',
-                                 'EnumerateDeviceExtensionProperties'
+                                 'EnumerateDeviceExtensionProperties',
+                                 'CreateSampler'
                                  ]
         # Map APIs to functions if body is fully custom
         custom_body_dict = {'CreateInstance': self.GenReplayCreateInstance,
@@ -931,14 +932,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 # Insert the real_*(..) call
                 replay_gen_source += '%s\n' % rr_string
                 # Handle return values or anything that needs to happen after the real_*(..) call
+                if 'Destroy' in cmdname:
+                    clean_type = params[-2].type.strip('*').replace('const ', '')
+                    replay_gen_source += '            m_objMapper.rm_from_%ss_map(pPacket->%s);\n' % (clean_type.lower()[2:], params[-2].name)
                 if 'DestroyDevice' in cmdname:
                     replay_gen_source += '            m_pCBDump = NULL;\n'
                     replay_gen_source += '            m_pDSDump = NULL;\n'
                     #TODO138 : disabling snapshot
                     #replay_gen_source += '            m_pVktraceSnapshotPrint = NULL;\n'
-                    replay_gen_source += '            m_objMapper.rm_from_devices_map(pPacket->device);\n'
-                elif 'DestroySwapchainKHR' in cmdname:
-                    replay_gen_source += '            m_objMapper.rm_from_swapchainkhrs_map(pPacket->swapchain);\n'
                 elif 'AcquireNextImage' in cmdname:
                     replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     replay_gen_source += '                m_objMapper.add_to_pImageIndex_map(*(pPacket->pImageIndex), local_pImageIndex);\n'
@@ -975,6 +976,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                         replay_gen_source += '            if (replayResult == VK_SUCCESS) {\n'
                     clean_type = params[-1].type.strip('*').replace('const ', '')
                     replay_gen_source += '                m_objMapper.add_to_%ss_map(*(pPacket->%s), local_%s);\n' % (clean_type.lower()[2:], params[-1].name, params[-1].name)
+                    if not isInstanceCmd(api) \
+                       and cmdname != 'GetDeviceQueue' \
+                       and cmdname != 'GetDeviceQueue2' \
+                       and cmdname != 'CreateSamplerYcbcrConversion' \
+                       and cmdname != 'CreateSharedSwapchainsKHR' \
+                       and cmdname != 'CreateSamplerYcbcrConversionKHR' \
+                       and cmdname != 'CreateValidationCacheEXT': \
+                        replay_gen_source += '                replay%sToDevice[local_%s] = remappeddevice;\n' % (cmdname[6:], params[-1].name)
                     if 'AllocateMemory' == cmdname:
                         replay_gen_source += '                m_objMapper.add_entry_to_mapData(local_%s, pPacket->pAllocateInfo->allocationSize);\n' % (params[-1].name)
                     if ret_value:
@@ -2358,6 +2367,227 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         return "\n".join(trim_instructions)
 
 
+    #
+    # Construct vktracedump gen source file
+    def GenerateParserGenSource(self):
+        cmd_member_dict = dict(self.cmdMembers)
+        cmd_info_dict = dict(self.cmd_info_data)
+        cmd_protect_dict = dict(self.cmd_feature_protect)
+        cmd_extension_dict = dict(self.cmd_extension_names)
+
+        dump_gen_source  = '\n'
+        dump_gen_source += '#include "vktrace_vk_packet_id.h"\n\n'
+        dump_gen_source += '#undef NOMINMAX\n'
+        dump_gen_source += '#include "api_dump_text.h"\n'
+        dump_gen_source += '#include "api_dump_html.h"\n'
+        dump_gen_source += '#include "vktracedump_main.h"'
+        dump_gen_source += '\n'
+        dump_gen_source += 'void dump_packet(const vktrace_trace_packet_header* packet) {\n'
+        dump_gen_source += '    switch (packet->packet_id) {\n'
+
+        for api in self.cmdMembers:
+            if not isSupportedCmd(api, cmd_extension_dict):
+                continue
+
+            vk_cmdname = api.name
+            # Strip off 'vk' from command name
+            cmdname = api.name[2:]
+
+            cmdinfo = cmd_info_dict[vk_cmdname]
+            protect = cmd_protect_dict[vk_cmdname]
+            if protect is not None:
+                dump_gen_source += '#ifdef %s\n' % protect
+
+            ret_value = True
+            resulttype = cmdinfo.elem.find('proto/type')
+            if resulttype is not None and resulttype.text == 'void':
+                ret_value = False
+
+            params = cmd_member_dict[vk_cmdname]
+            dump_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
+            if cmdname != 'GetInstanceProcAddr' and cmdname != 'GetDeviceProcAddr':
+                dump_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
+
+                # Build the call to the "dump_" entrypoint
+                param_string = ''
+                if ret_value:
+                    param_string += 'pPacket->result, '
+                for p in params:
+                    if p.name is not '':
+                        param_string += 'pPacket->%s, ' % p.name
+                param_string = '%s);' % param_string[:-2]
+
+                if cmdname == 'CreateDescriptorSetLayout':
+                    dump_gen_source += '            VkDescriptorSetLayoutCreateInfo *pInfo = (VkDescriptorSetLayoutCreateInfo *)pPacket->pCreateInfo;\n'
+                    dump_gen_source += '            if (pInfo != NULL) {\n'
+                    dump_gen_source += '                if (pInfo->pBindings != NULL) {\n'
+                    dump_gen_source += '                    pInfo->pBindings = (VkDescriptorSetLayoutBinding *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                        pPacket->header, (intptr_t)pInfo->pBindings);\n'
+                    dump_gen_source += '                    for (unsigned int i = 0; i < pInfo->bindingCount; i++) {\n'
+                    dump_gen_source += '                        VkDescriptorSetLayoutBinding *pBindings = (VkDescriptorSetLayoutBinding *)&pInfo->pBindings[i];\n'
+                    dump_gen_source += '                        if (pBindings->pImmutableSamplers != NULL) {\n'
+                    dump_gen_source += '                            pBindings->pImmutableSamplers = (const VkSampler *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                                pPacket->header, (intptr_t)pBindings->pImmutableSamplers);\n'
+                    dump_gen_source += '                        }\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '            }\n'
+                elif cmdname == 'QueueBindSparse':
+                    dump_gen_source += '            VkSparseImageMemoryBindInfo *sIMBinf = NULL;\n'
+                    dump_gen_source += '            VkSparseBufferMemoryBindInfo *sBMBinf = NULL;\n'
+                    dump_gen_source += '            VkSparseImageOpaqueMemoryBindInfo *sIMOBinf = NULL;\n'
+                    dump_gen_source += '            VkSparseImageMemoryBind *pLocalIMs = NULL;\n'
+                    dump_gen_source += '            VkSparseMemoryBind *pLocalBMs = NULL;\n'
+                    dump_gen_source += '            VkSparseMemoryBind *pLocalIOMs = NULL;\n'
+                    dump_gen_source += '            VkBindSparseInfo *pLocalBIs = VKTRACE_NEW_ARRAY(VkBindSparseInfo, pPacket->bindInfoCount);\n'
+                    dump_gen_source += '            memcpy((void *)pLocalBIs, (void *)(pPacket->pBindInfo), sizeof(VkBindSparseInfo) * pPacket->bindInfoCount);\n'
+                    dump_gen_source += '            for (uint32_t i = 0; i < pPacket->bindInfoCount; i++) {\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalBIs[i]);\n'
+                    dump_gen_source += '                if (pLocalBIs[i].pBufferBinds) {\n'
+                    dump_gen_source += '                    sBMBinf = VKTRACE_NEW_ARRAY(VkSparseBufferMemoryBindInfo, pLocalBIs[i].bufferBindCount);\n'
+                    dump_gen_source += '                    pLocalBIs[i].pBufferBinds =\n'
+                    dump_gen_source += '                        (const VkSparseBufferMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pBufferBinds));\n'
+                    dump_gen_source += '                    memcpy((void *)sBMBinf, (void *)pLocalBIs[i].pBufferBinds,\n'
+                    dump_gen_source += '                        sizeof(VkSparseBufferMemoryBindInfo) * pLocalBIs[i].bufferBindCount);\n'
+                    dump_gen_source += '                    if (pLocalBIs[i].pBufferBinds->bindCount > 0 && pLocalBIs[i].pBufferBinds->pBinds) {\n'
+                    dump_gen_source += '                        pLocalBMs  = (VkSparseMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pBufferBinds->pBinds));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    sBMBinf->pBinds = pLocalBMs;\n'
+                    dump_gen_source += '                    pLocalBIs[i].pBufferBinds = sBMBinf;\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '                if (pLocalBIs[i].pImageBinds) {\n'
+                    dump_gen_source += '                    sIMBinf = VKTRACE_NEW_ARRAY(VkSparseImageMemoryBindInfo, pLocalBIs[i].imageBindCount);\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageBinds =\n'
+                    dump_gen_source += '                        (const VkSparseImageMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageBinds));\n'
+                    dump_gen_source += '                    memcpy((void *)sIMBinf, (void *)pLocalBIs[i].pImageBinds,\n'
+                    dump_gen_source += '                        sizeof(VkSparseImageMemoryBindInfo) * pLocalBIs[i].imageBindCount);\n'
+                    dump_gen_source += '                    if (pLocalBIs[i].pImageBinds->bindCount > 0 && pLocalBIs[i].pImageBinds->pBinds) {\n'
+                    dump_gen_source += '                        pLocalIMs  = (VkSparseImageMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageBinds->pBinds));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    sIMBinf->pBinds = pLocalIMs;\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageBinds = sIMBinf;\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '                if (pLocalBIs[i].pImageOpaqueBinds) {\n'
+                    dump_gen_source += '                    sIMOBinf = VKTRACE_NEW_ARRAY(VkSparseImageOpaqueMemoryBindInfo, pLocalBIs[i].imageOpaqueBindCount);\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageOpaqueBinds =\n'
+                    dump_gen_source += '                        (const VkSparseImageOpaqueMemoryBindInfo *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageOpaqueBinds));\n'
+                    dump_gen_source += '                    memcpy((void *)sIMOBinf, (void *)pLocalBIs[i].pImageOpaqueBinds,\n'
+                    dump_gen_source += '                        sizeof(VkSparseImageOpaqueMemoryBindInfo) * pLocalBIs[i].imageOpaqueBindCount);\n'
+                    dump_gen_source += '                    if (pLocalBIs[i].pImageOpaqueBinds->bindCount > 0 && pLocalBIs[i].pImageOpaqueBinds->pBinds) {\n'
+                    dump_gen_source += '                        pLocalIOMs = (VkSparseMemoryBind *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalBIs[i].pImageOpaqueBinds->pBinds));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    sIMOBinf->pBinds = pLocalIOMs;\n'
+                    dump_gen_source += '                    pLocalBIs[i].pImageOpaqueBinds = sIMOBinf;\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '            }\n'
+                    dump_gen_source += '            pPacket->pBindInfo = pLocalBIs;\n'
+                elif cmdname == 'CreateComputePipelines':
+                    dump_gen_source += '            VkComputePipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);\n'
+                    dump_gen_source += '            memcpy((void *)pLocalCIs, (void *)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo) * pPacket->createInfoCount);\n'
+                    dump_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    dump_gen_source += '                if (pLocalCIs[i].stage.pName) {\n'
+                    dump_gen_source += '                    pLocalCIs[i].stage.pName =\n'
+                    dump_gen_source += '                        (const char *)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '                if (pLocalCIs[i].stage.pSpecializationInfo) {\n'
+                    dump_gen_source += '                    pLocalCIs[i].stage.pSpecializationInfo = \n'
+                    dump_gen_source += '                        (const VkSpecializationInfo  *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                            pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo));\n'
+                    dump_gen_source += '                    if (pLocalCIs[i].stage.pSpecializationInfo->mapEntryCount > 0 && pLocalCIs[i].stage.pSpecializationInfo->pMapEntries) {\n'
+                    dump_gen_source += '                        ((VkSpecializationInfo *)(pLocalCIs[i]).stage.pSpecializationInfo)->pMapEntries =\n'
+                    dump_gen_source += '                            (const VkSpecializationMapEntry *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                                pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pMapEntries));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                    if (pLocalCIs[i].stage.pSpecializationInfo->dataSize > 0 && pLocalCIs[i].stage.pSpecializationInfo->pData) {\n'
+                    dump_gen_source += '                        ((VkSpecializationInfo *)(pLocalCIs[i]).stage.pSpecializationInfo)->pData =\n'
+                    dump_gen_source += '                            (const void *)(vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                                pPacket->header, (intptr_t)pLocalCIs[i].stage.pSpecializationInfo->pData));\n'
+                    dump_gen_source += '                    }\n'
+                    dump_gen_source += '                }\n'
+                    dump_gen_source += '            }\n'
+                    dump_gen_source += '            pPacket->pCreateInfos = pLocalCIs;\n'
+                elif cmdname == 'CreateGraphicsPipelines':
+                    dump_gen_source += '            VkGraphicsPipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkGraphicsPipelineCreateInfo, pPacket->createInfoCount);\n'
+                    dump_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
+                    dump_gen_source += '                memcpy((void *)&(pLocalCIs[i]), (void *)&(pPacket->pCreateInfos[i]), sizeof(VkGraphicsPipelineCreateInfo));\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pStages);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pVertexInputState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pInputAssemblyState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pTessellationState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pViewportState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pRasterizationState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pMultisampleState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDepthStencilState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pColorBlendState);\n'
+                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDynamicState);\n'
+                    dump_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pViewports =\n'
+                    dump_gen_source += '                    (VkViewport *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pViewportState->pViewports);\n'
+                    dump_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pScissors =\n'
+                    dump_gen_source += '                    (VkRect2D *)vktrace_trace_packet_interpret_buffer_pointer(pPacket->header,\n'
+                    dump_gen_source += '                        (intptr_t)pPacket->pCreateInfos[i].pViewportState->pScissors);\n'
+                    dump_gen_source += '                ((VkPipelineMultisampleStateCreateInfo *)pLocalCIs[i].pMultisampleState)->pSampleMask =\n'
+                    dump_gen_source += '                    (VkSampleMask *)vktrace_trace_packet_interpret_buffer_pointer(\n'
+                    dump_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pMultisampleState->pSampleMask);\n'
+                    dump_gen_source += '            }\n'
+                    dump_gen_source += '            pPacket->pCreateInfos = pLocalCIs;\n'
+                dump_gen_source += '            ApiDumpInstance& dump_inst = ApiDumpInstance::current();\n'
+                dump_gen_source += '            const ApiDumpSettings& settings(dump_inst.settings());\n'
+                dump_gen_source += '            dump_inst.setThreadID(packet->thread_id);\n'
+                dump_gen_source += '            if (dump_inst.settings().format() == ApiDumpFormat::Text) {\n'
+                dump_gen_source += '                settings.stream() << \"GlobalPacketIndex \" << packet->global_packet_index << \", \";\n'
+                dump_gen_source += '            }\n'
+                if cmdname == 'AllocateCommandBuffers':
+                    dump_gen_source += '            dump_inst.addCmdBuffers(pPacket->device,\n'
+                    dump_gen_source += '                                    pPacket->pAllocateInfo->commandPool,\n'
+                    dump_gen_source += '                                    std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->pAllocateInfo->commandBufferCount),\n'
+                    dump_gen_source += '                                    pPacket->pAllocateInfo->level);\n'
+                elif cmdname == 'DestroyCommandPool':
+                    dump_gen_source += '            dump_inst.eraseCmdBufferPool(pPacket->device, pPacket->commandPool);\n'
+                elif cmdname == 'FreeCommandBuffers':
+                    dump_gen_source += '            dump_inst.eraseCmdBuffers(pPacket->device,\n'
+                    dump_gen_source += '                                      pPacket->commandPool,\n'
+                    dump_gen_source += '                                      std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->commandBufferCount));\n'
+                dump_gen_source += '            switch(dump_inst.settings().format()) {\n'
+                dump_gen_source += '            case ApiDumpFormat::Text:\n'
+                dump_gen_source += '                dump_text_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' % param_string
+                dump_gen_source += '                break;\n'
+                dump_gen_source += '            case ApiDumpFormat::Html:\n'
+                dump_gen_source += '                dump_html_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' % param_string
+                dump_gen_source += '                break;\n'
+                dump_gen_source += '            }\n'
+                if cmdname == 'QueuePresentKHR':
+                    dump_gen_source += '            dump_inst.nextFrame();\n'
+                elif cmdname == 'QueueBindSparse':
+                    dump_gen_source += '            VKTRACE_DELETE(pLocalBIs);\n'
+                    dump_gen_source += '            VKTRACE_DELETE(sIMBinf);\n'
+                    dump_gen_source += '            VKTRACE_DELETE(sBMBinf);\n'
+                    dump_gen_source += '            VKTRACE_DELETE(sIMOBinf);\n'
+                elif cmdname == 'CreateComputePipelines':
+                    dump_gen_source += '            VKTRACE_DELETE(pLocalCIs);\n'
+                elif cmdname == 'CreateGraphicsPipelines':
+                    dump_gen_source += '            VKTRACE_DELETE(pLocalCIs);\n'
+            dump_gen_source += '            break;\n'
+            dump_gen_source += '        }\n'
+            if protect is not None:
+                dump_gen_source += '#endif // %s\n' % protect
+        dump_gen_source += '        default:\n'
+        dump_gen_source += '            vktrace_LogWarning("Unrecognized packet_id %u, skipping.", packet->packet_id);\n'
+        dump_gen_source += '            break;\n'
+        dump_gen_source += '    }\n'
+        dump_gen_source += '    return;\n'
+        dump_gen_source += '}\n'
+        return dump_gen_source
 
 
     #
@@ -3074,5 +3304,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             return self.GenerateTraceVkSource()
         elif self.vktrace_file_type == 'vktrace_vk_packets_header':
             return self.GenerateTraceVkPacketsHeader()
+        elif self.vktrace_file_type == 'vktrace_dump_gen_source':
+            return self.GenerateParserGenSource()
         else:
             return 'Bad VkTrace File Generator Option %s' % self.vktrace_file_type

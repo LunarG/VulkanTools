@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2018 Valve Corporation
- * Copyright (c) 2016-2018 LunarG, Inc.
+ * Copyright (c) 2016-2019 Valve Corporation
+ * Copyright (c) 2016-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,6 @@ bool ViaSystem::Init(int argc, char** argv) {
     // If the user wants a unique file, generate a file with the current
     // time and date incorporated into it.
     _html_file = argv[0];
-#ifdef VIA_WINDOWS_TARGET
     if (output_path != NULL) {
         auto dir_pos = _html_file.rfind(_directory_symbol);
         if (dir_pos != std::string::npos) {
@@ -91,6 +90,7 @@ bool ViaSystem::Init(int argc, char** argv) {
             _html_file.erase(0, dir_pos + 1);
         }
     }
+#ifdef VIA_WINDOWS_TARGET
     // If it has an ending with a period, remove it.
     auto period_pos = _html_file.rfind('.');
     if (period_pos != std::string::npos) {
@@ -958,7 +958,7 @@ ViaSystem::ViaResults ViaSystem::GeneratePhysDevInfo(void) {
         }
         _vulkan_max_info.desired_api_version = max_overall_version;
 
-        if (max_overall_version.major > 1 || max_overall_version.minor > 1) {
+        if (max_overall_version.major > 1 || max_overall_version.minor >= 1) {
             for (iii = 0; iii < gpu_count; iii++) {
                 vkGetPhysicalDeviceProperties(max_phys_devices[iii], &props);
                 if (VK_VERSION_MAJOR(props.apiVersion) == max_overall_version.major &&
@@ -1855,6 +1855,7 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
         std::string full_cmd;
         std::string path = "";
 
+        LogInfo("SDK Found! - Will attempt to run tests");
         for (uint32_t pass = 0; pass < 2; ++pass) {
             switch (pass) {
                 case 0:
@@ -1881,6 +1882,8 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
                 path += "/../examples/build";
             }
 #endif
+
+            LogInfo("   Attempting to run " + cube_exe + " in " + path);
 
             full_cmd = cube_exe;
             full_cmd += " --c 100 --suppress_popups";
@@ -1921,6 +1924,9 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
                 res = VIA_TEST_FAILED;
             }
             PrintEndTableRow();
+
+            // Make it this far, we shouldn't test anymore
+            break;
         }
 
         if (!found_exe) {

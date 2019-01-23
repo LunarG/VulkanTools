@@ -1,0 +1,291 @@
+{
+    "layer_authors": {
+        "LUNARG": {
+            "name": "LunarG",
+            "logo": "lunarg_small.png"
+        },
+        "GOOGLE": {
+            "name": "Google"
+        },
+        "NV": {
+            "name": "Nvidia"
+        },
+        "RENDERDOC": {
+            "name": "RenderDoc"
+        },
+        "VALVE": {
+            "name": "Valve"
+        }
+    },
+    "layer_options": {
+
+        "VK_LAYER_LUNARG_api_dump": {
+            "output_format": {
+                "name": "Output Format",
+                "description": "Specifies the format used for output; can be Text (default -- outputs plain text) or Html",
+                "type": "enum",
+                "options": [ "Text", "Html" ],
+                "default": "Text"
+            },
+            "detailed": {
+                "name": "Detailed Output",
+                "description": "Setting this to true causes parameter details to be dumped in addition to API calls",
+                "type": "bool",
+                "default": true
+            },
+            "no_addr": {
+                "name": "Hide Addresses",
+                "description": "Setting this to true causes \"address\" to be dumped in place of hex addresses",
+                "type": "bool",
+                "default": false
+            },
+            "file": {
+                "name": "Output to File",
+                "description": "Setting this to true indicates that output should be written to file instead of stdout",
+                "type": "bool",
+                "default": false
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the file to dump to when output files are enabled",
+                "type": "save_file",
+                "default": "vk_apidump.txt"
+            },
+            "flush": {
+                "name": "Flush",
+                "description": "Setting this to true causes IO to be flushed after each API call that is written",
+                "type": "bool",
+                "default": true
+            },
+            "indent_size": {
+                "name": "Indent Size",
+                "description": "Specifies the number of spaces that a tab is equal to",
+                "type": "string",
+                "default": "4"
+            },
+            "show_types": {
+                "name": "Show Types",
+                "description": "Setting this to true causes types to be dumped in addition to values",
+                "type": "bool",
+                "default": true
+            },
+            "name_size": {
+                "name": "Name Size",
+                "description": "The number of characters the name of a variable should consume, assuming more are not required",
+                "type": "string",
+                "default": "32"
+            },
+            "type_size": {
+                "name": "Type Size",
+                "description": "The number of characters the name of a type should consume, assuming more are not required",
+                "type": "string",
+                "default": "0"
+            },
+            "use_spaces": {
+                "name": "Use Spaces",
+                "description": "Setting this to true causes all tab characters to be replaced with spaces",
+                "type": "bool",
+                "default": true
+            },
+            "show_shader": {
+                "name": "Show Shader",
+                "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
+                "type": "bool",
+                "default": false
+            }
+        },
+
+        "VK_LAYER_LUNARG_core_validation": {
+            "debug_action": {
+                "name": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            "report_flags": {
+                "name": "Report Flags",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [ "error", "warn", "perf" ]
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            }
+        },
+
+        "VK_LAYER_LUNARG_device_simulation": {
+            "filename": {
+                "name": "Filename",
+                "type": "open_file",
+                "default": ""
+            },
+            "debug_enable": {
+                "name": "Enable Debug",
+                "type": "bool",
+                "default": false
+            },
+            "exit_on_error": {
+                "name": "Exit on Error",
+                "type": "bool",
+                "default": false
+            }
+        },
+
+        "VK_LAYER_LUNARG_object_tracker": {
+            "debug_action": {
+                "name": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            "report_flags": {
+                "name": "Report Flags",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [ "error", "warn", "perf" ]
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            }
+        },
+
+        "VK_LAYER_LUNARG_parameter_validation": {
+            "debug_action": {
+                "name": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            "report_flags": {
+                "name": "Report Flags",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [ "error", "warn", "perf" ]
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            }
+        },
+
+        "VK_LAYER_GOOGLE_threading": {
+            "debug_action": {
+                "name": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            "report_flags": {
+                "name": "Report Flags",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [ "error", "warn", "perf" ]
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            }
+        },
+
+        "VK_LAYER_GOOGLE_unique_objects": {
+            "debug_action": {
+                "name": "Debug Action",
+                "description": "This indicates what action is to be taken when a layer wants to report information",
+                "type": "enum",
+                "options": {
+                    "VK_DBG_LAYER_ACTION_IGNORE": "Ignore",
+                    "VK_DBG_LAYER_ACTION_LOG_MSG": "Log Message",
+                    "VK_DBG_LAYER_ACTION_CALLBACK": "Callback",
+                    "VK_DBG_LAYER_DEBUG_OUTPUT": "Debug Output",
+                    "VK_DBG_LAYER_ACTION_BREAK": "Break"
+                },
+                "default": "VK_DBG_LAYER_ACTION_LOG_MSG"
+            },
+            "report_flags": {
+                "name": "Report Flags",
+                "description": "This is a comma-delineated list of options telling the layer what types of messages it should report back",
+                "type": "multi_enum",
+                "options": {
+                    "info": "Info",
+                    "warn": "Warn",
+                    "perf": "Perf",
+                    "error": "Error",
+                    "debug": "Debug"
+                },
+                "default": [ "error", "warn", "perf" ]
+            },
+            "log_filename": {
+                "name": "Log Filename",
+                "description": "Specifies the output filename",
+                "type": "save_file",
+                "default": "stdout"
+            }
+        }
+    }
+}

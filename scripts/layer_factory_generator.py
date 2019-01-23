@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2016 Valve Corporation
-# Copyright (c) 2015-2016 LunarG, Inc.
-# Copyright (c) 2015-2016 Google Inc.
+# Copyright (c) 2015-2019 Valve Corporation
+# Copyright (c) 2015-2019 LunarG, Inc.
+# Copyright (c) 2015-2019 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -130,10 +130,10 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 // This file is ***GENERATED***.  Do Not Edit.
 // See layer_factory_generator.py for modifications.
 
-/* Copyright (c) 2015-2017 The Khronos Group Inc.
- * Copyright (c) 2015-2017 Valve Corporation
- * Copyright (c) 2015-2017 LunarG, Inc.
- * Copyright (c) 2015-2017 Google Inc.
+/* Copyright (c) 2015-2019 The Khronos Group Inc.
+ * Copyright (c) 2015-2019 Valve Corporation
+ * Copyright (c) 2015-2019 LunarG, Inc.
+ * Copyright (c) 2015-2019 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -676,10 +676,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         # Add default implementation: This map contains the default function definitions for the return types of Vulkan Commands.
         # If any new return types are required, they'll need to be added to this dict.
         return_map = {
-            'VkResult': ' { return VK_SUCCESS; };',
-            'void': ' {};',
             'PFN_vkVoidFunction': ' { return nullptr; };',
             'VkBool32': ' { return VK_TRUE; };',
+            'VkDeviceAddress': '{ return 0; };',
+            'VkResult': ' { return VK_SUCCESS; };',
+            'void': ' {};',
             }
         return_type = result.split(" ")[1]
         default_def = return_map[return_type]

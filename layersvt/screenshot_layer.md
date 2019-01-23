@@ -12,22 +12,31 @@ Checks include:
  - image indices must be within range.
 
 ### Android
+
 To enable, set a property that contains target frame:
+
 ```
 adb shell setprop debug.vulkan.screenshot <framenumber>
 ```
+
 For production builds, be sure your application has access to read and write to external storage by adding the following to AndroidManifest.xml:
-```
+
+```xml
 <!-- This allows writing log files to sdcard -->
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ```
-You may also need to grant it access with package manager:
+
+You may also need to grant it access with package manager.  For example, using the
+Vulkan Cube demo from [Khronos/Vulkan-Tools](https://github.com/KhronosGroup/Vulkan-Tools):
+
 ```
-adb shell pm grant com.example.Cube android.permission.READ_EXTERNAL_STORAGE
-adb shell pm grant com.example.Cube android.permission.WRITE_EXTERNAL_STORAGE
+adb shell pm grant com.example.VkCube android.permission.READ_EXTERNAL_STORAGE
+adb shell pm grant com.example.VkCube android.permission.WRITE_EXTERNAL_STORAGE
 ```
+
 Result screenshot will be in:
+
 ```
 /sdcard/Android/<framenumber>.ppm
 ```

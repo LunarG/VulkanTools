@@ -1,6 +1,8 @@
-# Overview
+# VK\_LAYER\_LUNARG\_device\_simulation
 
-## Extend your Vulkan test coverage with free LunarG tool
+## Overview
+
+### Extend your Vulkan test coverage with free LunarG tool
 
 Do you have a test lab with examples of all the GPUs you hope your application will support?
 
@@ -9,7 +11,7 @@ Is your Vulkan application stress-tested to ensure it behaves correctly across t
 If either answer is "no," LunarG offers a free tool that could extend your test coverage and increase your peace of mind.
 
 ### Introducing the LunarG Device Simulation Layer
-The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully-automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
+The LunarG Device Simulation layer helps test across a wide range of hardware capabilities without requiring a physical copy of every device. It can be applied without modifying any application binaries, and in a fully automated fashion. The Device Simulation layer (aka DevSim) is a Vulkan layer that can override the values returned by your application’s queries of the GPU. DevSim uses a JSON text configuration file to make your application see a different driver/GPU than is actually in your system. This capability is useful to verify that your application both a) properly queries the limits from Vulkan, and b) obeys those limits.
 
 The DevSim layer library is available pre-built in the LunarG Vulkan SDK, and continues to evolve. DevSim works for all Vulkan platforms (Linux, Windows, and Android), and is open-source software hosted on GitHub.
 
@@ -73,7 +75,7 @@ When configuring the order of the layers list, the DevSim layer should be "last"
 i.e.: closest to the driver, farthest from the application.
 That allows the Validation layer to see the results of the DevSim layer, and permit Validation to enforce the simulated capabilities.
 
-Please report issues to the [GitHub VulkanTools repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
+Please report issues to [LunarG's VulkanTools GitHub repository](https://github.com/LunarG/VulkanTools/issues) and include "DevSim" in the title text.
 
 ### Layer name
 `VK_LAYER_LUNARG_device_simulation`
@@ -172,18 +174,19 @@ A JSON index of the available device records can be queried with https://vulkan.
 That index includes URLs to download the specific device records in DevSim-compatible format, for example https://vulkan.gpuinfo.org/api/v2/devsim/getreport.php?id=1456
 
 As mentioned above, attempting to use a configuration file that does not fit within the capabilities of the underlying device may produce undefined results.
-Downloaded device records should be reviewed to determine that its capabilities can be simulated by the underlying device.
+Downloaded device records should be reviewed to determine that their capabilities can be simulated by the underlying device.
 
 ### Device configuration data from the local system
-Vulkaninfo can write its output in a format compatible the DevSim JSON schema,
+Vulkan Info can write its output in a format compatible the DevSim JSON schema,
 so the configuration of the local system can be captured.
 Use `vulkaninfo -j` to generate output in JSON format and redirect to a file, which can be consumed directly by DevSim.
-See the vulkaninfo documentation for further details.
+See the Vulkan Info documentation for further details.
 
 ### JSON validation
 The DevSim layer itself does very little sanity checking of the configuration file, so those files should be validated to the schema using a separate tool, such as the following web-based validators.
 1. http://www.jsonschemavalidator.net/
 2. https://json-schema-validator.herokuapp.com/
+3. https://jsonschemalint.com/#/version/draft-04/markup/json/
 
 ### Other Resources
 1. http://json.org/

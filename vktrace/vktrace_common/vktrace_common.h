@@ -165,6 +165,13 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 // (e.g. when generating trace file with only 1 or small range of frames.)
 #define VKTRACE_TRIM_POST_PROCESS_ENV "VKTRACE_TRIM_POST_PROCESS"
 
+// VKTRACE_ENABLE_LOCKGUARD env var is set by the vktrace program to
+// pass the option argument to the trace layer to always enable lock guard
+// for all API calls when it is set to true.
+// By default, it is set to false in which lock guard only enabled
+// when trim enabled.
+#define VKTRACE_ENABLE_LOCKGUARD_ENV "VKTRACE_ENABLE_LOCKGUARD"
+
 // _VKTRACE_VERBOSITY env var is set by the vktrace program to
 // communicate verbosity level to the trace layer. It is set to
 // one of "quiet", "errors", "warnings", "full", or "debug".

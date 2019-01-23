@@ -22,6 +22,7 @@
 
 #include "vktrace_lib_trim_generate.h"
 #include "vktrace_lib_trim_statetracker.h"
+#include "vktrace_lib_trim_descriptoriterator.h"
 #include "vulkan/vulkan.h"
 
 #if defined(PLATFORM_LINUX)  // VK_USE_PLATFORM_XCB_KHR
@@ -49,6 +50,8 @@ extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
 extern bool g_trimAlreadyFinished;
 
+extern bool g_LockGuardAlwaysEnabled;
+
 // This mutex is used to protect API calls sequence
 // when trim starting process.
 extern std::mutex g_mutex_trim;
@@ -64,8 +67,10 @@ class TrimLockGuard {  // specialization for a single mutex
    public:
     typedef _Mutex mutex_type;
 
-    explicit TrimLockGuard(_Mutex &_Mtx) : _MyMutex(_Mtx) {  // construct and lock only when trim enabled
-        if (g_trimEnabled) {
+    explicit TrimLockGuard(_Mutex &_Mtx) : _MyMutex(_Mtx) {
+        // construct and lock only when trim enabled (default behaviour)
+        // or when env var VKTRACE_ENABLE_LOCKGUARD is set to "1"
+        if (g_trimEnabled || g_LockGuardAlwaysEnabled) {
             _MyMutex.lock();
             m_islocked = true;
         } else {

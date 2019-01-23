@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 
+# Define GNU standard installation directories.
+include(GNUInstallDirs)
+
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(COMMON_COMPILE_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
     set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fno-strict-aliasing -fno-builtin-memcmp")
@@ -101,4 +104,7 @@ target_include_directories(vkvia PUBLIC ${JSONCPP_INCLUDE_DIR})
 target_link_libraries(vkvia ${LIBRARIES})
 if(WIN32)
     target_link_libraries(vkvia version)
+endif()
+if(UNIX)
+    install(TARGETS vkvia DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

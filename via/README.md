@@ -60,14 +60,14 @@ The source for VIA can also be found in the LunarG Linux [Vulkan SDK](https://vu
 ## Running
 You will find the VIA binary in a different location depending on which OS you are using and whether you have built it, or installed it as part of the SDK.  The following information states where to find the proper executable.
 
-When running, if VIA detects an installed Vulkan SDK, it will attempt to run the "Cube" demo in several ways to make sure the install truly appears valid.  The first run of "Cube" it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run "Cube" with validation enabled, again, for only a few frames.  Because of this, you may notice "Cube" popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
+When running, if VIA detects an installed Vulkan SDK, it will attempt to run the Vulkan Cube demo in several ways to make sure the install truly appears valid.  The first run of Vulkan Cube it attempts will run in the standard way, but only for a few frames.  After that completes, it will attempt to run Vulkan Cube with validation enabled, again, for only a few frames.  Because of this, you may notice Vulkan Cube popping up several times while running VIA.  When it has completed the tests, it will then record the results as normal to the HTML file.
 
 Please note that if you are trying to diagnose a troublesome application, the **best way** to run VIA to assist in diagnosis is to change to the location of the application, and run via in that folder locally (by typing in a relative or absolute path to the vkvia executable).
 
 #### In the Windows Vulkan SDK
-VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "vkvia".  This will output the resulting vkvia.html directly to your desktop.
+VIA is installed into your start menu as part of the Windows Vulkan SDK.  Simply open your start menu, search for the "Vulkan SDK" and click "VIA".  This will output the resulting vkvia.html directly to your desktop.
 
-If you need to run via from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
+If you need to run VIA from the command-line, you will find it in your SDK folder (defined by the environment variable "VULKAN_SDK") under the "Bin" folder for 64-bit executables, and "Bin32" folder for 32-bit executables.  From there, simply run:
 ```
 vkvia.exe
 ```
@@ -151,7 +151,7 @@ example, if the user runs `via --output_path /home/me/Documents`, then the outpu
 LunarG's VIA could detect no problems with your setup.  In fact it was able to create an instance and device up through Vulkan version X.Y.
 
 ##### Possible Reason:
-Your system is likely setup properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+Your system is likely set up properly.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
 Re-run VIA from the location your Vulkan application/game is supposed to run.
@@ -163,7 +163,7 @@ Re-run VIA from the location your Vulkan application/game is supposed to run.
 LunarG's VIA could detect no problems with your setup other than a missing SDK.  It was able to run some limited tests and create both a Vulkan instance and device.
 
 ##### Possible Reason:
-Your system is likely setup properly, but is either missing an installed Vulkan SDK or you didn't setup your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't setup properly.
+Your system is likely set up properly, but is either missing an installed Vulkan SDK or you didn't set up your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
 Install the LunarG Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
@@ -357,7 +357,7 @@ it's possible the SDK did not install properly.
 See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
-#### [WINDOWS] Dialog box pop's up indicating "vulkan-1.dll is missing from your computer."
+#### [WINDOWS] Dialog box pops up indicating "vulkan-1.dll is missing from your computer."
 
 ##### Problem:
 The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,

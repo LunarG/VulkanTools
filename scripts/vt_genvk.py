@@ -313,6 +313,32 @@ def makeGenOpts(args):
             expandEnumerants  = False)
         ]
 
+    # VkTrace file generator options for vktracedump_vk_dump_gen.cpp
+    genOpts['vktracedump_vk_dump_gen.cpp'] = [
+          VkTraceFileOutputGenerator,
+          VkTraceFileOutputGeneratorOptions(
+            filename          = 'vktracedump_vk_dump_gen.cpp',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFeature    = False,
+            genFuncPointers   = True,
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            vktrace_file_type  = 'vktrace_dump_gen_source',
+            expandEnumerants  = False)
+        ]
+
+
     # VkTrace file generator options for vktrace_vk_packet_id.h
     genOpts['vktrace_vk_packet_id.h'] = [
           VkTraceFileOutputGenerator,

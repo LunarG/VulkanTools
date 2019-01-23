@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/layermgr">
+    <file alias="layer_info.json">layer_info.json</file>
+</qresource>
+<qresource prefix="/layermgr/icons">
+    <file alias="lunarg_logo.png">icons/lunarg_logo.png</file>
+    <file alias="logo_square.png">icons/logo_square.png</file>
+    <file alias="explicit.png">icons/explicit.png</file>
+    <file alias="implicit.png">icons/implicit.png</file>
+</qresource>
+</RCC>

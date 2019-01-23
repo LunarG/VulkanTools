@@ -13,9 +13,11 @@ create a branch in your forked repo, do the work,
 and create a pull request on GitHub to integrate that work back into the repo.
 
 ## Linux System Requirements
-Ubuntu 14.04.3 LTS, 14.10, 15.04,15.10, and 16.04 LTS have been tested with this repo.
-
 These additional packages are needed for building the components in this repo.
+
+### Ubuntu
+
+Ubuntu 16.04 LTS and 18.04 have been tested with this repo.
 ```
 # Dependencies from included submodule components
 sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libwayland-dev libxrandr-dev libxcb-randr0-dev
@@ -23,6 +25,30 @@ sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon
 sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
 # If performing 32-bit builds, you will also need:
 sudo apt-get install libc6-dev-i386 g++-multilib
+```
+
+On Ubuntu 18.04 LTS or newer, you may build VkConfig only if you also install several
+additional Qt dependencies:
+
+```
+# Qt Dependencies for building VkConfig (not required if you don't want VkConfig)
+sudo apt-get install qt5-default qtwebengine5-dev
+```
+
+### Fedora Core
+
+Fedora Core 28 and 29 were tested with this repo.
+
+Additional package dependencies include:
+
+```
+# Dependencies from included submodule components
+sudo dnf install git cmake @development-tools glm-devel \
+                 libpng-devel wayland-devel libpciaccess-devel \
+                 libX11-devel libXpresent libxcb xcb-util libxcb-devel libXrandr-devel \
+                 xcb-util-keysyms-devel xcb-util-wm-devel
+# Qt Dependencies for building VkConfig (not required if you don't want VkConfig)
+sudo dnf install qt qt5-qtwebengine-devel
 ```
 
 ## Download the repository
@@ -135,7 +161,7 @@ it on the CMake command line for building this repository, as described below.
 
 The tests in this repository depend on the Vulkan-Tools repository, which is
 hosted under Khronos' GitHub account and differentiated in name by a hyphen.
-The tests use vulkaninfo and the mock ICD from Vulkan-Tools.
+The tests use Vulkan Info and the mock ICD from Vulkan-Tools.
 
 You may build the
 [Vulkan-Tools repository](https://github.com/KhronosGroup/Vulkan-Tools.git)
@@ -199,6 +225,28 @@ Here is a usage example for this repository:
 - Please use `update_deps.py --help` to list additional options and read the
   internal documentation in `update_deps.py` for further information.
 
+
+## VkConfig
+
+VkConfig has additional requirements beyond the rest of the source in this
+repository.
+Because of that, if one or more of those dependencies is not properly installed,
+you may get a warning during CMake generation like the following:
+
+```
+WARNING: vkconfig will be excluded because Qt5 was not found.
+-- Configuring done
+-- Generating done
+```
+
+This is usually caused by missing Qt dependencies.
+Make sure the following items are installed for proper building of VkConfig:
+
+* Qt5
+* Qt5 Web Engine Widgets
+
+Please note that not building VkConfig is purely fine as well and will not
+impact the generation of any other targets.
 
 
 ## Linux Build

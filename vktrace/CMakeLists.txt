@@ -259,11 +259,11 @@ if (NOT MSVC)
 endif()
 
 # Compiler flags
-string(REPLACE ";" " " CMAKE_C_FLAGS              "${CMAKE_CXX_FLAGS_LIST}")
+string(REPLACE ";" " " CMAKE_C_FLAGS              "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS_LIST}")
 string(REPLACE ";" " " CMAKE_C_FLAGS_RELEASE      "${CMAKE_CXX_FLAGS_RELEASE_LIST}")
 string(REPLACE ";" " " CMAKE_C_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG_LIST}")
 
-string(REPLACE ";" " " CMAKE_CXX_FLAGS            "${CMAKE_CXX_FLAGS_LIST}")
+string(REPLACE ";" " " CMAKE_CXX_FLAGS            "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_LIST}")
 string(REPLACE ";" " " CMAKE_CXX_FLAGS_RELEASE    "${CMAKE_CXX_FLAGS_RELEASE_LIST}")
 string(REPLACE ";" " " CMAKE_CXX_FLAGS_DEBUG      "${CMAKE_CXX_FLAGS_DEBUG_LIST}")
 
@@ -638,6 +638,7 @@ add_custom_target(vktrace_generate_helper_files
 
 add_subdirectory(vktrace_common)
 add_subdirectory(vktrace_trace)
+add_subdirectory(vktrace_dump)
 
 option(BUILD_VKTRACE_LAYER "Build vktrace_layer" ON)
 if(BUILD_VKTRACE_LAYER)

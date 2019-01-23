@@ -16,12 +16,12 @@ Options for the `vktrace` command are:
 | -w&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;WorkingDir&nbsp;&lt;string&gt; | Alternate working directory | the application's directory |
 | -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace  persistently mapped buffers | true |
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
-| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
+| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
 
-An example command to trace the sample `vkcube` application in local mode follows.
+An example command to trace the sample Vulkan Cube application in local mode follows.
 
 Linux shell:
 
@@ -77,7 +77,7 @@ $ ./vkcube
 ```
 The generated trace file is found at `examples/traces/cubetrace_s.vktrace`.
 
-*Note*:  The `vkcube` application is used to demonstrate tracing in client/server mode.  `vkcube` is a very simple application, and would not be traced in this mode in practice.
+*Note*:  The Vulkan Cube application is used to demonstrate tracing in client/server mode.  Vulkan Cube is a very simple application, and would not be traced in this mode in practice.
 
 #### Remote Client
 Remote client/server mode is useful if the client is a mobile device or running in a lightweight environment that might not have the disk or other capabilities to store large trace files.
@@ -115,7 +115,7 @@ The  `vkreplay` command-line  options are:
 | Linux Only |  |  |
 | -ds&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;DisplayServer&nbsp;&lt;string&gt; | Display server - "xcb", or "wayland" | xcb |
 
-To replay the vkcube application trace captured in the example above:
+To replay the Vulkan Cube application trace captured in the example above:
 
 ```
 $ cd examples/build
@@ -141,6 +141,28 @@ vkreplay -o <tracefile> -ds wayland
 The Vulkan validation layers may be enabled for trace replay.  Replaying a trace with layers activated provides many benefits.  Developers can take advantage of new validation capabilities as they are developed with older and existing trace files.
 
 To activate specific layers on a trace replay, set the `VK_INSTANCE_LAYERS` environment variable to a colon-separated list of layer names before replaying the trace. Refer to the [Vulkan Validation and Debugging Layers](./layers.md) guide for additional information on layers and how to configure layer output options.
+
+## Dump API Calls from Vulkan Trace File
+
+The vktracedump command is used to dump Vulkan API calls from a Vulkan application trace.
+
+The  `vktracedump` command-line  options are:
+
+| Option                | Description | Default |
+| --------------------- | ----------- | ------- |
+| -o &lt;string&gt; | Name of trace file to open and dump | **required** |
+| -s &lt;string&gt; | Name of simple dump file to save the outputs of simple/brief API dump. <br> Use 'stdout' to send outputs to stdout. | **optional** |
+| -f &lt;string&gt; | Name of full dump file to save the outputs of full/detailed API dump. <br> Use 'stdout' to send outputs to stdout. | **optional** |
+| -ds | Dump the shader binary code in pCode to shader dump files shader&lowbar;&lt;index&gt;.hex (when &lt;fullDumpFile&gt; is a file) or to stdout (when &lt;fullDumpFile&gt; is stdout). <br> Only works with "-f &lt;fullDumpFile&gt;" option. <br> The file name shader&lowbar;&lt;index&gt;.hex can be found in pCode in the &lt;fullDumpFile&gt; to associate with vkCreateShaderModule. | disabled |
+| -dh | Save full/detailed API dump as HTML format. Only works with "-f &lt;fullDumpFile&gt;" option. | text format |
+| -na | Dump string "address" in place of hex addresses. Only works with "-f &lt;fullDumpFile&gt;" option.  | disabled |
+
+To dump API calls from the Vulkan Cube application trace captured in the example above:
+
+```
+$ cd examples/build
+$ vktracedump -o cubetrace.vktrace -s <simple_api_dump_file> -f <full_api_dump_file>
+```
 
 ## vktraceviewer
 
@@ -168,11 +190,11 @@ Several environment variables can be set to change the behavior of vktrace/vkrep
 
  - VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS
 
-    VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS, when set to a non-null value, enables post processing  when read PMB support is enabled.  When VKTRACE_PAGEGUARD_ENABLE_READ_PMB is set, PMB processing will sometimes miss writes following reads if writes occur on the same page as a read. Set this environment variable to enable post processing to fix missed pmb writes. It is supported only on Windows.
+    VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS, when set to a non-null value, enables post-processing  when read PMB support is enabled.  When VKTRACE_PAGEGUARD_ENABLE_READ_PMB is set, PMB processing will sometimes miss writes following reads if writes occur on the same page as a read. Set this environment variable to enable post-processing to fix missed PMB writes. It is supported only on Windows.
 
  - VKTRACE_TRIM_POST_PROCESS
 
-    VKTRACE_TRIM_POST_PROCESS enables post processing of trim if its value is 1.  Other values disable trim post processing.  Disable post processing means the trimmed trace file will record all the not destroyed objects no matter they are used/referenced in the trim frame range or not.  Enable post processing will drop most of the pre-trim objects which are not used/referenced in the trim frame range.  Set this environment variable to 1 to enable post processing of trim to generate a smaller trace file and eliminate most useless pre-trim objects and vulkan calls.  Do NOT enable trim post processing when there's a large trim frame range because both the referenced pre-trim data and in-trim data are kept in memory until writing to trace file in the trim end frame which may exceeds the system memory.
+    VKTRACE_TRIM_POST_PROCESS enables post-processing of trim if its value is 1.  Other values disable trim post-processing.  Disable post-processing means the trimmed trace file will record all the not destroyed objects whether they are used/referenced in the trim frame range or not.  Enable post-processing will drop most of the pre-trim objects which are not used/referenced in the trim frame range.  Set this environment variable to 1 to enable post-processing of trim to generate a smaller trace file and eliminate most useless pre-trim objects and Vulkan calls.  Do NOT enable trim post-processing when there's a large trim frame range because both the referenced pre-trim data and in-trim data are kept in memory until writing to trace file in the trim end frame which may exceeds the system memory.
 
 ## Android
 

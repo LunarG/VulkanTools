@@ -133,6 +133,13 @@ vktrace_SettingInfo g_settings_info[] = {
     //{ "z", "pauze", VKTRACE_SETTING_BOOL, &g_settings.pause,
     //&g_default_settings.pause, TRUE, "Wait for a key at startup (so a debugger
     // can be attached)" },
+    {"lg",
+     "Lockguard",
+     VKTRACE_SETTING_BOOL,
+     {&g_settings.enable_lock_guard_all},
+     {&g_default_settings.enable_lock_guard_all},
+     TRUE,
+     "Enable lock guard for all API calls, default is FALSE(enabled only for trim)."},
 };
 
 vktrace_SettingGroup g_settingGroup = {"vktrace", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
@@ -327,6 +334,7 @@ int main(int argc, char* argv[]) {
     g_default_settings.screenshotColorFormat = NULL;
     g_default_settings.enable_pmb = true;
     g_default_settings.enable_trim_post_processing = false;
+    g_default_settings.enable_lock_guard_all = false;
 
     // Check to see if the PAGEGUARD_PAGEGUARD_ENABLE_ENV env var is set.
     // If it is set to anything but "1", set the default to false.
@@ -341,6 +349,13 @@ int main(int argc, char* argv[]) {
     char* tppEnableEnv = vktrace_get_global_var(VKTRACE_TRIM_POST_PROCESS_ENV);
     if (tppEnableEnv && strcmp(tppEnableEnv, "1")) g_default_settings.enable_trim_post_processing = false;
     if (tppEnableEnv && !strcmp(tppEnableEnv, "1")) g_default_settings.enable_trim_post_processing = true;
+
+    // get the value of VKTRACE_ENABLE_LOCKGUARD_ENV env variable.
+    // if it is set to "1" (true), lock guard always enabled for API calls.
+    // by default it is set to "0" (false), in which lock guard only enabled during trim for API calls.
+    // Note that the command line option will override the env variable.
+    char* lg_enable_env = vktrace_get_global_var(VKTRACE_ENABLE_LOCKGUARD_ENV);
+    if (lg_enable_env && (strcmp(lg_enable_env, "1") == 0)) g_default_settings.enable_lock_guard_all = true;
 
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0) {
         // invalid cmd-line parameters
@@ -423,6 +438,7 @@ int main(int argc, char* argv[]) {
 
     vktrace_set_global_var(VKTRACE_PMB_ENABLE_ENV, g_settings.enable_pmb ? "1" : "0");
     vktrace_set_global_var(VKTRACE_TRIM_POST_PROCESS_ENV, g_settings.enable_trim_post_processing ? "1" : "0");
+    vktrace_set_global_var(VKTRACE_ENABLE_LOCKGUARD_ENV, g_settings.enable_lock_guard_all ? "1" : "0");
 
     if (g_settings.traceTrigger) {
         // Export list to screenshot layer

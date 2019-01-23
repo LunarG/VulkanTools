@@ -40,6 +40,10 @@ find_package(X11 REQUIRED)
 
 require_pthreads()
 
+if(WIN32)
+    set_source_files_properties(${SRC_DIR}/vktrace_replay/vkreplay_vkreplay.cpp PROPERTIES COMPILE_FLAGS "/bigobj")
+endif()
+
 include_directories(
     ${SRC_DIR}
     ${SRC_DIR}/vktrace_common

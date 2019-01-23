@@ -47,11 +47,15 @@ py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% v
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_dispatch_table_helper.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% thread_check.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% parameter_validation.cpp
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% unique_objects_wrappers.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_layer_dispatch_table.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_extension_helper.h
-py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.cpp
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% vk_typemap_helper.h
+py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.cpp
+py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% object_tracker.h
+py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.cpp
+py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.h
+py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.cpp
+py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.h
 py -3 %LVL_SCRIPTS%\external_revision_generator.py --git_dir ..\..\third_party\shaderc\third_party\spirv-tools -s SPIRV_TOOLS_COMMIT_ID -o spirv_tools_commit_id.h
 
 REM layer factory

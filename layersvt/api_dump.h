@@ -60,10 +60,15 @@ class ApiDumpSettings {
         if (file_option != NULL && strcmp(file_option, "TRUE") == 0) {
             use_cout = false;
             const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
-            if (filename_option != NULL && strcmp(filename_option, "") != 0)
+            if (filename_option != NULL && strcmp(filename_option, "") != 0) {
                 output_stream.open(filename_option, std::ofstream::out | std::ostream::trunc);
-            else
+                size_t last_slash_idx = std::string(filename_option).find_last_of("\\/");
+                if (std::string::npos != last_slash_idx) {
+                    output_dir = std::string(filename_option).substr(0, last_slash_idx + 1);
+                }
+            } else {
                 output_stream.open("vk_apidump.txt", std::ofstream::out | std::ostream::trunc);
+            }
         } else {
             use_cout = true;
         }
@@ -260,6 +265,8 @@ class ApiDumpSettings {
 
     inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
+    inline std::string directory() const { return output_dir; }
+
    private:
     inline static bool readBoolOption(const char *option, bool default_value) {
         const char *string_option = getLayerOption(option);
@@ -296,6 +303,7 @@ class ApiDumpSettings {
     inline static const char *tabs(int count) { return TABS + (MAX_TABS - std::max(count, 0)); }
 
     bool use_cout;
+    std::string output_dir = "";
     std::ofstream output_stream;
     ApiDumpFormat output_format;
     bool show_params;
@@ -357,7 +365,13 @@ class ApiDumpInstance {
         return *dump_settings;
     }
 
-    uint32_t threadID() {
+    // Only used in vktracedump to print thread id in trace file
+    void setThreadID(uint64_t trace_thread_id) { thread_id = trace_thread_id; }
+
+    uint64_t threadID() {
+        if (thread_id != UINT32_MAX) {
+            return thread_id;
+        }
         loader_platform_thread_id id = loader_platform_get_thread_id();
         loader_platform_thread_lock_mutex(&thread_mutex);
         for (uint32_t i = 0; i < thread_count; ++i) {
@@ -452,6 +466,7 @@ class ApiDumpInstance {
     loader_platform_thread_mutex thread_mutex;
     loader_platform_thread_id thread_map[MAX_THREADS];
     uint32_t thread_count;
+    uint64_t thread_id = UINT64_MAX;
 
     loader_platform_thread_mutex cmd_buffer_state_mutex;
     std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;
@@ -503,6 +518,82 @@ inline void dump_text_array(const T *array, size_t len, const ApiDumpSettings &s
         stream << name << '[' << i << ']';
         std::string indexName = stream.str();
         dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump, args...);
+    }
+}
+
+template <typename T, typename... Args>
+inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                                const char *child_type, const char *name, int indents,
+                                std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
+    settings.formatNameType(settings.stream(), indents, name, type_string);
+    if (array == NULL) {
+        settings.stream() << "NULL\n";
+        return;
+    }
+    if (settings.showAddress())
+        settings.stream() << (void *)array;
+    else
+        settings.stream() << "address";
+
+    std::stringstream stream;
+    const uint8_t *arraybyte = reinterpret_cast<const uint8_t *>(array);
+    for (size_t i = 0; i < (len * 4) && array != NULL; ++i) {
+        stream << std::hex << std::setw(2) << std::setfill('0') << (int)arraybyte[i] << " ";
+        if (i % 32 == 31) {
+            stream << "\n";
+        }
+    }
+
+    if (settings.stream().rdbuf() == std::cout.rdbuf()) {
+        settings.stream() << "\n" << stream.str() << "\n";
+    } else {
+        static uint64_t shaderDumpIndex = 0;
+        std::stringstream shaderDumpFileName;
+        shaderDumpFileName << settings.directory() << "shader_" << shaderDumpIndex << ".hex";
+        settings.stream() << " (" << shaderDumpFileName.str() << ")\n";
+        ++shaderDumpIndex;
+        std::ofstream shaderDumpFile;
+        shaderDumpFile.open(shaderDumpFileName.str(), std::ofstream::out | std::ostream::trunc);
+        shaderDumpFile << stream.str() << "\n";
+        shaderDumpFile.close();
+    }
+}
+
+template <typename T, typename... Args>
+inline void dump_text_array_hex(const uint32_t *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                                const char *child_type, const char *name, int indents,
+                                std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
+    settings.formatNameType(settings.stream(), indents, name, type_string);
+    if (array == NULL) {
+        settings.stream() << "NULL\n";
+        return;
+    }
+    if (settings.showAddress())
+        settings.stream() << (void *)array;
+    else
+        settings.stream() << "address";
+
+    std::stringstream stream;
+    const uint8_t *arraybyte = reinterpret_cast<const uint8_t *>(array);
+    for (size_t i = 0; i < (len * 4) && array != NULL; ++i) {
+        stream << std::hex << std::setw(2) << std::setfill('0') << (int)arraybyte[i] << " ";
+        if (i % 32 == 31) {
+            stream << "\n";
+        }
+    }
+
+    if (settings.stream().rdbuf() == std::cout.rdbuf()) {
+        settings.stream() << "\n" << stream.str() << "\n";
+    } else {
+        static uint64_t shaderDumpIndex = 0;
+        std::stringstream shaderDumpFileName;
+        shaderDumpFileName << settings.directory() << "shader_" << shaderDumpIndex << ".hex";
+        settings.stream() << " (" << shaderDumpFileName.str() << ")\n";
+        ++shaderDumpIndex;
+        std::ofstream shaderDumpFile;
+        shaderDumpFile.open(shaderDumpFileName.str(), std::ofstream::out | std::ostream::trunc);
+        shaderDumpFile << stream.str() << "\n";
+        shaderDumpFile.close();
     }
 }
 

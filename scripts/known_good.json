@@ -6,9 +6,13 @@
       "sub_dir" : "glslang",
       "build_dir" : "glslang/build",
       "install_dir" : "glslang/build/install",
-      "commit" : "a440fbb04f82b5cb19541802a31abdf1aeb94abe",
+      "commit" : "2898223375d57fb3974f24e1e944bb624f67cb73",
       "prebuild" : [
         "python update_glslang_sources.py"
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     },
     {
@@ -17,7 +21,7 @@
       "sub_dir" : "Vulkan-Headers",
       "build_dir" : "Vulkan-Headers/build",
       "install_dir" : "Vulkan-Headers/build/install",
-      "commit" : "369e6ea7f9b8cf0155b183da7e5be1b39ef6138d"
+      "commit" : "v1.1.97"
     },
     {
       "name" : "Vulkan-Loader",
@@ -25,7 +29,7 @@
       "sub_dir" : "Vulkan-Loader",
       "build_dir" : "Vulkan-Loader/build",
       "install_dir" : "Vulkan-Loader/build/install",
-      "commit" : "9f59673982ff0ef7614adbe4c698b79aef1eaedb",
+      "commit" : "v1.1.97",
       "deps" : [
         {
           "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
@@ -34,6 +38,10 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=NO"
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     },
     {
@@ -42,7 +50,7 @@
       "sub_dir" : "Vulkan-Tools",
       "build_dir" : "Vulkan-Tools/build",
       "install_dir" : "Vulkan-Tools/build/install",
-      "commit" : "ca8d349beed75d8fa6d27884cce4f091b6dc2a1e",
+      "commit" : "v1.1.97",
       "deps" : [
         {
           "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
@@ -52,6 +60,10 @@
           "var_name" : "VULKAN_LOADER_INSTALL_DIR",
           "repo_name" : "Vulkan-Loader"
         }
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     },
     {
@@ -60,7 +72,7 @@
       "sub_dir" : "Vulkan-ValidationLayers",
       "build_dir" : "Vulkan-ValidationLayers/build",
       "install_dir" : "Vulkan-ValidationLayers/build/install",
-      "commit" : "30127fd57005f0c1bafb0d3325c90a8641dbf713",
+      "commit" : "d86d7a28f94f76804ab272ae86a998f922207799",
       "deps" : [
         {
           "var_name" : "GLSLANG_INSTALL_DIR",
@@ -81,6 +93,10 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=NO"
+      ],
+      "build_platforms" : [
+        "windows",
+        "linux"
       ]
     }
   ],
