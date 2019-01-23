@@ -1,6 +1,6 @@
-/* Copyright (c) 2015-2016 The Khronos Group Inc.
- * Copyright (c) 2015-2016 Valve Corporation
- * Copyright (c) 2015-2016 LunarG, Inc.
+/* Copyright (c) 2015-2019 The Khronos Group Inc.
+ * Copyright (c) 2015-2019 Valve Corporation
+ * Copyright (c) 2015-2019 LunarG, Inc.
  * Copyright (C) 2015-2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,13 @@
 
 #define MAX_STRING_LENGTH 1024
 
+// Defines for utilized environment variables.
+#define API_DUMP_ENV_VAR_LOG_FILE "VK_APIDUMP_LOG_FILENAME"
+#define API_DUMP_ENV_VAR_OUTPUT_FMT "VK_APIDUMP_OUTPUT_FORMAT"
+#define API_DUMP_ENV_VAR_DETAILED_OUTPUT "VK_APIDUMP_DETAILED"
+#define API_DUMP_ENV_VAR_NO_ADDRESSES "VK_APIDUMP_NO_ADDR"
+#define API_DUMP_ENV_VAR_FLUSH_FILE "VK_APIDUMP_FLUSH"
+
 enum class ApiDumpFormat {
     Text,
     Html,
@@ -55,30 +62,69 @@ enum class ApiDumpFormat {
 class ApiDumpSettings {
    public:
     ApiDumpSettings() {
-        // Get the output file settings and create a stream for it
+        std::string filename_string = "";
+        // If the layer settings file has a flag indicating to output to a file,
+        // do so, to the appropriate filename.
         const char *file_option = getLayerOption("lunarg_api_dump.file");
         if (file_option != NULL && strcmp(file_option, "TRUE") == 0) {
-            use_cout = false;
             const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
             if (filename_option != NULL && strcmp(filename_option, "") != 0) {
-                output_stream.open(filename_option, std::ofstream::out | std::ostream::trunc);
-                size_t last_slash_idx = std::string(filename_option).find_last_of("\\/");
-                if (std::string::npos != last_slash_idx) {
-                    output_dir = std::string(filename_option).substr(0, last_slash_idx + 1);
-                }
+                filename_string = filename_option;
             } else {
-                output_stream.open("vk_apidump.txt", std::ofstream::out | std::ostream::trunc);
+                filename_string = "vk_apidump.txt";
+            }
+        }
+        // If an environment variable is set, always output to that filename instead,
+        // whether or not the settings file enables the option.  Just assume a non-empty
+        // string is asking for the file output to the given name.
+        std::string env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_LOG_FILE);
+        if (!env_value.empty()) {
+            filename_string = env_value;
+        }
+        // If one of the above has set a filename, open the file as an output stream.
+        if (!filename_string.empty()) {
+            use_cout = false;
+            output_stream.open(filename_string, std::ofstream::out | std::ostream::trunc);
+            size_t last_slash_idx = filename_string.find_last_of("\\/");
+            if (std::string::npos != last_slash_idx) {
+                output_dir = filename_string.substr(0, last_slash_idx + 1);
             }
         } else {
+            // Otherwise, fallback to cout only
             use_cout = true;
         }
 
-        // Get the remaining settings
+        // Get the remaining settings (some we also want to provide the ability to override
+        // using environment variables).
+
         output_format = readFormatOption("lunarg_api_dump.output_format", ApiDumpFormat::Text);
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_FMT);
+        if (!env_value.empty()) {
+            if (ToLowerString(env_value) == "html") {
+                output_format = ApiDumpFormat::Html;
+            } else {
+                output_format = ApiDumpFormat::Text;
+            }
+        }
 
         show_params = readBoolOption("lunarg_api_dump.detailed", true);
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_DETAILED_OUTPUT);
+        if (!env_value.empty()) {
+            show_params = GetStringBooleanValue(env_value);
+        }
+
         show_address = !readBoolOption("lunarg_api_dump.no_addr", false);
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_NO_ADDRESSES);
+        if (!env_value.empty()) {
+            show_address = !GetStringBooleanValue(env_value);
+        }
+
         should_flush = readBoolOption("lunarg_api_dump.flush", true);
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_FLUSH_FILE);
+        if (!env_value.empty()) {
+            should_flush = !GetStringBooleanValue(env_value);
+        }
+
         indent_size = std::max(readIntOption("lunarg_api_dump.indent_size", 4), 0);
         show_type = readBoolOption("lunarg_api_dump.show_types", true);
         name_size = std::max(readIntOption("lunarg_api_dump.name_size", 32), 0);
@@ -88,36 +134,6 @@ class ApiDumpSettings {
 
         // Generate HTML heading if specified
         if (output_format == ApiDumpFormat::Html) {
-            // Find the layer path
-            std::string layer_path;
-#ifdef _WIN32
-            char temp[MAX_STRING_LENGTH];
-            int bytes = GetEnvironmentVariableA("VK_LAYER_PATH", temp, MAX_STRING_LENGTH - 1);
-            if (0 < bytes) {
-                std::string location = temp;
-                layer_path = location.substr(0, location.rfind("\\"));
-
-                size_t index = 0;
-                while (true) {
-                    index = layer_path.find("\\", index);
-                    if (index == std::string::npos) {
-                        break;
-                    }
-                    layer_path.replace(index, 1, "/");
-                    index++;
-                }
-            } else {
-                layer_path = "";
-            }
-#elif __GNUC__
-            layer_path = getenv("VK_LAYER_PATH");
-            if (layer_path.length() > 0) {
-                layer_path = layer_path.substr(0, layer_path.rfind("/"));
-            } else {
-                layer_path = "";
-            }
-#endif
-
             // clang-format off
             // Insert html heading
             stream() <<
@@ -224,8 +240,7 @@ class ApiDumpSettings {
             // Close off html
             stream() << "</div></body></html>";
         }
-        if (!use_cout)
-            output_stream.close();
+        if (!use_cout) output_stream.close();
     }
 
     inline ApiDumpFormat format() const { return output_format; }
@@ -268,6 +283,60 @@ class ApiDumpSettings {
     inline std::string directory() const { return output_dir; }
 
    private:
+    // Utility member to enable easier comparison by forcing a string to all lower-case
+    inline std::string ToLowerString(const std::string &value) {
+        std::string lower_value = value;
+        std::transform(lower_value.begin(), lower_value.end(), lower_value.begin(), ::tolower);
+        return lower_value;
+    }
+
+    // Utility member for getting a platform environment variable on various platforms.
+    inline std::string GetPlatformEnvVar(const std::string &var) {
+        std::string ret_string = "";
+#ifdef _WIN32
+        char temp[MAX_STRING_LENGTH];
+        int bytes = GetEnvironmentVariableA(var.c_str(), temp, MAX_STRING_LENGTH - 1);
+        if (0 < bytes) {
+            ret_string = temp;
+        }
+#elif defined(__ANDROID__)
+        std::string command = "getprop debug.vulkan.layer_opts.";
+        std::string lower_var = ToLowerString(var);
+
+        // Remove any prefix "VK_" for Android properties
+        if (lower_var.rfind("vk_", 0) == 0) {
+            lower_var = lower_var.substr(3);
+        }
+        command += lower_var;
+
+        FILE *pipe = popen(command.c_str(), "r");
+        if (pipe != nullptr) {
+            char result[255];
+            result[0] = '\0';
+            fgets(result, 255, pipe);
+            pclose(pipe);
+            size_t count = strcspn(result, "\r\n");
+            if (count > 0) {
+                ret_string = std::string(result, count);
+            }
+        }
+#else
+        const char *ret_value = getenv(var.c_str());
+        if (nullptr != ret_value) {
+            ret_string = ret_value;
+        }
+#endif
+        return ret_string;
+    }
+
+    // Utility member to convert from string to a boolean
+    inline bool GetStringBooleanValue(const std::string &value) {
+        if (ToLowerString(value) == "true") {
+            return true;
+        }
+        return false;
+    }
+
     inline static bool readBoolOption(const char *option, bool default_value) {
         const char *string_option = getLayerOption(option);
         if (string_option != NULL && strcmp(string_option, "TRUE") == 0)
@@ -667,10 +736,7 @@ inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &s
         return settings.stream() << "address";
 }
 
-
-inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, int indents) {
-    return settings.stream() << object;
-}
+inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, int indents) { return settings.stream() << object; }
 
 //==================================== Html Backend Helpers ======================================//
 
@@ -783,16 +849,14 @@ inline void dump_html_value(const T &object, const ApiDumpSettings &settings, co
     settings.stream() << "</details>";
 }
 
-inline void dump_html_special(
-    const char *text, const ApiDumpSettings &settings, const char *type_string,
-    const char *name, int indents) {
+inline void dump_html_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
     settings.stream() << "<details class='data'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
     settings.stream() << "<div class='val'>" << text << "</div></summary></details>";
 }
 
-inline bool dump_html_bitmaskOption(const std::string &option,
-                                    std::ostream &stream, bool isFirst) {
+inline bool dump_html_bitmaskOption(const std::string &option, std::ostream &stream, bool isFirst) {
     if (isFirst)
         stream << " (";
     else
@@ -801,9 +865,7 @@ inline bool dump_html_bitmaskOption(const std::string &option,
     return false;
 }
 
-inline std::ostream &dump_html_cstring(const char *object,
-                                       const ApiDumpSettings &settings,
-                                       int indents) {
+inline std::ostream &dump_html_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     if (object == NULL)
         settings.stream() << "NULL";
@@ -812,9 +874,7 @@ inline std::ostream &dump_html_cstring(const char *object,
     return settings.stream() << "</div>";
 }
 
-inline std::ostream &dump_html_void(const void *object,
-                                    const ApiDumpSettings &settings,
-                                    int indents) {
+inline std::ostream &dump_html_void(const void *object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     if (object == NULL)
         settings.stream() << "NULL";
