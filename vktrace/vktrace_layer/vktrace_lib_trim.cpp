@@ -3087,9 +3087,9 @@ void copyDescriptorByIndex(const VkWriteDescriptorSet *pDescriptorWrites, uint32
 // return its index in the array.
 //
 // If all are invalid, return -1;
-uint32_t getValidDescriptorIndexFromWriteDescriptorSet(const VkWriteDescriptorSet *pDescriptorWrites) {
+int32_t getValidDescriptorIndexFromWriteDescriptorSet(const VkWriteDescriptorSet *pDescriptorWrites) {
     uint32_t ValidDescriptorIndex = -1;
-    for (int i = 0; i < pDescriptorWrites->descriptorCount; i++) {
+    for (uint32_t i = 0; i < pDescriptorWrites->descriptorCount; i++) {
         if (isValidDescriptorIndex(pDescriptorWrites, i)) {
             ValidDescriptorIndex = i;
             break;
@@ -3120,13 +3120,13 @@ bool UpdateInvalidDescriptors(const VkWriteDescriptorSet *pDescriptorWrites) {
     // note: By Doc, the descriptor at a binding location can be invalid
     // (just get vkAllocateDescriptorSets or corresponding object has been
     // destroied) but any descriptor info in update call must be valid.
-    uint32_t validDescriptorIndex = getValidDescriptorIndexFromWriteDescriptorSet(pDescriptorWrites);
+    int32_t validDescriptorIndex = getValidDescriptorIndexFromWriteDescriptorSet(pDescriptorWrites);
     if ((validDescriptorIndex != -1) || (pDescriptorWrites->descriptorCount == 0)) {
         // if we can remove all invalid descriptor info or pDescriptorWrites
         // don't have any descriptors, the function return true.
         removeInvalidDescriptorsFlag = true;
 
-        for (int i = 0; i < pDescriptorWrites->descriptorCount; i++) {
+        for (uint32_t i = 0; i < pDescriptorWrites->descriptorCount; i++) {
             if (!isValidDescriptorIndex(pDescriptorWrites, i)) {
                 copyDescriptorByIndex(pDescriptorWrites, i, validDescriptorIndex);
             }
@@ -3144,7 +3144,7 @@ bool UpdateInvalidDescriptors(const VkWriteDescriptorSet *pDescriptorWrites) {
 // please note: the way we remove it is to replace it with a
 // valid one.
 void UpdateInvalidDescriptors(uint32_t descriptorWriteCount, const VkWriteDescriptorSet *pDescriptorWrites) {
-    for (int i = 0; i < descriptorWriteCount; i++) {
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
         if (!UpdateInvalidDescriptors(&pDescriptorWrites[i])) {
             assert(false);
         }
@@ -4486,7 +4486,7 @@ void write_all_referenced_object_calls() {
                 // so here, before we generate the update call, we check every
                 // descriptor in pDescriptorWrites and remove all invalid descriptors.
                 std::vector<uint32_t> descriptorCountsBackup(descriptorWriteCount);
-                for (int i = 0; i < descriptorWriteCount; i++) {
+                for (uint32_t i = 0; i < descriptorWriteCount; i++) {
                     descriptorCountsBackup[i] = pDescriptorWrites[i].descriptorCount;
                 }
                 UpdateInvalidDescriptors(descriptorWriteCount, pDescriptorWrites);
@@ -4495,7 +4495,7 @@ void write_all_referenced_object_calls() {
                                                      descriptorCopyCount, pDescriptorCopies);
                 vktrace_write_trace_packet(pHeader, vktrace_trace_get_trace_file());
                 vktrace_delete_trace_packet(&pHeader);
-                for (int i = 0; i < descriptorWriteCount; i++) {
+                for (uint32_t i = 0; i < descriptorWriteCount; i++) {
                     pDescriptorWrites[i].descriptorCount = descriptorCountsBackup[i];
                 }
             }

@@ -1925,8 +1925,6 @@ void handleWriteDescriptorSet(const VkWriteDescriptorSet* pDescriptorUpdateEntry
     // input descriptor data to update it.
     // For every input descriptor data, we need to find
     // corresponding binding number and array element index.
-    VkWriteDescriptorSet* pWriteDescriptorSet =
-        nullptr;  // This is the pointer to trim tracking info of binding in target descriptorset.
     uint32_t bindingDescriptorInfoArrayWriteIndex = 0;   // This is the array index of current descriptor
                                                          // (within the binding array) that we'll update.
     uint32_t bindingDescriptorInfoArrayWriteLength = 0;  // The descriptor amount in the binding array.
@@ -1943,7 +1941,6 @@ void handleWriteDescriptorSet(const VkWriteDescriptorSet* pDescriptorUpdateEntry
     uint32_t bindingIndex = get_binding_index(pDescriptorUpdateEntry->dstSet, pDescriptorUpdateEntry->dstBinding);
     assert(bindingIndex != INVALID_BINDING_INDEX);
 
-    pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex];
     bindingDescriptorInfoArrayWriteIndex = pDescriptorUpdateEntry->dstArrayElement;
     bindingDescriptorInfoArrayWriteLength = pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex].descriptorCount;
     assert(bindingDescriptorInfoArrayWriteIndex < bindingDescriptorInfoArrayWriteLength);
@@ -4259,8 +4256,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
             // descriptor data in template to update it.
             // For every input descriptor data, we need to find
             // corresponding binding number and array element index.
-            VkWriteDescriptorSet* pWriteDescriptorSet =
-                nullptr;  // This is the pointer to trim tracking info of binding in target descriptorset.
             uint32_t bindingDescriptorInfoArrayWriteIndex = 0;   // This is the array index of current descriptor
                                                                  // (within the binding array) that we'll update.
             uint32_t bindingDescriptorInfoArrayWriteLength = 0;  // The descriptor amount in the binding array.
@@ -4278,7 +4273,6 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkUpdateDescriptorSetWithTem
             bindingIndex = get_binding_index(descriptorSet, pDescriptorUpdateEntry->dstBinding);
             assert(bindingIndex != INVALID_BINDING_INDEX);
 
-            pWriteDescriptorSet = &pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex];
             bindingDescriptorInfoArrayWriteIndex = pDescriptorUpdateEntry->dstArrayElement;
             bindingDescriptorInfoArrayWriteLength =
                 pInfo->ObjectInfo.DescriptorSet.pWriteDescriptorSets[bindingIndex].descriptorCount;
