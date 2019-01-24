@@ -306,9 +306,21 @@ vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::handle_replay_errors(const char 
     if (resCall != resTrace) {
         vktrace_LogError("Return value %s from API call (%s) does not match return value from trace file %s.",
                          string_VkResult((VkResult)resCall), entrypointName, string_VkResult((VkResult)resTrace));
-        res = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;
     }
-    if (resCall != VK_SUCCESS && resCall != VK_NOT_READY) {
+    // Success Codes:
+    // * VK_SUCCESS Command successfully completed
+    // * VK_NOT_READY A fence or query has not yet completed
+    // * VK_TIMEOUT A wait operation has not completed in the specified time
+    // * VK_EVENT_SET An event is signaled
+    // * VK_EVENT_RESET An event is unsignaled
+    // * VK_INCOMPLETE A return array was too small for the result
+    // * VK_SUBOPTIMAL_KHR A swapchain no longer matches the surface properties exactly, but can still be used to present to the
+    // surface successfully.
+    if (resCall != VK_SUCCESS && resCall != VK_NOT_READY && resCall != VK_TIMEOUT && resCall != VK_EVENT_SET &&
+        resCall != VK_EVENT_RESET && resCall != VK_INCOMPLETE && resCall != VK_SUBOPTIMAL_KHR) {
+        if (resCall != resTrace) {
+            res = vktrace_replay::VKTRACE_REPLAY_BAD_RETURN;
+        }
         vktrace_LogWarning("API call (%s) returned failed result %s", entrypointName, string_VkResult(resCall));
     }
     return res;
