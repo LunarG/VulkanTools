@@ -19,6 +19,7 @@ Options for the `vktrace` command are:
 | -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
 | -lg&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;Lockguard&nbsp;&lt;bool&gt; | Always enable lock guard for all API calls if Lockguard is TRUE, default is FALSE in which it enabled only for trim, see description of VKTRACE_ENABLE_TRACE_LOCK below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
+| -tbs&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TrimBatchSize&nbsp;&lt;string&gt; | Set the maximum trim commands batch size per command buffer  |  ~device memory allocation limit divide by 100 |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
 
