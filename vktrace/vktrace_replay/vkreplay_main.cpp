@@ -41,7 +41,7 @@
 #include "screenshot_parsing.h"
 #include "vktrace_vk_packet_id.h"
 
-vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL};
+vkreplayer_settings replaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL, NULL};
 
 #if defined(ANDROID)
 const char* env_var_screenshot_frames = "debug.vulkan.screenshot";
@@ -111,6 +111,13 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
+    {"q",
+     "QuitOnAnyError",
+     VKTRACE_SETTING_BOOL,
+     {&replaySettings.quitOnAnyError},
+     {&replaySettings.quitOnAnyError},
+     TRUE,
+     "Quit on any error happens in replay, default is FALSE"},
 #if defined(PLATFORM_LINUX)
     {"ds",
      "DisplayServer",
@@ -228,8 +235,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         if (res != VKTRACE_REPLAY_SUCCESS) {
                             vktrace_LogError("Failed to replay packet_id %d, with global_packet_index %d.", packet->packet_id,
                                              packet->global_packet_index);
-                            static BOOL QuitOnAnyError = FALSE;
-                            if (QuitOnAnyError) {
+                            if (replaySettings.quitOnAnyError) {
                                 err = -1;
                                 goto out;
                             }
