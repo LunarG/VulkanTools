@@ -27,7 +27,7 @@
 #include "vktrace_vk_packet_id.h"
 #include "vktrace_tracelog.h"
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, "xcb"};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL, "xcb"};
 
 vkReplay* g_pReplayer = NULL;
 VKTRACE_CRITICAL_SECTION g_handlerLock;

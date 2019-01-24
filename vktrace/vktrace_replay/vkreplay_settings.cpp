@@ -27,7 +27,7 @@
 // declared as extern in header
 vkreplayer_settings g_vkReplaySettings;
 
-static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, NULL, NULL, NULL, NULL};
+static vkreplayer_settings s_defaultVkReplaySettings = {NULL, 1, UINT_MAX, UINT_MAX, true, false, NULL, NULL, NULL, NULL};
 
 vktrace_SettingInfo g_vk_settings_info[] = {
     {"o",
@@ -86,6 +86,13 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
+    {"q",
+     "quitOnAnyError",
+     VKTRACE_SETTING_BOOL,
+     {&g_vkReplaySettings.quitOnAnyError},
+     {&s_defaultVkReplaySettings.quitOnAnyError},
+     TRUE,
+     "Quit on any error happens in replay, default is FALSE"},
 };
 
 vktrace_SettingGroup g_vkReplaySettingGroup = {"vkreplay_vk", sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),
