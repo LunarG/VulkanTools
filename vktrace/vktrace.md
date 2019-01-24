@@ -17,6 +17,7 @@ Options for the `vktrace` command are:
 | -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace  persistently mapped buffers | true |
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
 | -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
+| -lg&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;Lockguard&nbsp;&lt;bool&gt; | Always enable lock guard for all API calls if Lockguard is TRUE, default is FALSE in which it enabled only for trim, see description of VKTRACE_ENABLE_LOCKGUARD below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
@@ -195,6 +196,10 @@ Several environment variables can be set to change the behavior of vktrace/vkrep
  - VKTRACE_TRIM_POST_PROCESS
 
     VKTRACE_TRIM_POST_PROCESS enables post-processing of trim if its value is 1.  Other values disable trim post-processing.  Disable post-processing means the trimmed trace file will record all the not destroyed objects whether they are used/referenced in the trim frame range or not.  Enable post-processing will drop most of the pre-trim objects which are not used/referenced in the trim frame range.  Set this environment variable to 1 to enable post-processing of trim to generate a smaller trace file and eliminate most useless pre-trim objects and Vulkan calls.  Do NOT enable trim post-processing when there's a large trim frame range because both the referenced pre-trim data and in-trim data are kept in memory until writing to trace file in the trim end frame which may exceeds the system memory.
+
+ - VKTRACE_ENABLE_LOCKGUARD
+
+    VKTRACE_ENABLE_LOCKGUARD enables lock guard all the time for all API calls if its value is 1. Otherwise, lock guard only enabled for trim only. Lock guard is needed to fix APi race condition and remap errors when trim enabled. This environment variable is used to enable lock guard for all the time. 
 
 ## Android
 

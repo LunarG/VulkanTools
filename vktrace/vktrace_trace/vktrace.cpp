@@ -139,7 +139,8 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_settings.enable_lock_guard_all},
      {&g_default_settings.enable_lock_guard_all},
      TRUE,
-     "Enable lock guard for all API calls, default is FALSE(enabled only for trim)."},
+     "Always enable lock guard for all API calls if lockguard is TRUE,\n\
+                                       default is FALSE in which it is enabled only for trim."},
 };
 
 vktrace_SettingGroup g_settingGroup = {"vktrace", sizeof(g_settings_info) / sizeof(g_settings_info[0]), &g_settings_info[0]};
