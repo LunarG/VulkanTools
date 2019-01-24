@@ -191,15 +191,6 @@ print_results:
         case VIA_MISSING_DRIVER_LIB:
             LogError("Failed to find Vulkan Driver Lib.");
             break;
-        case VIA_MISSING_LAYER_JSON:
-            LogError("Failed to find Vulkan Layer JSON.");
-            break;
-        case VIA_LAYER_JSON_PARSING_ERROR:
-            LogError("Failed to properly parse Vulkan Layer JSON.");
-            break;
-        case VIA_MISSING_LAYER_LIB:
-            LogError("Failed to find Vulkan Layer Lib.");
-            break;
         case VIA_VULKAN_CANT_FIND_RUNTIME:
             LogError("Vulkan failed to find a Vulkan Runtime to use.");
             break;
