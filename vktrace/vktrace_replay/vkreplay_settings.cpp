@@ -86,13 +86,13 @@ vktrace_SettingInfo g_vk_settings_info[] = {
      {&s_defaultVkReplaySettings.screenshotColorFormat},
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
-    {"q",
+    {"x",
      "quitOnAnyError",
      VKTRACE_SETTING_BOOL,
      {&g_vkReplaySettings.quitOnAnyError},
      {&s_defaultVkReplaySettings.quitOnAnyError},
      TRUE,
-     "Quit on any error happens in replay, default is FALSE"},
+     "Exit if an error occurs during replay, default is FALSE"},
 };
 
 vktrace_SettingGroup g_vkReplaySettingGroup = {"vkreplay_vk", sizeof(g_vk_settings_info) / sizeof(g_vk_settings_info[0]),
