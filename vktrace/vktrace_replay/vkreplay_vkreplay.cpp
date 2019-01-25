@@ -699,8 +699,16 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
         }
         if (pCreateInfo->pEnabledFeatures) {
             m_vkFuncs.GetPhysicalDeviceFeatures(remappedPhysicalDevice, &features);
-            // Use replayable features instead of traced features
-            pCreateInfo->pEnabledFeatures = &features;
+            // Use replayable traced features instead of all the traced features
+            VkBool32 *traceFeatures = (VkBool32 *)(pCreateInfo->pEnabledFeatures);
+            VkBool32 *replayFeatures = (VkBool32 *)(&features);
+            uint32_t numOfFeatures = sizeof(VkPhysicalDeviceFeatures) / sizeof(VkBool32);
+            for (uint32_t i = 0; i < numOfFeatures; i++) {
+                if ((*(traceFeatures + i)) && !(*(replayFeatures + i))) {
+                    *(traceFeatures + i) = VK_FALSE;
+                    vktrace_LogVerbose("Device feature filtered out: %s", GetPhysDevFeatureString(i));
+                }
+            }
         }
     }
 
