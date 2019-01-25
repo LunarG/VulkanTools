@@ -734,6 +734,13 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             params = cmd_member_dict[vk_cmdname]
             replay_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
             replay_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
+            if resulttype is not None and resulttype.text != 'void' and resulttype.text != 'PFN_vkVoidFunction':
+                replay_gen_source += '            if (pPacket->result &&\n'
+                replay_gen_source += '                pPacket->result != VK_SUCCESS && pPacket->result != VK_NOT_READY && pPacket->result != VK_TIMEOUT && pPacket->result != VK_EVENT_SET &&\n'
+                replay_gen_source += '                pPacket->result != VK_EVENT_RESET && pPacket->result != VK_INCOMPLETE && pPacket->result != VK_SUBOPTIMAL_KHR) {\n'
+                replay_gen_source += '                vktrace_LogVerbose("Skip %s which has failed result in trace file!", vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)packet->packet_id));\n'
+                replay_gen_source += '                break;\n'
+                replay_gen_source += '            }\n'
 
             if cmdname in manually_replay_funcs:
                 if ret_value == True:
