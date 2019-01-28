@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2018 Valve Corporation
- * Copyright (c) 2016-2018 LunarG, Inc.
+ * Copyright (c) 2016-2019 Valve Corporation
+ * Copyright (c) 2016-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -962,7 +962,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             PrintTableElement("Error reading JSON file");
             PrintTableElement(driver_json_path);
             PrintEndTableRow();
-            goto out;
+            continue;
         }
 
         if (!reader.parse(*stream, root, false) || root.isNull()) {
@@ -972,7 +972,10 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             PrintTableElement("Error reading JSON file");
             PrintTableElement(reader.getFormattedErrorMessages());
             PrintEndTableRow();
-            goto out;
+            stream->close();
+            delete stream;
+            stream = NULL;
+            continue;
         }
 
         PrintBeginTableRow();
@@ -993,7 +996,10 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             PrintTableElement("ICD Section");
             PrintTableElement("MISSING!");
             PrintEndTableRow();
-            goto out;
+            stream->close();
+            delete stream;
+            stream = NULL;
+            continue;
         }
 
         found_json = true;
@@ -1125,14 +1131,6 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             delete stream;
             stream = NULL;
         }
-    }
-
-out:
-
-    if (nullptr != stream) {
-        stream->close();
-        delete stream;
-        stream = NULL;
     }
 
     return found_json;
@@ -1542,11 +1540,10 @@ bool ViaSystemWindows::PrintExplicitLayersRegInfo(std::vector<std::tuple<std::st
         if (nullptr == stream || stream->fail()) {
             PrintBeginTableRow();
             PrintTableElement("");
-            PrintTableElement("ERROR reading JSON file!");
+            PrintTableElement("Error reading JSON file!");
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
-            res = VIA_MISSING_LAYER_JSON;
         } else {
             Json::Value root = Json::nullValue;
             Json::Reader reader;
@@ -1555,13 +1552,13 @@ bool ViaSystemWindows::PrintExplicitLayersRegInfo(std::vector<std::tuple<std::st
                 // document.
                 PrintBeginTableRow();
                 PrintTableElement("");
-                PrintTableElement("ERROR parsing JSON file!");
+                PrintTableElement("Error parsing JSON file!");
                 PrintTableElement(reader.getFormattedErrorMessages());
                 PrintTableElement("");
                 PrintEndTableRow();
-                res = VIA_LAYER_JSON_PARSING_ERROR;
             } else {
                 GenerateExplicitLayerJsonInfo(cur_layer_json_path.c_str(), root);
+                found = true;
             }
 
             stream->close();
@@ -1610,7 +1607,6 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
             PrintTableElement("");
             PrintTableElement("");
             PrintEndTableRow();
-            res = VIA_MISSING_LAYER_JSON;
         } else {
             Json::Value root = Json::nullValue;
             Json::Reader reader;
@@ -1623,7 +1619,6 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
                 PrintTableElement(reader.getFormattedErrorMessages());
                 PrintTableElement("");
                 PrintEndTableRow();
-                res = VIA_LAYER_JSON_PARSING_ERROR;
             } else {
                 GenerateImplicitLayerJsonInfo(cur_layer_json_path.c_str(), root, override_paths);
                 found = true;
@@ -1835,7 +1830,6 @@ ViaSystem::ViaResults ViaSystemWindows::FindAndPrintAllExplicitLayersInPath(cons
                     PrintTableElement("ERROR reading JSON file!");
                     PrintTableElement("");
                     PrintEndTableRow();
-                    res = VIA_MISSING_LAYER_JSON;
                 } else {
                     Json::Value root = Json::nullValue;
                     Json::Reader reader;
@@ -1848,7 +1842,6 @@ ViaSystem::ViaResults ViaSystemWindows::FindAndPrintAllExplicitLayersInPath(cons
                         PrintTableElement("ERROR parsing JSON file!");
                         PrintTableElement(reader.getFormattedErrorMessages());
                         PrintEndTableRow();
-                        res = VIA_LAYER_JSON_PARSING_ERROR;
                     } else {
                         GenerateExplicitLayerJsonInfo(cur_json_path.c_str(), root);
                     }

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2018 Valve Corporation
- * Copyright (c) 2016-2018 LunarG, Inc.
+ * Copyright (c) 2016-2019 Valve Corporation
+ * Copyright (c) 2016-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,6 @@ class ViaSystem {
         VIA_MISSING_DRIVER_JSON = -21,
         VIA_DRIVER_JSON_PARSING_ERROR = -22,
         VIA_MISSING_DRIVER_LIB = -23,
-        VIA_MISSING_LAYER_JSON = -24,
-        VIA_LAYER_JSON_PARSING_ERROR = -25,
-        VIA_MISSING_LAYER_LIB = -26,
 
         VIA_VULKAN_CANT_FIND_RUNTIME = -40,
         VIA_VULKAN_CANT_FIND_DRIVER = -41,

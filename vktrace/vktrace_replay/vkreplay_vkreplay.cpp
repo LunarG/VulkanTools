@@ -681,9 +681,10 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
     uint32_t savedExtensionCount = pCreateInfo->enabledExtensionCount;
     vector<const char *> extensionNames;
 
-    // Get replayable extensions in compatibility mode
+    // Get replayable extensions and features in compatibility mode
     uint32_t extensionCount = 0;
     VkExtensionProperties *extensions = NULL;
+    VkPhysicalDeviceFeatures features;
     if (g_pReplaySettings->compatibilityMode) {
         if (VK_SUCCESS != m_vkFuncs.EnumerateDeviceExtensionProperties(remappedPhysicalDevice, NULL, &extensionCount, NULL)) {
             vktrace_LogError("vkEnumerateDeviceExtensionProperties failed to get extension count!");
@@ -694,6 +695,19 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
                 vktrace_LogError("vkEnumerateDeviceExtensionProperties failed to get extension name!");
                 vktrace_free(extensions);
                 extensionCount = 0;
+            }
+        }
+        if (pCreateInfo->pEnabledFeatures) {
+            m_vkFuncs.GetPhysicalDeviceFeatures(remappedPhysicalDevice, &features);
+            // Use replayable traced features instead of all the traced features
+            VkBool32 *traceFeatures = (VkBool32 *)(pCreateInfo->pEnabledFeatures);
+            VkBool32 *replayFeatures = (VkBool32 *)(&features);
+            uint32_t numOfFeatures = sizeof(VkPhysicalDeviceFeatures) / sizeof(VkBool32);
+            for (uint32_t i = 0; i < numOfFeatures; i++) {
+                if ((*(traceFeatures + i)) && !(*(replayFeatures + i))) {
+                    *(traceFeatures + i) = VK_FALSE;
+                    vktrace_LogVerbose("Device feature filtered out: %s", GetPhysDevFeatureString(i));
+                }
             }
         }
     }

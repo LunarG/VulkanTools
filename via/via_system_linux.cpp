@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016-2018 Valve Corporation
- * Copyright (c) 2016-2018 LunarG, Inc.
+ * Copyright (c) 2016-2019 Valve Corporation
+ * Copyright (c) 2016-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1046,7 +1046,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintExplicitLayersInFolder(const std::str
                     PrintTableElement(cur_ent->d_name);
                     PrintTableElement("ERROR reading JSON file!");
                     PrintEndTableRow();
-                    res = VIA_MISSING_LAYER_JSON;
                 } else {
                     Json::Value root = Json::nullValue;
                     Json::Reader reader;
@@ -1059,7 +1058,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintExplicitLayersInFolder(const std::str
                         PrintTableElement(cur_ent->d_name);
                         PrintTableElement(reader.getFormattedErrorMessages());
                         PrintEndTableRow();
-                        res = VIA_LAYER_JSON_PARSING_ERROR;
                     } else {
                         PrintBeginTableRow();
                         PrintTableElement("");
@@ -1417,7 +1415,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemImplicitLayerInfo() {
                         PrintTableElement("");
                         PrintTableElement("");
                         PrintEndTableRow();
-                        result = VIA_MISSING_LAYER_JSON;
                     } else {
                         Json::Value root = Json::nullValue;
                         Json::Reader reader;
@@ -1430,7 +1427,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemImplicitLayerInfo() {
                             PrintTableElement(reader.getFormattedErrorMessages());
                             PrintTableElement("");
                             PrintEndTableRow();
-                            result = VIA_LAYER_JSON_PARSING_ERROR;
                         } else {
                             GenerateImplicitLayerJsonInfo(cur_vulkan_layer_json, root, _layer_override_search_path);
                         }
