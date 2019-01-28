@@ -112,7 +112,7 @@ The  `vkreplay` command-line  options are:
 | -c&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;CompatibilityMode&nbsp;&lt;bool&gt; | Enable compatibility mode - modify api calls as needed when replaying trace file created on different platform than replay platform. For example: Convert trace file memory indices to replay device memory indices. | true |
 | -s&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Screenshot&nbsp;&lt;string&gt; | Comma-separated list of frame numbers of which to take screen shots  | no screenshots |
 | -sf&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;ScreenshotFormat&nbsp;&lt;string&gt; | Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB  | Format of swapchain image |
-| -x&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;QuitOnAnyError&nbsp;&lt;bool&gt; | Exit if an error occurs during replay | false |
+| -x&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;ExitOnAnyError&nbsp;&lt;bool&gt; | Exit if an error occurs during replay | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
 | Linux Only |  |  |
 | -ds&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;DisplayServer&nbsp;&lt;string&gt; | Display server - "xcb", or "wayland" | xcb |

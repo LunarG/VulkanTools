@@ -112,10 +112,10 @@ vktrace_SettingInfo g_settings_info[] = {
      TRUE,
      "Color Space format of screenshot files. Formats are UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB"},
     {"x",
-     "QuitOnAnyError",
+     "ExitOnAnyError",
      VKTRACE_SETTING_BOOL,
-     {&replaySettings.quitOnAnyError},
-     {&replaySettings.quitOnAnyError},
+     {&replaySettings.exitOnAnyError},
+     {&replaySettings.exitOnAnyError},
      TRUE,
      "Exit if an error occurs during replay, default is FALSE"},
 #if defined(PLATFORM_LINUX)
@@ -235,7 +235,7 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
                         if (res != VKTRACE_REPLAY_SUCCESS) {
                             vktrace_LogError("Failed to replay packet_id %d, with global_packet_index %d.", packet->packet_id,
                                              packet->global_packet_index);
-                            if (replaySettings.quitOnAnyError) {
+                            if (replaySettings.exitOnAnyError) {
                                 err = -1;
                                 goto out;
                             }
