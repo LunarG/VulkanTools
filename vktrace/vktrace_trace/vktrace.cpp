@@ -350,6 +350,13 @@ int main(int argc, char* argv[]) {
     if (tppEnableEnv && strcmp(tppEnableEnv, "1")) g_default_settings.enable_trim_post_processing = false;
     if (tppEnableEnv && !strcmp(tppEnableEnv, "1")) g_default_settings.enable_trim_post_processing = true;
 
+    // get the value of VKTRACE_ENABLE_TRACE_LOCK_ENV env variable.
+    // if it is set to "1" (true), lock guard always enabled for API calls.
+    // by default it is set to "0" (false), in which lock guard only enabled during trim for API calls.
+    // Note that the command line option will override the env variable.
+    char* lg_enable_env = vktrace_get_global_var(VKTRACE_ENABLE_TRACE_LOCK_ENV);
+    if (lg_enable_env && (strcmp(lg_enable_env, "1") == 0)) g_default_settings.enable_lock_guard_all = true;
+
     if (vktrace_SettingGroup_init(&g_settingGroup, NULL, argc, argv, &g_settings.arguments) != 0) {
         // invalid cmd-line parameters
         vktrace_SettingGroup_delete(&g_settingGroup);
@@ -431,6 +438,7 @@ int main(int argc, char* argv[]) {
 
     vktrace_set_global_var(VKTRACE_PMB_ENABLE_ENV, g_settings.enable_pmb ? "1" : "0");
     vktrace_set_global_var(VKTRACE_TRIM_POST_PROCESS_ENV, g_settings.enable_trim_post_processing ? "1" : "0");
+    vktrace_set_global_var(VKTRACE_ENABLE_TRACE_LOCK_ENV, g_settings.enable_lock_guard_all ? "1" : "0");
 
     if (g_settings.traceTrigger) {
         // Export list to screenshot layer
