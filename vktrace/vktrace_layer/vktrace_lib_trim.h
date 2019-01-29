@@ -63,8 +63,10 @@ class TrimLockGuard {  // specialization for a single mutex
    public:
     typedef _Mutex mutex_type;
 
-    explicit TrimLockGuard(_Mutex &_Mtx) : _MyMutex(_Mtx) {  // construct and lock only when trim enabled
-        if (g_trimEnabled) {
+    explicit TrimLockGuard(_Mutex &_Mtx) : _MyMutex(_Mtx) {
+        // construct and lock only when trim enabled (default behaviour)
+        // or when env var VKTRACE_ENABLE_TRACE_LOCK is set to "1"
+        if (g_trimEnabled || g_LockGuardAlwaysEnabled) {
             _MyMutex.lock();
             m_islocked = true;
         } else {
