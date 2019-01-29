@@ -207,6 +207,10 @@ Several environment variables can be set to change the behavior of vktrace/vktra
 
     VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE sets the maximum number of commands batched during trim resources upload (images and buffers recreation). The range is 1 - device memory allocation limit. This enviroment variable is used to reduce the number of  command buffers allocated  by batching the commands execution according to the size set. 
 
+ - VKTRACE_ENABLE_TRACE_LOCK
+
+    VKTRACE_ENABLE_TRACE_LOCK enables locking of API calls during trace if set to a non-null value. Not setting this variable will sometimes result in race conditions and remap errors during replay. Setting this variable will avoid those errors, with a slight performance loss during tracing. Locking of API calls is always enabled when trimming is enabled.
+
 ## Android
 
 ### vktrace
