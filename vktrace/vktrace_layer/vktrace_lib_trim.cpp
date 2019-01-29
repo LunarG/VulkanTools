@@ -507,7 +507,7 @@ void getTrimPreProcessAndLockGuardOptions() {
             }
         }
 
-        const char *lock_guard_alway_enabled_env = vktrace_get_global_var(VKTRACE_ENABLE_LOCKGUARD_ENV);
+        const char *lock_guard_alway_enabled_env = vktrace_get_global_var(VKTRACE_ENABLE_TRACE_LOCK_ENV);
         if (lock_guard_alway_enabled_env) {
             int lock_guard_value;
             if (sscanf(lock_guard_alway_enabled_env, "%d", &lock_guard_value) == 1) {
