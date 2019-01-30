@@ -50,12 +50,16 @@ extern uint64_t g_trimStartFrame;
 extern uint64_t g_trimEndFrame;
 extern bool g_trimAlreadyFinished;
 
-extern std::mutex g_mutex;
+extern bool g_TraceLockEnabled;
+
+// This mutex is used to protect API calls sequence
+// during trace
+extern std::mutex g_mutex_trace;
 
 namespace trim {
 
 template <typename _Mutex>
-class TrimLockGuard {  // specialization for a single mutex
+class TraceLock {  // specialization for a single mutex
    private:
     _Mutex &_MyMutex;
     bool m_islocked;
@@ -63,10 +67,10 @@ class TrimLockGuard {  // specialization for a single mutex
    public:
     typedef _Mutex mutex_type;
 
-    explicit TrimLockGuard(_Mutex &_Mtx) : _MyMutex(_Mtx) {
+    explicit TraceLock(_Mutex &_Mtx) : _MyMutex(_Mtx) {
         // construct and lock only when trim enabled (default behaviour)
         // or when env var VKTRACE_ENABLE_TRACE_LOCK is set to "1"
-        if (g_trimEnabled || g_LockGuardAlwaysEnabled) {
+        if (g_trimEnabled || g_TraceLockEnabled) {
             _MyMutex.lock();
             m_islocked = true;
         } else {
@@ -74,15 +78,15 @@ class TrimLockGuard {  // specialization for a single mutex
         }
     }
 
-    ~TrimLockGuard() {  // unlock
+    ~TraceLock() {  // unlock
         if (m_islocked) {
             _MyMutex.unlock();
             m_islocked = false;
         }
     }
 
-    TrimLockGuard(const TrimLockGuard &) = delete;
-    TrimLockGuard &operator=(const TrimLockGuard &) = delete;
+    TraceLock(const TraceLock &) = delete;
+    TraceLock &operator=(const TraceLock &) = delete;
 };
 
 void initialize();

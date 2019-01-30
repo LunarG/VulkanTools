@@ -36,6 +36,8 @@ uint64_t g_trimMaxBatchCmdCount = UINT64_MAX;
 bool g_trimAlreadyFinished = false;
 bool g_trimPostProcess = false;
 
+bool g_TraceLockEnabled = false;
+
 std::mutex g_trimImageHandling_Mutex;
 
 static std::mutex g_Mutex_CommandBufferPipelineMap;
@@ -487,7 +489,7 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType) {
 }
 
 //=========================================================================
-void getTrimPreProcessOption() {
+void getTrimPreProcessAndTraceLockOptions() {
     static bool firstTimeRun = true;
     if (firstTimeRun) {
         firstTimeRun = false;
@@ -502,6 +504,18 @@ void getTrimPreProcessOption() {
                 } else {
                     // Other values
                     g_trimPostProcess = false;
+                }
+            }
+        }
+
+        const char *lock_guard_alway_enabled_env = vktrace_get_global_var(VKTRACE_ENABLE_TRACE_LOCK_ENV);
+        if (lock_guard_alway_enabled_env) {
+            int lock_guard_value;
+            if (sscanf(lock_guard_alway_enabled_env, "%d", &lock_guard_value) == 1) {
+                if (1 == lock_guard_value) {
+                    g_TraceLockEnabled = true;
+                } else {
+                    g_TraceLockEnabled = false;
                 }
             }
         }
@@ -546,7 +560,7 @@ void getTrimMaxBatchCmdCountOption() {
 
 //=========================================================================
 void initialize() {
-    getTrimPreProcessOption();
+    getTrimPreProcessAndTraceLockOptions();
     const char *trimFrames = getTraceTriggerOptionString(enum_trim_trigger::frameCounter);
     if (trimFrames != nullptr) {
         uint32_t numFrames = 0;
