@@ -702,6 +702,17 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             if protect == "VK_USE_PLATFORM_XLIB_XRANDR_EXT":
                 replay_gen_source += '#endif // %s\n' % protect
         replay_gen_source += '}\n\n'
+        replay_gen_source += 'bool vkReplay::callFailedDuringTrace(VkResult result, uint16_t packet_id) {\n'
+        replay_gen_source += '    if (result && g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch() &&\n'
+        replay_gen_source += '        result != VK_SUCCESS && result != VK_NOT_READY && result != VK_TIMEOUT && result != VK_EVENT_SET &&\n'
+        replay_gen_source += '        result != VK_EVENT_RESET && result != VK_INCOMPLETE && result != VK_SUBOPTIMAL_KHR) {\n'
+        replay_gen_source += '        vktrace_LogVerbose("Skip %s which has failed result in trace file!",\n'
+        replay_gen_source += '                           vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)packet_id));\n'
+        replay_gen_source += '        return true;\n'
+        replay_gen_source += '    } else {\n'
+        replay_gen_source += '        return false;\n'
+        replay_gen_source += '    }\n'
+        replay_gen_source += '}\n\n'
         replay_gen_source += 'vktrace_replay::VKTRACE_REPLAY_RESULT vkReplay::replay(vktrace_trace_packet_header *packet) { \n'
         replay_gen_source += '    vktrace_replay::VKTRACE_REPLAY_RESULT returnValue = vktrace_replay::VKTRACE_REPLAY_SUCCESS;\n'
         replay_gen_source += '    VkResult replayResult = VK_SUCCESS;\n'
@@ -734,12 +745,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
             params = cmd_member_dict[vk_cmdname]
             replay_gen_source += '        case VKTRACE_TPI_VK_vk%s: { \n' % cmdname
             replay_gen_source += '            packet_vk%s* pPacket = (packet_vk%s*)(packet->pBody);\n' % (cmdname, cmdname)
-            if resulttype is not None and resulttype.text != 'void' and resulttype.text != 'PFN_vkVoidFunction':
-                replay_gen_source += '            if (pPacket->result &&\n'
-                replay_gen_source += '                g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch() &&\n'
-                replay_gen_source += '                pPacket->result != VK_SUCCESS && pPacket->result != VK_NOT_READY && pPacket->result != VK_TIMEOUT && pPacket->result != VK_EVENT_SET &&\n'
-                replay_gen_source += '                pPacket->result != VK_EVENT_RESET && pPacket->result != VK_INCOMPLETE && pPacket->result != VK_SUBOPTIMAL_KHR) {\n'
-                replay_gen_source += '                vktrace_LogVerbose("Skip %s which has failed result in trace file!", vktrace_vk_packet_id_name((VKTRACE_TRACE_PACKET_ID_VK)packet->packet_id));\n'
+            if resulttype is not None and resulttype.text == 'VkResult':
+                replay_gen_source += '            if (callFailedDuringTrace(pPacket->result, packet->packet_id)) {\n'
                 replay_gen_source += '                break;\n'
                 replay_gen_source += '            }\n'
 
