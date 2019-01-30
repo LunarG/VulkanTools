@@ -18,7 +18,7 @@ Options for the `vktrace` command are:
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
 | -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
-| -tbs&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TrimBatchSize&nbsp;&lt;string&gt; | Set the maximum trim commands batch size per command buffer, see description of VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE below  |  device memory allocation limit divide by 100 |
+| -tbs&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TrimBatchSize&nbsp;&lt;string&gt; | Set the maximum trim commands batch size per command buffer, see description of VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE below  |  device memory allocation limit divided by 100 |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
 
@@ -200,7 +200,7 @@ Several environment variables can be set to change the behavior of vktrace/vktra
 
  - VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE
 
-    VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE sets the maximum number of commands batched during trim resources upload (images and buffers recreation). The range is 1- device memory allocation limits. This enviroment variable is used to reduce the number of  command buffers allocated  by batching the commands execution according to the size set. 
+    VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE sets the maximum number of commands batched during trim resources upload (images and buffers recreation). The range is 1 - device memory allocation limit. This enviroment variable is used to reduce the number of  command buffers allocated  by batching the commands execution according to the size set. 
 
 ## Android
 
