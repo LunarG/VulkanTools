@@ -174,6 +174,8 @@ class vkReplay {
         return (m_platformMatch == 1);
     }
 
+    bool callFailedDuringTrace(VkResult result, uint16_t packet_id);
+
     struct ValidationMsg {
         VkFlags msgFlags;
         VkDebugReportObjectTypeEXT objType;
