@@ -17,7 +17,7 @@ Options for the `vktrace` command are:
 | -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace  persistently mapped buffers | true |
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
 | -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
-| -lg&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;Lockguard&nbsp;&lt;bool&gt; | Always enable lock guard for all API calls if Lockguard is TRUE, default is FALSE in which it enabled only for trim, see description of VKTRACE_ENABLE_TRACE_LOCK below | false |
+| -tl&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TraceLock&nbsp;&lt;bool&gt; | Enable locking of API calls during trace if TraceLock is set to TRUE, default is FALSEin which it is enabled only when trimming is enabled, see description of VKTRACE_ENABLE_TRACE_LOCK below | false |
 | -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
 | -tbs&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TrimBatchSize&nbsp;&lt;string&gt; | Set the maximum trim commands batch size per command buffer, see description of VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE below  |  device memory allocation limit divided by 100 |
 
