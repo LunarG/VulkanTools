@@ -5094,14 +5094,12 @@ VkResult EnumerateProperties(uint32_t src_count, const T* src_props, uint32_t* d
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
                                                                                   VkLayerProperties* pProperties) {
-    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     return EnumerateProperties(1, &layerProps, pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName,
                                                                                       uint32_t* pPropertyCount,
                                                                                       VkExtensionProperties* pProperties) {
-    trim::TrimLockGuard<std::mutex> lock(g_mutex);
     if (pLayerName && !strcmp(pLayerName, layerProps.layerName))
         return EnumerateProperties(0, (VkExtensionProperties*)nullptr, pPropertyCount, pProperties);
 
