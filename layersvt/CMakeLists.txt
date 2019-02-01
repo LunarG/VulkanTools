@@ -124,7 +124,6 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
     ${Vulkan-ValidationLayers_INCLUDE_DIR}
-    ${PROJECT_SOURCE_DIR}/../glslang/SPIRV
     ${JSONCPP_INCLUDE_DIR}
 )
 

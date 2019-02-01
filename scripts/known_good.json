@@ -1,21 +1,6 @@
 {
   "repos" : [
     {
-      "name" : "glslang",
-      "url" : "https://github.com/KhronosGroup/glslang.git",
-      "sub_dir" : "glslang",
-      "build_dir" : "glslang/build",
-      "install_dir" : "glslang/build/install",
-      "commit" : "2898223375d57fb3974f24e1e944bb624f67cb73",
-      "prebuild" : [
-        "python update_glslang_sources.py"
-      ],
-      "build_platforms" : [
-        "windows",
-        "linux"
-      ]
-    },
-    {
       "name" : "Vulkan-Headers",
       "url" : "https://github.com/KhronosGroup/Vulkan-Headers.git",
       "sub_dir" : "Vulkan-Headers",
@@ -37,7 +22,7 @@
         }
       ],
       "cmake_options" : [
-        "-DBUILD_TESTS=NO"
+        "-DBUILD_TESTS=OFF"
       ],
       "build_platforms" : [
         "windows",
@@ -61,6 +46,9 @@
           "repo_name" : "Vulkan-Loader"
         }
       ],
+      "cmake_options" : [
+        "-DBUILD_CUBE=OFF"
+      ],
       "build_platforms" : [
         "windows",
         "linux"
@@ -72,12 +60,8 @@
       "sub_dir" : "Vulkan-ValidationLayers",
       "build_dir" : "Vulkan-ValidationLayers/build",
       "install_dir" : "Vulkan-ValidationLayers/build/install",
-      "commit" : "d86d7a28f94f76804ab272ae86a998f922207799",
+      "commit" : "952b64dbf5931348937635e3459e8811f6533851",
       "deps" : [
-        {
-          "var_name" : "GLSLANG_INSTALL_DIR",
-          "repo_name" : "glslang"
-        },
         {
           "var_name" : "VULKAN_HEADERS_INSTALL_DIR",
           "repo_name" : "Vulkan-Headers"
@@ -85,14 +69,10 @@
         {
           "var_name" : "VULKAN_LOADER_INSTALL_DIR",
           "repo_name" : "Vulkan-Loader"
-        },
-        {
-          "var_name" : "VULKAN_TOOLS_INSTALL_DIR",
-          "repo_name" : "Vulkan-Tools"
         }
       ],
       "cmake_options" : [
-        "-DBUILD_TESTS=NO"
+        "-DBUILD_TESTS=FALSE","-DBUILD_LAYERS=OFF","-DBUILD_LAYER_SUPPORT_FILES=ON"
       ],
       "build_platforms" : [
         "windows",
@@ -101,10 +81,8 @@
     }
   ],
   "install_names" : {
-      "glslang" : "GLSLANG_INSTALL_DIR",
       "Vulkan-Headers" : "VULKAN_HEADERS_INSTALL_DIR",
       "Vulkan-Loader" : "VULKAN_LOADER_INSTALL_DIR",
-      "Vulkan-Tools" : "VULKAN_TOOLS_INSTALL_DIR",
       "Vulkan-ValidationLayers" : "VULKAN_VALIDATIONLAYERS_INSTALL_DIR"
     }
 }
