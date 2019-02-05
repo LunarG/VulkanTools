@@ -394,7 +394,7 @@ int main(int argc, char* argv[]) {
         // Set up environment for screenshot color space format
         if (g_settings.screenshotColorFormat != NULL && g_settings.screenshotList != NULL) {
             vktrace_set_global_var("VK_SCREENSHOT_FORMAT", g_settings.screenshotColorFormat);
-        }else if (g_settings.screenshotColorFormat != NULL && g_settings.screenshotList == NULL) {
+        } else if (g_settings.screenshotColorFormat != NULL && g_settings.screenshotList == NULL) {
             vktrace_LogWarning("Screenshot format should be used when screenshot enabled!");
             vktrace_set_global_var("VK_SCREENSHOT_FORMAT", "");
         } else {
@@ -507,8 +507,7 @@ int main(int argc, char* argv[]) {
             }
 
             // create watchdog thread to monitor existence of remote process
-            if (g_settings.program != NULL)
-            {
+            if (g_settings.program != NULL) {
                 procInfo.watchdogThread = vktrace_platform_create_thread(Process_RunWatchdogThread, &procInfo);
             }
 

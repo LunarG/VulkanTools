@@ -91,8 +91,7 @@ void vktrace_MessageStream_destroy(MessageStream** ppStream) {
 
     vktrace_LogDebug("Destroyed socket connection.");
 #if defined(WIN32)
-    if (!(*ppStream)->mHost)
-    {
+    if (!(*ppStream)->mHost) {
         // we should only do cleanup for client side because the library
         // is shared by multiple thread on server side
         WSACleanup();
