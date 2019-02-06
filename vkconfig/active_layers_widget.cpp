@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018 Valve Corporation
- * Copyright (c) 2018 LunarG, Inc.
+ * Copyright (c) 2018-2019 Valve Corporation
+ * Copyright (c) 2018-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@
 
 #include <QApplication>
 #include <QBoxLayout>
-#include <QCheckBox>
-#include <QLabel>
 #include <QPushButton>
 
 ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
@@ -35,7 +33,12 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
 
     QVBoxLayout *layer_layout = new QVBoxLayout();
     QHBoxLayout *top_layout = new QHBoxLayout();
-    QLabel *expiration_label = new QLabel(tr("Expiration:"));
+    cleanup_box = new QCheckBox(tr("Undo changes on exit"));
+    cleanup_box->setCheckState(Qt::Checked);
+    connect(cleanup_box, &QCheckBox::stateChanged, this, &ActiveLayersWidget::toggleExpiration);
+    top_layout->addWidget(cleanup_box);
+    top_layout->addStretch(1);
+    expiration_label = new QLabel(tr("Expiration:"));
     top_layout->addWidget(expiration_label, 0);
     expiration_spin = new QSpinBox();
     expiration_spin->setMaximum(999);
@@ -131,6 +134,8 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
 
     layer_layout->addLayout(column_layout);
 
+    toggleExpiration(cleanup_box->checkState());
+
     setLayout(layer_layout);
 }
 
@@ -218,6 +223,11 @@ void ActiveLayersWidget::setExpiration(int seconds, DurationUnit unit)
     setExpirationEnabled(expiration_units->currentText());
 }
 
+bool ActiveLayersWidget::shouldClearOnClose()
+{
+    return cleanup_box->isChecked();
+}
+
 void ActiveLayersWidget::clearLayers()
 {
     while (!enabled_layers.isEmpty()) {
@@ -267,7 +277,7 @@ void ActiveLayersWidget::clearLayers()
 
 void ActiveLayersWidget::setExpirationEnabled(const QString &text)
 {
-    expiration_spin->setEnabled(text != tr("Never"));
+    expiration_spin->setEnabled(!cleanup_box->isChecked() && text != tr("Never"));
 }
 
 void ActiveLayersWidget::updateAvailableLayers(const QList<QPair<QString, LayerType>> &path_list, bool is_custom)
@@ -423,4 +433,13 @@ void ActiveLayersWidget::removeSelectedLayer()
     }
 
     emit enabledLayersUpdated(enabled_layers, disabled_layers);
+}
+
+void ActiveLayersWidget::toggleExpiration(int state)
+{
+    bool enabled = state != Qt::Checked;
+    bool box_enabled = expiration_units->currentText() != tr("Never");
+    expiration_label->setEnabled(enabled);
+    expiration_spin->setEnabled(enabled && box_enabled);
+    expiration_units->setEnabled(enabled);
 }

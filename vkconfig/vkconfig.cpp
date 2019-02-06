@@ -162,6 +162,10 @@ LayerManager::LayerManager()
 
 void LayerManager::closeEvent(QCloseEvent *event)
 {
+    if (active_layers->shouldClearOnClose()) {
+        clear();
+    }
+
     // The settings are saved here, but the override settings are only saved when the user clicks "Save"
     settings.setValue("UseCustomPaths", locations->useCustomLayerPaths());
 

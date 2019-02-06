@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018 Valve Corporation
- * Copyright (c) 2018 LunarG, Inc.
+ * Copyright (c) 2018-2019 Valve Corporation
+ * Copyright (c) 2018-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
 
 #pragma once
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
+#include <QLabel>
 #include <QListWidget>
 #include <QSpinBox>
 #include <QTime>
@@ -46,6 +48,7 @@ public:
     DurationUnit expirationUnit() const;
     void setEnabledLayers(const QList<QString> &layers);
     void setExpiration(int seconds, DurationUnit unit);
+    bool shouldClearOnClose();
 
 signals:
     void enabledLayersUpdated(const QList<LayerManifest> &enabled_layers, const QList<LayerManifest> &disabled_layers);
@@ -62,12 +65,15 @@ private slots:
     void moveSelectedLayerUp();
     void refreshAvailableLayers();
     void removeSelectedLayer();
+    void toggleExpiration(int state);
 
 private:
     QHash<LayerType, QIcon> layer_icons;
     QList<QPair<QString, LayerType>> layer_paths;
     bool custom_paths;
 
+    QCheckBox *cleanup_box;
+    QLabel *expiration_label;
     QSpinBox *expiration_spin;
     QComboBox *expiration_units;
 
