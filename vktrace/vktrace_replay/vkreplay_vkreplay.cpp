@@ -3220,12 +3220,18 @@ VkResult vkReplay::manually_replay_vkCreateSampler(packet_vkCreateSampler *pPack
     // We only remap from m_objMapper.remap_samplerycbcrconversions because
     // m_objMapper.add_to_samplerycbcrconversionkhrs_map is not used.
     if (pPacket->pCreateInfo && pPacket->pCreateInfo->pNext) {
-        VkSamplerYcbcrConversionInfo *sci = (VkSamplerYcbcrConversionInfo *)pPacket->pCreateInfo->pNext;
-        while (sci) {
+        VkSamplerYcbcrConversionInfo *sci =
+            reinterpret_cast<VkSamplerYcbcrConversionInfo *>(const_cast<void *>(pPacket->pCreateInfo->pNext));
+        while (sci != nullptr) {
+            // note: this is not the only possible extension, for example
+            //       some title enable VK_EXT_sampler_filter_minmax extension,
+            //       so the following process cover the case that sType is
+            //       other value but that pNext doesn't need special process
+            //       as VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO.
             if (sci->sType == VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO) {
                 sci->conversion = m_objMapper.remap_samplerycbcrconversions(sci->conversion);
-                sci = (VkSamplerYcbcrConversionInfo *)sci->pNext;
             }
+            sci = reinterpret_cast<VkSamplerYcbcrConversionInfo *>(const_cast<void *>(sci->pNext));
         }
     }
 
