@@ -78,6 +78,8 @@ COMMON_CODEGEN = """
 @foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT','vkSetDebugUtilsObjectNameEXT'])
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
+    if (!dump_inst.shouldDumpOutput()) return;
+
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
     switch(dump_inst.settings().format())
     {{
@@ -109,18 +111,21 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
         dump_inst.object_name_map.erase(pNameInfo->object);
     }}
 
-    switch(dump_inst.settings().format())
-    {{
-    case ApiDumpFormat::Text:
-        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Html:
-        dump_html_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Json:
-        dump_json_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
+    if (dump_inst.shouldDumpOutput()) {{
+        switch(dump_inst.settings().format())
+        {{
+        case ApiDumpFormat::Text:
+            dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Html:
+            dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Json:
+            dump_json_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        }}
     }}
+
     loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
 @end function
@@ -137,18 +142,19 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
     {{
         dump_inst.object_name_map.erase(pNameInfo->objectHandle);
     }}
-
-    switch(dump_inst.settings().format())
-    {{
-    case ApiDumpFormat::Text:
-        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Html:
-        dump_html_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Json:
-        dump_json_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
+    if (dump_inst.shouldDumpOutput()) {{
+        switch(dump_inst.settings().format())
+        {{
+        case ApiDumpFormat::Text:
+            dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Html:
+            dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Json:
+            dump_json_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        }}
     }}
     loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
@@ -157,6 +163,7 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 @foreach function where('{funcReturn}' == 'void')
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
+    if (!dump_inst.shouldDumpOutput()) return ;
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
     switch(dump_inst.settings().format())
     {{
@@ -309,6 +316,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
     dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+
     ApiDumpInstance::current().nextFrame();
     return result;
 }}
@@ -698,6 +706,7 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
+  
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
@@ -725,6 +734,7 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
+
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount() << ":\\n";
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
 
@@ -1084,20 +1094,11 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 //========================= Function Implementations ========================//
 
-uint64_t next_frame = 0;
-
 @foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
-    uint64_t current_frame = dump_inst.frameCount();
-    if (current_frame == next_frame) {{
-        if (next_frame > 0) {{
-            settings.stream() << "</details>";
-        }}
-        settings.stream() << "<details class='frm'><summary>Frame " << current_frame << "</summary>";
-        next_frame++;
-    }}
+
     settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
@@ -1128,14 +1129,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
 std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
-    uint64_t current_frame = dump_inst.frameCount();
-    if (current_frame == next_frame) {{
-        if (next_frame > 0) {{
-            settings.stream() << "</details>";
-        }}
-        settings.stream() << "<details class='frm'><summary>Frame " << current_frame << "</summary>";
-        next_frame++;
-    }}
+
     settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
@@ -1482,18 +1476,9 @@ std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 @end if
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
-    uint64_t current_frame = dump_inst.frameCount();
-    // Possibly start new frame
-    if (current_frame == next_frame) {{
-        if (next_frame > 0) {{
-            settings.stream() << "\\n" << settings.indentation(1) << "]\\n}},\\n";
-        }}
-        settings.stream() << "{{\\n" << settings.indentation(1) << "\\\"frameNumber\\\" : \\\"" << current_frame << "\\\",\\n";
-        settings.stream() << settings.indentation(1) << "\\\"apiCalls\\\" :\\n";
-        settings.stream() << settings.indentation(1) << "[\\n";
-        next_frame++;
+
+    if(dump_inst.firstFunctionCallOnFrame())
         needFuncComma = false;
-    }}
 
     if (needFuncComma) settings.stream() << ",\\n";
 
@@ -1521,6 +1506,7 @@ std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 
         settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";
         settings.stream() << settings.indentation(3) << "[\\n";
+        
         @foreach parameter
         if (needParameterComma) settings.stream() << ",\\n";
         @if({prmPtrLevel} == 0)
@@ -1534,6 +1520,7 @@ std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         @end if
         needParameterComma = true;
         @end parameter
+        
         settings.stream() << "\\n" << settings.indentation(3) << "]\\n";
     }}
     settings.stream() << settings.indentation(2) << "}}";

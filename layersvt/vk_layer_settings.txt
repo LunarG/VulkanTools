@@ -44,35 +44,44 @@
 #    <LayerIdentifier>.flush : Setting this to TRUE causes IO to be flushed
 #    each API call that is written.
 #
-#   INDENT SIZE:
-#   ==============
-#   <LayerIdentifier>.indent_size : Specifies the number of spaces that a tab
-#   is equal to.
+#    INDENT SIZE:
+#    ==============
+#    <LayerIdentifier>.indent_size : Specifies the number of spaces that a tab
+#    is equal to.
 #
-#   SHOW TYPES:
-#   ==============
-#   <LayerIdentifier>.show_types : Setting this to TRUE causes types to be
-#   dumped in addition to values.
+#    SHOW TYPES:
+#    ==============
+#    <LayerIdentifier>.show_types : Setting this to TRUE causes types to be
+#    dumped in addition to values.
 #
-#   NAME SIZE:
-#   ==============
-#   <LayerIdentifier>.name_size : The number of characters the name of a
-#   variable should consume, assuming more are not required.
+#    NAME SIZE:
+#    ==============
+#    <LayerIdentifier>.name_size : The number of characters the name of a
+#    variable should consume, assuming more are not required.
 #
-#   TYPE SIZE:
-#   ==============
-#   <LayerIdentifier>.type_size : The number of characters the type of a
-#   variable should consume, assuming more are not requires.
+#    TYPE SIZE:
+#    ==============
+#    <LayerIdentifier>.type_size : The number of characters the type of a
+#    variable should consume, assuming more are not requires.
 #
-#   USE_SPACES:
-#   ==============
-#   <LayerIdentifier>.use_spaces : Setting this to TRUE causes all tabs
-#   characters to be replaced with spaces.
+#    USE_SPACES:
+#    ==============
+#    <LayerIdentifier>.use_spaces : Setting this to TRUE causes all tabs
+#    characters to be replaced with spaces.
 #
-#   SHOW_SHADER:
-#   ==============
-#   <LayerIdentifier>.show_shader : Setting this to TRUE causes the shader
-#   binary code in pCode to be also written to output.
+#    SHOW_SHADER:
+#    ==============
+#    <LayerIdentifier>.show_shader : Setting this to TRUE causes the shader
+#    binary code in pCode to be also written to output.
+#
+#    OUTPUT_RANGE:
+#    ==============
+#    <LayerIdentifer>.output_range : Comma separated list of ranges to dump. 
+#    Range format is "S-C-I" with S being the start frame, C is the count of
+#    frames, and I the interval between dumped frames. A count of 0 will 
+#    output every frame after the start of the range. Examples: "2-6-2" would
+#    will dump frames 2, 4, and 6. "3,4,6-0" will dump frames 3,4,6 and every 
+#    frame after it.
 
 #  VK_LUNARG_LAYER_api_dump Settings
 lunarg_api_dump.output_format = Text
@@ -87,3 +96,4 @@ lunarg_api_dump.name_size = 32
 lunarg_api_dump.type_size = 0
 lunarg_api_dump.use_spaces = TRUE
 lunarg_api_dump.show_shader = FALSE
+lunarg_api_dump.output_range = 0-0
