@@ -18,6 +18,7 @@
  * Author: Lenny Komow <lenny@lunarg.com>
  * Author: Shannon McPherson <shannon@lunarg.com>
  * Author: David Pinedo <david@lunarg.com>
+ * Author: Charles Giessen <charles@lunarg.com>
  */
 
 #pragma once
@@ -46,6 +47,13 @@
 #include <unordered_set>
 #include <utility>
 
+#ifdef ANDROID
+
+#include <android/log.h>
+#include <sys/system_properties.h>
+
+#endif  // ANDROID
+
 #define MAX_STRING_LENGTH 1024
 
 // Defines for utilized environment variables.
@@ -54,11 +62,162 @@
 #define API_DUMP_ENV_VAR_DETAILED_OUTPUT "VK_APIDUMP_DETAILED"
 #define API_DUMP_ENV_VAR_NO_ADDRESSES "VK_APIDUMP_NO_ADDR"
 #define API_DUMP_ENV_VAR_FLUSH_FILE "VK_APIDUMP_FLUSH"
+#define API_DUMP_ENV_VAR_OUTPUT_RANGE "VK_APIDUMP_OUTPUT_RANGE"
 
 enum class ApiDumpFormat {
     Text,
     Html,
     Json,
+};
+
+static const uint64_t OUTPUT_RANGE_UNLIMITED = 0;
+static const uint64_t OUTPUT_RANGE_INTERVAL_DEFAULT = 1;
+
+struct FrameRange {
+    uint64_t start_frame;  // The range begins on this frame, inclusive.
+    uint64_t frame_count;  // If value is OUTPUT_RANGE_UNLIMITED, dump continues without limit.
+    uint64_t interval;     // Rate at which frames are dumped. A value of 3 will dump every third frame.
+};
+
+class ConditionalFrameOutput {
+    bool use_conditional_output = false;
+    std::set<uint64_t> frames;
+    std::vector<FrameRange> ranges;
+
+    struct NumberToken {
+        uint64_t value;
+        unsigned int length;
+    };
+
+    inline NumberToken parseNumber(std::string str, unsigned int current_char) {
+        unsigned int length = 0;
+        while (current_char + length < str.size() && str[current_char + length] >= '0' && str[current_char + length] <= '9') {
+            length++;
+        }
+        if (length > 0) {
+            uint64_t value = std::atol(&str[current_char]);
+            return NumberToken{value, length};
+        } else {
+            return NumberToken{0, 0};
+        }
+    }
+
+    inline void printErrorMsg(const char *msg) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_DEBUG, "api_dump", "%s", msg);
+#else
+        fprintf(stderr, "%s", msg);
+#endif
+    }
+
+   public:
+    /* Parses a string for a comma seperated list of frames & frame ranges
+     * where frames are singular integers and frame ranges are of the following
+     * format: "S-C-I" with S is the start frame, C is the count of frames to dump,
+     * and I the interval between dumped frames.
+     * Valid range strings: "2,3,5", "4-4-2", "3-6, 10-2"
+     */
+    bool parseConditionalFrameRange(std::string range_str) {
+        size_t current_char = 0;
+
+        if (range_str.empty()) {
+            printErrorMsg("Conditional range error: format string was empty\n");
+            return false;
+        }
+
+        while (current_char < range_str.size()) {
+            NumberToken frame_number = parseNumber(range_str, current_char);
+            if (frame_number.length <= 0) {
+                printErrorMsg("Conditional range error: Invalid frame number\n");
+                return false;
+            }
+            current_char += frame_number.length;
+
+            // Range of frames
+            if (range_str[current_char] == '-') {
+                current_char++;
+                if (current_char >= range_str.size()) {
+                    printErrorMsg("Conditional range error: Must have number for frame count\n");
+                    return false;
+                }
+                NumberToken frame_count = parseNumber(range_str, current_char);
+                if (frame_count.length <= 0) {
+                    printErrorMsg("Conditional range error: Invalid frame count\n");
+                    return false;
+                }
+                current_char += frame_count.length;
+
+                if (current_char >= range_str.size()) {
+                    // Frame Range w/o interval
+                    ranges.push_back(FrameRange{frame_number.value, frame_count.value, 1l});
+                    use_conditional_output = true;
+                    return true;
+                }
+
+                else if (range_str[current_char] == '-') {
+                    current_char++;
+                    if (current_char >= range_str.size()) {
+                        printErrorMsg("Conditional range error: Must have number for frame interval \n");
+                        return false;
+                    }
+
+                    NumberToken frame_interval = parseNumber(range_str, current_char);
+                    if (frame_interval.length <= 0) {
+                        printErrorMsg("Conditional range error: Invalid interval\n");
+                        return false;
+                    }
+
+                    // Frame Range w/ interval
+                    ranges.push_back(FrameRange{frame_number.value, frame_count.value, frame_interval.value});
+
+                    current_char += frame_interval.length;
+                    if (current_char >= range_str.size()) {
+                        use_conditional_output = true;
+                        return true;
+                    }
+                } else {
+                    // Frame Range w/o interval
+                    ranges.push_back(FrameRange{frame_number.value, frame_count.value, 1l});
+                }
+            } else {
+                // Single frame capture
+                frames.insert(frame_number.value);
+            }
+            if (range_str[current_char] == ',') {
+                current_char++;
+            }
+        }
+        use_conditional_output = true;
+        return true;
+    }
+
+    // Return true if either use_conditional_output is false or if frame_count is within
+    // the provided frame ranges
+    bool isFrameInRange(uint64_t frame_number) const {
+        if (!use_conditional_output) return true;
+        for (auto &range : ranges) {
+            if (range.start_frame <= frame_number) {
+                if (range.frame_count == OUTPUT_RANGE_UNLIMITED) {
+                    if (range.interval == OUTPUT_RANGE_INTERVAL_DEFAULT) {
+                        return true;
+                    } else {
+                        return (frame_number - range.start_frame) % range.interval == 0;
+                    }
+
+                } else if (range.start_frame + range.frame_count > frame_number) {
+                    if (range.interval == OUTPUT_RANGE_INTERVAL_DEFAULT) {
+                        return true;
+                    } else {
+                        return (frame_number - range.start_frame) % range.interval == 0;
+                    }
+                }
+            }
+        }
+        if (frames.count(frame_number) > 0) {
+            return true;
+        }
+        return false;
+    }
 };
 
 class ApiDumpSettings {
@@ -135,6 +294,23 @@ class ApiDumpSettings {
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
         use_spaces = readBoolOption("lunarg_api_dump.use_spaces", true);
         show_shader = readBoolOption("lunarg_api_dump.show_shader", false);
+
+        std::string cond_range_string;
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_RANGE);
+        if (!env_value.empty()) {
+            cond_range_string = env_value;
+        } else {
+            cond_range_string = getLayerOption("lunarg_api_dump.output_range");
+        }
+
+        if (cond_range_string == "" || cond_range_string == "0-0") {  //"0-0" is every frame, no need to check
+            use_conditional_output = false;
+        } else {
+            bool parsingStatus = condFrameOutput.parseConditionalFrameRange(cond_range_string);
+            if (!parsingStatus) {
+                use_conditional_output = false;
+            }
+        }
 
         // Generate HTML heading if specified
         if (output_format == ApiDumpFormat::Html) {
@@ -239,6 +415,10 @@ class ApiDumpSettings {
         } else if (output_format == ApiDumpFormat::Json) {
             stream() << "[\n";
         }
+
+        if (isFrameInRange(0)) {
+            setupInterFrameOutputFormatting(0);
+        }
     }
 
     ~ApiDumpSettings() {
@@ -246,13 +426,60 @@ class ApiDumpSettings {
             // Close off html
             stream() << "</div></body></html>";
         } else if (output_format == ApiDumpFormat::Json) {
-            // Assume we are in the middle of a frame and we need to close it
-            // TODO: This isn't right if the last api call in the dump is vkQueuePresentKHR.
-            stream() << "\n" << indentation(1) << "]\n}\n";
             // Close off json
-            stream() << "]" << std::endl;
+            stream() << "\n]" << std::endl;
         }
         if (!use_cout) output_stream.close();
+    }
+
+    void setupInterFrameOutputFormatting(uint64_t frame_count) const /*name change? */
+    {
+        static bool hasPrintedAFrame = false;
+        switch (format()) {
+            case (ApiDumpFormat::Html):
+                if (frame_count > 0) {
+                    if (condFrameOutput.isFrameInRange(frame_count - 1)) stream() << "</details>";
+                }
+                if (condFrameOutput.isFrameInRange(frame_count))
+                    stream() << "<details class='frm'><summary>Frame " << frame_count << "</summary>";
+                break;
+
+            case (ApiDumpFormat::Json):
+
+                if (frame_count > 0) {
+                    if (condFrameOutput.isFrameInRange(frame_count - 1)) stream() << "\n" << indentation(1) << "]\n}";
+                }
+                if (condFrameOutput.isFrameInRange(frame_count)) {
+                    if (!hasPrintedAFrame) {
+                        hasPrintedAFrame = true;
+                    } else {
+                        stream() << ",\n";
+                    }
+                    stream() << "{\n" << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
+                    stream() << indentation(1) << "\"apiCalls\" :\n";
+                    stream() << indentation(1) << "[\n";
+                }
+                break;
+            case (ApiDumpFormat::Text):
+                break;
+            default:
+                break;
+        }
+    }
+
+    void closeFrameOutput() const {
+        switch (format()) {
+            case (ApiDumpFormat::Html):
+                stream() << "</details>";
+                break;
+            case (ApiDumpFormat::Json):
+                stream() << "\n" << indentation(1) << "]\n}";
+                break;
+            case (ApiDumpFormat::Text):
+                break;
+            default:
+                break;
+        }
     }
 
     inline ApiDumpFormat format() const { return output_format; }
@@ -293,6 +520,8 @@ class ApiDumpSettings {
     inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
     inline std::string directory() const { return output_dir; }
+
+    inline bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
 
    private:
     // Utility member to enable easier comparison by forcing a string to all lower-case
@@ -400,6 +629,9 @@ class ApiDumpSettings {
     bool use_spaces;
     bool show_shader;
 
+    bool use_conditional_output = false;
+    ConditionalFrameOutput condFrameOutput;
+
     static const char *const SPACES;
     static const int MAX_SPACES = 144;
     static const char *const TABS;
@@ -407,7 +639,8 @@ class ApiDumpSettings {
 };
 
 const char *const ApiDumpSettings::SPACES =
-    "                                                                                                                              "
+    "                                                                                                                          "
+    "    "
     "                  ";
 const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
@@ -421,6 +654,8 @@ class ApiDumpInstance {
     }
 
     inline ~ApiDumpInstance() {
+        if (!first_func_call_on_frame) settings().closeFrameOutput();
+
         if (dump_settings != NULL) delete dump_settings;
 
         loader_platform_thread_delete_mutex(&thread_mutex);
@@ -439,7 +674,28 @@ class ApiDumpInstance {
     inline void nextFrame() {
         loader_platform_thread_lock_mutex(&frame_mutex);
         ++frame_count;
+
+        should_dump_output = settings().isFrameInRange(frame_count);
+        settings().setupInterFrameOutputFormatting(frame_count);
+        first_func_call_on_frame = true;
+
         loader_platform_thread_unlock_mutex(&frame_mutex);
+    }
+
+    inline bool shouldDumpOutput() {
+        if (!conditional_initialized) {
+            should_dump_output = settings().isFrameInRange(frame_count);
+            conditional_initialized = true;
+        }
+        return should_dump_output;
+    }
+
+    inline bool firstFunctionCallOnFrame() {
+        if (first_func_call_on_frame) {
+            first_func_call_on_frame = false;
+            return true;
+        }
+        return false;
     }
 
     inline loader_platform_thread_mutex *outputMutex() { return &output_mutex; }
@@ -556,6 +812,10 @@ class ApiDumpInstance {
     loader_platform_thread_mutex cmd_buffer_state_mutex;
     std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;
     std::unordered_map<VkCommandBuffer, VkCommandBufferLevel> cmd_buffer_level;
+
+    bool conditional_initialized = false;
+    bool should_dump_output = true;
+    bool first_func_call_on_frame = false;
 };
 
 ApiDumpInstance ApiDumpInstance::current_instance;

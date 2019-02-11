@@ -21,7 +21,7 @@
         }
     },
     "layer_options": {
-        
+
         "VK_LAYER_KHRONOS_validation": {
             "debug_action": {
                 "name": "Debug Action",
@@ -140,6 +140,12 @@
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
                 "type": "bool",
                 "default": false
+            },
+            "output_range": {
+                "name": "Output Range",
+                "description": "Comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range. Example: \"5-8-2\" will output frame 5, continue until frame 13, dumping every other frame. Example: \"3,8-2\" will output frames 3, 8, and 9.",
+                "type": "string",
+                "default": "0-0"
             }
         },
 
