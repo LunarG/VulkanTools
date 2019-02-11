@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2016 Valve Corporation
-# Copyright (c) 2015-2016 LunarG, Inc.
-# Copyright (c) 2015-2016 Google Inc.
+# Copyright (c) 2015-2016, 2019 Valve Corporation
+# Copyright (c) 2015-2016, 2019 LunarG, Inc.
+# Copyright (c) 2015-2016, 2019 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 # The API dump layer works by passing custom format strings to the ApiDumpGenerator. These format
 # strings are C++ code, with 3-ish exceptions:
 #   * Anything beginning with @ will be expanded by the ApiDumpGenerator. These are used to allow
-#       iteration over various items within the Vulkan spec, usch as functions, enums, etc.
+#       iteration over various items within the Vulkan spec, such as functions, enums, etc.
 #   * Anything surrounded by { and } will be substituted when the ApiDumpGenerator expands the @
 #       directives. This gives a way to get things like data types or names for anything that can
 #       be iterated over in an @ directive.
@@ -74,7 +74,7 @@ COMMON_CODEGEN = """
 
 //============================= Dump Functions ==============================//
 
-@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT'])
+@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT','vkSetDebugUtilsObjectNameEXT'])
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
@@ -91,7 +91,7 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 }}
 @end function
 
-@foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT' and '{funcReturn}' != 'void')
+@foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT')
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
@@ -103,6 +103,32 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
     else
     {{
         dump_inst.object_name_map.erase(pNameInfo->object);
+    }}
+
+    switch(dump_inst.settings().format())
+    {{
+    case ApiDumpFormat::Text:
+        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+        break;
+    case ApiDumpFormat::Html:
+        dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+        break;
+    }}
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+}}
+@end function
+
+@foreach function where('{funcName}' == 'vkSetDebugUtilsObjectNameEXT')
+inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+{{
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    if (pNameInfo->pObjectName)
+    {{
+        dump_inst.object_name_map.insert(std::make_pair<uint64_t, std::string>((uint64_t &&)pNameInfo->objectHandle, pNameInfo->pObjectName));
+    }}
+    else
+    {{
+        dump_inst.object_name_map.erase(pNameInfo->objectHandle);
     }}
 
     switch(dump_inst.settings().format())
@@ -277,7 +303,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 
 // Autogen instance functions
 
-@foreach function where('{funcType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
+@foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -287,7 +313,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 }}
 @end function
 
-@foreach function where('{funcType}' == 'instance' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
+@foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -298,7 +324,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 
 // Autogen device functions
 
-@foreach function where('{funcType}' == 'device' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkQueuePresentKHR', 'vkGetDeviceProcAddr'])
+@foreach function where('{funcDispatchType}' == 'device' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkQueuePresentKHR', 'vkGetDeviceProcAddr'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -308,7 +334,7 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 }}
 @end function
 
-@foreach function where('{funcType}' == 'device' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkGetDeviceProcAddr'])
+@foreach function where('{funcDispatchType}' == 'device' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkGetDeviceProcAddr'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
@@ -343,9 +369,9 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 """
 
 TEXT_CODEGEN = """
-/* Copyright (c) 2015-2016 Valve Corporation
- * Copyright (c) 2015-2016 LunarG, Inc.
- * Copyright (c) 2015-2016 Google Inc.
+/* Copyright (c) 2015-2016, 2019 Valve Corporation
+ * Copyright (c) 2015-2016, 2019 LunarG, Inc.
+ * Copyright (c) 2015-2016, 2019 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -659,9 +685,9 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 # that are opened are closed in another function. See api_dump.h. This may need refactoring.
 
 HTML_CODEGEN = """
-/* Copyright (c) 2015-2017 Valve Corporation
- * Copyright (c) 2015-2017 LunarG, Inc.
- * Copyright (c) 2015-2017 Google Inc.
+/* Copyright (c) 2015-2017, 2019 Valve Corporation
+ * Copyright (c) 2015-2017, 2019 LunarG, Inc.
+ * Copyright (c) 2015-2017, 2019 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1323,7 +1349,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
 
-        self.functions.add(VulkanFunction(cmd.elem, self.constants, self.aliases))
+        self.functions.add(VulkanFunction(cmd.elem, self.constants, self.aliases, self.extFuncs))
 
     # These are actually constants
     def genEnum(self, enuminfo, name, alias):
@@ -1694,7 +1720,7 @@ class VulkanExtension:
                 if base is not None and offset is not None:
                     enumValue = 1000000000 + 1000*(self.number - 1) + offset
                     if enum.get('dir') == '-':
-                        enumValue = -enumValue;
+                        enumValue = -enumValue
                     self.enumValues[base] = (name, enumValue)
                 else:
                     self.constants[name] = value
@@ -1754,7 +1780,7 @@ class VulkanFunction:
                 'prmInheritedConditions': self.inheritedConditions,
             }
 
-    def __init__(self, rootNode, constants, aliases):
+    def __init__(self, rootNode, constants, aliases, extensions):
         self.name = rootNode.find('proto').find('name').text
         self.returnType = rootNode.find('proto').find('type').text
 
@@ -1770,9 +1796,14 @@ class VulkanFunction:
             self.typedParams = self.typedParams[0:-2]
 
         if self.parameters[0].type in ['VkInstance', 'VkPhysicalDevice'] or self.name == 'vkCreateInstance':
+            self.dispatchType = 'instance'
+        else:
+            self.dispatchType = 'device'
+
+        if self.name in extensions and extensions[self.name].type == 'instance':    
             self.type = 'instance'
         else:
-            self.type = 'device'
+            self.type = self.dispatchType
 
         self.stateTrackingCode = ''
         if self.name in TRACKED_STATE:
@@ -1787,6 +1818,7 @@ class VulkanFunction:
             'funcNamedParams': self.namedParams,
             'funcTypedParams': self.typedParams,
             'funcDispatchParam': self.parameters[0].name,
+            'funcDispatchType' : self.dispatchType, 
             'funcStateTrackingCode': self.stateTrackingCode
         }
 
@@ -1850,7 +1882,7 @@ class VulkanStruct:
         if self.name in INHERITED_STATE:
             for parent, states in INHERITED_STATE[self.name].items():
                 for state in states:
-                    self.conditionVars += ', ' + state['type'] + ' ' + state['name'];
+                    self.conditionVars += ', ' + state['type'] + ' ' + state['name']
 
     def values(self):
         return {
