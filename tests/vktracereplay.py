@@ -1,6 +1,7 @@
 # Python script for running the regression test for both trace and replay. Python version 3 or greater required.
 # NOTES - 
-#   vkcube is expected to be in the PATH or working directory.
+#   vkcube is expected to be in the PATH or working directory if the --legacy-vkcube switch
+#   is passed in.
 #   This script is normally invoked from _vktracereplay.ps1 or vktracereplay.sh.
 #
 # vkcube is traced and replayed with screenshot comparison, then again with trim.
@@ -258,26 +259,36 @@ if __name__ == '__main__':
 
     # Load settings from command-line
     parser = argparse.ArgumentParser(description='Test vktrace and vkreplay.')
+    parser.add_argument('--legacy-vkcube', help='run the legacy vkcube tests', action='store_true')
     parser.add_argument('OldTracesPath', help='directory of old traces to replay')
     parser.add_argument('VkTracePath', help='directory containing vktrace')
     parser.add_argument('VkLayerPath', help='directory containing vktrace layer')
     parser.add_argument('VkReplayPath', help='directory containing vkreplay')
     args = parser.parse_args()
 
-    # Get vkcube executable path from PATH
-    cubePath = shutil.which('vkcube')
-    if (cubePath is None):
-        HandleError('Error: vkcube executable not found')
+    # vkcube tests were removed by default after commit b270c0024bafbc91e47d81b4bde2ddc38f391ea5
+    # in LunarG/VulkanTools, which removed the glslang build as well as the vkcube
+    # build for the project.  This means that vkcube is no longer guaranteed to be on
+    # the system.  We reviewed several options for fixing this, but ulimately decided
+    # to just remove the vkcube testing, because we assert the other replay testing
+    # is sufficient, and that vktrace is likely to be deprecated soon in favor of
+    # gfxreconstruct anyway.
+    if args.legacy_vkcube:
 
-    # Trace/replay test on vkcube
-    TraceReplayProgramTest('vkcube', cubePath, '--c 50', args)
+        # Get vkcube executable path from PATH
+        cubePath = shutil.which('vkcube')
+        if (cubePath is None):
+            HandleError('Error: vkcube executable not found')
 
-    # Run trim test on vkcube
-    # Removing until github issue #646 is resolved
-    # TrimTest('cube-trim', cubePath, '--c 250', args)
+        # Trace/replay test on vkcube
+        TraceReplayProgramTest('vkcube', cubePath, '--c 50', args)
 
-    # Run loop test on cube
-    LoopTest('cube-loop', cubePath, '--c 50', args)
+        # Run trim test on vkcube
+        # Removing until github issue #646 is resolved
+        # TrimTest('cube-trim', cubePath, '--c 250', args)
+
+        # Run loop test on cube
+        LoopTest('cube-loop', cubePath, '--c 50', args)
 
     # Run Trace/Replay on old trace files if directory specified
     directory = args.OldTracesPath
