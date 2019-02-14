@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (C) 2015-2018 Valve Corporation
- * Copyright (C) 2015-2018 LunarG, Inc.
+ * Copyright (C) 2015-2019 Valve Corporation
+ * Copyright (C) 2015-2019 LunarG, Inc.
  * All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2060,7 +2060,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     VkDeviceSize bimMemoryOffset;
     packet_vkFreeMemory *pFreeMemoryPacket;
     VkMemoryRequirements memRequirements;
-    size_t amIdx;
+    size_t n, amIdx;
     VkDeviceSize replayAllocationSize;
     static size_t amSearchPos = 0;
     VkImage remappedImage = VK_NULL_HANDLE;
@@ -2073,8 +2073,13 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
     assert(g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch());
 
     // First find this vkAM call in portabilityTablePackets
+    // In order to speed up the search, we start searching at amSearchPos,
+    // wrapping the search back to 0.
     pPacket->header = (vktrace_trace_packet_header *)((PBYTE)pPacket - sizeof(vktrace_trace_packet_header));
-    for (amIdx = amSearchPos; amIdx < portabilityTablePackets.size(); amIdx++) {
+    for (n = 0, amIdx = amSearchPos; n < portabilityTablePackets.size(); n++, amIdx++) {
+        if (amIdx == portabilityTablePackets.size())
+            // amIdx is past the end of the array, wrap back to the start of the array
+            amIdx = 0;
         pPacketHeader1 = (vktrace_trace_packet_header *)portabilityTablePackets[amIdx];
         if (pPacketHeader1->global_packet_index == pPacket->header->global_packet_index &&
             pPacketHeader1->packet_id == VKTRACE_TPI_VK_vkAllocateMemory) {
@@ -2086,7 +2091,7 @@ bool vkReplay::modifyMemoryTypeIndexInAllocateMemoryPacket(VkDevice remappedDevi
             break;
         }
     }
-    if (amIdx == portabilityTablePackets.size()) {
+    if (n == portabilityTablePackets.size()) {
         // Didn't find the current vkAM packet, something is wrong with the trace file.
         // Just use the index from the trace file and attempt to continue.
         vktrace_LogError("Replay of vkAllocateMemory() failed, trace file may be corrupt.");
