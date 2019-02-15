@@ -4575,13 +4575,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkWaitForFences* pPacket = NULL;
-#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY) && !defined(WIN32)
     pageguardEnter();
 #endif
     CREATE_TRACE_PACKET(vkWaitForFences, fenceCount * sizeof(VkFence));
     result = mdd(device)->devTable.WaitForFences(device, fenceCount, pFences, waitAll, timeout);
     vktrace_set_packet_entrypoint_end_time(pHeader);
-#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY) && !defined(WIN32)
     // Sync real mapped memory back to the copy of that memory after vkCmdCopyImageToBuffer being executed.
     // * The real mapped memory is bound with the destination buffer in vkCmdCopyImageToBuffer.
     // * Do the sync when a fence from vkQueueSubmit is signaled and the command buffer submitted contains vkCmdCopyImageToBuffer
@@ -4679,7 +4679,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkWaitForFences(VkDevice
             vktrace_delete_trace_packet(&pHeader);
         }
     }
-#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+#if defined(USE_PAGEGUARD_SPEEDUP) && !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY) && !defined(WIN32)
     pageguardExit();
 #endif
     return result;
