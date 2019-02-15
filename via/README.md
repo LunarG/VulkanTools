@@ -1,3 +1,11 @@
+<!-- markdownlint-disable MD041 -->
+Copyright &copy; 2015-2019 LunarG, Inc.
+
+[![Creative Commons][3]][4]
+
+[3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
+[4]: https://creativecommons.org/licenses/by-nd/4.0/
+
 ![LunarG's Vulkan Installation Analyzer (VIA)](images/lunarg_via_title.png)
 This document is an overview of how to use the [LunarG Vulkan Installation Analyzer (VIA)](https://vulkan.lunarg.com/doc/sdk/latest/windows/via.html).
 VIA is a tool that can:
