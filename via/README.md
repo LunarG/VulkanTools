@@ -45,10 +45,10 @@ VIA is a tool that can:
 
 
 ## Building
-Many components of the LunarG Vulkan SDK are Open Source, including VIA.  VIA is currently part of the LunarG
+Many components of the Vulkan SDK are Open Source, including VIA.  VIA is currently part of the LunarG
 [VulkanTools](https://github.com/LunarG/VulkanTools) GitHub respository.
 
-**Windows Note:** VIA is already pre-built as part of the LunarG Windows Vulkan SDK, but should you wish to build a
+**Windows Note:** VIA is already pre-built as part of the Windows Vulkan SDK, but should you wish to build a
 debug version or find the source, this section should provide you with the information you need.  Otherwise, simply
 skip down to the "Running" section below.
 
@@ -58,7 +58,7 @@ following the instructions in the [VulkanTools/BUILD.md](https://github.com/Luna
 file at the top of the source tree.
 
 #### Building VIA in the Linux Vulkan SDK
-The source for VIA can also be found in the LunarG Linux [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) in the "source/via" directory.
+The source for VIA can also be found in the Linux [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) in the "source/via" directory.
  1. Download and install the Linux SDK
  2. Run "source setup-env.sh" in the SDK root directory
  3. Run "./build_tools.sh"
@@ -174,7 +174,7 @@ LunarG's VIA could detect no problems with your setup other than a missing SDK. 
 Your system is likely set up properly, but is either missing an installed Vulkan SDK or you didn't set up your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
-Install the LunarG Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
+Install the Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
 
 
 #### "ERROR: Failed to find Vulkan Driver JSON in registry"
@@ -290,7 +290,7 @@ See the [Vulkan Graphics Driver Problems](#vulkan-graphics-driver-problems) sect
 
 ##### Problem:
 The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
-some Vulkan-capable games, or the LunarG Vulkan SDK.
+some Vulkan-capable games, or the Vulkan SDK.
 
 ##### Possible Reason:
 The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
@@ -369,7 +369,7 @@ See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 ##### Problem:
 The Vulkan loader "vulkan-1.dll" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
-some Vulkan-capable games, or the LunarG Vulkan SDK.
+some Vulkan-capable games, or the Vulkan SDK.
 
 ##### Possible Reason:
 The last Vulkan Runtime install that executed on your system failed to behave properly.  Or, you have never installed a Vulkan loader
@@ -383,7 +383,7 @@ See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 ##### Problem:
 The Vulkan loader "libvulkan.so.1" couldn't be found on your system.  This file is typically installed with some Vulkan driver installs,
-some Vulkan-capable games, or the LunarG Vulkan SDK.
+some Vulkan-capable games, or the Vulkan SDK.
 
 ##### Possible Reason:
  1. There is no Vulkan loader installed to a system folder.
@@ -400,9 +400,9 @@ See the [Vulkan SDK Issues](#vulkan-sdk-issues) section below.
 
 
 ## Vulkan SDK Issues
-If the problem you've encountered is possibly related to an SDK issue.  Visit [LunarXchange](https://vulkan.lunarg.com/), and install
+If the problem you've encountered is possibly related to an SDK issue.  Visit [vulkan.lunarg.com](https://vulkan.lunarg.com/), and install
 the latest Vulkan SDK.  If that does not help, attempt to install a new [Vulkan Driver](#vulkan-graphics-driver-problems).  If that still
-fails, file an issue on [LunarXchange](https://vulkan.lunarg.com/).  To file an issue, you may be required to create a free account
+fails, file an issue at [vulkan.lunarg.com](https://vulkan.lunarg.com/).  To file an issue, you may be required to create a free account
 (only requires an email address).
 
 <BR />
