@@ -46,6 +46,7 @@ before_build:
   - cd %APPVEYOR_BUILD_FOLDER%
   - mkdir build
   - cd build
+  - cmake --version
   - cmake -G %GENERATOR% -C../helper.cmake ..
   - echo Building platform=%PLATFORM% configuration=%CONFIGURATION%
 
