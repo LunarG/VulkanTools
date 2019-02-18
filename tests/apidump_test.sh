@@ -71,7 +71,7 @@ then
     pipelineCacheUUID_count=$(grep pipelineCacheUUID apidump_file.tmp | wc -l)
     vk_format_feature_count=$(grep VK_FORMAT_FEATURE apidump_file.tmp | wc -l)
     echo COUNTS: $GPDFP_count $pipelineCacheUUID_count $vk_format_feature_count  # Debug
-    if (( $GPDFP_count > 50 && $pipelineCacheUUID_count > 10 && $vk_format_feature_count > 1000 ))
+    if (( $GPDFP_count > 50 && $pipelineCacheUUID_count > 10 && $vk_format_feature_count > 500 ))
     then
         printf "$GREEN[  PASSED  ]$NC $0\n"
     else
