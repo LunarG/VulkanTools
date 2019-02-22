@@ -1024,6 +1024,14 @@ class VkTraceFileOutputGenerator(OutputGenerator):
     #
     # Parameter remapping utility function
     def RemapPacketParam(self, funcName, param, lastName):
+        # These are very specific to a particular args for a particular functions, but it's the most staightforward day to handle it
+        if (funcName == 'GetPhysicalDeviceSurfaceCapabilities2KHR' or (funcName == 'GetPhysicalDeviceSurfaceFormats2KHR')) and (param.name == 'pSurfaceInfo'):
+            result = '            *((VkSurfaceKHR*)&pPacket->pSurfaceInfo->surface) = m_objMapper.remap_surfacekhrs(pPacket->pSurfaceInfo->surface);\n'
+            return result
+        if (funcName == 'GetPhysicalDeviceSurfaceFormats2KHR') and (param.name == 'pSurfaceFormats'):
+            result = '            if (pPacket->pSurfaceFormats == NULL)\n'
+            result += '                *pPacket->pSurfaceFormatCount = 0;\n'
+            return result
         param_exclude_list = ['pDescriptorSets', 'pFences']
         cleanParamType = param.type.strip('*').replace('const ', '')
         for obj in self.object_types:
@@ -2829,10 +2837,18 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    packet_%s* pPacket = NULL;\n' % proto.name
                 if proto.name == 'vkDestroyInstance' or proto.name == 'vkDestroyDevice':
                     trace_vk_src += '    dispatch_key key = get_dispatch_key(%s);\n' % proto.members[0].name
-                if (0 == len(packet_size)):
-                    trace_vk_src += '    CREATE_TRACE_PACKET(%s, 0);\n' % (proto.name)
+                if proto.name == 'vkGetPhysicalDeviceSurfaceFormats2KHR':
+                    trace_vk_src += '    size_t byteCount=0;\n'
+                    trace_vk_src += '    uint32_t surfaceFormatCount = *pSurfaceFormatCount;\n'
+                    trace_vk_src += '    for (uint32_t i=0; i<surfaceFormatCount; i++) {\n'
+                    trace_vk_src += '        byteCount += get_struct_chain_size(&pSurfaceFormats[i]);\n'
+                    trace_vk_src += '    }\n'
+                    trace_vk_src += '    CREATE_TRACE_PACKET(vkGetPhysicalDeviceSurfaceFormats2KHR, get_struct_chain_size((void*)pSurfaceInfo) + sizeof(uint32_t) + byteCount);\n'
                 else:
-                    trace_vk_src += '    CREATE_TRACE_PACKET(%s, %s);\n' % (proto.name, ' + '.join(packet_size))
+                    if (0 == len(packet_size)):
+                        trace_vk_src += '    CREATE_TRACE_PACKET(%s, 0);\n' % (proto.name)
+                    else:
+                        trace_vk_src += '    CREATE_TRACE_PACKET(%s, %s);\n' % (proto.name, ' + '.join(packet_size))
                 if proto.name == 'vkCreateImage':
                     trace_vk_src += '    VkImageCreateInfo replayCreateInfo = *pCreateInfo;\n'
                     trace_vk_src += '    VkImageCreateInfo trimCreateInfo = *pCreateInfo;\n'
@@ -2881,52 +2897,61 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    pPacket = interpret_body_as_%s(pHeader);\n' % proto.name
                 trace_vk_src += '\n'.join(raw_packet_update_list)
                 trace_vk_src += '\n'
-                for pp_dict in ptr_packet_update_list: # buff_ptr_indices:
-                    trace_vk_src += '    %s;\n' % (pp_dict['add_txt'])
-                    if '(pPacket->pCreateInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pCreateInfo, (void *)pCreateInfo);\n'
-                    if '(pPacket->pBeginInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pBeginInfo, (void *)pBeginInfo);\n'
-                    if '(pPacket->pAllocateInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pAllocateInfo, (void *)pAllocateInfo);\n'
-                    if '(pPacket->pReserveSpaceInfo)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pReserveSpaceInfo, (void *)pReserveSpaceInfo);\n'
-                    if '(pPacket->pLimits)' in pp_dict['add_txt']:
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pLimits, (void *)pLimits);\n'
-                    if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('KHR' in pp_dict['add_txt'] or ('NVX' in pp_dict['add_txt']))):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
-                    if ('(pPacket->pSurfaceInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pSurfaceInfo, (void *)pSurfaceInfo);\n'
-                    if ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
-                    elif ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('RequirementsInfo2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
-                    if ('(pPacket->pMemoryRequirements)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryRequirements, (void *)pMemoryRequirements);\n'
-                    if ('(pPacket->pSparseMemoryRequirements)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pSparseMemoryRequirementCount; i++)\n'
-                        trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pSparseMemoryRequirements[i]), (void *)(&pSparseMemoryRequirements[i]));\n'
-                    if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
-                    if ('(pPacket->pProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pProperties, (void *)pProperties);\n'
-                    if ('(pPacket->pFormatProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFormatProperties, (void *)pFormatProperties);\n'
-                    if ('(pPacket->pImageFormatInfo)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pImageFormatInfo, (void *)pImageFormatInfo);\n'
-                    if ('(pPacket->pImageFormatProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pImageFormatProperties, (void *)pImageFormatProperties);\n'
-                    if ('(pPacket->pQueueFamilyProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pQueueFamilyPropertyCount; i++)\n'
-                        trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pQueueFamilyProperties[i]), (void *)(&pQueueFamilyProperties[i]));\n'
-                    if ('(pPacket->pMemoryProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryProperties, (void *)pMemoryProperties);\n'
-                    if ('(pPacket->pQueueInfo)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pQueueInfo, (void *)pQueueInfo);\n'
-                    if (proto.name == 'vkGetPhysicalDeviceSparseImageFormatProperties2' and '(pPacket->pFormatInfo)' in pp_dict['add_txt']):
-                        trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFormatInfo, (void *)pFormatInfo);\n'
-                        trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pPropertyCount; i++)\n'
-                        trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pProperties[i]), (void *)(&pProperties[i]));\n'
+                if proto.name == 'vkGetPhysicalDeviceSurfaceFormats2KHR':
+                    # This is very specific to a particular function, but it's the most staightforward day to handle it
+                    trace_vk_src += '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurfaceInfo), sizeof(VkPhysicalDeviceSurfaceInfo2KHR), pSurfaceInfo);\n'
+                    trace_vk_src += '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurfaceFormatCount), sizeof(uint32_t), pSurfaceFormatCount);\n'
+                    trace_vk_src += '    vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->pSurfaceFormats), surfaceFormatCount*sizeof(VkSurfaceFormat2KHR), pSurfaceFormats);\n'
+                    trace_vk_src += '    for (uint32_t i = 0; i < surfaceFormatCount; i++) {\n'
+                    trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pSurfaceFormats[i]), (void *)(&pSurfaceFormats[i]));\n'
+                    trace_vk_src += '    }\n'
+                else:
+                    for pp_dict in ptr_packet_update_list: # buff_ptr_indices:
+                        trace_vk_src += '    %s;\n' % (pp_dict['add_txt'])
+                        if '(pPacket->pCreateInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pCreateInfo, (void *)pCreateInfo);\n'
+                        if '(pPacket->pBeginInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pBeginInfo, (void *)pBeginInfo);\n'
+                        if '(pPacket->pAllocateInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pAllocateInfo, (void *)pAllocateInfo);\n'
+                        if '(pPacket->pReserveSpaceInfo)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pReserveSpaceInfo, (void *)pReserveSpaceInfo);\n'
+                        if '(pPacket->pLimits)' in pp_dict['add_txt']:
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pLimits, (void *)pLimits);\n'
+                        if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('KHR' in pp_dict['add_txt'] or ('NVX' in pp_dict['add_txt']))):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
+                        if ('(pPacket->pSurfaceInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pSurfaceInfo, (void *)pSurfaceInfo);\n'
+                        if ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('2KHR' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
+                        elif ('(pPacket->pInfo)' in pp_dict['add_txt'] and ('RequirementsInfo2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pInfo, (void *)pInfo);\n'
+                        if ('(pPacket->pMemoryRequirements)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryRequirements, (void *)pMemoryRequirements);\n'
+                        if ('(pPacket->pSparseMemoryRequirements)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pSparseMemoryRequirementCount; i++)\n'
+                            trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pSparseMemoryRequirements[i]), (void *)(&pSparseMemoryRequirements[i]));\n'
+                        if ('(pPacket->pFeatures)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFeatures, (void *)pFeatures);\n'
+                        if ('(pPacket->pProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pProperties, (void *)pProperties);\n'
+                        if ('(pPacket->pFormatProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFormatProperties, (void *)pFormatProperties);\n'
+                        if ('(pPacket->pImageFormatInfo)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pImageFormatInfo, (void *)pImageFormatInfo);\n'
+                        if ('(pPacket->pImageFormatProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pImageFormatProperties, (void *)pImageFormatProperties);\n'
+                        if ('(pPacket->pQueueFamilyProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pQueueFamilyPropertyCount; i++)\n'
+                            trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pQueueFamilyProperties[i]), (void *)(&pQueueFamilyProperties[i]));\n'
+                        if ('(pPacket->pMemoryProperties)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pMemoryProperties, (void *)pMemoryProperties);\n'
+                        if ('(pPacket->pQueueInfo)' in pp_dict['add_txt'] and ('2' in pp_dict['add_txt'])):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pQueueInfo, (void *)pQueueInfo);\n'
+                        if (proto.name == 'vkGetPhysicalDeviceSparseImageFormatProperties2' and '(pPacket->pFormatInfo)' in pp_dict['add_txt']):
+                            trace_vk_src += '    vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)pPacket->pFormatInfo, (void *)pFormatInfo);\n'
+                            trace_vk_src += '    for (uint32_t i=0; i< *pPacket->pPropertyCount; i++)\n'
+                            trace_vk_src += '        vktrace_add_pnext_structs_to_trace_packet(pHeader, (void *)(&pPacket->pProperties[i]), (void *)(&pProperties[i]));\n'
 
                 if 'void' not in resulttype or '*' in resulttype:
                     trace_vk_src += '    pPacket->result = result;\n'
