@@ -4,13 +4,12 @@
 [1]: https://vulkan.lunarg.com/img/LunarGLogo.png "www.LunarG.com"
 [2]: https://www.LunarG.com/
 
-Copyright &copy; 2015-2019 LunarG, Inc.
-
 [![Creative Commons][3]][4]
 
 [3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
+Copyright &copy; 2015-2019 LunarG, Inc.
 
 # VK\_LAYER\_LUNARG\_screenshot
 The `VK_LAYER_LUNARG_screenshot` layer records frames to image files. The environment variable `VK_SCREENSHOT_FRAMES` can be set to a comma-separated list of frame numbers. When the frames corresponding to these numbers are presented, the screenshot layer will record the image buffer to PPM files in the working directory. For example, if `VK_SCREENSHOT_FRAMES` is set to "4,8,15,16,23,42", the files created will be: 4.ppm, 8.ppm, 15.ppm, etc.
