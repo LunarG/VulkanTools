@@ -55,6 +55,10 @@ target_link_Libraries(${PROJECT_NAME}
     dl
     pthread
 )
+    find_library(LIBRT rt)
+    if(LIBRT)
+        target_link_libraries(${PROJECT_NAME} ${LIBRT})
+    endif()
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 build_options_finalize()

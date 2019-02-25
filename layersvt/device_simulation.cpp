@@ -40,7 +40,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
+#include <cinttypes>
 #include <string.h>
 
 #include <functional>
