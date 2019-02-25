@@ -28,22 +28,24 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         vktrace_common
     )
 
-    set(WAYLAND_DISPLAY_LIB vkdisplay_wayland)
+    if(BUILD_WSI_WAYLAND_SUPPORT)
+        set(WAYLAND_DISPLAY_LIB vkdisplay_wayland)
 
-    set(WAYLAND_SRC_LIST
-        vkreplay_vkdisplay_wayland.cpp
-    )
+        set(WAYLAND_SRC_LIST
+            vkreplay_vkdisplay_wayland.cpp
+        )
 
-    set (WAYLAND_HDR_LIST
-        vkreplay_vkdisplay.h
-    )
+        set (WAYLAND_HDR_LIST
+            vkreplay_vkdisplay.h
+        )
 
-    add_library(${WAYLAND_DISPLAY_LIB} SHARED ${WAYLAND_SRC_LIST} ${WAYLAND_HDR_LIST})
+        add_library(${WAYLAND_DISPLAY_LIB} SHARED ${WAYLAND_SRC_LIST} ${WAYLAND_HDR_LIST})
 
-    target_link_libraries(${WAYLAND_DISPLAY_LIB}
-        ${WAYLAND_CLIENT_LIBRARIES}
-        vktrace_common
-    )
+        target_link_libraries(${WAYLAND_DISPLAY_LIB}
+            ${WAYLAND_CLIENT_LIBRARIES}
+            vktrace_common
+        )
+    endif()
 
     # Make sure the exe directory is searched when loading libraries with dlopen
     SET(CMAKE_EXE_LINKER_FLAGS
@@ -103,5 +105,7 @@ build_options_finalize()
 if(UNIX)
     install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
     install(TARGETS ${XCB_DISPLAY_LIB} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-    install(TARGETS ${WAYLAND_DISPLAY_LIB} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    if(BUILD_WSI_WAYLAND_SUPPORT)
+        install(TARGETS ${WAYLAND_DISPLAY_LIB} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    endif()
 endif()
