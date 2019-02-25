@@ -46,6 +46,7 @@ int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDi
         auto CreateVkDisplayXcb = reinterpret_cast<vkDisplayXcb *(*)()>(dlsym(xcb_handle, "CreateVkDisplayXcb"));
         *ppDisp = CreateVkDisplayXcb();
     } else if (strcasecmp(displayServer, "wayland") == 0) {
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
         // Attempt to load libvkdisplay_wayland and constructor
         auto wayland_handle = dlopen("libvkdisplay_wayland.so", RTLD_NOW);
         if (dlerror()) {
@@ -54,6 +55,10 @@ int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDi
         }
         auto CreateVkDisplayWayland = reinterpret_cast<vkDisplayWayland *(*)()>(dlsym(wayland_handle, "CreateVkDisplayWayland"));
         *ppDisp = CreateVkDisplayWayland();
+#else
+        vktrace_LogError("vktrace not built with wayland support.");
+        return -1;
+#endif
     } else {
         vktrace_LogError("Invalid display server. Valid options are: xcb, wayland");
         return -1;
