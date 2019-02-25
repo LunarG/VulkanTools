@@ -285,9 +285,14 @@ int main_loop(vktrace_replay::ReplayDisplay display, Sequencer& seq, vktrace_tra
     end_time = vktrace_get_time();
     if (end_time > start_time) {
         double fps = static_cast<double>(totalLoopFrames) / (end_time - start_time) * 1000000000;
-        vktrace_LogAlways("%f fps, %f seconds, %" PRIu64 " frame%s, %" PRIu64 " loop%s, framerange %" PRId64 "-%" PRId64, fps,
-                          static_cast<double>(end_time - start_time) / 1000000000, totalLoopFrames, totalLoopFrames > 1 ? "s" : "",
-                          totalLoops, totalLoops > 1 ? "s" : "", start_frame, end_frame - 1);
+        if (end_frame > 0)
+            vktrace_LogAlways("%f fps, %f seconds, %" PRIu64 " frame%s, %" PRIu64 " loop%s, framerange %" PRId64 "-%" PRId64, fps,
+                              static_cast<double>(end_time - start_time) / 1000000000, totalLoopFrames,
+                              totalLoopFrames != 1 ? "s" : "", totalLoops, totalLoops > 1 ? "s" : "", start_frame, end_frame - 1);
+        else
+            vktrace_LogAlways("%f fps, %f seconds, %" PRIu64 " frame%s, %" PRIu64 " loop%s", fps,
+                              static_cast<double>(end_time - start_time) / 1000000000, totalLoopFrames,
+                              totalLoopFrames != 1 ? "s" : "", totalLoops, totalLoops > 1 ? "s" : "");
     } else {
         vktrace_LogError("fps error!");
     }
