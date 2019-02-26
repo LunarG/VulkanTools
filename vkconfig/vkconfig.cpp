@@ -191,7 +191,8 @@ void LayerManager::clear()
 {
     override_settings.ClearLayers();
     override_settings.ClearSettings();
-    active_layers->clearLayers();
+    active_layers->clearEnabledLayers();
+    active_layers->clearDisabledLayers();
     notify("Cleared all layers and settings");
 }
 
