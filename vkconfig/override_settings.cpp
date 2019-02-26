@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018 Valve Corporation
- * Copyright (c) 2018 LunarG, Inc.
+ * Copyright (c) 2018-2019 Valve Corporation
+ * Copyright (c) 2018-2019 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,20 @@ OverrideSettings::OverrideSettings()
             if (layer.isObject()) {
                 QJsonValue components = layer.toObject().value("component_layers");
                 if (components.isArray()) {
-                    for(const QJsonValue& component : components.toArray()) {
+                    for (const QJsonValue &component : components.toArray()) {
                         if (!component.isString()) {
                             continue;
                         }
-                        layers.append(component.toString());
+                        enabled_layers.append(component.toString());
+                    }
+                }
+                QJsonValue blacklist = layer.toObject().value("blacklisted_layers");
+                if (blacklist.isArray()) {
+                    for (const QJsonValue &disable : blacklist.toArray()) {
+                        if (!disable.isString()) {
+                            continue;
+                        }
+                        disabled_layers.append(disable.toString());
                     }
                 }
             }
@@ -111,7 +120,8 @@ void OverrideSettings::ClearLayers()
     if (file.exists()) {
         file.remove();
     }
-    layers.clear();
+    enabled_layers.clear();
+    disabled_layers.clear();
 }
 
 void OverrideSettings::ClearSettings()
@@ -135,9 +145,14 @@ void OverrideSettings::ClearSettings()
     layer_settings.clear();
 }
 
-QList<QString> OverrideSettings::Layers() const
+QList<QString> OverrideSettings::DisabledLayers() const
 {
-    return layers;
+    return disabled_layers;
+}
+
+QList<QString> OverrideSettings::EnabledLayers() const
+{
+    return enabled_layers;
 }
 
 QHash<QString, QHash<QString, QString>> OverrideSettings::LayerSettings() const
@@ -145,11 +160,12 @@ QHash<QString, QHash<QString, QString>> OverrideSettings::LayerSettings() const
     return layer_settings;
 }
 
-bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths, const QList<LayerManifest> &layers, int expiration)
+bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths, const QList<LayerManifest> &enabled_layers,
+    const QList<LayerManifest> &disabled_layers, int expiration)
 {
-    this->layers.clear();
-    for (const LayerManifest &manifest : layers) {
-        this->layers.append(manifest.name);
+    this->enabled_layers.clear();
+    for (const LayerManifest &manifest : enabled_layers) {
+        this->enabled_layers.append(manifest.name);
     }
 
     QDateTime now = QDateTime::currentDateTime();
@@ -160,8 +176,12 @@ bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths,
         json_paths.append(pair.first);
     }
     QJsonArray json_layers;
-    for (const LayerManifest &manifest : layers) {
+    for (const LayerManifest &manifest : enabled_layers) {
         json_layers.append(manifest.name);
+    }
+    QJsonArray json_blacklist;
+    for (const LayerManifest &manifest : disabled_layers) {
+        json_blacklist.append(manifest.name);
     }
     QJsonObject disable;
     disable.insert("DISABLE_VK_LAYER_LUNARG_override", QString("1"));
@@ -177,6 +197,7 @@ bool OverrideSettings::SaveLayers(const QList<QPair<QString, LayerType>> &paths,
     }
     layer.insert("override_paths", json_paths);
     layer.insert("component_layers", json_layers);
+    layer.insert("blacklisted_layers", json_blacklist);
     layer.insert("disable_environment", disable);
 
     QJsonObject root;

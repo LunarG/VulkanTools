@@ -206,6 +206,35 @@ DurationUnit ActiveLayersWidget::expirationUnit() const
     }
 }
 
+void ActiveLayersWidget::setDisabledLayers(const QList<QString> &layers)
+{
+    bool signal_state = blockSignals(true);
+    clearDisabledLayers();
+    blockSignals(signal_state);
+
+    for (const QString &layer : layers) {
+        for (int i = 0; i < unset_layers.length(); ++i) {
+            LayerManifest manifest = unset_layers[i];
+            if (layer == manifest.name) {
+
+                // Remove the layer from unset lists
+                unset_layers.removeAt(i);
+                if (i < layer_lists[LayerType::Explicit]->count()) {
+                    delete layer_lists[LayerType::Explicit]->takeItem(i);
+                } else {
+                    delete layer_lists[LayerType::Implicit]->takeItem(i - layer_lists[LayerType::Implicit]->count());
+                }
+
+                // Add the layer to disabled lists
+                disabled_layers.append(manifest);
+                QListWidgetItem *item = new QListWidgetItem(manifest.PrettyName());
+                item->setIcon(layer_icons[manifest.type]);
+                disabled_layer_list->addItem(item);
+            }
+        }
+    }
+}
+
 void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers)
 {
     bool signal_state = blockSignals(true);
@@ -217,7 +246,7 @@ void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers)
             LayerManifest manifest = unset_layers[i];
             if (layer == manifest.name) {
 
-                // Remove the layer from diabled lists
+                // Remove the layer from unset lists
                 unset_layers.removeAt(i);
                 if (i < layer_lists[LayerType::Explicit]->count()) {
                     delete layer_lists[LayerType::Explicit]->takeItem(i);
