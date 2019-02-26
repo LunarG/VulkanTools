@@ -54,17 +54,21 @@ signals:
     void enabledLayersUpdated(const QList<LayerManifest> &enabled_layers, const QList<LayerManifest> &disabled_layers);
 
 public slots:
-    void clearLayers();
+    void clearDisabledLayers();
+    void clearEnabledLayers();
     void setExpirationEnabled(const QString &text);
     void updateAvailableLayers(const QList<QPair<QString, LayerType>> &path_list, bool is_custom);
 
 private slots:
+    void disableSelectedExplicitLayer();
+    void disableSelectedImplicitLayer();
     void enableSelectedExplicitLayer();
     void enableSelectedImplicitLayer();
     void moveSelectedLayerDown();
     void moveSelectedLayerUp();
     void refreshAvailableLayers();
-    void removeSelectedLayer();
+    void removeDisabledLayer();
+    void removeEnabledLayer();
     void toggleExpiration(int state);
 
 private:
@@ -79,7 +83,9 @@ private:
 
     QListWidget *enabled_layer_list;
     QHash<LayerType, QListWidget*> layer_lists;
+    QListWidget *disabled_layer_list;
 
     QList<LayerManifest> enabled_layers;
+    QList<LayerManifest> unset_layers;
     QList<LayerManifest> disabled_layers;
 };

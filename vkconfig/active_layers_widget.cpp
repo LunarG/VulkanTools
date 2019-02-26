@@ -80,15 +80,16 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
     remove_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_DialogCloseButton));
     remove_button->setObjectName("RemoveButton");
     remove_button->setToolTip(tr("Remove selected"));
-    connect(remove_button, &QPushButton::clicked, this, &ActiveLayersWidget::removeSelectedLayer);
+    connect(remove_button, &QPushButton::clicked, this, &ActiveLayersWidget::removeEnabledLayer);
     left_column_layout->addWidget(remove_button, 4, 0);
     QPushButton *clear_button = new QPushButton();
     clear_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_DialogResetButton));
+    clear_button->setObjectName("ClearButton");
     clear_button->setToolTip(tr("Clear all"));
-    connect(clear_button, &QPushButton::clicked, this, &ActiveLayersWidget::clearLayers);
+    connect(clear_button, &QPushButton::clicked, this, &ActiveLayersWidget::clearEnabledLayers);
     left_column_layout->addWidget(clear_button, 5, 0);
 
-    // Build the table containing enabled layers
+    // Build the table containing whitelisted layers
     left_column_layout->addWidget(new QLabel(tr("Enabled Layers")), 0, 1);
     QLabel *application_label = new QLabel(tr("Application Side"));
     QFont application_font = application_label->font();
@@ -106,30 +107,65 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
     left_column_layout->addWidget(driver_label, 7, 1, Qt::AlignCenter);
     column_layout->addLayout(left_column_layout);
 
-    // Build the disabled layers
-    QGridLayout *right_column_layout = new QGridLayout();
-    right_column_layout->addWidget(new QLabel(tr("Disabled Explicit Layers")), 0, 1);
+    // Build the default layers
+    QGridLayout *middle_column_layout = new QGridLayout();
+    middle_column_layout->addWidget(new QLabel(tr("Unset Explicit Layers")), 0, 1);
     QPushButton *add_explicit_button = new QPushButton();
     add_explicit_button->setObjectName("LeftButton");
-    add_explicit_button->setToolTip(tr("Enable selected explcit layers"));
+    add_explicit_button->setToolTip(tr("Force enable selected explcit layers"));
     add_explicit_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowLeft));
     connect(add_explicit_button, &QPushButton::clicked, this, &ActiveLayersWidget::enableSelectedExplicitLayer);
-    right_column_layout->addWidget(add_explicit_button, 1, 0);
+    middle_column_layout->addWidget(add_explicit_button, 1, 0);
     QListWidget *explicit_list = new QListWidget();
     explicit_list->setSelectionMode(QListWidget::ExtendedSelection);
-    right_column_layout->addWidget(explicit_list, 1, 1);
+    middle_column_layout->addWidget(explicit_list, 1, 1);
     layer_lists[LayerType::Explicit] = explicit_list;
-    right_column_layout->addWidget(new QLabel(tr("Disabled Implicit Layers")), 2, 1);
+    QPushButton *blacklist_explicit_button = new QPushButton();
+    blacklist_explicit_button->setObjectName("RightButton");
+    blacklist_explicit_button->setToolTip(tr("Force disable selected explicit layers"));
+    blacklist_explicit_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowRight));
+    connect(blacklist_explicit_button, &QPushButton::clicked, this, &ActiveLayersWidget::disableSelectedExplicitLayer);
+    middle_column_layout->addWidget(blacklist_explicit_button, 1, 2);
+    middle_column_layout->addWidget(new QLabel(tr("Unset Implicit Layers")), 2, 1);
     QPushButton *add_implicit_button = new QPushButton();
     add_implicit_button->setObjectName("LeftButton");
-    add_implicit_button->setToolTip(tr("Enable selected implicit layers"));
+    add_implicit_button->setToolTip(tr("Force enable selected implicit layers"));
     add_implicit_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowLeft));
     connect(add_implicit_button, &QPushButton::clicked, this, &ActiveLayersWidget::enableSelectedImplicitLayer);
-    right_column_layout->addWidget(add_implicit_button, 3, 0);
+    middle_column_layout->addWidget(add_implicit_button, 3, 0);
     QListWidget *implicit_list = new QListWidget();
     implicit_list->setSelectionMode(QListWidget::ExtendedSelection);
-    right_column_layout->addWidget(implicit_list, 3, 1);
+    middle_column_layout->addWidget(implicit_list, 3, 1);
     layer_lists[LayerType::Implicit] = implicit_list;
+    QPushButton *blacklist_implicit_button = new QPushButton();
+    blacklist_implicit_button->setObjectName("RightButton");
+    blacklist_implicit_button->setToolTip(tr("Force disable selected implicit layers"));
+    blacklist_implicit_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowRight));
+    connect(blacklist_implicit_button, &QPushButton::clicked, this, &ActiveLayersWidget::disableSelectedImplicitLayer);
+    middle_column_layout->addWidget(blacklist_implicit_button, 3, 2);
+    column_layout->addLayout(middle_column_layout);
+
+    // Build the blacklisted layers
+    QGridLayout *right_column_layout = new QGridLayout();
+    QLabel *blacklisted_label = new QLabel(tr("Disabled Layers"));
+    right_column_layout->addWidget(blacklisted_label, 0, 0);
+    disabled_layer_list = new QListWidget();
+    right_column_layout->addWidget(disabled_layer_list, 1, 0, 3, 1);
+
+    QPushButton *remove_blacklist_button = new QPushButton();
+    remove_blacklist_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_DialogCloseButton));
+    remove_blacklist_button->setObjectName("RemoveButton");
+    remove_blacklist_button->setToolTip(tr("Remove selected"));
+    connect(remove_blacklist_button, &QPushButton::clicked, this, &ActiveLayersWidget::removeDisabledLayer);
+    right_column_layout->addWidget(remove_blacklist_button, 1, 1);
+    QPushButton *clear_blacklist_button = new QPushButton();
+    clear_blacklist_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_DialogResetButton));
+    clear_blacklist_button->setObjectName("ClearButton");
+    clear_blacklist_button->setToolTip(tr("Clear all"));
+    connect(clear_blacklist_button, &QPushButton::clicked, this, &ActiveLayersWidget::clearDisabledLayers);
+    right_column_layout->addWidget(clear_blacklist_button, 2, 1);
+    right_column_layout->setRowStretch(3, 1);
+
     column_layout->addLayout(right_column_layout);
 
     layer_layout->addLayout(column_layout);
@@ -173,16 +209,16 @@ DurationUnit ActiveLayersWidget::expirationUnit() const
 void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers)
 {
     bool signal_state = blockSignals(true);
-    clearLayers();
+    clearEnabledLayers();
     blockSignals(signal_state);
 
     for (const QString &layer : layers) {
-        for (int i = 0; i < disabled_layers.length(); ++i) {
-            LayerManifest manifest = disabled_layers[i];
+        for (int i = 0; i < unset_layers.length(); ++i) {
+            LayerManifest manifest = unset_layers[i];
             if (layer == manifest.name) {
 
                 // Remove the layer from diabled lists
-                disabled_layers.removeAt(i);
+                unset_layers.removeAt(i);
                 if (i < layer_lists[LayerType::Explicit]->count()) {
                     delete layer_lists[LayerType::Explicit]->takeItem(i);
                 } else {
@@ -228,7 +264,54 @@ bool ActiveLayersWidget::shouldClearOnClose()
     return cleanup_box->isChecked();
 }
 
-void ActiveLayersWidget::clearLayers()
+void ActiveLayersWidget::clearDisabledLayers()
+{
+    while (!disabled_layers.isEmpty()) {
+        LayerManifest manifest = disabled_layers.first();
+        QListWidgetItem *item = disabled_layer_list->item(0);
+        QListWidget *explicit_widget = layer_lists[LayerType::Explicit];
+        QListWidget *implicit_widget = layer_lists[LayerType::Implicit];
+        bool found = false;
+        switch (manifest.type) {
+
+        case LayerType::Explicit:
+            for (int i = 0; i < explicit_widget->count(); ++i) {
+                if (manifest < unset_layers[i]) {
+                    explicit_widget->insertItem(i, item->text());
+                    unset_layers.insert(i, manifest);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                explicit_widget->addItem(item->text());
+                unset_layers.insert(explicit_widget->count(), manifest);
+            }
+            break;
+        case LayerType::Implicit:
+            for (int i = explicit_widget->count(); i < unset_layers.count(); ++i) {
+                if (manifest < unset_layers[i]) {
+                    implicit_widget->insertItem(i - explicit_widget->count(), item->text());
+                    unset_layers.insert(i, manifest);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                implicit_widget->addItem(item->text());
+                unset_layers.append(manifest);
+            }
+            break;
+        }
+
+        delete disabled_layer_list->takeItem(0);
+        disabled_layers.removeFirst();
+    }
+
+    // emit
+}
+
+void ActiveLayersWidget::clearEnabledLayers()
 {
     while (!enabled_layers.isEmpty()) {
         LayerManifest manifest = enabled_layers.first();
@@ -240,30 +323,30 @@ void ActiveLayersWidget::clearLayers()
 
         case LayerType::Explicit:
             for (int i = 0; i < explicit_widget->count(); ++i) {
-                if (manifest < disabled_layers[i]) {
+                if (manifest < unset_layers[i]) {
                     explicit_widget->insertItem(i, item->text());
-                    disabled_layers.insert(i, manifest);
+                    unset_layers.insert(i, manifest);
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 explicit_widget->addItem(item->text());
-                disabled_layers.insert(explicit_widget->count(), manifest);
+                unset_layers.insert(explicit_widget->count(), manifest);
             }
             break;
         case LayerType::Implicit:
-            for (int i = explicit_widget->count(); i <  disabled_layers.count(); ++i) {
-                if (manifest < disabled_layers[i]) {
+            for (int i = explicit_widget->count(); i <  unset_layers.count(); ++i) {
+                if (manifest < unset_layers[i]) {
                     implicit_widget->insertItem(i - explicit_widget->count(), item->text());
-                    disabled_layers.insert(i, manifest);
+                    unset_layers.insert(i, manifest);
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 implicit_widget->addItem(item->text());
-                disabled_layers.append(manifest);
+                unset_layers.append(manifest);
             }
             break;
         }
@@ -272,7 +355,7 @@ void ActiveLayersWidget::clearLayers()
         enabled_layers.removeFirst();
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::setExpirationEnabled(const QString &text)
@@ -287,6 +370,43 @@ void ActiveLayersWidget::updateAvailableLayers(const QList<QPair<QString, LayerT
     refreshAvailableLayers();
 }
 
+void ActiveLayersWidget::disableSelectedExplicitLayer()
+{
+    QListWidget *explicit_list = layer_lists[LayerType::Explicit];
+    for (QListWidgetItem *item : explicit_list->selectedItems()) {
+        int row = explicit_list->row(item);
+
+        QListWidgetItem *disabled_item = new QListWidgetItem(item->text());
+        disabled_item->setIcon(layer_icons[LayerType::Explicit]);
+        disabled_layer_list->addItem(disabled_item);
+        disabled_layers.append(unset_layers[row]);
+
+        delete explicit_list->takeItem(row);
+        unset_layers.removeAt(row);
+    }
+
+    // emit
+}
+
+void ActiveLayersWidget::disableSelectedImplicitLayer()
+{
+    int unset_offset = layer_lists[LayerType::Explicit]->count();
+    QListWidget *implicit_list = layer_lists[LayerType::Implicit];
+    for (QListWidgetItem *item : implicit_list->selectedItems()) {
+        int row = implicit_list->row(item);
+
+        QListWidgetItem *disabled_item = new QListWidgetItem(item->text());
+        disabled_item->setIcon(layer_icons[LayerType::Implicit]);
+        disabled_layer_list->addItem(disabled_item);
+        disabled_layers.append(unset_layers[row + unset_offset]);
+
+        delete implicit_list->takeItem(row);
+        unset_layers.removeAt(row + unset_offset);
+    }
+
+    // emit
+}
+
 void ActiveLayersWidget::enableSelectedExplicitLayer()
 {
     QListWidget *explicit_list = layer_lists[LayerType::Explicit];
@@ -296,18 +416,18 @@ void ActiveLayersWidget::enableSelectedExplicitLayer()
         QListWidgetItem *enabled_item = new QListWidgetItem(item->text());
         enabled_item->setIcon(layer_icons[LayerType::Explicit]);
         enabled_layer_list->addItem(enabled_item);
-        enabled_layers.append(disabled_layers[row]);
+        enabled_layers.append(unset_layers[row]);
 
         delete explicit_list->takeItem(row);
-        disabled_layers.removeAt(row);
+        unset_layers.removeAt(row);
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::enableSelectedImplicitLayer()
 {
-    int disabled_offset = layer_lists[LayerType::Explicit]->count();
+    int unset_offset = layer_lists[LayerType::Explicit]->count();
     QListWidget *implicit_list = layer_lists[LayerType::Implicit];
     for (QListWidgetItem *item : implicit_list->selectedItems()) {
         int row = implicit_list->row(item);
@@ -315,13 +435,13 @@ void ActiveLayersWidget::enableSelectedImplicitLayer()
         QListWidgetItem *enabled_item = new QListWidgetItem(item->text());
         enabled_item->setIcon(layer_icons[LayerType::Implicit]);
         enabled_layer_list->addItem(enabled_item);
-        enabled_layers.append(disabled_layers[row + disabled_offset]);
+        enabled_layers.append(unset_layers[row + unset_offset]);
 
         delete implicit_list->takeItem(row);
-        disabled_layers.removeAt(row + disabled_offset);
+        unset_layers.removeAt(row + unset_offset);
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::moveSelectedLayerDown()
@@ -335,7 +455,7 @@ void ActiveLayersWidget::moveSelectedLayerDown()
         }
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::moveSelectedLayerUp()
@@ -349,7 +469,7 @@ void ActiveLayersWidget::moveSelectedLayerUp()
         }
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::refreshAvailableLayers()
@@ -378,18 +498,64 @@ void ActiveLayersWidget::refreshAvailableLayers()
 
     enabled_layer_list->clear();
     enabled_layers.clear();
-    disabled_layers = explicit_layers + implicit_layers;
+    unset_layers = explicit_layers + implicit_layers;
 
-    for (LayerManifest &manifest : disabled_layers) {
+    for (LayerManifest &manifest : unset_layers) {
         QListWidgetItem *item = new QListWidgetItem(manifest.PrettyName());
         item->setToolTip(manifest.description);
         layer_lists[manifest.type]->addItem(item);
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::removeSelectedLayer()
+void ActiveLayersWidget::removeDisabledLayer()
+{
+    for (QListWidgetItem *item : disabled_layer_list->selectedItems()) {
+        bool found = false;
+        int row = disabled_layer_list->row(item);
+        QListWidget *explicit_widget = layer_lists[LayerType::Explicit];
+        QListWidget *implicit_widget = layer_lists[LayerType::Implicit];
+        switch (disabled_layers[row].type) {
+
+        case LayerType::Explicit:
+            for (int i = 0; i < explicit_widget->count(); ++i) {
+                if (disabled_layers[row] < unset_layers[i]) {
+                    explicit_widget->insertItem(i, item->text());
+                    unset_layers.insert(i, disabled_layers[row]);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                explicit_widget->addItem(item->text());
+                unset_layers.insert(explicit_widget->count(), disabled_layers[row]);
+            }
+            break;
+        case LayerType::Implicit:
+            for (int i = explicit_widget->count(); i < unset_layers.count(); ++i) {
+                if (disabled_layers[row] < unset_layers[i]) {
+                    implicit_widget->insertItem(i - explicit_widget->count(), item->text());
+                    unset_layers.insert(i, disabled_layers[row]);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                implicit_widget->addItem(item->text());
+                unset_layers.append(disabled_layers[row]);
+            }
+            break;
+        }
+
+        delete disabled_layer_list->takeItem(row);
+        disabled_layers.removeAt(row);
+    }
+
+    // emit
+}
+
+void ActiveLayersWidget::removeEnabledLayer()
 {
     for (QListWidgetItem *item : enabled_layer_list->selectedItems()) {
         bool found = false; 
@@ -400,30 +566,30 @@ void ActiveLayersWidget::removeSelectedLayer()
 
         case LayerType::Explicit:
             for (int i = 0; i < explicit_widget->count(); ++i) {
-                if (enabled_layers[row] < disabled_layers[i]) {
+                if (enabled_layers[row] < unset_layers[i]) {
                     explicit_widget->insertItem(i, item->text());
-                    disabled_layers.insert(i, enabled_layers[row]);
+                    unset_layers.insert(i, enabled_layers[row]);
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 explicit_widget->addItem(item->text());
-                disabled_layers.insert(explicit_widget->count(), enabled_layers[row]);
+                unset_layers.insert(explicit_widget->count(), enabled_layers[row]);
             }
             break;
         case LayerType::Implicit:
-            for (int i = explicit_widget->count(); i <  disabled_layers.count(); ++i) {
-                if (enabled_layers[row] < disabled_layers[i]) {
+            for (int i = explicit_widget->count(); i <  unset_layers.count(); ++i) {
+                if (enabled_layers[row] < unset_layers[i]) {
                     implicit_widget->insertItem(i - explicit_widget->count(), item->text());
-                    disabled_layers.insert(i, enabled_layers[row]);
+                    unset_layers.insert(i, enabled_layers[row]);
                     found = true;
                     break;
                 }
             }
             if (!found) {
                 implicit_widget->addItem(item->text());
-                disabled_layers.append(enabled_layers[row]);
+                unset_layers.append(enabled_layers[row]);
             }
             break;
         }
@@ -432,7 +598,7 @@ void ActiveLayersWidget::removeSelectedLayer()
         enabled_layers.removeAt(row);
     }
 
-    emit enabledLayersUpdated(enabled_layers, disabled_layers);
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::toggleExpiration(int state)
