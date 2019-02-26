@@ -43,9 +43,11 @@ class ActiveLayersWidget : public QGroupBox
 
 public:
     ActiveLayersWidget(QWidget *parent = NULL);
+    inline const QList<LayerManifest> &disabledLayers() const { return disabled_layers; }
     inline const QList<LayerManifest>& enabledLayers() const { return enabled_layers; }
     int expiration() const;
     DurationUnit expirationUnit() const;
+    void setDisabledLayers(const QList<QString> &layers);
     void setEnabledLayers(const QList<QString> &layers);
     void setExpiration(int seconds, DurationUnit unit);
     bool shouldClearOnClose();
