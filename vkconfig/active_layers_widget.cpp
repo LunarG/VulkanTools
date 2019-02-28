@@ -313,8 +313,8 @@ void ActiveLayersWidget::clearDisabledLayers()
                 }
             }
             if (!found) {
-                explicit_widget->addItem(item->text());
                 unset_layers.insert(explicit_widget->count(), manifest);
+                explicit_widget->addItem(item->text());
             }
             break;
         case LayerType::Implicit:
@@ -360,8 +360,8 @@ void ActiveLayersWidget::clearEnabledLayers()
                 }
             }
             if (!found) {
-                explicit_widget->addItem(item->text());
                 unset_layers.insert(explicit_widget->count(), manifest);
+                explicit_widget->addItem(item->text());
             }
             break;
         case LayerType::Implicit:
@@ -528,6 +528,8 @@ void ActiveLayersWidget::refreshAvailableLayers()
     enabled_layer_list->clear();
     enabled_layers.clear();
     unset_layers = explicit_layers + implicit_layers;
+    disabled_layer_list->clear();
+    disabled_layers.clear();
 
     for (LayerManifest &manifest : unset_layers) {
         QListWidgetItem *item = new QListWidgetItem(manifest.PrettyName());
@@ -545,6 +547,7 @@ void ActiveLayersWidget::removeDisabledLayer()
         int row = disabled_layer_list->row(item);
         QListWidget *explicit_widget = layer_lists[LayerType::Explicit];
         QListWidget *implicit_widget = layer_lists[LayerType::Implicit];
+
         switch (disabled_layers[row].type) {
 
         case LayerType::Explicit:
@@ -557,8 +560,8 @@ void ActiveLayersWidget::removeDisabledLayer()
                 }
             }
             if (!found) {
-                explicit_widget->addItem(item->text());
                 unset_layers.insert(explicit_widget->count(), disabled_layers[row]);
+                explicit_widget->addItem(item->text());
             }
             break;
         case LayerType::Implicit:
@@ -603,8 +606,8 @@ void ActiveLayersWidget::removeEnabledLayer()
                 }
             }
             if (!found) {
-                explicit_widget->addItem(item->text());
                 unset_layers.insert(explicit_widget->count(), enabled_layers[row]);
+                explicit_widget->addItem(item->text());
             }
             break;
         case LayerType::Implicit:
