@@ -205,7 +205,7 @@ BoolSelectWidget::BoolSelectWidget(const LayerOption &option, QWidget *parent)
     layout->addWidget(true_button);
     false_button = new QRadioButton(tr("False"));
     layout->addWidget(false_button);
-    (option.default_values.contains("True") ? true_button : false_button)->setChecked(true);
+    (option.default_values.contains("TRUE") ? true_button : false_button)->setChecked(true);
     setLayout(layout);
 
     connect(true_button, &QRadioButton::clicked, this, &BoolSelectWidget::setTrue);
