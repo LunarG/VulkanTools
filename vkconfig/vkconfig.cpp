@@ -89,10 +89,15 @@ LayerManager::LayerManager()
 
     // Run via and display its output on a tab
 #if !defined(__APPLE__) && !defined(NO_HTML)
-    QProcess *via = new QProcess(this);
-    via->setProgram("vkvia");
-    via->setArguments(QStringList() << "--output_path" << QDir::temp().path());
-    tab_widget->addTab(showHtml(via, "VIA", "vkvia.html"), tr("Installation Analyzer"));
+    via_container = new QWidget();
+    QHBoxLayout *via_layout = new QHBoxLayout();
+    QPushButton *via_button = new QPushButton(tr("Run VIA"));
+    connect(via_button, &QPushButton::clicked, this, &LayerManager::runVIA);
+    via_layout->addStretch();
+    via_layout->addWidget(via_button);
+    via_layout->addStretch();
+    via_container->setLayout(via_layout);
+    tab_widget->addTab(via_container, tr("Installation Analyzer"));
 #endif
 
     connect(tab_widget, &QTabWidget::currentChanged, this, &LayerManager::tabChanged);
@@ -282,4 +287,23 @@ QWidget* LayerManager::showHtml(QProcess *process, const QString &name, const QS
         return error;
     }
 }
+
+#if !defined(__APPLE__)
+void LayerManager::runVIA()
+{
+    QProcess *via = new QProcess(this);
+    via->setProgram("vkvia");
+    via->setArguments(QStringList() << "--output_path" << QDir::temp().path());
+    QWidget *via_label = showHtml(via, "VIA", "vkvia.html");
+
+    delete via_container->layout();
+    for (QWidget *widget : via_container->findChildren<QWidget*>()) {
+        delete widget;
+    }
+
+    QHBoxLayout *via_layout = new QHBoxLayout();
+    via_layout->addWidget(via_label);
+    via_container->setLayout(via_layout);
+}
+#endif
 #endif

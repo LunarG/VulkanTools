@@ -52,7 +52,10 @@ private slots:
 
 private:
 #if !defined(NO_HTML)
-    QWidget* showHtml(QProcess *process, const QString &name, const QString &html_file);
+    static QWidget* showHtml(QProcess *process, const QString &name, const QString &html_file);
+#if !defined(__APPLE__)
+    void runVIA();
+#endif
 #endif
 
     QSettings settings;
@@ -71,4 +74,8 @@ private:
     QPushButton *save_button;
     QPushButton *restore_button;
     QPushButton *clear_button;
+
+#if !defined(__APPLE__) && !defined(NO_HTML)
+    QWidget *via_container;
+#endif
 };
