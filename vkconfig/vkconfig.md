@@ -60,11 +60,12 @@ When selecting layers manually, the selected layers will be saved each time the 
 The bottom of Vulkan Configurator is the active layer selector.
 This section allows a user to choose which layers are active for Vulkan applications, as well as selecting the order of those layers.
 Any layers specified in this section will be active on any Vulkan application that is run on the current machine, with the current user.
-The layer selector consists of three lists and a few other options.
+The layer selector consists of several lists and a few other options.
 The list on the left is the list of enabled layers.
-The two lists on the right are the lists of disabled layers.
-The top of those lists contains explicit layers, while the bottom contains implicit layers.
-To enable a disabled layer, select it in one of the disabled layer lists and press the arrow button immediately to the left of that list.
+The two lists in the middle are the lists of layers that may be either enabled or disabled.
+The top of these lists contains explicit layers, while the bottom contains implicit layers.
+The list on the right is the list of disabled layers.
+To enable a layer, select it in one of the unset layer lists and press the arrow button immediately to the left of that list.
 The layer will be added to the bottom of the enabled layer list.
 The layer can now be reordered by selecting it and pressing the up/down arrow buttons immediately to the left of the active layer list.
 Layers at the top of the list will be enabled closest to the Vulkan application, while layers at the bottom will be enabled closest to the Vulkan driver.
@@ -72,13 +73,20 @@ This is indicated by the "Application Side" and "Driver Side" labels above and b
 In addition, right below the up/down buttons, there is also a "Remove" button and a "Clear" button below that.
 The "Remove" button will remove all selected layers from the enabled layer list, putting them back in the disabled layer lists.
 The "Clear" button will disable all layers, regardless of selection.
+Layers can be added to the disabled list, as well.
+This list contains layers that will be forcibly disabled.
+This means that they will not be enabled, even if the application explicitly enables them.
+The disabled layer list includes remove and clear buttons, but does not include buttons to change the order.
+This is because there is no such thing as layer order for disabled layers.
 
-There are two more tools at the top of the active layer selector: the expiration duration and the refresh button.
-The refresh button is the simpler of these tools &mdash; it simply searches the paths specified by the layer locations widget for layers.
+There are three more tools at the top of the active layer selector: the undo on exit checkbox, the expiration duration, and the refresh button.
+The refresh button is the simplest of these tools &mdash; it simply searches the paths specified by the layer locations widget for layers.
 This can be useful when adding or removing layers in these locations while Vulkan Configurator is running, since it will not pick up these changes by default.
-The expiration duration is a little more complex.
+The undo on exit box cleans up all changes to the tool when exiting.
+This prevents a user from leaving changes behind once the tool is closed.
+The expiration duration is a little more complex and is only available when the undo on exit box is not selected.
 The expiration provides a mechanism so that the layer selections provided by Vulkan Configurator will expire (that is, they will stop having any effect) after a given time.
-The prevents a user from setting specific layers as overrides and forgetting that these layers will still be enabled, days, months, or even years later.
+The prevents a user from setting specific layers as overrides and forgetting that these layers will still be enabled, days, months, or even years later, while still allowing the changes to work after the configurator is closed.
 The default expiration is 12 hours, meaning that all layer selections will no longer work 12 hours after the layer selections are saved.
 Resaving layer selections does extend the expiration to 12 hours from the new save.
 The expiration can be set to any number value, and the dropdown menu lets the user select an expiration in minutes, hours, or days.
@@ -114,9 +122,10 @@ This information is primarily useful for debugging why an installation doesn't w
 
 This tab works by invoking VIA on the host system.
 As a result, the `vkvia` executable must be runnable from a console for this tab to display correctly.
-When this tab is present, the Vulkan Cube demo will run a couple times when the configurator is initialized.
+When this tab is present, it wil initially appear with a single button that reads "Run VIA".
+Upon clicking this button, the Vulkan Cube demo will run a couple times.
 This is happening as part of running VIA to build the information on this tab, and is perfectly normal.
-The information about the installation will be displayed in a series of clickable fields that can be expanded and contracted, much like on the "Vulkan Info" tab.
+Once this has been performed, the information about the installation will be displayed in a series of clickable fields that can be expanded and contracted, much like on the "Vulkan Info" tab.
 
 ## Saving and Restoring
 
