@@ -36,66 +36,14 @@ add_custom_target( generate_api_h DEPENDS api_dump_text.h )
 add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
 set_target_properties(generate_api_cpp generate_api_h generate_api_html_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
-set(LAYER_JSON_FILES
+set(TARGET_NAMES
     VkLayer_api_dump
     VkLayer_monitor
     VkLayer_screenshot
     VkLayer_device_simulation
     )
-
 set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
 set(CMAKE_INSTALL_RPATH ${VK_LAYER_RPATH})
-
-if (WIN32)
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        if (CMAKE_GENERATOR MATCHES "^Visual Studio.*")
-            foreach (config_file ${LAYER_JSON_FILES})
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${config_file}.json dst_json)
-                add_custom_target(${config_file}-json ALL
-                    COMMAND copy ${src_json} ${dst_json}
-                    VERBATIM
-                    )
-                add_dependencies(${config_file}-json ${config_file})
-                set_target_properties(${config_file}-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
-            endforeach(config_file)
-        else()
-            foreach (config_file ${LAYER_JSON_FILES})
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/windows/${config_file}.json src_json)
-                FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_BINARY_DIR}/${config_file}.json dst_json)
-                add_custom_target(${config_file}-json ALL
-                    COMMAND copy ${src_json} ${dst_json}
-                    VERBATIM
-                    )
-                add_dependencies(${config_file}-json ${config_file})
-                set_target_properties(${config_file}-json PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
-            endforeach(config_file)
-        endif()
-    endif()
-else()
-    # extra setup for out-of-tree builds
-    if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
-        foreach (config_file ${LAYER_JSON_FILES})
-            add_custom_target(${config_file}-json ALL
-                COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-                VERBATIM
-                )
-             add_dependencies(${config_file}-json ${config_file})
-        endforeach(config_file)
-    endif()
-    # Add targets for JSON file install on Linux.
-    # Need to remove the "./" from the library path before installing to /etc.
-    foreach (config_file ${LAYER_JSON_FILES})
-        add_custom_target(${config_file}-staging-json ALL
-            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND sed -i -e "/\"library_path\":/s$./libVkLayer$libVkLayer$" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json
-            VERBATIM
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linux/${config_file}.json
-            )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${config_file}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
-    endforeach(config_file)
-endif()
 
 if (WIN32)
     macro(add_vk_layer target)
@@ -158,3 +106,43 @@ add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
 add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
 add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
+
+# json file creation
+
+# The output file needs Unix "/" separators or Windows "\" separators
+# Windows paths need to start with ".\", Unix paths do not.
+# Windows separators actually need to be doubled because the json format uses backslash escapes
+file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
+string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
+# Run each .json.in file through the generator
+# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time
+# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically)
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\")")
+foreach(TARGET_NAME ${TARGET_NAMES})
+    set(CONFIG_DEFINES
+        -DINPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.json.in"
+        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+    )
+    # Get the needed properties from that target
+    set(CONFIG_DEFINES ${CONFIG_DEFINES}
+        -DOUTPUT_FILE="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json"
+        -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
+        )
+
+    add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
+
+    # Add target for JSON file install.
+    if(NOT WIN32)
+        # Add targets for JSON file install on Linux.
+        # Need to remove the "./" from the library path before installing
+        add_custom_target(${TARGET_NAME}-staging-json ALL
+            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+            COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
+            COMMAND sed -i -e "/.library_path.:/s=./libVkLayer=libVkLayer=" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json
+            VERBATIM
+            DEPENDS ${TARGET_NAME}-json
+            )
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+    endif()
+
+endforeach()

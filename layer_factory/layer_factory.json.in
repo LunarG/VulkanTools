@@ -1,12 +1,12 @@
 {
     "file_format_version" : "1.1.0",
     "layer" : {
-        "name": "VK_LAYER_LUNARG_layer_factory",
+        "name": "@LAYER_NAME@",
         "type": "GLOBAL",
-        "library_path": ".\\VkLayer_layer_factory.dll",
-        "api_version": "1.1.101",
+        "library_path": "@RELATIVE_LAYER_BINARY@",
+        "api_version": "@VK_VERSION@",
         "implementation_version": "1",
-        "description": "LunarG Validation Factory Layer",
+        "description": "LunarG Validation Layer Factory Layer",
         "instance_extensions": [
              {
                  "name": "VK_EXT_debug_report",
