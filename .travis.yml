@@ -79,6 +79,7 @@ script:
       python scripts/update_deps.py --config=Debug --arch=x64 $UPDATE_DEPS_EXTRA_OPTIONS
       mkdir dbuild
       pushd dbuild
+      cmake --version
       cmake -DCMAKE_BUILD_TYPE=Debug \
           -C../helper.cmake \
           ..
