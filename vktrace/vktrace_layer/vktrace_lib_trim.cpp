@@ -138,7 +138,7 @@ VkDeviceSize calculateImageSubResourceSize(VkDevice device, VkImageCreateInfo im
         mdd(device)->devTable.GetImageMemoryRequirements(device, image, &memoryRequirements);
         imageSubResourceSize = memoryRequirements.size;
     }
-    mdd(device)->devTable.DestroyImage(device, image, pAllocator);
+    mdd(device)->devTable.DestroyImage(device, image, NULL);
     return imageSubResourceSize;
 }
 
