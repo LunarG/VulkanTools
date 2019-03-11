@@ -128,6 +128,16 @@ uint64_t get_endianess() {
     return *((char*)&x) ? VKTRACE_LITTLE_ENDIAN : VKTRACE_BIG_ENDIAN;
 }
 
+// Function to return string describing given endianess
+uint64_t get_endianess_string(uint64_t endianess) {
+    if (endianess == VKTRACE_LITTLE_ENDIAN)
+        return "VKTRACE_LITTLE_ENDIAN";
+    else if (endianess == VKTRACE_BIG_ENDIAN)
+        return "VKTRACE_BIG_ENDIAN";
+    else
+        return ("Unknow");
+}
+
 uint64_t get_arch() {
     uint64_t rval = 0;
 #if defined(PLATFORM_LINUX)
