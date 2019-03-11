@@ -665,7 +665,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         # Special cases for functions that use do-while loops
         do_while_dict = {'GetFenceStatus': 'replayResult != pPacket->result  && pPacket->result == VK_SUCCESS',
                          'GetEventStatus': '(pPacket->result == VK_EVENT_SET || pPacket->result == VK_EVENT_RESET) && replayResult != pPacket->result',
-                         'GetQueryPoolResults': 'pPacket->result == VK_SUCCESS && replayResult != pPacket->result'}
+                         'GetQueryPoolResults': '(pPacket->result == VK_SUCCESS && replayResult != pPacket->result) && replayResult != VK_NOT_READY'}
 
         replay_gen_source  = '\n'
         replay_gen_source += '#include "vkreplay_vkreplay.h"\n'
