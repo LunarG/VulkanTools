@@ -555,6 +555,25 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
         return -1;
     }
 
+    // Make sure we replay 64-bit traces with 64-bit replayer, and 32-bit traces with 32-bit replayer
+    if (sizeof(void*) != fileHeader.ptrsize) {
+        vktrace_LogError("%d-bit trace file is not supported by %d-bit vkreplay.", 8 * fileHeader.ptrsize, 8 * sizeof(void*));
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
+    // Make sure replay system endianess matches endianess in trace file
+    if (get_endianess() != fileHeader.endianess) {
+        vktrace_LogError("System endianess (%s) does not appear match endianess of tracefile (%s).",
+                         get_endianess_string(get_endianess()), get_endianess_string(fileHeader.endianess));
+        fclose(tracefp);
+        vktrace_free(pTraceFile);
+        vktrace_free(traceFile);
+        return -1;
+    }
+
     // Allocate a new header that includes space for all gpuinfo structs
     if (!(pFileHeader = (vktrace_trace_file_header*)vktrace_malloc(sizeof(vktrace_trace_file_header) +
                                                                    (size_t)(fileHeader.n_gpuinfo * sizeof(struct_gpuinfo))))) {

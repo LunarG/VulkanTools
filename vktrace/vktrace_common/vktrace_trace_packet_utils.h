@@ -40,6 +40,7 @@ void vktrace_initialize_trace_packet_utils();
 void vktrace_deinitialize_trace_packet_utils();
 
 uint64_t get_endianess();
+uint64_t get_endianess_string(uint64_t endianess);
 uint64_t get_arch();
 uint64_t get_os();
 
