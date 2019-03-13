@@ -54,6 +54,7 @@ typedef class PageGuardCapture {
     std::unordered_map<VkDeviceMemory, VkDeviceSize> MapMemoryOffset;
     std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo> MapMemoryAllocateInfo;
     std::unordered_map<VkDevice, VkPhysicalDevice> MapDevice;
+    std::unordered_map<VkDeviceMemory, void *> MapMemoryExtHostPointer;
 
    public:
     PageGuardCapture();
@@ -62,6 +63,7 @@ typedef class PageGuardCapture {
 
     /// Get memory object to its createinfo map reference
     std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo>& getMapMemoryAllocateInfo();
+    std::unordered_map<VkDeviceMemory, void *>& getMapMemoryExtHostPointer();
 
     /// Get device to its physical device map reference
     std::unordered_map<VkDevice, VkPhysicalDevice>& getMapDevice();
@@ -80,7 +82,7 @@ typedef class PageGuardCapture {
     /// VkMemoryAllocateInfo is based to allocate the memory. It's called when
     /// target app allocate memory.
     void vkAllocateMemoryPageGuardHandle(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
-                                         const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory);
+                                         const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory, void *pExternalHostPointer);
 
     /// The method is used to maintain the memory to its createinfo map,
     /// it's called when target app free memory.
@@ -142,4 +144,5 @@ typedef class PageGuardCapture {
                             uint32_t memoryBarrierCount, const VkMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount,
                             const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
                             const VkImageMemoryBarrier* pImageMemoryBarriers);
+    VkMemoryPropertyFlags getMemoryPropertyFlags(VkDevice device, uint32_t memoryTypeIndex);
 } PageGuardCapture;

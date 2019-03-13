@@ -186,11 +186,52 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
 
     size_t packetSize = get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory) * 2;
     CREATE_TRACE_PACKET(vkAllocateMemory, packetSize);
+
+    VkImportMemoryHostPointerInfoEXT importMemoryHostPointerInfo = {};
+    void* pNextOriginal = const_cast<void*>(pAllocateInfo->pNext);
+    void* pHostPointer = nullptr;
+    if (UseMappedExternalHostMemoryExtension()) {
+        VkMemoryPropertyFlags propertyFlags =
+            getPageGuardControlInstance().getMemoryPropertyFlags(device, pAllocateInfo->memoryTypeIndex);
+        if ((propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0) {
+            // host visible memory, enable extension
+            if (pAllocateInfo->pNext != nullptr) {
+                // Todo: add checking process to detect if the extension we
+                //      use here is compatible with the existing pNext chain,
+                //      and output warning message if not compatible.
+                assert(false);
+            }
+
+            // we insert our extension struct into the pNext chain.
+            void** ppNext = const_cast<void**>(&(pAllocateInfo->pNext));
+            *ppNext = &importMemoryHostPointerInfo;
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->sType =
+                VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT;
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->handleType =
+                VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT;
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pNext = pNextOriginal;
+            // provide the title host memory pointer which is already added
+            // memory write watch.
+            reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pHostPointer =
+                pageguardAllocateMemory(pAllocateInfo->allocationSize);
+            pHostPointer = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pHostPointer;
+        }
+    }
+
     result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
     if (UseMappedExternalHostMemoryExtension()) {
-        // only needed if user enable using VK_EXT_external_memory_host.
         if (result == VK_SUCCESS) {
-            getPageGuardControlInstance().vkAllocateMemoryPageGuardHandle(device, pAllocateInfo, pAllocator, pMemory);
+            getPageGuardControlInstance().vkAllocateMemoryPageGuardHandle(device, pAllocateInfo, pAllocator, pMemory, pHostPointer);
+            void** ppNext = const_cast<void**>(&(pAllocateInfo->pNext));
+            // after allocation, we restore the original pNext. the extension
+            // we insert here should not appear during playback.
+            *ppNext = pNextOriginal;
+        } else {
+            if (pHostPointer) {
+                pageguardFreeMemory(pHostPointer);
+                pHostPointer = nullptr;
+                assert(false);
+            }
         }
     }
 
@@ -411,6 +452,11 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
 #endif
     CREATE_TRACE_PACKET(vkFreeMemory, sizeof(VkAllocationCallbacks));
     mdd(device)->devTable.FreeMemory(device, memory, pAllocator);
+    if (UseMappedExternalHostMemoryExtension()) {
+        pageguardEnter();
+        getPageGuardControlInstance().vkFreeMemoryPageGuardHandle(device, memory, pAllocator);
+        pageguardExit();
+    }
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkFreeMemory(pHeader);
     pPacket->device = device;
