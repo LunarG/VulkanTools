@@ -129,13 +129,13 @@ uint64_t get_endianess() {
 }
 
 // Function to return string describing given endianess
-uint64_t get_endianess_string(uint64_t endianess) {
+const char* get_endianess_string(uint64_t endianess) {
     if (endianess == VKTRACE_LITTLE_ENDIAN)
         return "VKTRACE_LITTLE_ENDIAN";
     else if (endianess == VKTRACE_BIG_ENDIAN)
         return "VKTRACE_BIG_ENDIAN";
     else
-        return ("Unknow");
+        return ("Unknown");
 }
 
 uint64_t get_arch() {
