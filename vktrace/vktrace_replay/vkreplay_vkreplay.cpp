@@ -626,6 +626,17 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
     for (uint32_t i = 0; i < pPacket->pCreateInfo->queueCreateInfoCount; i++)
         vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[i]);
 
+    // Translate physicalDevice handles in VkDeviceGroupDeviceCreateInfo pNext structs
+    VkDeviceGroupDeviceCreateInfo *sptr = (VkDeviceGroupDeviceCreateInfo *)pPacket->pCreateInfo->pNext;
+    while (sptr) {
+        if (sptr->sType == VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO) {
+            for (uint32_t i = 0; i < sptr->physicalDeviceCount; i++) {
+                *(VkPhysicalDevice *)(&sptr->pPhysicalDevices[i]) = m_objMapper.remap_physicaldevices(sptr->pPhysicalDevices[i]);
+            }
+        }
+        sptr = (VkDeviceGroupDeviceCreateInfo *)sptr->pNext;
+    }
+
     if (remappedPhysicalDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
         return VK_ERROR_VALIDATION_FAILED_EXT;
