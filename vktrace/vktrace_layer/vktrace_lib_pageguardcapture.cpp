@@ -38,6 +38,8 @@ std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo>& PageGuardCapture::getM
     return MapMemoryAllocateInfo;
 }
 
+std::unordered_map<VkDeviceMemory, void*>& PageGuardCapture::getMapMemoryExtHostPointer() { return MapMemoryExtHostPointer; }
+
 std::unordered_map<VkDevice, VkPhysicalDevice>& PageGuardCapture::getMapDevice() { return MapDevice; }
 
 void PageGuardCapture::vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
@@ -48,12 +50,23 @@ void PageGuardCapture::vkCreateDevice(VkPhysicalDevice physicalDevice, const VkD
 void PageGuardCapture::vkDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator) { MapDevice.erase(device); }
 
 void PageGuardCapture::vkAllocateMemoryPageGuardHandle(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
-                                                       const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory) {
+                                                       const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory,
+                                                       void* pExternalHostPointer) {
     MapMemoryAllocateInfo[*pMemory] = *pAllocateInfo;
+    if (pExternalHostPointer != nullptr) {
+        MapMemoryExtHostPointer[*pMemory] = pExternalHostPointer;
+    }
 }
 
 void PageGuardCapture::vkFreeMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory,
                                                    const VkAllocationCallbacks* pAllocator) {
+    auto iteratorExtPointer = MapMemoryExtHostPointer.find(memory);
+    if (iteratorExtPointer != MapMemoryExtHostPointer.end()) {
+        if (iteratorExtPointer->second != nullptr) {
+            pageguardFreeMemory(iteratorExtPointer->second);
+        }
+        MapMemoryExtHostPointer.erase(memory);
+    }
     MapMemoryAllocateInfo.erase(memory);
 }
 
@@ -334,4 +347,12 @@ bool PageGuardCapture::isReadyForHostRead(VkPipelineStageFlags srcStageMask, VkP
         isReady = true;
     }
     return isReady;
+}
+
+VkMemoryPropertyFlags PageGuardCapture::getMemoryPropertyFlags(VkDevice device, uint32_t memoryTypeIndex) {
+    VkPhysicalDevice physicalDevice = getMapDevice()[device];
+    VkPhysicalDeviceMemoryProperties PhysicalDeviceMemoryProperties;
+    mid(physicalDevice)->instTable.GetPhysicalDeviceMemoryProperties(physicalDevice, &PhysicalDeviceMemoryProperties);
+    assert(memoryTypeIndex < PhysicalDeviceMemoryProperties.memoryTypeCount);
+    return PhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags;
 }
