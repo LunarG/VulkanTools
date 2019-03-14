@@ -285,13 +285,6 @@ int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
     m_replay_gpu = 0;
     m_replay_drv_vers = 0;
 
-    // 32bit/64bit trace file is not supported by 64bit/32bit vkreplay
-    if (m_replay_ptrsize != m_pFileHeader->ptrsize) {
-        vktrace_LogError("%d-bit trace file is not supported by %d-bit vkreplay.", m_pFileHeader->ptrsize * 8,
-                         m_replay_ptrsize * 8);
-        return -1;
-    }
-
     return 0;
 }
 

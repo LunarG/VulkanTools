@@ -300,7 +300,7 @@ class ApiDumpSettings {
             ret_string = temp;
         }
 #elif defined(__ANDROID__)
-        std::string command = "getprop debug.vulkan.layer_opts.";
+        std::string command = "getprop debug.";
         std::string lower_var = ToLowerString(var);
 
         // Remove any prefix "VK_" for Android properties

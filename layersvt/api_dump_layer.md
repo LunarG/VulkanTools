@@ -122,7 +122,7 @@ the Settings File.
 On Android, you must use properties to set the environment variables.
 The format of the properties to set takes the following form:
 
-    debug.vulkan.layer_opts. + (lower-case environment variable with 'vk_' stripped)
+    debug. + (lower-case environment variable with 'vk_' stripped)
 
 The easiest way to set a property is from the ADB shell:
 
@@ -133,11 +133,11 @@ The easiest way to set a property is from the ADB shell:
 To set the API Dump output log filename, which on desktop uses `VK_APIDUMP_LOG_FILENAME`
 set the following property:
 
-    debug.vulkan.layer_opts.apidump_log_filename
+    debug.apidump_log_filename
 
 Which you can set in the following way:
 
-    adb shell "setprop debug.vulkan.layer_opts.apidump_log_filename '/sdcard/Android/vk_apidump.txt'"
+    adb shell "setprop debug.apidump_log_filename '/sdcard/Android/vk_apidump.txt'"
 
 <br></br>
 

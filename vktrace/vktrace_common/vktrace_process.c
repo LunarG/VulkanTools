@@ -100,7 +100,11 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
         if (execv(fullExePath, args) < 0) {
             vktrace_LogError("Failed to spawn process.");
             perror(NULL);
-            exit(1);
+            // Exit by killing the whole process group.
+            // This kills both our process and our parent. We do this because
+            // we don't want to leave the parent hanging, waiting for data
+            // to arrive from the child.
+            kill(0, SIGINT);
         }
     }
 #endif
