@@ -99,7 +99,7 @@ foreach(SUBDIR ${ST_SUBDIRS})
         -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
         -DLAYER_NAME="VK_LAYER_LUNARG_${SUBDIR}"
     )
-    if(CMAKE_CURRENT_BINARY_DIR MATCHES ".*layer_factor.*")
+    if(CMAKE_CURRENT_BINARY_DIR MATCHES ".*layer_factory.*")
         if(WIN32)
             add_custom_target(${TARGET_NAME}-json ALL
                     COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake"
