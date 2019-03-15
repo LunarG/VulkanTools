@@ -107,6 +107,7 @@ foreach(SUBDIR ${ST_SUBDIRS})
         else()
             add_custom_target(${TARGET_NAME}-json ALL
                     COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake"
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json
                     COMMAND ${CMAKE_COMMAND} -E copy ${JSON_DEST_PATH}/VkLayer_${SUBDIR}.json ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json
                     COMMAND sed -i -e "/library_path.:/s=./libVkLayer=libVkLayer=" ${CMAKE_CURRENT_BINARY_DIR}/../layers/staging-json/VkLayer_${SUBDIR}.json
             )
