@@ -185,47 +185,53 @@ bool PageGuardMappedMemory::isNoMappedBlockChanged() {
     return noMappedBlockChanged;
 }
 
+#if defined(WIN32)
+uint64_t PageGuardMappedMemory::getWriteWatchForPage(DWORD dwFlags, void *pgAddr) {
+    uint64_t pageSize = PageGuardSize;
+    PVOID addresses[1];
+    ULONG granularity;
+    ULONG_PTR count = 1;
+    UINT returncode;
+
+    returncode = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, static_cast<size_t>(pageSize), &addresses[0], &count, &granularity);
+    if (returncode != 0) {
+        vktrace_LogError("GetWriteWatch fail, the error code is: %d", returncode);
+    }
+    return count;
+}
+#endif
+
 void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
     for (uint64_t i = 0; i < PageGuardAmount; i++) {
         if (isMappedBlockChanged(i, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT)) {
 #if defined(WIN32)
-            uint64_t pageSize = pageguardGetSystemPageSize();
-            uint64_t pmask = ~(pageSize - 1);
-            PVOID Addresses[1];
-            ULONG Granularity;
-            ULONG_PTR Count = 1;
-            UINT rval;
-            DWORD oldProt;
-            void *pgAddr = (void *)((uint64_t)(pMappedData + i * PageGuardSize));
-            assert(((SIZE_T)pgAddr & (~pmask)) == 0);
             if (false == UseMappedExternalHostMemoryExtension()) {
-                // if VK_EXT_external_memory_host enabled, only real mapped
-                // memory/write watch is being used, so we should not add
-                // pageguard to the memory.
-                VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
-            }
-            rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, (size_t)pageSize, &Addresses[0], &Count, &Granularity);
-            assert(rval == 0);
-            assert(Count == 0 || Count == 1);
-            assert(Granularity == pageSize);
-            assert((Count == 1) ? (Addresses[0] == pgAddr) : 1);
-            if (Count == 1) {
-                // Page was modified after we copied it, so mark the page as changed.
-                if (false == UseMappedExternalHostMemoryExtension()) {
-                    VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE, &oldProt);
-                }
-                setMappedBlockChanged(i, true, BLOCK_FLAG_ARRAY_CHANGED);
+                // We reset pageguard only when using pageguard. If using
+                // writewatch + external host memory extension, we don't need
+                // the following process.
+                uint64_t pageSize = PageGuardSize;
+                uint64_t pmask = ~(pageSize - 1);
+                ULONG_PTR count = 1;
+                DWORD oldProt;
+                void *pgAddr = reinterpret_cast<void *>(pMappedData + (i * PageGuardSize));
+                VirtualProtect(pgAddr, static_cast<SIZE_T>(getMappedBlockSize(i)), PAGE_READWRITE | PAGE_GUARD, &oldProt);
+                count = getWriteWatchForPage(WRITE_WATCH_FLAG_RESET, pgAddr);
+                if (count == 1) {
+                    // Page was modified after we copied it, so mark the page as changed.
+                    VirtualProtect(pgAddr, static_cast<SIZE_T>(getMappedBlockSize(i)), PAGE_READWRITE, &oldProt);
+                    setMappedBlockChanged(i, true, BLOCK_FLAG_ARRAY_CHANGED);
 
-                // for one page, there are two ways that trigger page guard and then the page
-                // need to be rearmed: write and read, we also use two flags for the page
-                // to record page guard is triggered by write (dirty) or by read, then base on
-                // the two flags, we rearm page guard in different functions.
-                // here if GetWriteWatch detect dirty page, we set it's a dirty page, also
-                // need to clear another read flag to avoid dead lock: if two flags
-                // all set to true, and if already rearm page guard by read related process,
-                // then when write the dirty page (because it's marked as dirty page), copy
-                // the dirty page will trigger unexpected page guard, cause a deadlock.
-                setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ);
+                    // for one page, there are two ways that trigger page guard and then the page
+                    // need to be rearmed: write and read, we also use two flags for the page
+                    // to record page guard is triggered by write (dirty) or by read, then base on
+                    // the two flags, we rearm page guard in different functions.
+                    // here if GetWriteWatch detect dirty page, we set it's a dirty page, also
+                    // need to clear another read flag to avoid dead lock: if two flags
+                    // all set to true, and if already rearm page guard by read related process,
+                    // then when write the dirty page (because it's marked as dirty page), copy
+                    // the dirty page will trigger unexpected page guard, cause a deadlock.
+                    setMappedBlockChanged(i, false, BLOCK_FLAG_ARRAY_READ);
+                }
             }
 #else
             if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), PROT_READ) == -1) {
@@ -271,10 +277,17 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
 
     for (uint64_t i = 0; i < PageGuardAmount; i++) {
 #if defined(WIN32)
-        DWORD oldProt, dwErr;
-        if (!VirtualProtect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt)) {
-            dwErr = GetLastError();
-            setSuccessfully = false;
+        if (UseMappedExternalHostMemoryExtension()) {
+            uint64_t pageSize = PageGuardSize;
+            uint64_t pmask = ~(pageSize - 1);
+            void *pgAddr = reinterpret_cast<void *>(pMappedData + (i * PageGuardSize));
+            getWriteWatchForPage(WRITE_WATCH_FLAG_RESET, pgAddr);
+        } else {
+            DWORD oldProt, dwErr;
+            if (!VirtualProtect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt)) {
+                dwErr = GetLastError();
+                setSuccessfully = false;
+            }
         }
 #else
         if (mprotect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), prot) == -1) {
@@ -411,7 +424,32 @@ void PageGuardMappedMemory::SyncRealMappedMemoryToMemoryCopyHandle(VkDevice devi
     }
 }
 
-void PageGuardMappedMemory::backupBlockChangedArraySnapshot() { pPageStatus->backupChangedArray(); }
+void PageGuardMappedMemory::backupBlockChangedArraySnapshot() {
+    if (UseMappedExternalHostMemoryExtension()) {
+#if defined(WIN32)
+        // If using the external host memory extension, we only use write
+        // watch to capture the changed page, so here we get the information
+        // about which page is changed from write watch, not from pageguard.
+        uint64_t pageSize = PageGuardSize;
+        PVOID **pAddressArray = reinterpret_cast<PVOID **>(pageguardAllocateMemory(PageGuardAmount * sizeof(PVOID *)));
+        ULONG_PTR Count = PageGuardAmount;
+        ULONG Granularity;
+        UINT rval;
+        uint64_t pageIndexCalculated = 0;
+        rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pMappedData, static_cast<size_t>(pageSize * PageGuardAmount),
+                             reinterpret_cast<PVOID *>(pAddressArray), &Count, &Granularity);
+        assert(rval == 0);
+        pPageStatus->clearActiveChangesArray();
+        for (ULONG i = 0; i < Count; i++) {
+            pageIndexCalculated = (reinterpret_cast<PBYTE>(pAddressArray[i]) - pMappedData) / PageGuardSize;
+            assert(pageIndexCalculated < PageGuardAmount);
+            setMappedBlockChanged(pageIndexCalculated, true, BLOCK_FLAG_ARRAY_CHANGED);
+        }
+        pageguardFreeMemory(reinterpret_cast<PVOID *>(pAddressArray));
+#endif
+    }
+    pPageStatus->backupChangedArray();
+}
 
 void PageGuardMappedMemory::backupBlockReadArraySnapshot() { pPageStatus->backupReadArray(); }
 
@@ -475,27 +513,21 @@ uint64_t PageGuardMappedMemory::getChangedBlockInfo(VkDeviceSize RangeOffset, Vk
 
                 srcAddr = (void *)((uint64_t)(pMappedData + offset));
 #if defined(WIN32)
-                // We are about to copy from mapped memory to a temporary buffer.
-                // If another thread were to change this mapped memory after the
-                // copy but before the VirtualProtect we'll be doing later to
-                // re-arm PAGE_GUARD exceptions for this page, we would not see
-                // the change to mapped memory. So we call GetWriteWatch to reset the
-                // write count on this page, and then we'll call it again after the
-                // the VirtualProtect to see if it was written to between the copy
-                // and the VirtualProtect.
+                if (!UseMappedExternalHostMemoryExtension()) {
+                    // We are about to copy from mapped memory to a temporary buffer.
+                    // If another thread were to change this mapped memory after the
+                    // copy but before the VirtualProtect we'll be doing later to
+                    // re-arm PAGE_GUARD exceptions for this page, we would not see
+                    // the change to mapped memory. So we call GetWriteWatch to reset the
+                    // write count on this page, and then we'll call it again after the
+                    // the VirtualProtect to see if it was written to between the copy
+                    // and the VirtualProtect.
 
-                uint64_t pageSize = pageguardGetSystemPageSize();
-                uint64_t pmask = ~(pageSize - 1);
-                PVOID Addresses[1];
-                ULONG Granularity;
-                ULONG_PTR Count = 1;
-                UINT rval;
-                assert((((SIZE_T)(srcAddr)) & (~pmask)) == 0);
-                rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, srcAddr, (size_t)pageSize, Addresses, &Count, &Granularity);
-                assert(rval == 0);
-                assert(Count == 0 || Count == 1);
-                assert(Granularity == pageSize);
-                assert((Count == 1) ? (Addresses[0] == srcAddr) : true);
+                    uint64_t pageSize = PageGuardSize;
+                    uint64_t pmask = ~(pageSize - 1);
+                    assert((((SIZE_T)(srcAddr)) & (~pmask)) == 0);
+                    getWriteWatchForPage(WRITE_WATCH_FLAG_RESET, srcAddr);
+                }
 #else
                 // Disable writes to the page before we copy from it.
                 // If it is modified by another thread while copying, we'll get

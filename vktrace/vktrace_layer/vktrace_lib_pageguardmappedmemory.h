@@ -90,6 +90,9 @@ typedef class PageGuardMappedMemory {
     uint64_t getMappedBlockOffset(uint64_t index);
 
     bool isNoMappedBlockChanged();
+#if defined(WIN32)
+    uint64_t getWriteWatchForPage(DWORD dwFlags, void *pgAddr);
+#endif
 
     void resetMemoryObjectAllChangedFlagAndPageGuard();
 

@@ -349,32 +349,32 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
 
                     pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
                 } else {
-#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
-                    if ((!pMappedMem->isMappedBlockLoaded(index)) && (getEnablePageGuardLazyCopyFlag())) {
-                        // Target app read the page which is never accessed since the
-                        // shadow memory creation in map process.
-                        // here we only set the loaded flag, we still need to do memcpy
-                        // in the following reading acess to the page,that is different
-                        // with page guard process when target app write to the page.
-                        // the loaded flag is setted here only to make sure the following
-                        // write access not to do the memcpy again. because the memcpy
-                        // in read process is to capture GPU side change which is needed
-                        // by CPU side, it is not to replace initial sync from real
-                        // mapped memory to shadow memory in map process.
+                    if (false == UseMappedExternalHostMemoryExtension()) {
+                        if ((false == pMappedMem->isMappedBlockLoaded(index)) && (getEnablePageGuardLazyCopyFlag())) {
+                            // Target app read the page which is never accessed since the
+                            // shadow memory creation in map process.
+                            // here we only set the loaded flag, we still need to do memcpy
+                            // in the following reading acess to the page,that is different
+                            // with page guard process when target app write to the page.
+                            // the loaded flag is setted here only to make sure the following
+                            // write access not to do the memcpy again. because the memcpy
+                            // in read process is to capture GPU side change which is needed
+                            // by CPU side, it is not to replace initial sync from real
+                            // mapped memory to shadow memory in map process.
 
-                        pMappedMem->setMappedBlockLoaded(index, true);
-                    }
-                    vktrace_pageguard_memcpy(pBlock,
-                                             pMappedMem->getRealMappedDataPointer() + OffsetOfAddr - OffsetOfAddr % BlockSize,
-                                             pMappedMem->getMappedBlockSize(index));
-                    pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
-                    if (getEnableReadPMBPostProcessFlag()) {
+                            pMappedMem->setMappedBlockLoaded(index, true);
+                        }
+                        vktrace_pageguard_memcpy(
+                            pBlock, pMappedMem->getRealMappedDataPointer() + (OffsetOfAddr - (OffsetOfAddr % BlockSize)),
+                            pMappedMem->getMappedBlockSize(index));
+                        pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_READ);
+                        if (getEnableReadPMBPostProcessFlag()) {
+                            pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
+                        }
+
+                    } else {
                         pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
                     }
-
-#else
-                    pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
-#endif
                 }
                 resultCode = EXCEPTION_CONTINUE_EXECUTION;
             }
