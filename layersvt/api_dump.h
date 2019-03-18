@@ -438,7 +438,7 @@ class ApiDumpInstance {
     void setThreadID(uint64_t trace_thread_id) { thread_id = trace_thread_id; }
 
     uint64_t threadID() {
-        if (thread_id != UINT32_MAX) {
+        if (thread_id != UINT64_MAX) {
             return thread_id;
         }
         loader_platform_thread_id id = loader_platform_get_thread_id();
