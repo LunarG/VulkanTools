@@ -67,7 +67,6 @@ ENDMACRO()
 set (JSON_TEMPLATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/layer_factory.json.in)
 if (WIN32)
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR})
-    set (JSON_DECORATED_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers/$<CONFIGURATION>)
 else()
     set (JSON_DEST_PATH ${CMAKE_CURRENT_BINARY_DIR}/../layers)
 endif()
@@ -125,13 +124,6 @@ foreach(SUBDIR ${ST_SUBDIRS})
         string(REPLACE "layer_factory" "${target}" target_json_file "${json_file_template}")
         file(TO_NATIVE_PATH ${JSON_DEST_PATH}/VkLayer_${target}.json dst_json)
         file(WRITE ${dst_json} ${target_json_file})
-        # Copy target json file from build/layers to final directory at compile time
-        file(TO_NATIVE_PATH ${JSON_DECORATED_DEST_PATH}/VkLayer_${target}.json decorated_dst_json)
-        add_custom_target(${target}json-copy ALL
-            COMMAND ${CMAKE_COMMAND} -E copy ${dst_json} ${decorated_dst_json}
-            VERBATIM
-            )
-        set_target_properties(${target}json-copy PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
         target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
