@@ -1703,8 +1703,25 @@ class VulkanEnum:
             childValue = child.get('value')
             childBitpos = child.get('bitpos')
             childComment = child.get('comment')
-            if childName is None or (childValue is None and childBitpos is None):
+            childExtends = child.get('extends')
+            childOffset = child.get('offset')
+            childExtNum = child.get('extnumber')
+
+            if childName is None:
                 continue
+            if (childValue is None and childBitpos is None and childOffset is None):
+                continue
+
+            if childExtends is not None and childExtNum is not None and childOffset is not None:
+                enumNegative = False
+                extNum = int(childExtNum)
+                extOffset = int(childOffset)
+                extBase      = 1000000000
+                extBlockSize = 1000
+                childValue = extBase + (extNum - 1) * extBlockSize + extOffset
+                if ('dir' in child.keys()):
+                    childValue = -childValue
+               
             # Check for duplicates, TODO: Maybe solve up a level
             duplicate = False
             for o in self.options:
