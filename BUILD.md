@@ -18,6 +18,9 @@ These additional packages are needed for building the components in this repo.
 ### Ubuntu
 
 Ubuntu 16.04 LTS and 18.04 have been tested with this repo.
+
+Continuous integration tools use [CMake 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) for Linux
+
 ```
 # Dependencies from included submodule components
 sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libwayland-dev libxrandr-dev libxcb-randr0-dev
@@ -38,6 +41,8 @@ sudo apt-get install qt5-default qtwebengine5-dev
 ### Fedora Core
 
 Fedora Core 28 and 29 were tested with this repo.
+
+Continuous integration tools use [CMake 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) for Linux
 
 Additional package dependencies include:
 
@@ -266,7 +271,7 @@ make -j8
 Windows 7+ with additional required software packages:
 
 - Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but not guaranteed.
-- CMake (from http://www.cmake.org/download/).  Notes:
+- CMake: Continuous integration tools use [CMake 3.12.2](https://github.com/Kitware/CMake/releases/tag/v3.12.2) for Windows
   - In order to build the VkTrace tools, you need at least version 3.0.
   - Tell the installer to "Add CMake to the system PATH" environment variable.
 - Python 3 (from https://www.python.org/downloads).  Notes:
@@ -349,6 +354,8 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
 ```
 ### Additional OSX System Requirements
 Tested on OSX version 10.11.4
+
+Continuous integration tools use [CMake 3.11.3](https://github.com/Kitware/CMake/releases/tag/v3.11.3) for MacOS
 
  Setup Homebrew and components
 - Follow instructions on [brew.sh](http://brew.sh) to get homebrew installed.
