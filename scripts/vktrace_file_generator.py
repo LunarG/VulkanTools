@@ -880,32 +880,32 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     replay_gen_source += '                break;\n'
                     replay_gen_source += '            }\n'
                 elif 'SparseMemoryRequirements2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pInfo);\n'
                     replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pSparseMemoryRequirementCount; i++)\n'
-                    replay_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)(&pPacket->pSparseMemoryRequirements[i]));\n'
+                    replay_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)(&pPacket->pSparseMemoryRequirements[i]));\n'
                 elif 'CreateSamplerYcbcrConversion' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pCreateInfo);\n'
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pYcbcrConversion);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pCreateInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pYcbcrConversion);\n'
                 elif 'GetPhysicalDeviceFeatures2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pFeatures);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFeatures);\n'
                 elif 'GetPhysicalDeviceProperties2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pProperties);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pProperties);\n'
                 elif 'GetPhysicalDeviceFormatProperties2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pFormatProperties);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFormatProperties);\n'
                 elif 'GetPhysicalDeviceImageFormatProperties2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pImageFormatInfo);\n'
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pImageFormatProperties);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pImageFormatInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pImageFormatProperties);\n'
                 elif 'GetPhysicalDeviceQueueFamilyProperties2' in cmdname:
                     replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pQueueFamilyPropertyCount; i++)\n'
-                    replay_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)(&pPacket->pQueueFamilyProperties[i]));\n'
+                    replay_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)(&pPacket->pQueueFamilyProperties[i]));\n'
                 elif 'GetPhysicalDeviceMemoryProperties2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pMemoryProperties);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pMemoryProperties);\n'
                 elif 'GetDeviceQueue2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pQueueInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pQueueInfo);\n'
                 elif 'GetPhysicalDeviceSparseImageFormatProperties2' in cmdname:
-                    replay_gen_source += '            vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pFormatInfo);\n'
+                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFormatInfo);\n'
                     replay_gen_source += '            for (uint32_t i=0; i<*pPacket->pPropertyCount; i++)\n'
-                    replay_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)(&pPacket->pProperties[i]));\n'
+                    replay_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)(&pPacket->pProperties[i]));\n'
                 # Build the call to the "real_" entrypoint
                 rr_string = '            '
                 if ret_value:
@@ -2465,7 +2465,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     dump_gen_source += '            VkBindSparseInfo *pLocalBIs = VKTRACE_NEW_ARRAY(VkBindSparseInfo, pPacket->bindInfoCount);\n'
                     dump_gen_source += '            memcpy((void *)pLocalBIs, (void *)(pPacket->pBindInfo), sizeof(VkBindSparseInfo) * pPacket->bindInfoCount);\n'
                     dump_gen_source += '            for (uint32_t i = 0; i < pPacket->bindInfoCount; i++) {\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalBIs[i]);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalBIs[i]);\n'
                     dump_gen_source += '                if (pLocalBIs[i].pBufferBinds) {\n'
                     dump_gen_source += '                    sBMBinf = VKTRACE_NEW_ARRAY(VkSparseBufferMemoryBindInfo, pLocalBIs[i].bufferBindCount);\n'
                     dump_gen_source += '                    pLocalBIs[i].pBufferBinds =\n'
@@ -2514,7 +2514,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     dump_gen_source += '            VkComputePipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkComputePipelineCreateInfo, pPacket->createInfoCount);\n'
                     dump_gen_source += '            memcpy((void *)pLocalCIs, (void *)(pPacket->pCreateInfos), sizeof(VkComputePipelineCreateInfo) * pPacket->createInfoCount);\n'
                     dump_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalCIs[i]);\n'
                     dump_gen_source += '                if (pLocalCIs[i].stage.pName) {\n'
                     dump_gen_source += '                    pLocalCIs[i].stage.pName =\n'
                     dump_gen_source += '                        (const char *)(vktrace_trace_packet_interpret_buffer_pointer(pPacket->header, (intptr_t)pLocalCIs[i].stage.pName));\n'
@@ -2540,17 +2540,17 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     dump_gen_source += '            VkGraphicsPipelineCreateInfo *pLocalCIs = VKTRACE_NEW_ARRAY(VkGraphicsPipelineCreateInfo, pPacket->createInfoCount);\n'
                     dump_gen_source += '            for (uint32_t i = 0; i < pPacket->createInfoCount; i++) {\n'
                     dump_gen_source += '                memcpy((void *)&(pLocalCIs[i]), (void *)&(pPacket->pCreateInfos[i]), sizeof(VkGraphicsPipelineCreateInfo));\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pStages);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pVertexInputState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pInputAssemblyState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pTessellationState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pViewportState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pRasterizationState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pMultisampleState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDepthStencilState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pColorBlendState);\n'
-                    dump_gen_source += '                vktrace_interpret_pnext_pointers(pPacket->header, (void *)pLocalCIs[i].pDynamicState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalCIs[i]);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pStages);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pVertexInputState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pInputAssemblyState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pTessellationState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pViewportState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pRasterizationState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pMultisampleState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pDepthStencilState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pColorBlendState);\n'
+                    dump_gen_source += '                vkreplay_process_pnext_structs(pPacket->header, (void *)pLocalCIs[i].pDynamicState);\n'
                     dump_gen_source += '                ((VkPipelineViewportStateCreateInfo *)pLocalCIs[i].pViewportState)->pViewports =\n'
                     dump_gen_source += '                    (VkViewport *)vktrace_trace_packet_interpret_buffer_pointer(\n'
                     dump_gen_source += '                        pPacket->header, (intptr_t)pPacket->pCreateInfos[i].pViewportState->pViewports);\n'
@@ -3042,6 +3042,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_hdr += '#include "vulkan/vulkan.h"\n'
         trace_pkt_hdr += '#include "vktrace_trace_packet_utils.h"\n'
         trace_pkt_hdr += '\n'
+        trace_pkt_hdr += 'static void vkreplay_process_pnext_structs(vktrace_trace_packet_header *pHeader, void *struct_ptr)\n'
+        trace_pkt_hdr += '{\n'
+        trace_pkt_hdr += '    vkreplay_interpret_pnext_pointers(pHeader, struct_ptr);\n'
+        trace_pkt_hdr += '}\n\n'
 
         # Custom txt for given function and parameter.  First check if param is NULL, then insert txt if not
         # First some common code used by both CmdWaitEvents & CmdPipelineBarrier
@@ -3135,7 +3139,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                              'CmdPushDescriptorSetKHR' : {'param': 'pDescriptorWrites', 'txt':
                                                                                [ 'uint32_t i;\n',
                                                                                  'for (i = 0; i < pPacket->descriptorWriteCount; i++) {\n',
-                                                                                 '    vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
+                                                                                 '    vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
                                                                                  '    switch (pPacket->pDescriptorWrites[i].descriptorType) {\n',
                                                                                  '    case VK_DESCRIPTOR_TYPE_SAMPLER:\n',
                                                                                  '    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:\n',
@@ -3168,7 +3172,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                              'UpdateDescriptorSets' : {'param': 'pDescriptorWrites', 'txt':
                                                                                [ 'uint32_t i;\n',
                                                                                  'for (i = 0; i < pPacket->descriptorWriteCount; i++) {\n',
-                                                                                 '    vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
+                                                                                 '    vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pDescriptorWrites[i]);\n',
                                                                                  '    switch (pPacket->pDescriptorWrites[i].descriptorType) {\n',
                                                                                  '    case VK_DESCRIPTOR_TYPE_SAMPLER:\n',
                                                                                  '    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:\n',
@@ -3198,7 +3202,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                                                  '    }\n',
                                                                                  '}\n',
                                                                                  'for (i = 0; i < pPacket->descriptorCopyCount; i++) {\n',
-                                                                                 '    vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pDescriptorCopies[i]);\n',
+                                                                                 '    vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pDescriptorCopies[i]);\n',
                                                                                  '}'
                                                                                ]},
                              'QueueSubmit' : {'param': 'pSubmits', 'txt':
@@ -3212,7 +3216,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                                                                  '   *ppSems = (VkSemaphore*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pSubmits[i].pSignalSemaphores);\n',
                                                                                  '   VkPipelineStageFlags** ppStageMask = (VkPipelineStageFlags**)&pPacket->pSubmits[i].pWaitDstStageMask;\n',
                                                                                  '   *ppStageMask = (VkPipelineStageFlags*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pSubmits[i].pWaitDstStageMask);\n',
-                                                                                 '   vktrace_interpret_pnext_pointers(pHeader, (void *)&pPacket->pSubmits[i]);\n'
+                                                                                 '   vkreplay_process_pnext_structs(pHeader, (void *)&pPacket->pSubmits[i]);\n'
                                                                                  '}'
                                                                                ]},
                              'CreateGraphicsPipelines' : {'param': 'pCreateInfos', 'txt': create_gfx_pipe},
@@ -3309,7 +3313,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                            'pSparseMemoryRequirements','pSurfaceCapabilities'] and '2khr' in p.type.lower())
                             or (p.name in ['pSurfaceCapabilities'] and '2ext' in p.type.lower())):
                             trace_pkt_hdr += '    if (pPacket->%s != NULL) {\n' % p.name
-                            trace_pkt_hdr += '        vktrace_interpret_pnext_pointers(pHeader, (void *)pPacket->%s);\n' % p.name
+                            trace_pkt_hdr += '        vkreplay_process_pnext_structs(pHeader, (void *)pPacket->%s);\n' % p.name
                             trace_pkt_hdr += '    }\n'
                 if 'UnmapMemory' in proto.name:
                     trace_pkt_hdr += '    pPacket->pData = (void*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)pPacket->pData);\n'
