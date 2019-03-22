@@ -879,7 +879,7 @@ bool generateCreateStagingBuffer(VkDevice device, StagingInfo stagingInfo) {
 
     uint32_t memory_type_index = stagingInfo.memoryAllocationInfo.memoryTypeIndex;
     VkDeviceSize allocation_size = stagingInfo.memoryAllocationInfo.allocationSize;
-    if (memory_type_index < 0 || memory_type_index > memory_properties.memoryTypeCount) {
+    if (memory_type_index > memory_properties.memoryTypeCount) {
         return false;
     }
 
@@ -3222,9 +3222,9 @@ void copyDescriptorByIndex(const VkWriteDescriptorSet *pDescriptorWrites, uint32
 // return its index in the array.
 //
 // If all are invalid, return -1;
-uint32_t getValidDescriptorIndexFromWriteDescriptorSet(const VkWriteDescriptorSet *pDescriptorWrites) {
-    uint32_t ValidDescriptorIndex = -1;
-    for (int i = 0; i < pDescriptorWrites->descriptorCount; i++) {
+int32_t getValidDescriptorIndexFromWriteDescriptorSet(const VkWriteDescriptorSet *pDescriptorWrites) {
+    int32_t ValidDescriptorIndex = -1;
+    for (uint32_t i = 0; i < pDescriptorWrites->descriptorCount; i++) {
         if (isValidDescriptorIndex(pDescriptorWrites, i)) {
             ValidDescriptorIndex = i;
             break;
@@ -3279,7 +3279,7 @@ bool UpdateInvalidDescriptors(const VkWriteDescriptorSet *pDescriptorWrites) {
 // please note: the way we remove it is to replace it with a
 // valid one.
 void UpdateInvalidDescriptors(uint32_t descriptorWriteCount, const VkWriteDescriptorSet *pDescriptorWrites) {
-    for (int i = 0; i < descriptorWriteCount; i++) {
+    for (uint32_t i = 0; i < descriptorWriteCount; i++) {
         if (!UpdateInvalidDescriptors(&pDescriptorWrites[i])) {
             assert(false);
         }
