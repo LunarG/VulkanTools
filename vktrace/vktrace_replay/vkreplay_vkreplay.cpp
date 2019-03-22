@@ -624,7 +624,7 @@ VkResult vkReplay::manually_replay_vkCreateDevice(packet_vkCreateDevice *pPacket
     const char strScreenShot[] = "VK_LAYER_LUNARG_screenshot";
 
     for (uint32_t i = 0; i < pPacket->pCreateInfo->queueCreateInfoCount; i++)
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[i]);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)&pPacket->pCreateInfo->pQueueCreateInfos[i]);
 
     if (remappedPhysicalDevice == VK_NULL_HANDLE) {
         vktrace_LogError("Skipping vkCreateDevice() due to invalid remapped VkPhysicalDevice.");
@@ -1073,7 +1073,7 @@ VkResult vkReplay::manually_replay_vkQueueBindSparse(packet_vkQueueBindSparse *p
     VkSparseImageOpaqueMemoryBindInfo *sIMOBinf = NULL;
 
     for (uint32_t bindInfo_idx = 0; bindInfo_idx < pPacket->bindInfoCount; bindInfo_idx++) {
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&remappedBindSparseInfos[bindInfo_idx]);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)&remappedBindSparseInfos[bindInfo_idx]);
 
         if (remappedBindSparseInfos[bindInfo_idx].pBufferBinds) {
             remappedBindSparseInfos[bindInfo_idx].pBufferBinds =
@@ -1555,7 +1555,7 @@ VkResult vkReplay::manually_replay_vkCreateComputePipelines(packet_vkCreateCompu
 
     // Fix up stage sub-elements
     for (i = 0; i < pPacket->createInfoCount; i++) {
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pLocalCIs[i]);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)&pLocalCIs[i]);
 
         pLocalCIs[i].stage.module = m_objMapper.remap_shadermodules(pLocalCIs[i].stage.module);
 
@@ -1623,17 +1623,17 @@ VkResult vkReplay::manually_replay_vkCreateGraphicsPipelines(packet_vkCreateGrap
             }
         }
 
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)&pCIs[i]);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pStages);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pVertexInputState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pInputAssemblyState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pTessellationState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pViewportState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pRasterizationState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pMultisampleState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pDepthStencilState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pColorBlendState);
-        vktrace_interpret_pnext_pointers(pPacket->header, (void *)pCIs[i].pDynamicState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)&pCIs[i]);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pStages);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pVertexInputState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pInputAssemblyState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pTessellationState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pViewportState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pRasterizationState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pMultisampleState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pDepthStencilState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pColorBlendState);
+        vkreplay_process_pnext_structs(pPacket->header, (void *)pCIs[i].pDynamicState);
 
         pCIs[i].layout = m_objMapper.remap_pipelinelayouts(pPacket->pCreateInfos[i].layout);
         if (pCIs[i].layout == VK_NULL_HANDLE) {
@@ -2589,7 +2589,7 @@ void vkReplay::manually_replay_vkGetPhysicalDeviceProperties2KHR(packet_vkGetPhy
         vktrace_LogError("Error detected in GetPhysicalDeviceProperties2KHR() due to invalid remapped VkPhysicalDevice.");
         return;
     }
-    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pProperties);
+    vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pProperties);
     // No need to remap pProperties
     m_vkFuncs.GetPhysicalDeviceProperties2KHR(remappedphysicalDevice, pPacket->pProperties);
     m_replay_gpu =
@@ -3031,8 +3031,8 @@ void vkReplay::manually_replay_vkGetImageMemoryRequirements2KHR(packet_vkGetImag
 
         ((VkImageMemoryRequirementsInfo2KHR *)pPacket->pInfo)->image = remappedimage;
     }
-    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pInfo);
-    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pMemoryRequirements);
+    vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pInfo);
+    vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pMemoryRequirements);
     m_vkDeviceFuncs.GetImageMemoryRequirements2KHR(remappeddevice, pPacket->pInfo, pPacket->pMemoryRequirements);
 
     replayGetImageMemoryRequirements[remappedimage] = pPacket->pMemoryRequirements->memoryRequirements;
@@ -3070,8 +3070,8 @@ void vkReplay::manually_replay_vkGetBufferMemoryRequirements2KHR(packet_vkGetBuf
     }
     *((VkBuffer *)(&pPacket->pInfo->buffer)) = remappedBuffer;
 
-    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pInfo);
-    vktrace_interpret_pnext_pointers(pPacket->header, (void *)pPacket->pMemoryRequirements);
+    vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pInfo);
+    vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pMemoryRequirements);
     m_vkDeviceFuncs.GetBufferMemoryRequirements2KHR(remappedDevice, pPacket->pInfo, pPacket->pMemoryRequirements);
     replayGetBufferMemoryRequirements[pPacket->pInfo->buffer] = pPacket->pMemoryRequirements->memoryRequirements;
     return;

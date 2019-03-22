@@ -692,7 +692,7 @@ VkDeviceGroupDeviceCreateInfo* interpret_VkDeviceGroupDeviceCreateInfo(vktrace_t
             (_sPtrType*)vktrace_trace_packet_interpret_buffer_pointer(pHeader, (intptr_t)struct_ptr_cur->_sPtr); \
     } while (0)
 
-void vktrace_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr) {
+void vkreplay_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, void* struct_ptr) {
     uint32_t i;
     if (!struct_ptr) return;
 
