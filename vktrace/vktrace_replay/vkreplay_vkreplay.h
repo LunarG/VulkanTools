@@ -124,6 +124,7 @@ class vkReplay {
     int dump_validation_data();
     int get_frame_number() { return m_frameNumber; }
     void reset_frame_number(int frameNumber) { m_frameNumber = frameNumber > 0 ? frameNumber : 0; }
+    void interpret_pnext_handles(void* struct_ptr);
 
    private:
     void init_funcs(void* handle);

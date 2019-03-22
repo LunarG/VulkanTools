@@ -21,6 +21,10 @@
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: David Pinedo <david@lunarg.com>
  **************************************************************************/
+
+// Define VKREPLAY for vktrace_vk_vk_packets.h
+#define VKREPLAY
+
 #include <inttypes.h>
 #include "vkreplay.h"
 #include "vkreplay_vkreplay.h"
@@ -154,5 +158,14 @@ int VKTRACER_CDECL VkReplayGetFrameNumber() {
 void VKTRACER_CDECL VkReplayResetFrameNumber(int frameNumber) {
     if (g_pReplayer != NULL) {
         g_pReplayer->reset_frame_number(frameNumber);
+    }
+}
+
+// This function is called from vkreplay_process_pnext_structs in vktrace_vk_vk_packets.h
+// to translate handles inside of pnext structures.  We call g_pReplayer->interpret_pnext_handles
+// because only an instance of the vkReplay class can interpret handles.
+void vkreplay_interpret_pnext_handles(void* struct_ptr) {
+    if (g_pReplayer != NULL) {
+        g_pReplayer->interpret_pnext_handles(struct_ptr);
     }
 }
