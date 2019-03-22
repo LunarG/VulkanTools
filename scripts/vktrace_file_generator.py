@@ -3042,9 +3042,17 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_pkt_hdr += '#include "vulkan/vulkan.h"\n'
         trace_pkt_hdr += '#include "vktrace_trace_packet_utils.h"\n'
         trace_pkt_hdr += '\n'
+        trace_pkt_hdr += '#ifdef VKREPLAY\n'
+        trace_pkt_hdr += 'void vkreplay_interpret_pnext_handles(void *struct_ptr);\n'
+        trace_pkt_hdr += '#endif\n'
+        trace_pkt_hdr += '\n'
         trace_pkt_hdr += 'static void vkreplay_process_pnext_structs(vktrace_trace_packet_header *pHeader, void *struct_ptr)\n'
         trace_pkt_hdr += '{\n'
         trace_pkt_hdr += '    vkreplay_interpret_pnext_pointers(pHeader, struct_ptr);\n'
+        trace_pkt_hdr += '#ifdef VKREPLAY\n'
+        trace_pkt_hdr += '    // Handles need to be translated only in replayer\n'
+        trace_pkt_hdr += '    vkreplay_interpret_pnext_handles(struct_ptr);\n'
+        trace_pkt_hdr += '#endif\n'
         trace_pkt_hdr += '}\n\n'
 
         # Custom txt for given function and parameter.  First check if param is NULL, then insert txt if not

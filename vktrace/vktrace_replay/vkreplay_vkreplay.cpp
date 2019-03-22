@@ -2285,17 +2285,6 @@ VkResult vkReplay::manually_replay_vkAllocateMemory(packet_vkAllocateMemory *pPa
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-    if (pPacket->pAllocateInfo->pNext) {
-        VkDedicatedAllocationMemoryAllocateInfoNV *x = (VkDedicatedAllocationMemoryAllocateInfoNV *)(pPacket->pAllocateInfo->pNext);
-
-        if (x->sType == VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV ||
-            x->sType == VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO) {
-            x->image = m_objMapper.remap_images(x->image);
-            x->buffer = m_objMapper.remap_buffers(x->buffer);
-            if (!(x->image == VK_NULL_HANDLE || x->buffer == VK_NULL_HANDLE))
-                vktrace_LogError("Invalid handle in vkAllocateMemory pAllocate->pNext structure.");
-        }
-    }
     if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch()) {
         traceDeviceMemoryToMemoryTypeIndex[*(pPacket->pMemory)] = pPacket->pAllocateInfo->memoryTypeIndex;
     }
@@ -3215,25 +3204,6 @@ VkResult vkReplay::manually_replay_vkCreateSampler(packet_vkCreateSampler *pPack
 
     // No need to remap pCreateInfo
     // No need to remap pAllocator
-
-    // Remap conversion handles in pPacket->pCreateInfo->pNext structs.
-    // We only remap from m_objMapper.remap_samplerycbcrconversions because
-    // m_objMapper.add_to_samplerycbcrconversionkhrs_map is not used.
-    if (pPacket->pCreateInfo && pPacket->pCreateInfo->pNext) {
-        VkSamplerYcbcrConversionInfo *sci =
-            reinterpret_cast<VkSamplerYcbcrConversionInfo *>(const_cast<void *>(pPacket->pCreateInfo->pNext));
-        while (sci != nullptr) {
-            // note: this is not the only possible extension, for example
-            //       some title enable VK_EXT_sampler_filter_minmax extension,
-            //       so the following process cover the case that sType is
-            //       other value but that pNext doesn't need special process
-            //       as VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO.
-            if (sci->sType == VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO) {
-                sci->conversion = m_objMapper.remap_samplerycbcrconversions(sci->conversion);
-            }
-            sci = reinterpret_cast<VkSamplerYcbcrConversionInfo *>(const_cast<void *>(sci->pNext));
-        }
-    }
 
     replayResult = m_vkDeviceFuncs.CreateSampler(remappeddevice, pPacket->pCreateInfo, pPacket->pAllocator, &local_pSampler);
     if (replayResult == VK_SUCCESS) {
@@ -4818,4 +4788,115 @@ VkResult vkReplay::manually_replay_vkEnumerateDeviceExtensionProperties(packet_v
     }
 
     return result;
+}
+
+// vkReplay::interpret_pnext_handles translate handles in all Vulkan structures that have a
+// pNext and at least one handle.
+//
+// Ideally, this function would be automatically generated. It's not, so if a new structure
+// is added to Vulkan that contains a pNext and a handle, this function should add handling
+// of that structure.
+
+void vkReplay::interpret_pnext_handles(void *struct_ptr) {
+    VkApplicationInfo *pnext = (VkApplicationInfo *)struct_ptr;
+
+    // We skip the first struct - it is the arg to the api call, and handles are translated
+    // by the api call handling function above.
+    if (pnext) pnext = (VkApplicationInfo *)pnext->pNext;
+
+    // Loop through all the pnext structures attached to struct_ptr and
+    // remap handles in those structures.
+    while (pnext) {
+        switch (pnext->sType) {
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO: {
+                VkDeviceGroupDeviceCreateInfo *p = (VkDeviceGroupDeviceCreateInfo *)pnext;
+                for (uint32_t i = 0; i < p->physicalDeviceCount; i++) {
+                    *((VkPhysicalDevice *)(&p->pPhysicalDevices[i])) = m_objMapper.remap_physicaldevices(p->pPhysicalDevices[i]);
+                }
+            } break;
+            case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO: {
+                VkSamplerYcbcrConversionInfo *p = (VkSamplerYcbcrConversionInfo *)pnext;
+                p->conversion = m_objMapper.remap_samplerycbcrconversions(p->conversion);
+            } break;
+            case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
+            case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO: {
+                VkDedicatedAllocationMemoryAllocateInfoNV *p = (VkDedicatedAllocationMemoryAllocateInfoNV *)pnext;
+                p->image = m_objMapper.remap_images(p->image);
+                p->buffer = m_objMapper.remap_buffers(p->buffer);
+            } break;
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV: {
+                VkAccelerationStructureMemoryRequirementsInfoNV *p = (VkAccelerationStructureMemoryRequirementsInfoNV *)pnext;
+                p->accelerationStructure = m_objMapper.remap_accelerationstructurenvs(p->accelerationStructure);
+            } break;
+            case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR: {
+                VkAcquireNextImageInfoKHR *p = (VkAcquireNextImageInfoKHR *)pnext;
+                p->swapchain = m_objMapper.remap_swapchainkhrs(p->swapchain);
+                p->semaphore = m_objMapper.remap_semaphores(p->semaphore);
+                p->fence = m_objMapper.remap_fences(p->fence);
+            } break;
+            case VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV: {
+                VkBindAccelerationStructureMemoryInfoNV *p = (VkBindAccelerationStructureMemoryInfoNV *)pnext;
+                p->accelerationStructure = m_objMapper.remap_accelerationstructurenvs(p->accelerationStructure);
+                p->memory = m_objMapper.remap_devicememorys(p->memory);
+            } break;
+            case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
+            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
+            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
+            case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:  // Has subs-structs with handles
+            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_EXT:
+            case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
+            case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
+            case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_CMD_PROCESS_COMMANDS_INFO_NVX:  // Has sub-structs with handles
+            case VK_STRUCTURE_TYPE_CMD_RESERVE_SPACE_FOR_COMMANDS_INFO_NVX:
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
+            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
+            case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
+            case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
+            case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
+            case VK_STRUCTURE_TYPE_GEOMETRY_NV:
+            case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
+            case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
+            case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
+            case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
+            case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
+            case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
+            case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
+            case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
+            case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
+            case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
+            case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
+            case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
+            case VK_STRUCTURE_TYPE_SUBMIT_INFO:
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
+            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:  // Has sub-structs with handles
+            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                // These structures with pNext pointers include handles and are not yet implemented.
+                // Note that lots of these structs are directly passed in as args to Vulkan API calls. Handles
+                // in direct args are translated by the handler functions, so those API replay functions work OK.
+                // We log an error if we encounter a pnext structure we don't support.
+                vktrace_LogError("interpret_pnext_handles does not handle sType %d\n", pnext->sType);
+                break;
+            default:
+                // All other structure types do not have pnext pointers and handles
+                break;
+        }
+        pnext = (VkApplicationInfo *)pnext->pNext;
+    }
+    return;
 }
