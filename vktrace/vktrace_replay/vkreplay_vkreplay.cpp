@@ -4839,61 +4839,63 @@ void vkReplay::interpret_pnext_handles(void *struct_ptr) {
                 p->accelerationStructure = m_objMapper.remap_accelerationstructurenvs(p->accelerationStructure);
                 p->memory = m_objMapper.remap_devicememorys(p->memory);
             } break;
-            case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
-            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
-            case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
-            case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:  // Has subs-structs with handles
-            case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_EXT:
-            case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
-            case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
-            case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_CMD_PROCESS_COMMANDS_INFO_NVX:  // Has sub-structs with handles
-            case VK_STRUCTURE_TYPE_CMD_RESERVE_SPACE_FOR_COMMANDS_INFO_NVX:
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
-            case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
-            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
-            case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
-            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
-            case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
-            case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
-            case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
-            case VK_STRUCTURE_TYPE_GEOMETRY_NV:
-            case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
-            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
-            case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
-            case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
-            case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
-            case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
-            case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
-            case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
-            case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
-            case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
-            case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
-            case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
-            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
-            case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
-            case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
-            case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
-            case VK_STRUCTURE_TYPE_SUBMIT_INFO:
-            case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
-            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:  // Has sub-structs with handles
-            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-                // These structures with pNext pointers include handles and are not yet implemented.
-                // Note that lots of these structs are directly passed in as args to Vulkan API calls. Handles
-                // in direct args are translated by the handler functions, so those API replay functions work OK.
-                // We log an error if we encounter a pnext structure we don't support.
-                vktrace_LogError("interpret_pnext_handles does not handle sType %d\n", pnext->sType);
-                break;
+
+#if 0
+            List of structures with pNext pointers that include handles and are not yet
+            implemented (as of Vulkan Header 1.1.105).  Note that many of these structs
+            are directly passed in as args to Vulkan API calls. Handles in direct args
+            structs are translated by the handler functions, so those API replay
+            functions work OK.  We just do not yet handle them correctly in pNext lists.
+
+            VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO
+            VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO
+            VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR
+            VK_STRUCTURE_TYPE_BIND_SPARSE_INFO  // Has subs-structs with handles
+            VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_EXT
+            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER
+            VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2
+            VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO
+            VK_STRUCTURE_TYPE_CMD_PROCESS_COMMANDS_INFO_NVX  // Has sub-structs with handles
+            VK_STRUCTURE_TYPE_CMD_RESERVE_SPACE_FOR_COMMANDS_INFO_NVX
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO
+            VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO
+            VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT
+            VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO
+            VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO
+            VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR
+            VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR
+            VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
+            VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV
+            VK_STRUCTURE_TYPE_GEOMETRY_NV
+            VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV
+            VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+            VK_STRUCTURE_TYPE_HDR_METADATA_EXT
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2
+            VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2
+            VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR
+            VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
+            VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR
+            VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR
+            VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE
+            VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR
+            VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+            VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+            VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV
+            VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
+            VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR
+            VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT
+            VK_STRUCTURE_TYPE_SUBMIT_INFO
+            VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET  // Has sub-structs with handles
+            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV
+#endif
             default:
-                // All other structure types do not have pnext pointers and handles
                 break;
         }
         pnext = (VkApplicationInfo *)pnext->pNext;
