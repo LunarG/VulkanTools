@@ -73,8 +73,21 @@ uint32_t OPTHandlerRefAmount = 0;  // for persistent map and multi-threading env
 
 // return if user using VK_EXT_external_memory_host to disable shadow memory
 bool UseMappedExternalHostMemoryExtension() {
-    // TODO: read ENV variable to decide return value.
-    return false;
+    static bool use_host_memory_extension = false;
+    static bool first_time_running = true;
+    if (first_time_running) {
+        first_time_running = false;
+        const char* env_use_host_memory_extension = vktrace_get_global_var(VKTRACE_PMB_ENABLE_ENV);
+        if (env_use_host_memory_extension) {
+            int envvalue;
+            if (sscanf(env_use_host_memory_extension, "%d", &envvalue) == 1) {
+                if (envvalue == 2) {
+                    use_host_memory_extension = true;
+                }
+            }
+        }
+    }
+    return use_host_memory_extension;
 }
 
 // return if enable pageguard;

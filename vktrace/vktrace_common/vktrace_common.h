@@ -67,7 +67,7 @@
 #define U_ASSERT_ONLY
 #endif
 
-static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
+static const uint32_t INVALID_BINDING_INDEX = UINT32_MAX;
 // Windows needs 64 bit versions of fseek and ftell
 #if defined(WIN32)
 #define Ftell _ftelli64
@@ -82,10 +82,13 @@ static const uint32_t  INVALID_BINDING_INDEX = UINT32_MAX;
 
 // Enviroment variables used by vktrace/replay
 
-// VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1.
+// VKTRACE_PMB_ENABLE env var enables tracking of PMB if the value is 1 or 2.
+// Currently 2 is only used to enable using external host memory extension
+// and memory write watch to capture PMB on Windows platform.
 // Other values disable PMB tracking. If this env var is undefined, PMB
 // tracking is enabled. The env var is set by the vktrace program to
 // communicate the --PMB arg value to the trace layer.
+//
 #define VKTRACE_PMB_ENABLE_ENV "VKTRACE_PMB_ENABLE"
 
 // _VKTRACE_PMB_TARGET_RANGE_SIZE env var specifies the minimum size of
