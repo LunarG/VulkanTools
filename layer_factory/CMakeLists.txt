@@ -147,7 +147,6 @@ endforeach()
 
 # Create the layer_factory_linux.json file
 if(UNIX)
-    set(TARGET_NAME layer_fractory_linux)
     set(CONFIG_DEFINES
         -DINPUT_FILE=${CMAKE_CURRENT_SOURCE_DIR}/layer_factory.json.in
         -DLAYER_NAME="VK_LAYER_LUNARG_layer_factory"
@@ -155,7 +154,7 @@ if(UNIX)
         -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
         -DOUTPUT_FILE="layer_factory_linux.json"
     )
-    add_custom_target(${TARGET_NAME}-json ALL
+    add_custom_target(layer_factory_linux-json ALL
         COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake"
         )
 endif()
