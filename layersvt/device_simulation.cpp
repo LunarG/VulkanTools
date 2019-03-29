@@ -1180,7 +1180,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     const VkApplicationInfo *app_info = pCreateInfo->pApplicationInfo;
     const uint32_t requested_version = (app_info && app_info->apiVersion) ? app_info->apiVersion : VK_API_VERSION_1_0;
     if (requested_version != VK_API_VERSION_1_0) {
-        ErrorPrintf("%s currently supports only VK_API_VERSION_1_0\n", kOurLayerName);
+        DebugPrintf("%s currently supports only VK_API_VERSION_1_0\n", kOurLayerName);
     }
 
     std::lock_guard<std::mutex> lock(global_lock);
