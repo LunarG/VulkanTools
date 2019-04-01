@@ -23,10 +23,6 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=OFF"
-      ],
-      "build_platforms" : [
-        "windows",
-        "linux"
       ]
     },
     {
@@ -73,10 +69,6 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=FALSE","-DBUILD_LAYERS=OFF","-DBUILD_LAYER_SUPPORT_FILES=ON"
-      ],
-      "build_platforms" : [
-        "windows",
-        "linux"
       ]
     }
   ],
