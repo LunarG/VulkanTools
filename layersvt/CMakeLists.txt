@@ -27,6 +27,15 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
        # TODO Add Wayland Support
        # add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
     endif()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    if (BUILD_MOLTENVK_SUPPORT)
+        add_definitions(-DVK_USE_PLATFORM_MACOS_MVK)
+    endif()
+
+    if (BUILD_METAL_SUPPORT)
+       # TODO Add Metal Support
+       add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
+    endif()
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
@@ -36,14 +45,20 @@ add_custom_target( generate_api_h DEPENDS api_dump_text.h )
 add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
 set_target_properties(generate_api_cpp generate_api_h generate_api_html_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 
-set(TARGET_NAMES
-    VkLayer_api_dump
-    VkLayer_monitor
-    VkLayer_screenshot
-    VkLayer_device_simulation
-    )
-set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
-set(CMAKE_INSTALL_RPATH ${VK_LAYER_RPATH})
+if (NOT APPLE)
+    set(TARGET_NAMES
+        VkLayer_api_dump
+        VkLayer_monitor
+        VkLayer_screenshot
+        VkLayer_device_simulation
+        )
+    set(VK_LAYER_RPATH /usr/lib/x86_64-linux-gnu/vulkan/layer:/usr/lib/i386-linux-gnu/vulkan/layer)
+    set(CMAKE_INSTALL_RPATH ${VK_LAYER_RPATH})
+else()
+    set(TARGET_NAMES
+        VkLayer_api_dump
+        )
+endif ()
 
 if (WIN32)
     macro(add_vk_layer target)
@@ -62,18 +77,29 @@ else()
     add_library(VkLayer_${target} SHARED ${ARGN})
     target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
     add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
-    set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
+    if (NOT APPLE)
+        set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
+    endif ()
     install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
 endif()
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}
-    ${Vulkan-ValidationLayers_INCLUDE_DIR}
-    ${JSONCPP_INCLUDE_DIR}
-)
+if (APPLE)
+    include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}
+        ${Vulkan-ValidationLayers_INCLUDE_DIR}
+    )
+else ()
+    include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}
+        ${Vulkan-ValidationLayers_INCLUDE_DIR}
+        ${JSONCPP_INCLUDE_DIR}
+    )
+endif()
 
 if (WIN32)
     set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_CRT_SECURE_NO_WARNINGS")
@@ -102,9 +128,12 @@ run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
 run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
 run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
 
-add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
-add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
-add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+if (NOT APPLE)
+    add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
+    add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
+    add_vk_layer(device_simulation device_simulation.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+endif ()
+
 add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
 
 # json file creation
