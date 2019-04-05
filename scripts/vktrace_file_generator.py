@@ -163,6 +163,7 @@ def isInstanceCmd(cmd):
 # VkTraceFileOutputGeneratorOptions - subclass of GeneratorOptions.
 class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
     def __init__(self,
+                 conventions = None,
                  filename = None,
                  directory = '.',
                  apiname = None,
@@ -185,7 +186,7 @@ class VkTraceFileOutputGeneratorOptions(GeneratorOptions):
                  expandEnumerants = True,
                  library_name = '',
                  vktrace_file_type = ''):
-        GeneratorOptions.__init__(self, filename, directory, apiname, profile,
+        GeneratorOptions.__init__(self, conventions, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
                                   addExtensions, removeExtensions, emitExtensions, sortProcedure)
         self.prefixText       = prefixText

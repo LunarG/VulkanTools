@@ -226,6 +226,15 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetFenceWin32HandleKHR)(VkDevice device, const
                                                           HANDLE* pHandle);
 typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleNV)(VkDevice device, VkDeviceMemory memory,
                                                           VkExternalMemoryHandleTypeFlagsNV handleType, HANDLE* pHandle);
+typedef VkResult(VKAPI_PTR* PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT)(VkPhysicalDevice physicalDevice,
+                                                                            const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                                            uint32_t* pPresentModeCount,
+                                                                            VkPresentModeKHR* pPresentModes);
+typedef VkResult(VKAPI_PTR* PFN_vkAcquireFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
+typedef VkResult(VKAPI_PTR* PFN_vkReleaseFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
+typedef VkResult(VKAPI_PTR* PFN_vkGetDeviceGroupSurfacePresentModes2EXT)(VkDevice device,
+                                                                         const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                                         VkDeviceGroupPresentModeFlagsKHR* pModes);
 
 #endif
 
