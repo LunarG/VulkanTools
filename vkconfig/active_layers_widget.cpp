@@ -112,7 +112,7 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
     middle_column_layout->addWidget(new QLabel(tr("Unset Explicit Layers")), 0, 1);
     QPushButton *add_explicit_button = new QPushButton();
     add_explicit_button->setObjectName("LeftButton");
-    add_explicit_button->setToolTip(tr("Force enable selected explcit layers"));
+    add_explicit_button->setToolTip(tr("Force enable selected explicit layers"));
     add_explicit_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowLeft));
     connect(add_explicit_button, &QPushButton::clicked, this, &ActiveLayersWidget::enableSelectedExplicitLayer);
     middle_column_layout->addWidget(add_explicit_button, 1, 0);
@@ -220,7 +220,7 @@ void ActiveLayersWidget::setDisabledLayers(const QList<QString> &layers) {
                 if (i < layer_lists[LayerType::Explicit]->count()) {
                     delete layer_lists[LayerType::Explicit]->takeItem(i);
                 } else {
-                    delete layer_lists[LayerType::Implicit]->takeItem(i - layer_lists[LayerType::Implicit]->count());
+                    delete layer_lists[LayerType::Implicit]->takeItem(i - layer_lists[LayerType::Explicit]->count());
                 }
 
                 // Add the layer to disabled lists
