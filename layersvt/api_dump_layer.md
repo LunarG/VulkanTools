@@ -16,47 +16,47 @@ Copyright &copy; 2015-2019 LunarG, Inc.
 The `VK_LAYER_LUNARG_api_dump` utility layer prints API calls, parameters,
 and values to the identified output stream.
 It has several settings that can be adjusted by either environment variables
-or by using the vk_layer_settings.txt file.
+or by using the `vk_layer_settings.txt` file.
 
 <br></br>
 
 
 ## Enabling the Layer
 
-### Desktop (Linux/Windows/iOS)
+### Desktop (Linux/Windows/MacOS)
 
-You must add the location of the generated VK_LAYER_LUNARG_api.json file and corresponding
-VkLayer_api_dump library to your VK_LAYER_PATH in order for the Vulkan loader to be able
+You must add the location of the generated `VK_LAYER_LUNARG_api.json` file and corresponding
+`VkLayer_api_dump` library to your `VK_LAYER_PATH` in order for the Vulkan loader to be able
 to find the layer.
 
 Then, you must also enable the layer in one of two ways:
 
  * Directly in your application using the layer's name during vkCreateInstance
- * Indirectly by using the VK_INSTANCE_LAYERS environment variable.
+ * Indirectly by using the `VK_INSTANCE_LAYERS` environment variable.
 
-#### Setting the VK_LAYER_PATH
+#### Setting the `VK_LAYER_PATH`
 
 **Windows**
 
-If your source was located in: C:\my_folder\vulkantools and your build folder was build64, then you would add it to the layer path in the following way:
+If your source was located in: `C:\my_folder\vulkantools` and your build folder was build64, then you would add it to the layer path in the following way:
 
     set VK_LAYER_PATH=C:\my_folder\vulkantools\build64\layersvt\Debug;%VK_LAYER_PATH%
 
-**Linux**
+**Linux/MacOS**
 
-If your source was located in: /my_folder/vulkantools and your build folder was build, then you would add it to the layer path in the following way:
+If your source was located in: `/my_folder/vulkantools` and your build folder was build, then you would add it to the layer path in the following way:
 
-    export VK_LAYER_PATH=/my_folder/vulkantools/build/layersvt;$VK_LAYER_PATH
+    export VK_LAYER_PATH=/my_folder/vulkantools/build/layersvt:$VK_LAYER_PATH
 
-Forcing the layer with VK_INSTANCE_LAYERS
+Forcing the layer with `VK_INSTANCE_LAYERS`
 
-To force the layer to be enabled for Vulkan applications, you can set the VK_INSTANCE_LAYERS environment variable in the following way:
+To force the layer to be enabled for Vulkan applications, you can set the `VK_INSTANCE_LAYERS` environment variable in the following way:
 
 **Windows**
 
     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_api_dump
 
-**Linux**
+**Linux/MacOS**
 
     export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_api_dump
 
