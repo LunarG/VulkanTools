@@ -3525,8 +3525,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkGetSwapchainImagesKHR(
         }
 
         if (g_trimIsInTrim) {
-            for (uint32_t i = 0; i < *pSwapchainImageCount; i++) {
-                trim::mark_Image_reference(pSwapchainImages[i]);
+            if ((pSwapchainImageCount != nullptr) && (pSwapchainImages != nullptr)) {
+                for (uint32_t i = 0; i < *pSwapchainImageCount; i++) {
+                    trim::mark_Image_reference(pSwapchainImages[i]);
+                }
             }
             trim::write_packet(pHeader);
         } else {
