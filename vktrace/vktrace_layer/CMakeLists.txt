@@ -30,6 +30,7 @@ endif()
 set(SRC_LIST
     ${SRC_LIST}
     vktrace_lib.c
+    vktrace_lib_helpers.cpp
     vktrace_lib_pagestatusarray.cpp
     vktrace_lib_pageguardmappedmemory.cpp
     vktrace_lib_pageguardcapture.cpp
