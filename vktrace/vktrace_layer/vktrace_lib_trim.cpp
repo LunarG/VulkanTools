@@ -4463,8 +4463,25 @@ void recreate_fences(StateTracker &stateTracker) {
 }
 
 void recreate_events(StateTracker &stateTracker) {
+    VkResult result = VK_EVENT_RESET;
+    vktrace_trace_packet_header *pheader = nullptr;
     for (auto obj = stateTracker.createdEvents.begin(); obj != stateTracker.createdEvents.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.Event.pCreatePacket, vktrace_trace_get_trace_file());
+        result = mdd(reinterpret_cast<void *>(obj->second.belongsToDevice))
+                     ->devTable.GetEventStatus(obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
+        switch (result) {
+            case VK_EVENT_RESET:
+                pheader =
+                    generate::vkResetEvent(false, obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
+                break;
+            case VK_EVENT_SET:
+                pheader = generate::vkSetEvent(false, obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
+                break;
+        }
+        if (pheader != nullptr) {
+            vktrace_write_trace_packet(pheader, vktrace_trace_get_trace_file());
+            vktrace_delete_trace_packet_no_lock(&(pheader));
+        }
         vktrace_delete_trace_packet_no_lock(&(obj->second.ObjectInfo.Event.pCreatePacket));
     }
 }

@@ -658,6 +658,42 @@ vktrace_trace_packet_header *vkResetFences(bool makeCall, VkDevice device, uint3
 }
 
 //=====================================================================
+vktrace_trace_packet_header *vkResetEvent(bool makeCall, VkDevice device, VkEvent event) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkResetEvent *pPacket = nullptr;
+    CREATE_TRACE_PACKET(vkResetEvent, 0);
+    if (makeCall) {
+        result = mdd(device)->devTable.ResetEvent(device, event);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkResetEvent(pHeader);
+    pPacket->device = device;
+    pPacket->event = event;
+    pPacket->result = result;
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=====================================================================
+vktrace_trace_packet_header *vkSetEvent(bool makeCall, VkDevice device, VkEvent event) {
+    VkResult result = VK_SUCCESS;
+    vktrace_trace_packet_header *pHeader;
+    packet_vkSetEvent *pPacket = nullptr;
+    CREATE_TRACE_PACKET(vkSetEvent, 0);
+    if (makeCall) {
+        result = mdd(device)->devTable.SetEvent(device, event);
+    }
+    vktrace_set_packet_entrypoint_end_time(pHeader);
+    pPacket = interpret_body_as_vkSetEvent(pHeader);
+    pPacket->device = device;
+    pPacket->event = event;
+    pPacket->result = result;
+    vktrace_finalize_trace_packet(pHeader);
+    return pHeader;
+}
+
+//=====================================================================
 vktrace_trace_packet_header *vkDestroyBuffer(bool makeCall, VkDevice device, VkBuffer buffer,
                                              const VkAllocationCallbacks *pAllocator) {
     vktrace_trace_packet_header *pHeader;
