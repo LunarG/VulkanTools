@@ -4405,6 +4405,13 @@ void FinalizeTrimUpdateDescriptorSetWithTemplate(vktrace_trace_packet_header* pH
             for (trim::DescriptorIterator descriptor_iterator(pInfo, bindingIndex, bindingDescriptorInfoArrayWriteIndex,
                                                               pDescriptorUpdateEntry->descriptorCount);
                  !descriptor_iterator.IsEnd(); descriptor_iterator++, j++) {
+
+                // update writeDescriptorCount accordingly with the number of binding
+                // the descriptorset has been updated by chekcing the binding index. 
+                if (descriptor_iterator.GetCurrentBindingIndex() >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
+                    pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = descriptor_iterator.GetCurrentBindingIndex() + 1;
+                }
+
                 // First get the descriptor data pointer, Doc provide the
                 // following formula to calculate the pointer for every
                 // array element:
