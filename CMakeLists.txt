@@ -148,7 +148,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_VIA "Build via" ON)
 
     option(BUILD_LAYERMGR "Build layer manager" ON)
-    option(CUSTOM_SPIRV_TOOLS_BIN_ROOT "Use the user defined SPIRV_TOOLS_BINARY_ROOT" OFF)
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)

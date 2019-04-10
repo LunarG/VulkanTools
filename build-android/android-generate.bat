@@ -1,6 +1,7 @@
 @echo off
-REM # Copyright 2015-2018 The Android Open Source Project
-REM # Copyright (C) 2015-2018 Valve Corporation
+REM # Copyright 2015-2019 The Android Open Source Project
+REM # Copyright (C) 2015-2019 Valve Corporation
+REM # Copyright (C) 2015-2019 LunarG, Inc.
 REM
 REM # Licensed under the Apache License, Version 2.0 (the "License");
 REM # you may not use this file except in compliance with the License.
@@ -56,7 +57,6 @@ py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% l
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% layer_chassis_dispatch.h
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.cpp
 py -3 %LVL_SCRIPTS%\lvl_genvk.py -registry %REGISTRY% -scripts %REGISTRY_PATH% chassis.h
-py -3 %LVL_SCRIPTS%\external_revision_generator.py --git_dir ..\..\third_party\shaderc\third_party\spirv-tools -s SPIRV_TOOLS_COMMIT_ID -o spirv_tools_commit_id.h
 
 REM layer factory
 echo Generating VT layer factory header/source files
