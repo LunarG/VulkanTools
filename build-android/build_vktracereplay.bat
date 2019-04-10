@@ -1,6 +1,7 @@
 @echo off
-REM # Copyright 2016 The Android Open Source Project
-REM # Copyright (C) 2015 Valve Corporation
+REM # Copyright 2015-2019 The Android Open Source Project
+REM # Copyright (C) 2015-2019 Valve Corporation
+REM # Copyright (C) 2015-2019 LunarG, Inc.
 REM
 REM # Licensed under the Apache License, Version 2.0 (the "License");
 REM # you may not use this file except in compliance with the License.
@@ -48,9 +49,6 @@ python .\scripts\determine_vs_version.py > vsversion.tmp  || exit /b 1
 set /p VS_VERSION=< vsversion.tmp                         || exit /b 1
 del /Q /F vsversion.tmp                                   || exit /b 1
 echo VS_VERSION = %VS_VERSION%
-
-REM build the desktop shader toolchain
-call update_external_sources.bat --glslang --spirv-tools || exit /b 1
 
 REM check for 64-bit Qt install
 set Qt5_Dir_64=C:\Qt\5.6\msvc2013_64\lib\cmake\Qt5
