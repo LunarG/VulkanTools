@@ -1,3 +1,11 @@
+
+lunarg-tools (1.1.106.0~rc2-1lunarg18.04.1.1) bionic; urgency=medium
+
+  * new 1.1.106.0~rc2 package
+
+ -- John Zupin <john@odin>  Mon, 15 Apr 2019 17:35:30 -0600
+
+
 lunarg-tools (1.1.106.0~rc1-1lunarg18.04.1.1) bionic; urgency=medium
 
   * new 1.1.106.0~rc1 build
