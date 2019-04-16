@@ -177,6 +177,10 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
 
 int ActiveLayersWidget::expiration() const
 {
+    if (cleanup_box->isChecked()) {
+        return -1;
+    }
+    
     QTime duration;
     switch(expirationUnit()) {
 
