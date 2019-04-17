@@ -1,17 +1,17 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 // OPT: Optimization by using page-guard for speed up capture
 //     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from
@@ -34,6 +34,28 @@ PageGuardCapture::PageGuardCapture() {
 }
 
 std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>& PageGuardCapture::getMapMemory() { return MapMemory; }
+std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo>& PageGuardCapture::getMapMemoryAllocateInfo() {
+    return MapMemoryAllocateInfo;
+}
+
+std::unordered_map<VkDevice, VkPhysicalDevice>& PageGuardCapture::getMapDevice() { return MapDevice; }
+
+void PageGuardCapture::vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
+                                      const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
+    MapDevice[*pDevice] = physicalDevice;
+}
+
+void PageGuardCapture::vkDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator) { MapDevice.erase(device); }
+
+void PageGuardCapture::vkAllocateMemoryPageGuardHandle(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
+                                                       const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory) {
+    MapMemoryAllocateInfo[*pMemory] = *pAllocateInfo;
+}
+
+void PageGuardCapture::vkFreeMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory,
+                                                   const VkAllocationCallbacks* pAllocator) {
+    MapMemoryAllocateInfo.erase(memory);
+}
 
 void PageGuardCapture::vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size,
                                                   VkFlags flags, void** ppData) {

@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <stdbool.h>
@@ -54,7 +54,6 @@ typedef class PageGuardMappedMemory {
     uint64_t PageGuardAmount;
 
    public:
-
     PageGuardMappedMemory();
     ~PageGuardMappedMemory();
 
@@ -97,6 +96,15 @@ typedef class PageGuardMappedMemory {
     void resetMemoryObjectAllReadFlagAndPageGuard();
 
     bool setAllPageGuardAndFlag(bool bSetPageGuard, bool bSetBlockChanged);
+
+    /// Get VkMemoryPropertyFlags for a logical device and specific memoryTypeIndex
+    VkMemoryPropertyFlags getMemoryPropertyFlags(std::unordered_map<VkDevice, VkPhysicalDevice> &mapDevice, VkDevice device,
+                                                 uint32_t memoryTypeIndex);
+
+    /// Get VkMemoryPropertyFlags for this memory object.
+    bool getMemoryProperty(std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo> &mapMemoryCreateInfo,
+                           std::unordered_map<VkDevice, VkPhysicalDevice> &mapDevice, VkDeviceSize *pMemoryWholeSize,
+                           VkMemoryPropertyFlags *pMemoryPropertyFlags);
 
     bool vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkFlags flags,
                                     void **ppData);

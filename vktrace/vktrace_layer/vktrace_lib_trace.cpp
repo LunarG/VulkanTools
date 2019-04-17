@@ -174,9 +174,26 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     VkResult result;
     vktrace_trace_packet_header* pHeader;
     packet_vkAllocateMemory* pPacket = NULL;
+
+    // If user disable using shadow memory, we'll use host memory through
+    // VK_EXT_external_memory_host extension. If user enable using shadow
+    // memory, there's no need to handle vkAllocateMemory because we don't
+    // need to decide using the extension or not through memory property
+    // flag.
+    if (UseMappedExternalHostMemoryExtension()) {
+        pageguardEnter();
+    }
+
     size_t packetSize = get_struct_chain_size((void*)pAllocateInfo) + sizeof(VkAllocationCallbacks) + sizeof(VkDeviceMemory) * 2;
     CREATE_TRACE_PACKET(vkAllocateMemory, packetSize);
     result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+    if (UseMappedExternalHostMemoryExtension()) {
+        // only needed if user enable using VK_EXT_external_memory_host.
+        if (result == VK_SUCCESS) {
+            getPageGuardControlInstance().vkAllocateMemoryPageGuardHandle(device, pAllocateInfo, pAllocator, pMemory);
+        }
+    }
+
     vktrace_set_packet_entrypoint_end_time(pHeader);
     pPacket = interpret_body_as_vkAllocateMemory(pHeader);
     pPacket->device = device;
@@ -215,6 +232,10 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     // begin custom code
     add_new_handle_to_mem_info(*pMemory, pAllocateInfo->allocationSize, NULL);
     // end custom code
+    if (UseMappedExternalHostMemoryExtension()) {
+        // only needed if user enable using VK_EXT_external_memory_host.
+        pageguardExit();
+    }
     return result;
 }
 
@@ -385,6 +406,7 @@ VKTRACER_EXPORT VKAPI_ATTR void VKAPI_CALL __HOOKED_vkFreeMemory(VkDevice device
             pageguardFreeMemory(PageGuardMappedData);
         }
     }
+    getPageGuardControlInstance().vkFreeMemoryPageGuardHandle(device, memory, pAllocator);
     pageguardExit();
 #endif
     CREATE_TRACE_PACKET(vkFreeMemory, sizeof(VkAllocationCallbacks));
@@ -910,6 +932,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateDevice(VkPhysica
     if (result != VK_SUCCESS) {
         return result;
     }
+#ifdef USE_PAGEGUARD_SPEEDUP
+    pageguardEnter();
+    getPageGuardControlInstance().vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    pageguardExit();
+#endif
 
     initDeviceData(*pDevice, fpGetDeviceProcAddr, g_deviceDataMap);
     // Setup device dispatch table for extensions

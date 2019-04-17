@@ -1,17 +1,17 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 // OPT: Optimization by using page-guard for speed up capture
 //     The speed is extremely slow when use vktrace to capture DOOM4. It took over half a day and 900G of trace for a capture from
@@ -147,16 +147,11 @@ bool PageGuardMappedMemory::isMappedBlockChanged(uint64_t index, int which) {
     return mappedBlockChanged;
 }
 
-bool PageGuardMappedMemory::isMappedBlockLoaded(uint64_t index)
-{
-    return pPageStatus->getBlockFirstTimeLoadArray(index);
-}
+bool PageGuardMappedMemory::isMappedBlockLoaded(uint64_t index) { return pPageStatus->getBlockFirstTimeLoadArray(index); }
 
-void PageGuardMappedMemory::setMappedBlockLoaded(uint64_t index, bool bLoaded)
-{
+void PageGuardMappedMemory::setMappedBlockLoaded(uint64_t index, bool bLoaded) {
     pPageStatus->setBlockFirstTimeLoadArray(index, bLoaded);
 }
-
 
 uint64_t PageGuardMappedMemory::getMappedBlockSize(uint64_t index) {
     uint64_t mappedBlockSize = PageGuardSize;
@@ -280,6 +275,39 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
         setMappedBlockChanged(i, bSetBlockChanged, BLOCK_FLAG_ARRAY_CHANGED);
     }
     return setSuccessfully;
+}
+VkMemoryPropertyFlags PageGuardMappedMemory::getMemoryPropertyFlags(std::unordered_map<VkDevice, VkPhysicalDevice> &mapDevice,
+                                                                    VkDevice device, uint32_t memoryTypeIndex) {
+    VkPhysicalDevice physicalDevice = mapDevice[device];
+    VkPhysicalDeviceMemoryProperties PhysicalDeviceMemoryProperties;
+    mid(physicalDevice)->instTable.GetPhysicalDeviceMemoryProperties(physicalDevice, &PhysicalDeviceMemoryProperties);
+    assert(memoryTypeIndex < PhysicalDeviceMemoryProperties.memoryTypeCount);
+    return PhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags;
+}
+
+// VkDeviceSize *pMemoryWholeSize, return the memory object size. if pMemorySize == nullptr, ignore it;
+// VkMemoryPropertyFlags *pMemoryPropertyFlags, return MemoryPropertyFlags of the memory object, if pMemoryPropertyFlags == nullptr,
+// ignore it;
+bool PageGuardMappedMemory::getMemoryProperty(std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo> &mapMemoryCreateInfo,
+                                              std::unordered_map<VkDevice, VkPhysicalDevice> &mapDevice,
+                                              VkDeviceSize *pMemoryWholeSize, VkMemoryPropertyFlags *pMemoryPropertyFlags) {
+    bool getMemoryPropertySuccess = false;
+    auto findAllocateInfo = mapMemoryCreateInfo.find(getMappedMemory());
+    VkMemoryAllocateInfo memoryAllocateInfo;
+    if (findAllocateInfo != mapMemoryCreateInfo.end()) {
+        getMemoryPropertySuccess = true;
+        memoryAllocateInfo = findAllocateInfo->second;
+        if (pMemoryWholeSize) {
+            *pMemoryWholeSize = memoryAllocateInfo.allocationSize;
+        }
+        if (pMemoryPropertyFlags) {
+            *pMemoryPropertyFlags =
+                PageGuardMappedMemory::getMemoryPropertyFlags(mapDevice, getMappedDevice(), memoryAllocateInfo.memoryTypeIndex);
+        }
+    } else {
+        assert(false);
+    }
+    return getMemoryPropertySuccess;
 }
 
 bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset,

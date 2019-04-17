@@ -71,6 +71,12 @@ PVOID OPTHandler = nullptr;        // use to remove page guard handler
 uint32_t OPTHandlerRefAmount = 0;  // for persistent map and multi-threading environment, map and unmap maybe overlap, we need to
                                    // make sure remove handler after all persistent map has been unmapped.
 
+// return if user using VK_EXT_external_memory_host to disable shadow memory
+bool UseMappedExternalHostMemoryExtension() {
+    // TODO: read ENV variable to decide return value.
+    return false;
+}
+
 // return if enable pageguard;
 // if enable page guard, then check if need to update target range size, page guard only work for those persistent mapped memory
 // which >= target range size.
