@@ -1,18 +1,18 @@
 /*
-* Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2016-2019 Advanced Micro Devices, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <stdbool.h>
@@ -52,11 +52,39 @@ typedef class PageGuardCapture {
     std::unordered_map<VkDeviceMemory, PBYTE> MapMemoryPtr;
     std::unordered_map<VkDeviceMemory, VkDeviceSize> MapMemorySize;
     std::unordered_map<VkDeviceMemory, VkDeviceSize> MapMemoryOffset;
+    std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo> MapMemoryAllocateInfo;
+    std::unordered_map<VkDevice, VkPhysicalDevice> MapDevice;
 
    public:
     PageGuardCapture();
 
     std::unordered_map<VkDeviceMemory, PageGuardMappedMemory>& getMapMemory();
+
+    /// Get memory object to its createinfo map reference
+    std::unordered_map<VkDeviceMemory, VkMemoryAllocateInfo>& getMapMemoryAllocateInfo();
+
+    /// Get device to its physical device map reference
+    std::unordered_map<VkDevice, VkPhysicalDevice>& getMapDevice();
+
+    /// The method is used to track device creation to record what physical
+    /// device is based to create the device. It's called when target app
+    /// create device.
+    void vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
+                        const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
+
+    /// The method is used to maintain the device to its physical device map,
+    /// it's called when target app destroy device.
+    void vkDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator);
+
+    /// The method is used to track memory allocation to record what
+    /// VkMemoryAllocateInfo is based to allocate the memory. It's called when
+    /// target app allocate memory.
+    void vkAllocateMemoryPageGuardHandle(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
+                                         const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory);
+
+    /// The method is used to maintain the memory to its createinfo map,
+    /// it's called when target app free memory.
+    void vkFreeMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
     void vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkFlags flags,
                                     void** ppData);

@@ -2633,6 +2633,11 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_vk_src += '#include "vktrace_trace_packet_utils.h"\n'
         trace_vk_src += '#include <stdio.h>\n'
         trace_vk_src += '#include <string.h>\n'
+        trace_vk_src += '#include "vktrace_pageguard_memorycopy.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pagestatusarray.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pageguardmappedmemory.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pageguardcapture.h"\n'
+        trace_vk_src += '#include "vktrace_lib_pageguard.h"\n'
         trace_vk_src += '\n'
         trace_vk_src += '#ifdef WIN32\n'
         trace_vk_src += 'INIT_ONCE gInitOnce = INIT_ONCE_STATIC_INIT;\n'
@@ -2836,6 +2841,12 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 trace_vk_src += '    packet_%s* pPacket = NULL;\n' % proto.name
                 if proto.name == 'vkDestroyInstance' or proto.name == 'vkDestroyDevice':
                     trace_vk_src += '    dispatch_key key = get_dispatch_key(%s);\n' % proto.members[0].name
+                if proto.name == 'vkDestroyDevice':
+                    trace_vk_src += '#ifdef USE_PAGEGUARD_SPEEDUP\n'
+                    trace_vk_src += '    pageguardEnter();\n'
+                    trace_vk_src += '    getPageGuardControlInstance().vkDestroyDevice(%s, %s);\n' % (proto.members[0].name, proto.members[1].name)
+                    trace_vk_src += '    pageguardExit();\n'
+                    trace_vk_src += '#endif\n'
                 if proto.name == 'vkGetPhysicalDeviceSurfaceFormats2KHR':
                     trace_vk_src += '    size_t byteCount=0;\n'
                     trace_vk_src += '    uint32_t surfaceFormatCount = *pSurfaceFormatCount;\n'
