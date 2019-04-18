@@ -4477,6 +4477,8 @@ void recreate_events(StateTracker &stateTracker) {
             case VK_EVENT_SET:
                 pheader = generate::vkSetEvent(false, obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
                 break;
+            default:
+                break;
         }
         if (pheader != nullptr) {
             vktrace_write_trace_packet(pheader, vktrace_trace_get_trace_file());

@@ -4046,8 +4046,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkCreateAndroidSurfaceKH
 }
 #endif
 
-static std::unordered_map<VkDescriptorUpdateTemplate, VkDescriptorUpdateTemplateCreateInfo*>
-    descriptorUpdateTemplateCreateInfo;
+static std::unordered_map<VkDescriptorUpdateTemplate, VkDescriptorUpdateTemplateCreateInfo*> descriptorUpdateTemplateCreateInfo;
 static vktrace_sem_id descriptorUpdateTemplateCreateInfo_sem_id;
 static bool descriptorUpdateTemplateCreateInfo_success = vktrace_sem_create(&descriptorUpdateTemplateCreateInfo_sem_id, 1);
 
@@ -4367,7 +4366,7 @@ void FinalizeTrimUpdateDescriptorSetWithTemplate(vktrace_trace_packet_header* pH
     // trackinfo to make sure the track info reflect current descriptorset
     // state after the function update its descriptors.
     //
-    if (nullptr != descriptorUpdateTemplate) {
+    if (VK_NULL_HANDLE != descriptorUpdateTemplate) {
         for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->descriptorUpdateEntryCount; i++) {
             const VkDescriptorUpdateTemplateEntry* pDescriptorUpdateEntry =
                 &(descriptorUpdateTemplateCreateInfo[descriptorUpdateTemplate]->pDescriptorUpdateEntries[i]);

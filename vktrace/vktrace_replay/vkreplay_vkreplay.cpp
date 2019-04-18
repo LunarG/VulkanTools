@@ -4185,8 +4185,8 @@ VkResult vkReplay::manually_replay_vkCreateDescriptorUpdateTemplate(packet_vkCre
         memcpy(descriptorUpdateTemplateCreateInfo[local_pDescriptorUpdateTemplate], pPacket->pCreateInfo,
                sizeof(VkDescriptorUpdateTemplateCreateInfo));
         descriptorUpdateTemplateCreateInfo[local_pDescriptorUpdateTemplate]->pDescriptorUpdateEntries =
-            reinterpret_cast<VkDescriptorUpdateTemplateEntry *>(malloc(sizeof(VkDescriptorUpdateTemplateEntry) *
-                                                      pPacket->pCreateInfo->descriptorUpdateEntryCount));
+            reinterpret_cast<VkDescriptorUpdateTemplateEntry *>(
+                malloc(sizeof(VkDescriptorUpdateTemplateEntry) * pPacket->pCreateInfo->descriptorUpdateEntryCount));
         memcpy(const_cast<VkDescriptorUpdateTemplateEntry *>(
                    descriptorUpdateTemplateCreateInfo[local_pDescriptorUpdateTemplate]->pDescriptorUpdateEntries),
                pPacket->pCreateInfo->pDescriptorUpdateEntries,
@@ -4282,6 +4282,12 @@ void vkReplay::manually_replay_vkDestroyDescriptorUpdateTemplateKHR(packet_vkDes
 
 void vkReplay::remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTemplateKHR remappedDescriptorUpdateTemplate,
                                                            char *pData) {
+    if (VK_NULL_HANDLE == remappedDescriptorUpdateTemplate) {
+        vktrace_LogError(
+            "Error detected in remapHandlesInDescriptorSetWithTemplateData() due to invalid remapped VkDescriptorUpdateTemplate.");
+        return;
+    }
+
     for (uint32_t i = 0; i < descriptorUpdateTemplateCreateInfo[remappedDescriptorUpdateTemplate]->descriptorUpdateEntryCount;
          i++) {
         for (uint32_t j = 0;
@@ -4348,19 +4354,13 @@ void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplate(packet_vkUpdate
     VkDescriptorUpdateTemplate remappedDescriptorUpdateTemplate =
         m_objMapper.remap_descriptorupdatetemplates(pPacket->descriptorUpdateTemplate);
     if (pPacket->descriptorUpdateTemplate != VK_NULL_HANDLE && remappedDescriptorUpdateTemplate == VK_NULL_HANDLE) {
-        vktrace_LogError(
-            "Error detected in UpdateDescriptorSetWithTemplate() due to invalid remapped VkDescriptorUpdateTemplate.");
+        vktrace_LogError("Error detected in UpdateDescriptorSetWithTemplate() due to invalid remapped VkDescriptorUpdateTemplate.");
         return;
     }
 
     // Map handles inside of pData
-    if (VK_NULL_HANDLE != remappedDescriptorUpdateTemplate) {
-        remapHandlesInDescriptorSetWithTemplateData(remappedDescriptorUpdateTemplate,
-                                                    const_cast<char *>(reinterpret_cast<const char *>(pPacket->pData)));
-    } else {
-        vktrace_LogError("Error detected in UpdateDescriptorSetWithTemplate() due to invalid remapped VkDescriptorUpdateTemplate.");
-        return;
-    }
+    remapHandlesInDescriptorSetWithTemplateData(remappedDescriptorUpdateTemplate,
+                                                const_cast<char *>(reinterpret_cast<const char *>(pPacket->pData)));
 
     m_vkDeviceFuncs.UpdateDescriptorSetWithTemplate(remappeddevice, remappedDescriptorSet, remappedDescriptorUpdateTemplate,
                                                     pPacket->pData);
@@ -4388,14 +4388,8 @@ void vkReplay::manually_replay_vkUpdateDescriptorSetWithTemplateKHR(packet_vkUpd
     }
 
     // Map handles inside of pData
-    if (VK_NULL_HANDLE != remappedDescriptorUpdateTemplate) {
-        remapHandlesInDescriptorSetWithTemplateData(remappedDescriptorUpdateTemplate,
-                                                    const_cast<char *>(reinterpret_cast<const char *>(pPacket->pData)));
-    } else {
-        vktrace_LogError(
-            "Error detected in UpdateDescriptorSetWithTemplateKHR() due to invalid remapped VkDescriptorUpdateTemplateKHR.");
-        return;
-    }
+    remapHandlesInDescriptorSetWithTemplateData(remappedDescriptorUpdateTemplate,
+                                                const_cast<char *>(reinterpret_cast<const char *>(pPacket->pData)));
 
     m_vkDeviceFuncs.UpdateDescriptorSetWithTemplateKHR(remappeddevice, remappedDescriptorSet, remappedDescriptorUpdateTemplate,
                                                        pPacket->pData);
