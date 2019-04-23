@@ -4354,8 +4354,7 @@ static size_t getDescriptorSetDataSize(VkDescriptorUpdateTemplate descriptorUpda
 }
 
 void FinalizeTrimUpdateDescriptorSetWithTemplate(vktrace_trace_packet_header* pHeader, VkDescriptorSet descriptorSet,
-                                             VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                             const void* pData) {
+                                                 VkDescriptorUpdateTemplate descriptorUpdateTemplate, const void* pData) {
     vktrace_finalize_trace_packet(pHeader);
     lockDescriptorUpdateTemplateCreateInfo();
 
@@ -4404,9 +4403,8 @@ void FinalizeTrimUpdateDescriptorSetWithTemplate(vktrace_trace_packet_header* pH
             for (trim::DescriptorIterator descriptor_iterator(pInfo, bindingIndex, bindingDescriptorInfoArrayWriteIndex,
                                                               pDescriptorUpdateEntry->descriptorCount);
                  !descriptor_iterator.IsEnd(); descriptor_iterator++, j++) {
-
                 // update writeDescriptorCount accordingly with the number of binding
-                // the descriptorset has been updated by chekcing the binding index. 
+                // the descriptorset has been updated by chekcing the binding index.
                 if (descriptor_iterator.GetCurrentBindingIndex() >= pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount) {
                     pInfo->ObjectInfo.DescriptorSet.writeDescriptorCount = descriptor_iterator.GetCurrentBindingIndex() + 1;
                 }

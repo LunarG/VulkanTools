@@ -4467,15 +4467,12 @@ void recreate_events(StateTracker &stateTracker) {
     vktrace_trace_packet_header *pheader = nullptr;
     for (auto obj = stateTracker.createdEvents.begin(); obj != stateTracker.createdEvents.end(); obj++) {
         vktrace_write_trace_packet(obj->second.ObjectInfo.Event.pCreatePacket, vktrace_trace_get_trace_file());
+        auto eventobject = obj->second.vkObject;
         result = mdd(reinterpret_cast<void *>(obj->second.belongsToDevice))
-                     ->devTable.GetEventStatus(obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
+                     ->devTable.GetEventStatus(obj->second.belongsToDevice, FromHandleId<VkEvent>(eventobject));
         switch (result) {
-            case VK_EVENT_RESET:
-                pheader =
-                    generate::vkResetEvent(false, obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
-                break;
             case VK_EVENT_SET:
-                pheader = generate::vkSetEvent(false, obj->second.belongsToDevice, reinterpret_cast<VkEvent>(obj->second.vkObject));
+                pheader = generate::vkSetEvent(false, obj->second.belongsToDevice, FromHandleId<VkEvent>(eventobject));
                 break;
             default:
                 break;
