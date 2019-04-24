@@ -159,8 +159,7 @@ typedef struct {
 } ImageMapStruct;
 static unordered_map<VkImage, ImageMapStruct *> imageMap;
 
-// unordered map: associates a device with a queue, commandPool, and physical
-// device also contains per device info including dispatch table
+// unordered map: associates a device with information about the device
 typedef struct {
     VkLayerDispatchTable *device_dispatch_table;
     bool wsi_enabled;
@@ -413,9 +412,10 @@ static void writePPM(const char *filename, VkImage image1) {
         return;
     }
     VkLayerDispatchTable *pTableDevice = devMap->device_dispatch_table;
-    VkLayerDispatchTable *pTableQueue = get_dev_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+    VkLayerDispatchTable *pTableQueue = get_dev_info(device)->device_dispatch_table;
     VkLayerInstanceDispatchTable *pInstanceTable;
     pInstanceTable = instance_dispatch_table(instance);
+    assert(pTableDevice && pTableQueue && pInstanceTable);
 
     // Gather incoming image info and check image format for compatibility with
     // the target format.
@@ -1188,10 +1188,23 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     static int frameNumber = 0;
-    if (frameNumber == 10) {
-        fflush(stdout); /* *((int*)0)=0; */
+    VkDevice device = NULL;
+    DeviceMapStruct *devMap;
+
+    // Find device associated with this queue
+    for (auto deviceMapIter = deviceMap.begin(); deviceMapIter != deviceMap.end(); deviceMapIter++) {
+        if (deviceMapIter->second->queue == queue) {
+            device = deviceMapIter->first;
+            break;
+        }
     }
-    DeviceMapStruct *devMap = get_dev_info((VkDevice)queue);
+    if (device == NULL) {
+        printf("Screenshot layer QueuePresentKHR: device not found for queue %p\n", queue);
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    // Get the the info associated with this device so we can access the dispatch table
+    devMap = get_dev_info(device);
     assert(devMap);
     loader_platform_thread_lock_mutex(&globalLock);
 
