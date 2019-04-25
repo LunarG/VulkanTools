@@ -2671,6 +2671,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         trace_vk_src += '#elif defined(PLATFORM_LINUX)\n'
         trace_vk_src += '    return;\n}\n'
         trace_vk_src += '#endif\n'
+        trace_vk_src += 'VkPhysicalDeviceMemoryProperties g_savedDevMemProps;\n'
         trace_vk_src += '\n'
 
         # Generate functions used to trace API calls and store the input and result data into a packet
@@ -2981,6 +2982,16 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     trace_vk_src += '            vktrace_delete_trace_packet(&pHeader);\n'
                     trace_vk_src += '        }\n'
                 trace_vk_src += '    }\n'
+
+                # Save the device memory properties
+                if proto.name == "vkGetPhysicalDeviceMemoryProperties":
+                    trace_vk_src += "    g_savedDevMemProps = *pMemoryProperties;\n"
+
+                if proto.name == "vkGetPhysicalDeviceMemoryProperties2":
+                    trace_vk_src += "    g_savedDevMemProps = pMemoryProperties->memoryProperties;\n"
+
+                if proto.name == "vkGetPhysicalDeviceMemoryProperties2KHR":
+                    trace_vk_src += "    g_savedDevMemProps = pMemoryProperties->memoryProperties;\n"
 
                 # Clean up instance or device data if needed
                 if proto.name == "vkDestroyInstance":

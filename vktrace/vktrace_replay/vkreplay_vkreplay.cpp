@@ -2450,6 +2450,7 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
     VkMappedMemoryRange *localRanges = (VkMappedMemoryRange *)pPacket->pMemoryRanges;
 
     devicememoryObj *pLocalMems = VKTRACE_NEW_ARRAY(devicememoryObj, pPacket->memoryRangeCount);
+    std::set<VkDeviceMemory> flushed_mem;
     for (uint32_t i = 0; i < pPacket->memoryRangeCount; i++) {
         if (m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory) != m_objMapper.m_devicememorys.end()) {
             pLocalMems[i] = m_objMapper.m_devicememorys.find(pPacket->pMemoryRanges[i].memory)->second;
@@ -2466,6 +2467,9 @@ VkResult vkReplay::manually_replay_vkFlushMappedMemoryRanges(packet_vkFlushMappe
             VKTRACE_DELETE(pLocalMems);
             return VK_ERROR_VALIDATION_FAILED_EXT;
         }
+
+        if (flushed_mem.find(pPacket->pMemoryRanges[i].memory) != flushed_mem.end()) continue;
+        flushed_mem.insert(pPacket->pMemoryRanges[i].memory);
 
         if (!pLocalMems[i].pGpuMem->isPendingAlloc()) {
             if (pPacket->pMemoryRanges[i].size != 0) {

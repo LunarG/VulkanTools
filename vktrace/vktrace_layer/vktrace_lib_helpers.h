@@ -38,6 +38,7 @@ typedef struct _VKAllocInfo {
     VkDeviceSize rangeOffset;
     BOOL didFlush;
     VkDeviceMemory handle;
+    VkMemoryPropertyFlags props;
     uint8_t *pData;
     BOOL valid;
 } VKAllocInfo;
@@ -69,6 +70,7 @@ extern VKMemInfo g_memInfo;
 extern VKTRACE_CRITICAL_SECTION g_memInfoLock;
 extern std::unordered_map<void *, layer_device_data *> g_deviceDataMap;
 extern std::unordered_map<void *, layer_instance_data *> g_instanceDataMap;
+extern VkPhysicalDeviceMemoryProperties g_savedDevMemProps;
 
 typedef void *dispatch_key;
 inline dispatch_key get_dispatch_key(const void *object) { return (dispatch_key) * (VkLayerDispatchTable **)object; }
@@ -167,7 +169,7 @@ static VKAllocInfo *find_mem_info_entry_lock(const VkDeviceMemory handle) {
     return res;
 }
 
-static void add_new_handle_to_mem_info(const VkDeviceMemory handle, VkDeviceSize size, void *pData) {
+static void add_new_handle_to_mem_info(const VkDeviceMemory handle, uint32_t memTypeIdx, VkDeviceSize size, void *pData) {
     VKAllocInfo *entry;
 
     vktrace_enter_critical_section(&g_memInfoLock);
@@ -181,6 +183,7 @@ static void add_new_handle_to_mem_info(const VkDeviceMemory handle, VkDeviceSize
         entry->rangeSize = 0;
         entry->rangeOffset = 0;
         entry->didFlush = FALSE;
+        entry->props = g_savedDevMemProps.memoryTypes[memTypeIdx].propertyFlags;
         entry->pData = (uint8_t *)pData;  // NOTE: VKFreeMemory will free this mem, so no malloc()
     }
     vktrace_leave_critical_section(&g_memInfoLock);
@@ -216,6 +219,7 @@ static void rm_handle_from_mem_info(const VkDeviceMemory handle) {
         entry->rangeSize = 0;
         entry->rangeOffset = 0;
         entry->didFlush = FALSE;
+        entry->props = 0;
         memset(&entry->handle, 0, sizeof(VkDeviceMemory));
 
         if (entry == g_memInfo.pLastMapped) g_memInfo.pLastMapped = NULL;
