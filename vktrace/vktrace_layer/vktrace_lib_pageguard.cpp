@@ -460,14 +460,18 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
                 VkDeviceSize OPTPackageSizeTemp = 0;
                 if (pOPTMemoryTemp) {
                     PBYTE pOPTDataTemp = pOPTMemoryTemp->getChangedDataPackage(&OPTPackageSizeTemp);
-                    setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
+                    if (pEntry->props & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
+                        setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
+                    }
                     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                     pOPTMemoryTemp->clearChangedDataPackage();
                     pOPTMemoryTemp->resetMemoryObjectAllChangedFlagAndPageGuard();
                 } else {
                     PBYTE pOPTDataTemp =
                         getPageGuardControlInstance().getChangedDataPackageOutOfMap(ppPackageData, iter, &OPTPackageSizeTemp);
-                    setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
+                    if (pEntry->props & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
+                        setFlagTovkFlushMappedMemoryRangesSpecial(pOPTDataTemp);
+                    }
                     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData[iter]), OPTPackageSizeTemp, pOPTDataTemp);
                     getPageGuardControlInstance().clearChangedDataPackageOutOfMap(ppPackageData, iter);
                 }

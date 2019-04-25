@@ -213,7 +213,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     }
 
     // begin custom code
-    add_new_handle_to_mem_info(*pMemory, pAllocateInfo->allocationSize, NULL);
+    add_new_handle_to_mem_info(*pMemory, pAllocateInfo->memoryTypeIndex, pAllocateInfo->allocationSize, NULL);
     // end custom code
     return result;
 }
@@ -573,8 +573,13 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
 
     // now the actual memory
     vktrace_enter_critical_section(&g_memInfoLock);
+    std::set<VkDeviceMemory> flushed_mem;
     for (iter = 0; iter < memoryRangeCount; iter++) {
         VkMappedMemoryRange* pRange = (VkMappedMemoryRange*)&pMemoryRanges[iter];
+
+        if (flushed_mem.find(pRange->memory) != flushed_mem.end()) continue;
+        flushed_mem.insert(pRange->memory);
+
         VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
 
         if (pEntry != NULL) {
