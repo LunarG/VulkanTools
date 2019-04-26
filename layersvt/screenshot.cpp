@@ -307,7 +307,11 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
     } else {
         int parsingStatus = initScreenShotFrameRange(vk_screenshot_frames, &screenShotFrameRange);
         if (parsingStatus != 0) {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_ERROR, "screenshot", "range error\n");
+#else
             fprintf(stderr, "Screenshot range error\n");
+#endif
         }
     }
 
@@ -707,6 +711,10 @@ static void writePPM(const char *filename, VkImage image1) {
     if (VK_SUCCESS != err) return;
 
     VkDevice cmdBuf = static_cast<VkDevice>(static_cast<void *>(data.commandBuffer));
+    if (deviceMap.find(cmdBuf) != deviceMap.end()) {
+        // Remove element with key cmdBuf from deviceMap so we can replace it
+        deviceMap.erase(cmdBuf);
+    }
     deviceMap.emplace(cmdBuf, devMap);
     VkLayerDispatchTable *pTableCommandBuffer;
     pTableCommandBuffer = get_dev_info(cmdBuf)->device_dispatch_table;
@@ -1091,8 +1099,17 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
     if ((presentCapable == VK_TRUE) || (graphicsCapable == VK_TRUE)) {
         // Create a mapping from a device to a queue
         VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
+        if (deviceMap.find(que) != deviceMap.end()) {
+            // Remove element with key que from deviceMap so we can replace it
+            deviceMap.erase(que);
+        }
         deviceMap.emplace(que, devMap);
         devMap->queue = *pQueue;
+
+        if (queueIndexMap.find(*pQueue) != queueIndexMap.end()) {
+            // Remove element with key *pQueue from queueIndexMap so we can replace it
+            queueIndexMap.erase(*pQueue);
+        }
         queueIndexMap.emplace(*pQueue, queueFamilyIndex);
     }
 
@@ -1188,9 +1205,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     static int frameNumber = 0;
-    if (frameNumber == 10) {
-        fflush(stdout); /* *((int*)0)=0; */
-    }
     DeviceMapStruct *devMap = get_dev_info((VkDevice)queue);
     assert(devMap);
     loader_platform_thread_lock_mutex(&globalLock);
