@@ -283,6 +283,9 @@ fi
 # We want to halt on errors here
 set -e
 
+# Start up for logging
+adb $serialFlag logcat -c
+
 # Wake up the device
 adb $serialFlag shell input keyevent "KEYCODE_MENU"
 adb $serialFlag shell input keyevent "KEYCODE_HOME"
@@ -348,6 +351,7 @@ do
         adb $serialFlag shell am force-stop $package
         adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
         adb $serialFlag shell setprop debug.vulkan.layer.2 '""'
+        adb $serialFlag logcat -d > $serial.$package.$frame.logcat.txt
         exit 1
     fi
 
@@ -386,7 +390,9 @@ sleep 5 # small pause to allow permission to take
 
 # Wake up the device
 adb $serialFlag shell input keyevent "KEYCODE_MENU"
+sleep 1
 adb $serialFlag shell input keyevent "KEYCODE_HOME"
+sleep 1
 
 adb $serialFlag shell am start -a android.intent.action.MAIN -c android-intent.category.LAUNCH -n com.example.vkreplay/android.app.NativeActivity --es args "-v\ full\ -t\ /sdcard/$package.vktrace"
 
@@ -409,6 +415,7 @@ do
         # Cleanup
         adb $serialFlag shell am force-stop com.example.vkreplay
         adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+        adb $serialFlag logcat -d > $serial.$package.$frame.logcat.txt
         exit 1
     fi
     sleep 5
@@ -424,6 +431,7 @@ adb $serialFlag shell mv /sdcard/Android/$frame.ppm /sdcard/Android/$package.$fr
 # clean up
 adb $serialFlag shell am force-stop com.example.vkreplay
 adb $serialFlag shell setprop debug.vulkan.layer.1 '""'
+adb $serialFlag logcat -d > $serial.$package.$frame.logcat.txt
 
 # don't halt in the exit code below
 set +e
