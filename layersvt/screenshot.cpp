@@ -306,11 +306,7 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
     } else {
         int parsingStatus = initScreenShotFrameRange(vk_screenshot_frames, &screenShotFrameRange);
         if (parsingStatus != 0) {
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_ERROR, "screenshot", "range error\n");
-#else
             fprintf(stderr, "Screenshot range error\n");
-#endif
         }
     }
 
@@ -1203,11 +1199,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         }
     }
     if (device == NULL) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "device not found for queue %p in vkQueuePresentKHR\n", queue);
-#else
-        fprintf(stderr, "Screenshot: device not found for queue %p in vkQueuePresentKHR\n", queue);
-#endif
+        printf("Screenshot layer QueuePresentKHR: device not found for queue %p\n", queue);
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
