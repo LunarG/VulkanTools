@@ -1,5 +1,5 @@
+cmake_minimum_required(VERSION 3.11.3)
 project(vktraceviewer)
-cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
