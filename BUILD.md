@@ -19,11 +19,11 @@ These additional packages are needed for building the components in this repo.
 
 Ubuntu 16.04 LTS and 18.04 have been tested with this repo.
 
-Continuous integration tools use [CMake 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) for Linux
+CMake [version 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) or greater is required.
 
 ```
 # Dependencies from included submodule components
-sudo apt-get install git cmake build-essential bison libx11-xcb-dev libxkbcommon-dev libwayland-dev libxrandr-dev libxcb-randr0-dev
+sudo apt-get install git build-essential bison libx11-xcb-dev libxkbcommon-dev libwayland-dev libxrandr-dev libxcb-randr0-dev
 # Additional dependencies for this repo:
 sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
 # If performing 32-bit builds, you will also need:
@@ -42,13 +42,13 @@ sudo apt-get install qt5-default qtwebengine5-dev
 
 Fedora Core 28 and 29 were tested with this repo.
 
-Continuous integration tools use [CMake 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) for Linux
+CMake [version 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) or greater is required.
 
 Additional package dependencies include:
 
 ```
 # Dependencies from included submodule components
-sudo dnf install git cmake @development-tools glm-devel \
+sudo dnf install git @development-tools glm-devel \
                  libpng-devel wayland-devel libpciaccess-devel \
                  libX11-devel libXpresent libxcb xcb-util libxcb-devel libXrandr-devel \
                  xcb-util-keysyms-devel xcb-util-wm-devel
@@ -271,8 +271,7 @@ make -j8
 Windows 7+ with additional required software packages:
 
 - Microsoft Visual Studio 2015 Professional or 2017 Professional.  Note: it is possible that lesser/older versions may work, but not guaranteed.
-- CMake: Continuous integration tools use [CMake 3.12.2](https://github.com/Kitware/CMake/releases/tag/v3.12.2) for Windows
-  - In order to build the VkTrace tools, you need at least version 3.0.
+- CMake [version 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) or greater is required.
   - Tell the installer to "Add CMake to the system PATH" environment variable.
 - Python 3 (from https://www.python.org/downloads).  Notes:
   - Select to install the optional sub-package to add Python to the system PATH environment variable.
@@ -355,9 +354,9 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
 ### Additional OSX System Requirements
 Tested on OSX version 10.11.4
 
-Continuous integration tools use [CMake 3.11.3](https://github.com/Kitware/CMake/releases/tag/v3.11.3) for MacOS
+- CMake [version 3.12.4](https://github.com/Kitware/CMake/releases/tag/v3.12.4) or greater is required.
 
- Setup Homebrew and components
+Setup Homebrew and components
 - Follow instructions on [brew.sh](http://brew.sh) to get homebrew installed.
 ```
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -368,7 +367,7 @@ export PATH=/usr/local/bin:$PATH
 ```
 - Add packages with the following (may need refinement)
 ```
-brew install cmake python python3 git
+brew install python python3 git
 ```
 
 ### Build steps for Android

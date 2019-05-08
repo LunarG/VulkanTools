@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.12.4)
 
 # Define GNU standard installation directories.
 include(GNUInstallDirs)
