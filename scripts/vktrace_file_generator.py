@@ -3330,7 +3330,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                             or (p.name in ['pFeatures'] and 'nvx' in p.type.lower())
                             or (p.name in ['pFeatures', 'pProperties','pFormatProperties','pImageFormatInfo','pImageFormatProperties','pQueueFamilyProperties',
                                            'pMemoryProperties','pFormatInfo','pSurfaceFormats','pMemoryRequirements','pInfo',
-                                           'pSparseMemoryRequirements','pSurfaceCapabilities'] and '2khr' in p.type.lower())
+                                           'pSparseMemoryRequirements','pSurfaceCapabilities'] and '2' in p.type.lower())
                             or (p.name in ['pSurfaceCapabilities'] and '2ext' in p.type.lower())):
                             trace_pkt_hdr += '    if (pPacket->%s != NULL) {\n' % p.name
                             trace_pkt_hdr += '        vkreplay_process_pnext_structs(pHeader, (void *)pPacket->%s);\n' % p.name
