@@ -373,7 +373,7 @@ LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
                     }
 
 #else
-                    pMappedMem->setMappedBlockChanged(index, true);
+                    pMappedMem->setMappedBlockChanged(index, true, BLOCK_FLAG_ARRAY_CHANGED);
 #endif
                 }
                 resultCode = EXCEPTION_CONTINUE_EXECUTION;

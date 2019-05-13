@@ -56,10 +56,13 @@ PageGuardMappedMemory::PageGuardMappedMemory()
 
 PageGuardMappedMemory::~PageGuardMappedMemory() {}
 
+// return true if currently shadow memory is being used and valid.
 bool PageGuardMappedMemory::isUseCopyForRealMappedMemory() {
     bool useCopyForRealMappedMemory = false;
-    if (pRealMappedData) {
-        useCopyForRealMappedMemory = true;
+    if (pRealMappedData != nullptr) {
+        if (pRealMappedData != pMappedData) {
+            useCopyForRealMappedMemory = true;
+        }
     }
     return useCopyForRealMappedMemory;
 }
@@ -195,7 +198,12 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
             DWORD oldProt;
             void *pgAddr = (void *)((uint64_t)(pMappedData + i * PageGuardSize));
             assert(((SIZE_T)pgAddr & (~pmask)) == 0);
-            VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
+            if (false == UseMappedExternalHostMemoryExtension()) {
+                // if VK_EXT_external_memory_host enabled, only real mapped
+                // memory/write watch is being used, so we should not add
+                // pageguard to the memory.
+                VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE | PAGE_GUARD, &oldProt);
+            }
             rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pgAddr, (size_t)pageSize, &Addresses[0], &Count, &Granularity);
             assert(rval == 0);
             assert(Count == 0 || Count == 1);
@@ -203,7 +211,9 @@ void PageGuardMappedMemory::resetMemoryObjectAllChangedFlagAndPageGuard() {
             assert((Count == 1) ? (Addresses[0] == pgAddr) : 1);
             if (Count == 1) {
                 // Page was modified after we copied it, so mark the page as changed.
-                VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE, &oldProt);
+                if (false == UseMappedExternalHostMemoryExtension()) {
+                    VirtualProtect(pgAddr, (SIZE_T)getMappedBlockSize(i), PAGE_READWRITE, &oldProt);
+                }
                 setMappedBlockChanged(i, true, BLOCK_FLAG_ARRAY_CHANGED);
 
                 // for one page, there are two ways that trigger page guard and then the page
@@ -316,30 +326,38 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
     MappedDevice = device;
     MappedMemory = memory;
     MappedOffset = offset;
-#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
+
+    // Whatever the shadow memory for pageguard/write-watch enabled or not,
+    // pRealMappedData always point to the mapped memory which is returned
+    // by vkMapMemory, even if we are using external host memory extension
+    // for current memory object.
     pRealMappedData = (PBYTE)*ppData;
-    pMappedData = (PBYTE)pageguardAllocateMemory(size);
+
+    if (false == UseMappedExternalHostMemoryExtension()) {
+        pMappedData = (PBYTE)pageguardAllocateMemory(size);
 #if !defined(WIN32)
-    // the memcpy is only for other plaforms, for win32, here we only create shadow memory,
-    // but we do not sync the content with real mapped memory for the shadow memory,
-    // we leave this work to page guard handler, and only sync those pages which are truly
-    // accessed.
-    // for non-win32 platforms, so far we haven't found similiar page guard handler, so need
-    // to keep this memcpy.
-    vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
-#else
-    if (!getEnablePageGuardLazyCopyFlag()) {
+        // the memcpy is only for other plaforms, for win32, here we only create shadow memory,
+        // but we do not sync the content with real mapped memory for the shadow memory,
+        // we leave this work to page guard handler, and only sync those pages which are truly
+        // accessed.
+        // for non-win32 platforms, so far we haven't found similiar page guard handler, so need
+        // to keep this memcpy.
         vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
-    }
-#endif
-    *ppData = pMappedData;
 #else
-    pMappedData = (PBYTE)*ppData;
+        if (!getEnablePageGuardLazyCopyFlag()) {
+            vktrace_pageguard_memcpy(pMappedData, pRealMappedData, size);
+        }
 #endif
+        *ppData = pMappedData;
+    } else {
+        pMappedData = reinterpret_cast<PBYTE>(*ppData);
+    }
+
     MappedSize = size;
-
-    setPageGuardExceptionHandler();
-
+    bool setPageGuard = !UseMappedExternalHostMemoryExtension();
+    if (setPageGuard) {
+        setPageGuardExceptionHandler();
+    }
     PageSizeLeft = size % PageGuardSize;
     PageGuardAmount = size / PageGuardSize;
     if (PageSizeLeft != 0) {
@@ -347,7 +365,8 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
     }
     pPageStatus = new PageStatusArray(PageGuardAmount);
     assert(pPageStatus);
-    if (!setAllPageGuardAndFlag(true, false)) {
+
+    if (!setAllPageGuardAndFlag(setPageGuard, false)) {
         handleSuccessfully = false;
     }
 
@@ -357,22 +376,25 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
 void PageGuardMappedMemory::vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void **MappedData) {
     if ((memory == MappedMemory) && (device == MappedDevice)) {
         setAllPageGuardAndFlag(false, false);
-        removePageGuardExceptionHandler();
+        if (!UseMappedExternalHostMemoryExtension()) {
+            removePageGuardExceptionHandler();
+        }
         clearChangedDataPackage();
-#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
-        if (MappedData == nullptr) {
-            pageguardFreeMemory(pMappedData);
+        if (!UseMappedExternalHostMemoryExtension()) {
+            if (MappedData == nullptr) {
+                pageguardFreeMemory(pMappedData);
+            } else {
+                *MappedData = pMappedData;
+            }
+            pRealMappedData = nullptr;
+            pMappedData = nullptr;
         } else {
-            *MappedData = pMappedData;
+            pRealMappedData = nullptr;
+            pMappedData = nullptr;
+            if (MappedData != nullptr) {
+                *MappedData = nullptr;
+            }
         }
-        pRealMappedData = nullptr;
-        pMappedData = nullptr;
-#else
-        pMappedData = nullptr;
-        if (MappedData != nullptr) {
-            *MappedData = nullptr;
-        }
-#endif
         delete pPageStatus;
         pPageStatus = nullptr;
         MappedMemory = (VkDeviceMemory) nullptr;
@@ -528,19 +550,19 @@ bool PageGuardMappedMemory::vkFlushMappedMemoryRangePageGuardHandle(VkDevice dev
     pChangedDataPackage = (PBYTE)pageguardAllocateMemory(dwSaveSize + InfoSize);
     getChangedBlockInfo(offset, size, &dwSaveSize, &InfoSize, pChangedDataPackage, 0, BLOCK_FLAG_ARRAY_CHANGED_SNAPSHOT);
 
-// if use copy of real mapped memory, need copy back to real mapped memory
-#if !defined(PAGEGUARD_ADD_PAGEGUARD_ON_REAL_MAPPED_MEMORY)
-    PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pChangedDataPackage;
-    if (pChangedInfoArray[0].length) {
-        PBYTE pChangedData = (PBYTE)pChangedDataPackage + sizeof(PageGuardChangedBlockInfo) * (pChangedInfoArray[0].offset + 1);
-        size_t CurrentOffset = 0;
-        for (size_t i = 0; i < pChangedInfoArray[0].offset; i++) {
-            vktrace_pageguard_memcpy(pRealMappedData + pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset,
-                                     (size_t)pChangedInfoArray[i + 1].length);
-            CurrentOffset += pChangedInfoArray[i + 1].length;
+    // if use copy of real mapped memory, need copy back to real mapped memory
+    if (!UseMappedExternalHostMemoryExtension()) {
+        PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pChangedDataPackage;
+        if (pChangedInfoArray[0].length) {
+            PBYTE pChangedData = (PBYTE)pChangedDataPackage + sizeof(PageGuardChangedBlockInfo) * (pChangedInfoArray[0].offset + 1);
+            size_t CurrentOffset = 0;
+            for (size_t i = 0; i < pChangedInfoArray[0].offset; i++) {
+                vktrace_pageguard_memcpy(pRealMappedData + pChangedInfoArray[i + 1].offset, pChangedData + CurrentOffset,
+                                         (size_t)pChangedInfoArray[i + 1].length);
+                CurrentOffset += pChangedInfoArray[i + 1].length;
+            }
         }
     }
-#endif
 
     if (ppChangedDataPackage) {
         // regist the changed package
