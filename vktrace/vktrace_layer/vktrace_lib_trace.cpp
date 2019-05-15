@@ -5038,7 +5038,6 @@ VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vktraceGetDeviceProcAdd
 
 /* GDPA with no trace packet creation */
 VKTRACER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL __HOOKED_vkGetDeviceProcAddr(VkDevice device, const char* funcName) {
-    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     if (!strcmp("vkGetDeviceProcAddr", funcName)) {
         if (gMessageStream != NULL) {
             return (PFN_vkVoidFunction)vktraceGetDeviceProcAddr;
@@ -5259,5 +5258,6 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktrace
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VK_LAYER_LUNARG_vktraceGetDeviceProcAddr(VkDevice device,
                                                                                                   const char* funcName) {
+    trim::TraceLock<std::mutex> lock(g_mutex_trace);
     return __HOOKED_vkGetDeviceProcAddr(device, funcName);
 }
