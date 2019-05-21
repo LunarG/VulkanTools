@@ -540,7 +540,7 @@ inline std::ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkShaderModuleCreateInfo', 'VkSurfaceFullScreenExclusiveWin32InfoEXT'])
+@foreach struct where('{sctName}' not in ['VkShaderModuleCreateInfo', 'VkSurfaceFullScreenExclusiveWin32InfoEXT', 'VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties'])
 std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     if(settings.showAddress())
@@ -631,6 +631,34 @@ std::ostream& dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
 }}
 #endif // VK_USE_PLATFORM_WIN32_KHR
 @end struct
+
+std::ostream& dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\\n";
+    else
+        settings.stream() << "address:\\n";
+
+    dump_text_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_text_uint32_t);
+    dump_text_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType);
+    dump_text_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_text_uint32_t);
+    dump_text_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap);
+    return settings.stream();
+}}
+
+std::ostream& dump_text_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
+{{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\\n";
+    else
+        settings.stream() << "address:\\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);
+    dump_text_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_text_void);
+    dump_text_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_text_uint32_t);
+    dump_text_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_text_VkPhysicalDevice);
+    dump_text_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_text_VkBool32);
+    return settings.stream();
+}}
 
 //========================== Union Implementations ==========================//
 
@@ -884,7 +912,7 @@ inline std::ostream& dump_html_{pfnName}({pfnName} object, const ApiDumpSettings
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkShaderModuleCreateInfo', 'VkSurfaceFullScreenExclusiveWin32InfoEXT'])
+@foreach struct where('{sctName}' not in ['VkShaderModuleCreateInfo', 'VkSurfaceFullScreenExclusiveWin32InfoEXT', 'VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
 std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents{sctConditionVars})
 {{
     settings.stream() << "<div class=\'val\'>";
@@ -982,6 +1010,37 @@ std::ostream& dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
 }}
 #endif // VK_USE_PLATFORM_WIN32_KHR
 @end struct
+
+std::ostream& dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
+{{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\\n";
+    else
+        settings.stream() << "address\\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_html_uint32_t);
+    dump_html_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType);
+    dump_html_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_html_uint32_t);
+    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap);
+    return settings.stream();
+}}
+
+std::ostream& dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
+{{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\\n";
+    else
+        settings.stream() << "address\\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    dump_html_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_html_uint32_t);
+    dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice);
+    dump_html_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_html_VkBool32);
+    return settings.stream();
+}}
 
 //========================== Union Implementations ==========================//
 
@@ -1250,7 +1309,7 @@ inline std::ostream& dump_json_{pfnName}({pfnName} object, const ApiDumpSettings
 
 //========================== Struct Implementations =========================//
 
-@foreach struct
+@foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
 @if('{sctName}'=='VkSurfaceFullScreenExclusiveWin32InfoEXT')
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 @end if
@@ -1320,6 +1379,37 @@ bool is_struct(const char *t)
     return false;
 }}
 
+std::ostream& dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
+{{
+    settings.stream() << settings.indentation(indents) << "[\\n";
+
+    dump_json_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\\n";
+    dump_json_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_json_VkMemoryType);
+    settings.stream() << ",\\n";
+    dump_json_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\\n";
+    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_json_VkMemoryHeap);
+    settings.stream() << "\\n" << settings.indentation(indents) << "]";
+    return settings.stream();
+}}
+
+std::ostream& dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
+{{
+    settings.stream() << settings.indentation(indents) << "[\\n";
+
+    dump_json_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\\n";
+    dump_json_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_json_void);
+    settings.stream() << ",\\n";
+    dump_json_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\\n";
+    dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_json_VkPhysicalDevice);
+    settings.stream() << ",\\n";
+    dump_json_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_json_VkBool32);
+    settings.stream() << "\\n" << settings.indentation(indents) << "]";
+    return settings.stream();
+}}
 
 //========================== Union Implementations ==========================//
 @foreach union
