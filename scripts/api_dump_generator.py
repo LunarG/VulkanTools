@@ -1741,15 +1741,14 @@ class VulkanExtension:
         self.constants = {}
         self.enumValues = {}
 
-        req = rootNode.find('require') # TODO: Figure out why this is None sometimes
-        if req:
-            for ty in rootNode.find('require').findall('type'):
+        for req in rootNode.findall('require'):
+            for ty in req.findall('type'):
                 self.vktypes.append(ty.get('name'))
 
-            for func in rootNode.find('require').findall('command'):
+            for func in req.findall('command'):
                 self.vkfuncs.append(func.get('name'))
 
-            for enum in rootNode.find('require').findall('enum'):
+            for enum in req.findall('enum'):
                 base = enum.get('extends')
                 name = enum.get('name')
                 value = enum.get('value')
