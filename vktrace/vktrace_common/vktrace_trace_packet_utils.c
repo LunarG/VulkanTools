@@ -393,6 +393,10 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                 case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
                     AddPointerWithCountToTracebuffer(VkPresentTimesInfoGOOGLE, VkPresentTimeGOOGLE, pTimes, swapchainCount);
                     break;
+                case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT:
+                    AddPointerWithCountToTracebuffer(VkDescriptorSetLayoutBindingFlagsCreateInfoEXT, VkDescriptorBindingFlagsEXT,
+                                                     pBindingFlags, bindingCount);
+
                 default:
                     // The cases in this switch statement are only those pnext struct types that have
                     // pointers inside them that need to be added. The pnext list may contain
@@ -788,6 +792,9 @@ void vkreplay_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, voi
 #endif
             case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
                 InterpretPointerInPNext(VkPresentTimesInfoGOOGLE, VkPresentTimeGOOGLE, pTimes);
+                break;
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT:
+                InterpretPointerInPNext(VkDescriptorSetLayoutBindingFlagsCreateInfoEXT, VkDescriptorBindingFlagsEXT, pBindingFlags);
                 break;
             default:
                 // The cases in this switch statement are only those pnext struct types that have

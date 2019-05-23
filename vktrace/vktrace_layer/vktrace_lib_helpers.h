@@ -277,7 +277,6 @@ static void add_create_ds_layout_to_trace_packet(vktrace_trace_packet_header *pH
                                                  const VkDescriptorSetLayoutCreateInfo **ppOut,
                                                  const VkDescriptorSetLayoutCreateInfo *pIn) {
     uint32_t i;
-    vktrace_add_buffer_to_trace_packet(pHeader, (void **)(ppOut), sizeof(VkDescriptorSetLayoutCreateInfo), pIn);
     vktrace_add_buffer_to_trace_packet(pHeader, (void **)&((*ppOut)->pBindings),
                                        sizeof(VkDescriptorSetLayoutBinding) * pIn->bindingCount, pIn->pBindings);
     for (i = 0; i < pIn->bindingCount; i++) {
