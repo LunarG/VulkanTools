@@ -183,7 +183,14 @@ void deleteImageSubResourceSizes(VkImage image) {
 VkDeviceSize getImageSize(VkImage image) {
     std::vector<VkDeviceSize> subResourceSizes;
     getImageSubResourceSizes(image, &subResourceSizes);
-    return subResourceSizes[0];
+    // Note: the image to subsresource map is created for
+    // VK_IMAGE_TILING_OPTIMAL image difference fix, the vector
+    // might be empty for other image tiling
+    if (subResourceSizes.size() > 0) {
+        return subResourceSizes[0];
+    } else {
+        return 0;
+    }
 }
 
 VkDeviceSize getImageSubResourceOffset(VkImage image, uint32_t mipLevel) {
