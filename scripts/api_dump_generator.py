@@ -502,8 +502,15 @@ std::ostream& dump_text_{bitName}({bitName} object, const ApiDumpSettings& setti
     //settings.formatNameType(stream, indents, name, type_string) << object;
     settings.stream() << object;
     @foreach option
-    if(object & {optValue})
-        is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
+        @if('{optMultiValue}' != 'None')
+            if(object == {optValue})
+                is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
+        @end if
+        @if('{optMultiValue}' == 'None')
+            if(object & {optValue})
+                is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
+        @end if
+
     @end option
     if(!is_first)
         settings.stream() << ")";
@@ -843,8 +850,14 @@ std::ostream& dump_html_{bitName}({bitName} object, const ApiDumpSettings& setti
     bool is_first = true;
     settings.stream() << object;
     @foreach option
-    if(object & {optValue})
-        is_first = dump_html_bitmaskOption("{optName}", settings.stream(), is_first);
+        @if('{optMultiValue}' != 'None')
+            if(object == {optValue})
+                is_first = dump_html_bitmaskOption("{optName}", settings.stream(), is_first);
+        @end if
+        @if('{optMultiValue}' == 'None')
+            if(object & {optValue})
+                is_first = dump_html_bitmaskOption("{optName}", settings.stream(), is_first);
+        @end if
     @end option
     if(!is_first)
         settings.stream() << ")";
@@ -1211,8 +1224,14 @@ std::ostream& dump_json_{bitName}({bitName} object, const ApiDumpSettings& setti
     bool is_first = true;
     settings.stream() << '"' << object << ' ';
     @foreach option
-    if(object & {optValue})
-        is_first = dump_json_bitmaskOption("{optName}", settings.stream(), is_first);
+        @if('{optMultiValue}' != 'None')
+            if(object == {optValue})
+                is_first = dump_json_bitmaskOption("{optName}", settings.stream(), is_first);
+        @end if
+        @if('{optMultiValue}' == 'None')
+            if(object & {optValue})
+                is_first = dump_json_bitmaskOption("{optName}", settings.stream(), is_first);
+        @end if
     @end option
     if(!is_first)
         settings.stream() << ')';
@@ -2030,6 +2049,14 @@ class VulkanBitmask:
             'bitType': self.type,
         }
 
+def isPow2(num):
+    return num != 0 and ((num & (num - 1)) == 0)
+
+def StrToInt(s):
+    try:
+        return int(s)
+    except ValueError:
+        return int(s,16)
 
 class VulkanEnum:
 
@@ -2038,9 +2065,15 @@ class VulkanEnum:
         def __init__(self, name, value, bitpos, comment):
             self.name = name
             self.comment = comment
+            self.multiValue = None
+            
+            if value is not None:         
+
+                self.multiValue = not isPow2(StrToInt(value))
 
             if value == 0 or value is None:
                 value = 1 << int(bitpos)
+
             self.value = value
 
         def values(self):
@@ -2048,6 +2081,7 @@ class VulkanEnum:
                 'optName': self.name,
                 'optValue': self.value,
                 'optComment': self.comment,
+                'optMultiValue': self.multiValue,
             }
 
     def __init__(self, rootNode, extensions):
