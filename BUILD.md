@@ -68,9 +68,6 @@ git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
 # Enter the folder containing the cloned source
 cd VulkanTools
 
-# Update the submodules that are a part of the tree:
-git submodule update --init --recursive
-
 # This will perform some initialization and ensure subcomponents are built:
 ./update_external_sources.sh    # linux
 ./update_external_sources.bat   # windows
@@ -78,7 +75,7 @@ git submodule update --init --recursive
 
 ## Updating the Repository After a Pull
 
-The VulkanTools repository contains a submodules named jsoncpp. You may occasionally have to update the source in those submodules.
+The VulkanTools repository contains a submodule named jsoncpp. You may occasionally have to update the source in that submodules.
 You will know this needs to be performed when you perform a pull, and you check the status of your tree with `git status` and something similar to the following shows:
 
 ```
@@ -193,7 +190,7 @@ revision of this repository that you currently have checked out.
 
 Here is a usage example for this repository:
 
-    git clone git@github.com:KhronosGroup/VulkanTools.git
+    git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
     cd VulkanTools
     mkdir build
     cd build
