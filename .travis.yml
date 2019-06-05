@@ -138,7 +138,6 @@ script:
 notifications:
   email:
     recipients:
-      - karl@lunarg.com
       - david@lunarg.com
       - cnorthrop@google.com
     on_success: change
