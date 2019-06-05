@@ -263,6 +263,7 @@ void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers)
             }
         }
     }
+    emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
 void ActiveLayersWidget::setExpiration(int seconds, DurationUnit unit)
