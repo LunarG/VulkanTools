@@ -887,10 +887,6 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 elif 'CreateSamplerYcbcrConversion' in cmdname:
                     replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pCreateInfo);\n'
                     replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pYcbcrConversion);\n'
-                elif 'GetPhysicalDeviceFeatures2' in cmdname:
-                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFeatures);\n'
-                elif 'GetPhysicalDeviceProperties2' in cmdname:
-                    replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pProperties);\n'
                 elif 'GetPhysicalDeviceFormatProperties2' in cmdname:
                     replay_gen_source += '            vkreplay_process_pnext_structs(pPacket->header, (void *)pPacket->pFormatProperties);\n'
                 elif 'GetPhysicalDeviceImageFormatProperties2' in cmdname:
