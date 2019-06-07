@@ -170,7 +170,7 @@ Several environment variables can be set to change the behavior of vktrace/vktra
 
  - VKTRACE_PMB_ENABLE
 
-    VKTRACE_PMB_ENABLE enables tracking of PMB if its value is 1.  Other values disable PMB tracking.  If this environment variable is not set, PMB tracking is enabled.  When creating a trace using client/server mode, set this variable to 0 when starting the client if you wish to disable PMB tracking.
+    VKTRACE_PMB_ENABLE enables tracking of PMB if its value is 1 or 2.  Other values disable PMB tracking.  Currently 2 is only used to enable using external host memory extension and memory write watch to capture PMB on Windows platform.  If this environment variable is not set, PMB tracking is enabled, same as setting VKTRACE_PMB_ENABLE to 1.  When creating a trace using client/server mode, set this variable to 0 when starting the client if you wish to disable PMB tracking.
 
  - VKTRACE_PAGEGUARD_ENABLE_READ_PMB
 
