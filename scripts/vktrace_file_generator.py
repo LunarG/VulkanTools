@@ -2404,6 +2404,7 @@ class VkTraceFileOutputGenerator(OutputGenerator):
         dump_gen_source += '#undef NOMINMAX\n'
         dump_gen_source += '#include "api_dump_text.h"\n'
         dump_gen_source += '#include "api_dump_html.h"\n'
+        dump_gen_source += '#include "api_dump_json.h"\n'
         dump_gen_source += '#include "vktracedump_main.h"'
         dump_gen_source += '\n'
         dump_gen_source += 'void dump_packet(const vktrace_trace_packet_header* packet) {\n'
@@ -2587,6 +2588,10 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                 dump_gen_source += '                break;\n'
                 dump_gen_source += '            case ApiDumpFormat::Html:\n'
                 dump_gen_source += '                dump_html_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' % param_string
+                dump_gen_source += '                break;\n'
+                dump_gen_source += '            case ApiDumpFormat::Json:\n'
+                dump_gen_source += '                dump_json_vk%s(dump_inst, ' % cmdname
                 dump_gen_source += '%s\n' % param_string
                 dump_gen_source += '                break;\n'
                 dump_gen_source += '            }\n'

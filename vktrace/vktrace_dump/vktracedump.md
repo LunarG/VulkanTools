@@ -13,7 +13,7 @@ Copyright &copy; 2015-2019 LunarG, Inc.
 
 ## Dump API Calls from Vulkan Trace File
 
-The vktracedump command dumps Vulkan API calls from a Vulkan application trace as plain text or html.
+The vktracedump command dumps Vulkan API calls from a Vulkan application trace as plain text, html, or json.
 
 The  `vktracedump` command-line  options are:
 
@@ -24,6 +24,7 @@ The  `vktracedump` command-line  options are:
 | -f &lt;string&gt; | Name of full dump file to save the outputs of full/detailed API dump. <br> Use 'stdout' to send outputs to stdout. | **optional** |
 | -ds | Dump the shader binary code in pCode to shader dump files shader&lowbar;&lt;index&gt;.hex (when &lt;fullDumpFile&gt; is a file) or to stdout (when &lt;fullDumpFile&gt; is stdout). <br> Only works with "-f &lt;fullDumpFile&gt;" option. <br> The file name shader&lowbar;&lt;index&gt;.hex can be found in pCode in the &lt;fullDumpFile&gt; to associate with vkCreateShaderModule. | disabled |
 | -dh | Save full/detailed API dump as HTML format. Only works with "-f &lt;fullDumpFile&gt;" option. | text format |
+| -dj | Save full/detailed API dump as JSON format. Only works with "-f &lt;fullDumpFile&gt;" option. | text format |
 | -na | Dump string "address" in place of hex addresses. Only works with "-f &lt;fullDumpFile&gt;" option.  | disabled |
 
 To dump API calls from a Vulkan vkcube trace:
