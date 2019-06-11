@@ -225,13 +225,41 @@ def makeGenOpts(args):
             expandEnumerants  = False)
     ]
 
-     # API dump generator options for api_dump_html.h
+    # API dump generator options for api_dump_html.h
     genOpts['api_dump_html.h'] = [
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
             input             = HTML_CODEGEN,
             filename          = 'api_dump_html.h',
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False)
+    ]
+
+    # API dump generator options for api_dump_json.h
+    genOpts['api_dump_json.h'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = JSON_CODEGEN,
+            filename          = 'api_dump_json.h',
             apiname           = 'vulkan',
             profile           = None,
             versions          = featuresPat,
@@ -608,7 +636,7 @@ if __name__ == '__main__':
 
     # VulkanTools generator additions
     from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
-    from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN
+    from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN, JSON_CODEGEN
     from vktrace_file_generator import VkTraceFileOutputGenerator, VkTraceFileOutputGeneratorOptions
     from layer_factory_generator import LayerFactoryGeneratorOptions, LayerFactoryOutputGenerator
     from vkconventions import VulkanConventions

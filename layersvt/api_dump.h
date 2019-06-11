@@ -57,6 +57,7 @@
 enum class ApiDumpFormat {
     Text,
     Html,
+    Json,
 };
 
 class ApiDumpSettings {
@@ -102,6 +103,8 @@ class ApiDumpSettings {
         if (!env_value.empty()) {
             if (ToLowerString(env_value) == "html") {
                 output_format = ApiDumpFormat::Html;
+            } else if (ToLowerString(env_value) == "json") {
+                output_format = ApiDumpFormat::Json;
             } else {
                 output_format = ApiDumpFormat::Text;
             }
@@ -232,6 +235,8 @@ class ApiDumpSettings {
                         "</div>"
                         "<div id='wrapper'>";
             // clang-format on
+        } else if (output_format == ApiDumpFormat::Json) {
+            stream() << "[\n";
         }
     }
 
@@ -239,6 +244,12 @@ class ApiDumpSettings {
         if (output_format == ApiDumpFormat::Html) {
             // Close off html
             stream() << "</div></body></html>";
+        } else if (output_format == ApiDumpFormat::Json) {
+            // Assume we are in the middle of a frame and we need to close it
+            // TODO: This isn't right if the last api call in the dump is vkQueuePresentKHR.
+            stream() << "\n" << indentation(1) << "]\n}\n";
+            // Close off json
+            stream() << "]" << std::endl;
         }
         if (!use_cout) output_stream.close();
     }
@@ -363,6 +374,8 @@ class ApiDumpSettings {
             return ApiDumpFormat::Text;
         else if (strcmp(string_option, "Html") == 0)
             return ApiDumpFormat::Html;
+        else if (strcmp(string_option, "Json") == 0)
+            return ApiDumpFormat::Json;
         else
             return default_value;
     }
@@ -387,13 +400,15 @@ class ApiDumpSettings {
     bool show_shader;
 
     static const char *const SPACES;
-    static const int MAX_SPACES = 72;
+    static const int MAX_SPACES = 144;
     static const char *const TABS;
-    static const int MAX_TABS = 18;
+    static const int MAX_TABS = 36;
 };
 
-const char *const ApiDumpSettings::SPACES = "                                                                        ";
-const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+const char *const ApiDumpSettings::SPACES =
+    "                                                                                                                              "
+    "                  ";
+const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
 class ApiDumpInstance {
    public:
@@ -889,4 +904,194 @@ inline std::ostream &dump_html_int(int object, const ApiDumpSettings &settings, 
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     return settings.stream() << "</div>";
+}
+
+//==================================== Json Backend Helpers ======================================//
+
+inline void dump_json_nametype(const ApiDumpSettings &settings, bool showType, const char *name, const char *type, int indents) {
+    settings.stream() << settings.indentation(indents) << "\"" << name << "\" : ";
+}
+
+template <typename T, typename... Args>
+inline void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                            const char *child_type, const char *name, int indents,
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
+    if (array == NULL) {
+        settings.stream() << settings.indentation(indents) << "{\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"address \" : \"NULL\"\n";
+        settings.stream() << settings.indentation(indents) << "}";
+        return;
+    }
+    settings.stream() << settings.indentation(indents) << "{\n";
+
+    if (len > 0 && array != NULL) {
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+        if (settings.showAddress())
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"" << (void *)array << "\",\n";
+        else
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"address\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"members\" :\n";
+        settings.stream() << settings.indentation(indents + 1) << "[\n";
+        for (size_t i = 0; i < len && array != NULL; ++i) {
+            std::stringstream stream;
+            stream << "[" << i << "]";
+            std::string indexName = stream.str();
+            dump_json_value(array[i], settings, child_type, indexName.c_str(), indents + 2, dump, args...);
+            if (i < len - 1) settings.stream() << ',';
+            settings.stream() << "\n";
+        }
+        settings.stream() << settings.indentation(indents + 1) << "]";
+    }
+    settings.stream() << "\n" << settings.indentation(indents) << "}";
+}
+
+template <typename T, typename... Args>
+inline void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                            const char *child_type, const char *name, int indents,
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
+    if (array == NULL) {
+        settings.stream() << settings.indentation(indents) << "{\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"members\" : \"NULL\"\n";
+        settings.stream() << settings.indentation(indents) << "}";
+        return;
+    }
+    settings.stream() << settings.indentation(indents) << "{\n";
+    if (len > 0 && array != NULL) {
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+        if (settings.showAddress())
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"" << (void *)array << "\",\n";
+        else
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"address\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"members\" :\n";
+        settings.stream() << settings.indentation(indents + 1) << "[\n";
+        for (size_t i = 0; i < len && array != NULL; ++i) {
+            std::stringstream stream;
+            stream << "[" << i << "]";
+            std::string indexName = stream.str();
+            dump_json_value(array[i], settings, child_type, indexName.c_str(), indents + 2, dump, args...);
+            if (i < len - 1) settings.stream() << ',';
+            settings.stream() << "\n";
+        }
+        settings.stream() << settings.indentation(indents + 1) << "]";
+    }
+    settings.stream() << "\n" << settings.indentation(indents) << "}";
+}
+
+template <typename T, typename... Args>
+inline void dump_json_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents, std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args),
+                              Args... args) {
+    if (pointer == NULL) {
+        settings.stream() << settings.indentation(indents) << "{\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"value \" : \"NULL\"\n";
+        settings.stream() << settings.indentation(indents) << "}";
+    } else {
+        dump_json_value(*pointer, settings, type_string, name, indents, dump, args...);
+    }
+}
+
+template <typename T, typename... Args>
+inline void dump_json_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args),
+                              Args... args) {
+    if (pointer == NULL) {
+        settings.stream() << settings.indentation(indents) << "{\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"value \" : \"NULL\"\n";
+        settings.stream() << settings.indentation(indents) << "}";
+    } else {
+        dump_json_value(*pointer, settings, type_string, name, indents, dump, args...);
+    }
+}
+
+template <typename T, typename... Args>
+inline void dump_json_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                            std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
+    settings.stream() << settings.indentation(indents) << "{\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+    if (strchr(type_string, '*')) {
+        if (settings.showAddress())
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"" << &object << "\",\n";
+        else
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"address\",\n";
+    }
+    settings.stream() << settings.indentation(indents + 1) << "\"value\" : ";
+    dump(object, settings, indents + 1, args...);
+    settings.stream() << "\n" << settings.indentation(indents) << "}";
+}
+
+extern bool is_union(const char *t);
+
+template <typename T, typename... Args>
+inline void dump_json_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                            int indents, std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args),
+                            Args... args) {
+    settings.stream() << settings.indentation(indents) << "{\n";
+    if (is_union(type_string))
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << " (Union)\",\n";
+    else
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+    if (strchr(type_string, '*')) {
+        if (settings.showAddress())
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"" << &object << "\",\n";
+        else
+            settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"address\",\n";
+    }
+    settings.stream() << settings.indentation(indents + 1) << "\"members\" :\n";
+    dump(object, settings, indents + 1, args...);
+    settings.stream() << "\n" << settings.indentation(indents) << "}";
+}
+
+inline void dump_json_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
+    settings.stream() << settings.indentation(indents) << "{\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"value\" : ";
+    settings.stream() << "\"" << text << "\"\n";
+    settings.stream() << settings.indentation(indents) << "}";
+}
+
+inline bool dump_json_bitmaskOption(const std::string &option, std::ostream &stream, bool isFirst) {
+    if (isFirst)
+        stream << " (";
+    else
+        stream << " | ";
+    stream << option;
+    return false;
+}
+
+inline std::ostream &dump_json_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+    if (object == NULL)
+        settings.stream() << "\"\"";
+    else
+        settings.stream() << "\"" << object << "\"";
+    return settings.stream();
+}
+
+inline std::ostream &dump_json_void(const void *object, const ApiDumpSettings &settings, int indents) {
+    if (object == NULL)
+        settings.stream() << "\"NULL\"";
+    else if (settings.showAddress())
+        settings.stream() << '"' << object << "\"";
+    else
+        settings.stream() << "\"address\"";
+    return settings.stream();
+}
+
+inline std::ostream &dump_json_int(int object, const ApiDumpSettings &settings, int indents) {
+    settings.stream() << settings.indentation(indents) << "\"value\" : ";
+    settings.stream() << '"' << object << "\"";
+    return settings.stream();
 }

@@ -39,6 +39,7 @@ struct vktracedump_params {
     bool noAddr = false;
     bool dumpShader = false;
     bool saveAsHtml = false;
+    bool saveAsJson = false;
 } g_params;
 
 const char* DUMP_SETTING_FILE = "vk_layer_settings.txt";
@@ -65,6 +66,9 @@ static void print_usage() {
     cout << "    -dh                   Save full/detailed API dump as HTML format. (Default is text format)  Only works with \"-f "
             "<fullDumpFile>\" option."
          << endl;
+    cout << "    -dj                   Save full/detailed API dump as JSON format. (Default is text format)  Only works with \"-f "
+            "<fullDumpFile>\" option."
+         << endl;
     cout << "    -na                   Dump string \"address\" in place of hex addresses. (Default is false)  Only works with \"-f "
             "<fullDumpFile>\" option."
          << endl;
@@ -89,6 +93,9 @@ static int parse_args(int argc, char** argv) {
         } else if (arg.compare("-dh") == 0) {
             g_params.saveAsHtml = true;
             i++;
+        } else if (arg.compare("-dj") == 0) {
+            g_params.saveAsJson = true;
+            i++;
         } else if (arg.compare("-na") == 0) {
             g_params.noAddr = true;
             i++;
@@ -99,8 +106,8 @@ static int parse_args(int argc, char** argv) {
             return -1;
         }
     }
-    if ((g_params.saveAsHtml || g_params.dumpShader || g_params.noAddr) && (g_params.fullDumpFile == NULL)) {
-        // saveAsHtml, dumpShader and noAddress should be used with valid fullDumpFile option.
+    if ((g_params.saveAsHtml || g_params.saveAsJson || g_params.dumpShader || g_params.noAddr) && (g_params.fullDumpFile == NULL)) {
+        // saveAsHtml, saveAsJson, dumpShader and noAddress should be used with valid fullDumpFile option.
         return -1;
     }
     if (g_params.traceFile == NULL) {
@@ -151,7 +158,7 @@ static void dump_full_setup() {
         settingFile.open(DUMP_SETTING_FILE);
         settingFile << "#  ==============" << endl;
         settingFile << "#  lunarg_api_dump.output_format : Specifies the format used for output, can be Text (default -- "
-                       "outputs plain text) or Html."
+                       "outputs plain text), Html, or Json."
                     << endl;
         settingFile << "#  lunarg_api_dump.detailed : Setting this to TRUE causes parameter details to be dumped in addition "
                        "to API calls."
@@ -182,6 +189,8 @@ static void dump_full_setup() {
         settingFile << "#  ==============" << endl;
         if (g_params.saveAsHtml) {
             settingFile << "lunarg_api_dump.output_format = Html" << endl;
+        } else if (g_params.saveAsJson) {
+            settingFile << "lunarg_api_dump.output_format = Json" << endl;
         } else {
             settingFile << "lunarg_api_dump.output_format = Text" << endl;
         }
