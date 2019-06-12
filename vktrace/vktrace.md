@@ -158,12 +158,6 @@ The Vulkan validation layers may be enabled for trace replay.  Replaying a trace
 
 To activate specific layers on a trace replay, set the `VK_INSTANCE_LAYERS` environment variable to a colon-separated list of layer names before replaying the trace. Refer to the [Vulkan Validation and Debugging Layers](./layers.md) guide for additional information on layers and how to configure layer output options.
 
-## vktraceviewer
-
-The vktraceviewer tool allows interactive creation and viewing of Vulkan trace files. In the future, it will include support for interactively playing back trace files. This is alpha software.
-
-vktraceviewer has a dependency on Qt5 libraries; they need to be installed on the system.
-
 ## Persistently Mapped Buffers and vktrace
 
 If a Vulkan program uses persistently mapped buffers (PMB) that are allocated via vkMapMemory, vktrace can track changes to PMB and automatically copy modified PMB pages to the trace file, rather than requiring that the Vulkan program call vkFlushMappedMemoryRanges to specify what PMB buffers should be copied. On Windows, the trace layer detects changes to PMB pages by setting the PAGE_GUARD flag for mapped memory pages and installing an exception handler for PAGE_GUARD that keeps track of which pages have been modified.  On Linux, the trace layer detects changes by using mprotect to disable writes to mapped memory pages and installing a signal handler for SIGSEGV.
