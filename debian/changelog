@@ -1,8 +1,14 @@
+lunarg-tools (1.1.108.0~rc1-1) UNRELEASED; urgency=medium
+
+  * New 1.1.108.0~rc1 SDK
+
+ -- John Zupin <john@odin>  Tue, 11 Jun 2019 19:47:08 -0600
+
 lunarg-tools (1.1.106.0~rc3-1lunarg18.04.1.1) bionic; urgency=medium
 
   * new 1.1.106.0~rc3 package
 
- -- John Zupin <john@odin>  Tue, 16 Apr 2019 14:52:11 -0600
+ -- John Zupin <john@odin>  Tue, 11 Jun 2019 19:47:08 -0600
 
 lunarg-tools (1.1.106.0~rc2-1lunarg18.04.1.1) bionic; urgency=medium
 
