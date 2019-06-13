@@ -70,9 +70,9 @@
         "VK_LAYER_LUNARG_api_dump": {
             "output_format": {
                 "name": "Output Format",
-                "description": "Specifies the format used for output; can be Text (default -- outputs plain text) or Html",
+                "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
                 "type": "enum",
-                "options": [ "Text", "Html" ],
+                "options": [ "Text", "Html", "Json" ],
                 "default": "Text"
             },
             "detailed": {
