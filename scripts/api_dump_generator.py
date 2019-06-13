@@ -1293,6 +1293,7 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
         settings.stream() << settings.indentation(indents+1) << "{{\\n";
         settings.stream() << settings.indentation(indents+2) << "\\"type\\" : \\"{memType}\\",\\n";
         settings.stream() << settings.indentation(indents+2) << "\\"name\\" : \\"{memName}\\",\\n";
+        settings.stream() << settings.indentation(indents+2) << "\\"address\\" : \\"UNUSED\\",\\n";
         settings.stream() << settings.indentation(indents+2) << "\\"value\\" : \\"UNUSED\\"\\n";
         settings.stream() << settings.indentation(indents+1) << "}}";
     }}
@@ -1306,6 +1307,19 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
 #endif
 @end if
 @end struct
+
+bool is_struct(const char *t)
+{{
+    char *tm = (char*)t;
+    size_t tmlen;
+    if (strncmp(tm, "const ", 6) == 0) tm = tm + 6;
+    tmlen = strcspn(tm, "[*");
+@foreach struct
+    if (strncmp("{sctName}", tm, tmlen) == 0 && strlen("{sctName}") == tmlen) return true;
+@end struct
+    return false;
+}}
+
 
 //========================== Union Implementations ==========================//
 @foreach union
@@ -1336,8 +1350,12 @@ std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 bool is_union(const char *t)
 {{
+    char *tm = (char*)t;
+    size_t tmlen;
+    if (strncmp(tm, "const ", 6) == 0) tm = tm + 6;
+    tmlen = strcspn(tm, "[*");
 @foreach union
-    if (strstr(t, "{unName}")) return true;
+    if (strncmp("{unName}", tm, tmlen) == 0 && strlen("{unName}") == tmlen) return true;
 @end union
     return false;
 }}
