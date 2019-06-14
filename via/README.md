@@ -37,7 +37,7 @@ file at the top of the source tree.
 The source for VIA can also be found in the Linux [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) in the "source/via" directory.
  1. Download and install the Linux SDK
  2. Run "source setup-env.sh" in the SDK root directory
- 3. Run "./build_tools.sh"
+ 3. Run "./vulkansdk lunarg-tools"
 
 <BR />
 

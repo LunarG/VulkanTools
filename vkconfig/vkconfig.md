@@ -21,7 +21,7 @@ In addition, it allows using layers from non-standard locations, selecting the o
 
 The Vulkan Configurator is a graphical user interface (GUI), and does not support any functionality through the system console. It may be launched from the console (as `vkconfig`), but no further functionality will be available from the console. The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
-- Linux tarball: After extracting the SDK, run the `build_tools.sh` script to build `vkconfig`. Note that the Core, GUI, and Widgets modules of Qt5 must be installed prior to running the build script.
+- Linux tarball: After extracting the SDK, run `./vulkansdk lunarg-tools` to build `vkconfig`. Note that the Core, GUI, and Widgets modules of Qt5 must be installed prior to running the build script.
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. It will be called `vkconfig`.
 - MacOS: The tool is provided as an application bundle. Run it by double clicking the bundle from a file explorer.
 
