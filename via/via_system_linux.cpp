@@ -1139,22 +1139,26 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
         PrintTableElement("");
         PrintEndTableRow();
 
-        std::string explicit_layer_path = sdk_path;
-        explicit_layer_path += "/etc/explicit_layer.d";
+        const std::vector<const char *> explicit_layer_path_suffixes{"/etc/explicit_layer.d", "/etc/vulkan/explicit_layer.d"};
 
-        sdk_dir = opendir(explicit_layer_path.c_str());
-        if (NULL != sdk_dir) {
-            while ((cur_ent = readdir(sdk_dir)) != NULL) {
-                if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
+        for (auto &explicit_layer_path_suffix : explicit_layer_path_suffixes) {
+            std::string explicit_layer_path = sdk_path + explicit_layer_path_suffix;
+
+            sdk_dir = opendir(explicit_layer_path.c_str());
+            if (NULL != sdk_dir) {
+                while ((cur_ent = readdir(sdk_dir)) != NULL) {
+                    if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
+                    }
                 }
+                closedir(sdk_dir);
+
+                result = PrintExplicitLayersInFolder("", explicit_layer_path);
+
+                _found_sdk = true;
+                _sdk_path = sdk_path;
+                sdk_exists = true;
+                break;
             }
-            closedir(sdk_dir);
-
-            result = PrintExplicitLayersInFolder("", explicit_layer_path);
-
-            _found_sdk = true;
-            _sdk_path = sdk_path;
-            sdk_exists = true;
         }
     }
 
