@@ -1139,23 +1139,28 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
         PrintTableElement("");
         PrintEndTableRow();
 
-        std::string explicit_layer_path = sdk_path;
-        explicit_layer_path += "/etc/explicit_layer.d";
+	// Because of the ordering here, SDK >= 1.1.108 will be detected
+	// after SDK <= 1.1.106, thus a newer SDK will take precedence
+	const std::vector<const char *> explicit_layer_path_suffixes { "/etc/explicit_layer.d", "/etc/vulkan/explicit_layer.d" };
 
-        sdk_dir = opendir(explicit_layer_path.c_str());
-        if (NULL != sdk_dir) {
-            while ((cur_ent = readdir(sdk_dir)) != NULL) {
-                if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
-                }
-            }
-            closedir(sdk_dir);
+	for(auto& explicit_layer_path_suffix: explicit_layer_path_suffixes) {
+	    std::string explicit_layer_path = sdk_path + explicit_layer_path_suffix;
 
-            result = PrintExplicitLayersInFolder("", explicit_layer_path);
+	    sdk_dir = opendir(explicit_layer_path.c_str());
+	    if (NULL != sdk_dir) {
+		while ((cur_ent = readdir(sdk_dir)) != NULL) {
+		    if (NULL != strstr(cur_ent->d_name, vulkan_so_prefix) && strlen(cur_ent->d_name) == 14) {
+		    }
+		}
+		closedir(sdk_dir);
 
-            _found_sdk = true;
-            _sdk_path = sdk_path;
-            sdk_exists = true;
-        }
+		result = PrintExplicitLayersInFolder("", explicit_layer_path);
+
+		_found_sdk = true;
+		_sdk_path = sdk_path;
+		sdk_exists = true;
+	    }
+	}
     }
 
     // Next, try system install items
