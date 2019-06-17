@@ -1139,8 +1139,6 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
         PrintTableElement("");
         PrintEndTableRow();
 
-	// Because of the ordering here, SDK >= 1.1.108 will be detected
-	// after SDK <= 1.1.106, thus a newer SDK will take precedence
 	const std::vector<const char *> explicit_layer_path_suffixes { "/etc/explicit_layer.d", "/etc/vulkan/explicit_layer.d" };
 
 	for(auto& explicit_layer_path_suffix: explicit_layer_path_suffixes) {
@@ -1159,6 +1157,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
 		_found_sdk = true;
 		_sdk_path = sdk_path;
 		sdk_exists = true;
+		break;
 	    }
 	}
     }
