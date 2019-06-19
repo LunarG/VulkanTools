@@ -104,7 +104,7 @@ Output File Name | `VK_APIDUMP_LOG_FILENAME` | `lunarg_api_dump.log_filename` | 
 Detailed Output | `VK_APIDUMP_DETAILED` | `lunarg_api_dump.detailed` | true | Generate more detailed output of the commands including parameters and values.  If `false` only output function signature.
 No Addresses/Handles | `VK_APIDUMP_NO_ADDR` | `lunarg_api_dump.no_addr` | false | Generate output without addresses or handles (which can vary run to run. Instead use the placeholder value "address".
 Flush After Every Command | `VK_APIDUMP_FLUSH` | `lunarg_api_dump.flush` | true | Flush after every API command's output
-Flush After Every Command | `VK_APIDUMP_OUTPUT_FORMAT` | `lunarg_api_dump.output_format` | `text` | Output the API Dump information as either a plain text file (`text`) or as an HTML-formated file (`html`).
+Output format | `VK_APIDUMP_OUTPUT_FORMAT` | `lunarg_api_dump.output_format` | `text` | Output the API Dump information as a text file (`text`), an HTML-formated file (`html`), or a json file (`json`).
 
 ### Settings Priority
 
