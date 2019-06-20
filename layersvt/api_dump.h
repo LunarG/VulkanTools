@@ -17,6 +17,7 @@
  *
  * Author: Lenny Komow <lenny@lunarg.com>
  * Author: Shannon McPherson <shannon@lunarg.com>
+ * Author: David Pinedo <david@lunarg.com>
  */
 
 #pragma once
@@ -916,7 +917,7 @@ template <typename T, typename... Args>
 inline void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                             const char *child_type, const char *name, int indents,
                             std::ostream &(*dump)(const T, const ApiDumpSettings &, int, Args... args), Args... args) {
-    if (array == NULL) {
+    if (len == 0 || array == NULL) {
         settings.stream() << settings.indentation(indents) << "{\n";
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
@@ -953,7 +954,7 @@ template <typename T, typename... Args>
 inline void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                             const char *child_type, const char *name, int indents,
                             std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
-    if (array == NULL) {
+    if (len == 0 || array == NULL) {
         settings.stream() << settings.indentation(indents) << "{\n";
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
