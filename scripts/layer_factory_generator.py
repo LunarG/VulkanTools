@@ -670,7 +670,6 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
     #
     # Customize Cdecl for layer factory base class
     def BaseClassCdecl(self, elem, name):
-        
         raw = self.makeCDecls(elem)[1]
         # Change initial keyword
         result = raw.replace("typedef", "virtual")

@@ -32,7 +32,7 @@ class MemDemo : public layer_factory {
     void PreCallApiFunction(const char *api_name);
 
     VkResult PostCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,
-                                    const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory);
+                                    const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory, VkResult result);
 
     void PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks *pAllocator);
 

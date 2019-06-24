@@ -27,7 +27,7 @@ void MemDemo::PreCallApiFunction(const char *api_name) { printf("Calling %s\n", 
 
 // Intercept the memory allocation calls and increment the counter
 VkResult MemDemo::PostCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,
-                                         const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory) {
+                                         const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory, VkResult result) {
     number_mem_objects_++;
     total_memory_ += pAllocateInfo->allocationSize;
     mem_size_map_[*pMemory] = pAllocateInfo->allocationSize;
