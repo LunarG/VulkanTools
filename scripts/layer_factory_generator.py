@@ -301,7 +301,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     vlf_report_data = instance_data->report_data;
 
     for (auto intercept : global_interceptor_list) {
-        intercept->PostCallCreateInstance(pCreateInfo, pAllocator, pInstance);
+        intercept->PostCallCreateInstance(pCreateInfo, pAllocator, pInstance, result);
     }
 
     return result;
@@ -355,7 +355,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
 
     lock.lock();
     for (auto intercept : global_interceptor_list) {
-        intercept->PostCallCreateDevice(gpu, pCreateInfo, pAllocator, pDevice);
+        intercept->PostCallCreateDevice(gpu, pCreateInfo, pAllocator, pDevice, result);
     }
     device_layer_data *device_data = GetLayerDataPtr(get_dispatch_key(*pDevice), device_layer_data_map);
     device_data->instance_data = instance_data;
@@ -403,7 +403,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
     VkResult result = instance_data->dispatch_table.CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     result = layer_create_report_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
     for (auto intercept : global_interceptor_list) {
-        intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+        intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback, result);
     }
     return result;
 }
@@ -582,6 +582,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '\n'
         self.layer_factory += '        virtual void PreCallApiFunction(const char *api_name) {};\n'
         self.layer_factory += '        virtual void PostCallApiFunction(const char *api_name) {};\n'
+        self.layer_factory += '        virtual void PreCallApiFunction(const char *api_name, VkResult result) {};\n'
+        self.layer_factory += '        virtual void PostCallApiFunction(const char *api_name, VkResult result) {};\n'
         self.layer_factory += '\n'
         self.layer_factory += '        // Pre/post hook point declarations\n'
     #
@@ -668,6 +670,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
     #
     # Customize Cdecl for layer factory base class
     def BaseClassCdecl(self, elem, name):
+        
         raw = self.makeCDecls(elem)[1]
         # Change initial keyword
         result = raw.replace("typedef", "virtual")
@@ -691,6 +694,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         pre_call_function = '{ PreCallApiFunction("%s");' % name
         pre_call = pre_call.replace("{", pre_call_function)
         post_call = pre_call.replace("PreCall", "PostCall")
+        if return_type == 'VkResult':
+            post_call = post_call.replace(')', ', VkResult result)', 1)
+            post_call = post_call.replace(');', ', result);', 1);
         return '        %s\n        %s\n' % (pre_call, post_call)
     #
     # Command generation
@@ -784,8 +790,11 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.appendSection('command', '    ' + assignresult + API + '(' + paramstext + ');')
 
         # Generate post-call object processing source code
+        returnParam = ''
+        if (resulttype is not None and resulttype.text == 'VkResult'):
+            returnParam = ', result'
         self.appendSection('command', '    for (auto intercept : global_interceptor_list) {')
-        self.appendSection('command', '        intercept->PostCall%s(%s);' % (api_function_name[2:], paramstext))
+        self.appendSection('command', '        intercept->PostCall%s(%s%s);' % (api_function_name[2:], paramstext, returnParam))
         self.appendSection('command', '    }')
 
         # Return result variable, if any.
