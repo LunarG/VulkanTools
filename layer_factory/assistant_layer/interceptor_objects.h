@@ -24,3 +24,4 @@
 #include "pipeline_cache_warning.h"
 #include "extension_type_warning.h"
 #include "exclusive_qfi.h"
+#include "api_version_warning.h"
