@@ -14,15 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Mark Lobodzinski <mark@lunarg.com>
+ * Author: Camden Stocker <camden@lunarg.com>
  */
 
-#include "mem_objects.h"
-#include "zero_counts.h"
-#include "stage_all_warn.h"
-#include "load_op_load_undefined.h"
-#include "pipeline_cache_warning.h"
-#include "extension_type_warning.h"
-#include "exclusive_qfi.h"
-#include "api_version_warning.h"
-#include "result_check.h"
+#include <string>
+#include <sstream>
+
+class ResultCheck : public layer_factory {
+   public:
+    // Constructor for interceptor
+    ResultCheck(){};
+
+    void PostCallApiFunction(const char *api_name, VkResult result) {
+        if ((result < 0) || (result == VK_INCOMPLETE)) {
+            std::stringstream message;
+            message << "API call " << api_name << " returned with return code " << result << " instead of VK_SUCCESS";
+            Warning(message.str());
+        }
+    }
+};
+
+ResultCheck result_check;

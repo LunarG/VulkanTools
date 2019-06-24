@@ -44,7 +44,7 @@ class ExtensionTypeWarning : public layer_factory {
 
     // Intercept CreateDevice to warn for instance extensions
     VkResult PostCallCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
-                                  const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
+                                  const VkAllocationCallbacks* pAllocator, VkDevice* pDevice, VkResult result) {
         for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
             if (white_list(pCreateInfo->ppEnabledExtensionNames[i], kInstanceExtensionNames)) {
                 std::stringstream message;
