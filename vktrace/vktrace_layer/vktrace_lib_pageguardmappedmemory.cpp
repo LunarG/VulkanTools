@@ -52,6 +52,7 @@ PageGuardMappedMemory::PageGuardMappedMemory()
       pPageStatus(nullptr),
       BlockConflictError(false),
       PageSizeLeft(0),
+      StartingAddressOffset(0),
       PageGuardAmount(0) {}
 
 PageGuardMappedMemory::~PageGuardMappedMemory() {}
@@ -71,20 +72,11 @@ bool PageGuardMappedMemory::getChangedRangeByIndex(uint64_t index, PBYTE *pAddre
     bool isValidResult = false;
     if (index < PageGuardAmount) {
         isValidResult = true;
-        if ((index + 1) == PageGuardAmount) {
-            if (pAddress) {
-                *pAddress = pMappedData + index * PageGuardSize;
-            }
-            if (pBlockSize) {
-                *pBlockSize = (SIZE_T)(PageSizeLeft ? PageSizeLeft : PageGuardSize);
-            }
-        } else {
-            if (pAddress) {
-                *pAddress = pMappedData + index * PageGuardSize;
-            }
-            if (pBlockSize) {
-                *pBlockSize = (SIZE_T)PageGuardSize;
-            }
+        if (pAddress) {
+            *pAddress = pMappedData + getMappedBlockOffset(index);
+        }
+        if (pBlockSize) {
+            *pBlockSize = getMappedBlockSize(index);
         }
     }
     return isValidResult;
@@ -95,7 +87,7 @@ int64_t PageGuardMappedMemory::getIndexOfChangedBlockByAddr(PBYTE addr) {
     int64_t addrOffset = addr - pMappedData;
     int64_t indexOfChangedBlockByAddr = -1;
     if ((addrOffset >= 0) && ((VkDeviceSize)addrOffset < MappedSize)) {
-        indexOfChangedBlockByAddr = addrOffset / PageGuardSize;
+        indexOfChangedBlockByAddr = (addrOffset + StartingAddressOffset) / PageGuardSize;
     }
     return indexOfChangedBlockByAddr;
 }
@@ -158,9 +150,21 @@ void PageGuardMappedMemory::setMappedBlockLoaded(uint64_t index, bool bLoaded) {
 
 uint64_t PageGuardMappedMemory::getMappedBlockSize(uint64_t index) {
     uint64_t mappedBlockSize = PageGuardSize;
-    if ((index + 1) == PageGuardAmount) {
-        if (PageSizeLeft) {
-            mappedBlockSize = PageSizeLeft;
+    if (index == 0) {
+        if (PageGuardAmount == 1) {
+            if (PageSizeLeft == 0) {
+                mappedBlockSize = PageGuardSize - StartingAddressOffset;
+            } else {
+                mappedBlockSize = PageSizeLeft - StartingAddressOffset;
+            }
+        } else {
+            mappedBlockSize = PageGuardSize - StartingAddressOffset;
+        }
+    } else {
+        if ((index + 1) == PageGuardAmount) {
+            if (PageSizeLeft) {
+                mappedBlockSize = PageSizeLeft;
+            }
         }
     }
     return mappedBlockSize;
@@ -169,7 +173,9 @@ uint64_t PageGuardMappedMemory::getMappedBlockSize(uint64_t index) {
 uint64_t PageGuardMappedMemory::getMappedBlockOffset(uint64_t index) {
     uint64_t mappedBlockOffset = 0;
     if (index < PageGuardAmount) {
-        mappedBlockOffset = index * PageGuardSize;
+        if (index != 0) {
+            mappedBlockOffset = index * PageGuardSize - StartingAddressOffset;
+        }
     }
     return mappedBlockOffset;
 }
@@ -280,11 +286,11 @@ bool PageGuardMappedMemory::setAllPageGuardAndFlag(bool bSetPageGuard, bool bSet
         if (UseMappedExternalHostMemoryExtension()) {
             uint64_t pageSize = PageGuardSize;
             uint64_t pmask = ~(pageSize - 1);
-            void *pgAddr = reinterpret_cast<void *>(pMappedData + (i * PageGuardSize));
+            void *pgAddr = reinterpret_cast<void *>(pMappedData + getMappedBlockOffset(i));
             getWriteWatchForPage(WRITE_WATCH_FLAG_RESET, pgAddr);
         } else {
             DWORD oldProt, dwErr;
-            if (!VirtualProtect(pMappedData + i * PageGuardSize, (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt)) {
+            if (!VirtualProtect(pMappedData + getMappedBlockOffset(i), (SIZE_T)getMappedBlockSize(i), dwMemSetting, &oldProt)) {
                 dwErr = GetLastError();
                 setSuccessfully = false;
             }
@@ -334,7 +340,7 @@ bool PageGuardMappedMemory::getMemoryProperty(std::unordered_map<VkDeviceMemory,
 }
 
 bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset,
-                                                       VkDeviceSize size, VkFlags flags, void **ppData) {
+                                                       VkDeviceSize size, VkFlags flags, void **ppData, void *pExternalHostMemory) {
     bool handleSuccessfully = true;
     MappedDevice = device;
     MappedMemory = memory;
@@ -364,6 +370,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
         *ppData = pMappedData;
     } else {
         pMappedData = reinterpret_cast<PBYTE>(*ppData);
+        StartingAddressOffset = (pMappedData-pExternalHostMemory)% PageGuardSize;
     }
 
     MappedSize = size;
@@ -371,8 +378,8 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
     if (setPageGuard) {
         setPageGuardExceptionHandler();
     }
-    PageSizeLeft = size % PageGuardSize;
-    PageGuardAmount = size / PageGuardSize;
+    PageSizeLeft = (size + StartingAddressOffset) % PageGuardSize;
+    PageGuardAmount = (size + StartingAddressOffset) / PageGuardSize;
     if (PageSizeLeft != 0) {
         PageGuardAmount++;
     }
@@ -436,12 +443,12 @@ void PageGuardMappedMemory::backupBlockChangedArraySnapshot() {
         ULONG Granularity;
         UINT rval;
         uint64_t pageIndexCalculated = 0;
-        rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pMappedData, static_cast<size_t>(pageSize * PageGuardAmount),
+        rval = GetWriteWatch(WRITE_WATCH_FLAG_RESET, pMappedData, static_cast<size_t>(MappedSize),
                              reinterpret_cast<PVOID *>(pAddressArray), &Count, &Granularity);
         assert(rval == 0);
         pPageStatus->clearActiveChangesArray();
         for (ULONG i = 0; i < Count; i++) {
-            pageIndexCalculated = (reinterpret_cast<PBYTE>(pAddressArray[i]) - pMappedData) / PageGuardSize;
+            pageIndexCalculated = (reinterpret_cast<PBYTE>(pAddressArray[i]) - pMappedData + StartingAddressOffset) / PageGuardSize;
             assert(pageIndexCalculated < PageGuardAmount);
             setMappedBlockChanged(pageIndexCalculated, true, BLOCK_FLAG_ARRAY_CHANGED);
         }

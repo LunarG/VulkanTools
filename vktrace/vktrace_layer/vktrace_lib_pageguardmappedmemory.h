@@ -51,6 +51,8 @@ typedef class PageGuardMappedMemory {
     PageStatusArray *pPageStatus;
     bool BlockConflictError;  /// record if any block has been read by host and also write by host
     VkDeviceSize PageSizeLeft;
+    VkDeviceSize StartingAddressOffset;  /// the offset relative to the beginning of a system page where the starting address of the
+                                         /// mapped memory (returned to target title) located.
     uint64_t PageGuardAmount;
 
    public:
@@ -110,7 +112,7 @@ typedef class PageGuardMappedMemory {
                            VkMemoryPropertyFlags *pMemoryPropertyFlags);
 
     bool vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, VkFlags flags,
-                                    void **ppData);
+                                    void **ppData, void *pExternalHostMemory = nullptr);
 
     void vkUnmapMemoryPageGuardHandle(VkDevice device, VkDeviceMemory memory, void **MappedData);
 
