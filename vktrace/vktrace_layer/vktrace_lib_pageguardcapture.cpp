@@ -78,7 +78,12 @@ void PageGuardCapture::vkMapMemoryPageGuardHandle(VkDevice device, VkDeviceMemor
         if (size >= ref_target_range_size())
 #endif
         {
-            OPTmappedmem.vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData);
+            void* pExternalHostMemory = nullptr;
+            auto iteratorExtPointer = MapMemoryExtHostPointer.find(memory);
+            if (iteratorExtPointer != MapMemoryExtHostPointer.end()) {
+                pExternalHostMemory = iteratorExtPointer->second;
+            }
+            OPTmappedmem.vkMapMemoryPageGuardHandle(device, memory, offset, size, flags, ppData, pExternalHostMemory);
             MapMemory[memory] = OPTmappedmem;
         }
     }
