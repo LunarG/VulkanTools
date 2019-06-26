@@ -653,6 +653,8 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                                  'CreateIndirectCommandsLayoutNVX',
                                  'BindBufferMemory2KHR',
                                  'BindImageMemory2KHR',
+                                 'BindBufferMemory2',
+                                 'BindImageMemory2',
                                  'GetDisplayPlaneSupportedDisplaysKHR',
                                  'EnumerateDeviceExtensionProperties',
                                  'CreateSampler'
