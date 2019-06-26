@@ -4805,6 +4805,129 @@ VkResult vkReplay::manually_replay_vkBindImageMemory2KHR(packet_vkBindImageMemor
     return replayResult;
 }
 
+VkResult vkReplay::manually_replay_vkBindBufferMemory2(packet_vkBindBufferMemory2 *pPacket) {
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in BindBufferMemory2() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    for (size_t i = 0; i < pPacket->bindInfoCount; i++) {
+        VkBuffer traceBuffer = pPacket->pBindInfos[i].buffer;
+        VkBuffer remappedBuffer = m_objMapper.remap_buffers(pPacket->pBindInfos[i].buffer);
+        if (traceBuffer != VK_NULL_HANDLE && remappedBuffer == VK_NULL_HANDLE) {
+            vktrace_LogError("Error detected in BindBufferMemory2() due to invalid remapped VkBuffer.");
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+        *(reinterpret_cast<VkBuffer *>(&(const_cast<VkBindBufferMemoryInfo *>(pPacket->pBindInfos)[i]).buffer)) = remappedBuffer;
+        *(reinterpret_cast<VkDeviceMemory *>(&(const_cast<VkBindBufferMemoryInfo *>(pPacket->pBindInfos)[i]).memory)) =
+            m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
+        if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch()) {
+            uint64_t memOffsetTemp;
+            if (replayGetBufferMemoryRequirements.find(remappedBuffer) == replayGetBufferMemoryRequirements.end()) {
+                // vkBindBufferMemory2KHR is being called with a buffer for which vkGetBufferMemoryRequirements
+                // was not called. This might be violation of the spec on the part of the app, but seems to
+                // be done in many apps.  Call vkGetBufferMemoryRequirements for this buffer and add result to
+                // replayGetBufferMemoryRequirements map.
+                VkMemoryRequirements mem_reqs;
+                m_vkDeviceFuncs.GetBufferMemoryRequirements(remappeddevice, remappedBuffer, &mem_reqs);
+                replayGetBufferMemoryRequirements[remappedBuffer] = mem_reqs;
+            }
+
+            assert(replayGetBufferMemoryRequirements[remappedBuffer].alignment);
+            memOffsetTemp = pPacket->pBindInfos[i].memoryOffset + replayGetBufferMemoryRequirements[remappedBuffer].alignment - 1;
+            memOffsetTemp = memOffsetTemp / replayGetBufferMemoryRequirements[remappedBuffer].alignment;
+            memOffsetTemp = memOffsetTemp * replayGetBufferMemoryRequirements[remappedBuffer].alignment;
+            *(reinterpret_cast<VkDeviceSize *>(&(const_cast<VkBindBufferMemoryInfo *>(pPacket->pBindInfos)[i]).memoryOffset)) =
+                memOffsetTemp;
+        }
+    }
+    replayResult = m_vkDeviceFuncs.BindBufferMemory2(remappeddevice, pPacket->bindInfoCount, pPacket->pBindInfos);
+    return replayResult;
+}
+
+VkResult vkReplay::manually_replay_vkBindImageMemory2(packet_vkBindImageMemory2 *pPacket) {
+    VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
+    VkDevice remappeddevice = m_objMapper.remap_devices(pPacket->device);
+    if (pPacket->device != VK_NULL_HANDLE && remappeddevice == VK_NULL_HANDLE) {
+        vktrace_LogError("Error detected in BindImageMemory2() due to invalid remapped VkDevice.");
+        return VK_ERROR_VALIDATION_FAILED_EXT;
+    }
+
+    for (size_t i = 0; i < pPacket->bindInfoCount; i++) {
+        VkImage traceImage = pPacket->pBindInfos[i].image;
+        VkImage remappedImage = m_objMapper.remap_images(pPacket->pBindInfos[i].image);
+        if (traceImage != VK_NULL_HANDLE && remappedImage == VK_NULL_HANDLE) {
+            vktrace_LogError("Error detected in BindImageMemory2() due to invalid remapped VkImage.");
+            return VK_ERROR_VALIDATION_FAILED_EXT;
+        }
+        *(reinterpret_cast<VkImage *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).image)) = remappedImage;
+
+        if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch()) {
+            if (replayImageToTiling.find(remappedImage) == replayImageToTiling.end()) {
+                vktrace_LogError("Error detected in BindImageMemory2() due to invalid remapped image tiling.");
+                return VK_ERROR_VALIDATION_FAILED_EXT;
+            }
+
+            if (replayGetImageMemoryRequirements.find(remappedImage) == replayGetImageMemoryRequirements.end()) {
+                // vkBindImageMemory2 is being called with an image for which vkGetImageMemoryRequirements
+                // was not called. This might be violation of the spec on the part of the app, but seems to
+                // be done in many apps.  Call vkGetImageMemoryRequirements for this image and add result to
+                // replayGetImageMemoryRequirements map.
+                VkMemoryRequirements mem_reqs;
+                m_vkDeviceFuncs.GetImageMemoryRequirements(remappeddevice, remappedImage, &mem_reqs);
+                replayGetImageMemoryRequirements[remappedImage] = mem_reqs;
+            }
+
+            if (replayImageToTiling[remappedImage] == VK_IMAGE_TILING_OPTIMAL) {
+                uint32_t replayMemTypeIndex;
+                if (!getMemoryTypeIdx(pPacket->device, remappeddevice,
+                                      traceDeviceMemoryToMemoryTypeIndex[pPacket->pBindInfos[i].memory],
+                                      &replayGetImageMemoryRequirements[remappedImage], &replayMemTypeIndex)) {
+                    vktrace_LogError("Error detected in BindImageMemory2() due to invalid remapped memory type index.");
+                    return VK_ERROR_VALIDATION_FAILED_EXT;
+                }
+
+                VkMemoryAllocateInfo memoryAllocateInfo = {
+                    VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                    NULL,
+                    replayGetImageMemoryRequirements[remappedImage].size,
+                    replayMemTypeIndex,
+                };
+                VkDeviceMemory remappedMemory = VK_NULL_HANDLE;
+                replayResult = m_vkDeviceFuncs.AllocateMemory(remappeddevice, &memoryAllocateInfo, NULL, &remappedMemory);
+
+                if (replayResult == VK_SUCCESS) {
+                    *(reinterpret_cast<VkDeviceMemory *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).memory)) =
+                        remappedMemory;
+                    replayOptimalImageToDeviceMemory[remappedImage] = remappedMemory;
+                } else {
+                    *(reinterpret_cast<VkDeviceMemory *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).memory)) =
+                        VK_NULL_HANDLE;
+                }
+                *(reinterpret_cast<VkDeviceSize *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).memoryOffset)) =
+                    0;
+            } else {
+                *(reinterpret_cast<VkDeviceMemory *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).memory)) =
+                    m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
+                assert(replayGetImageMemoryRequirements[remappedImage].alignment);
+                uint64_t memoryOffset = 0;
+                memoryOffset = pPacket->pBindInfos[i].memoryOffset + replayGetImageMemoryRequirements[remappedImage].alignment - 1;
+                memoryOffset = memoryOffset / replayGetImageMemoryRequirements[remappedImage].alignment;
+                memoryOffset = memoryOffset * replayGetImageMemoryRequirements[remappedImage].alignment;
+                *(reinterpret_cast<VkDeviceSize *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).memoryOffset)) =
+                    memoryOffset;
+            }
+        } else {
+            *(reinterpret_cast<VkDeviceMemory *>(&(const_cast<VkBindImageMemoryInfo *>(pPacket->pBindInfos)[i]).memory)) =
+                m_objMapper.remap_devicememorys(pPacket->pBindInfos[i].memory);
+        }
+    }
+    replayResult = m_vkDeviceFuncs.BindImageMemory2(remappeddevice, pPacket->bindInfoCount, pPacket->pBindInfos);
+    return replayResult;
+}
+
 VkResult vkReplay::manually_replay_vkGetDisplayPlaneSupportedDisplaysKHR(packet_vkGetDisplayPlaneSupportedDisplaysKHR *pPacket) {
     VkResult replayResult = VK_ERROR_VALIDATION_FAILED_EXT;
     VkPhysicalDevice remappedphysicalDevice = m_objMapper.remap_physicaldevices(pPacket->physicalDevice);
