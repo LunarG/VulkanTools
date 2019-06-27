@@ -26,3 +26,4 @@
 #include "exclusive_qfi.h"
 #include "api_version_warning.h"
 #include "result_check.h"
+#include "skip_get_call_warning.h"
