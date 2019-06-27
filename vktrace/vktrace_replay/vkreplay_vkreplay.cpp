@@ -2428,8 +2428,9 @@ void vkReplay::manually_replay_vkUnmapMemory(packet_vkUnmapMemory *pPacket) {
 BOOL isvkFlushMappedMemoryRangesSpecial(PBYTE pOPTPackageData) {
     BOOL bRet = FALSE;
     PageGuardChangedBlockInfo *pChangedInfoArray = (PageGuardChangedBlockInfo *)pOPTPackageData;
-    if (((uint64_t)pChangedInfoArray[0].reserve0) &
-        PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES)  // TODO need think about 32bit
+    if ((pOPTPackageData == nullptr) ||
+        ((static_cast<uint64_t>(pChangedInfoArray[0].reserve0)) &
+         PAGEGUARD_SPECIAL_FORMAT_PACKET_FOR_VKFLUSHMAPPEDMEMORYRANGES))  // TODO need think about 32bit
     {
         bRet = TRUE;
     }
