@@ -459,7 +459,9 @@ VkResult vkFlushMappedMemoryRangesWithoutAPICall(VkDevice device, uint32_t memor
 
     // insert into packet the data that was written by CPU between the vkMapMemory call and here
     // create a temporary local ppData array and add it to the packet (to reserve the space for the array)
-    void** ppTmpData = (void**)malloc(memoryRangeCount * sizeof(void*));
+    void** ppTmpData = reinterpret_cast<void**>(vktrace_malloc(memoryRangeCount * sizeof(void*)));
+    memset(ppTmpData, 0, (size_t)memoryRangeCount * sizeof(void*));
+
     vktrace_add_buffer_to_trace_packet(pHeader, (void**)&(pPacket->ppData), sizeof(void*) * memoryRangeCount, ppTmpData);
     free(ppTmpData);
 
