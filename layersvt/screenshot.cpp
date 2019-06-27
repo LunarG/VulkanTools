@@ -53,10 +53,12 @@ static char android_env[64] = {};
 const char *env_var = "debug.vulkan.screenshot";
 const char *env_var_old = env_var;
 const char *env_var_format = "debug.vulkan.screenshot.format";
+const char *env_var_dir = "debug.vulkan.screenshot.dir";
 #else  //Linux or Windows
 const char *env_var_old = "_VK_SCREENSHOT";
 const char *env_var = "VK_SCREENSHOT_FRAMES";
 const char *env_var_format = "VK_SCREENSHOT_FORMAT";
+const char *env_var_dir = "VK_SCREENSHOT_DIR";
 #endif
 
 #ifdef ANDROID
@@ -1235,16 +1237,22 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         isInScreenShotFrameRange(frameNumber, &screenShotFrameRange, &inScreenShotFrameRange);
         if ((inScreenShotFrames) || (inScreenShotFrameRange)) {
             string fileName;
+            const char *vk_screenshot_dir = local_getenv(env_var_dir);
 
 #ifdef ANDROID
-            // std::to_string is not supported currently
-            char buffer[64];
-            snprintf(buffer, sizeof(buffer), "/sdcard/Android/%d", frameNumber);
-            std::string base(buffer);
-            fileName = base + ".ppm";
+            if (vk_screenshot_dir == NULL || strlen(vk_screenshot_dir) == 0) {
+                vk_screenshot_dir = "/sdcard/Android";
+            }
+#endif
+            if (vk_screenshot_dir == NULL || strlen(vk_screenshot_dir) == 0) {
+                fileName = to_string(frameNumber) + ".ppm";
+            } else {
+                fileName = vk_screenshot_dir;
+                fileName += "/" + to_string(frameNumber) + ".ppm";
+            }
+#ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
 #else
-            fileName = to_string(frameNumber) + ".ppm";
             printf("Screen Capture file is: %s \n", fileName.c_str());
 #endif
 
