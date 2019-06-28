@@ -17,9 +17,9 @@ struct PHYSICAL_DEVICE_STATE {
     // Track the call state and array sizes for various query functions
     CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState = UNCALLED;
     // not used
-    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState = UNCALLED;
-    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState = UNCALLED;
-    CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState = UNCALLED;      // depracated
+    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState = UNCALLED;  // not sure
+    CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;             // needs to be called before vkCreateDevice
     // end not used
     CALL_STATE vkGetPhysicalDeviceSurfaceCapabilitiesKHRState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceSurfacePresentModesKHRState = UNCALLED;
@@ -35,7 +35,23 @@ class SkipGetCallWarning : public layer_factory {
     void PreCallApiFunction(const char *api_name);
 
     PHYSICAL_DEVICE_STATE *GetPhysicalDeviceState();
-    PHYSICAL_DEVICE_STATE *GetPhyscialDeviceState(VkPhysicalDevice pd);
+    PHYSICAL_DEVICE_STATE *GetPhysicalDeviceState(VkPhysicalDevice pd);
+
+    VkResult PostCallEnumeratePhysicalDevices(VkInstance instance, uint32_t* pPhysicalDeviceCount,
+                                              VkPhysicalDevice* pPhysicalDevices, VkResult result);
+
+    void PreCallGetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures* pFeatures);
+    VkResult PreCallCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
+                                 const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
+
+    VkResult PreCallGetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                            VkSurfaceCapabilitiesKHR* pSurfaceCapabilities);
+    VkResult PreCallGetPhysicalDeviceSurfacePresentModesKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                            uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
+    VkResult PreCallGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
+                                                       uint32_t* pSurfaceFormatCount, VkSurfaceFormatKHR* pSurfaceFormats);
+    VkResult PreCallCreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                       const VkAllocationCallbacks* pAllocator, VkSwapchainKHR* pSwapchain);
 
    private:
     PHYSICAL_DEVICE_STATE *physical_device_state;
