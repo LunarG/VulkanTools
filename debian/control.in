@@ -33,8 +33,7 @@ Vcs-Browser: https://github.com/linuxturtle/VulkanTools
 Package: lunarg-vulkan-layers
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- vulkan-headers (>=__VKAPIVERSION__),
- libvulkan1 (>=__VKAPIVERSION__),
+ libvulkan-dev (>=__VKAPIVERSION__),
  vulkan-validationlayers (>=__VKAPIVERSION__)
 Description: Extra vulkan development layers from LunarG
  This package contains extra development layers for Vulkan from LunarG.  These
@@ -43,8 +42,7 @@ Description: Extra vulkan development layers from LunarG
 Package: lunarg-vktrace
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- vulkan-headers (>=__VKAPIVERSION__),
- libvulkan1 (>=__VKAPIVERSION__),
+ libvulkan-dev (>=__VKAPIVERSION__),
  vulkan-validationlayers (>=__VKAPIVERSION__)
 Description: LunarG vulkan API capture and replay tools
  This package contains the vktrace and vkreplay tools, used to capture and
@@ -53,8 +51,7 @@ Description: LunarG vulkan API capture and replay tools
 Package: lunarg-via
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- vulkan-headers (>=__VKAPIVERSION__),
- libvulkan1 (>=__VKAPIVERSION__),
+ libvulkan-dev (>=__VKAPIVERSION__),
  vulkan-validationlayers (>=__VKAPIVERSION__)
 Description: LunarG Vulkan Installation Analyzer
  VIA is a tool that can:
@@ -67,8 +64,7 @@ Description: LunarG Vulkan Installation Analyzer
 Package: lunarg-vkconfig
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- vulkan-headers (>=__VKAPIVERSION__),
- libvulkan1 (>=__VKAPIVERSION__),
+ libvulkan-dev (>=__VKAPIVERSION__),
  vulkan-validationlayers (>=__VKAPIVERSION__),
  libqt5core5a,
  libqt5gui5,
