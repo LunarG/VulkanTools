@@ -14,17 +14,15 @@ enum CALL_STATE {
 
 // pulled from KhronosGroup/Validation-Layers
 struct PHYSICAL_DEVICE_STATE {
-    // Track the call state and array sizes for various query functions
-    CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState = UNCALLED;
-    // not used
-    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState = UNCALLED;      // depracated
-    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState = UNCALLED;  // not sure
-    CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;             // needs to be called before vkCreateDevice
-    // end not used
+    CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceSurfaceCapabilitiesKHRState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceSurfacePresentModesKHRState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceSurfaceFormatsKHRState = UNCALLED;
     CALL_STATE vkGetPhysicalDeviceDisplayPlanePropertiesKHRState = UNCALLED;
+
+    CALL_STATE vkGetPhysicalDeviceMemoryPropertiesState = UNCALLED;
+    CALL_STATE vkGetBufferMemoryRequirementsState = UNCALLED;
+    CALL_STATE vkGetImageMemoryRequirementsState = UNCALLED;
 };
 
 class SkipGetCallWarning : public layer_factory {
@@ -32,8 +30,7 @@ class SkipGetCallWarning : public layer_factory {
     // Constructor for state_tracker
     SkipGetCallWarning(){};
 
-    void PreCallApiFunction(const char *api_name);
-
+    // getters for the physical device state
     PHYSICAL_DEVICE_STATE *GetPhysicalDeviceState();
     PHYSICAL_DEVICE_STATE *GetPhysicalDeviceState(VkPhysicalDevice pd);
 
@@ -52,6 +49,22 @@ class SkipGetCallWarning : public layer_factory {
                                                        uint32_t* pSurfaceFormatCount, VkSurfaceFormatKHR* pSurfaceFormats);
     VkResult PreCallCreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR* pCreateInfo,
                                        const VkAllocationCallbacks* pAllocator, VkSwapchainKHR* pSwapchain);
+
+    VkResult PreCallGetPhysicalDeviceDisplayPlanePropertiesKHR(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount,
+                                                               VkDisplayPlanePropertiesKHR* pProperties);
+    VkResult PreCallGetDisplayPlaneSupportedDisplaysKHR(VkPhysicalDevice physicalDevice, uint32_t planeIndex,
+                                                        uint32_t* pDisplayCount, VkDisplayKHR* pDisplays);
+
+    void PreCallGetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice,
+                                                  VkPhysicalDeviceMemoryProperties* pMemoryProperties);
+    VkResult PreCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo* pAllocateInfo,
+                                   const VkAllocationCallbacks* pAllocator, VkDeviceMemory* pMemory);
+
+    void PreCallGetBufferMemoryRequirements(VkDevice device, VkBuffer buffer, VkMemoryRequirements* pMemoryRequirements);
+    void PreCallGetImageMemoryRequirements(VkDevice device, VkImage image, VkMemoryRequirements* pMemoryRequirements);
+
+    VkResult PreCallBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+    VkResult PreCallBindImageMemory(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
    private:
     PHYSICAL_DEVICE_STATE *physical_device_state;
