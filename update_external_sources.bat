@@ -21,3 +21,4 @@ git submodule update --init --recursive
       echo JsonCPP Amalgamation failed to generate %JSONCPP_DIR%\dist\json\json.h
       set errorCode=1
    )
+   cd %BUILD_DIR%
