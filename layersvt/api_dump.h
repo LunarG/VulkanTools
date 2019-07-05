@@ -31,6 +31,7 @@
 #include "vk_layer_extension_utils.h"
 #include "vk_layer_utils.h"
 
+#include <atomic>
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -538,6 +539,8 @@ class ApiDumpInstance {
     static inline ApiDumpInstance &current() { return current_instance; }
 
     std::unordered_map<uint64_t, std::string> object_name_map;
+
+    std::unordered_map<uint64_t, uint32_t> unique_handle_map;
 
    private:
     static ApiDumpInstance current_instance;

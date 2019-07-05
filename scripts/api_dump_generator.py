@@ -467,7 +467,12 @@ inline std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSe
             settings.stream() << " [" << it->second << "]";
         }}
     }} else {{
-        settings.stream() << "address";
+        if (ApiDumpInstance::current().unique_handle_map.count((uint64_t) object) == 0) 
+        {{
+            static std::atomic<unsigned int> unique_handle_id;
+            ApiDumpInstance::current().unique_handle_map.insert(std::make_pair<uint64_t, uint32_t>((uint64_t &&) object, unique_handle_id++));
+        }}
+        settings.stream() << ApiDumpInstance::current().unique_handle_map.at((uint64_t) object) << " (unique address)" ;
     }}
 
     return settings.stream();
@@ -843,7 +848,12 @@ inline std::ostream& dump_html_{hdlName}(const {hdlName} object, const ApiDumpSe
             settings.stream() << "</div><div class='val'>[" << it->second << "]";
         }}
     }} else {{
-        settings.stream() << "address";
+        if (ApiDumpInstance::current().unique_handle_map.count((uint64_t) object) == 0) 
+        {{
+            static std::atomic<unsigned int> unique_handle_id;
+            ApiDumpInstance::current().unique_handle_map.insert(std::make_pair<uint64_t, uint32_t>((uint64_t &&) object, unique_handle_id++));
+        }}
+        settings.stream() << ApiDumpInstance::current().unique_handle_map.at((uint64_t) object) << " (unique address)" ;
     }}
     return settings.stream() << "</div></summary>";
 }}
@@ -1248,9 +1258,19 @@ inline std::ostream& dump_json_{sysName}(const {sysType} object, const ApiDumpSe
 inline std::ostream& dump_json_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress()) {{
-        return settings.stream() << "\\"" << object << "\\"";
+        settings.stream() << "\\"" << object;
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+            settings.stream() << " [" << it->second << "]";
+        }}
+        settings.stream() << "\\"";
     }} else {{
-        return settings.stream() << "\\"address\\"";
+        if (ApiDumpInstance::current().unique_handle_map.count((uint64_t) object) == 0) 
+        {{
+            static std::atomic<unsigned int> unique_handle_id;
+            ApiDumpInstance::current().unique_handle_map.insert(std::make_pair<uint64_t, uint32_t>((uint64_t &&) object, unique_handle_id++));
+        }}
+        settings.stream() << "\\"" <<ApiDumpInstance::current().unique_handle_map.at((uint64_t) object) << " (unique address)\\"" ;
     }}
     return settings.stream();
 }}
