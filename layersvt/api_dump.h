@@ -754,6 +754,18 @@ inline std::ostream &dump_text_void(const void *object, const ApiDumpSettings &s
 
 inline std::ostream &dump_text_int(int object, const ApiDumpSettings &settings, int indents) { return settings.stream() << object; }
 
+template <typename T, typename... Args>
+inline void dump_text_pNext(const T *object, const ApiDumpSettings &settings, const char *type_string, int indents,
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
+    if (object == NULL)
+        settings.stream() << "NULL";
+    else if (settings.showAddress()) {
+        settings.formatNameType(settings.stream(), indents, "pNext", type_string);
+        dump(*object, settings, indents, args...);
+    } else
+        settings.stream() << "address";
+}
+
 //==================================== Html Backend Helpers ======================================//
 
 inline std::ostream &dump_html_nametype(std::ostream &stream, bool showType, const char *name, const char *type) {
@@ -905,6 +917,18 @@ inline std::ostream &dump_html_int(int object, const ApiDumpSettings &settings, 
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     return settings.stream() << "</div>";
+}
+
+template <typename T, typename... Args>
+inline void dump_html_pNext(const T *object, const ApiDumpSettings &settings, const char *type_string, int indents,
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
+    if (object == NULL) {
+        settings.stream() << "<details class='data'><summary>";
+        dump_html_nametype(settings.stream(), settings.showType(), "pNext", type_string);
+        settings.stream() << "<div class='val'>NULL</div></summary></details>";
+    } else {
+        dump_html_value(*object, settings, type_string, "pNext", indents, dump, args...);
+    }
 }
 
 //==================================== Json Backend Helpers ======================================//
@@ -1110,4 +1134,21 @@ inline std::ostream &dump_json_int(int object, const ApiDumpSettings &settings, 
     settings.stream() << settings.indentation(indents) << "\"value\" : ";
     settings.stream() << '"' << object << "\"";
     return settings.stream();
+}
+
+template <typename T, typename... Args>
+inline void dump_json_pNext(const T *object, const ApiDumpSettings &settings, const char *type_string, int indents,
+                            std::ostream &(*dump)(const T &, const ApiDumpSettings &, int, Args... args), Args... args) {
+    if (object == NULL) {
+        settings.stream() << settings.indentation(indents) << "{\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \""
+                          << "pNext"
+                          << "\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"0x0\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"value\" : \"NULL\"\n";
+        settings.stream() << settings.indentation(indents) << "}";
+    } else {
+        dump_json_value(*object, settings, type_string, "pNext", indents, dump, args...);
+    }
 }
