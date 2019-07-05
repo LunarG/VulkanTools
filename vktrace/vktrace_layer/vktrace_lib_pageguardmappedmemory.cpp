@@ -370,7 +370,7 @@ bool PageGuardMappedMemory::vkMapMemoryPageGuardHandle(VkDevice device, VkDevice
         *ppData = pMappedData;
     } else {
         pMappedData = reinterpret_cast<PBYTE>(*ppData);
-        StartingAddressOffset = (pMappedData-pExternalHostMemory)% PageGuardSize;
+        StartingAddressOffset = (pMappedData - reinterpret_cast<PBYTE>(pExternalHostMemory)) % PageGuardSize;
     }
 
     MappedSize = size;
