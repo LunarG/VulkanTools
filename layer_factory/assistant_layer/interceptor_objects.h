@@ -27,3 +27,4 @@
 #include "api_version_warning.h"
 #include "result_check.h"
 #include "skip_get_call_warning.h"
+#include "mem_bound_warning.h"
