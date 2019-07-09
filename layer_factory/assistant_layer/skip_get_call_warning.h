@@ -31,8 +31,8 @@ class SkipGetCallWarning : public layer_factory {
     SkipGetCallWarning(){};
 
     // getters for the physical device state
-    PHYSICAL_DEVICE_STATE *GetPhysicalDeviceState();
-    PHYSICAL_DEVICE_STATE *GetPhysicalDeviceState(VkPhysicalDevice pd);
+    PHYSICAL_DEVICE_STATE* GetPhysicalDeviceState();
+    PHYSICAL_DEVICE_STATE* GetPhysicalDeviceState(VkPhysicalDevice pd);
 
     VkResult PostCallEnumeratePhysicalDevices(VkInstance instance, uint32_t* pPhysicalDeviceCount,
                                               VkPhysicalDevice* pPhysicalDevices, VkResult result);
@@ -67,6 +67,6 @@ class SkipGetCallWarning : public layer_factory {
     VkResult PreCallBindImageMemory(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
    private:
-    PHYSICAL_DEVICE_STATE *physical_device_state;
+    PHYSICAL_DEVICE_STATE* physical_device_state;
     std::unordered_map<VkPhysicalDevice, PHYSICAL_DEVICE_STATE> physical_device_map;
 };
