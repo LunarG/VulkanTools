@@ -2,10 +2,10 @@
 #include <sstream>
 #include <iostream>
 
-PHYSICAL_DEVICE_STATE *SkipGetCallWarning::GetPhysicalDeviceState() { return physical_device_state; }
+PHYSICAL_DEVICE_STATE* SkipGetCallWarning::GetPhysicalDeviceState() { return physical_device_state; }
 
-PHYSICAL_DEVICE_STATE *SkipGetCallWarning::GetPhysicalDeviceState(VkPhysicalDevice pd) {
-    auto *phys_dev_map = &physical_device_map;
+PHYSICAL_DEVICE_STATE* SkipGetCallWarning::GetPhysicalDeviceState(VkPhysicalDevice pd) {
+    auto* phys_dev_map = &physical_device_map;
     auto physicalDevice = phys_dev_map->find(pd);
     if (physicalDevice == phys_dev_map->end()) {
         return nullptr;
@@ -23,7 +23,7 @@ void SetStateWithCount(T& call_state, S pStruct) {
     }
 }
 
-// Populate physical_device_map with al the Physical Devices
+// Populate physical_device_map with all the Physical Devices
 VkResult SkipGetCallWarning::PostCallEnumeratePhysicalDevices(VkInstance instance, uint32_t* pPhysicalDeviceCount,
                                                               VkPhysicalDevice* pPhysicalDevices, VkResult result) {
     if ((pPhysicalDevices != NULL) && ((result == VK_SUCCESS || result == VK_INCOMPLETE))) {
