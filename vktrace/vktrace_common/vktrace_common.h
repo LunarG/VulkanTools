@@ -179,7 +179,7 @@ static const uint32_t INVALID_BINDING_INDEX = UINT32_MAX;
 
 // _VKTRACE_VERBOSITY env var is set by the vktrace program to
 // communicate verbosity level to the trace layer. It is set to
-// one of "quiet", "errors", "warnings", "full", or "debug".
+// one of "quiet", "errors", "warnings", "full", "debug", or "max".
 #define _VKTRACE_VERBOSITY_ENV "_VKTRACE_VERBOSITY"
 
 // VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE env var is an option used only

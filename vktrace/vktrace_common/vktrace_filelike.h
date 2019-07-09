@@ -40,6 +40,7 @@ typedef struct FileLike {
     uint64_t mFileLen;
     MessageStream* mMessageStream;
 } FileLike;
+#define FILELIKE_MODE_NAME(m) ((m) == File ? "File" : (m) == Socket ? "Socket" : "unknown")
 
 // For creating checkpoints (consistency checks) in the various streams we're interacting with.
 typedef struct Checkpoint {

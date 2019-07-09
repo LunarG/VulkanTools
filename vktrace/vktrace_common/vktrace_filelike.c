@@ -137,9 +137,13 @@ BOOL vktrace_FileLike_ReadRaw(FileLike* pFileLike, void* _bytes, uint64_t _len) 
         case File: {
             if (1 != fread(_bytes, (size_t)_len, 1, pFileLike->mFile)) {
                 if (ferror(pFileLike->mFile) != 0) {
-                    perror("fread error");
+                    vktrace_LogVerbose("fread of %d bytes returned error code %d (%s).",
+                        (int) _len, errno, strerror(errno));
                 } else if (feof(pFileLike->mFile) != 0) {
-                    vktrace_LogVerbose("Reached end of file.");
+                    vktrace_LogVerbose("fread of %d bytes reached end of file.", (int) _len);
+                }
+                else {
+                    vktrace_LogVerbose("fread returned 0 without error or end of file.");
                 }
                 result = FALSE;
             }

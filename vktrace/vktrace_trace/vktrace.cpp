@@ -101,7 +101,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.verbosity},
      TRUE,
      "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", \"full\", "
-     "\"debug\"."},
+     "\"max\", \"debug\"."},
 #else
     {"v",
      "Verbosity",
@@ -110,7 +110,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&g_default_settings.verbosity},
      TRUE,
      "Verbosity mode. Modes are \"quiet\", \"errors\", \"warnings\", "
-     "\"full\"."},
+     "\"full\", \"max\"."},
 #endif
 
     {"tr",

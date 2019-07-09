@@ -22,17 +22,17 @@ Options for the `vktrace` command are:
 | Trace Option         | Description |  Default |
 | -------------------- | ----------------- | --- |
 | -a&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Arguments&nbsp;&lt;string&gt; | Command line arguments to pass to the application to be traced | none |
-| -o&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;OutputTrace&nbsp;&lt;string&gt; | Name of the generated trace file | vktrace_out.vktrace |
+| -o&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;OutputTrace&nbsp;&lt;string&gt; | Name of the generated trace file | `vktrace_out.vktrace` |
 | -p&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Program&nbsp;&lt;string&gt; | Name of the application to trace  | if not provided, server mode tracing is enabled |
 | -ptm&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PrintTraceMessages&nbsp;&lt;bool&gt; | Print trace messages to console | on |
 | -s&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Screenshot&nbsp;&lt;string&gt; | Frame numbers of which to take screen shots. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comma separated list of frames<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;start&gt;-&nbsp;&lt;count&gt;-&nbsp;&lt;interval&gt; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"all"  | no screenshots |
 | -w&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;WorkingDir&nbsp;&lt;string&gt; | Alternate working directory | the application's directory |
-| -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace  persistently mapped buffers | true |
+| -P&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;PMB&nbsp;&lt;bool&gt; | Trace persistently mapped buffers | true |
 | -tr&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TraceTrigger&nbsp;&lt;string&gt; | Start/stop trim by hotkey or frame range. String arg is one of:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hotkey-[F1-F12\|TAB\|CONTROL]<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frames-&lt;startframe&gt;-&lt;endframe&gt;| on |
-| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of VKTRACE_TRIM_POST_PROCESS below | false |
-| -tl&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TraceLock&nbsp;&lt;bool&gt; | Enable locking of API calls during trace. Default is TRUE if trimming is enabled, FALSE otherwise. See description of VKTRACE_ENABLE_TRACE_LOCK below | See description |
-| -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - "quiet", "errors", "warnings", or "full" | errors |
-| -tbs&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TrimBatchSize&nbsp;&lt;string&gt; | Set the maximum trim commands batch size per command buffer, see description of VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE below  |  device memory allocation limit divided by 100 |
+| -tpp&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TrimPostProcessing&nbsp;&lt;bool&gt; | Enable trim post-processing to make trimmed trace file smaller, see description of `VKTRACE_TRIM_POST_PROCESS` below | false |
+| -tl&nbsp;&lt;bool&gt;<br>&#x2011;&#x2011;TraceLock&nbsp;&lt;bool&gt; | Enable locking of API calls during trace. Default is TRUE if trimming is enabled, FALSE otherwise. See description of `VKTRACE_ENABLE_TRACE_LOCK` below | See description |
+| -v&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;Verbosity&nbsp;&lt;string&gt; | Verbosity mode - `quiet`, `errors`, `warnings`, `full`, or `max` | `errors` | The level of messages that should be logged.  The named level and below will be included.  The special value `max` always prints out all information available, and is generally equivalent to `full`.
+| -tbs&nbsp;&lt;string&gt;<br>&#x2011;&#x2011;TrimBatchSize&nbsp;&lt;string&gt; | Set the maximum trim commands batch size per command buffer, see description of `VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE` below  |  device memory allocation limit divided by 100 |
 
 In local tracing mode, both the `vktrace` and application executables reside on the same system.
 
@@ -160,7 +160,7 @@ To activate specific layers on a trace replay, set the `VK_INSTANCE_LAYERS` envi
 
 ## Persistently Mapped Buffers and vktrace
 
-If a Vulkan program uses persistently mapped buffers (PMB) that are allocated via vkMapMemory, vktrace can track changes to PMB and automatically copy modified PMB pages to the trace file, rather than requiring that the Vulkan program call vkFlushMappedMemoryRanges to specify what PMB buffers should be copied. On Windows, the trace layer detects changes to PMB pages by setting the PAGE_GUARD flag for mapped memory pages and installing an exception handler for PAGE_GUARD that keeps track of which pages have been modified.  On Linux, the trace layer detects changes by using mprotect to disable writes to mapped memory pages and installing a signal handler for SIGSEGV.
+If a Vulkan program uses persistently mapped buffers (PMB) that are allocated via vkMapMemory, vktrace can track changes to PMB and automatically copy modified PMB pages to the trace file, rather than requiring that the Vulkan program call vkFlushMappedMemoryRanges to specify what PMB buffers should be copied. On Windows, the trace layer detects changes to PMB pages by setting the `PAGE_GUARD` flag for mapped memory pages and installing an exception handler for `PAGE_GUARD` that keeps track of which pages have been modified.  On Linux, the trace layer detects changes by using mprotect to disable writes to mapped memory pages and installing a signal handler for SIGSEGV.
 
 Tracking of changes to PMB using the above techniques is enabled by default. If you wish to disable PMB tracking, it can be disabled by with the `--PMB false` option to the vktrace command. Disabling PMB tracking can result in some mapped memory changes not being detected by the trace layer, a larger trace file, and/or slower trace/replay.
 
@@ -168,27 +168,27 @@ Tracking of changes to PMB using the above techniques is enabled by default. If 
 
 Several environment variables can be set to change the behavior of vktrace/vktrace layer:
 
- - VKTRACE_PMB_ENABLE
+ - `VKTRACE_PMB_ENABLE`
 
     VKTRACE_PMB_ENABLE enables tracking of PMB if its value is 1 or 2.  Other values disable PMB tracking.  Currently 2 is only used to enable using external host memory extension and memory write watch to capture PMB on Windows platform.  If this environment variable is not set, PMB tracking is enabled, same as setting VKTRACE_PMB_ENABLE to 1.  When creating a trace using client/server mode, set this variable to 0 when starting the client if you wish to disable PMB tracking.
 
- - VKTRACE_PAGEGUARD_ENABLE_READ_PMB
+ - `VKTRACE_PAGEGUARD_ENABLE_READ_PMB`
 
     VKTRACE_PAGEGUARD_ENABLE_READ_PMB enables read PMB support if set to a non-NULL value.  If PMB data changes comes from the GPU side, PMB tracking does not usually capture those changes. This environment  variable is used to enable capture of such GPU initiated PMB data changes. It is supported only on Windows.
 
- - VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS
+ - `VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS`
 
     VKTRACE_PAGEGUARD_ENABLE_READ_POST_PROCESS, when set to a non-null value, enables post-processing  when read PMB support is enabled.  When VKTRACE_PAGEGUARD_ENABLE_READ_PMB is set, PMB processing will sometimes miss writes following reads if writes occur on the same page as a read. Set this environment variable to enable post-processing to fix missed PMB writes. It is supported only on Windows.
 
- - VKTRACE_TRIM_POST_PROCESS
+ - `VKTRACE_TRIM_POST_PROCESS`
 
     VKTRACE_TRIM_POST_PROCESS enables post-processing of trim if its value is 1.  Other values disable trim post-processing.  Disable post-processing means the trimmed trace file will record all the not destroyed objects whether they are used/referenced in the trim frame range or not.  Enable post-processing will drop most of the pre-trim objects which are not used/referenced in the trim frame range.  Set this environment variable to 1 to enable post-processing of trim to generate a smaller trace file and eliminate most useless pre-trim objects and Vulkan calls.  Do NOT enable trim post-processing when there's a large trim frame range because both the referenced pre-trim data and in-trim data are kept in memory until writing to trace file in the trim end frame which may exceeds the system memory.
 
- - VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE
+ - `VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE`
 
     VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE sets the maximum number of commands batched during trim resources upload (images and buffers recreation). The range is 1 - device memory allocation limit. This enviroment variable is used to reduce the number of  command buffers allocated  by batching the commands execution according to the size set. 
 
- - VKTRACE_ENABLE_TRACE_LOCK
+ - `VKTRACE_ENABLE_TRACE_LOCK`
  
     VKTRACE_ENABLE_TRACE_LOCK enables locking of API calls during trace if set to a non-null value. Not setting this variable will sometimes result in race conditions and remap errors during replay. Setting this variable will avoid those errors, with a slight performance loss during tracing. Locking of API calls is always enabled when trimming is enabled.
 
