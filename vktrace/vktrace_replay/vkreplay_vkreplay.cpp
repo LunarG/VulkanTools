@@ -4825,7 +4825,7 @@ VkResult vkReplay::manually_replay_vkBindBufferMemory2(packet_vkBindBufferMemory
         if (g_pReplaySettings->compatibilityMode && m_pFileHeader->portability_table_valid && !platformMatch()) {
             uint64_t memOffsetTemp;
             if (replayGetBufferMemoryRequirements.find(remappedBuffer) == replayGetBufferMemoryRequirements.end()) {
-                // vkBindBufferMemory2KHR is being called with a buffer for which vkGetBufferMemoryRequirements
+                // vkBindBufferMemory2 is being called with a buffer for which vkGetBufferMemoryRequirements
                 // was not called. This might be violation of the spec on the part of the app, but seems to
                 // be done in many apps.  Call vkGetBufferMemoryRequirements for this buffer and add result to
                 // replayGetBufferMemoryRequirements map.
