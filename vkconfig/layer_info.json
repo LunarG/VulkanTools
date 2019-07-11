@@ -21,7 +21,6 @@
         }
     },
     "layer_options": {
-
         "VK_LAYER_KHRONOS_validation": {
             "debug_action": {
                 "name": "Debug Action",
@@ -47,7 +46,11 @@
                     "error": "Error",
                     "debug": "Debug"
                 },
-                "default": [ "error", "warn", "perf" ]
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
             },
             "log_filename": {
                 "name": "Log Filename",
@@ -66,13 +69,16 @@
                 "default": []
             }
         },
-
         "VK_LAYER_LUNARG_api_dump": {
             "output_format": {
                 "name": "Output Format",
                 "description": "Specifies the format used for output; can be Text (default -- outputs plain text), Html, or Json",
                 "type": "enum",
-                "options": [ "Text", "Html", "Json" ],
+                "options": [
+                    "Text",
+                    "Html",
+                    "Json"
+                ],
                 "default": "Text"
             },
             "detailed": {
@@ -135,6 +141,12 @@
                 "type": "bool",
                 "default": true
             },
+            "show_timestamp": {
+                "name": "Show Timestamp",
+                "description": "Show the timestamp of function calls since start in microseconds",
+                "type": "bool",
+                "default": false
+            },
             "show_shader": {
                 "name": "Show Shader",
                 "description": "Setting this to true causes the shader binary code in pCode to be also written to output",
@@ -148,7 +160,6 @@
                 "default": "0-0"
             }
         },
-
         "VK_LAYER_LUNARG_core_validation": {
             "debug_action": {
                 "name": "Debug Action",
@@ -174,7 +185,11 @@
                     "error": "Error",
                     "debug": "Debug"
                 },
-                "default": [ "error", "warn", "perf" ]
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
             },
             "log_filename": {
                 "name": "Log Filename",
@@ -183,7 +198,6 @@
                 "default": "stdout"
             }
         },
-
         "VK_LAYER_LUNARG_device_simulation": {
             "filename": {
                 "name": "Filename",
@@ -201,7 +215,6 @@
                 "default": false
             }
         },
-
         "VK_LAYER_LUNARG_object_tracker": {
             "debug_action": {
                 "name": "Debug Action",
@@ -227,7 +240,11 @@
                     "error": "Error",
                     "debug": "Debug"
                 },
-                "default": [ "error", "warn", "perf" ]
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
             },
             "log_filename": {
                 "name": "Log Filename",
@@ -236,7 +253,6 @@
                 "default": "stdout"
             }
         },
-
         "VK_LAYER_LUNARG_parameter_validation": {
             "debug_action": {
                 "name": "Debug Action",
@@ -262,7 +278,11 @@
                     "error": "Error",
                     "debug": "Debug"
                 },
-                "default": [ "error", "warn", "perf" ]
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
             },
             "log_filename": {
                 "name": "Log Filename",
@@ -271,7 +291,6 @@
                 "default": "stdout"
             }
         },
-
         "VK_LAYER_GOOGLE_threading": {
             "debug_action": {
                 "name": "Debug Action",
@@ -297,7 +316,11 @@
                     "error": "Error",
                     "debug": "Debug"
                 },
-                "default": [ "error", "warn", "perf" ]
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
             },
             "log_filename": {
                 "name": "Log Filename",
@@ -306,7 +329,6 @@
                 "default": "stdout"
             }
         },
-
         "VK_LAYER_GOOGLE_unique_objects": {
             "debug_action": {
                 "name": "Debug Action",
@@ -332,7 +354,11 @@
                     "error": "Error",
                     "debug": "Debug"
                 },
-                "default": [ "error", "warn", "perf" ]
+                "default": [
+                    "error",
+                    "warn",
+                    "perf"
+                ]
             },
             "log_filename": {
                 "name": "Log Filename",

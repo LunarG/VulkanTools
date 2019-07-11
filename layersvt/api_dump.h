@@ -33,6 +33,7 @@
 #include "vk_layer_utils.h"
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -63,6 +64,7 @@
 #define API_DUMP_ENV_VAR_NO_ADDRESSES "VK_APIDUMP_NO_ADDR"
 #define API_DUMP_ENV_VAR_FLUSH_FILE "VK_APIDUMP_FLUSH"
 #define API_DUMP_ENV_VAR_OUTPUT_RANGE "VK_APIDUMP_OUTPUT_RANGE"
+#define API_DUMP_ENV_VAR_TIMESTAMP "VK_APIDUMP_TIMESTAMP"
 
 enum class ApiDumpFormat {
     Text,
@@ -288,6 +290,12 @@ class ApiDumpSettings {
             should_flush = !GetStringBooleanValue(env_value);
         }
 
+        show_timestamp = readBoolOption("lunarg_api_dump.show_timestamp", true);
+        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_TIMESTAMP);
+        if (!env_value.empty()) {
+            show_timestamp = GetStringBooleanValue(env_value);
+        }
+
         indent_size = std::max(readIntOption("lunarg_api_dump.indent_size", 4), 0);
         show_type = readBoolOption("lunarg_api_dump.show_types", true);
         name_size = std::max(readIntOption("lunarg_api_dump.name_size", 32), 0);
@@ -401,6 +409,9 @@ class ApiDumpSettings {
                             "text-align: right;"
                         "}"
                         ".thd {"
+                            "color: #888;"
+                        "}"
+                        ".time {"
                             "color: #888;"
                         "}"
                         "</style>"
@@ -517,6 +528,8 @@ class ApiDumpSettings {
 
     inline bool showType() const { return show_type; }
 
+    inline bool showTimestamp() const { return show_timestamp; }
+
     inline std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
 
     inline std::string directory() const { return output_dir; }
@@ -621,6 +634,7 @@ class ApiDumpSettings {
     bool show_params;
     bool show_address;
     bool should_flush;
+    bool show_timestamp;
 
     bool show_type;
     int indent_size;
@@ -651,6 +665,8 @@ class ApiDumpInstance {
         loader_platform_thread_create_mutex(&frame_mutex);
         loader_platform_thread_create_mutex(&thread_mutex);
         loader_platform_thread_create_mutex(&cmd_buffer_state_mutex);
+
+        program_start = std::chrono::system_clock::now();
     }
 
     inline ~ApiDumpInstance() {
@@ -791,6 +807,11 @@ class ApiDumpInstance {
         }
     }
 
+    inline std::chrono::microseconds current_time_since_start() {
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        return std::chrono::duration_cast<std::chrono::microseconds>(now - program_start);
+    }
+
     static inline ApiDumpInstance &current() { return current_instance; }
 
     std::unordered_map<uint64_t, std::string> object_name_map;
@@ -816,6 +837,8 @@ class ApiDumpInstance {
     bool conditional_initialized = false;
     bool should_dump_output = true;
     bool first_func_call_on_frame = false;
+
+    std::chrono::system_clock::time_point program_start;
 };
 
 ApiDumpInstance ApiDumpInstance::current_instance;

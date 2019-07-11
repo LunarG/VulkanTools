@@ -97,3 +97,4 @@ lunarg_api_dump.type_size = 0
 lunarg_api_dump.use_spaces = TRUE
 lunarg_api_dump.show_shader = FALSE
 lunarg_api_dump.output_range = 0-0
+lunarg_api_dump.show_timestamp = FALSE
