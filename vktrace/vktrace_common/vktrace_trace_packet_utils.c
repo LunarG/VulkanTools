@@ -455,8 +455,8 @@ vktrace_trace_packet_header* vktrace_read_trace_packet(FileLike* pFile) {
         pHeader->size = total_packet_size;
         if (vktrace_FileLike_ReadRaw(pFile, (char*)pHeader + sizeof(uint64_t), (size_t)total_packet_size - sizeof(uint64_t)) ==
             FALSE) {
-            vktrace_LogError("Failed to read trace packet with size of %u from %s source.", 
-                total_packet_size, FILELIKE_MODE_NAME(pFile->mMode));
+            vktrace_LogError("Failed to read trace packet with size of %ju from %s source.", (intmax_t)total_packet_size,
+                             FILELIKE_MODE_NAME(pFile->mMode));
             return NULL;
         }
 
