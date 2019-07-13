@@ -31,7 +31,7 @@
 #pragma comment(lib, "Rpcrt4.lib")
 #endif
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 #include <fcntl.h>
 #include <time.h>
 #include <sys/utsname.h>
@@ -82,7 +82,7 @@ void vktrace_gen_uuid(uint32_t* pUuid) {
     pUuid[3] = buf[3];
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 uint64_t vktrace_get_time() {
     struct timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
@@ -140,7 +140,7 @@ const char* get_endianess_string(uint64_t endianess) {
 
 uint64_t get_arch() {
     uint64_t rval = 0;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
     struct utsname buf;
     uname(&buf);
     strncpy((char*)&rval, buf.machine, sizeof(uint64_t));
@@ -178,6 +178,8 @@ uint64_t get_os() {
     strncpy((char*)&rval, "Android", sizeof(uint64_t));
 #elif defined(PLATFORM_LINUX)
     strncpy((char*)&rval, "Linux", sizeof(uint64_t));
+#elif defined(PLATFORM_BSD)
+    strncpy((char*)&rval, "BSD", sizeof(uint64_t));
 #else
     strncpy((char*)&rval, "Windows", sizeof(uint64_t));
 #endif

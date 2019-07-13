@@ -38,7 +38,7 @@ enum VkDisplayType {
 
 int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDisplayImp **ppDisp);
 
-#if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_XCB_KHR)
+#if (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && defined(VK_USE_PLATFORM_XCB_KHR)
 
 class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
    public:
@@ -88,7 +88,7 @@ class vkDisplayXcb : public vktrace_replay::ReplayDisplayImp {
 };
 #endif
 
-#if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#if (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && defined(VK_USE_PLATFORM_WAYLAND_KHR)
 
 class vkDisplayWayland : public vktrace_replay::ReplayDisplayImp {
    public:

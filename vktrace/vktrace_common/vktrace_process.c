@@ -54,7 +54,7 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
         pInfo->processId = processInformation.dwProcessId;
         // TODO : Do we need to do anything with processInformation.dwThreadId?
     }
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
     pInfo->processId = fork();
     if (pInfo->processId == -1) {
         vktrace_LogError("Failed to spawn process.");
@@ -70,7 +70,11 @@ BOOL vktrace_process_spawn(vktrace_process_info* pInfo) {
         // Change process name so the the tracer DLLs will behave as expected when loaded.
         // NOTE: Must be 15 characters or less.
         const char* tmpProcName = "vktraceChildProcess";
+#if defined(PLATFORM_LINUX)
         prctl(PR_SET_NAME, (unsigned long)tmpProcName, 0, 0, 0);
+#else
+        setproctitle("%s", tmpProcName);
+#endif
 
         // Change working directory
         if (chdir(pInfo->workingDirectory) == -1) {

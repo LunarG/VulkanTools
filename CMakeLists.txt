@@ -84,7 +84,7 @@ if (USE_CCACHE)
     endif(CCACHE_FOUND)
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
     set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
         "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
     set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
@@ -139,7 +139,8 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_LOADER_INSTALL_DIR};${VULKAN
 find_package(Vulkan)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
-    CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
+    CMAKE_SYSTEM_NAME MATCHES "BSD")
 
     option(BUILD_TESTS "Build tests" ON)
     option(BUILD_LAYERSVT "Build layersvt" ON)
@@ -149,7 +150,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
 
     option(BUILD_LAYERMGR "Build layer manager" ON)
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD" AND NOT (BUILD_WSI_XCB_SUPPORT OR BUILD_WSI_WAYLAND_SUPPORT))
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" OFF)
     else()
         option(BUILD_VKTRACE_REPLAY "Build VkReplay" ON)
@@ -185,7 +186,7 @@ find_path(JSONCPP_SOURCE_DIR jsoncpp.cpp HINTS "${SUBPROJECTS_DIR}/jsoncpp/dist"
                                                    "${SUBPROJECTS_DIR}/JsonCPP/dist"
                                                    "${SUBPROJECTS_DIR}/JSONCPP/dist"
                                                    "${CMAKE_SOURCE_DIR}/../jsoncpp/dist"
-                                             DOC "Path to jsoncpp/dist/json.cpp")
+                                             DOC "Path to jsoncpp/dist/jsoncpp.cpp")
 
 find_library(JSONCPP_LIB NAMES jsoncpp HINTS ${JSONCPP_SEARCH_PATH} )
 

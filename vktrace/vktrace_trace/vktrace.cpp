@@ -236,7 +236,7 @@ void loggingCallback(VktraceLogLevel level, const char* pMessage) {
 // ------------------------------------------------------------------------------------------------
 char* append_index_to_filename(const char* base, uint32_t index, const char* extension) {
     char num[17];
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
     snprintf(num, 17, "-%u", index);
 #elif defined(WIN32)
     _snprintf_s(num, 17, _TRUNCATE, "-%u", index);
@@ -457,7 +457,7 @@ int main(int argc, char* argv[]) {
     // set trim max commands batched size env var that communicates with the layer
     if (g_settings.trimCmdBatchSizeStr != NULL) {
         uint64_t trimMaxCmdBatchSzValue = 0;
-        if (sscanf(g_settings.trimCmdBatchSizeStr, "%d", &trimMaxCmdBatchSzValue) == 1) {
+        if (sscanf(g_settings.trimCmdBatchSizeStr, "%ld", &trimMaxCmdBatchSzValue) == 1) {
             if (trimMaxCmdBatchSzValue > 0) {
                 vktrace_set_global_var(VKTRACE_TRIM_MAX_COMMAND_BATCH_SIZE_ENV, g_settings.trimCmdBatchSizeStr);
                 vktrace_LogVerbose(
@@ -554,7 +554,7 @@ int main(int argc, char* argv[]) {
                 procInfo.watchdogThread = vktrace_platform_create_thread(Process_RunWatchdogThread, &procInfo);
             }
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 
             // Sync wait for local threads and remote process to complete.
             if (g_settings.program != NULL) {

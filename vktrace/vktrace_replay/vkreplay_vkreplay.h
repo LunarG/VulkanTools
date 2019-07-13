@@ -28,7 +28,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(ANDROID)
 #include <android_native_app_glue.h>
 #else

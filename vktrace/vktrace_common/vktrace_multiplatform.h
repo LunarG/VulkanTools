@@ -144,7 +144,7 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryAndroidHardwareBufferANDROID)(VkDevic
                                                                          struct AHardwareBuffer** pBuffer);
 #endif
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 typedef void* HINSTANCE;
 typedef void* HWND;
 typedef void* HANDLE;

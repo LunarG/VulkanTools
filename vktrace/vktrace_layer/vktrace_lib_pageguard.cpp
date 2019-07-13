@@ -36,7 +36,7 @@ static vktrace_sem_id ref_amount_sem_id;  // TODO if vktrace implement cross pla
                                           // can be putted in those functions, but now we leave it to process quit.
 static bool ref_amount_sem_id_create_success = vktrace_sem_create(&ref_amount_sem_id, 1);
 static vktrace_sem_id map_lock_sem_id;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 static bool map_lock_sem_id_create_success __attribute__((unused)) = vktrace_sem_create(&map_lock_sem_id, 1);
 #else
 static bool map_lock_sem_id_create_success = vktrace_sem_create(&map_lock_sem_id, 1);
@@ -157,7 +157,7 @@ bool getEnablePageGuardLazyCopyFlag() {
     return EnablePageGuardLazyCopyFlag;
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 static struct sigaction g_old_sa;
 #endif
 
@@ -218,7 +218,7 @@ uint64_t pageguardGetAdjustedSize(uint64_t size) {
     return size;
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 // Keep a map of memory allocations and sizes.
 // We need the size when we want to free the memory on Linux.
 static std::unordered_map<void*, size_t> allocateMemoryMap;
@@ -256,7 +256,7 @@ void pageguardFreeMemory(void* pMemory) {
 }
 
 uint64_t pageguardGetSystemPageSize() {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
     return getpagesize();
 #elif defined(WIN32)
     SYSTEM_INFO sSysInfo;

@@ -666,7 +666,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkFlushMappedMemoryRange
         VKAllocInfo* pEntry = find_mem_info_entry(pRange->memory);
 
         if (pEntry != NULL) {
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
             VkDeviceSize rangeSize __attribute__((unused));
 #else
             VkDeviceSize rangeSize;

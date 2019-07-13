@@ -29,7 +29,7 @@ vktraceviewer_QController* vktraceviewer_controller_factory::Load(const char* fi
     void* pLibrary = vktrace_platform_open_library(filename);
     if (pLibrary == NULL) {
         vktrace_LogError("Failed to load controller '%s'", filename);
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
         char* error = dlerror();
         vktrace_LogError("Due to: %s", error);
 #endif

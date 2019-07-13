@@ -301,7 +301,7 @@ char *get_hotkey_string() {
     return trim_trigger_hotkey;
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(ANDROID)
 
 // TODO

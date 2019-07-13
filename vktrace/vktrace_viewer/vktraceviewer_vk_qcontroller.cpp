@@ -185,12 +185,25 @@ void vktraceviewer_vk_QController::onReplayPaused(uint64_t packetIndex) {
 // Now try to load known state data.
 
 // Convert dot files to svg format
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
+    bool hasdot = false;
+    const char* dpath = NULL;
     if (QFile::exists("/usr/bin/dot")) {
+        dpath = "/usr/bin/dot";
+        hasdot = true;
+    } else if (QFile::exists("/usr/local/bin/dot")) {
+        dpath = "/usr/local/bin/dot";
+        hasdot = true;
+    }
+
+    if (hasdot) {
         QProcess process;
-        process.start("/usr/bin/dot pipeline_dump.dot -Tsvg -o pipeline_dump.svg");
+        char cmd[128];
+        snprintf(cmd, sizeof(cmd), "%s pipeline_dump.dot -Tsvg -o pipeline_dump.svg", dpath);
+        process.start(cmd);
         process.waitForFinished(-1);
-        process.start("/usr/bin/dot cb_dump.dot -Tsvg -o cb_dump.svg");
+        snprintf(cmd, sizeof(cmd), "%s cb_dump.dot -Tsvg -o cb_dump.svg", dpath);
+        process.start(cmd);
         process.waitForFinished(-1);
     } else {
         emit OutputMessage(VKTRACE_LOG_ERROR, packetIndex, "DOT not found, unable to generate state diagrams.");

@@ -96,7 +96,7 @@ static inline char *local_getenv(const char *name) { return android_getenv(name)
 
 static inline void local_free_getenv(const char *val) {}
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}

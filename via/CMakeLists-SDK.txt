@@ -91,11 +91,16 @@ add_executable(vkvia
                   via_system_windows.cpp
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 else()
-add_definitions(-DVIA_LINUX_TARGET)
+if(CMAKE_SYSTEM_NAME MATCHES "BSD")
+   add_definitions(-DVIA_BSD_TARGET)
+else()
+   add_definitions(-DVIA_LINUX_TARGET)
+endif()
 add_executable(vkvia
                   via.cpp
                   via_system.hpp
                   via_system.cpp
+		  via_system_bsd.cpp
                   via_system_linux.hpp
                   via_system_linux.cpp
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)

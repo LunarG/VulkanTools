@@ -115,7 +115,7 @@ static char* vktrace_copy_and_append_args(const char* pBaseString, const char* p
 
 #if defined(WIN32)
     appendSize = _vscprintf(pAppendFormat, args);
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
     va_list argcopy;
     va_copy(argcopy, args);
     appendSize = vsnprintf(NULL, 0, pAppendFormat, argcopy);

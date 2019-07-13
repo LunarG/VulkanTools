@@ -23,8 +23,10 @@
 #include "vktrace_process.h"
 #include "vktrace.h"
 
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(PLATFORM_LINUX)
 #include <sys/prctl.h>
+#endif
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
@@ -58,7 +60,7 @@ void SafeCloseHandle(HANDLE& _handle) {
 }
 #endif
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 // Needs to be static because Process_RunWatchdogThread passes the address of rval to pthread_exit
 static int rval;
 #endif
@@ -125,7 +127,7 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunWatchdogThread(LPVOID _procInfoPtr
     pProcInfo->serverRequestsTermination = TRUE;
     return 0;
 
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
     int status = 0;
     int options = 0;
 
@@ -171,11 +173,13 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     uint64_t bytes_written;
     uint64_t fileOffset;
 #if defined(WIN32)
-    BOOL rval;
+    BOOL rvall;
 #elif defined(PLATFORM_LINUX)
-    sighandler_t rval __attribute__((unused));
+    sighandler_t rvall __attribute__((unused));
+#elif defined(PLATFORM_BSD)
+    sig_t rvall __attribute__((unused));
 #elif defined(PLATFORM_OSX)
-    sig_t rval __attribute__((unused));
+    sig_t rvall __attribute__((unused));
 #endif
 
     MessageStream* pMessageStream = vktrace_MessageStream_create(TRUE, "", VKTRACE_BASE_PORT + pInfo->tracerId);
@@ -231,15 +235,15 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
     fileOffset = file_header.first_packet_offset;
 
 #if defined(WIN32)
-    rval = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, TRUE);
-    assert(rval);
+    rvall = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, TRUE);
+    assert(rvall);
 #else
-    rval = signal(SIGHUP, terminationSignalHandler);
-    assert(rval != SIG_ERR);
-    rval = signal(SIGINT, terminationSignalHandler);
-    assert(rval != SIG_ERR);
-    rval = signal(SIGTERM, terminationSignalHandler);
-    assert(rval != SIG_ERR);
+    rvall = signal(SIGHUP, terminationSignalHandler);
+    assert(rvall != SIG_ERR);
+    rvall = signal(SIGINT, terminationSignalHandler);
+    assert(rvall != SIG_ERR);
+    rvall = signal(SIGTERM, terminationSignalHandler);
+    assert(rvall != SIG_ERR);
 #endif
 
     while (!terminationSignalArrived && pInfo->pProcessInfo->serverRequestsTermination == FALSE) {
@@ -321,15 +325,15 @@ VKTRACE_THREAD_ROUTINE_RETURN_TYPE Process_RunRecordTraceThread(LPVOID _threadIn
 
 // Restore signal handling to default.
 #if defined(WIN32)
-    rval = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, FALSE);
-    assert(rval);
+    rvall = SetConsoleCtrlHandler((PHANDLER_ROUTINE)terminationSignalHandler, FALSE);
+    assert(rvall);
 #else
-    rval = signal(SIGHUP, SIG_DFL);
-    assert(rval != SIG_ERR);
-    rval = signal(SIGINT, SIG_DFL);
-    assert(rval != SIG_ERR);
-    rval = signal(SIGTERM, SIG_DFL);
-    assert(rval != SIG_ERR);
+    rvall = signal(SIGHUP, SIG_DFL);
+    assert(rvall != SIG_ERR);
+    rvall = signal(SIGINT, SIG_DFL);
+    assert(rvall != SIG_ERR);
+    rvall = signal(SIGTERM, SIG_DFL);
+    assert(rvall != SIG_ERR);
 #endif
 
     return 0;

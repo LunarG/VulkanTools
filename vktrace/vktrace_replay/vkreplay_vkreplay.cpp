@@ -54,7 +54,7 @@ vkReplay::vkReplay(vkreplayer_settings *pReplaySettings, vktrace_trace_file_head
     m_pCBDump = NULL;
     m_display = display;
 
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+#if (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && !defined(ANDROID)
     if (strcasecmp(pReplaySettings->displayServer, "xcb") == 0) {
         m_displayServer = VK_DISPLAY_XCB;
     } else if (strcasecmp(pReplaySettings->displayServer, "wayland") == 0) {
@@ -255,7 +255,7 @@ vkReplay::~vkReplay() {
 
 int vkReplay::init(vktrace_replay::ReplayDisplay &disp) {
     int err;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
     void *handle = dlopen("libvulkan.so", RTLD_LAZY);
 #else
     HMODULE handle = LoadLibrary("vulkan-1.dll");
@@ -409,7 +409,7 @@ VkResult vkReplay::manually_replay_vkCreateInstance(packet_vkCreateInstance *pPa
     vector<const char *> extension_names;
     vector<string> outlist;
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if !defined(ANDROID)
     // LINUX
     if (m_displayServer == VK_DISPLAY_XCB) {
@@ -3553,7 +3553,7 @@ VkResult vkReplay::manually_replay_vkCreateXcbSurfaceKHR(packet_vkCreateXcbSurfa
         return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+#if (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && !defined(ANDROID)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     if (m_displayServer == VK_DISPLAY_XCB) {
         VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
@@ -3621,7 +3621,7 @@ VkResult vkReplay::manually_replay_vkCreateXlibSurfaceKHR(packet_vkCreateXlibSur
 
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_ANDROID_KHR)
 // TODO
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
     if (m_displayServer == VK_DISPLAY_XLIB) {
         VkIcdSurfaceXlib *pSurf = (VkIcdSurfaceXlib *)m_display->get_surface();
@@ -3691,7 +3691,7 @@ VkResult vkReplay::manually_replay_vkCreateWaylandSurfaceKHR(packet_vkCreateWayl
 
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_ANDROID_KHR)
 // TODO
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     if (m_displayServer == VK_DISPLAY_WAYLAND) {
         VkIcdSurfaceWayland *pSurf = (VkIcdSurfaceWayland *)m_display->get_surface();
@@ -3768,7 +3768,7 @@ VkResult vkReplay::manually_replay_vkCreateWin32SurfaceKHR(packet_vkCreateWin32S
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
     replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
-#elif defined(PLATFORM_LINUX) && !defined(ANDROID)
+#elif (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && !defined(ANDROID)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     if (m_displayServer == VK_DISPLAY_XCB) {
         VkIcdSurfaceXcb *pSurf = (VkIcdSurfaceXcb *)m_display->get_surface();
@@ -3833,7 +3833,7 @@ VkResult vkReplay::manually_replay_vkCreateAndroidSurfaceKHR(packet_vkCreateAndr
     createInfo.hinstance = pSurf->hinstance;
     createInfo.hwnd = pSurf->hwnd;
     replayResult = m_vkFuncs.CreateWin32SurfaceKHR(remappedInstance, &createInfo, pPacket->pAllocator, &local_pSurface);
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if !defined(ANDROID)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     if (m_displayServer == VK_DISPLAY_XCB) {
@@ -3990,7 +3990,7 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXcbPresentationSupportKHR(
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_ANDROID_KHR)
     // This is not defined for Android
     return VK_TRUE;
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     // This is not defined for anndroid
     return VK_TRUE;
@@ -4050,7 +4050,7 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceXlibPresentationSupportKHR
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_ANDROID_KHR)
     // This is not defined for Android
     return VK_TRUE;
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     if (m_displayServer == VK_DISPLAY_XCB) {
         vkDisplayXcb *pDisp = (vkDisplayXcb *)m_display;
@@ -4106,7 +4106,7 @@ VkBool32 vkReplay::manually_replay_vkGetPhysicalDeviceWaylandPresentationSupport
 #if defined(PLATFORM_LINUX) && defined(VK_USE_PLATFORM_ANDROID_KHR)
     // This is not defined for Android
     return VK_TRUE;
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     if (m_displayServer == VK_DISPLAY_XCB) {
         vkDisplayXcb *pDisp = (vkDisplayXcb *)m_display;

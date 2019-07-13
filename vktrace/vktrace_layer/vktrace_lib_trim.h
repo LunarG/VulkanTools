@@ -25,7 +25,7 @@
 #include "vktrace_lib_trim_descriptoriterator.h"
 #include "vulkan/vulkan.h"
 
-#if defined(PLATFORM_LINUX)  // VK_USE_PLATFORM_XCB_KHR
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)  // VK_USE_PLATFORM_XCB_KHR
 #if defined(ANDROID)
 // TODO
 #else
@@ -111,7 +111,7 @@ char *getTraceTriggerOptionString(enum enum_trim_trigger triggerType);
 //  if specified trigger enabled
 bool is_trim_trigger_enabled(enum enum_trim_trigger triggerType);
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #if defined(ANDROID)
 // TODO
 #else

@@ -118,7 +118,7 @@ vktrace_SettingInfo g_settings_info[] = {
      {&replaySettings.exitOnAnyError},
      TRUE,
      "Exit if an error occurs during replay, default is FALSE"},
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
     {"ds",
      "DisplayServer",
      VKTRACE_SETTING_STRING,
@@ -612,7 +612,7 @@ int vkreplay_main(int argc, char** argv, vktrace_replay::ReplayDisplayImp* pDisp
     vktrace_trace_packet_replay_library* replayer[VKTRACE_MAX_TRACER_ID_ARRAY_SIZE];
     ReplayFactory makeReplayer;
 
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+#if (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && !defined(ANDROID)
     // Choose default display server if unset
     if (replaySettings.displayServer == NULL) {
         auto session = getenv("XDG_SESSION_TYPE");

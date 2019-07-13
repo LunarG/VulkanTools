@@ -34,7 +34,7 @@
 #define IDI_ICON 101
 
 int GetDisplayImplementation(const char *displayServer, vktrace_replay::ReplayDisplayImp **ppDisp) {
-#if defined(PLATFORM_LINUX) && !defined(ANDROID)
+#if (defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)) && !defined(ANDROID)
     // On linux, the option -ds will choose a display server
     if (strcasecmp(displayServer, "xcb") == 0) {
         // Attempt to load libvkdisplay_xcb and constructor

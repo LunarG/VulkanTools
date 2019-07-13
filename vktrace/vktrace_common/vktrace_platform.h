@@ -22,7 +22,7 @@
  **************************************************************************/
 #pragma once
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 #define _GNU_SOURCE 1
 #include <unistd.h>
 #include <fcntl.h>
@@ -30,7 +30,9 @@
 #include <pthread.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
+#if defined(PLATFORM_LINUX)
 #include <sys/prctl.h>
+#endif
 #include <dlfcn.h>
 #include <signal.h>
 #include "wintypes.h"
@@ -148,11 +150,11 @@ char* vktrace_platform_get_data_path();
 
 vktrace_thread vktrace_platform_create_thread(VKTRACE_THREAD_ROUTINE_RETURN_TYPE (*start_routine)(LPVOID), void* args);
 void vktrace_platform_resume_thread(vktrace_thread* pThread);
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 int64_t vktrace_linux_sync_wait_for_thread(vktrace_thread* pThread);
 #endif
 void vktrace_platform_delete_thread(vktrace_thread* pThread);
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 void vktrace_platform_thread_once(void* ctl, void (*func)(void));
 #elif defined(WIN32)
 void vktrace_platform_thread_once(void* ctl, BOOL(CALLBACK* func)(_Inout_ PINIT_ONCE initOnce, _Inout_opt_ PVOID param,
@@ -164,7 +166,7 @@ void vktrace_enter_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 void vktrace_leave_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 void vktrace_delete_critical_section(VKTRACE_CRITICAL_SECTION* pCriticalSection);
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_OSX) || defined(PLATFORM_BSD)
 #define VKTRACE_LIBRARY_NAME(projname) (sizeof(void*) == 4) ? "lib" #projname "32.so" : "lib" #projname ".so"
 #endif
 #if defined(WIN32)

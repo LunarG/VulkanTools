@@ -299,7 +299,7 @@ bool vktrace_pageguard_init_multi_threads_memcpy_custom(vktrace_pageguard_thread
 }
 
 static vktrace_sem_id glocal_sem_id;
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
 static bool glocal_sem_id_create_success __attribute__((unused)) = vktrace_sem_create(&glocal_sem_id, 1);
 #else
 static bool glocal_sem_id_create_success = vktrace_sem_create(&glocal_sem_id, 1);

@@ -453,7 +453,7 @@ void vktraceviewer_QReplayWorker::DetachReplay(bool detach) {
                 disp.set_window_handle(&hWindow);
             }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_BSD)
             int err __attribute__((unused)) = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
 #else
             int err = m_pReplayers[i]->Initialize(&disp, NULL, NULL);
