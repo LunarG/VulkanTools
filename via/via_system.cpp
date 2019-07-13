@@ -2036,7 +2036,7 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
                 path += "\\Bin32";
 #endif
             }
-#elif VIA_LINUX_TARGET
+#elif VIA_LINUX_TARGET || VIA_BSD_TARGET
             if (!_is_system_installed_sdk) {
                 cube_exe = "./" + cube_exe;
                 path = _sdk_path;
