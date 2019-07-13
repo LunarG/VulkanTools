@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ $(uname) == "Linux" || $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" ]]; then
+if [[ $(uname) == "Linux" || $(uname) == "FreeBSD" || $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" ]]; then
     CURRENT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
     CORE_COUNT=$(nproc || echo 4)
 elif [[ $(uname) == "Darwin" ]]; then

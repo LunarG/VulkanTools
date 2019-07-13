@@ -53,6 +53,11 @@ else()
     # the environment setup by the user
     SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
 
+    if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    	add_definitions(-DVIA_LINUX_TARGET)
+    else()
+	add_definitions(-DVIA_BSD_TARGET)
+    endif()
 endif()
 
 if(WIN32)
@@ -78,6 +83,8 @@ add_executable(vkvia
                   via_system.cpp
                   via_system_linux.hpp
                   via_system_linux.cpp
+                  via_system_bsd.hpp
+                  via_system_bsd.cpp
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 endif()
 
