@@ -1,5 +1,5 @@
+cmake_minimum_required(VERSION 3.10.2)
 project(vktrace_common)
-cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../)
