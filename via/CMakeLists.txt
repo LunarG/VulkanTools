@@ -25,30 +25,34 @@ else()
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -std=c++11")
 
-    if (BUILD_WSI_XCB_SUPPORT)
-        find_package(XCB REQUIRED)
+    if(APPLE)
+        add_definitions(-DVIA_MACOS_TARGET)
+    else()
+        if (BUILD_WSI_XCB_SUPPORT)
+            find_package(XCB REQUIRED)
 
-        include_directories(${XCB_INCLUDE_DIRS})
-        link_libraries(${XCB_LIBRARIES})
-    endif()
-    if (BUILD_WSI_XLIB_SUPPORT)
-        find_package(X11 REQUIRED)
+            include_directories(${XCB_INCLUDE_DIRS})
+            link_libraries(${XCB_LIBRARIES})
+        endif()
+        if (BUILD_WSI_XLIB_SUPPORT)
+            find_package(X11 REQUIRED)
 
-        include_directories(${X11_INCLUDE_DIRS})
-        link_libraries(${X11_LIBRARIES})
-    endif()
-    if (BUILD_WSI_WAYLAND_SUPPORT)
-        find_package(Wayland REQUIRED)
+            include_directories(${X11_INCLUDE_DIRS})
+            link_libraries(${X11_LIBRARIES})
+        endif()
+        if (BUILD_WSI_WAYLAND_SUPPORT)
+            find_package(Wayland REQUIRED)
 
-        include_directories(${WAYLAND_CLIENT_INCLUDE_DIR})
-        link_libraries(${WAYLAND_CLIENT_LIBRARIES})
+            include_directories(${WAYLAND_CLIENT_INCLUDE_DIR})
+            link_libraries(${WAYLAND_CLIENT_LIBRARIES})
+        endif()
+        add_definitions(-DVIA_LINUX_TARGET)
     endif()
 
     # Disable the RPATH for VIA because we want it to use
     # the environment setup by the user
     SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
 
-    add_definitions(-DVIA_LINUX_TARGET)
 endif()
 
 if(WIN32)
@@ -59,7 +63,15 @@ add_executable(vkvia
                   via_system_windows.hpp
                   via_system_windows.cpp
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
-else()
+elseif(APPLE)
+add_executable(vkvia
+                  via.cpp
+                  via_system.hpp
+                  via_system.cpp
+                  via_system_macos.hpp
+                  via_system_macos.cpp
+                  ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
+elseif(UNIX)
 add_executable(vkvia
                   via.cpp
                   via_system.hpp

@@ -21,6 +21,8 @@
 #include "via_system_windows.hpp"
 #elif VIA_LINUX_TARGET
 #include "via_system_linux.hpp"
+#elif VIA_MACOS_TARGET
+#include "via_system_macos.hpp"
 #else
 #error("Unsupported target")
 #endif
@@ -31,6 +33,8 @@ int main(int argc, char** argv) {
     ViaSystem* via_system = reinterpret_cast<ViaSystem*>(new ViaSystemWindows());
 #elif VIA_LINUX_TARGET
     ViaSystem* via_system = reinterpret_cast<ViaSystem*>(new ViaSystemLinux());
+#elif VIA_MACOS_TARGET
+    ViaSystem* via_system = reinterpret_cast<ViaSystem*>(new ViaSystemMacOS());
 #endif
 
     if (!via_system->Init(argc, argv) || !via_system->GenerateInfo()) {
