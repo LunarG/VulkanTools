@@ -1872,6 +1872,12 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
                 path = _sdk_path;
                 path += "/bin";
             }
+#elif VIA_MACOS_TARGET
+            if (!_is_system_installed_sdk) {
+                cube_exe = "./" + cube_exe;
+                path = _sdk_path;
+                path += "/../Applications/vkcube.app/Contents/MacOS";
+            }
 #endif
 
             LogInfo("   Attempting to run " + cube_exe + " in " + path);
