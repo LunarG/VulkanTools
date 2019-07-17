@@ -82,11 +82,11 @@ const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayer
 const char *kOurLayerName = kLayerProperties[0].layerName;
 
 // Instance extensions that this layer provides:
-const VkExtensionProperties *kInstanceExtensionProperties = {};
+const VkExtensionProperties kInstanceExtensionProperties[] = {};
 const uint32_t kInstanceExtensionPropertiesCount = (sizeof(kInstanceExtensionProperties) / sizeof(kInstanceExtensionProperties[0]));
 
 // Device extensions that this layer provides:
-const VkExtensionProperties *kDeviceExtensionProperties = {};
+const VkExtensionProperties kDeviceExtensionProperties[] = {};
 const uint32_t kDeviceExtensionPropertiesCount = (sizeof(kDeviceExtensionProperties) / sizeof(kDeviceExtensionProperties[0]));
 
 // The "standard" core VkFormat enum values:
