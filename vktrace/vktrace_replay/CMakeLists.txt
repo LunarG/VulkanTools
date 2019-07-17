@@ -48,8 +48,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     endif()
 
     # Make sure the exe directory is searched when loading libraries with dlopen
-    SET(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
+    set(CMAKE_BUILD_RPATH $ORIGIN)
+    
 endif()
 
 
