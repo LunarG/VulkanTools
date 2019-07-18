@@ -31,9 +31,6 @@ class MemBoundWarning : public layer_factory {
     //     // Constructor for interceptor
     MemBoundWarning(){};
 
-    VkResult PostCallAllocateMemory(VkDevice device, const VkMemoryAllocateInfo *pAllocateInfo,
-                                    const VkAllocationCallbacks *pAllocator, VkDeviceMemory *pMemory, VkResult result);
-
     template <typename T>
     void SetBindMemoryState(T handle, VkDeviceMemory memory);
     VkResult PostCallBindBufferMemory(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset,
@@ -50,17 +47,14 @@ class MemBoundWarning : public layer_factory {
                                          VkResult result);
     VkResult PostCallQueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo *pBindInfo, VkFence fence,
                                      VkResult result);
+    VkResult PostCallGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pSwapchainImageCount,
+                                           VkImage *pSwapchainImages, VkResult result);
 
     template <typename T>
     void RemoveBindedMemory(T handle);
-    VkResult PostCallCreateSwapchainKHR(VkDevice device, const VkSwapchainCreateInfoKHR *pCreateInfo,
-                                        const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain, VkResult result);
-    VkResult PostCallGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pSwapchainImageCount,
-                                           VkImage *pSwapchainImages, VkResult result);
     void PostCallDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *pAllocator);
     void PreCallDestroyBuffer(VkDevice device, VkBuffer buffer, const VkAllocationCallbacks *pAllocator);
     void PreCallDestroyImage(VkDevice device, VkImage image, const VkAllocationCallbacks *pAllocator);
-
     void PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks *pAllocator);
 
    private:
