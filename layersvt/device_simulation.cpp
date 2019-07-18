@@ -46,6 +46,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+#include <array>
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -82,12 +83,12 @@ const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayer
 const char *kOurLayerName = kLayerProperties[0].layerName;
 
 // Instance extensions that this layer provides:
-const VkExtensionProperties kInstanceExtensionProperties[] = {};
-const uint32_t kInstanceExtensionPropertiesCount = (sizeof(kInstanceExtensionProperties) / sizeof(kInstanceExtensionProperties[0]));
+const std::array<VkExtensionProperties,16> kInstanceExtensionProperties = {};
+const uint32_t kInstanceExtensionPropertiesCount = kInstanceExtensionProperties.size();
 
 // Device extensions that this layer provides:
-const VkExtensionProperties kDeviceExtensionProperties[] = {};
-const uint32_t kDeviceExtensionPropertiesCount = (sizeof(kDeviceExtensionProperties) / sizeof(kDeviceExtensionProperties[0]));
+const std::array<VkExtensionProperties, 15> kDeviceExtensionProperties = {};
+const uint32_t kDeviceExtensionPropertiesCount = kDeviceExtensionProperties.size();
 
 // The "standard" core VkFormat enum values:
 const VkFormat StandardVkFormatEnumList[] = {
