@@ -290,7 +290,7 @@ class ApiDumpSettings {
             should_flush = !GetStringBooleanValue(env_value);
         }
 
-        show_timestamp = readBoolOption("lunarg_api_dump.show_timestamp", true);
+        show_timestamp = readBoolOption("lunarg_api_dump.show_timestamp", false);
         env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_TIMESTAMP);
         if (!env_value.empty()) {
             show_timestamp = GetStringBooleanValue(env_value);

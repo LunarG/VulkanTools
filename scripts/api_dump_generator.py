@@ -727,10 +727,11 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
-    if(settings.showTimestamp())
-        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " μs\\n";
-    else 
-        settings.stream() << "\\n";
+    if(settings.showTimestamp()) {{
+        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " us:\\n";
+    }} else {{
+        settings.stream() << ":\\n";
+    }} 
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
     if(settings.showParams())
@@ -758,10 +759,11 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
-    if(settings.showTimestamp())
-        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " μs\\n";
-    else 
-        settings.stream() << "\\n";
+    if(settings.showTimestamp()) {{
+        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " us:\\n";
+    }} else {{
+        settings.stream() << ":\\n";
+    }} 
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
 
     if(settings.showParams())
@@ -1145,7 +1147,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
 
     settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
     if(settings.showTimestamp())
-        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " μs</div>";
+        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
     dump_html_{funcReturn}(result, settings, 0);
@@ -1178,7 +1180,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 
     settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
     if(settings.showTimestamp())
-        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " μs</div>";
+        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
     settings.stream() << "</summary>";
@@ -1593,8 +1595,9 @@ std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     settings.stream() << settings.indentation(3) << "\\\"thread\\\" : \\\"Thread " << dump_inst.threadID() << "\\\",\\n";
 
     // Display elapsed time
-    if(settings.showTimestamp())
-    settings.stream() << settings.indentation(3) << "\\\"time\\\" : \\\""<< dump_inst.current_time_since_start().count() << " μs\\\",\\n";
+    if(settings.showTimestamp()) {{
+        settings.stream() << settings.indentation(3) << "\\\"time\\\" : \\\""<< dump_inst.current_time_since_start().count() << " us\\\",\\n";
+    }}
 
     // Display return value
     settings.stream() << settings.indentation(3) << "\\\"returnType\\\" : " << "\\\"{funcReturn}\\\",\\n";
