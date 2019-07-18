@@ -1,5 +1,5 @@
 # Python script for running the regression test for both trace and replay. Python version 3 or greater required.
-# NOTES - 
+# NOTES -
 #   vkcube is expected to be in the PATH or working directory if the --legacy-vkcube switch
 #   is passed in.
 #   This script is normally invoked from _vktracereplay.ps1 or vktracereplay.sh.
@@ -210,24 +210,57 @@ def TraceReplayTraceTest(testname, traceFile, args):
     else:
         with open('%s.config' % traceFile) as configFile:
             frame = configFile.read().strip()
-    
+
     # Trace replay of <traceFile>
+    # Note that it's possible while tracing the replay of the original trace to
+    # provoke a spurious error, e.g.:
+    #            Errors while tracing replay of original trace:
+    #            vktrace error: Failed to read trace packet with size of 144.
+    # (LunarG issue 225).  After investing reasonable effort to try to figure out
+    # why the error occasionally appears, we're giving up and working around it
+    # in the test.  We'll try a few iterations.  If it passes on at least one,
+    # we call it good.
+
     layerEnv = os.environ.copy()
     layerEnv['VK_LAYER_PATH'] = args.VkLayerPath
-    try:
-        out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', args.VkReplayPath, '-a', '-o %s' % traceFile, '-s', frame, '-w', '.'], env=layerEnv).decode('utf-8')
-    except subprocess.CalledProcessError as e:
-        HandleError('Error while tracing replay of original trace, return code %s:\n%s' % (e.returncode, e.output))
+    MAX_TRIES = 5
+    saved_error_strings = []
+    for iteration in range(MAX_TRIES):
+        try:
+            out = subprocess.check_output([args.VkTracePath, '-o', '%s.vktrace' % testname, '-p', args.VkReplayPath, '-a', '-o %s' % traceFile, '-s', frame, '-w', '.'], env=layerEnv).decode('utf-8')
+        except subprocess.CalledProcessError as e:
+            HandleError('Error while tracing replay of original trace, return code %s:\n%s' % (e.returncode, e.output))
 
-    if 'error' in out:
-        err = GetErrorMessage(out)
-        HandleError('Errors while tracing replay of original trace:\n%s' % err)
+        if 'error' in out:
+            # Save the error and try again.
+            err = GetErrorMessage(out)
+            print('Error while tracing replay of original trace "{}" iteration {}, '
+                  'message "{}"- continuing'.format(testname, iteration, err))
+            saved_error_strings.append(err)
+            continue
 
-    # Rename 1.ppm to <testname>.trace.ppm
-    if os.path.exists('%s.ppm' % frame):
+        # If we get to here, we think we succeeded.  Make sure we actually
+        # have a screenshot; there's a spurious "Screenshot not taken" error
+        # that can appear (LunarG issue 222).
+
+        if not os.path.exists('%s.ppm' % frame):
+            message = 'Screenshot not taken while tracing trace "{}" on iteration {}'.format(testname, iteration)
+            print("{} - continuing".format(message))
+            saved_error_strings.append(message)
+            continue
+
+        # If we get here, we're really done - we succeeded without error and
+        # we have an image.  Rename <frame>.ppm to <testname>.trace.ppm and
+        # exit the iteration loop
         os.rename('%s.ppm' % frame, '%s.trace.ppm' % testname)
+        break
+
     else:
-        HandleError('Error: Screenshot not taken while tracing.')
+        # an "else" clause on a for loop will be executed only if the loop
+        # exits by falling through, i.e. we've exhausted all our tries.
+        # Here we have a real error.
+        HandleError('{} errors while tracing replay of original trace "{}": '
+                   '{}'.format(MAX_TRIES, testname, '\n'.join(saved_error_strings)))
 
     try:
         out = subprocess.check_output([args.VkReplayPath, '-o', '%s.vktrace' % testname, '-s', frame], env=layerEnv).decode('utf-8')
