@@ -1870,7 +1870,7 @@ ViaSystem::ViaResults ViaSystem::GenerateTestInfo(void) {
             if (!_is_system_installed_sdk) {
                 cube_exe = "./" + cube_exe;
                 path = _sdk_path;
-                path += "/../examples/build";
+                path += "/bin";
             }
 #endif
 
