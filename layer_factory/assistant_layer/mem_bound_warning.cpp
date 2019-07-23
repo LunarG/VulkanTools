@@ -103,19 +103,19 @@ VkResult MemBoundWarning::PostCallQueueBindSparse(VkQueue queue, uint32_t bindIn
 
         for (uint32_t j = 0; j < bindInfo.bufferBindCount; j++) {
             for (uint32_t k = 0; k < bindInfo.pBufferBinds[j].bindCount; k++) {
-                auto sparse_binding = bindInfo.pBufferBinds[j].pBinds[k];
+                auto &sparse_binding = bindInfo.pBufferBinds[j].pBinds[k];
                 SetBindMemoryState<VkBuffer>(bindInfo.pBufferBinds[j].buffer, sparse_binding.memory);
             }
         }
         for (uint32_t j = 0; j < bindInfo.imageOpaqueBindCount; j++) {
             for (uint32_t k = 0; k < bindInfo.pImageOpaqueBinds[j].bindCount; k++) {
-                auto sparse_binding = bindInfo.pImageOpaqueBinds[j].pBinds[k];
+                auto &sparse_binding = bindInfo.pImageOpaqueBinds[j].pBinds[k];
                 SetBindMemoryState<VkImage>(bindInfo.pImageOpaqueBinds[j].image, sparse_binding.memory);
             }
         }
         for (uint32_t j = 0; j < bindInfo.imageBindCount; j++) {
             for (uint32_t k = 0; k < bindInfo.pImageBinds[j].bindCount; k++) {
-                auto sparse_binding = bindInfo.pImageBinds[j].pBinds[k];
+                auto &sparse_binding = bindInfo.pImageBinds[j].pBinds[k];
                 SetBindMemoryState<VkImage>(bindInfo.pImageBinds[j].image, sparse_binding.memory);
             }
         }
@@ -127,7 +127,7 @@ VkResult MemBoundWarning::PostCallQueueBindSparse(VkQueue queue, uint32_t bindIn
 VkResult MemBoundWarning::PostCallGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pSwapchainImageCount,
                                                         VkImage *pSwapchainImages, VkResult result) {
     assert(swapchain);
-    auto images = swapchain_image_map[swapchain];
+    auto &images = swapchain_image_map[swapchain];
 
     if (*pSwapchainImageCount > images.size()) images.resize(*pSwapchainImageCount);
 
@@ -147,14 +147,14 @@ void MemBoundWarning::RemoveBindedMemory(T handle) {
     assert(handle);
     uint64_t handle_64 = HandleToUint64(handle);
     auto map_pair = handle_memory_map.find(handle_64);
-    if (map_pair == handle_memory_map.end()) return;  // this will happend if handle was never Binded to memory...prevents segfault
-    auto memory_set = map_pair->second;
+    if (map_pair == handle_memory_map.end()) return;  // this will happen if handle was never Binded to memory...prevents segfault
+    const auto &memory_set = map_pair->second;
 
     // remove all memory in the memory set. If it is not sparse memory, there will only be one item in set
     for (VkDeviceMemory memory : memory_set) {
         auto map_pair = memory_handle_map.find(memory);
         if (map_pair == memory_handle_map.end())
-            continue;  // this will happend if handle was never Binded to memory...prevents segfault
+            continue;  // this will happen if handle was never Binded to memory...prevents segfault
         auto &handle_set = map_pair->second;
         handle_set.erase(handle_64);
     }
@@ -165,12 +165,11 @@ void MemBoundWarning::PostCallDestroySwapchainKHR(VkDevice device, VkSwapchainKH
     assert(swapchain);
 
     auto map_pair = swapchain_image_map.find(swapchain);
-    if (map_pair == swapchain_image_map.end())
-        return;  // this will happend if handle was never Binded to memory...prevents segfault
-    auto images = map_pair->second;
+    if (map_pair == swapchain_image_map.end()) return;  // this will happen if handle was never Binded to memory...prevents segfault
+    const auto &images = map_pair->second;
 
     if (images.size() > 0) {
-        for (auto swapchain_image : images) {
+        for (const auto &swapchain_image : images) {
             RemoveBindedMemory<VkImage>(swapchain_image);
         }
     }
@@ -189,8 +188,8 @@ void MemBoundWarning::PreCallDestroyImage(VkDevice device, VkImage image, const 
 void MemBoundWarning::PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks *pAllocator) {
     assert(memory);
     auto map_pair = memory_handle_map.find(memory);
-    if (map_pair == memory_handle_map.end()) return;  // this will happend if handle was never Binded to memory...prevents segfault
-    auto handle_set = map_pair->second;
+    if (map_pair == memory_handle_map.end()) return;  // this will happen if handle was never Binded to memory...prevents segfault
+    const auto &handle_set = map_pair->second;
 
     for (const auto &handle : handle_set) {
         char handle_string[64];
@@ -202,7 +201,6 @@ void MemBoundWarning::PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, 
 
         std::stringstream message;
         message << "Vk Object " << handle_string << " still has a reference to Memory Object " << memory_string;
-        std::cout << message.str() << std::endl;
         Information(message.str());
     }
 }
