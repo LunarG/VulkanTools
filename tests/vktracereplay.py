@@ -15,6 +15,8 @@
 
 import os, sys, subprocess, time, argparse, filecmp, time, shutil
 
+class VktraceException(Exception):
+    pass
 
 
 def findnth(haystack, needle, n):
@@ -30,8 +32,7 @@ def HandleError(msg):
     # Replace 11th line and beyond with ellipses
     if msg.count('\n') > 10:
         msg[findnth(msg, '\n', 10):] = '...\n'
-    print (msg)
-    sys.exit(1)
+    raise VktraceException(msg)
 
 
 
@@ -293,11 +294,15 @@ if __name__ == '__main__':
     # Load settings from command-line
     parser = argparse.ArgumentParser(description='Test vktrace and vkreplay.')
     parser.add_argument('--legacy-vkcube', help='run the legacy vkcube tests', action='store_true')
+    parser.add_argument('--exit-on-first-failure', action='store_true',
+                        help="if set, the script will exit as soon as a failure is discovered. "
+                             "Otherwise, it will attempt to run all traces.")
     parser.add_argument('OldTracesPath', help='directory of old traces to replay')
     parser.add_argument('VkTracePath', help='directory containing vktrace')
     parser.add_argument('VkLayerPath', help='directory containing vktrace layer')
     parser.add_argument('VkReplayPath', help='directory containing vkreplay')
     args = parser.parse_args()
+    errorMessages = []
 
     # vkcube tests were removed by default after commit b270c0024bafbc91e47d81b4bde2ddc38f391ea5
     # in LunarG/VulkanTools, which removed the glslang build as well as the vkcube
@@ -308,27 +313,45 @@ if __name__ == '__main__':
     # gfxreconstruct anyway.
     if args.legacy_vkcube:
 
-        # Get vkcube executable path from PATH
-        cubePath = shutil.which('vkcube')
-        if (cubePath is None):
-            HandleError('Error: vkcube executable not found')
+        try:
+            # Get vkcube executable path from PATH
+            cubePath = shutil.which('vkcube')
+            if (cubePath is None):
+                HandleError('Error: vkcube executable not found')
 
-        # Trace/replay test on vkcube
-        TraceReplayProgramTest('vkcube', cubePath, '--c 50', args)
+            # Trace/replay test on vkcube
+            TraceReplayProgramTest('vkcube', cubePath, '--c 50', args)
 
-        # Run trim test on vkcube
-        # Removing until github issue #646 is resolved
-        # TrimTest('cube-trim', cubePath, '--c 250', args)
+            # Run trim test on vkcube
+            # Removing until github issue #646 is resolved
+            # TrimTest('cube-trim', cubePath, '--c 250', args)
 
-        # Run loop test on cube
-        LoopTest('cube-loop', cubePath, '--c 50', args)
+            # Run loop test on cube
+            LoopTest('cube-loop', cubePath, '--c 50', args)
+        except VktraceException as e:
+            print('error doing legacy vkcube tests: {}'.format(e))
+            errorMessages.append(str(e))
+            if args.exit_on_first_failure:
+                sys.exit(1)
 
     # Run Trace/Replay on old trace files if directory specified
     directory = args.OldTracesPath
     if os.path.isdir(directory):
         for filename in os.listdir(directory):
             if filename.endswith(".vktrace"):
-                TraceReplayTraceTest(filename, os.path.join(directory, filename), args)
+                fullFilename = os.path.join(directory, filename)
+                try:
+                    TraceReplayTraceTest(filename, fullFilename, args)
+                except VktraceException as e:
+                    print('error running trace/replay test for {}: {}'.format(fullFilename, e))
+                    errorMessages.append(str(e))
+                    if args.exit_on_first_failure:
+                        sys.exit(1)
 
+    if errorMessages:
+        print("****************************************************")
+        print("Error messages during execution:")
+        print('\n'.join(errorMessages))
+        sys.exit(1)
 
     sys.exit(0)
