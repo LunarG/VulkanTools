@@ -1,4 +1,10 @@
-lunarg-tools (1.1.108.0~rc1-1) UNRELEASED; urgency=medium
+lunarg-tools (1.1.114.0~rc1-1lunarg18.04.1.1) bionic; urgency=medium
+
+  * New 1.1.114.0~rc1 SDK
+
+ -- John Zupin <john@odin>  Tue, 23 Jul 2019 09:50:56 -0600
+
+lunarg-tools (1.1.108.0~rc1-1) unstable; urgency=medium
 
   * New 1.1.108.0~rc1 SDK
 
