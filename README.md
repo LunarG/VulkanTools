@@ -32,7 +32,7 @@ Please see the [CONTRIBUTING](CONTRIBUTING.md) file in this repository for more 
 includes directions for building all the components, running the tests and running the demo applications.
 
 Information on how to enable the various layers is in
-[layers/README.md](layers/README.md).
+[layersvt/README.md](layersvt/README.md).
 
 ## Version Tagging Scheme
 
