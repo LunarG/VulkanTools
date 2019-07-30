@@ -340,9 +340,15 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    @if({funcSafeToPrint} is True)
+    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+    @end if
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
+    @if({funcSafeToPrint} is False)
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+    @end if
+    
 }}
 @end function
 
@@ -361,9 +367,15 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'device' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkGetDeviceProcAddr'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    @if({funcSafeToPrint} is True)
+    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+    @end if
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
+    @if({funcSafeToPrint} is False)
     dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+    @end if
+
 }}
 @end function
 
@@ -2450,6 +2462,11 @@ class VulkanFunction:
         if self.name in TRACKED_STATE:
             self.stateTrackingCode = TRACKED_STATE[self.name]
 
+        self.safeToPrint = True
+        for param in self.parameters:
+            if param.pointerLevels == 1 and param.type.find("const") == -1:
+                self.safeToPrint = False
+
     def values(self):
         return {
             'funcName': self.name,
@@ -2460,7 +2477,8 @@ class VulkanFunction:
             'funcTypedParams': self.typedParams,
             'funcDispatchParam': self.parameters[0].name,
             'funcDispatchType' : self.dispatchType, 
-            'funcStateTrackingCode': self.stateTrackingCode
+            'funcStateTrackingCode': self.stateTrackingCode,
+            'funcSafeToPrint': self.safeToPrint,
         }
 
 class VulkanFunctionPointer:
