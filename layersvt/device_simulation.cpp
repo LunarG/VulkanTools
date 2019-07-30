@@ -83,11 +83,11 @@ const uint32_t kLayerPropertiesCount = (sizeof(kLayerProperties) / sizeof(kLayer
 const char *kOurLayerName = kLayerProperties[0].layerName;
 
 // Instance extensions that this layer provides:
-const std::array<VkExtensionProperties,16> kInstanceExtensionProperties = {};
+const std::array<VkExtensionProperties, 0> kInstanceExtensionProperties = {};
 const uint32_t kInstanceExtensionPropertiesCount = kInstanceExtensionProperties.size();
 
 // Device extensions that this layer provides:
-const std::array<VkExtensionProperties, 15> kDeviceExtensionProperties = {};
+const std::array<VkExtensionProperties, 0> kDeviceExtensionProperties = {};
 const uint32_t kDeviceExtensionPropertiesCount = kDeviceExtensionProperties.size();
 
 // The "standard" core VkFormat enum values:
@@ -1309,7 +1309,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char *
     DebugPrintf("vkEnumerateInstanceExtensionProperties \"%s\" %s n", (pLayerName ? pLayerName : ""),
                 (pProperties ? "VALUES" : "COUNT"));
     if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
-        return EnumerateProperties(kInstanceExtensionPropertiesCount, kInstanceExtensionProperties, pCount, pProperties);
+        return EnumerateProperties(kInstanceExtensionPropertiesCount, kInstanceExtensionProperties.data(), pCount, pProperties);
     }
     return VK_ERROR_LAYER_NOT_PRESENT;
 }
@@ -1323,7 +1323,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     const auto dt = instance_dispatch_table(physicalDevice);
 
     if (pLayerName && !strcmp(pLayerName, kOurLayerName)) {
-        result = EnumerateProperties(kDeviceExtensionPropertiesCount, kDeviceExtensionProperties, pCount, pProperties);
+        result = EnumerateProperties(kDeviceExtensionPropertiesCount, kDeviceExtensionProperties.data(), pCount, pProperties);
     } else {
         result = dt->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
     }
