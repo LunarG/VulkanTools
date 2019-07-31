@@ -447,8 +447,12 @@ std::ostream& dump_text_pNext_trampoline(const void* object, const ApiDumpSettin
     
     case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
     case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "NULL\\n";
+        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
+            dump_text_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        }} else {{
+            settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+            settings.stream() << "NULL\\n";
+        }}
         break;
     default:
         settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
@@ -839,9 +843,13 @@ std::ostream& dump_html_pNext_trampoline(const void* object, const ApiDumpSettin
     
     case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
     case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.stream() << "<details class='data'><summary>";
-        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
-        settings.stream() << "<div class='val'> NULL</div></summary></details>";
+        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
+            dump_html_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        }} else {{
+            settings.stream() << "<details class='data'><summary>";
+            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
+            settings.stream() << "<div class='val'> NULL</div></summary></details>";
+        }}
         break;
     default:
         settings.stream() << "<details class='data'><summary>";
@@ -1246,11 +1254,15 @@ std::ostream& dump_json_pNext_trampoline(const void* object, const ApiDumpSettin
     
     case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
     case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.stream() << settings.indentation(indents) << "{{\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"NULL\\"\\n";
-        settings.stream() << settings.indentation(indents) << "}}";
+        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
+            dump_json_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        }} else {{
+            settings.stream() << settings.indentation(indents) << "{{\\n";
+            settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
+            settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
+            settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"NULL\\"\\n";
+            settings.stream() << settings.indentation(indents) << "}}";
+        }}
         break;
     default:
         settings.stream() << settings.indentation(indents) << "{{\\n";
