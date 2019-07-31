@@ -629,14 +629,14 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
     dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
     dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     @end if
 
     @if('{sctName}' == 'VkShaderModuleCreateInfo')
     @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_text_array_hex<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
+        dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}{memInheritedConditions});
     else
         dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
     @end if
@@ -1042,7 +1042,7 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
     @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
     dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember})
+    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
     dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}{memInheritedConditions});
     @end if
 
