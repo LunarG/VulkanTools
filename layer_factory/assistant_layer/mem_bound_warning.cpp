@@ -124,23 +124,6 @@ VkResult MemBoundWarning::PostCallQueueBindSparse(VkQueue queue, uint32_t bindIn
     return VK_SUCCESS;
 }
 
-VkResult MemBoundWarning::PostCallGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pSwapchainImageCount,
-                                                        VkImage *pSwapchainImages, VkResult result) {
-    assert(swapchain);
-    auto &images = swapchain_image_map[swapchain];
-
-    if (*pSwapchainImageCount > images.size()) images.resize(*pSwapchainImageCount);
-
-    if (pSwapchainImages) {
-        for (uint32_t i = 0; i < *pSwapchainImageCount; i++) {
-            if (images[i] != VK_NULL_HANDLE) continue;  // Already retrieved image
-            images[i] = pSwapchainImages[i];
-        }
-    }
-
-    return VK_SUCCESS;
-}
-
 // Get memory associated with the handle being destroyed then find handle set using this memory and erase it
 template <typename T>
 void MemBoundWarning::RemoveBindedMemory(T handle) {
@@ -158,23 +141,6 @@ void MemBoundWarning::RemoveBindedMemory(T handle) {
         auto &handle_set = map_pair->second;
         handle_set.erase(handle_64);
     }
-}
-
-void MemBoundWarning::PostCallDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain,
-                                                  const VkAllocationCallbacks *pAllocator) {
-    assert(swapchain);
-
-    auto map_pair = swapchain_image_map.find(swapchain);
-    if (map_pair == swapchain_image_map.end()) return;  // this will happen if handle was never Binded to memory...prevents segfault
-    const auto &images = map_pair->second;
-
-    if (images.size() > 0) {
-        for (const auto &swapchain_image : images) {
-            RemoveBindedMemory<VkImage>(swapchain_image);
-        }
-    }
-
-    swapchain_image_map.erase(swapchain);
 }
 
 void MemBoundWarning::PreCallDestroyBuffer(VkDevice device, VkBuffer buffer, const VkAllocationCallbacks *pAllocator) {
