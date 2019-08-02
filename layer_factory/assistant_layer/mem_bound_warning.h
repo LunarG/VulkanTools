@@ -47,12 +47,9 @@ class MemBoundWarning : public layer_factory {
                                          VkResult result);
     VkResult PostCallQueueBindSparse(VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo *pBindInfo, VkFence fence,
                                      VkResult result);
-    VkResult PostCallGetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pSwapchainImageCount,
-                                           VkImage *pSwapchainImages, VkResult result);
 
     template <typename T>
     void RemoveBindedMemory(T handle);
-    void PostCallDestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *pAllocator);
     void PreCallDestroyBuffer(VkDevice device, VkBuffer buffer, const VkAllocationCallbacks *pAllocator);
     void PreCallDestroyImage(VkDevice device, VkImage image, const VkAllocationCallbacks *pAllocator);
     void PreCallFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks *pAllocator);
@@ -61,5 +58,4 @@ class MemBoundWarning : public layer_factory {
     // double linked maps from device memory to a set containing the uint64_t versions of the handle.
     std::unordered_map<VkDeviceMemory, std::unordered_set<uint64_t>> memory_handle_map;
     std::unordered_map<uint64_t, std::unordered_set<VkDeviceMemory>> handle_memory_map;
-    std::unordered_map<VkSwapchainKHR, std::vector<VkImage>> swapchain_image_map;
 };
