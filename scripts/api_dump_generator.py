@@ -736,8 +736,13 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 //========================= Function Implementations ========================//
 
-@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@if('{funcReturn}' != 'void')
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+@end if
+@if('{funcReturn}' == 'void')
+std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+@end if
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
@@ -747,39 +752,9 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
         settings.stream() << ":\\n";
     }} 
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
+    @if('{funcReturn}' != 'void')
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-
-    return settings.stream();
-}}
-@end function
-
-@foreach function where('{funcReturn}' == 'void')
-std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
-{{
-    const ApiDumpSettings& settings(dump_inst.settings());
-    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
-    if(settings.showTimestamp()) {{
-        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " us:\\n";
-    }} else {{
-        settings.stream() << ":\\n";
-    }} 
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}:\\n";
-
+    @end if
     if(settings.showParams())
     {{
         @foreach parameter
@@ -1152,8 +1127,13 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 //========================= Function Implementations ========================//
 
-@foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@if('{funcReturn}' != 'void')
 std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+@end if 
+@if('{funcReturn}' == 'void')
+std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+@end if
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
 
@@ -1162,7 +1142,9 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
         settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
+    @if('{funcReturn}' != 'void')
     dump_html_{funcReturn}(result, settings, 0);
+    @end if
     settings.stream() << "</summary>";
 
     if(settings.showParams())
@@ -1176,38 +1158,6 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} resu
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
         dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
-        @end if
-        @end parameter
-    }}
-    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-
-    return settings.stream() << "</details>";
-}}
-@end function
-
-@foreach function where('{funcReturn}' == 'void')
-std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
-{{
-    const ApiDumpSettings& settings(dump_inst.settings());
-
-    settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
-    if(settings.showTimestamp())
-        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
-    settings.stream() << "<details class='fn'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
-    settings.stream() << "</summary>";
-
-    if(settings.showParams())
-    {{
-        @foreach parameter
-        @if({prmPtrLevel} == 0)
-        dump_html_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_html_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID});
-        @end if
-        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID});
         @end if
         @end parameter
     }}
