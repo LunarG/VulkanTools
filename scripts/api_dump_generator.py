@@ -844,6 +844,10 @@ std::ostream& dump_text_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
     return settings.stream();
 }}
 @end function
+
+//======================== pNext Chain Implementation =======================//
+
+
 """
 
 # This HTML Codegen is essentially copied from the format above.
