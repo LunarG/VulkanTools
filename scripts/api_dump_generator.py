@@ -78,8 +78,29 @@ COMMON_CODEGEN = """
 
 //============================= Dump Functions ==============================//
 
+@foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT','vkSetDebugUtilsObjectNameEXT'])
+inline void dump_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+{{
+    if (!dump_inst.shouldDumpOutput()) return ;
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    switch(dump_inst.settings().format())
+    {{
+    case ApiDumpFormat::Text:
+        dump_text_head_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    case ApiDumpFormat::Html:
+        dump_html_head_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    case ApiDumpFormat::Json:
+        dump_json_head_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    }}
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+}}
+@end function
+
 @foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT','vkSetDebugUtilsObjectNameEXT'])
-inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+inline void dump_body_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
     if (!dump_inst.shouldDumpOutput()) return;
 
@@ -87,21 +108,43 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
     switch(dump_inst.settings().format())
     {{
     case ApiDumpFormat::Text:
-        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+        dump_text_body_{funcName}(dump_inst, result, {funcNamedParams});
         break;
     case ApiDumpFormat::Html:
-        dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+        dump_html_body_{funcName}(dump_inst, result, {funcNamedParams});
         break;
     case ApiDumpFormat::Json:
-        dump_json_{funcName}(dump_inst, result, {funcNamedParams});
+        dump_json_body_{funcName}(dump_inst, result, {funcNamedParams});
         break;
     }}
     loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
 @end function
 
+@foreach function where('{funcReturn}' == 'void')
+inline void dump_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+{{
+    if (!dump_inst.shouldDumpOutput()) return ;
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    switch(dump_inst.settings().format())
+    {{
+    case ApiDumpFormat::Text:
+        dump_text_body_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    case ApiDumpFormat::Html:
+        dump_html_body_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    case ApiDumpFormat::Json:
+        dump_json_body_{funcName}(dump_inst, {funcNamedParams});
+        break;
+    }}
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+}}
+@end function
+
+
 @foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT')
-inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+inline void dump_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
 
@@ -118,13 +161,36 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
         switch(dump_inst.settings().format())
         {{
         case ApiDumpFormat::Text:
-            dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+            dump_text_head_{funcName}(dump_inst, {funcNamedParams});
             break;
         case ApiDumpFormat::Html:
-            dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+            dump_html_head_{funcName}(dump_inst, {funcNamedParams});
             break;
         case ApiDumpFormat::Json:
-            dump_json_{funcName}(dump_inst, result, {funcNamedParams});
+            dump_json_head_{funcName}(dump_inst, {funcNamedParams});
+            break;
+        }}
+    }}
+
+    loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
+}}
+@end function
+
+@foreach function where('{funcName}' == 'vkDebugMarkerSetObjectNameEXT')
+inline void dump_body_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+{{
+    loader_platform_thread_lock_mutex(dump_inst.outputMutex());
+    if (dump_inst.shouldDumpOutput()) {{
+        switch(dump_inst.settings().format())
+        {{
+        case ApiDumpFormat::Text:
+            dump_text_body_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Html:
+            dump_html_body_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Json:
+            dump_json_body_{funcName}(dump_inst, result, {funcNamedParams});
             break;
         }}
     }}
@@ -134,7 +200,7 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 @end function
 
 @foreach function where('{funcName}' == 'vkSetDebugUtilsObjectNameEXT')
-inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+inline void dump_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
     if (pNameInfo->pObjectName)
@@ -149,13 +215,13 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
         switch(dump_inst.settings().format())
         {{
         case ApiDumpFormat::Text:
-            dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+            dump_text_head_{funcName}(dump_inst, {funcNamedParams});
             break;
         case ApiDumpFormat::Html:
-            dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+            dump_html_head_{funcName}(dump_inst, {funcNamedParams});
             break;
         case ApiDumpFormat::Json:
-            dump_json_{funcName}(dump_inst, result, {funcNamedParams});
+            dump_json_head_{funcName}(dump_inst, {funcNamedParams});
             break;
         }}
     }}
@@ -163,22 +229,23 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 }}
 @end function
 
-@foreach function where('{funcReturn}' == 'void')
-inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+@foreach function where('{funcName}' == 'vkSetDebugUtilsObjectNameEXT')
+inline void dump_body_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
-    if (!dump_inst.shouldDumpOutput()) return ;
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
-    switch(dump_inst.settings().format())
-    {{
-    case ApiDumpFormat::Text:
-        dump_text_{funcName}(dump_inst, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Html:
-        dump_html_{funcName}(dump_inst, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Json:
-        dump_json_{funcName}(dump_inst, {funcNamedParams});
-        break;
+    if (dump_inst.shouldDumpOutput()) {{
+        switch(dump_inst.settings().format())
+        {{
+        case ApiDumpFormat::Text:
+            dump_text_body_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Html:
+            dump_html_body_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Json:
+            dump_json_body_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        }}
     }}
     loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
@@ -191,6 +258,8 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 @foreach function where('{funcName}' == 'vkCreateInstance')
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+
     // Get the function pointer
     VkLayerInstanceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo != 0);
@@ -207,11 +276,9 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     if(result == VK_SUCCESS) {{
         initInstanceTable(*pInstance, fpGetInstanceProcAddr);
     }}
-
     {funcStateTrackingCode}
-
     // Output the API dump
-    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -219,21 +286,22 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcName}' == 'vkDestroyInstance')
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
     // Destroy the dispatch table
     dispatch_key key = get_dispatch_key({funcDispatchParam});
     instance_dispatch_table({funcDispatchParam})->DestroyInstance({funcNamedParams});
     destroy_instance_dispatch_table(key);
-
     {funcStateTrackingCode}
-
     // Output the API dump
-    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
 @foreach function where('{funcName}' == 'vkCreateDevice')
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+
     // Get the function pointer
     VkLayerDeviceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo != 0);
@@ -250,11 +318,9 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     if(result == VK_SUCCESS) {{
         initDeviceTable(*pDevice, fpGetDeviceProcAddr);
     }}
-
     {funcStateTrackingCode}
-
     // Output the API dump
-    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -262,15 +328,15 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcName}' == 'vkDestroyDevice')
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+
     // Destroy the dispatch table
     dispatch_key key = get_dispatch_key({funcDispatchParam});
     device_dispatch_table({funcDispatchParam})->DestroyDevice({funcNamedParams});
     destroy_device_dispatch_table(key);
-
     {funcStateTrackingCode}
-
     // Output the API dump
-    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
@@ -316,9 +382,11 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcName}' == 'vkQueuePresentKHR')
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
+
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
-    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
 
     ApiDumpInstance::current().nextFrame();
     return result;
@@ -330,9 +398,10 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
-    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -340,15 +409,10 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'instance' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkCreateInstance', 'vkDestroyInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
-    @if({funcSafeToPrint} is True)
-    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
-    @end if
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
-    @if({funcSafeToPrint} is False)
-    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
-    @end if
-    
+    dump_body_{funcName}(ApiDumpInstance::current(), {funcNamedParams});    
 }}
 @end function
 
@@ -357,9 +421,10 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'device' and '{funcReturn}' != 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkQueuePresentKHR', 'vkGetDeviceProcAddr'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
-    dump_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
+    dump_body_{funcName}(ApiDumpInstance::current(), result, {funcNamedParams});
     return result;
 }}
 @end function
@@ -367,15 +432,10 @@ VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'device' and '{funcReturn}' == 'void' and '{funcName}' not in ['vkDestroyDevice', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkGetDeviceProcAddr'])
 VK_LAYER_EXPORT VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
-    @if({funcSafeToPrint} is True)
-    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
-    @end if
+    dump_head_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     {funcStateTrackingCode}
-    @if({funcSafeToPrint} is False)
-    dump_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
-    @end if
-
+    dump_body_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
 }}
 @end function
 
@@ -737,6 +797,55 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 //========================= Function Implementations ========================//
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+std::ostream& dump_text_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
+    if(settings.showTimestamp()) {{
+        settings.stream() << ", Time " << dump_inst.current_time_since_start().count() << " us:\\n";
+    }} else {{
+        settings.stream() << ":\\n";
+    }} 
+    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
+
+    return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}}
+@end function
+
+@foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@if('{funcReturn}' != 'void')
+std::ostream& dump_text_body_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+@end if
+@if('{funcReturn}' == 'void')
+std::ostream& dump_text_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+@end if
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    
+    @if('{funcReturn}' != 'void')
+    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
+    @end if
+    if(settings.showParams())
+    {{
+        @foreach parameter
+        @if({prmPtrLevel} == 0)
+        dump_text_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
+        dump_text_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
+        dump_text_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_text_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @end parameter
+    }}
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
+
+    return settings.stream();
+}}
+@end function
+
+@foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
 std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 @end if
@@ -752,6 +861,7 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         settings.stream() << ":\\n";
     }} 
     settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
+    
     @if('{funcReturn}' != 'void')
     dump_text_{funcReturn}(result, settings, 0) << ":\\n";
     @end if
@@ -1128,6 +1238,56 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 //========================= Function Implementations ========================//
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+std::ostream& dump_html_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+
+    settings.stream() << "<div class='thd'>Thread " << dump_inst.threadID() << ":</div>";
+    if(settings.showTimestamp())
+        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
+    settings.stream() << "<details class='fn'><summary>";
+    dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
+
+    return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}}
+@end function
+
+@foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@if('{funcReturn}' != 'void')
+std::ostream& dump_html_body_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+@end if 
+@if('{funcReturn}' == 'void')
+std::ostream& dump_html_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+@end if
+{{ 
+    const ApiDumpSettings& settings(dump_inst.settings());
+
+    @if('{funcReturn}' != 'void')
+    dump_html_{funcReturn}(result, settings, 0);
+    @end if
+    settings.stream() << "</summary>";
+
+    if(settings.showParams())
+    {{
+        @foreach parameter
+        @if({prmPtrLevel} == 0)
+        dump_html_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
+        dump_html_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
+        dump_html_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 1, dump_html_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @end parameter
+    }}
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
+
+    return settings.stream() << "</details>";
+}}
+@end function
+
+@foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
 std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 @end if 
@@ -1142,6 +1302,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), "{funcName}({funcNamedParams})", "{funcReturn}");
+
     @if('{funcReturn}' != 'void')
     dump_html_{funcReturn}(result, settings, 0);
     @end if
@@ -1537,6 +1698,85 @@ bool is_union(const char *t)
 static bool needFuncComma = false;
 
 @foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+std::ostream& dump_json_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+
+    if(dump_inst.firstFunctionCallOnFrame())
+        needFuncComma = false;
+
+    if (needFuncComma) settings.stream() << ",\\n";
+
+    // Display apicall name
+    settings.stream() << settings.indentation(2) << "{{\\n";
+    settings.stream() << settings.indentation(3) << "\\\"name\\\" : \\\"{funcName}\\\",\\n";
+
+    // Display thread info
+    settings.stream() << settings.indentation(3) << "\\\"thread\\\" : \\\"Thread " << dump_inst.threadID() << "\\\",\\n";
+
+    // Display elapsed time
+    if(settings.showTimestamp()) {{
+        settings.stream() << settings.indentation(3) << "\\\"time\\\" : \\\""<< dump_inst.current_time_since_start().count() << " us\\\",\\n";
+    }}
+
+    // Display return value
+    settings.stream() << settings.indentation(3) << "\\\"returnType\\\" : " << "\\\"{funcReturn}\\\",\\n";
+
+    return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}}
+@end function
+
+@foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
+@if('{funcReturn}' != 'void')
+std::ostream& dump_json_body_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+@end if
+@if('{funcReturn}' == 'void')
+std::ostream& dump_json_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+@end if
+{{
+    const ApiDumpSettings& settings(dump_inst.settings());
+
+    @if('{funcReturn}' != 'void')
+    settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" : ";
+    dump_json_{funcReturn}(result, settings, 0);
+    if(settings.showParams())
+        settings.stream() << ",";
+    settings.stream() << "\\n";
+    @end if
+
+    // Display parameter values
+    if(settings.showParams())
+    {{
+        bool needParameterComma = false;
+
+        settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";
+        settings.stream() << settings.indentation(3) << "[\\n";
+        
+        @foreach parameter
+        if (needParameterComma) settings.stream() << ",\\n";
+        @if({prmPtrLevel} == 0)
+        dump_json_value<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
+        dump_json_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
+        @end if
+        @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
+        dump_json_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 4, dump_json_{prmTypeID}{prmInheritedConditions});
+        @end if
+        needParameterComma = true;
+        @end parameter
+        
+        settings.stream() << "\\n" << settings.indentation(3) << "]\\n";
+    }}
+    settings.stream() << settings.indentation(2) << "}}";
+    needFuncComma = true;
+    if (settings.shouldFlush()) settings.stream().flush();
+    return settings.stream();
+}}
+@end function
+
+
+@foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
 std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 @end if
@@ -1565,6 +1805,7 @@ std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
 
     // Display return value
     settings.stream() << settings.indentation(3) << "\\\"returnType\\\" : " << "\\\"{funcReturn}\\\",\\n";
+
     @if('{funcReturn}' != 'void')
     settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" : ";
     dump_json_{funcReturn}(result, settings, 0);
