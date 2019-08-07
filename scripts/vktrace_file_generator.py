@@ -2434,12 +2434,15 @@ class VkTraceFileOutputGenerator(OutputGenerator):
 
                 # Build the call to the "dump_" entrypoint
                 param_string = ''
+                param_string_no_result = ''
                 if ret_value:
                     param_string += 'pPacket->result, '
                 for p in params:
                     if p.name is not '':
                         param_string += 'pPacket->%s, ' % p.name
+                        param_string_no_result += 'pPacket->%s, ' % p.name
                 param_string = '%s);' % param_string[:-2]
+                param_string_no_result = '%s);' % param_string_no_result[:-2]
 
                 if cmdname == 'CreateDescriptorSetLayout':
                     dump_gen_source += '            VkDescriptorSetLayoutCreateInfo *pInfo = (VkDescriptorSetLayoutCreateInfo *)pPacket->pCreateInfo;\n'
@@ -2582,15 +2585,21 @@ class VkTraceFileOutputGenerator(OutputGenerator):
                     dump_gen_source += '                                      std::vector<VkCommandBuffer>(pPacket->pCommandBuffers, pPacket->pCommandBuffers + pPacket->commandBufferCount));\n'
                 dump_gen_source += '            switch(dump_inst.settings().format()) {\n'
                 dump_gen_source += '            case ApiDumpFormat::Text:\n'
-                dump_gen_source += '                dump_text_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '                dump_text_head_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' %param_string_no_result
+                dump_gen_source += '                dump_text_body_vk%s(dump_inst, ' % cmdname
                 dump_gen_source += '%s\n' % param_string
                 dump_gen_source += '                break;\n'
                 dump_gen_source += '            case ApiDumpFormat::Html:\n'
-                dump_gen_source += '                dump_html_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '                dump_html_head_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' %param_string_no_result
+                dump_gen_source += '                dump_html_body_vk%s(dump_inst, ' % cmdname
                 dump_gen_source += '%s\n' % param_string
                 dump_gen_source += '                break;\n'
                 dump_gen_source += '            case ApiDumpFormat::Json:\n'
-                dump_gen_source += '                dump_json_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '                dump_json_head_vk%s(dump_inst, ' % cmdname
+                dump_gen_source += '%s\n' %param_string_no_result
+                dump_gen_source += '                dump_json_body_vk%s(dump_inst, ' % cmdname
                 dump_gen_source += '%s\n' % param_string
                 dump_gen_source += '                break;\n'
                 dump_gen_source += '            }\n'
