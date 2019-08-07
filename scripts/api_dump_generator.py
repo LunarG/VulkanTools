@@ -434,6 +434,8 @@ std::ostream& dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
 std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
+//======================== pNext Chain Implementation =======================//
+
 std::ostream& dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
@@ -785,10 +787,6 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     return settings.stream();
 }}
 @end function
-
-//======================== pNext Chain Implementation =======================//
-
-
 """
 
 # This HTML Codegen is essentially copied from the format above.
@@ -837,6 +835,8 @@ std::ostream& dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT(const VkSurface
 @foreach union
 std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
+
+//======================== pNext Chain Implementation =======================//
 
 std::ostream& dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
@@ -1252,6 +1252,8 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
 @foreach union
 std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
+
+//======================== pNext Chain Implementation =======================//
 
 std::ostream& dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
