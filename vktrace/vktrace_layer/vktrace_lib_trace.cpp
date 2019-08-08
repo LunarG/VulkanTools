@@ -190,6 +190,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     VkImportMemoryHostPointerInfoEXT importMemoryHostPointerInfo = {};
     void* pNextOriginal = const_cast<void*>(pAllocateInfo->pNext);
     void* pHostPointer = nullptr;
+    VkDeviceSize original_allocation_size = pAllocateInfo->allocationSize;
     if (UseMappedExternalHostMemoryExtension()) {
         VkMemoryPropertyFlags propertyFlags =
             getPageGuardControlInstance().getMemoryPropertyFlags(device, pAllocateInfo->memoryTypeIndex);
@@ -212,6 +213,11 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
             reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pNext = pNextOriginal;
             // provide the title host memory pointer which is already added
             // memory write watch.
+            size_t page_size = pageguardGetSystemPageSize();
+            if ((original_allocation_size % page_size) != 0) {
+                const_cast<VkMemoryAllocateInfo*>(pAllocateInfo)->allocationSize =
+                    pAllocateInfo->allocationSize - (pAllocateInfo->allocationSize % page_size) + page_size;
+            }
             reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pHostPointer =
                 pageguardAllocateMemory(pAllocateInfo->allocationSize);
             pHostPointer = reinterpret_cast<VkImportMemoryHostPointerInfoEXT*>(*ppNext)->pHostPointer;
@@ -219,6 +225,7 @@ VKTRACER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL __HOOKED_vkAllocateMemory(VkDevic
     }
 
     result = mdd(device)->devTable.AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+    const_cast<VkMemoryAllocateInfo*>(pAllocateInfo)->allocationSize = original_allocation_size;
     if (UseMappedExternalHostMemoryExtension()) {
         if (result == VK_SUCCESS) {
             getPageGuardControlInstance().vkAllocateMemoryPageGuardHandle(device, pAllocateInfo, pAllocator, pMemory, pHostPointer);
