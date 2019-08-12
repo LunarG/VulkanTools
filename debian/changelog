@@ -1,3 +1,9 @@
+lunarg-tools (1.1.114.0~rc2-1lunarg18.04.1.1) bionic; urgency=medium
+
+  * New 1.1.114.0~rc2 package
+
+ -- John Zupin <johnz@lunarg.com>  Thu, 25 Jul 2019 16:40:06 -0600
+
 lunarg-tools (1.1.114.0~rc1-1lunarg18.04.1.1) bionic; urgency=medium
 
   * New 1.1.114.0~rc1 SDK
