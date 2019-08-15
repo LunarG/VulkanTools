@@ -806,7 +806,7 @@ std::ostream& dump_text_head_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
     }} else {{
         settings.stream() << ":\\n";
     }} 
-    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn} ";
+    settings.stream() << "{funcName}({funcNamedParams}) returns {funcReturn}";
 
     return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }}
@@ -823,8 +823,10 @@ std::ostream& dump_text_body_{funcName}(ApiDumpInstance& dump_inst, {funcTypedPa
     const ApiDumpSettings& settings(dump_inst.settings());
     
     @if('{funcReturn}' != 'void')
-    dump_text_{funcReturn}(result, settings, 0) << ":\\n";
+    settings.stream() << " ";
+    dump_text_{funcReturn}(result, settings, 0);
     @end if
+    settings.stream() << ":\\n";
     if(settings.showParams())
     {{
         @foreach parameter
