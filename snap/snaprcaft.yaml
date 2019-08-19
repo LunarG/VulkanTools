@@ -1,0 +1,50 @@
+name: VulkanTools
+version: "1.1.114.0"
+summary: Vulkan development tools.
+description: Tools to aid in Vulkan development including useful layers, trace and replay, and tests.
+
+confinement: devmode
+base: core18
+
+parts:
+  VulkanTools:
+    plugin: cmake
+    source-type: zip
+    source: https://codeload.github.com/VulkanTools-sdk-1.1.114.0.zip
+    build-packages:
+      - g++
+      - make
+      - build-essential 
+      - bison 
+      - libx11-xcb-dev 
+      - libxkbcommon-dev 
+      - libwayland-dev 
+      - libxrandr-dev 
+      - libxcb-randr0-dev
+      - autotools-dev 
+      - libxcb-keysyms1 
+      - libxcb-keysyms1-dev 
+      - libxcb-ewmh-dev
+      - libc6-dev-i386 
+      - g++-multilib
+      - qt5-default 
+      - qtwebengine5-dev
+
+    stage-packages:
+      - libxcursor1
+      - libxi6
+      - libxinerama1
+      - libxrandr2
+      - libxrender1
+      - libwayland-client0
+      - libwayland-cursor0
+      - libwayland-egl1-mesa
+      - libxkbcommon0
+      - libglu1-mesa
+     
+
+apps:
+  VulkanTools:
+    command: vulkantools
+    environment:
+      "DISABLE_WAYLAND": "1"
