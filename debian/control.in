@@ -2,7 +2,8 @@ Source: lunarg-tools
 Section: libdevel
 Priority: optional
 Maintainer: Brett Johnson <brett@linuxturtle.net>
-Build-Depends: debhelper (>=9),
+Build-Depends: __DISTBUILDSUB__
+ debhelper (>=9),
  libvulkan-dev (>=__VKAPIVERSION__),
  vulkan-validationlayers-dev (>=__VKAPIVERSION__),
  glslang-tools,
@@ -63,7 +64,9 @@ Description: LunarG Vulkan Installation Analyzer
 
 Package: lunarg-vkconfig
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
+Depends: __DISTDEPSUB__
+ ${shlibs:Depends},
+ ${misc:Depends},
  libvulkan-dev (>=__VKAPIVERSION__),
  vulkan-validationlayers (>=__VKAPIVERSION__),
  libqt5core5a,

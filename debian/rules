@@ -27,10 +27,20 @@ override_dh_auto_install:
 override_dh_missing:
 	dh_missing --fail-missing
 
+DISTRO := $(shell dpkg-parsechangelog -S Distribution)
+ifeq ($(DISTRO),bionic)
+    DISTBUILDSUB = qtwebengine5-dev,
+    DISTDEPSUB = libqt5webenginewidgets5,
+else
+    DISTBUILDSUB =
+    DEPSUB =
+endif
 .PHONY: debian/control
 debian/control: vk-api-vers = $(shell dpkg-parsechangelog -SVersion | sed 's/\.[^.]*-.*$$//')
 debian/control:
 	sed -e 's/__VKAPIVERSION__/$(vk-api-vers)/g' \
+	-e 's/__DISTBUILDSUB__/$(DISTBUILDSUB)/g' \
+	-e 's/__DISTDEPSUB__/$(DISTDEPSUB)/g' \
 	    < debian/control.in > debian/control
 
 gentarball: SOURCE = $(shell dpkg-parsechangelog -SSource)
