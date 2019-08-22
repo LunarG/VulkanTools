@@ -396,6 +396,26 @@
                 },
                 "default": "USE_SWAPCHAIN_COLORSPACE"
             }
+        },
+        "VK_LAYER_LUNARG_device_simulation": {
+            "filename": {
+                "name": "Filename",
+                "description": "Name of one or more configuration file(s) to load.",
+                "type": "string",
+                "default": ""
+            },
+            "debug_enable": {
+                "name": "Debug Enable",
+                "description": "A non-zero integer enables debug message output.",
+                "type": "string",
+                "default": "0"
+            },
+            "exit_on_error": {
+                "name": "Exit On Error",
+                "description": "A non-zero integer enables exit-on-error.",
+                "type": "string",
+                "default": "0"
+            }
         }
     }
 }

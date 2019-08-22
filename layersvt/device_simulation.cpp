@@ -54,6 +54,7 @@
 #include <json/json.h>  // https://github.com/open-source-parsers/jsoncpp
 
 #include "vulkan/vk_layer.h"
+#include "vk_layer_config.h"
 #include "vk_layer_table.h"
 
 namespace {
@@ -66,8 +67,8 @@ namespace {
 // layersvt/{linux,windows}/VkLayer_device_simulation*.json
 
 const uint32_t kVersionDevsimMajor = 1;
-const uint32_t kVersionDevsimMinor = 2;
-const uint32_t kVersionDevsimPatch = 6;
+const uint32_t kVersionDevsimMinor = 3;
+const uint32_t kVersionDevsimPatch = 0;
 const uint32_t kVersionDevsimImplementation = VK_MAKE_VERSION(kVersionDevsimMajor, kVersionDevsimMinor, kVersionDevsimPatch);
 
 // Properties of this layer:
@@ -290,6 +291,27 @@ const char *const kEnvarDevsimDebugEnable = "VK_DEVSIM_DEBUG_ENABLE";   // a non
 const char *const kEnvarDevsimExitOnError = "VK_DEVSIM_EXIT_ON_ERROR";  // a non-zero integer will enable exit-on-error.
 #endif
 
+const char *const kLayerSettingsDevsimFilename =
+    "lunarg_device_simulation.filename";  // vk_layer_settings.txt equivalent for kEnvarDevsimFilename
+const char *const kLayerSettingsDevsimDebugEnable =
+    "lunarg_device_simulation.debug_enable";  // vk_layer_settings.txt equivalent for kEnvarDevsimDebugEnable
+const char *const kLayerSettingsDevsimExitOnError =
+    "lunarg_device_simulation.exit_on_error";  // vk_layer_settings.txt equivalent for kEnvarDevsimExitOnError
+
+struct IntSetting {
+    int num;
+    bool fromEnvVar;
+};
+
+struct StringSetting {
+    std::string str;
+    bool fromEnvVar;
+};
+
+struct StringSetting inputFilename;
+struct IntSetting debugLevel;
+struct IntSetting errorLevel;
+
 // Various small utility functions ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(__ANDROID__)
@@ -370,12 +392,7 @@ void AndroidPrintf(VkLogLevel level, const char *fmt, va_list args) {
 #endif
 
 void DebugPrintf(const char *fmt, ...) {
-#if defined(__ANDROID__)
-    static const int kDebugLevel = atoi(GetEnvarValue(kEnvarDevsimDebugEnable).c_str());
-#else
-    static const int kDebugLevel = std::atoi(GetEnvarValue(kEnvarDevsimDebugEnable).c_str());
-#endif
-    if (kDebugLevel > 0) {
+    if (debugLevel.num > 0) {
 #if !defined(__ANDROID__)
         printf("\tDEBUG devsim ");
 #endif
@@ -391,10 +408,7 @@ void DebugPrintf(const char *fmt, ...) {
 }
 
 void ErrorPrintf(const char *fmt, ...) {
-#if defined(__ANDROID__)
-    static const int kExitLevel = atoi(GetEnvarValue(kEnvarDevsimExitOnError).c_str());
-#else
-    static const int kExitLevel = std::atoi(GetEnvarValue(kEnvarDevsimExitOnError).c_str());
+#if !defined(__ANDROID__)
     fprintf(stderr, "\tERROR devsim ");
 #endif
     va_list args;
@@ -405,7 +419,7 @@ void ErrorPrintf(const char *fmt, ...) {
     vfprintf(stderr, fmt, args);
 #endif
     va_end(args);
-    if (kExitLevel > 0) {
+    if (errorLevel.num > 0) {
 #if defined(__ANDROID__)
         __android_log_print(ANDROID_LOG_ERROR, "devsim", "devsim exiting on error as requested");
 #else
@@ -757,14 +771,17 @@ class JsonLoader {
 };
 
 bool JsonLoader::LoadFiles() {
-    std::string value = GetEnvarValue(kEnvarDevsimFilename);
-    if (value.empty()) {
-        ErrorPrintf("envar %s is unset\n", kEnvarDevsimFilename);
+    if (inputFilename.str.empty()) {
+        ErrorPrintf("envar %s and %s in vk_layer_settings.txt are unset\n", kEnvarDevsimFilename, kLayerSettingsDevsimFilename);
         return false;
     }
 
-    const char *filename_list = value.c_str();
-    DebugPrintf("envar %s = \"%s\"\n", kEnvarDevsimFilename, filename_list);
+    const char *filename_list = inputFilename.str.c_str();
+    if (inputFilename.fromEnvVar) {
+        DebugPrintf("envar %s = \"%s\"\n", kEnvarDevsimFilename, filename_list);
+    } else {
+        DebugPrintf("vk_layer_settings.txt setting %s = \"%s\"\n", kLayerSettingsDevsimFilename, filename_list);
+    }
     return LoadFiles(filename_list);
 }
 
@@ -1152,9 +1169,59 @@ void JsonLoader::GetValue(const Json::Value &parent, int index, VkLayerPropertie
 
 // Layer-specific wrappers for Vulkan functions, accessed via vkGet*ProcAddr() ///////////////////////////////////////////////////
 
+// Fill the inputFilename variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void getDevSimFilename() {
+    inputFilename.str = getLayerOption(kLayerSettingsDevsimFilename);
+    inputFilename.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimFilename);
+    if (!env_var.empty()) {
+        inputFilename.str = env_var;
+        inputFilename.fromEnvVar = true;
+    }
+}
+
+// Fill the debugLevel variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void getDevSimDebugLevel() {
+    std::string debug_setting = getLayerOption(kLayerSettingsDevsimDebugEnable);
+    debugLevel.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimDebugEnable);
+    if (!env_var.empty()) {
+        debug_setting = env_var;
+        debugLevel.fromEnvVar = true;
+    }
+#if defined(__ANDROID__)
+    debugLevel.num = atoi(debug_setting.c_str());
+#else
+    debugLevel.num = std::atoi(debug_setting.c_str());
+#endif
+}
+
+// Fill the errorLevel variable with a value from either vk_layer_settings.txt or environment variables.
+// Environment variables get priority.
+static void getDevSimErrorLevel() {
+    std::string error_setting = getLayerOption(kLayerSettingsDevsimExitOnError);
+    errorLevel.fromEnvVar = false;
+    std::string env_var = GetEnvarValue(kEnvarDevsimExitOnError);
+    if (!env_var.empty()) {
+        error_setting = env_var;
+        errorLevel.fromEnvVar = true;
+    }
+#if defined(__ANDROID__)
+    errorLevel.num = atoi(error_setting.c_str());
+#else
+    errorLevel.num = std::atoi(error_setting.c_str());
+#endif
+}
+
 // Generic layer dispatch table setup, see [LALI].
 static VkResult LayerSetupCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                          VkInstance *pInstance) {
+    getDevSimFilename();
+    getDevSimDebugLevel();
+    getDevSimErrorLevel();
+
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo);
 
