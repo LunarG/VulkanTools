@@ -152,6 +152,14 @@ If you wish DevSim to terminate on errors, set the `VK_DEVSIM_EXIT_ON_ERROR` env
 * `VK_DEVSIM_DEBUG_ENABLE` - A non-zero integer enables debug message output.
 * `VK_DEVSIM_EXIT_ON_ERROR` - A non-zero integer enables exit-on-error.
 
+#### vk_layer_settings.txt Options
+
+* `lunarg_device_simulation.filename` - Equivalent to the `VK_DEVSIM_FILENAME` environment variable.
+* `lunarg_device_simulation.debug_enable` - Equivalent to the `VK_DEVSIM_DEBUG_ENABLE` environment variable.
+* `lunarg_device_simulation.exit_on_error` - Equivalent to the `VK_DEVSIM_EXIT_ON_ERROR` environment variable.
+
+**Note:** Environment variables take precedence over vk_layer_settings.txt options.
+
 ### Example using the DevSim layer
 ```bash
 # Configure bash to find the Vulkan SDK.

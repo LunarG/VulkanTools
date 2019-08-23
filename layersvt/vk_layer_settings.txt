@@ -98,3 +98,27 @@ lunarg_api_dump.use_spaces = TRUE
 lunarg_api_dump.show_shader = FALSE
 lunarg_api_dump.output_range = 0-0
 lunarg_api_dump.show_timestamp = FALSE
+
+################################################################################
+#  VK_LAYER_LUNARG_device_simulation Settings:
+#  ===========================================
+#
+#    FILENAME:
+#    =========
+#    <LayerIdentifer>.filename : Name of one or more configuration file(s) to load.
+#    Added in v1.2.1: This variable can have a delimited list of files to be loaded.
+#    On Windows, the delimiter is ';' else it is ':'. Files are loaded in order.
+#    Later files can override settings from earlier files.
+#
+#    DEBUG_ENABLE:
+#    =============
+#    <LayerIdentifer>.debug_enable : A non-zero integer enables debug message output.
+#
+#    EXIT_ON_ERROR:
+#    ==============
+#    <LayerIdentifer>.exit_on_error : A non-zero integer enables exit-on-error.
+
+# VK_LUNARG_LAYER_device_simulation Settings
+lunarg_device_simulation.filename = 
+lunarg_device_simulation.debug_enable = 0
+lunarg_device_simulation.exit_on_error = 0
