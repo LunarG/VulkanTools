@@ -20,6 +20,17 @@ The environment variable `VK_SCREENSHOT_FRAMES` can be set to a comma-separated 
 #### VK\_SCREENSHOT\_DIR
 The environment variable `VK_SCREENSHOT_DIR` can be set to specify the directory in which to create the screenshot files. If it is not set or is set to null, the files will be created in the current working directory.
 
+#### VK\_SCREENSHOT\_FORMAT
+The environment variable `VK_SCREENSHOT_FORMAT` can be set to specify a color space for the output. If it is not set, set to null, or set to `USE_SWAPCHAIN_COLORSPACE` the format will be set to use the same color space as the swapchain object.
+
+#### vk\_layer\_settings.txt Options
+Each environment variable has an equivalent option in the vk\_layer\_settings.txt file.
+* `VK_SCREENSHOT_FRAMES` = lunarg\_screenshot.frames
+* `VK_SCREENSHOT_DIR` = lunarg\_screenshot.dir
+* `VK_SCREENSHOT_FORMAT` = lunarg\_screenshot.format
+
+__Note:__ Environment variables take precedence over vk\_layer\_settings.txt options.
+
 ## Android
 
 Frame numbers can be specified with the debug.vulkan.screenshot property:
