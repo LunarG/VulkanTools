@@ -1,7 +1,7 @@
 Source: lunarg-tools
 Section: libdevel
 Priority: optional
-Maintainer: Brett Johnson <brett@linuxturtle.net>
+Maintainer: John Zupin <johnz@lunarg.com>
 Build-Depends: __DISTBUILDSUB__
  debhelper (>=9),
  libvulkan-dev (>=__VKAPIVERSION__),
