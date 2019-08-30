@@ -88,7 +88,7 @@ LayerManager::LayerManager()
     tab_widget->addTab(layer_widget, tr("Layer Manager"));
 
     // Run via and display its output on a tab
-#if !defined(__APPLE__) && !defined(NO_HTML)
+#if !defined(NO_HTML)
     QProcess *via = new QProcess(this);
     via->setProgram("vkvia");
     via->setArguments(QStringList() << "--output_path" << QDir::temp().path());
