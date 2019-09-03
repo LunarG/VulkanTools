@@ -60,11 +60,25 @@
             },
             "disables": {
                 "name": "Disables",
-                "description": "Setting an option here will disable specific parts of validation",
+                "description": "Setting an option here will disable areas of validation",
                 "type": "multi_enum",
                 "options": {
-                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Disable thread safety",
-                    "VALIDATION_CHECK_DISABLE_DESTROY_PIPELINE": "Disable checking pipeline destruction"
+                    "VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT": "Disable thread safety checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT": "Disable stateless parameter Checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT": "Disable object lifetime validation",
+                    "VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT": "Disable core validation checks",
+                    "VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT": "Disable handle wrapping"
+                },
+                "default": []
+            },
+            "enables": {
+                "name": "Enables",
+                "description": "Setting an option here will enable specialized areas of validation",
+                "type": "multi_enum",
+                "options": {
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT": "Enable GPU-Assisted Validation",
+                    "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT": "Reserve a descriptorSet binding slot for internal use",
+                    "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT": "Enable Best Practices warning checks"
                 },
                 "default": []
             }
