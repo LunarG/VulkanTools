@@ -88,11 +88,11 @@ class ConditionalFrameOutput {
 
     struct NumberToken {
         uint64_t value;
-        unsigned int length;
+        uint32_t length;
     };
 
-    inline NumberToken parseNumber(std::string str, unsigned int current_char) {
-        unsigned int length = 0;
+    inline NumberToken parseNumber(std::string str, uint32_t current_char) {
+        uint32_t length = 0;
         while (current_char + length < str.size() && str[current_char + length] >= '0' && str[current_char + length] <= '9') {
             length++;
         }
@@ -120,7 +120,7 @@ class ConditionalFrameOutput {
      * Valid range strings: "2,3,5", "4-4-2", "3-6, 10-2"
      */
     bool parseConditionalFrameRange(std::string range_str) {
-        size_t current_char = 0;
+        uint32_t current_char = 0;
 
         if (range_str.empty()) {
             printErrorMsg("Conditional range error: format string was empty\n");
