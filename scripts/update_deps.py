@@ -393,6 +393,10 @@ class GoodRepo(object):
         # definitions for "...INSTALL_DIR" that points to that dependent
         # repo's install dir.
         for d in self.deps:
+            dep_build_platform = [r.on_build_platform for r in repos if r.name == d['repo_name']]
+            if not dep_build_platform[0]:
+                continue
+
             dep_commit = [r for r in repos if r.name == d['repo_name']]
             if len(dep_commit):
                 cmake_cmd.append('-D{var_name}={install_dir}'.format(
