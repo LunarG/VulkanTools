@@ -23,6 +23,9 @@
       ],
       "cmake_options" : [
         "-DBUILD_TESTS=OFF"
+      ],
+      "build_platforms" : [
+        "linux"
       ]
     },
     {
