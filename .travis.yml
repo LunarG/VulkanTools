@@ -58,7 +58,7 @@ before_install:
   - |
     if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
       sudo apt-get -qq update
-      sudo apt-get -y install libxkbcommon-dev libwayland-dev libxrandr-dev libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
+      sudo apt-get -y install libxkbcommon-dev libwayland-dev libxrandr-dev libx11-xcb-dev libxcb-randr0-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
       # Needed for devsim test
       sudo apt-get -y install jq
     fi
