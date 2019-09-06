@@ -27,9 +27,9 @@ set(VULKAN_HEADERS_INSTALL_DIR "HEADERS-NOTFOUND" CACHE PATH "Absolute path to a
 set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
 if(WIN32 AND "${VULKAN_LOADER_INSTALL_DIR}" STREQUAL "LOADER-NOTFOUND")
     if(CMAKE_CL_64)
-        set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_BINARY_DIR}/Vulkan-Tools/external/x64")
+        set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/x64")
     else()
-        set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_BINARY_DIR}/Vulkan-Tools/external/x86")
+        set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/x86")
     endif()
 endif()
 
