@@ -23,5 +23,4 @@ The specific areas covered by this layer are currently tracked in
 Requests for additional checks can be posted through the same issue, or by creating a new Github issue, and current status is tracked there
 as well.
 
-This layer has been created with the Vulkan Layer Factory, and third-party contributions are welcome!
-
+This layer has been created with the Vulkan Layer Factory. It will be deprecated in the near future, and will be replaced by Best Practices Validation in the VK_LAYER_KHRONOS_validation_layer. See https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/master/docs/best_practices.md
