@@ -23,27 +23,13 @@ mkdir -p generated/include generated/common
 
 LVL_BASE=$dir/third_party/Vulkan-ValidationLayers
 LVL_SCRIPTS=${LVL_BASE}/scripts
+LVL_GENERATED=${LVL_BASE}/layers/generated
 VT_SCRIPTS=../../../scripts
 REGISTRY_PATH=$dir/third_party/Vulkan-Headers/registry
 REGISTRY=${REGISTRY_PATH}/vk.xml
 
-
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_safe_struct.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_safe_struct.cpp )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_enum_string_helper.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_object_types.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_dispatch_table_helper.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} thread_check.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} parameter_validation.cpp )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_layer_dispatch_table.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_extension_helper.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} vk_typemap_helper.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} object_tracker.cpp )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} object_tracker.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_chassis_dispatch.cpp )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_chassis_dispatch.h )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} chassis.cpp )
-( cd generated/include; python3 ${LVL_SCRIPTS}/lvl_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} chassis.h )
+# validation layers support files
+( cd generated/include; cp  $LVL_GENERATED/* .)
 
 # layer factory
 ( cd generated/include; python3 ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} layer_factory.h )
