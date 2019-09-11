@@ -24,7 +24,7 @@ VIA is a tool that can:
 Many components of the Vulkan SDK are Open Source, including VIA.  VIA is currently part of the LunarG
 [VulkanTools](https://github.com/LunarG/VulkanTools) GitHub respository.
 
-**Windows Note:** VIA is already pre-built as part of the Windows Vulkan SDK, but should you wish to build a
+**Note:** VIA is already pre-built as part of the Windows and MacOS Vulkan SDK, but should you wish to build a
 debug version or find the source, this section should provide you with the information you need.  Otherwise, simply
 skip down to the "Running" section below.
 
@@ -63,13 +63,20 @@ Once built, VIA can be found in the x86_64/bin directory.  You can simply execut
 vkvia
 ```
 
+#### In the MacOS Vulkan SDK
+VIA cane be found in the macOS/bin directory.  You can simply execute it from there using:
+
+```
+vkvia
+```
+
 <BR />
 
 
 #### If Built from VulkanTools
 Go into the folder where you generated the build items from the above building step.
 
-**Linux**
+**Linux and MacOS**
 
 Simply run:
 ```
@@ -103,7 +110,7 @@ VIA outputs two things:
 
 Your home folder is the following location (based on your OS):
  - Windows: Wherever your environment variables %HOMEDRIVE%\%HOMEPATH% point to.
- - Linux: It will be placed in your home folder ("~/.").
+ - Linux and MacOS: It will be placed in your home folder ("~/.").
 
 <BR />
 
