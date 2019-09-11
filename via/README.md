@@ -147,10 +147,10 @@ Re-run VIA from the location your Vulkan application/game is supposed to run.
 LunarG's VIA could detect no problems with your setup other than a missing SDK.  It was able to run some limited tests and create both a Vulkan instance and device.
 
 ##### Possible Reason:
-Your system is likely set up properly, but is either missing an installed Vulkan SDK or you didn't set up your VK_SDK_PATH environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
+Your system is likely set up properly, but is either missing an installed Vulkan SDK or you didn't set up your VULKAN_SDK environment variable to point at an installed SDK.  If you have trouble running Vulkan from another location, it could be that your environment variables aren't set up properly.
 
 ##### Next Step:
-Install the Vulkan SDK and define the VK_SDK_PATH to point to the location of the installed SDK.
+Install the Vulkan SDK and define the VULKAN_SDK to point to the location of the installed SDK.
 
 
 #### "ERROR: Failed to find Vulkan Driver JSON in registry"
