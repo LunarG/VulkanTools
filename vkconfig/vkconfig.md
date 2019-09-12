@@ -83,9 +83,9 @@ Different layers will provide different settings, so it is impractical to give a
 
 * A true/false pairing &mdash; The user can select either true or false, but not both.
 * A dropdown box &mdash; The user can select any one from a number of options.
-* A multi-selection dropdown box &mdash; The user can select any number of options from a dropdown menu
-* A text field &mdash; The user can enter any text
-* A file &mdash; The user can enter any text as a filename, but a file selector button is present for convenience
+* A multi-selection dropdown box &mdash; The user can select any number of options from a dropdown menu.
+* A text field &mdash; The user can enter any text.
+* A file &mdash; The user can enter any text as a filename, but a file selector button is present for convenience.
 
 At the present time, layer settings will only work for layers written by Khronos or LunarG.
 In the future, settings may work for other layers, but this feature has not currently been developed.
@@ -98,7 +98,7 @@ No changes made in Vulkan Configurator will have any effect until the user hits 
 The "Restore" button does the opposite.
 It discards all changes made since the last time the user saved.
 The "Clear" button will remove all of the files that the Vulkan Configurator saves to change an application's behavior.
-After using this button, Vulkan applications will behave as if Vulkan Configurator was never run.
+After using this button, Vulkan applications will behave as if Vulkan Configurator were never run.
 Finally, the "Exit" button will quit the application (without saving).
 It is effectively the same as pressing the "Reset" button and exiting the application.
 Note that while all unsaved changes will be lost, all saved settings in the tool will be remembered the next time Vulkan Configurator is run.
@@ -111,7 +111,7 @@ Keep in mind that any changes made to a system will persist indefinitely (unless
 As a result, it is very important that the user remember to clear the state of the tool when finishing using it.
 Otherwise, applications will continue to run with the layers that were specified by the configurator.
 
-## System Modifcations
+## System Modifications
 
 The Vulkan Configurator does not make any system-wide changes to a system, but it does make user-specific changes.
 These changes are documented below:
