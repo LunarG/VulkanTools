@@ -5,7 +5,7 @@
 * Provide tools to aid in the development of Vulkan applications. Current tools include:
   * vktrace/vkreplay - API trace and replay tool
   * via - Vulkan Installation Analyzer
-  * layers: device simulation, api dump, fps monitor, screenshot, assistant layer
+  * layers: device simulation, api dump, fps monitor, screenshot
   * layer factory: framework that facilitates the creation of new layers
 * Platform support:
   * Windows
