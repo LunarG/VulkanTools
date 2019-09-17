@@ -31,8 +31,8 @@ of all others within a Factory Layer, and their call order is not guaranteed.
 
 ### Layer Factory sample code
 
-The base installation of the layer factory contains some sample layers, including the Vulkan
-Assistant Layer and the Starter Layer. The Starter Layer in particular is meant to serve as
+The base installation of the layer factory contains some sample layers, including
+the Demo layer and the Starter Layer. The Starter Layer in particular is meant to serve as
 an example of a very simple layer implementation.
 
 
