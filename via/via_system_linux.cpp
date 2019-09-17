@@ -1246,7 +1246,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
             }
         }
     } else if (upper_os_name.find("ARCH") != std::string::npos) {
-        FILE *dnf_output = popen("pacman -Qi lunarg-vulkan-sdk", "r");
+        FILE *dnf_output = popen("pacman -Qi lunarg-vulkan-sdk 2>&1", "r");
         if (dnf_output != nullptr) {
             char cur_line[1035];
             std::string install_name;
