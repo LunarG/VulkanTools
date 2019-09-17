@@ -1173,15 +1173,15 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
     // Next, try system install items
     std::string upper_os_name = _os_name;
     std::transform(upper_os_name.begin(), upper_os_name.end(), upper_os_name.begin(), ::toupper);
-    if (upper_os_name.find("FEDORA") != std::string::npos) {
-        FILE *dnf_output = popen("dnf list installed | grep lunarg-vulkan-sdk", "r");
-        if (dnf_output != nullptr) {
+    if (upper_os_name.find("UBUNTU") != std::string::npos || upper_os_name.find("DEBIAN") != std::string::npos) {
+        FILE *dpkg_output = popen("dpkg-query --show --showformat='${Package} ${Version}\n' vulkan-sdk", "r");
+        if (dpkg_output != nullptr) {
             char cur_line[1035];
             std::string install_name;
             std::string install_version;
-            std::string target("lunarg-vulkan-sdk");
+            std::string target("vulkan-sdk");
             // Read the output a line at a time - output it.
-            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
+            while (fgets(cur_line, sizeof(cur_line) - 1, dpkg_output) != nullptr) {
                 if (!strncmp(cur_line, target.c_str(), target.size())) {
                     uint32_t count = 0;
                     // Found it
@@ -1199,135 +1199,7 @@ ViaSystem::ViaResults ViaSystemLinux::PrintSystemSdkInfo() {
                     break;
                 }
             }
-            pclose(dnf_output);
-            if (install_name.size() > 0 && install_version.size() > 0) {
-                PrintBeginTableRow();
-                PrintTableElement("System Installed SDK");
-                PrintTableElement(install_name.c_str());
-                PrintTableElement(install_version.c_str());
-                PrintTableElement("");
-                PrintEndTableRow();
-
-                _found_sdk = true;
-                _is_system_installed_sdk = true;
-                sdk_exists = true;
-            }
-        }
-    } else if (upper_os_name.find("RED HAT") != std::string::npos || upper_os_name.find("REDHAT") != std::string::npos) {
-        FILE *dnf_output = popen("yum list installed lunarg-vulkan-sdk", "r");
-        if (dnf_output != nullptr) {
-            char cur_line[1035];
-            std::string install_name;
-            std::string install_version;
-            std::string target("lunarg-vulkan-sdk");
-            // Read the output a line at a time - output it.
-            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
-                if (!strncmp(cur_line, target.c_str(), target.size())) {
-                    uint32_t count = 0;
-                    // Found it
-                    char *p = strtok(cur_line, " ");
-                    while (p) {
-                        if (count == 0) {
-                            install_name = p;
-                        } else if (count == 1) {
-                            install_version = p;
-                            break;
-                        }
-                        count++;
-                        p = strtok(NULL, " ");
-                    }
-                    break;
-                }
-            }
-            pclose(dnf_output);
-            if (install_name.size() > 0 && install_version.size() > 0) {
-                PrintBeginTableRow();
-                PrintTableElement("System Installed SDK");
-                PrintTableElement(install_name.c_str());
-                PrintTableElement(install_version.c_str());
-                PrintTableElement("");
-                PrintEndTableRow();
-
-                _found_sdk = true;
-                _is_system_installed_sdk = true;
-                sdk_exists = true;
-            }
-        }
-    } else if (upper_os_name.find("ARCH") != std::string::npos) {
-        FILE *dnf_output = popen("pacman -Qi lunarg-vulkan-sdk", "r");
-        if (dnf_output != nullptr) {
-            char cur_line[1035];
-            std::string install_name;
-            std::string install_version;
-            std::string error_prefix("error: package");
-            std::string name_prefix("Name   ");
-            std::string version_prefix("Version   ");
-            // Read the output a line at a time - output it.
-            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
-                // If we found the appropriate error, it wasn't found.
-                if (!strncmp(cur_line, error_prefix.c_str(), error_prefix.size()) && nullptr != strstr(cur_line, "was not found")) {
-                    break;
-                }
-                if (!strncmp(cur_line, name_prefix.c_str(), name_prefix.size())) {
-                    // Found it, but we want the second string after the colon and then after the space
-                    char *cur_char = cur_line;
-                    while (*cur_char != ':') {
-                        ++cur_char;
-                    }
-                    ++cur_char;
-                    install_name = cur_char;
-                } else if (!strncmp(cur_line, version_prefix.c_str(), version_prefix.size())) {
-                    // Found it, but we want the second string after the colon and then after the space
-                    char *cur_char = cur_line;
-                    while (*cur_char != ':') {
-                        ++cur_char;
-                    }
-                    ++cur_char;
-                    install_version = cur_char;
-                    break;
-                }
-            }
-            pclose(dnf_output);
-            if (install_name.size() > 0 && install_version.size() > 0) {
-                PrintBeginTableRow();
-                PrintTableElement("System Installed SDK");
-                PrintTableElement(install_name.c_str());
-                PrintTableElement(install_version.c_str());
-                PrintTableElement("");
-                PrintEndTableRow();
-
-                _found_sdk = true;
-                _is_system_installed_sdk = true;
-                sdk_exists = true;
-            }
-        }
-    } else {
-        FILE *dnf_output = popen("dpkg-query --show --showformat='${Package} ${Version}\n' lunarg-vulkan-sdk", "r");
-        if (dnf_output != nullptr) {
-            char cur_line[1035];
-            std::string install_name;
-            std::string install_version;
-            std::string target("lunarg-vulkan-sdk");
-            // Read the output a line at a time - output it.
-            while (fgets(cur_line, sizeof(cur_line) - 1, dnf_output) != nullptr) {
-                if (!strncmp(cur_line, target.c_str(), target.size())) {
-                    uint32_t count = 0;
-                    // Found it
-                    char *p = strtok(cur_line, " ");
-                    while (p) {
-                        if (count == 0) {
-                            install_name = p;
-                        } else if (count == 1) {
-                            install_version = p;
-                            break;
-                        }
-                        count++;
-                        p = strtok(NULL, " ");
-                    }
-                    break;
-                }
-            }
-            pclose(dnf_output);
+            pclose(dpkg_output);
             if (install_name.size() > 0 && install_version.size() > 0) {
                 PrintBeginTableRow();
                 PrintTableElement("System Installed SDK");
