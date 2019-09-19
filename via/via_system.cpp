@@ -38,6 +38,7 @@ ViaSystem::ViaSystem() {
 bool ViaSystem::Init(int argc, char** argv) {
     char* output_path = nullptr;
     // Check and handle command-line arguments
+    _run_cube_tests = true;
     if (argc > 1) {
         for (int iii = 1; iii < argc; iii++) {
             if (0 == strcmp("--unique_output", argv[iii])) {
@@ -45,11 +46,14 @@ bool ViaSystem::Init(int argc, char** argv) {
             } else if (0 == strcmp("--output_path", argv[iii]) && argc > (iii + 1)) {
                 output_path = argv[iii + 1];
                 ++iii;
+            } else if (0 == strcmp("--disable_cube_tests", argv[iii])) {
+                _run_cube_tests = false;
             } else {
                 std::cout << "Usage of " << argv[0] << ":" << std::endl
                           << "    " << argv[0]
                           << " [--unique_output] "
                              "[--output_path <path>]"
+                             " [--disable_cube_tests]"
                           << std::endl
                           << "          [--unique_output] Optional "
                              "parameter to generate a unique html"
@@ -63,6 +67,9 @@ bool ViaSystem::Init(int argc, char** argv) {
                           << std::endl
                           << "                               "
                              "  a given path"
+                          << std::endl
+                          << "          [--disable_cube_tests] Optional parameter to disable running cube to test the Vulkan SDK "
+                             "installation."
                           << std::endl;
                 return false;
             }
@@ -150,9 +157,12 @@ bool ViaSystem::GenerateInfo() {
     if (results != VIA_SUCCESSFUL) {
         goto print_results;
     }
-    results = GenerateTestInfo();
-    if (results != VIA_SUCCESSFUL) {
-        goto print_results;
+
+    if (_run_cube_tests) {
+        results = GenerateTestInfo();
+        if (results != VIA_SUCCESSFUL) {
+            goto print_results;
+        }
     }
 
 print_results:
@@ -169,8 +179,13 @@ print_results:
                 std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
                           << " instance/devices - However, No SDK Detected" << std::endl;
             } else if (!_ran_tests) {
-                std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
-                          << " instance/devices, SDK was found, but failed to run external tests" << std::endl;
+                if (_run_cube_tests) {
+                    std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                              << " instance/devices, SDK was found, but failed to run external tests" << std::endl;
+                } else {
+                    std::cout << "SUCCESS: Vulkan analysis able to create " << vulkan_version_string
+                              << " instance/devices, SDK was found, but external tests were disabled and not run" << std::endl;
+                }
             } else {
                 std::cout << "SUCCESS: Vulkan analysis completed properly using " << vulkan_version_string << std::endl;
             }
