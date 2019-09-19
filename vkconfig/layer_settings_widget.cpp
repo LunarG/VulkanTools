@@ -43,6 +43,7 @@ LayerSettingsWidget::LayerSettingsWidget(QWidget *parent)
     layout->addWidget(tool_box);
 
     setLayout(layout);
+    setFixedWidth(500);
 }
 
 void LayerSettingsWidget::setSettingsValues(const QHash<QString, QHash<QString, QString>> &values)
@@ -272,6 +273,7 @@ MultiEnumSelectWidget::MultiEnumSelectWidget(const LayerOption &option, QWidget 
     }
 
     QComboBox::addItem(tr("<None>"));
+    QComboBox::setMinimumContentsLength(50);
     popup_menu = new QMenu(this);
     popup_menu->addAction(tr("<None>"));
     popup_menu->addSeparator();
@@ -345,12 +347,14 @@ FileSelectWidget::FileSelectWidget(const LayerOption &option, QWidget *parent)
     line_edit->setText(*option.default_values.begin());
     line_edit->setToolTip(line_edit->text());
     line_edit->setSizePolicy(QSizePolicy::Maximum, line_edit->sizePolicy().verticalPolicy());
+    line_edit->setMinimumWidth(300);
     layout->addWidget(line_edit, 1);
     connect(line_edit, &QLineEdit::textChanged, this, &FileSelectWidget::setText);
 
     QPushButton *button = new QPushButton();
     button->setIcon(QApplication::style()->standardIcon(QStyle::SP_FileIcon));
     button->setSizePolicy(QSizePolicy::Minimum, button->sizePolicy().verticalPolicy());
+    button->setMaximumWidth(20);
     layout->addWidget(button, 0);
     connect(button, &QPushButton::clicked, this, &FileSelectWidget::selectFile);
 
