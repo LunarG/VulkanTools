@@ -23,6 +23,8 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
+static int32_t kActiveLayersColumnWidth = 190;
+
 ActiveLayersWidget::ActiveLayersWidget(QWidget *parent) : QGroupBox(tr("Active Layers"), parent) {
     custom_paths = true;
 
@@ -104,6 +106,7 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent) : QGroupBox(tr("Active L
     driver_font.setBold(true);
     driver_label->setFont(driver_font);
     left_column_layout->addWidget(driver_label, 7, 1, Qt::AlignCenter);
+    left_column_layout->setColumnMinimumWidth(1, kActiveLayersColumnWidth);
     column_layout->addLayout(left_column_layout);
 
     // Build the default layers
@@ -142,6 +145,7 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent) : QGroupBox(tr("Active L
     blacklist_implicit_button->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowRight));
     connect(blacklist_implicit_button, &QPushButton::clicked, this, &ActiveLayersWidget::disableSelectedImplicitLayer);
     middle_column_layout->addWidget(blacklist_implicit_button, 3, 2);
+    middle_column_layout->setColumnMinimumWidth(1, kActiveLayersColumnWidth);
     column_layout->addLayout(middle_column_layout);
 
     // Build the blacklisted layers
@@ -164,6 +168,7 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent) : QGroupBox(tr("Active L
     connect(clear_blacklist_button, &QPushButton::clicked, this, &ActiveLayersWidget::clearDisabledLayers);
     right_column_layout->addWidget(clear_blacklist_button, 2, 1);
     right_column_layout->setRowStretch(3, 1);
+    right_column_layout->setColumnMinimumWidth(0, kActiveLayersColumnWidth);
 
     column_layout->addLayout(right_column_layout);
 
