@@ -333,6 +333,10 @@ void vktrace_add_pnext_structs_to_trace_packet(vktrace_trace_packet_header* pHea
                     AddPointerWithCountToTracebuffer(VkCmdProcessCommandsInfoNVX, VkIndirectCommandsTokenNVX,
                                                      pIndirectCommandsTokens, indirectCommandsTokenCount);
                     break;
+                case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT:
+                    AddPointerWithCountToTracebuffer(VkDescriptorSetVariableDescriptorCountAllocateInfoEXT, uint32_t,
+                                                     pDescriptorCounts, descriptorSetCount);
+                    break;
                 case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
                     AddPointerWithCountToTracebuffer(VkPipelineViewportWScalingStateCreateInfoNV, VkViewportWScalingNV,
                                                      pViewportWScalings, viewportCount);
@@ -736,6 +740,9 @@ void vkreplay_interpret_pnext_pointers(vktrace_trace_packet_header* pHeader, voi
             case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
                 InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfo, uint32_t, pDeviceIndices);
                 InterpretPointerInPNext(VkBindImageMemoryDeviceGroupInfo, VkRect2D, pSplitInstanceBindRegions);
+                break;
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT:
+                InterpretPointerInPNext(VkDescriptorSetVariableDescriptorCountAllocateInfoEXT, uint32_t, pDescriptorCounts);
                 break;
             case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                 InterpretPointerInPNext(VkValidationFlagsEXT, VkValidationCheckEXT, pDisabledValidationChecks);
