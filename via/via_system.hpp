@@ -161,6 +161,9 @@ class ViaSystem {
     std::string _html_file;
     std::ofstream _html_ofstream;
 
+    // Command Line Argument items
+    bool _run_cube_tests;
+
     // SDK items
     bool _found_sdk;
     std::string _sdk_path;
