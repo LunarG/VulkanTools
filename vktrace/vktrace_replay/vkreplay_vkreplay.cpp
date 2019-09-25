@@ -3325,6 +3325,29 @@ VkResult vkReplay::manually_replay_vkCreateSwapchainKHR(packet_vkCreateSwapchain
     }
     free(surfFormats);
 
+    // Force a present mode via the _VKREPLAY_CREATESWAPCHAIN_PRESENTMODE
+    // environment variable. This is sometimes needed for compatibility when replaying
+    // old traces on a newer version of a driver.
+    VkPresentModeKHR vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_MAX_ENUM_KHR;
+    char *vkreplay_createswapchain_presentmode_env;
+    vkreplay_createswapchain_presentmode_env = vktrace_get_global_var("_VKREPLAY_CREATESWAPCHAIN_PRESENTMODE");
+    if (vkreplay_createswapchain_presentmode_env && *vkreplay_createswapchain_presentmode_env) {
+        if (0 == strcmp(vkreplay_createswapchain_presentmode_env, "VK_PRESENT_MODE_IMMEDIATE_KHR"))
+            vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+        else if (0 == strcmp(vkreplay_createswapchain_presentmode_env, "VK_PRESENT_MODE_MAILBOX_KHR "))
+            vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_MAILBOX_KHR;
+        else if (0 == strcmp(vkreplay_createswapchain_presentmode_env, "VK_PRESENT_MODE_FIFO_KHR"))
+            vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_FIFO_KHR;
+        else if (0 == strcmp(vkreplay_createswapchain_presentmode_env, "VK_PRESENT_MODE_FIFO_RELAXED_KHR"))
+            vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+        else if (0 == strcmp(vkreplay_createswapchain_presentmode_env, "VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR"))
+            vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR;
+        else if (0 == strcmp(vkreplay_createswapchain_presentmode_env, "VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR"))
+            vkreplay_createswapchain_presentmode = VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR;
+        if (vkreplay_createswapchain_presentmode != VK_PRESENT_MODE_MAX_ENUM_KHR)
+            *((VkPresentModeKHR *)(&pPacket->pCreateInfo->presentMode)) = vkreplay_createswapchain_presentmode;
+    }
+
     // If the present mode is not FIFO and the present mode requested is not supported by the
     // replay device, then change the present mode to FIFO
     if (pPacket->pCreateInfo->presentMode != VK_PRESENT_MODE_FIFO_KHR &&
