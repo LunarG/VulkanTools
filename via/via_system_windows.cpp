@@ -1443,29 +1443,84 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemLoaderInfo() {
 
     PrintBeginTableRow();
     PrintTableElement("Runtime Used by App");
-    if (!system("where vulkan-1.dll > where_vulkan")) {
-        fp = fopen("where_vulkan", "rt");
-        if (NULL != fp) {
-            if (NULL != fgets(generic_string, 1023, fp)) {
-                int cur_char = (int)strlen(generic_string) - 1;
-                while (generic_string[cur_char] == '\n' || generic_string[cur_char] == '\r' || generic_string[cur_char] == '\t' ||
-                       generic_string[cur_char] == ' ') {
-                    generic_string[cur_char] = '\0';
-                    cur_char--;
-                }
 
-                if (GetFileVersion(generic_string, version_string)) {
-                    PrintTableElement(generic_string);
-                    PrintTableElement(version_string);
-                } else {
-                    PrintTableElement(generic_string);
-                    PrintTableElement("");
-                }
-                found = true;
-            }
-            fclose(fp);
+    bool vulkan_loader_found = false;
+    char vulkan_loader_path[MAX_PATH];
+
+    DWORD processID = GetCurrentProcessId();
+    HMODULE hMods[1024];
+    HANDLE hProcess;
+    DWORD cbNeeded;
+    uint32_t num_mods;
+
+    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+    if (hProcess != NULL) {
+        BOOL is_wow;
+        IsWow64Process(hProcess, &is_wow);
+        uint32_t list_modules = LIST_MODULES_64BIT;
+        if (is_wow) {
+            list_modules = LIST_MODULES_32BIT;
         }
-        DeleteFileA("where_vulkan");
+        if (EnumProcessModulesEx(hProcess, hMods, sizeof(hMods), &cbNeeded, list_modules)) {
+            num_mods = (cbNeeded / sizeof(HMODULE));
+            for (uint32_t i = 0; i < num_mods; i++) {
+                WCHAR szModName[MAX_PATH];
+                if (GetMappedFileNameW(hProcess, hMods[i], szModName, sizeof(szModName))) {
+                    if (wcsstr(szModName, L"vulkan-1.dll")) {
+                        vulkan_loader_found = true;
+                        // A Windows path retrieved in this way starts with a device path in a form like:
+                        // "\Device\HarddiskVolume3\"
+                        // This maps to a mounted drive like "C:\".
+                        // We want to output the final path with the mounted drive name and not the device path.
+                        // Here we get the mounted drive name the device path maps to.
+                        WCHAR volume_path_name[MAX_PATH];
+                        GetVolumePathNameW(szModName, volume_path_name, MAX_PATH);
+
+                        // Now we need to find where the device path ends on our original path.
+                        int count = 0;
+                        uint32_t device_path_split_point = 0;
+                        for (uint32_t i = 0; szModName[i] != '\0'; i++) {
+                            if (szModName[i] == '\\') {
+                                count++;
+
+                                // 3 is the number of '\' characters the program will encounter
+                                // before it reaches the end of the device path.
+                                if (count == 3) {
+                                    device_path_split_point = i + 1;
+                                }
+                            }
+                        }
+
+                        // Once we have the index where the device path ends and the system path begins,
+                        // we can concatinate the system path onto the mounted drive name.
+                        // This is the final path to the Vulkan Loader.
+                        wcsncat(volume_path_name, &szModName[device_path_split_point], MAX_PATH);
+                        size_t converted_chars = 0;
+                        wcstombs_s(&converted_chars, vulkan_loader_path, volume_path_name, MAX_PATH);
+                        break;
+                    }
+                }
+            }
+        }
+        CloseHandle(hProcess);
+    }
+
+    if (vulkan_loader_found) {
+        int cur_char = (int)strlen(vulkan_loader_path) - 1;
+        while (vulkan_loader_path[cur_char] == '\n' || vulkan_loader_path[cur_char] == '\r' ||
+               vulkan_loader_path[cur_char] == '\t' || vulkan_loader_path[cur_char] == ' ') {
+            vulkan_loader_path[cur_char] = '\0';
+            cur_char--;
+        }
+
+        if (GetFileVersion(vulkan_loader_path, version_string)) {
+            PrintTableElement(vulkan_loader_path);
+            PrintTableElement(version_string);
+        } else {
+            PrintTableElement(vulkan_loader_path);
+            PrintTableElement("");
+        }
+        found = true;
     } else {
         PrintTableElement("Unknown");
         PrintTableElement("Unknown");

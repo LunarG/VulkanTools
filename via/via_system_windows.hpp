@@ -26,6 +26,8 @@
 #pragma warning(disable : 4996)
 #include <shlwapi.h>
 #include <Cfgmgr32.h>
+#include <psapi.h>
+#include <windows.h>
 
 #include "via_system.hpp"
 
