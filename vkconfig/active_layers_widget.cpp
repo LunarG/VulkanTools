@@ -23,9 +23,7 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
-ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
-    : QGroupBox(tr("Active Layers"), parent)
-{
+ActiveLayersWidget::ActiveLayersWidget(QWidget *parent) : QGroupBox(tr("Active Layers"), parent) {
     custom_paths = true;
 
     layer_icons[LayerType::Explicit] = QIcon(":/layermgr/icons/explicit.png");
@@ -50,7 +48,8 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
     expiration_units->addItem(tr("Days"));
     expiration_units->addItem(tr("Never"));
     expiration_units->setCurrentIndex(3);
-    connect(expiration_units, static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::activated), this, &ActiveLayersWidget::setExpirationEnabled);
+    connect(expiration_units, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated), this,
+            &ActiveLayersWidget::setExpirationEnabled);
     top_layout->addWidget(expiration_units, 0);
     top_layout->addStretch(1);
     QPushButton *refresh_button = new QPushButton();
@@ -175,38 +174,34 @@ ActiveLayersWidget::ActiveLayersWidget(QWidget *parent)
     setLayout(layer_layout);
 }
 
-int ActiveLayersWidget::expiration() const
-{
+int ActiveLayersWidget::expiration() const {
     if (cleanup_box->isChecked()) {
         return -1;
     }
-    
-    QTime duration;
-    switch(expirationUnit()) {
 
-    case DurationUnit::Minute:
-        return 60 * expiration_spin->value();
-    case DurationUnit::Hour:
-        return 3600 * expiration_spin->value();
-    case DurationUnit::Day:
-        return 86400 * expiration_spin->value();
-    default:
-        return -1;
+    QTime duration;
+    switch (expirationUnit()) {
+        case DurationUnit::Minute:
+            return 60 * expiration_spin->value();
+        case DurationUnit::Hour:
+            return 3600 * expiration_spin->value();
+        case DurationUnit::Day:
+            return 86400 * expiration_spin->value();
+        default:
+            return -1;
     }
 }
 
-DurationUnit ActiveLayersWidget::expirationUnit() const
-{
-    switch(expiration_units->currentIndex()) {
-
-    case 0:
-        return DurationUnit::Minute;
-    case 1:
-        return DurationUnit::Hour;
-    case 2:
-        return DurationUnit::Day;
-    default:
-        return DurationUnit::None;
+DurationUnit ActiveLayersWidget::expirationUnit() const {
+    switch (expiration_units->currentIndex()) {
+        case 0:
+            return DurationUnit::Minute;
+        case 1:
+            return DurationUnit::Hour;
+        case 2:
+            return DurationUnit::Day;
+        default:
+            return DurationUnit::None;
     }
 }
 
@@ -237,8 +232,7 @@ void ActiveLayersWidget::setDisabledLayers(const QList<QString> &layers) {
     }
 }
 
-void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers)
-{
+void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers) {
     bool signal_state = blockSignals(true);
     clearEnabledLayers();
     blockSignals(signal_state);
@@ -266,34 +260,29 @@ void ActiveLayersWidget::setEnabledLayers(const QList<QString> &layers)
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::setExpiration(int seconds, DurationUnit unit)
-{
-    switch(unit) {
-
-    case DurationUnit::Minute:
-        expiration_spin->setValue(seconds / 60);
-        expiration_units->setCurrentIndex(0);
-        break;
-    case DurationUnit::Hour:
-        expiration_spin->setValue(seconds / 3600);
-        expiration_units->setCurrentIndex(1);
-        break;
-    case DurationUnit::Day:
-        expiration_spin->setValue(seconds / 86400);
-        expiration_units->setCurrentIndex(2);
-        break;
-    default:
-        expiration_spin->setValue(0);
-        expiration_units->setCurrentIndex(3);
-        break;
+void ActiveLayersWidget::setExpiration(int seconds, DurationUnit unit) {
+    switch (unit) {
+        case DurationUnit::Minute:
+            expiration_spin->setValue(seconds / 60);
+            expiration_units->setCurrentIndex(0);
+            break;
+        case DurationUnit::Hour:
+            expiration_spin->setValue(seconds / 3600);
+            expiration_units->setCurrentIndex(1);
+            break;
+        case DurationUnit::Day:
+            expiration_spin->setValue(seconds / 86400);
+            expiration_units->setCurrentIndex(2);
+            break;
+        default:
+            expiration_spin->setValue(0);
+            expiration_units->setCurrentIndex(3);
+            break;
     }
     setExpirationEnabled(expiration_units->currentText());
 }
 
-bool ActiveLayersWidget::shouldClearOnClose()
-{
-    return cleanup_box->isChecked();
-}
+bool ActiveLayersWidget::shouldClearOnClose() { return cleanup_box->isChecked(); }
 
 void ActiveLayersWidget::clearDisabledLayers() {
     while (!disabled_layers.isEmpty()) {
@@ -348,35 +337,34 @@ void ActiveLayersWidget::clearEnabledLayers() {
         QListWidget *implicit_widget = layer_lists[LayerType::Implicit];
         bool found = false;
         switch (manifest.type) {
-
-        case LayerType::Explicit:
-            for (int i = 0; i < explicit_widget->count(); ++i) {
-                if (manifest < unset_layers[i]) {
-                    explicit_widget->insertItem(i, item->text());
-                    unset_layers.insert(i, manifest);
-                    found = true;
-                    break;
+            case LayerType::Explicit:
+                for (int i = 0; i < explicit_widget->count(); ++i) {
+                    if (manifest < unset_layers[i]) {
+                        explicit_widget->insertItem(i, item->text());
+                        unset_layers.insert(i, manifest);
+                        found = true;
+                        break;
+                    }
                 }
-            }
-            if (!found) {
-                explicit_widget->addItem(item->text());
-                unset_layers.insert(explicit_widget->count(), manifest);
-            }
-            break;
-        case LayerType::Implicit:
-            for (int i = explicit_widget->count(); i < unset_layers.count(); ++i) {
-                if (manifest < unset_layers[i]) {
-                    implicit_widget->insertItem(i - explicit_widget->count(), item->text());
-                    unset_layers.insert(i, manifest);
-                    found = true;
-                    break;
+                if (!found) {
+                    explicit_widget->addItem(item->text());
+                    unset_layers.insert(explicit_widget->count(), manifest);
                 }
-            }
-            if (!found) {
-                implicit_widget->addItem(item->text());
-                unset_layers.append(manifest);
-            }
-            break;
+                break;
+            case LayerType::Implicit:
+                for (int i = explicit_widget->count(); i < unset_layers.count(); ++i) {
+                    if (manifest < unset_layers[i]) {
+                        implicit_widget->insertItem(i - explicit_widget->count(), item->text());
+                        unset_layers.insert(i, manifest);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    implicit_widget->addItem(item->text());
+                    unset_layers.append(manifest);
+                }
+                break;
         }
 
         delete enabled_layer_list->takeItem(0);
@@ -386,13 +374,11 @@ void ActiveLayersWidget::clearEnabledLayers() {
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::setExpirationEnabled(const QString &text)
-{
+void ActiveLayersWidget::setExpirationEnabled(const QString &text) {
     expiration_spin->setEnabled(!cleanup_box->isChecked() && text != tr("Never"));
 }
 
-void ActiveLayersWidget::updateAvailableLayers(const QList<QPair<QString, LayerType>> &path_list, bool is_custom)
-{
+void ActiveLayersWidget::updateAvailableLayers(const QList<QPair<QString, LayerType>> &path_list, bool is_custom) {
     layer_paths = path_list;
     custom_paths = is_custom;
     refreshAvailableLayers();
@@ -433,8 +419,7 @@ void ActiveLayersWidget::disableSelectedImplicitLayer() {
     // emit
 }
 
-void ActiveLayersWidget::enableSelectedExplicitLayer()
-{
+void ActiveLayersWidget::enableSelectedExplicitLayer() {
     QListWidget *explicit_list = layer_lists[LayerType::Explicit];
     for (QListWidgetItem *item : explicit_list->selectedItems()) {
         int row = explicit_list->row(item);
@@ -451,8 +436,7 @@ void ActiveLayersWidget::enableSelectedExplicitLayer()
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::enableSelectedImplicitLayer()
-{
+void ActiveLayersWidget::enableSelectedImplicitLayer() {
     int unset_offset = layer_lists[LayerType::Explicit]->count();
     QListWidget *implicit_list = layer_lists[LayerType::Implicit];
     for (QListWidgetItem *item : implicit_list->selectedItems()) {
@@ -470,8 +454,7 @@ void ActiveLayersWidget::enableSelectedImplicitLayer()
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::moveSelectedLayerDown()
-{
+void ActiveLayersWidget::moveSelectedLayerDown() {
     for (int row = enabled_layer_list->count() - 1; row >= 0; --row) {
         QListWidgetItem *item = enabled_layer_list->item(row);
         if (item->isSelected() && row < enabled_layer_list->count() - 1 && !enabled_layer_list->item(row + 1)->isSelected()) {
@@ -484,8 +467,7 @@ void ActiveLayersWidget::moveSelectedLayerDown()
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::moveSelectedLayerUp()
-{
+void ActiveLayersWidget::moveSelectedLayerUp() {
     for (int row = 0; row < enabled_layer_list->count(); ++row) {
         QListWidgetItem *item = enabled_layer_list->item(row);
         if (item->isSelected() && row > 0 && !enabled_layer_list->item(row - 1)->isSelected()) {
@@ -498,16 +480,14 @@ void ActiveLayersWidget::moveSelectedLayerUp()
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::refreshAvailableLayers()
-{
-    for(QListWidget *list_widget : layer_lists) {
+void ActiveLayersWidget::refreshAvailableLayers() {
+    for (QListWidget *list_widget : layer_lists) {
         list_widget->clear();
     }
 
     QList<LayerManifest> explicit_layers;
     QList<LayerManifest> implicit_layers;
-    for (auto pair : layer_paths)
-    {
+    for (auto pair : layer_paths) {
         QList<LayerManifest> *layers = pair.second == LayerType::Explicit ? &explicit_layers : &implicit_layers;
 #if defined(_WIN32)
         if (custom_paths) {
@@ -517,7 +497,7 @@ void ActiveLayersWidget::refreshAvailableLayers()
         }
 #else
         layers->append(LayerManifest::LoadDirectory(QDir(pair.first), pair.second));
- #endif
+#endif
     }
     qSort(explicit_layers);
     qSort(implicit_layers);
@@ -581,40 +561,39 @@ void ActiveLayersWidget::removeDisabledLayer() {
 
 void ActiveLayersWidget::removeEnabledLayer() {
     for (QListWidgetItem *item : enabled_layer_list->selectedItems()) {
-        bool found = false; 
+        bool found = false;
         int row = enabled_layer_list->row(item);
         QListWidget *explicit_widget = layer_lists[LayerType::Explicit];
         QListWidget *implicit_widget = layer_lists[LayerType::Implicit];
         switch (enabled_layers[row].type) {
-
-        case LayerType::Explicit:
-            for (int i = 0; i < explicit_widget->count(); ++i) {
-                if (enabled_layers[row] < unset_layers[i]) {
-                    explicit_widget->insertItem(i, item->text());
-                    unset_layers.insert(i, enabled_layers[row]);
-                    found = true;
-                    break;
+            case LayerType::Explicit:
+                for (int i = 0; i < explicit_widget->count(); ++i) {
+                    if (enabled_layers[row] < unset_layers[i]) {
+                        explicit_widget->insertItem(i, item->text());
+                        unset_layers.insert(i, enabled_layers[row]);
+                        found = true;
+                        break;
+                    }
                 }
-            }
-            if (!found) {
-                explicit_widget->addItem(item->text());
-                unset_layers.insert(explicit_widget->count(), enabled_layers[row]);
-            }
-            break;
-        case LayerType::Implicit:
-            for (int i = explicit_widget->count(); i < unset_layers.count(); ++i) {
-                if (enabled_layers[row] < unset_layers[i]) {
-                    implicit_widget->insertItem(i - explicit_widget->count(), item->text());
-                    unset_layers.insert(i, enabled_layers[row]);
-                    found = true;
-                    break;
+                if (!found) {
+                    explicit_widget->addItem(item->text());
+                    unset_layers.insert(explicit_widget->count(), enabled_layers[row]);
                 }
-            }
-            if (!found) {
-                implicit_widget->addItem(item->text());
-                unset_layers.append(enabled_layers[row]);
-            }
-            break;
+                break;
+            case LayerType::Implicit:
+                for (int i = explicit_widget->count(); i < unset_layers.count(); ++i) {
+                    if (enabled_layers[row] < unset_layers[i]) {
+                        implicit_widget->insertItem(i - explicit_widget->count(), item->text());
+                        unset_layers.insert(i, enabled_layers[row]);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    implicit_widget->addItem(item->text());
+                    unset_layers.append(enabled_layers[row]);
+                }
+                break;
         }
 
         delete enabled_layer_list->takeItem(row);
@@ -624,8 +603,7 @@ void ActiveLayersWidget::removeEnabledLayer() {
     emit enabledLayersUpdated(enabled_layers, unset_layers);
 }
 
-void ActiveLayersWidget::toggleExpiration(int state)
-{
+void ActiveLayersWidget::toggleExpiration(int state) {
     bool enabled = state != Qt::Checked;
     bool box_enabled = expiration_units->currentText() != tr("Never");
     expiration_label->setEnabled(enabled);
