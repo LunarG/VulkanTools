@@ -27,8 +27,7 @@
 #include <QWebEngineView>
 #endif
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
     QCoreApplication::setApplicationName("vkconfig");
@@ -39,8 +38,7 @@ int main(int argc, char **argv)
     return app.exec();
 }
 
-LayerManager::LayerManager()
-{
+LayerManager::LayerManager() {
     setWindowIcon(QPixmap(":/layermgr/icons/logo_square.png"));
     setWindowTitle(tr("Vulkan Configuration Tool"));
 
@@ -91,7 +89,8 @@ LayerManager::LayerManager()
 #if !defined(NO_HTML)
     QProcess *via = new QProcess(this);
     via->setProgram("vkvia");
-    via->setArguments(QStringList() << "--output_path" << QDir::temp().path());
+    via->setArguments(QStringList() << "--disable_cube_tests"
+                                    << "--output_path" << QDir::temp().path());
     tab_widget->addTab(showHtml(via, "VIA", "vkvia.html"), tr("Installation Analyzer"));
 #endif
 
@@ -148,7 +147,8 @@ LayerManager::LayerManager()
     locations->setUseCustomLayerPaths(settings.value("UseCustomPaths").toBool());
 
     if (settings.contains("ExpirationValue") && settings.contains("ExpirationUnit")) {
-        active_layers->setExpiration(settings.value("ExpirationValue").toInt(), (DurationUnit) settings.value("ExpirationUnit").toInt());
+        active_layers->setExpiration(settings.value("ExpirationValue").toInt(),
+                                     (DurationUnit)settings.value("ExpirationUnit").toInt());
     }
     active_layers->setEnabledLayers(override_settings.EnabledLayers());
     active_layers->setDisabledLayers(override_settings.DisabledLayers());
@@ -161,8 +161,7 @@ LayerManager::LayerManager()
     restoreGeometry(settings.value("WindowGeometry").toByteArray());
 }
 
-void LayerManager::closeEvent(QCloseEvent *event)
-{
+void LayerManager::closeEvent(QCloseEvent *event) {
     if (active_layers->shouldClearOnClose()) {
         clear();
     }
@@ -181,15 +180,14 @@ void LayerManager::closeEvent(QCloseEvent *event)
     settings.endArray();
 
     settings.setValue("ExpirationValue", active_layers->expiration());
-    settings.setValue("ExpirationUnit", (int) active_layers->expirationUnit());
+    settings.setValue("ExpirationUnit", (int)active_layers->expirationUnit());
 
     settings.setValue("InnerSplitState", inner_split->saveState());
     settings.setValue("OuterSplitState", outer_split->saveState());
     settings.setValue("WindowGeometry", saveGeometry());
 }
 
-void LayerManager::clear()
-{
+void LayerManager::clear() {
     override_settings.ClearLayers();
     override_settings.ClearSettings();
     active_layers->clearEnabledLayers();
@@ -197,8 +195,7 @@ void LayerManager::clear()
     notify("Cleared all layers and settings");
 }
 
-void LayerManager::notify(const QString& message)
-{
+void LayerManager::notify(const QString &message) {
     notification_label->setText("(" + QTime::currentTime().toString() + ") " + message);
     QPalette palette = notification_label->palette();
     palette.setColor(QPalette::WindowText, QColor(255, 0, 0));
@@ -206,8 +203,7 @@ void LayerManager::notify(const QString& message)
     notification_timer.start(50);
 }
 
-void LayerManager::restore()
-{
+void LayerManager::restore() {
     active_layers->setEnabledLayers(override_settings.EnabledLayers());
     active_layers->setDisabledLayers(override_settings.DisabledLayers());
     layer_settings->setSettingsValues(override_settings.LayerSettings());
@@ -215,8 +211,7 @@ void LayerManager::restore()
     notify("Restored layers and settings to last saved state");
 }
 
-void LayerManager::saveAll()
-{
+void LayerManager::saveAll() {
     // The override settings are saved here, but the regular settings are only saved when we close
     QList<QPair<QString, LayerType>> paths;
     if (locations->useCustomLayerPaths()) {
@@ -232,8 +227,7 @@ void LayerManager::saveAll()
     notify("Saved all layers and settings");
 }
 
-void LayerManager::tabChanged(int index)
-{
+void LayerManager::tabChanged(int index) {
 #if !defined(NO_HTML)
     bool enabled = index == 1;
 #else
@@ -244,8 +238,7 @@ void LayerManager::tabChanged(int index)
     clear_button->setEnabled(enabled);
 }
 
-void LayerManager::timerUpdate()
-{
+void LayerManager::timerUpdate() {
     QPalette palette = notification_label->palette();
     QColor color = palette.color(QPalette::WindowText);
     if (color == notification_base_color) {
@@ -258,8 +251,7 @@ void LayerManager::timerUpdate()
 }
 
 #if !defined(NO_HTML)
-QWidget* LayerManager::showHtml(QProcess *process, const QString &name, const QString &html_file)
-{
+QWidget *LayerManager::showHtml(QProcess *process, const QString &name, const QString &html_file) {
     process->start();
     if (process->waitForFinished() || process->error() != QProcess::FailedToStart) {
         if (QDir::temp().exists(html_file)) {
@@ -267,14 +259,16 @@ QWidget* LayerManager::showHtml(QProcess *process, const QString &name, const QS
             display->load(QUrl::fromLocalFile(QDir::temp().absoluteFilePath(html_file)));
             return display;
         } else {
-            QString message = "<b>Could not find %1 output file (%2).</b><br>"
+            QString message =
+                "<b>Could not find %1 output file (%2).</b><br>"
                 "An unknown error occurred in %1. To diagnose this, try running %1 separately.";
             QLabel *error = new QLabel(message.arg(name, html_file));
             error->setAlignment(Qt::AlignCenter);
             return error;
         }
     } else {
-        QString message = "<b>Could not start %1.</b><br>"
+        QString message =
+            "<b>Could not start %1.</b><br>"
             "Most likely, the '%2' executable is not in the system PATH.<br>"
             "Add '%2' to the system path to see the results here.";
         QLabel *error = new QLabel(message.arg(name, process->program()));
