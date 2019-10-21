@@ -380,12 +380,11 @@ class vkReplay {
 
     std::unordered_set<VkDeviceMemory> traceSkippedDeviceMemories;
 
-    bool getMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, VkMemoryRequirements* memRequirements,
-                          uint32_t* pReplayIdx);
+    bool getReplayMemoryTypeIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx,
+                                VkMemoryRequirements* memRequirements, uint32_t* pReplayIdx);
 
-    bool getQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysicalDevice replayPhysicalDevice, uint32_t traceIdx,
-                           uint32_t* pReplayIdx);
-    bool getQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t traceIdx, uint32_t* pReplayIdx);
+    void getReplayQueueFamilyIdx(VkPhysicalDevice tracePhysicalDevice, VkPhysicalDevice replayPhysicalDevice, uint32_t* pIdx);
+    void getReplayQueueFamilyIdx(VkDevice traceDevice, VkDevice replayDevice, uint32_t* pIdx);
 
     void remapHandlesInDescriptorSetWithTemplateData(VkDescriptorUpdateTemplateKHR remappedDescriptorUpdateTemplate, char* pData);
 };
