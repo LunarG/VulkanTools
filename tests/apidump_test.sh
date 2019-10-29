@@ -57,7 +57,7 @@ pushd $(dirname "${BASH_SOURCE[0]}")
 VULKANINFO="$VULKAN_TOOLS_BUILD_DIR/install/bin/vulkaninfo"
 VK_ICD_FILENAMES="$VULKAN_TOOLS_BUILD_DIR/icd/VkICD_mock_icd.json" \
     VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_api_dump \
-    "$VULKANINFO" > apidump_file.tmp
+    "$VULKANINFO" --show-formats > apidump_file.tmp
 
 printf "$GREEN[ RUN      ]$NC $0\n"
 echo DISPLAY=$DISPLAY         # Debug

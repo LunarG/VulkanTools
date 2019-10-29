@@ -58,7 +58,7 @@ cd $(dirname "${BASH_SOURCE[0]}")
 VULKANINFO="$VULKAN_TOOLS_BUILD_DIR/install/bin/vulkaninfo"
 VK_ICD_FILENAMES="$VULKAN_TOOLS_BUILD_DIR/icd/VkICD_mock_icd.json" \
     VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_demo_layer \
-    "$VULKANINFO" > file.tmp
+    "$VULKANINFO" --show-formats > file.tmp
 
 printf "$GREEN[ RUN      ]$NC $0\n"
 if [ -f file.tmp ]

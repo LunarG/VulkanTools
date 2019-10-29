@@ -38,7 +38,7 @@ $Env:VK_ICD_FILENAMES = "$env:VULKAN_TOOLS_BUILD_DIR\icd\$dPath\VkICD_mock_icd.j
 $Env:VK_INSTANCE_LAYERS = "VK_LAYER_LUNARG_demo_layer"
 
 # Run vulkaninfo with mock ICD and demo layer, capturing output
-& $Env:VULKAN_TOOLS_INSTALL_DIR\bin\vulkaninfo.exe > temp_output_file
+& $Env:VULKAN_TOOLS_INSTALL_DIR\bin\vulkaninfo.exe --show-formats > temp_output_file
 
 # Fail if temp file is not present, or if results do not match expectations
 if (!(Test-Path temp_output_file)) {
