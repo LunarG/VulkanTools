@@ -36,7 +36,7 @@ $Env:VK_ICD_FILENAMES = "..\..\icd\$dPath\VkICD_mock_icd.json"
 $Env:VK_INSTANCE_LAYERS = "VK_LAYER_LUNARG_api_dump"
 
 # Run vulkaninfo with mock ICD and api_dump layer, capturing output
-& .\vulkaninfo.exe > apidump_temp_output_file
+& .\vulkaninfo.exe --show-formats > apidump_temp_output_file
 
 # Fail if temp file is not present, or if results do not match expectations
 if (!(Test-Path apidump_temp_output_file)) {
