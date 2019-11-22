@@ -25,7 +25,6 @@
 
 #define NOMINMAX
 
-#include "vk_loader_platform.h"
 #include "vulkan/vk_layer.h"
 #include "vk_layer_config.h"
 #include "vk_layer_table.h"
@@ -35,6 +34,7 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <mutex>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
@@ -43,6 +43,7 @@
 #include <string>
 #include <type_traits>
 #include <map>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 #include <unordered_set>
@@ -661,11 +662,6 @@ const char *const ApiDumpSettings::TABS = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\
 class ApiDumpInstance {
    public:
     inline ApiDumpInstance() : dump_settings(NULL), frame_count(0), thread_count(0) {
-        loader_platform_thread_create_mutex(&output_mutex);
-        loader_platform_thread_create_mutex(&frame_mutex);
-        loader_platform_thread_create_mutex(&thread_mutex);
-        loader_platform_thread_create_mutex(&cmd_buffer_state_mutex);
-
         program_start = std::chrono::system_clock::now();
     }
 
@@ -673,29 +669,21 @@ class ApiDumpInstance {
         if (!first_func_call_on_frame) settings().closeFrameOutput();
 
         if (dump_settings != NULL) delete dump_settings;
-
-        loader_platform_thread_delete_mutex(&thread_mutex);
-        loader_platform_thread_delete_mutex(&frame_mutex);
-        loader_platform_thread_delete_mutex(&output_mutex);
-        loader_platform_thread_delete_mutex(&cmd_buffer_state_mutex);
     }
 
     inline uint64_t frameCount() {
-        loader_platform_thread_lock_mutex(&frame_mutex);
+        std::lock_guard<std::recursive_mutex> lg(frame_mutex);
         uint64_t count = frame_count;
-        loader_platform_thread_unlock_mutex(&frame_mutex);
         return count;
     }
 
     inline void nextFrame() {
-        loader_platform_thread_lock_mutex(&frame_mutex);
+        std::lock_guard<std::recursive_mutex> lg(frame_mutex);
         ++frame_count;
 
         should_dump_output = settings().isFrameInRange(frame_count);
         settings().setupInterFrameOutputFormatting(frame_count);
         first_func_call_on_frame = true;
-
-        loader_platform_thread_unlock_mutex(&frame_mutex);
     }
 
     inline bool shouldDumpOutput() {
@@ -714,7 +702,7 @@ class ApiDumpInstance {
         return false;
     }
 
-    inline loader_platform_thread_mutex *outputMutex() { return &output_mutex; }
+    inline std::recursive_mutex *outputMutex() { return &output_mutex; }
 
     inline const ApiDumpSettings &settings() {
         if (dump_settings == NULL) dump_settings = new ApiDumpSettings();
@@ -729,37 +717,33 @@ class ApiDumpInstance {
         if (thread_id != UINT64_MAX) {
             return thread_id;
         }
-        loader_platform_thread_id id = loader_platform_get_thread_id();
-        loader_platform_thread_lock_mutex(&thread_mutex);
+        std::thread::id this_id = std::this_thread::get_id();
+        std::lock_guard<std::recursive_mutex> lg(thread_mutex);
+
         for (uint32_t i = 0; i < thread_count; ++i) {
-            if (thread_map[i] == id) {
-                loader_platform_thread_unlock_mutex(&thread_mutex);
+            if (thread_map[i] == this_id) {
                 return i;
             }
         }
 
         uint32_t new_index = thread_count;
-        thread_map[thread_count++] = id;
+        thread_map[thread_count++] = this_id;
         assert(thread_count < MAX_THREADS);
-        loader_platform_thread_unlock_mutex(&thread_mutex);
         return new_index;
     }
 
     inline VkCommandBufferLevel getCmdBufferLevel(VkCommandBuffer cmd_buffer) {
-        loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
-
+        std::lock_guard<std::recursive_mutex> lg(cmd_buffer_state_mutex);
         const auto level_iter = cmd_buffer_level.find(cmd_buffer);
         assert(level_iter != cmd_buffer_level.end());
         const auto level = level_iter->second;
-
-        loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
         return level;
     }
 
     inline void eraseCmdBuffers(VkDevice device, VkCommandPool cmd_pool, std::vector<VkCommandBuffer> cmd_buffers) {
         cmd_buffers.erase(std::remove(cmd_buffers.begin(), cmd_buffers.end(), nullptr), cmd_buffers.end());
         if (!cmd_buffers.empty()) {
-            loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
+            std::lock_guard<std::recursive_mutex> lg(cmd_buffer_state_mutex);
 
             const auto pool_cmd_buffers_iter = cmd_buffer_pools.find(std::make_pair(device, cmd_pool));
             assert(pool_cmd_buffers_iter != cmd_buffer_pools.end());
@@ -770,15 +754,12 @@ class ApiDumpInstance {
                 assert(cmd_buffer_level.count(cmd_buffer) > 0);
                 cmd_buffer_level.erase(cmd_buffer);
             }
-
-            loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
         }
     }
 
     inline void addCmdBuffers(VkDevice device, VkCommandPool cmd_pool, std::vector<VkCommandBuffer> cmd_buffers,
                               VkCommandBufferLevel level) {
-        loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
-
+        std::lock_guard<std::recursive_mutex> lg(cmd_buffer_state_mutex);
         auto &pool_cmd_buffers = cmd_buffer_pools[std::make_pair(device, cmd_pool)];
         pool_cmd_buffers.insert(cmd_buffers.begin(), cmd_buffers.end());
 
@@ -786,13 +767,11 @@ class ApiDumpInstance {
             assert(cmd_buffer_level.count(cmd_buffer) == 0);
             cmd_buffer_level[cmd_buffer] = level;
         }
-
-        loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
     }
 
     inline void eraseCmdBufferPool(VkDevice device, VkCommandPool cmd_pool) {
         if (cmd_pool != VK_NULL_HANDLE) {
-            loader_platform_thread_lock_mutex(&cmd_buffer_state_mutex);
+            std::lock_guard<std::recursive_mutex> lg(cmd_buffer_state_mutex);
 
             const auto cmd_buffers_iter = cmd_buffer_pools.find(std::make_pair(device, cmd_pool));
             if (cmd_buffers_iter != cmd_buffer_pools.end()) {
@@ -802,8 +781,6 @@ class ApiDumpInstance {
                 }
                 cmd_buffers_iter->second.clear();
             }
-
-            loader_platform_thread_unlock_mutex(&cmd_buffer_state_mutex);
         }
     }
 
@@ -820,17 +797,17 @@ class ApiDumpInstance {
     static ApiDumpInstance current_instance;
 
     ApiDumpSettings *dump_settings;
-    loader_platform_thread_mutex output_mutex;
-    loader_platform_thread_mutex frame_mutex;
+    std::recursive_mutex output_mutex;
+    std::recursive_mutex frame_mutex;
     uint64_t frame_count;
 
     static const size_t MAX_THREADS = 513;
-    loader_platform_thread_mutex thread_mutex;
-    loader_platform_thread_id thread_map[MAX_THREADS];
+    std::recursive_mutex thread_mutex;
+    std::thread::id thread_map[MAX_THREADS];
     uint32_t thread_count;
     uint64_t thread_id = UINT64_MAX;
 
-    loader_platform_thread_mutex cmd_buffer_state_mutex;
+    std::recursive_mutex cmd_buffer_state_mutex;
     std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;
     std::unordered_map<VkCommandBuffer, VkCommandBufferLevel> cmd_buffer_level;
 
