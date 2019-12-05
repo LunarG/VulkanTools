@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QBoxLayout>
 #include <QFile>
+#include <qmessagebox.h>
 
 #if !defined(NO_HTML)
 #include <QWebEngineView>
@@ -120,6 +121,11 @@ LayerManager::LayerManager() {
     connect(&notification_timer, &QTimer::timeout, this, &LayerManager::timerUpdate);
     button_layout->addWidget(notification_label);
     button_layout->addStretch(1);
+
+    // Create about button, hook to message box below
+    QPushButton *about_button = new QPushButton(tr("About VkConfig"));
+    connect(about_button, &QPushButton::clicked, this, &LayerManager::about);
+    button_layout->addWidget(about_button, 0);
 
     QPushButton *exit_button = new QPushButton(tr("Exit"));
     button_layout->addWidget(exit_button, 0);
@@ -225,6 +231,26 @@ void LayerManager::saveAll() {
     override_settings.SaveSettings(settings);
 
     notify("Saved all layers and settings");
+}
+
+void LayerManager::about() {
+    QMessageBox *msgbox = new QMessageBox();
+
+    msgbox->setTextFormat(Qt::RichText);
+    msgbox->setText(
+        "Copyright 2019 LunarG, Inc.<br/>"
+        "Licensed under Apache 2.0<br/>"
+        "<br/>"
+        "Qt licensed under  <a href='https://spdx.org/licenses/GPL-1.0-or-later.html'>LGPL 3.0</a>:<br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;- <a href='https://doc.qt.io/qt-5/qtcore-index.html'>Qt Core source</a><br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;- <a href='https://doc.qt.io/qt-5/qtgui-index.html'>Qt GUI source</a><br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;- <a href='https://doc.qt.io/qt-5/qtwidgets-index.html'>Qt Widgets source</a><br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;- <a href='https://doc.qt.io/qt-5/qtwebengine-licensing.html'>Qt WebEngine source</a><br/>");
+
+    QPixmap pixmap = QPixmap(":/layermgr/icons/lunarg_logo.png");
+    msgbox->setWindowIcon(QPixmap(":/layermgr/icons/logo_square.png"));
+    msgbox->setIconPixmap(pixmap);
+    msgbox->exec();
 }
 
 void LayerManager::tabChanged(int index) {

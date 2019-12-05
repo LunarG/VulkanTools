@@ -49,6 +49,7 @@ private slots:
     void saveAll();
     void tabChanged(int index);
     void timerUpdate();
+    void about();
 
 private:
 #if !defined(NO_HTML)
