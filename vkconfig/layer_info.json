@@ -212,23 +212,6 @@
                 "default": "stdout"
             }
         },
-        "VK_LAYER_LUNARG_device_simulation": {
-            "filename": {
-                "name": "Filename",
-                "type": "open_file",
-                "default": ""
-            },
-            "debug_enable": {
-                "name": "Enable Debug",
-                "type": "bool",
-                "default": false
-            },
-            "exit_on_error": {
-                "name": "Exit on Error",
-                "type": "bool",
-                "default": false
-            }
-        },
         "VK_LAYER_LUNARG_object_tracker": {
             "debug_action": {
                 "name": "Debug Action",
