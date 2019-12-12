@@ -16,6 +16,7 @@ override_dh_auto_configure:
 	-DVULKAN_LOADER_INSTALL_DIR=/usr \
 	-DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=/usr \
 	-DCMAKE_BUILD_TYPE=Release \
+	-DBUILD_VLF="NO" \
 	-DBUILD_VKTRACEVIEWER=OFF
 
 override_dh_auto_install:
