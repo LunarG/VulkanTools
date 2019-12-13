@@ -679,6 +679,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         return_map = {
             'PFN_vkVoidFunction': ' { return nullptr; };',
             'uint32_t': ' { return VK_NULL_HANDLE; };',
+            'uint64_t': ' { return VK_NULL_HANDLE; };',
             'VkBool32': ' { return VK_TRUE; };',
             'VkDeviceAddress': '{ return 0; };',
             'VkResult': ' { return VK_SUCCESS; };',
