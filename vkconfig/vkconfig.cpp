@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
     QCoreApplication::setApplicationName("vkconfig");
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
     LayerManager manager;
