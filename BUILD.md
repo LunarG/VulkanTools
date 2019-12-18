@@ -273,6 +273,7 @@ Make sure the following items are installed for proper building of VkConfig:
 Please note that not building VkConfig is purely fine as well and will not
 impact the generation of any other targets.
 
+VkConfig on linux requires Qt version 5.5 and on Windows requires Qt version 5.6.
 
 ## Linux Build
 
