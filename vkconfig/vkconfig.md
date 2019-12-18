@@ -131,7 +131,7 @@ Windows systems store files in the following paths:
 - `%TEMP%\VulkanLayerManager\VkLayerOverride.json` tells a Vulkan application which layers to use
 - `%TEMP%\VulkanLayerManager\vk_layer_settings.json` tells Vulkan layers which settings to use
 
-In addition, Windows sytem create registry entries in the following locations:
+In addition, Windows system create registry entries in the following locations:
 
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\ImplicitLayers` will have an entry that points to the JSON file above
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
