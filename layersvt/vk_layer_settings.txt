@@ -83,7 +83,7 @@
 #    will dump frames 2, 4, and 6. "3,4,6-0" will dump frames 3,4,6 and every 
 #    frame after it.
 
-#  VK_LUNARG_LAYER_api_dump Settings
+#  VK_LAYER_LUNARG_api_dump Settings
 lunarg_api_dump.output_format = Text
 lunarg_api_dump.detailed = TRUE
 lunarg_api_dump.no_addr = FALSE
@@ -118,7 +118,7 @@ lunarg_api_dump.show_timestamp = FALSE
 #    ==============
 #    <LayerIdentifer>.exit_on_error : A non-zero integer enables exit-on-error.
 
-# VK_LUNARG_LAYER_device_simulation Settings
+# VK_LAYER_LUNARG_device_simulation Settings
 lunarg_device_simulation.filename = 
 lunarg_device_simulation.debug_enable = 0
 lunarg_device_simulation.exit_on_error = 0
@@ -144,7 +144,7 @@ lunarg_device_simulation.exit_on_error = 0
 #    =======
 #    <LayerIdentifer>.format : This can be set to a color space for the output.
 
-# VK_LUNARG_LAYER_screenshot Settings
+# VK_LAYER_LUNARG_screenshot Settings
 lunarg_screenshot.frames = 0-0
 lunarg_screenshot.dir = 
 lunarg_screenshot.format = USE_SWAPCHAIN_COLORSPACE
